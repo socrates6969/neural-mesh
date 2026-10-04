@@ -60,3 +60,18 @@ neural-mesh route   --state <file> --features a,b,c [--candidates x,y] [--team k
 neural-mesh feedback --state <file> --features a,b,c --agent X [--team X,Y] --reward 0..1
 neural-mesh stats   --state <file>
 Agents are named strings in the CLI; state file maps names <-> indices.
+
+## Exact module API (so parallel work compiles together)
+- `src/hebbian.rs`: `pub struct HebbianConfig { pub eta, epsilon, temperature, decay, baseline_alpha, row_cap: f64 }` (impl Default with the defaults above),
+  `pub struct HebbianRouter` with `pub fn new(n_agents: usize, cfg: HebbianConfig) -> Self`, implements `Router`.
+  Also `pub fn scores(&self, task: &Task) -> Vec<f64>` (one per agent). Derive Serialize/Deserialize.
+- `src/baselines.rs`: `KeywordRouter::new(map: HashMap<String, usize>, n_agents)`, `ThompsonRouter::new(n_agents)`; both implement `Router`.
+- `src/mesh.rs`: `pub struct MeshConfig { pub edge_eta, edge_decay, health_alpha, health_threshold: f64, pub retry_every: u64, pub team_size: usize }` (Default),
+  `pub struct NeuralMesh<R: Router>` wrapping a leader router, with
+  `pub fn new(n_agents: usize, leader: R, cfg: MeshConfig) -> Self`,
+  `pub fn route(&mut self, task: &Task, candidates: &[usize], rng: &mut Rng) -> Vec<usize>` (team, leader first, len <= team_size, skips unhealthy nodes),
+  `pub fn feedback(&mut self, task: &Task, team: &[usize], reward: f64)` (updates leader router, co-activation edges, health),
+  `pub fn edge(&self, a: usize, b: usize) -> f64`, `pub fn health(&self, a: usize) -> f64`.
+  team_size = 1 must behave exactly like the leader router alone (test this).
+- `src/sim.rs`, `src/stats.rs`, `src/bin/experiment.rs`: simulation, paired stats, experiment runner.
+- `src/main.rs`: the `neural-mesh` CLI (bin name `neural-mesh`).
