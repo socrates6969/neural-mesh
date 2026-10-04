@@ -24,6 +24,13 @@ use neural_mesh::router::{Rng, Task};
 const STATE_VERSION: u32 = 1;
 const DEFAULT_SEED: u64 = 0x6E65_7572_616C; // "neural"
 
+/// Feature used when a task has no keywords.
+const NO_FEATURE: &str = "no-keyword";
+/// How long to wait for the state lock before giving up.
+const LOCK_TIMEOUT_MS: u64 = 2000;
+/// A lock file older than this is assumed to belong to a crashed process.
+const LOCK_STALE_MS: u64 = 10_000;
+
 const USAGE: &str = "usage:\n  neural-mesh route    --state <file> --features a,b,c [--candidates x,y] [--team k] [--type t] [--seed n]\n  neural-mesh feedback --state <file> --features a,b,c --agent X [--team X,Y] --reward 0..1 [--type t]\n  neural-mesh stats    --state <file>";
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -153,7 +160,11 @@ fn parse_names(s: &str, what: &str) -> Result<Vec<String>, CliError> {
 }
 
 fn make_task(o: &Opts, id: u64) -> Result<Task, CliError> {
-    let features = split_list(o.req("features")?);
+    let mut features = split_list(o.req("features")?);
+    if features.is_empty() {
+        // Uncategorised work still gets its own learnable row instead of an all-zero score.
+        features.push(NO_FEATURE.to_string());
+    }
     let task_type = o.get("type").map(str::trim).filter(|t| !t.is_empty()).map(String::from);
     Ok(Task { id, task_type, features })
 }
@@ -177,12 +188,58 @@ fn load_state(path: &Path) -> Result<State, CliError> {
     }
 }
 
+
+/// Exclusive lock on `<state>.lock` held for one load-modify-save cycle, so
+/// concurrent route/feedback calls (parallel hooks, subagents) never lose updates.
+struct StateLock(PathBuf);
+impl StateLock {
+    fn acquire(state: &Path) -> Result<Self, CliError> {
+        let mut lp = state.to_path_buf();
+        let fname = state.file_name().map(|f| f.to_string_lossy().into_owned()).unwrap_or_else(|| "state".into());
+        lp.set_file_name(format!("{fname}.lock"));
+        if let Some(dir) = lp.parent().filter(|d| !d.as_os_str().is_empty()) {
+            fs::create_dir_all(dir).map_err(|e| CliError::Io(format!("create dir {}: {e}", dir.display())))?;
+        }
+        let start = std::time::Instant::now();
+        let mut backoff = 1u64;
+        loop {
+            match fs::OpenOptions::new().write(true).create_new(true).open(&lp) {
+                Ok(_) => return Ok(StateLock(lp)),
+                Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => {
+                    let stale = fs::metadata(&lp)
+                        .and_then(|m| m.modified())
+                        .ok()
+                        .and_then(|t| t.elapsed().ok())
+                        .is_some_and(|age| age.as_millis() as u64 > LOCK_STALE_MS);
+                    if stale {
+                        let _ = fs::remove_file(&lp);
+                        continue;
+                    }
+                    if start.elapsed().as_millis() as u64 > LOCK_TIMEOUT_MS {
+                        return Err(CliError::Io(format!("state is locked: {}", lp.display())));
+                    }
+                    std::thread::sleep(std::time::Duration::from_millis(backoff));
+                    backoff = (backoff * 2).min(25);
+                }
+                Err(e) => return Err(CliError::Io(format!("lock {}: {e}", lp.display()))),
+            }
+        }
+    }
+}
+impl Drop for StateLock {
+    fn drop(&mut self) {
+        let _ = fs::remove_file(&self.0);
+    }
+}
+
 /// Atomic write: temp file in the same directory, then rename over the target.
 fn save_state(path: &Path, st: &State) -> Result<(), CliError> {
     let js = serde_json::to_string_pretty(st).map_err(|e| CliError::Io(format!("serialise: {e}")))?;
     let mut tmp: PathBuf = path.to_path_buf();
     let fname = path.file_name().map(|f| f.to_string_lossy().into_owned()).unwrap_or_else(|| "state".into());
-    tmp.set_file_name(format!(".{fname}.tmp.{}", std::process::id()));
+    static TMP_SEQ: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+    let seq = TMP_SEQ.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    tmp.set_file_name(format!(".{fname}.tmp.{}.{seq}", std::process::id()));
     if let Some(dir) = path.parent().filter(|d| !d.as_os_str().is_empty()) {
         fs::create_dir_all(dir).map_err(|e| CliError::Io(format!("create dir {}: {e}", dir.display())))?;
     }
@@ -331,6 +388,7 @@ fn run(args: &[String]) -> Result<Value, CliError> {
     };
     let o = Opts::parse(rest, allowed)?;
     let path = PathBuf::from(o.req("state")?);
+    let _lock = StateLock::acquire(&path)?;
     let existed = path.exists();
     let mut st = load_state(&path)?;
     let out = match cmd.as_str() {
@@ -469,5 +527,55 @@ mod tests {
         assert_eq!(v["agents"], json!([]));
         assert!(p.exists());
         let _ = fs::remove_dir_all(p.parent().unwrap());
+    }
+
+    #[test]
+    fn concurrent_feedback_loses_no_updates() {
+        let dir = std::env::temp_dir().join(format!("nm-conc-{}", std::process::id()));
+        let _ = fs::remove_dir_all(&dir);
+        let p = dir.join("state.json");
+        let ps = p.to_str().unwrap().to_string();
+        call(&["feedback", "--state", &ps, "--features", "x", "--agent", "a", "--reward", "1"]).unwrap();
+        let before = call(&["stats", "--state", &ps]).unwrap();
+        let hs: Vec<_> = (0..16)
+            .map(|i| {
+                let ps = ps.clone();
+                std::thread::spawn(move || {
+                    let r = if i % 2 == 0 { "1" } else { "0" };
+                    call(&["feedback", "--state", &ps, "--features", "x", "--agent", "a", "--reward", r]).unwrap();
+                })
+            })
+            .collect();
+        for h in hs { h.join().unwrap(); }
+        let after = call(&["stats", "--state", &ps]).unwrap();
+        let n = |v: &Value| v.to_string().matches("\"updates\":").count();
+        assert!(n(&after) > 0, "stats should expose an updates counter: {after}");
+        let count = |v: &Value| -> u64 {
+            fn find(v: &Value) -> Option<u64> {
+                match v {
+                    Value::Object(m) => m.get("updates").and_then(Value::as_u64).or_else(|| m.values().find_map(find)),
+                    Value::Array(a) => a.iter().find_map(find),
+                    _ => None,
+                }
+            }
+            find(v).unwrap()
+        };
+        assert_eq!(count(&after) - count(&before), 16, "every concurrent feedback must be applied");
+        assert!(!dir.join("state.json.lock").exists(), "lock must be released");
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn empty_features_use_no_keyword_row() {
+        let dir = std::env::temp_dir().join(format!("nm-empty-{}", std::process::id()));
+        let _ = fs::remove_dir_all(&dir);
+        let ps = dir.join("s.json").to_str().unwrap().to_string();
+        for _ in 0..30 {
+            call(&["feedback", "--state", &ps, "--features", "", "--agent", "planner", "--reward", "1"]).unwrap();
+            call(&["feedback", "--state", &ps, "--features", "", "--agent", "coder", "--reward", "0"]).unwrap();
+        }
+        let v = call(&["route", "--state", &ps, "--features", "", "--candidates", "planner,coder"]).unwrap();
+        assert_eq!(v["agent"], "planner", "{v}");
+        let _ = fs::remove_dir_all(&dir);
     }
 }
