@@ -403,7 +403,7 @@ impl Router for RStdpRouter {
 // 3. Hatcher-style trust edges
 // =====================================================================================
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct TrustEdgesConfig {
     /// Trust gain per success (`λ`).
     pub lambda: f64,
@@ -427,7 +427,7 @@ impl Default for TrustEdgesConfig {
 }
 
 /// Symmetric per-pair trust `T` and edge weight `w`, both in `[0,1]`.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct TrustEdges {
     pub cfg: TrustEdgesConfig,
     n: usize,

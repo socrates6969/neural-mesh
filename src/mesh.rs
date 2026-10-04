@@ -82,6 +82,10 @@ pub struct NeuralMesh<R: Router> {
     /// Per-leader EMA of team rewards.
     edge_baseline: Vec<f64>,
     routes: u64,
+    /// Optional alternative edge rule (hatcher-style asymmetric trust). When set,
+    /// it replaces the co-activation edges for both team assembly and learning.
+    #[serde(default)]
+    trust: Option<crate::variants::TrustEdges>,
 }
 
 impl<R: Router> NeuralMesh<R> {
@@ -96,6 +100,7 @@ impl<R: Router> NeuralMesh<R> {
             benched_since: Vec::new(),
             edge_baseline: Vec::new(),
             routes: 0,
+            trust: None,
         };
         m.ensure_agents(n_agents);
         m
@@ -117,7 +122,27 @@ impl<R: Router> NeuralMesh<R> {
         self.health.resize(n, 1.0);
         self.benched_since.resize(n, None);
         self.edge_baseline.resize(n, INIT_EDGE_BASELINE);
+        if let Some(t) = self.trust.as_mut() {
+            t.ensure_agents(n);
+        }
         self.n_agents = n;
+    }
+
+    /// Switch the edge rule to asymmetric trust edges (see `variants::TrustEdges`).
+    pub fn with_trust_edges(mut self, cfg: crate::variants::TrustEdgesConfig) -> Self {
+        self.trust = Some(crate::variants::TrustEdges::new(self.n_agents, cfg));
+        self
+    }
+
+    /// Which edge rule is active: "co-activation" or "trust".
+    pub fn edge_rule(&self) -> &'static str {
+        if self.trust.is_some() { "trust" } else { "co-activation" }
+    }
+
+    /// Single points of failure in the current edge graph: (bridges, articulation points).
+    /// Only available with trust edges; returns None for co-activation.
+    pub fn fragility(&self, threshold: f64) -> Option<(usize, usize)> {
+        self.trust.as_ref().map(|t| t.fragility(threshold))
     }
 
     pub fn leader(&self) -> &R {
@@ -134,6 +159,9 @@ impl<R: Router> NeuralMesh<R> {
 
     /// Co-activation edge strength between `a` and `b` (0 if unknown, 0 for a == b).
     pub fn edge(&self, a: usize, b: usize) -> f64 {
+        if let Some(t) = self.trust.as_ref() {
+            return if a == b { 0.0 } else { t.edge(a, b) };
+        }
         if a == b {
             return 0.0;
         }
@@ -244,7 +272,11 @@ impl<R: Router> NeuralMesh<R> {
             }
         }
 
-        if members.len() >= 2 {
+        if members.len() >= 2 && self.trust.is_some() {
+            if let Some(t) = self.trust.as_mut() {
+                t.record_team(&members, reward);
+            }
+        } else if members.len() >= 2 {
             let keep = 1.0 - self.cfg.edge_decay;
             for row in self.edges.iter_mut() {
                 for e in row.iter_mut() {
@@ -458,5 +490,36 @@ mod tests {
         let js = serde_json::to_string(&mesh).unwrap();
         let back: NeuralMesh<HebbianRouter> = serde_json::from_str(&js).unwrap();
         assert_eq!(back, mesh);
+    }
+
+    #[test]
+    fn trust_edge_rule_learns_synergy_and_reports_fragility() {
+        use crate::hebbian::{HebbianConfig, HebbianRouter};
+        use crate::variants::TrustEdgesConfig;
+        let mut m = NeuralMesh::new(4, HebbianRouter::new(4, HebbianConfig::default()), MeshConfig { team_size: 2, ..MeshConfig::default() })
+            .with_trust_edges(TrustEdgesConfig::default());
+        assert_eq!(m.edge_rule(), "trust");
+        let t = Task { id: 0, task_type: Some("x".into()), features: vec!["x".into()] };
+        for _ in 0..200 {
+            m.feedback(&t, &[0, 1], 1.0); // reliable pair
+            m.feedback(&t, &[0, 2], 0.0); // failing pair
+        }
+        assert!(m.edge(0, 1) > 0.5, "reliable pair edge {}", m.edge(0, 1));
+        assert!(m.edge(0, 2) < 0.05, "failing pair edge {}", m.edge(0, 2));
+        assert_eq!(m.edge(1, 1), 0.0);
+        assert!(m.fragility(0.5).is_some());
+        let js = serde_json::to_string(&m).unwrap();
+        let back: NeuralMesh<HebbianRouter> = serde_json::from_str(&js).unwrap();
+        assert_eq!(back.edge_rule(), "trust");
+    }
+
+    #[test]
+    fn old_state_without_trust_field_still_loads() {
+        use crate::hebbian::{HebbianConfig, HebbianRouter};
+        let m = NeuralMesh::new(2, HebbianRouter::new(2, HebbianConfig::default()), MeshConfig::default());
+        let mut v: serde_json::Value = serde_json::to_value(&m).unwrap();
+        v.as_object_mut().unwrap().remove("trust");
+        let back: NeuralMesh<HebbianRouter> = serde_json::from_value(v).unwrap();
+        assert_eq!(back.edge_rule(), "co-activation");
     }
 }
