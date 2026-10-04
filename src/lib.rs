@@ -10,3 +10,5 @@ pub mod memory;
 pub mod prior;
 pub mod casebased;
 pub mod sona;
+pub mod tiered;
+pub mod lessons;
