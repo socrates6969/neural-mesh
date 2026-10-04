@@ -1284,3 +1284,260 @@ mod second_opinion_tests {
         assert!((flat.reliability(&unseen, 1).0 - 0.5).abs() < 1e-9, "flat: prior on unseen feature");
     }
 }
+
+// ---------------------------------------------------------------------------
+// D2 (MESH-2): hierarchical second opinion (opt-in successor of SecondOpinion).
+// ---------------------------------------------------------------------------
+
+/// Config of [`HierSecondOpinion`]. Everything not named here behaves like [`SecondOpinionConfig`].
+///
+/// Shrinkage hierarchy for the checker's catch / false-alarm probability:
+/// `global (all checkers, all features) -> checker (all features) -> (feature, checker) cell`,
+/// each level's Beta prior is the parent's posterior mean with `pool_*` pseudo-counts.
+/// Optimism (`kappa_checker`) is applied at the *checker* level, so exploration of a checker
+/// ends as soon as its pooled evidence is conclusive (instead of per feature cell): when
+/// nobody can verify anything the gate switches itself off after a handful of checks.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct HierSoConfig {
+    pub base: SecondOpinionConfig,
+    /// pseudo-counts of a checker's prior taken from the global (all-checker) mean
+    pub pool_global: f64,
+    /// pseudo-counts of a (feature, checker) cell's prior taken from the checker mean
+    pub pool_checker: f64,
+    /// pseudo-counts of a (feature, agent) success cell's prior taken from the agent mean
+    pub pool_leader: f64,
+    /// optimism (sds) on a checker's pooled catch probability
+    pub kappa_checker: f64,
+    /// optimism (sds) on the cell-level catch probability
+    pub kappa_cell: f64,
+    /// forced probe every this many decisions when the gate would not check (0 = never)
+    pub probe_every: u64,
+}
+
+impl Default for HierSoConfig {
+    fn default() -> Self {
+        HierSoConfig {
+            base: SecondOpinionConfig { kappa: 0.0, discount: 0.995, ..SecondOpinionConfig::default() },
+            pool_global: 8.0,
+            pool_checker: 8.0,
+            pool_leader: 0.0,
+            kappa_checker: 1.0,
+            kappa_cell: 0.0,
+            probe_every: 0,
+        }
+    }
+}
+
+/// Hierarchically pooled uncertainty-triggered second opinion. API-compatible with
+/// [`SecondOpinion`] (`decide` / `plan` / `observe_attempt` / `observe_check`); deterministic, no rng.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct HierSecondOpinion {
+    pub cfg: HierSoConfig,
+    n_agents: usize,
+    succ: HashMap<String, Vec<BetaCell>>,
+    succ_a: Vec<BetaCell>,
+    catch: HashMap<String, Vec<BetaCell>>,
+    alarm: HashMap<String, Vec<BetaCell>>,
+    catch_c: Vec<BetaCell>,
+    alarm_c: Vec<BetaCell>,
+    catch_0: BetaCell,
+    alarm_0: BetaCell,
+    pub checks: u64,
+    pub decisions: u64,
+}
+
+fn shrunk(prior_mean: f64, strength: f64, base: (f64, f64)) -> (f64, f64) {
+    if strength <= 0.0 { base } else { (strength * prior_mean, strength * (1.0 - prior_mean)) }
+}
+
+impl HierSecondOpinion {
+    pub fn new(n_agents: usize, cfg: HierSoConfig) -> Self {
+        HierSecondOpinion {
+            cfg,
+            n_agents,
+            succ: HashMap::new(),
+            succ_a: Vec::new(),
+            catch: HashMap::new(),
+            alarm: HashMap::new(),
+            catch_c: Vec::new(),
+            alarm_c: Vec::new(),
+            catch_0: BetaCell::default(),
+            alarm_0: BetaCell::default(),
+            checks: 0,
+            decisions: 0,
+        }
+    }
+
+    /// Calibrated success estimate (mean, sd) of `agent` on `task`.
+    pub fn predict(&self, task: &Task, agent: usize) -> (f64, f64) {
+        let keys = task_keys(task);
+        let base = (1.0, 1.0);
+        let am = self.succ_a.get(agent).copied().unwrap_or_default().post(base).0;
+        let pr = shrunk(am, self.cfg.pool_leader, base);
+        if keys.is_empty() {
+            return BetaCell::default().post(pr);
+        }
+        let (mut m, mut v) = (0.0, 0.0);
+        for k in &keys {
+            let c = self.succ.get(k).and_then(|r| r.get(agent)).copied().unwrap_or_default();
+            let (mi, si) = c.post(pr);
+            m += mi;
+            v += si;
+        }
+        let n = keys.len() as f64;
+        (m / n, v / n)
+    }
+
+    /// (checker-level mean, checker-level sd, cell-level mean, cell-level sd) for one event type.
+    fn level_est(
+        &self,
+        table: &HashMap<String, Vec<BetaCell>>,
+        chk: &[BetaCell],
+        glob: &BetaCell,
+        task: &Task,
+        c: usize,
+        base: (f64, f64),
+    ) -> (f64, f64, f64, f64) {
+        let m0 = glob.post(base).0;
+        let (mc, sc) = chk.get(c).copied().unwrap_or_default().post(shrunk(m0, self.cfg.pool_global, base));
+        let pr = shrunk(mc, self.cfg.pool_checker, base);
+        let keys = task_keys(task);
+        if keys.is_empty() {
+            let (m, s) = BetaCell::default().post(pr);
+            return (mc, sc, m, s);
+        }
+        let (mut m, mut v) = (0.0, 0.0);
+        for k in &keys {
+            let cell = table.get(k).and_then(|r| r.get(c)).copied().unwrap_or_default();
+            let (mi, si) = cell.post(pr);
+            m += mi;
+            v += si;
+        }
+        let n = keys.len() as f64;
+        (mc, sc, m / n, v / n)
+    }
+
+    /// Estimated (mean, optimism-adjusted) probability that `checker` catches a failure on `task`.
+    pub fn reliability(&self, task: &Task, checker: usize) -> (f64, f64) {
+        let (_, sc, m, s) = self.level_est(&self.catch, &self.catch_c, &self.catch_0, task, checker, self.cfg.base.q_prior);
+        (m, self.cfg.kappa_checker * sc + self.cfg.kappa_cell * s)
+    }
+
+    pub fn false_alarm(&self, task: &Task, checker: usize) -> f64 {
+        self.level_est(&self.alarm, &self.alarm_c, &self.alarm_0, task, checker, self.cfg.base.fa_prior).2
+    }
+
+    pub fn decide(&mut self, task: &Task, leader: usize, candidates: &[usize]) -> Option<CheckPlan> {
+        self.decisions += 1;
+        let mut plan = self.plan(task, leader, candidates, false);
+        if plan.is_none() && self.cfg.probe_every > 0 && self.decisions % self.cfg.probe_every == 0 {
+            plan = self.plan(task, leader, candidates, true);
+        }
+        if plan.is_some() {
+            self.checks += 1;
+        }
+        plan
+    }
+
+    pub fn plan(&self, task: &Task, leader: usize, candidates: &[usize], force: bool) -> Option<CheckPlan> {
+        let others: Vec<usize> = candidates.iter().copied().filter(|&c| c != leader).collect();
+        if candidates.len() < self.cfg.base.min_candidates || others.is_empty() {
+            return None;
+        }
+        let k = self.cfg.base.kappa;
+        let (pl, sl) = self.predict(task, leader);
+        let p_l = (pl - k * sl).clamp(0.0, 1.0);
+        let retry = *others.iter().max_by(|&&a, &&b| self.predict(task, a).0.total_cmp(&self.predict(task, b).0)).unwrap();
+        let p_r = self.predict(task, retry).0;
+        let mut best: Option<(f64, CheckPlan)> = None;
+        for &c in &others {
+            let (qm, qo) = self.reliability(task, c);
+            let q = (qm + qo).clamp(0.0, 1.0);
+            let fa = self.false_alarm(task, c);
+            let gain = (1.0 - p_l) * q * p_r;
+            let extra = self.cfg.base.cost * (1.0 + (1.0 - p_l) * q + p_l * fa);
+            let net = gain - extra;
+            if (force || net > 0.0) && best.as_ref().is_none_or(|b| net > b.0) {
+                best = Some((net, CheckPlan { checker: c, retry, gain, extra_cost: extra }));
+            }
+        }
+        best.map(|b| b.1)
+    }
+
+    pub fn observe_attempt(&mut self, task: &Task, agent: usize, success: bool) {
+        let n = self.n_agents.max(agent + 1);
+        self.n_agents = n;
+        let d = self.cfg.base.discount;
+        if self.succ_a.len() < n {
+            self.succ_a.resize(n, BetaCell::default());
+        }
+        self.succ_a[agent].obs(success, d);
+        SecondOpinion::obs(&mut self.succ, task, agent, success, d, n);
+    }
+
+    pub fn observe_check(&mut self, task: &Task, checker: usize, leader_failed: bool, flagged: bool) {
+        let n = self.n_agents.max(checker + 1);
+        self.n_agents = n;
+        let d = self.cfg.base.discount;
+        let (table, chk, glob) = if leader_failed {
+            (&mut self.catch, &mut self.catch_c, &mut self.catch_0)
+        } else {
+            (&mut self.alarm, &mut self.alarm_c, &mut self.alarm_0)
+        };
+        if chk.len() < n {
+            chk.resize(n, BetaCell::default());
+        }
+        chk[checker].obs(flagged, d);
+        glob.obs(flagged, d);
+        SecondOpinion::obs(table, task, checker, flagged, d, n);
+    }
+
+    pub fn check_rate(&self) -> f64 {
+        if self.decisions == 0 { 0.0 } else { self.checks as f64 / self.decisions as f64 }
+    }
+}
+
+#[cfg(test)]
+mod hier_so_tests {
+    use super::*;
+
+    fn t(f: &[&str]) -> Task {
+        Task { id: 0, task_type: None, features: f.iter().map(|s| s.to_string()).collect() }
+    }
+
+    #[test]
+    fn self_disables_when_no_checker_ever_catches() {
+        let mut so = HierSecondOpinion::new(4, HierSoConfig::default());
+        let mut checks = 0;
+        for i in 0..400 {
+            let task = t(&[["a", "b", "c", "d", "e", "f"][i % 6]]);
+            so.observe_attempt(&task, 0, i % 3 != 0);
+            so.observe_attempt(&task, 1, i % 3 != 0);
+            if let Some(p) = so.decide(&task, 0, &[0, 1, 2, 3]) {
+                checks += 1;
+                so.observe_check(&task, p.checker, i % 3 == 0, false);
+            }
+        }
+        assert!(checks < 60, "gate must switch itself off ({checks} checks)");
+        assert!(so.decide(&t(&["new"]), 0, &[0, 1, 2, 3]).is_none() || so.check_rate() < 0.2);
+    }
+
+    #[test]
+    fn keeps_checking_with_real_verifier_and_transfers_across_features() {
+        let mut so = HierSecondOpinion::new(3, HierSoConfig { pool_leader: 0.0, ..HierSoConfig::default() });
+        for i in 0..60 {
+            let task = t(&[["a", "b", "c"][i % 3]]);
+            so.observe_attempt(&task, 0, i % 2 == 0);
+            so.observe_attempt(&task, 1, true);
+            so.observe_attempt(&task, 2, true);
+            so.observe_check(&task, 1, true, i % 10 != 0);
+            so.observe_check(&task, 2, true, false);
+        }
+        let unseen = t(&["zzz"]);
+        assert!(so.reliability(&unseen, 1).0 > 0.5, "checker 1 reliable on unseen feature (pooled)");
+        assert!(so.reliability(&unseen, 2).0 < 0.3);
+        let plan = so.plan(&unseen, 0, &[0, 1, 2], false);
+        assert_eq!(plan.map(|p| p.checker), Some(1));
+    }
+}

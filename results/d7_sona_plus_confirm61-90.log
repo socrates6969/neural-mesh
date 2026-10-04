@@ -1,0 +1,631 @@
+d7_sona_plus: 2000 tasks/run, tune seeds 1-8, held-out 61-90
+[tune 1-8] guarded-rt (retuned guarded(hebr), no exploration): 96 configs, best obj -0.00207
+    SonaPlusConfig { tau: 0.55, z: 0.5, kw_a: 2.0, kw_b: 1.0, discount: 0.97, challenge: true, learner: Hebbian, heb_eta: 0.01, heb_epsilon: 0.0, heb_temperature: 0.002, pat_init: 0.7, pat_lr: 0.15, pat_temp: 0.05, pat_eps: 0.0, pat_set_weight: 0.0, explore_kw: 0.0, explore_decay_k: 0.0, explore_mode: Uniform, delayed_mult: 1, fail_reward: 0.0 }
+      runner-up -0.00433: Hebbian tau 0.55 disc 1 xkw 0 Uniform pat(init 0.7,lr 0.15,T 0.05,eps 0,sw 0)
+      runner-up -0.00603: Hebbian tau 0.65 disc 1 xkw 0 Uniform pat(init 0.7,lr 0.15,T 0.05,eps 0,sw 0)
+      runner-up -0.00769: Hebbian tau 0.65 disc 1 xkw 0 Uniform pat(init 0.7,lr 0.15,T 0.05,eps 0,sw 0)
+[tune 1-8] sona+ (explore + learner): 397 configs, best obj -0.00204
+    SonaPlusConfig { tau: 0.55, z: 0.5, kw_a: 2.0, kw_b: 1.0, discount: 0.97, challenge: true, learner: Patterns, heb_eta: 0.01, heb_epsilon: 0.0, heb_temperature: 0.002, pat_init: 0.6, pat_lr: 0.25, pat_temp: 0.03, pat_eps: 0.02, pat_set_weight: 0.5, explore_kw: 0.0, explore_decay_k: 0.0, explore_mode: Ucb, delayed_mult: 1, fail_reward: 0.0 }
+      runner-up -0.00207: Hebbian tau 0.55 disc 0.97 xkw 0 Uniform pat(init 0.7,lr 0.15,T 0.05,eps 0,sw 0)
+      runner-up -0.00215: Patterns tau 0.55 disc 0.97 xkw 0 Ucb pat(init 0.6,lr 0.25,T 0.03,eps 0.02,sw 0)
+      runner-up -0.00377: Patterns tau 0.55 disc 1 xkw 0 Ucb pat(init 0.6,lr 0.25,T 0.03,eps 0.02,sw 0)
+[tune 1-8] sona+ ablation: hebbian learner only (no pattern memory): 13 configs, best obj -0.00207
+    SonaPlusConfig { tau: 0.55, z: 0.5, kw_a: 2.0, kw_b: 1.0, discount: 0.97, challenge: true, learner: Hebbian, heb_eta: 0.01, heb_epsilon: 0.0, heb_temperature: 0.002, pat_init: 0.7, pat_lr: 0.15, pat_temp: 0.05, pat_eps: 0.0, pat_set_weight: 0.0, explore_kw: 0.0, explore_decay_k: 0.0, explore_mode: Uniform, delayed_mult: 1, fail_reward: 0.0 }
+      runner-up -0.01432: Hebbian tau 0.55 disc 0.97 xkw 0.02 Ucb pat(init 0.7,lr 0.15,T 0.05,eps 0,sw 0)
+      runner-up -0.01524: Hebbian tau 0.55 disc 0.97 xkw 0.02 Uniform pat(init 0.7,lr 0.15,T 0.05,eps 0,sw 0)
+      runner-up -0.01613: Hebbian tau 0.55 disc 0.97 xkw 0.02 Ucb pat(init 0.7,lr 0.15,T 0.05,eps 0,sw 0)
+[tune 1-8] sona+ ablation: pattern learner only: 384 configs, best obj -0.00204
+    SonaPlusConfig { tau: 0.55, z: 0.5, kw_a: 2.0, kw_b: 1.0, discount: 0.97, challenge: true, learner: Patterns, heb_eta: 0.01, heb_epsilon: 0.0, heb_temperature: 0.002, pat_init: 0.6, pat_lr: 0.25, pat_temp: 0.03, pat_eps: 0.02, pat_set_weight: 0.5, explore_kw: 0.0, explore_decay_k: 0.0, explore_mode: Ucb, delayed_mult: 1, fail_reward: 0.0 }
+      runner-up -0.00215: Patterns tau 0.55 disc 0.97 xkw 0 Ucb pat(init 0.6,lr 0.25,T 0.03,eps 0.02,sw 0)
+      runner-up -0.00377: Patterns tau 0.55 disc 1 xkw 0 Ucb pat(init 0.6,lr 0.25,T 0.03,eps 0.02,sw 0)
+      runner-up -0.00386: Patterns tau 0.55 disc 1 xkw 0 Ucb pat(init 0.6,lr 0.25,T 0.03,eps 0.02,sw 0.5)
+[tune 1-8] obj: guarded-rt -0.00207 | sona+ -0.00204 | heb-only -0.00207 | pat-only -0.00204 | sona+ w/o kw-exploration -0.00204
+[tune 1-8] weak: guarded-rt + reuse: 72 configs, best obj +0.01698
+    SonaPlusConfig { tau: 0.55, z: 1.0, kw_a: 4.0, kw_b: 1.0, discount: 1.0, challenge: true, learner: Hebbian, heb_eta: 0.01, heb_epsilon: 0.0, heb_temperature: 0.002, pat_init: 0.7, pat_lr: 0.15, pat_temp: 0.05, pat_eps: 0.0, pat_set_weight: 0.0, explore_kw: 0.0, explore_decay_k: 0.0, explore_mode: Uniform, delayed_mult: 3, fail_reward: 0.0 }
+      runner-up +0.01682: Hebbian tau 0.55 disc 0.97 xkw 0 Uniform pat(init 0.7,lr 0.15,T 0.05,eps 0,sw 0)
+      runner-up +0.01643: Hebbian tau 0.65 disc 1 xkw 0 Uniform pat(init 0.7,lr 0.15,T 0.05,eps 0,sw 0)
+      runner-up +0.01561: Hebbian tau 0.65 disc 0.97 xkw 0 Uniform pat(init 0.7,lr 0.15,T 0.05,eps 0,sw 0)
+[tune 1-8] weak: sona+ + reuse: 794 configs, best obj +0.01746
+    SonaPlusConfig { tau: 0.55, z: 1.0, kw_a: 4.0, kw_b: 1.0, discount: 1.0, challenge: true, learner: Hebbian, heb_eta: 0.01, heb_epsilon: 0.0, heb_temperature: 0.002, pat_init: 0.7, pat_lr: 0.15, pat_temp: 0.05, pat_eps: 0.0, pat_set_weight: 0.0, explore_kw: 0.0, explore_decay_k: 0.0, explore_mode: Uniform, delayed_mult: 3, fail_reward: 0.3 }
+      runner-up +0.01716: Patterns tau 0.55 disc 1 xkw 0 Ucb pat(init 0.6,lr 0.1,T 0.03,eps 0,sw 0.5)
+      runner-up +0.01712: Patterns tau 0.55 disc 1 xkw 0 Ucb pat(init 0.6,lr 0.1,T 0.03,eps 0.02,sw 0)
+      runner-up +0.01698: Hebbian tau 0.55 disc 1 xkw 0 Uniform pat(init 0.7,lr 0.15,T 0.05,eps 0,sw 0)
+[tune 1-8] weak: sona+ ablation hebbian-only: 26 configs, best obj +0.01746
+    SonaPlusConfig { tau: 0.55, z: 1.0, kw_a: 4.0, kw_b: 1.0, discount: 1.0, challenge: true, learner: Hebbian, heb_eta: 0.01, heb_epsilon: 0.0, heb_temperature: 0.002, pat_init: 0.7, pat_lr: 0.15, pat_temp: 0.05, pat_eps: 0.0, pat_set_weight: 0.0, explore_kw: 0.0, explore_decay_k: 0.0, explore_mode: Uniform, delayed_mult: 3, fail_reward: 0.3 }
+      runner-up +0.01698: Hebbian tau 0.55 disc 1 xkw 0 Uniform pat(init 0.7,lr 0.15,T 0.05,eps 0,sw 0)
+      runner-up +0.01361: Hebbian tau 0.55 disc 1 xkw 0.02 Ucb pat(init 0.7,lr 0.15,T 0.05,eps 0,sw 0)
+      runner-up +0.01243: Hebbian tau 0.55 disc 1 xkw 0.02 Ucb pat(init 0.7,lr 0.15,T 0.05,eps 0,sw 0)
+[tune 1-8] weak: sona+ ablation pattern-only: 768 configs, best obj +0.01716
+    SonaPlusConfig { tau: 0.55, z: 1.0, kw_a: 4.0, kw_b: 1.0, discount: 1.0, challenge: true, learner: Patterns, heb_eta: 0.01, heb_epsilon: 0.0, heb_temperature: 0.002, pat_init: 0.6, pat_lr: 0.1, pat_temp: 0.03, pat_eps: 0.0, pat_set_weight: 0.5, explore_kw: 0.0, explore_decay_k: 0.0, explore_mode: Ucb, delayed_mult: 3, fail_reward: 0.0 }
+      runner-up +0.01712: Patterns tau 0.55 disc 1 xkw 0 Ucb pat(init 0.6,lr 0.1,T 0.03,eps 0.02,sw 0)
+      runner-up +0.01689: Patterns tau 0.55 disc 1 xkw 0 Ucb pat(init 0.6,lr 0.1,T 0.03,eps 0,sw 0)
+      runner-up +0.01676: Patterns tau 0.55 disc 1 xkw 0 Ucb pat(init 0.6,lr 0.1,T 0.03,eps 0.02,sw 0.5)
+[tune 1-8] weak obj: guarded-rt+reuse +0.01698 | sona+ +0.01746
+
+=== world traps(main) | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword                                       0.6557  0.6586  0.6578  0.6577  0.6557
+eps-greedy                                    0.4975  0.5783  0.6589  0.7171  0.7509
+pooled-ts                                     0.4808  0.5378  0.6102  0.6765  0.7241
+hebbian-robust                                0.5335  0.6357  0.7015  0.7448  0.7685
+warm(hebr)                                    0.6406  0.6946  0.7367  0.7668  0.7814
+guarded(x1)                                   0.6727  0.7095  0.7430  0.7682  0.7821
+guarded-rt(hebr retuned)                      0.6727  0.7095  0.7430  0.7682  0.7821
+sona+                                         0.6724  0.7102  0.7442  0.7707  0.7846
+sona+ [hebbian only]                          0.6727  0.7095  0.7430  0.7682  0.7821
+sona+ [pattern only]                          0.6724  0.7102  0.7442  0.7707  0.7846
+sona+ [no kw-explore]                         0.6724  0.7102  0.7442  0.7707  0.7846
+sona(legacy, ruflo port)                      0.6476  0.6506  0.6512  0.6514  0.6505
+
+=== world correct-keywords | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword                                       0.8202  0.8194  0.8191  0.8184  0.8178
+eps-greedy                                    0.4886  0.5742  0.6524  0.7123  0.7480
+pooled-ts                                     0.4813  0.5478  0.6168  0.6806  0.7261
+hebbian-robust                                0.5444  0.6334  0.7007  0.7464  0.7703
+warm(hebr)                                    0.7331  0.7534  0.7762  0.7880  0.7905
+guarded(x1)                                   0.8143  0.8140  0.8161  0.8171  0.8166
+guarded-rt(hebr retuned)                      0.8143  0.8140  0.8161  0.8171  0.8166
+sona+                                         0.8143  0.8140  0.8162  0.8172  0.8168
+sona+ [hebbian only]                          0.8143  0.8140  0.8161  0.8171  0.8166
+sona+ [pattern only]                          0.8143  0.8140  0.8162  0.8172  0.8168
+sona+ [no kw-explore]                         0.8143  0.8140  0.8162  0.8172  0.8168
+sona(legacy, ruflo port)                      0.8063  0.8074  0.8086  0.8092  0.8092
+
+=== world many-topics(16) | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword                                       0.7134  0.7091  0.7113  0.7116  0.7120
+eps-greedy                                    0.4767  0.5115  0.5824  0.6607  0.7182
+pooled-ts                                     0.4370  0.4818  0.5424  0.6116  0.6756
+hebbian-robust                                0.5007  0.5712  0.6413  0.7042  0.7488
+warm(hebr)                                    0.6742  0.6905  0.7217  0.7541  0.7770
+guarded(x1)                                   0.7173  0.7262  0.7475  0.7687  0.7846
+guarded-rt(hebr retuned)                      0.7173  0.7262  0.7475  0.7687  0.7846
+sona+                                         0.7167  0.7257  0.7477  0.7703  0.7867
+sona+ [hebbian only]                          0.7173  0.7262  0.7475  0.7687  0.7846
+sona+ [pattern only]                          0.7167  0.7257  0.7477  0.7703  0.7867
+sona+ [no kw-explore]                         0.7167  0.7257  0.7477  0.7703  0.7867
+sona(legacy, ruflo port)                      0.7016  0.6966  0.6997  0.7009  0.7000
+
+=== world sim-random | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword                                       0.7256  0.7259  0.7228  0.7100  0.6752
+eps-greedy                                    0.5401  0.6284  0.6962  0.7363  0.7430
+pooled-ts                                     0.5202  0.6055  0.6728  0.7151  0.7259
+hebbian-robust                                0.6036  0.6867  0.7444  0.7694  0.7656
+warm(hebr)                                    0.7138  0.7513  0.7791  0.7858  0.7744
+guarded(x1)                                   0.7391  0.7626  0.7825  0.7899  0.7690
+guarded-rt(hebr retuned)                      0.7391  0.7626  0.7825  0.7899  0.7690
+sona+                                         0.7395  0.7629  0.7824  0.7938  0.7739
+sona+ [hebbian only]                          0.7391  0.7626  0.7825  0.7899  0.7690
+sona+ [pattern only]                          0.7395  0.7629  0.7824  0.7938  0.7739
+sona+ [no kw-explore]                         0.7395  0.7629  0.7824  0.7938  0.7739
+sona(legacy, ruflo port)                      0.7133  0.7137  0.7106  0.6983  0.6658
+
+=== world sim-notraps | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword                                       0.8420  0.8422  0.8312  0.8154  0.7855
+eps-greedy                                    0.5460  0.6251  0.6894  0.7253  0.7338
+pooled-ts                                     0.5177  0.5980  0.6590  0.7019  0.7177
+hebbian-robust                                0.5859  0.6714  0.7222  0.7467  0.7532
+warm(hebr)                                    0.7757  0.7937  0.7967  0.7871  0.7736
+guarded(x1)                                   0.8410  0.8411  0.8305  0.8152  0.7869
+guarded-rt(hebr retuned)                      0.8410  0.8411  0.8305  0.8152  0.7869
+sona+                                         0.8410  0.8411  0.8305  0.8151  0.7873
+sona+ [hebbian only]                          0.8410  0.8411  0.8305  0.8152  0.7869
+sona+ [pattern only]                          0.8410  0.8411  0.8305  0.8151  0.7873
+sona+ [no kw-explore]                         0.8410  0.8411  0.8305  0.8151  0.7873
+sona(legacy, ruflo port)                      0.8273  0.8273  0.8170  0.8018  0.7729
+
+### NORMAL worlds: candidates vs best-of-7 (incl. retuned guarded)  (Holm over 125 tests)
+world              candidate                          H      diff               95% CI  wins   Holm p  best baseline
+traps(main)        sona+                            100   -0.0003 [ -0.0027, +0.0022]    12   1.0000  guarded-rt(hebr retuned)
+traps(main)        sona+ [hebbian only]             100   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded-rt(hebr retuned)
+traps(main)        sona+ [pattern only]             100   -0.0003 [ -0.0027, +0.0022]    12   1.0000  guarded-rt(hebr retuned)
+traps(main)        sona+ [no kw-explore]            100   -0.0003 [ -0.0027, +0.0022]    12   1.0000  guarded-rt(hebr retuned)
+traps(main)        sona+                            250   +0.0006 [ -0.0039, +0.0052]    13   1.0000  guarded-rt(hebr retuned)
+traps(main)        sona+ [hebbian only]             250   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded-rt(hebr retuned)
+traps(main)        sona+ [pattern only]             250   +0.0006 [ -0.0039, +0.0052]    13   1.0000  guarded-rt(hebr retuned)
+traps(main)        sona+ [no kw-explore]            250   +0.0006 [ -0.0039, +0.0052]    13   1.0000  guarded-rt(hebr retuned)
+traps(main)        sona+                            500   +0.0012 [ -0.0055, +0.0078]    12   1.0000  guarded-rt(hebr retuned)
+traps(main)        sona+ [hebbian only]             500   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded-rt(hebr retuned)
+traps(main)        sona+ [pattern only]             500   +0.0012 [ -0.0055, +0.0078]    12   1.0000  guarded-rt(hebr retuned)
+traps(main)        sona+ [no kw-explore]            500   +0.0012 [ -0.0055, +0.0078]    12   1.0000  guarded-rt(hebr retuned)
+traps(main)        sona+                           1000   +0.0024 [ -0.0031, +0.0079]    12   1.0000  guarded-rt(hebr retuned)
+traps(main)        sona+ [hebbian only]            1000   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded-rt(hebr retuned)
+traps(main)        sona+ [pattern only]            1000   +0.0024 [ -0.0031, +0.0079]    12   1.0000  guarded-rt(hebr retuned)
+traps(main)        sona+ [no kw-explore]           1000   +0.0024 [ -0.0031, +0.0079]    12   1.0000  guarded-rt(hebr retuned)
+traps(main)        sona+                           2000   +0.0026 [ -0.0016, +0.0068]    14   1.0000  guarded-rt(hebr retuned)
+traps(main)        sona+ [hebbian only]            2000   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded-rt(hebr retuned)
+traps(main)        sona+ [pattern only]            2000   +0.0026 [ -0.0016, +0.0068]    14   1.0000  guarded-rt(hebr retuned)
+traps(main)        sona+ [no kw-explore]           2000   +0.0026 [ -0.0016, +0.0068]    14   1.0000  guarded-rt(hebr retuned)
+correct-keywords   sona+                            100   -0.0059 [ -0.0102, -0.0015]     5   0.8817  keyword
+correct-keywords   sona+ [hebbian only]             100   -0.0059 [ -0.0103, -0.0014]     5   0.9308  keyword
+correct-keywords   sona+ [pattern only]             100   -0.0059 [ -0.0102, -0.0015]     5   0.8817  keyword
+correct-keywords   sona+ [no kw-explore]            100   -0.0059 [ -0.0102, -0.0015]     5   0.8817  keyword
+correct-keywords   sona+                            250   -0.0054 [ -0.0087, -0.0020]     8   0.2645  keyword
+correct-keywords   sona+ [hebbian only]             250   -0.0054 [ -0.0089, -0.0019]     9   0.3307  keyword
+correct-keywords   sona+ [pattern only]             250   -0.0054 [ -0.0087, -0.0020]     8   0.2645  keyword
+correct-keywords   sona+ [no kw-explore]            250   -0.0054 [ -0.0087, -0.0020]     8   0.2645  keyword
+correct-keywords   sona+                            500   -0.0029 [ -0.0050, -0.0007]    10   0.8817  keyword
+correct-keywords   sona+ [hebbian only]             500   -0.0030 [ -0.0051, -0.0008]    10   0.7347  keyword
+correct-keywords   sona+ [pattern only]             500   -0.0029 [ -0.0050, -0.0007]    10   0.8817  keyword
+correct-keywords   sona+ [no kw-explore]            500   -0.0029 [ -0.0050, -0.0007]    10   0.8817  keyword
+correct-keywords   sona+                           1000   -0.0012 [ -0.0025, +0.0001]     9   1.0000  keyword
+correct-keywords   sona+ [hebbian only]            1000   -0.0013 [ -0.0026, -0.0001]    11   1.0000  keyword
+correct-keywords   sona+ [pattern only]            1000   -0.0012 [ -0.0025, +0.0001]     9   1.0000  keyword
+correct-keywords   sona+ [no kw-explore]           1000   -0.0012 [ -0.0025, +0.0001]     9   1.0000  keyword
+correct-keywords   sona+                           2000   -0.0009 [ -0.0016, -0.0003]     9   0.4093  keyword
+correct-keywords   sona+ [hebbian only]            2000   -0.0011 [ -0.0018, -0.0004]     8   0.2258  keyword
+correct-keywords   sona+ [pattern only]            2000   -0.0009 [ -0.0016, -0.0003]     9   0.4093  keyword
+correct-keywords   sona+ [no kw-explore]           2000   -0.0009 [ -0.0016, -0.0003]     9   0.4093  keyword
+many-topics(16)    sona+                            100   -0.0007 [ -0.0019, +0.0006]     3   1.0000  guarded-rt(hebr retuned)
+many-topics(16)    sona+ [hebbian only]             100   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded-rt(hebr retuned)
+many-topics(16)    sona+ [pattern only]             100   -0.0007 [ -0.0019, +0.0006]     3   1.0000  guarded-rt(hebr retuned)
+many-topics(16)    sona+ [no kw-explore]            100   -0.0007 [ -0.0019, +0.0006]     3   1.0000  guarded-rt(hebr retuned)
+many-topics(16)    sona+                            250   -0.0005 [ -0.0026, +0.0017]    13   1.0000  guarded-rt(hebr retuned)
+many-topics(16)    sona+ [hebbian only]             250   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded-rt(hebr retuned)
+many-topics(16)    sona+ [pattern only]             250   -0.0005 [ -0.0026, +0.0017]    13   1.0000  guarded-rt(hebr retuned)
+many-topics(16)    sona+ [no kw-explore]            250   -0.0005 [ -0.0026, +0.0017]    13   1.0000  guarded-rt(hebr retuned)
+many-topics(16)    sona+                            500   +0.0002 [ -0.0021, +0.0025]    16   1.0000  guarded-rt(hebr retuned)
+many-topics(16)    sona+ [hebbian only]             500   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded-rt(hebr retuned)
+many-topics(16)    sona+ [pattern only]             500   +0.0002 [ -0.0021, +0.0025]    16   1.0000  guarded-rt(hebr retuned)
+many-topics(16)    sona+ [no kw-explore]            500   +0.0002 [ -0.0021, +0.0025]    16   1.0000  guarded-rt(hebr retuned)
+many-topics(16)    sona+                           1000   +0.0017 [ -0.0013, +0.0046]    16   1.0000  guarded-rt(hebr retuned)
+many-topics(16)    sona+ [hebbian only]            1000   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded-rt(hebr retuned)
+many-topics(16)    sona+ [pattern only]            1000   +0.0017 [ -0.0013, +0.0046]    16   1.0000  guarded-rt(hebr retuned)
+many-topics(16)    sona+ [no kw-explore]           1000   +0.0017 [ -0.0013, +0.0046]    16   1.0000  guarded-rt(hebr retuned)
+many-topics(16)    sona+                           2000   +0.0021 [ -0.0003, +0.0044]    17   1.0000  guarded-rt(hebr retuned)
+many-topics(16)    sona+ [hebbian only]            2000   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded-rt(hebr retuned)
+many-topics(16)    sona+ [pattern only]            2000   +0.0021 [ -0.0003, +0.0044]    17   1.0000  guarded-rt(hebr retuned)
+many-topics(16)    sona+ [no kw-explore]           2000   +0.0021 [ -0.0003, +0.0044]    17   1.0000  guarded-rt(hebr retuned)
+sim-random         sona+                            100   +0.0003 [ -0.0047, +0.0054]    14   1.0000  guarded-rt(hebr retuned)
+sim-random         sona+ [hebbian only]             100   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded-rt(hebr retuned)
+sim-random         sona+ [pattern only]             100   +0.0003 [ -0.0047, +0.0054]    14   1.0000  guarded-rt(hebr retuned)
+sim-random         sona+ [no kw-explore]            100   +0.0003 [ -0.0047, +0.0054]    14   1.0000  guarded-rt(hebr retuned)
+sim-random         sona+                            250   +0.0004 [ -0.0078, +0.0086]    12   1.0000  guarded-rt(hebr retuned)
+sim-random         sona+ [hebbian only]             250   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded-rt(hebr retuned)
+sim-random         sona+ [pattern only]             250   +0.0004 [ -0.0078, +0.0086]    12   1.0000  guarded-rt(hebr retuned)
+sim-random         sona+ [no kw-explore]            250   +0.0004 [ -0.0078, +0.0086]    12   1.0000  guarded-rt(hebr retuned)
+sim-random         sona+                            500   -0.0002 [ -0.0080, +0.0077]    16   1.0000  guarded-rt(hebr retuned)
+sim-random         sona+ [hebbian only]             500   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded-rt(hebr retuned)
+sim-random         sona+ [pattern only]             500   -0.0002 [ -0.0080, +0.0077]    16   1.0000  guarded-rt(hebr retuned)
+sim-random         sona+ [no kw-explore]            500   -0.0002 [ -0.0080, +0.0077]    16   1.0000  guarded-rt(hebr retuned)
+sim-random         sona+                           1000   +0.0039 [ -0.0030, +0.0109]    17   1.0000  guarded-rt(hebr retuned)
+sim-random         sona+ [hebbian only]            1000   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded-rt(hebr retuned)
+sim-random         sona+ [pattern only]            1000   +0.0039 [ -0.0030, +0.0109]    17   1.0000  guarded-rt(hebr retuned)
+sim-random         sona+ [no kw-explore]           1000   +0.0039 [ -0.0030, +0.0109]    17   1.0000  guarded-rt(hebr retuned)
+sim-random         sona+                           2000   -0.0005 [ -0.0105, +0.0096]    14   1.0000  warm(hebr)
+sim-random         sona+ [hebbian only]            2000   -0.0054 [ -0.0153, +0.0045]    12   1.0000  warm(hebr)
+sim-random         sona+ [pattern only]            2000   -0.0005 [ -0.0105, +0.0096]    14   1.0000  warm(hebr)
+sim-random         sona+ [no kw-explore]           2000   -0.0005 [ -0.0105, +0.0096]    14   1.0000  warm(hebr)
+sim-notraps        sona+                            100   -0.0009 [ -0.0023, +0.0004]     0   1.0000  keyword
+sim-notraps        sona+ [hebbian only]             100   -0.0009 [ -0.0023, +0.0004]     0   1.0000  keyword
+sim-notraps        sona+ [pattern only]             100   -0.0009 [ -0.0023, +0.0004]     0   1.0000  keyword
+sim-notraps        sona+ [no kw-explore]            100   -0.0009 [ -0.0023, +0.0004]     0   1.0000  keyword
+sim-notraps        sona+                            250   -0.0011 [ -0.0017, -0.0004]     0   0.1426  keyword
+sim-notraps        sona+ [hebbian only]             250   -0.0011 [ -0.0017, -0.0004]     0   0.1426  keyword
+sim-notraps        sona+ [pattern only]             250   -0.0011 [ -0.0017, -0.0004]     0   0.1426  keyword
+sim-notraps        sona+ [no kw-explore]            250   -0.0011 [ -0.0017, -0.0004]     0   0.1426  keyword
+sim-notraps        sona+                            500   -0.0007 [ -0.0019, +0.0004]     3   1.0000  keyword
+sim-notraps        sona+ [hebbian only]             500   -0.0007 [ -0.0019, +0.0004]     3   1.0000  keyword
+sim-notraps        sona+ [pattern only]             500   -0.0007 [ -0.0019, +0.0004]     3   1.0000  keyword
+sim-notraps        sona+ [no kw-explore]            500   -0.0007 [ -0.0019, +0.0004]     3   1.0000  keyword
+sim-notraps        sona+                           1000   -0.0002 [ -0.0042, +0.0037]     2   1.0000  keyword
+sim-notraps        sona+ [hebbian only]            1000   -0.0002 [ -0.0041, +0.0038]     2   1.0000  keyword
+sim-notraps        sona+ [pattern only]            1000   -0.0002 [ -0.0042, +0.0037]     2   1.0000  keyword
+sim-notraps        sona+ [no kw-explore]           1000   -0.0002 [ -0.0042, +0.0037]     2   1.0000  keyword
+sim-notraps        sona+                           2000   +0.0004 [ -0.0005, +0.0014]    10   1.0000  guarded-rt(hebr retuned)
+sim-notraps        sona+ [hebbian only]            2000   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded-rt(hebr retuned)
+sim-notraps        sona+ [pattern only]            2000   +0.0004 [ -0.0005, +0.0014]    10   1.0000  guarded-rt(hebr retuned)
+sim-notraps        sona+ [no kw-explore]           2000   +0.0004 [ -0.0005, +0.0014]    10   1.0000  guarded-rt(hebr retuned)
+--> Holm wins 0, losses 24 of 125
+
+### NORMAL worlds: candidates vs best-of-6 (spec set)  (Holm over 125 tests)
+world              candidate                          H      diff               95% CI  wins   Holm p  best baseline
+traps(main)        sona+                            100   -0.0003 [ -0.0027, +0.0022]    12   1.0000  guarded(x1)
+traps(main)        sona+ [hebbian only]             100   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded(x1)
+traps(main)        sona+ [pattern only]             100   -0.0003 [ -0.0027, +0.0022]    12   1.0000  guarded(x1)
+traps(main)        sona+ [no kw-explore]            100   -0.0003 [ -0.0027, +0.0022]    12   1.0000  guarded(x1)
+traps(main)        sona+                            250   +0.0006 [ -0.0039, +0.0052]    13   1.0000  guarded(x1)
+traps(main)        sona+ [hebbian only]             250   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded(x1)
+traps(main)        sona+ [pattern only]             250   +0.0006 [ -0.0039, +0.0052]    13   1.0000  guarded(x1)
+traps(main)        sona+ [no kw-explore]            250   +0.0006 [ -0.0039, +0.0052]    13   1.0000  guarded(x1)
+traps(main)        sona+                            500   +0.0012 [ -0.0055, +0.0078]    12   1.0000  guarded(x1)
+traps(main)        sona+ [hebbian only]             500   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded(x1)
+traps(main)        sona+ [pattern only]             500   +0.0012 [ -0.0055, +0.0078]    12   1.0000  guarded(x1)
+traps(main)        sona+ [no kw-explore]            500   +0.0012 [ -0.0055, +0.0078]    12   1.0000  guarded(x1)
+traps(main)        sona+                           1000   +0.0024 [ -0.0031, +0.0079]    12   1.0000  guarded(x1)
+traps(main)        sona+ [hebbian only]            1000   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded(x1)
+traps(main)        sona+ [pattern only]            1000   +0.0024 [ -0.0031, +0.0079]    12   1.0000  guarded(x1)
+traps(main)        sona+ [no kw-explore]           1000   +0.0024 [ -0.0031, +0.0079]    12   1.0000  guarded(x1)
+traps(main)        sona+                           2000   +0.0026 [ -0.0016, +0.0068]    14   1.0000  guarded(x1)
+traps(main)        sona+ [hebbian only]            2000   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded(x1)
+traps(main)        sona+ [pattern only]            2000   +0.0026 [ -0.0016, +0.0068]    14   1.0000  guarded(x1)
+traps(main)        sona+ [no kw-explore]           2000   +0.0026 [ -0.0016, +0.0068]    14   1.0000  guarded(x1)
+correct-keywords   sona+                            100   -0.0059 [ -0.0102, -0.0015]     5   0.8817  keyword
+correct-keywords   sona+ [hebbian only]             100   -0.0059 [ -0.0103, -0.0014]     5   0.9308  keyword
+correct-keywords   sona+ [pattern only]             100   -0.0059 [ -0.0102, -0.0015]     5   0.8817  keyword
+correct-keywords   sona+ [no kw-explore]            100   -0.0059 [ -0.0102, -0.0015]     5   0.8817  keyword
+correct-keywords   sona+                            250   -0.0054 [ -0.0087, -0.0020]     8   0.2645  keyword
+correct-keywords   sona+ [hebbian only]             250   -0.0054 [ -0.0089, -0.0019]     9   0.3307  keyword
+correct-keywords   sona+ [pattern only]             250   -0.0054 [ -0.0087, -0.0020]     8   0.2645  keyword
+correct-keywords   sona+ [no kw-explore]            250   -0.0054 [ -0.0087, -0.0020]     8   0.2645  keyword
+correct-keywords   sona+                            500   -0.0029 [ -0.0050, -0.0007]    10   0.8817  keyword
+correct-keywords   sona+ [hebbian only]             500   -0.0030 [ -0.0051, -0.0008]    10   0.7347  keyword
+correct-keywords   sona+ [pattern only]             500   -0.0029 [ -0.0050, -0.0007]    10   0.8817  keyword
+correct-keywords   sona+ [no kw-explore]            500   -0.0029 [ -0.0050, -0.0007]    10   0.8817  keyword
+correct-keywords   sona+                           1000   -0.0012 [ -0.0025, +0.0001]     9   1.0000  keyword
+correct-keywords   sona+ [hebbian only]            1000   -0.0013 [ -0.0026, -0.0001]    11   1.0000  keyword
+correct-keywords   sona+ [pattern only]            1000   -0.0012 [ -0.0025, +0.0001]     9   1.0000  keyword
+correct-keywords   sona+ [no kw-explore]           1000   -0.0012 [ -0.0025, +0.0001]     9   1.0000  keyword
+correct-keywords   sona+                           2000   -0.0009 [ -0.0016, -0.0003]     9   0.4093  keyword
+correct-keywords   sona+ [hebbian only]            2000   -0.0011 [ -0.0018, -0.0004]     8   0.2258  keyword
+correct-keywords   sona+ [pattern only]            2000   -0.0009 [ -0.0016, -0.0003]     9   0.4093  keyword
+correct-keywords   sona+ [no kw-explore]           2000   -0.0009 [ -0.0016, -0.0003]     9   0.4093  keyword
+many-topics(16)    sona+                            100   -0.0007 [ -0.0019, +0.0006]     3   1.0000  guarded(x1)
+many-topics(16)    sona+ [hebbian only]             100   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded(x1)
+many-topics(16)    sona+ [pattern only]             100   -0.0007 [ -0.0019, +0.0006]     3   1.0000  guarded(x1)
+many-topics(16)    sona+ [no kw-explore]            100   -0.0007 [ -0.0019, +0.0006]     3   1.0000  guarded(x1)
+many-topics(16)    sona+                            250   -0.0005 [ -0.0026, +0.0017]    13   1.0000  guarded(x1)
+many-topics(16)    sona+ [hebbian only]             250   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded(x1)
+many-topics(16)    sona+ [pattern only]             250   -0.0005 [ -0.0026, +0.0017]    13   1.0000  guarded(x1)
+many-topics(16)    sona+ [no kw-explore]            250   -0.0005 [ -0.0026, +0.0017]    13   1.0000  guarded(x1)
+many-topics(16)    sona+                            500   +0.0002 [ -0.0021, +0.0025]    16   1.0000  guarded(x1)
+many-topics(16)    sona+ [hebbian only]             500   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded(x1)
+many-topics(16)    sona+ [pattern only]             500   +0.0002 [ -0.0021, +0.0025]    16   1.0000  guarded(x1)
+many-topics(16)    sona+ [no kw-explore]            500   +0.0002 [ -0.0021, +0.0025]    16   1.0000  guarded(x1)
+many-topics(16)    sona+                           1000   +0.0017 [ -0.0013, +0.0046]    16   1.0000  guarded(x1)
+many-topics(16)    sona+ [hebbian only]            1000   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded(x1)
+many-topics(16)    sona+ [pattern only]            1000   +0.0017 [ -0.0013, +0.0046]    16   1.0000  guarded(x1)
+many-topics(16)    sona+ [no kw-explore]           1000   +0.0017 [ -0.0013, +0.0046]    16   1.0000  guarded(x1)
+many-topics(16)    sona+                           2000   +0.0021 [ -0.0003, +0.0044]    17   1.0000  guarded(x1)
+many-topics(16)    sona+ [hebbian only]            2000   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded(x1)
+many-topics(16)    sona+ [pattern only]            2000   +0.0021 [ -0.0003, +0.0044]    17   1.0000  guarded(x1)
+many-topics(16)    sona+ [no kw-explore]           2000   +0.0021 [ -0.0003, +0.0044]    17   1.0000  guarded(x1)
+sim-random         sona+                            100   +0.0003 [ -0.0047, +0.0054]    14   1.0000  guarded(x1)
+sim-random         sona+ [hebbian only]             100   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded(x1)
+sim-random         sona+ [pattern only]             100   +0.0003 [ -0.0047, +0.0054]    14   1.0000  guarded(x1)
+sim-random         sona+ [no kw-explore]            100   +0.0003 [ -0.0047, +0.0054]    14   1.0000  guarded(x1)
+sim-random         sona+                            250   +0.0004 [ -0.0078, +0.0086]    12   1.0000  guarded(x1)
+sim-random         sona+ [hebbian only]             250   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded(x1)
+sim-random         sona+ [pattern only]             250   +0.0004 [ -0.0078, +0.0086]    12   1.0000  guarded(x1)
+sim-random         sona+ [no kw-explore]            250   +0.0004 [ -0.0078, +0.0086]    12   1.0000  guarded(x1)
+sim-random         sona+                            500   -0.0002 [ -0.0080, +0.0077]    16   1.0000  guarded(x1)
+sim-random         sona+ [hebbian only]             500   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded(x1)
+sim-random         sona+ [pattern only]             500   -0.0002 [ -0.0080, +0.0077]    16   1.0000  guarded(x1)
+sim-random         sona+ [no kw-explore]            500   -0.0002 [ -0.0080, +0.0077]    16   1.0000  guarded(x1)
+sim-random         sona+                           1000   +0.0039 [ -0.0030, +0.0109]    17   1.0000  guarded(x1)
+sim-random         sona+ [hebbian only]            1000   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded(x1)
+sim-random         sona+ [pattern only]            1000   +0.0039 [ -0.0030, +0.0109]    17   1.0000  guarded(x1)
+sim-random         sona+ [no kw-explore]           1000   +0.0039 [ -0.0030, +0.0109]    17   1.0000  guarded(x1)
+sim-random         sona+                           2000   -0.0005 [ -0.0105, +0.0096]    14   1.0000  warm(hebr)
+sim-random         sona+ [hebbian only]            2000   -0.0054 [ -0.0153, +0.0045]    12   1.0000  warm(hebr)
+sim-random         sona+ [pattern only]            2000   -0.0005 [ -0.0105, +0.0096]    14   1.0000  warm(hebr)
+sim-random         sona+ [no kw-explore]           2000   -0.0005 [ -0.0105, +0.0096]    14   1.0000  warm(hebr)
+sim-notraps        sona+                            100   -0.0009 [ -0.0023, +0.0004]     0   1.0000  keyword
+sim-notraps        sona+ [hebbian only]             100   -0.0009 [ -0.0023, +0.0004]     0   1.0000  keyword
+sim-notraps        sona+ [pattern only]             100   -0.0009 [ -0.0023, +0.0004]     0   1.0000  keyword
+sim-notraps        sona+ [no kw-explore]            100   -0.0009 [ -0.0023, +0.0004]     0   1.0000  keyword
+sim-notraps        sona+                            250   -0.0011 [ -0.0017, -0.0004]     0   0.1426  keyword
+sim-notraps        sona+ [hebbian only]             250   -0.0011 [ -0.0017, -0.0004]     0   0.1426  keyword
+sim-notraps        sona+ [pattern only]             250   -0.0011 [ -0.0017, -0.0004]     0   0.1426  keyword
+sim-notraps        sona+ [no kw-explore]            250   -0.0011 [ -0.0017, -0.0004]     0   0.1426  keyword
+sim-notraps        sona+                            500   -0.0007 [ -0.0019, +0.0004]     3   1.0000  keyword
+sim-notraps        sona+ [hebbian only]             500   -0.0007 [ -0.0019, +0.0004]     3   1.0000  keyword
+sim-notraps        sona+ [pattern only]             500   -0.0007 [ -0.0019, +0.0004]     3   1.0000  keyword
+sim-notraps        sona+ [no kw-explore]            500   -0.0007 [ -0.0019, +0.0004]     3   1.0000  keyword
+sim-notraps        sona+                           1000   -0.0002 [ -0.0042, +0.0037]     2   1.0000  keyword
+sim-notraps        sona+ [hebbian only]            1000   -0.0002 [ -0.0041, +0.0038]     2   1.0000  keyword
+sim-notraps        sona+ [pattern only]            1000   -0.0002 [ -0.0042, +0.0037]     2   1.0000  keyword
+sim-notraps        sona+ [no kw-explore]           1000   -0.0002 [ -0.0042, +0.0037]     2   1.0000  keyword
+sim-notraps        sona+                           2000   +0.0004 [ -0.0005, +0.0014]    10   1.0000  guarded(x1)
+sim-notraps        sona+ [hebbian only]            2000   +0.0000 [ +0.0000, +0.0000]     0   1.0000  guarded(x1)
+sim-notraps        sona+ [pattern only]            2000   +0.0004 [ -0.0005, +0.0014]    10   1.0000  guarded(x1)
+sim-notraps        sona+ [no kw-explore]           2000   +0.0004 [ -0.0005, +0.0014]    10   1.0000  guarded(x1)
+--> Holm wins 0, losses 24 of 125
+
+### NORMAL worlds: candidates vs keyword only  (Holm over 125 tests)
+world              candidate                          H      diff               95% CI  wins   Holm p  best baseline
+traps(main)        sona+                            100   +0.0167 [ +0.0117, +0.0217]    26   0.0000  keyword WIN
+traps(main)        sona+ [hebbian only]             100   +0.0170 [ +0.0121, +0.0218]    29   0.0000  keyword WIN
+traps(main)        sona+ [pattern only]             100   +0.0167 [ +0.0117, +0.0217]    26   0.0000  keyword WIN
+traps(main)        sona+ [no kw-explore]            100   +0.0167 [ +0.0117, +0.0217]    26   0.0000  keyword WIN
+traps(main)        sona+                            250   +0.0516 [ +0.0448, +0.0585]    30   0.0000  keyword WIN
+traps(main)        sona+ [hebbian only]             250   +0.0510 [ +0.0421, +0.0599]    30   0.0000  keyword WIN
+traps(main)        sona+ [pattern only]             250   +0.0516 [ +0.0448, +0.0585]    30   0.0000  keyword WIN
+traps(main)        sona+ [no kw-explore]            250   +0.0516 [ +0.0448, +0.0585]    30   0.0000  keyword WIN
+traps(main)        sona+                            500   +0.0863 [ +0.0769, +0.0958]    30   0.0000  keyword WIN
+traps(main)        sona+ [hebbian only]             500   +0.0852 [ +0.0718, +0.0985]    30   0.0000  keyword WIN
+traps(main)        sona+ [pattern only]             500   +0.0863 [ +0.0769, +0.0958]    30   0.0000  keyword WIN
+traps(main)        sona+ [no kw-explore]            500   +0.0863 [ +0.0769, +0.0958]    30   0.0000  keyword WIN
+traps(main)        sona+                           1000   +0.1129 [ +0.1025, +0.1234]    30   0.0000  keyword WIN
+traps(main)        sona+ [hebbian only]            1000   +0.1105 [ +0.0971, +0.1239]    30   0.0000  keyword WIN
+traps(main)        sona+ [pattern only]            1000   +0.1129 [ +0.1025, +0.1234]    30   0.0000  keyword WIN
+traps(main)        sona+ [no kw-explore]           1000   +0.1129 [ +0.1025, +0.1234]    30   0.0000  keyword WIN
+traps(main)        sona+                           2000   +0.1289 [ +0.1182, +0.1397]    30   0.0000  keyword WIN
+traps(main)        sona+ [hebbian only]            2000   +0.1264 [ +0.1138, +0.1390]    30   0.0000  keyword WIN
+traps(main)        sona+ [pattern only]            2000   +0.1289 [ +0.1182, +0.1397]    30   0.0000  keyword WIN
+traps(main)        sona+ [no kw-explore]           2000   +0.1289 [ +0.1182, +0.1397]    30   0.0000  keyword WIN
+correct-keywords   sona+                            100   -0.0059 [ -0.0102, -0.0015]     5   0.3649  keyword
+correct-keywords   sona+ [hebbian only]             100   -0.0059 [ -0.0103, -0.0014]     5   0.3649  keyword
+correct-keywords   sona+ [pattern only]             100   -0.0059 [ -0.0102, -0.0015]     5   0.3649  keyword
+correct-keywords   sona+ [no kw-explore]            100   -0.0059 [ -0.0102, -0.0015]     5   0.3649  keyword
+correct-keywords   sona+                            250   -0.0054 [ -0.0087, -0.0020]     8   0.1323  keyword
+correct-keywords   sona+ [hebbian only]             250   -0.0054 [ -0.0089, -0.0019]     9   0.1549  keyword
+correct-keywords   sona+ [pattern only]             250   -0.0054 [ -0.0087, -0.0020]     8   0.1323  keyword
+correct-keywords   sona+ [no kw-explore]            250   -0.0054 [ -0.0087, -0.0020]     8   0.1323  keyword
+correct-keywords   sona+                            500   -0.0029 [ -0.0050, -0.0007]    10   0.3649  keyword
+correct-keywords   sona+ [hebbian only]             500   -0.0030 [ -0.0051, -0.0008]    10   0.3089  keyword
+correct-keywords   sona+ [pattern only]             500   -0.0029 [ -0.0050, -0.0007]    10   0.3649  keyword
+correct-keywords   sona+ [no kw-explore]            500   -0.0029 [ -0.0050, -0.0007]    10   0.3649  keyword
+correct-keywords   sona+                           1000   -0.0012 [ -0.0025, +0.0001]     9   1.0000  keyword
+correct-keywords   sona+ [hebbian only]            1000   -0.0013 [ -0.0026, -0.0001]    11   1.0000  keyword
+correct-keywords   sona+ [pattern only]            1000   -0.0012 [ -0.0025, +0.0001]     9   1.0000  keyword
+correct-keywords   sona+ [no kw-explore]           1000   -0.0012 [ -0.0025, +0.0001]     9   1.0000  keyword
+correct-keywords   sona+                           2000   -0.0009 [ -0.0016, -0.0003]     9   0.1844  keyword
+correct-keywords   sona+ [hebbian only]            2000   -0.0011 [ -0.0018, -0.0004]     8   0.1149  keyword
+correct-keywords   sona+ [pattern only]            2000   -0.0009 [ -0.0016, -0.0003]     9   0.1844  keyword
+correct-keywords   sona+ [no kw-explore]           2000   -0.0009 [ -0.0016, -0.0003]     9   0.1844  keyword
+many-topics(16)    sona+                            100   +0.0033 [ -0.0010, +0.0075]    21   1.0000  keyword
+many-topics(16)    sona+ [hebbian only]             100   +0.0039 [ -0.0007, +0.0085]    21   1.0000  keyword
+many-topics(16)    sona+ [pattern only]             100   +0.0033 [ -0.0010, +0.0075]    21   1.0000  keyword
+many-topics(16)    sona+ [no kw-explore]            100   +0.0033 [ -0.0010, +0.0075]    21   1.0000  keyword
+many-topics(16)    sona+                            250   +0.0165 [ +0.0113, +0.0218]    27   0.0000  keyword WIN
+many-topics(16)    sona+ [hebbian only]             250   +0.0170 [ +0.0113, +0.0228]    26   0.0001  keyword WIN
+many-topics(16)    sona+ [pattern only]             250   +0.0165 [ +0.0113, +0.0218]    27   0.0000  keyword WIN
+many-topics(16)    sona+ [no kw-explore]            250   +0.0165 [ +0.0113, +0.0218]    27   0.0000  keyword WIN
+many-topics(16)    sona+                            500   +0.0363 [ +0.0298, +0.0429]    30   0.0000  keyword WIN
+many-topics(16)    sona+ [hebbian only]             500   +0.0361 [ +0.0304, +0.0419]    30   0.0000  keyword WIN
+many-topics(16)    sona+ [pattern only]             500   +0.0363 [ +0.0298, +0.0429]    30   0.0000  keyword WIN
+many-topics(16)    sona+ [no kw-explore]            500   +0.0363 [ +0.0298, +0.0429]    30   0.0000  keyword WIN
+many-topics(16)    sona+                           1000   +0.0587 [ +0.0521, +0.0654]    30   0.0000  keyword WIN
+many-topics(16)    sona+ [hebbian only]            1000   +0.0571 [ +0.0510, +0.0632]    30   0.0000  keyword WIN
+many-topics(16)    sona+ [pattern only]            1000   +0.0587 [ +0.0521, +0.0654]    30   0.0000  keyword WIN
+many-topics(16)    sona+ [no kw-explore]           1000   +0.0587 [ +0.0521, +0.0654]    30   0.0000  keyword WIN
+many-topics(16)    sona+                           2000   +0.0747 [ +0.0684, +0.0810]    30   0.0000  keyword WIN
+many-topics(16)    sona+ [hebbian only]            2000   +0.0726 [ +0.0667, +0.0785]    30   0.0000  keyword WIN
+many-topics(16)    sona+ [pattern only]            2000   +0.0747 [ +0.0684, +0.0810]    30   0.0000  keyword WIN
+many-topics(16)    sona+ [no kw-explore]           2000   +0.0747 [ +0.0684, +0.0810]    30   0.0000  keyword WIN
+sim-random         sona+                            100   +0.0138 [ +0.0050, +0.0227]    22   0.1549  keyword
+sim-random         sona+ [hebbian only]             100   +0.0135 [ +0.0061, +0.0209]    20   0.0490  keyword WIN
+sim-random         sona+ [pattern only]             100   +0.0138 [ +0.0050, +0.0227]    22   0.1549  keyword
+sim-random         sona+ [no kw-explore]            100   +0.0138 [ +0.0050, +0.0227]    22   0.1549  keyword
+sim-random         sona+                            250   +0.0370 [ +0.0253, +0.0487]    28   0.0000  keyword WIN
+sim-random         sona+ [hebbian only]             250   +0.0366 [ +0.0266, +0.0466]    28   0.0000  keyword WIN
+sim-random         sona+ [pattern only]             250   +0.0370 [ +0.0253, +0.0487]    28   0.0000  keyword WIN
+sim-random         sona+ [no kw-explore]            250   +0.0370 [ +0.0253, +0.0487]    28   0.0000  keyword WIN
+sim-random         sona+                            500   +0.0596 [ +0.0469, +0.0723]    30   0.0000  keyword WIN
+sim-random         sona+ [hebbian only]             500   +0.0598 [ +0.0470, +0.0725]    29   0.0000  keyword WIN
+sim-random         sona+ [pattern only]             500   +0.0596 [ +0.0469, +0.0723]    30   0.0000  keyword WIN
+sim-random         sona+ [no kw-explore]            500   +0.0596 [ +0.0469, +0.0723]    30   0.0000  keyword WIN
+sim-random         sona+                           1000   +0.0838 [ +0.0696, +0.0980]    30   0.0000  keyword WIN
+sim-random         sona+ [hebbian only]            1000   +0.0799 [ +0.0647, +0.0950]    29   0.0000  keyword WIN
+sim-random         sona+ [pattern only]            1000   +0.0838 [ +0.0696, +0.0980]    30   0.0000  keyword WIN
+sim-random         sona+ [no kw-explore]           1000   +0.0838 [ +0.0696, +0.0980]    30   0.0000  keyword WIN
+sim-random         sona+                           2000   +0.0987 [ +0.0833, +0.1141]    30   0.0000  keyword WIN
+sim-random         sona+ [hebbian only]            2000   +0.0938 [ +0.0775, +0.1102]    29   0.0000  keyword WIN
+sim-random         sona+ [pattern only]            2000   +0.0987 [ +0.0833, +0.1141]    30   0.0000  keyword WIN
+sim-random         sona+ [no kw-explore]           2000   +0.0987 [ +0.0833, +0.1141]    30   0.0000  keyword WIN
+sim-notraps        sona+                            100   -0.0009 [ -0.0023, +0.0004]     0   1.0000  keyword
+sim-notraps        sona+ [hebbian only]             100   -0.0009 [ -0.0023, +0.0004]     0   1.0000  keyword
+sim-notraps        sona+ [pattern only]             100   -0.0009 [ -0.0023, +0.0004]     0   1.0000  keyword
+sim-notraps        sona+ [no kw-explore]            100   -0.0009 [ -0.0023, +0.0004]     0   1.0000  keyword
+sim-notraps        sona+                            250   -0.0011 [ -0.0017, -0.0004]     0   0.0791  keyword
+sim-notraps        sona+ [hebbian only]             250   -0.0011 [ -0.0017, -0.0004]     0   0.0791  keyword
+sim-notraps        sona+ [pattern only]             250   -0.0011 [ -0.0017, -0.0004]     0   0.0791  keyword
+sim-notraps        sona+ [no kw-explore]            250   -0.0011 [ -0.0017, -0.0004]     0   0.0791  keyword
+sim-notraps        sona+                            500   -0.0007 [ -0.0019, +0.0004]     3   1.0000  keyword
+sim-notraps        sona+ [hebbian only]             500   -0.0007 [ -0.0019, +0.0004]     3   1.0000  keyword
+sim-notraps        sona+ [pattern only]             500   -0.0007 [ -0.0019, +0.0004]     3   1.0000  keyword
+sim-notraps        sona+ [no kw-explore]            500   -0.0007 [ -0.0019, +0.0004]     3   1.0000  keyword
+sim-notraps        sona+                           1000   -0.0002 [ -0.0042, +0.0037]     2   1.0000  keyword
+sim-notraps        sona+ [hebbian only]            1000   -0.0002 [ -0.0041, +0.0038]     2   1.0000  keyword
+sim-notraps        sona+ [pattern only]            1000   -0.0002 [ -0.0042, +0.0037]     2   1.0000  keyword
+sim-notraps        sona+ [no kw-explore]           1000   -0.0002 [ -0.0042, +0.0037]     2   1.0000  keyword
+sim-notraps        sona+                           2000   +0.0018 [ -0.0006, +0.0043]    12   1.0000  keyword
+sim-notraps        sona+ [hebbian only]            2000   +0.0014 [ -0.0010, +0.0038]    12   1.0000  keyword
+sim-notraps        sona+ [pattern only]            2000   +0.0018 [ -0.0006, +0.0043]    12   1.0000  keyword
+sim-notraps        sona+ [no kw-explore]           2000   +0.0018 [ -0.0006, +0.0043]    12   1.0000  keyword
+--> Holm wins 53, losses 16 of 125
+
+--- direct: sona+ - guarded-rt (normal worlds) (Holm over 25) ---
+traps(main)        H100    -0.0003 [ -0.0027, +0.0022] w12 Holm 1.0000
+traps(main)        H250    +0.0006 [ -0.0039, +0.0052] w13 Holm 1.0000
+traps(main)        H500    +0.0012 [ -0.0055, +0.0078] w12 Holm 1.0000
+traps(main)        H1000   +0.0024 [ -0.0031, +0.0079] w12 Holm 1.0000
+traps(main)        H2000   +0.0026 [ -0.0016, +0.0068] w14 Holm 1.0000
+correct-keywords   H100    +0.0000 [ -0.0006, +0.0007] w 5 Holm 1.0000
+correct-keywords   H250    +0.0000 [ -0.0004, +0.0004] w 8 Holm 1.0000
+correct-keywords   H500    +0.0001 [ -0.0002, +0.0004] w10 Holm 1.0000
+correct-keywords   H1000   +0.0001 [ -0.0001, +0.0003] w16 Holm 1.0000
+correct-keywords   H2000   +0.0002 [ -0.0000, +0.0004] w18 Holm 1.0000
+many-topics(16)    H100    -0.0007 [ -0.0019, +0.0006] w 3 Holm 1.0000
+many-topics(16)    H250    -0.0005 [ -0.0026, +0.0017] w13 Holm 1.0000
+many-topics(16)    H500    +0.0002 [ -0.0021, +0.0025] w16 Holm 1.0000
+many-topics(16)    H1000   +0.0017 [ -0.0013, +0.0046] w16 Holm 1.0000
+many-topics(16)    H2000   +0.0021 [ -0.0003, +0.0044] w17 Holm 1.0000
+sim-random         H100    +0.0003 [ -0.0047, +0.0054] w14 Holm 1.0000
+sim-random         H250    +0.0004 [ -0.0078, +0.0086] w12 Holm 1.0000
+sim-random         H500    -0.0002 [ -0.0080, +0.0077] w16 Holm 1.0000
+sim-random         H1000   +0.0039 [ -0.0030, +0.0109] w17 Holm 1.0000
+sim-random         H2000   +0.0049 [ -0.0010, +0.0108] w17 Holm 1.0000
+sim-notraps        H100    +0.0000 [ -0.0000, +0.0000] w 1 Holm 1.0000
+sim-notraps        H250    +0.0000 [ -0.0000, +0.0000] w 1 Holm 1.0000
+sim-notraps        H500    +0.0000 [ -0.0000, +0.0000] w 2 Holm 1.0000
+sim-notraps        H1000   -0.0001 [ -0.0004, +0.0003] w 5 Holm 1.0000
+sim-notraps        H2000   +0.0004 [ -0.0005, +0.0014] w10 Holm 1.0000
+
+--- direct: sona+ - guarded(x1) (normal worlds) (Holm over 25) ---
+traps(main)        H100    -0.0003 [ -0.0027, +0.0022] w12 Holm 1.0000
+traps(main)        H250    +0.0006 [ -0.0039, +0.0052] w13 Holm 1.0000
+traps(main)        H500    +0.0012 [ -0.0055, +0.0078] w12 Holm 1.0000
+traps(main)        H1000   +0.0024 [ -0.0031, +0.0079] w12 Holm 1.0000
+traps(main)        H2000   +0.0026 [ -0.0016, +0.0068] w14 Holm 1.0000
+correct-keywords   H100    +0.0000 [ -0.0006, +0.0007] w 5 Holm 1.0000
+correct-keywords   H250    +0.0000 [ -0.0004, +0.0004] w 8 Holm 1.0000
+correct-keywords   H500    +0.0001 [ -0.0002, +0.0004] w10 Holm 1.0000
+correct-keywords   H1000   +0.0001 [ -0.0001, +0.0003] w16 Holm 1.0000
+correct-keywords   H2000   +0.0002 [ -0.0000, +0.0004] w18 Holm 1.0000
+many-topics(16)    H100    -0.0007 [ -0.0019, +0.0006] w 3 Holm 1.0000
+many-topics(16)    H250    -0.0005 [ -0.0026, +0.0017] w13 Holm 1.0000
+many-topics(16)    H500    +0.0002 [ -0.0021, +0.0025] w16 Holm 1.0000
+many-topics(16)    H1000   +0.0017 [ -0.0013, +0.0046] w16 Holm 1.0000
+many-topics(16)    H2000   +0.0021 [ -0.0003, +0.0044] w17 Holm 1.0000
+sim-random         H100    +0.0003 [ -0.0047, +0.0054] w14 Holm 1.0000
+sim-random         H250    +0.0004 [ -0.0078, +0.0086] w12 Holm 1.0000
+sim-random         H500    -0.0002 [ -0.0080, +0.0077] w16 Holm 1.0000
+sim-random         H1000   +0.0039 [ -0.0030, +0.0109] w17 Holm 1.0000
+sim-random         H2000   +0.0049 [ -0.0010, +0.0108] w17 Holm 1.0000
+sim-notraps        H100    +0.0000 [ -0.0000, +0.0000] w 1 Holm 1.0000
+sim-notraps        H250    +0.0000 [ -0.0000, +0.0000] w 1 Holm 1.0000
+sim-notraps        H500    +0.0000 [ -0.0000, +0.0000] w 2 Holm 1.0000
+sim-notraps        H1000   -0.0001 [ -0.0004, +0.0003] w 5 Holm 1.0000
+sim-notraps        H2000   +0.0004 [ -0.0005, +0.0014] w10 Holm 1.0000
+
+=== world weak-traps(sim) | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword [raw]                                 0.7463  0.7451  0.7416  0.7327  0.7043
+eps-greedy [raw]                              0.5256  0.5304  0.5338  0.5307  0.5137
+pooled-ts [raw]                               0.4770  0.4778  0.4783  0.4820  0.4928
+hebbian-robust [raw]                          0.4472  0.4520  0.4508  0.4515  0.4578
+warm(hebr) [raw]                              0.7088  0.7063  0.7053  0.7007  0.6645
+guarded(x1) [raw]                             0.7463  0.7451  0.7417  0.7285  0.6905
+guarded(x1) [reuse]                           0.7451  0.7442  0.7446  0.7414  0.7233
+guarded-rt [reuse]                            0.7456  0.7446  0.7432  0.7404  0.7281
+sona+ [reuse]                                 0.7462  0.7457  0.7442  0.7383  0.7254
+sona+ [hebbian only,reuse]                    0.7462  0.7457  0.7442  0.7383  0.7254
+sona+ [pattern only,reuse]                    0.7460  0.7435  0.7436  0.7411  0.7292
+sona+ [no kw-explore,reuse]                   0.7462  0.7457  0.7442  0.7383  0.7254
+sona+ [normal-tuned cfg,reuse]                0.7451  0.7432  0.7405  0.7364  0.7194
+sona+ [weak cfg on raw bit]                   0.7463  0.7451  0.7416  0.7315  0.6971
+sona(legacy) [raw]                            0.7426  0.7419  0.7383  0.7294  0.7022
+
+=== world weak-random(sim) | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword [raw]                                 0.7256  0.7259  0.7228  0.7100  0.6752
+eps-greedy [raw]                              0.4469  0.4496  0.4489  0.4558  0.4688
+pooled-ts [raw]                               0.4294  0.4414  0.4473  0.4548  0.4678
+hebbian-robust [raw]                          0.4248  0.4290  0.4277  0.4277  0.4341
+warm(hebr) [raw]                              0.6875  0.6889  0.6858  0.6784  0.6289
+guarded(x1) [raw]                             0.7256  0.7259  0.7228  0.7086  0.6549
+guarded(x1) [reuse]                           0.7245  0.7258  0.7294  0.7332  0.7170
+guarded-rt [reuse]                            0.7259  0.7282  0.7318  0.7316  0.7187
+sona+ [reuse]                                 0.7262  0.7285  0.7297  0.7279  0.7148
+sona+ [hebbian only,reuse]                    0.7262  0.7285  0.7297  0.7279  0.7148
+sona+ [pattern only,reuse]                    0.7260  0.7279  0.7301  0.7277  0.7173
+sona+ [no kw-explore,reuse]                   0.7262  0.7285  0.7297  0.7279  0.7148
+sona+ [normal-tuned cfg,reuse]                0.7246  0.7263  0.7288  0.7317  0.7166
+sona+ [weak cfg on raw bit]                   0.7256  0.7259  0.7228  0.7093  0.6669
+sona(legacy) [raw]                            0.7133  0.7137  0.7107  0.6989  0.6684
+
+=== world weak-short-traps | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword [raw]                                 0.6557  0.6586  0.6578  0.6577  0.6557
+eps-greedy [raw]                              0.3967  0.4033  0.4118  0.4280  0.4447
+pooled-ts [raw]                               0.4175  0.4190  0.4228  0.4312  0.4475
+hebbian-robust [raw]                          0.3979  0.3984  0.4002  0.3989  0.4017
+warm(hebr) [raw]                              0.6276  0.6285  0.6327  0.6333  0.6296
+guarded(x1) [raw]                             0.6559  0.6596  0.6593  0.6605  0.6591
+guarded(x1) [reuse]                           0.6555  0.6644  0.6804  0.7060  0.7335
+guarded-rt [reuse]                            0.6556  0.6644  0.6795  0.6995  0.7237
+sona+ [reuse]                                 0.6556  0.6643  0.6803  0.7010  0.7231
+sona+ [hebbian only,reuse]                    0.6556  0.6643  0.6803  0.7010  0.7231
+sona+ [pattern only,reuse]                    0.6554  0.6658  0.6809  0.7051  0.7328
+sona+ [no kw-explore,reuse]                   0.6556  0.6643  0.6803  0.7010  0.7231
+sona+ [normal-tuned cfg,reuse]                0.6555  0.6652  0.6786  0.7023  0.7295
+sona+ [weak cfg on raw bit]                   0.6557  0.6586  0.6581  0.6581  0.6575
+sona(legacy) [raw]                            0.6476  0.6506  0.6512  0.6517  0.6519
+
+### WEAK worlds: candidates vs strict pool: raw baselines + guarded fed the reuse signal  (Holm over 105 tests)
+world              candidate                          H      diff               95% CI  wins   Holm p  best baseline
+weak-traps(sim)    sona+ [reuse]                    100   -0.0001 [ -0.0010, +0.0007]     2   1.0000  guarded(x1) [raw]
+weak-traps(sim)    sona+ [reuse]                    250   +0.0006 [ -0.0025, +0.0037]    11   1.0000  guarded(x1) [raw]
+weak-traps(sim)    sona+ [reuse]                    500   -0.0005 [ -0.0056, +0.0047]     9   1.0000  guarded(x1) [reuse]
+weak-traps(sim)    sona+ [reuse]                   1000   -0.0031 [ -0.0122, +0.0059]    13   1.0000  guarded(x1) [reuse]
+weak-traps(sim)    sona+ [reuse]                   2000   -0.0026 [ -0.0071, +0.0018]    11   1.0000  guarded-rt [reuse]
+weak-random(sim)   sona+ [reuse]                    100   +0.0002 [ -0.0013, +0.0018]     2   1.0000  guarded-rt [reuse]
+weak-random(sim)   sona+ [reuse]                    250   +0.0003 [ -0.0014, +0.0019]     7   1.0000  guarded-rt [reuse]
+weak-random(sim)   sona+ [reuse]                    500   -0.0021 [ -0.0053, +0.0012]    10   1.0000  guarded-rt [reuse]
+weak-random(sim)   sona+ [reuse]                   1000   -0.0053 [ -0.0151, +0.0045]    13   1.0000  guarded(x1) [reuse]
+weak-random(sim)   sona+ [reuse]                   2000   -0.0040 [ -0.0119, +0.0039]    13   1.0000  guarded-rt [reuse]
+weak-short-traps   sona+ [reuse]                    100   -0.0003 [ -0.0017, +0.0012]     5   1.0000  guarded(x1) [raw]
+weak-short-traps   sona+ [reuse]                    250   -0.0002 [ -0.0007, +0.0003]     6   1.0000  guarded-rt [reuse]
+weak-short-traps   sona+ [reuse]                    500   -0.0001 [ -0.0041, +0.0040]    15   1.0000  guarded(x1) [reuse]
+weak-short-traps   sona+ [reuse]                   1000   -0.0050 [ -0.0117, +0.0017]    14   1.0000  guarded(x1) [reuse]
+weak-short-traps   sona+ [reuse]                   2000   -0.0104 [ -0.0180, -0.0027]     9   0.8033  guarded(x1) [reuse]
+--> Holm wins 0, losses 18 of 105
+
+### WEAK worlds: candidates vs raw-fed baselines only  (Holm over 105 tests)
+world              candidate                          H      diff               95% CI  wins   Holm p  best baseline
+weak-traps(sim)    sona+ [reuse]                    100   -0.0001 [ -0.0010, +0.0007]     2   1.0000  guarded(x1) [raw]
+weak-traps(sim)    sona+ [reuse]                    250   +0.0006 [ -0.0025, +0.0037]    11   1.0000  guarded(x1) [raw]
+weak-traps(sim)    sona+ [reuse]                    500   +0.0025 [ -0.0026, +0.0076]    16   1.0000  guarded(x1) [raw]
+weak-traps(sim)    sona+ [reuse]                   1000   +0.0056 [ -0.0022, +0.0134]    15   1.0000  keyword [raw]
+weak-traps(sim)    sona+ [reuse]                   2000   +0.0211 [ +0.0124, +0.0298]    24   0.0023  keyword [raw] WIN
+weak-random(sim)   sona+ [reuse]                    100   +0.0006 [ -0.0008, +0.0019]     4   1.0000  guarded(x1) [raw]
+weak-random(sim)   sona+ [reuse]                    250   +0.0026 [ -0.0011, +0.0062]    12   1.0000  guarded(x1) [raw]
+weak-random(sim)   sona+ [reuse]                    500   +0.0069 [ -0.0014, +0.0153]    14   1.0000  guarded(x1) [raw]
+weak-random(sim)   sona+ [reuse]                   1000   +0.0179 [ +0.0071, +0.0286]    20   0.1306  keyword [raw]
+weak-random(sim)   sona+ [reuse]                   2000   +0.0395 [ +0.0266, +0.0525]    27   0.0001  keyword [raw] WIN
+weak-short-traps   sona+ [reuse]                    100   -0.0003 [ -0.0017, +0.0012]     5   1.0000  guarded(x1) [raw]
+weak-short-traps   sona+ [reuse]                    250   +0.0047 [ +0.0009, +0.0085]    21   1.0000  guarded(x1) [raw]
+weak-short-traps   sona+ [reuse]                    500   +0.0211 [ +0.0114, +0.0307]    26   0.0081  guarded(x1) [raw] WIN
+weak-short-traps   sona+ [reuse]                   1000   +0.0404 [ +0.0275, +0.0533]    27   0.0000  guarded(x1) [raw] WIN
+weak-short-traps   sona+ [reuse]                   2000   +0.0640 [ +0.0505, +0.0776]    30   0.0000  guarded(x1) [raw] WIN
+--> Holm wins 27, losses 10 of 105
+
+### WEAK worlds: candidates vs keyword only  (Holm over 105 tests)
+world              candidate                          H      diff               95% CI  wins   Holm p  best baseline
+weak-traps(sim)    sona+ [reuse]                    100   -0.0001 [ -0.0010, +0.0007]     2   1.0000  keyword [raw]
+weak-traps(sim)    sona+ [reuse]                    250   +0.0006 [ -0.0025, +0.0037]    11   1.0000  keyword [raw]
+weak-traps(sim)    sona+ [reuse]                    500   +0.0026 [ -0.0026, +0.0077]    16   1.0000  keyword [raw]
+weak-traps(sim)    sona+ [reuse]                   1000   +0.0056 [ -0.0022, +0.0134]    15   1.0000  keyword [raw]
+weak-traps(sim)    sona+ [reuse]                   2000   +0.0211 [ +0.0124, +0.0298]    24   0.0023  keyword [raw] WIN
+weak-random(sim)   sona+ [reuse]                    100   +0.0006 [ -0.0008, +0.0019]     4   1.0000  keyword [raw]
+weak-random(sim)   sona+ [reuse]                    250   +0.0026 [ -0.0011, +0.0062]    12   1.0000  keyword [raw]
+weak-random(sim)   sona+ [reuse]                    500   +0.0070 [ -0.0014, +0.0153]    14   1.0000  keyword [raw]
+weak-random(sim)   sona+ [reuse]                   1000   +0.0179 [ +0.0071, +0.0286]    20   0.1267  keyword [raw]
+weak-random(sim)   sona+ [reuse]                   2000   +0.0395 [ +0.0266, +0.0525]    27   0.0001  keyword [raw] WIN
+weak-short-traps   sona+ [reuse]                    100   -0.0002 [ -0.0017, +0.0014]    10   1.0000  keyword [raw]
+weak-short-traps   sona+ [reuse]                    250   +0.0057 [ +0.0017, +0.0097]    24   0.3981  keyword [raw]
+weak-short-traps   sona+ [reuse]                    500   +0.0225 [ +0.0124, +0.0327]    26   0.0065  keyword [raw] WIN
+weak-short-traps   sona+ [reuse]                   1000   +0.0432 [ +0.0295, +0.0570]    28   0.0000  keyword [raw] WIN
+weak-short-traps   sona+ [reuse]                   2000   +0.0674 [ +0.0529, +0.0820]    30   0.0000  keyword [raw] WIN
+--> Holm wins 27, losses 10 of 105
+
+--- direct: sona+ [reuse] - guarded-rt [reuse] (weak worlds) (Holm over 15) ---
+weak-traps(sim)    H100    +0.0007 [ -0.0009, +0.0022] w 2 Holm 1.0000
+weak-traps(sim)    H250    +0.0011 [ -0.0010, +0.0032] w 8 Holm 1.0000
+weak-traps(sim)    H500    +0.0010 [ -0.0025, +0.0045] w11 Holm 1.0000
+weak-traps(sim)    H1000   -0.0022 [ -0.0062, +0.0019] w12 Holm 1.0000
+weak-traps(sim)    H2000   -0.0026 [ -0.0071, +0.0018] w11 Holm 1.0000
+weak-random(sim)   H100    +0.0002 [ -0.0013, +0.0018] w 2 Holm 1.0000
+weak-random(sim)   H250    +0.0003 [ -0.0014, +0.0019] w 7 Holm 1.0000
+weak-random(sim)   H500    -0.0021 [ -0.0053, +0.0012] w10 Holm 1.0000
+weak-random(sim)   H1000   -0.0037 [ -0.0089, +0.0014] w13 Holm 1.0000
+weak-random(sim)   H2000   -0.0040 [ -0.0119, +0.0039] w13 Holm 1.0000
+weak-short-traps   H100    +0.0000 [ +0.0000, +0.0000] w 0 Holm 1.0000
+weak-short-traps   H250    -0.0002 [ -0.0007, +0.0003] w 6 Holm 1.0000
+weak-short-traps   H500    +0.0009 [ -0.0010, +0.0027] w13 Holm 1.0000
+weak-short-traps   H1000   +0.0014 [ -0.0035, +0.0063] w14 Holm 1.0000
+weak-short-traps   H2000   -0.0006 [ -0.0059, +0.0047] w17 Holm 1.0000
+
+--- direct: sona+ [reuse] - guarded(x1) [reuse] (weak worlds) (Holm over 15) ---
+weak-traps(sim)    H100    +0.0011 [ -0.0015, +0.0037] w 3 Holm 1.0000
+weak-traps(sim)    H250    +0.0015 [ -0.0011, +0.0041] w15 Holm 1.0000
+weak-traps(sim)    H500    -0.0005 [ -0.0056, +0.0047] w 9 Holm 1.0000
+weak-traps(sim)    H1000   -0.0031 [ -0.0122, +0.0059] w13 Holm 1.0000
+weak-traps(sim)    H2000   +0.0021 [ -0.0074, +0.0117] w15 Holm 1.0000
+weak-random(sim)   H100    +0.0017 [ -0.0013, +0.0046] w 3 Holm 1.0000
+weak-random(sim)   H250    +0.0026 [ -0.0020, +0.0073] w16 Holm 1.0000
+weak-random(sim)   H500    +0.0003 [ -0.0064, +0.0071] w15 Holm 1.0000
+weak-random(sim)   H1000   -0.0053 [ -0.0151, +0.0045] w13 Holm 1.0000
+weak-random(sim)   H2000   -0.0023 [ -0.0171, +0.0126] w13 Holm 1.0000
+weak-short-traps   H100    +0.0001 [ -0.0005, +0.0006] w 3 Holm 1.0000
+weak-short-traps   H250    -0.0001 [ -0.0026, +0.0024] w14 Holm 1.0000
+weak-short-traps   H500    -0.0001 [ -0.0041, +0.0040] w15 Holm 1.0000
+weak-short-traps   H1000   -0.0050 [ -0.0117, +0.0017] w14 Holm 1.0000
+weak-short-traps   H2000   -0.0104 [ -0.0180, -0.0027] w 9 Holm 0.1434
+
+wrote results/d7_sona_plus_confirm61-90.json

@@ -473,6 +473,211 @@ impl<R: Router> Router for Guarded<R> {
     }
 }
 
+/// Configuration of [`PooledGuarded`] (opt-in; `lam = 0, agent_m = 0` == [`Guarded`]).
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct PoolConfig {
+    /// The underlying guard rule.
+    pub guard: GuardConfig,
+    /// Hierarchical pooling strength across co-occurring features: the evidence of
+    /// feature `f` is augmented by `lam * overlap(f,g) * counts(g)` for every
+    /// feature `g` that co-occurs with it (overlap = co / min(n_f, n_g), only if
+    /// >= `jmin`). Empirical-Bayes flavour: how much a neighbour is trusted is
+    /// learned from how consistently the two features appear together.
+    pub lam: f64,
+    /// Minimum co-occurrence overlap for two features to share evidence.
+    pub jmin: f64,
+    /// Shrinks the prior of a CHALLENGER agent from Beta(1,1) toward that agent's
+    /// global success rate: Beta(1 + m*mu_a, 1 + m*(1-mu_a)). 0 = off.
+    pub agent_m: f64,
+    /// Normalise pooled counts by (1 + sum of neighbour weights): a weighted AVERAGE
+    /// (proper shrinkage, evidence scale preserved) instead of a SUM (inflates n).
+    pub norm: bool,
+    /// Keep the keyword agent's bounds on its OWN counts (pool only for challengers).
+    pub kw_own: bool,
+}
+
+impl Default for PoolConfig {
+    fn default() -> Self {
+        PoolConfig { guard: GuardConfig::default(), lam: 0.0, jmin: 0.4, agent_m: 0.0, norm: false, kw_own: false }
+    }
+}
+
+/// [`Guarded`] with hierarchical pooling of evidence across a task's features
+/// (opt-in, new type). Same decision rule; the per-(feature, agent) counts that
+/// feed the confidence bounds are augmented by the counts of co-occurring
+/// features (a data-driven feature group), and the prior of a challenger is
+/// shrunk toward its pooled per-agent success rate.
+pub struct PooledGuarded<R: Router> {
+    pub inner: R,
+    pub prior: KeywordPrior,
+    pub cfg: PoolConfig,
+    counts: HashMap<String, Vec<(f64, f64)>>,
+    nf: HashMap<String, f64>,
+    co: HashMap<String, HashMap<String, f64>>,
+    glob: Vec<(f64, f64)>,
+    pub decisions: [u64; 3],
+}
+
+impl<R: Router> PooledGuarded<R> {
+    pub fn new(inner: R, map: HashMap<String, usize>, n_agents: usize, cfg: PoolConfig) -> Self {
+        PooledGuarded {
+            inner,
+            prior: KeywordPrior::new(map, n_agents),
+            cfg,
+            counts: HashMap::new(),
+            nf: HashMap::new(),
+            co: HashMap::new(),
+            glob: Vec::new(),
+            decisions: [0; 3],
+        }
+    }
+
+    fn cell(&self, f: &str, a: usize) -> (f64, f64) {
+        self.counts.get(f).and_then(|r| r.get(a)).copied().unwrap_or((0.0, 0.0))
+    }
+
+    /// Pooled (successes, failures) of `agent` for one feature incl. neighbours.
+    fn smoothed(&self, f: &str, a: usize, pool: bool) -> (f64, f64) {
+        let (mut s, mut fl) = self.cell(f, a);
+        if pool
+            && self.cfg.lam > 0.0
+            && let Some(nb) = self.co.get(f)
+        {
+            let nfv = self.nf.get(f).copied().unwrap_or(0.0);
+            let mut wsum = 0.0;
+            for (g, &c) in nb {
+                let ng = self.nf.get(g).copied().unwrap_or(0.0);
+                let ov = c / nfv.min(ng).max(1.0);
+                if ov >= self.cfg.jmin {
+                    let (gs, gf) = self.cell(g, a);
+                    s += self.cfg.lam * ov * gs;
+                    fl += self.cfg.lam * ov * gf;
+                    wsum += self.cfg.lam * ov;
+                }
+            }
+            if self.cfg.norm {
+                s /= 1.0 + wsum;
+                fl /= 1.0 + wsum;
+            }
+        }
+        (s, fl)
+    }
+
+    /// Pooled (successes, failures) of `agent` over the task's features (mean).
+    pub fn pooled(&self, task: &Task, agent: usize) -> (f64, f64) {
+        self.pooled_with(task, agent, true)
+    }
+
+    fn pooled_with(&self, task: &Task, agent: usize, pool: bool) -> (f64, f64) {
+        if task.features.is_empty() {
+            return (0.0, 0.0);
+        }
+        let (mut s, mut f) = (0.0, 0.0);
+        for k in &task.features {
+            let (cs, cf) = self.smoothed(k, agent, pool);
+            s += cs;
+            f += cf;
+        }
+        let n = task.features.len() as f64;
+        (s / n, f / n)
+    }
+
+    pub fn keyword_bounds(&self, task: &Task, agent: usize) -> (f64, f64) {
+        let (s, f) = self.pooled_with(task, agent, !self.cfg.kw_own);
+        beta_bounds(self.cfg.guard.kw_a + s, self.cfg.guard.kw_b + f, self.cfg.guard.z)
+    }
+
+    fn agent_rate(&self, a: usize) -> f64 {
+        let (s, f) = self.glob.get(a).copied().unwrap_or((0.0, 0.0));
+        (s + 1.0) / (s + f + 2.0)
+    }
+
+    fn decide(&self, task: &Task, candidates: &[usize]) -> (u8, usize) {
+        let votes = self.prior.votes(task, candidates);
+        let Some(k) = votes.iter().fold(None, |b: Option<(usize, usize)>, &(a, v)| match b {
+            Some((_, bv)) if bv >= v => b,
+            _ => Some((a, v)),
+        }).map(|(a, _)| a) else {
+            return (2, 0);
+        };
+        let g = &self.cfg.guard;
+        let (_, ucb_k) = self.keyword_bounds(task, k);
+        if ucb_k < g.tau {
+            return (2, 0);
+        }
+        if g.challenge {
+            let mut best = (ucb_k, usize::MAX);
+            for &a in candidates {
+                if a == k {
+                    continue;
+                }
+                let (s, f) = self.pooled(task, a);
+                let mu = self.agent_rate(a);
+                let m = self.cfg.agent_m;
+                let (lcb, _) = beta_bounds(1.0 + m * mu + s, 1.0 + m * (1.0 - mu) + f, g.z);
+                if lcb > best.0 {
+                    best = (lcb, a);
+                }
+            }
+            if best.1 != usize::MAX {
+                return (1, best.1);
+            }
+        }
+        (0, k)
+    }
+}
+
+impl<R: Router> Router for PooledGuarded<R> {
+    fn name(&self) -> String {
+        format!("pguarded({},lam={})", self.inner.name(), self.cfg.lam)
+    }
+
+    fn select(&mut self, task: &Task, candidates: &[usize], rng: &mut Rng) -> usize {
+        assert!(!candidates.is_empty(), "PooledGuarded::select: no candidates");
+        let (d, a) = self.decide(task, candidates);
+        self.decisions[d as usize] += 1;
+        if d == 2 { self.inner.select(task, candidates, rng) } else { a }
+    }
+
+    fn update(&mut self, task: &Task, agent: usize, reward: f64) {
+        let r = reward.clamp(0.0, 1.0);
+        let n = self.prior.n_agents().max(agent + 1);
+        if self.glob.len() < n {
+            self.glob.resize(n, (0.0, 0.0));
+        }
+        self.glob[agent].0 += r;
+        self.glob[agent].1 += 1.0 - r;
+        let mut feats: Vec<&String> = task.features.iter().collect();
+        feats.sort_unstable();
+        feats.dedup();
+        for (i, f) in feats.iter().enumerate() {
+            *self.nf.entry((*f).clone()).or_insert(0.0) += 1.0;
+            if self.cfg.lam > 0.0 {
+                for (j, g) in feats.iter().enumerate() {
+                    if i != j {
+                        *self.co.entry((*f).clone()).or_default().entry((*g).clone()).or_insert(0.0) += 1.0;
+                    }
+                }
+            }
+        }
+        for k in &task.features {
+            let row = self.counts.entry(k.clone()).or_insert_with(|| vec![(0.0, 0.0); n]);
+            if row.len() < n {
+                row.resize(n, (0.0, 0.0));
+            }
+            if self.cfg.guard.discount < 1.0 {
+                for c in row.iter_mut() {
+                    c.0 *= self.cfg.guard.discount;
+                    c.1 *= self.cfg.guard.discount;
+                }
+            }
+            row[agent].0 += r;
+            row[agent].1 += 1.0 - r;
+        }
+        self.inner.update(task, agent, reward);
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -630,6 +835,35 @@ mod tests {
         // keyword bounds: prior Beta(3,1) -> mean 0.75
         let (lo, hi) = g.keyword_bounds(&t(0, &["sql"]), 1);
         assert!(lo < 0.75 && hi > 0.75 && hi <= 1.0 + 1e-9);
+    }
+
+    #[test]
+    fn pooled_guarded_off_equals_guarded_and_pooling_shares_evidence() {
+        let cfg = GuardConfig::default();
+        let mut a = Guarded::new(EpsGreedyRouter::new(3, 1.0, 0.0), map(), 3, cfg);
+        let mut b = PooledGuarded::new(EpsGreedyRouter::new(3, 1.0, 0.0), map(), 3, PoolConfig { guard: cfg, ..PoolConfig::default() });
+        let (mut r1, mut r2) = (Rng::new(4), Rng::new(4));
+        let fs: [&[&str]; 3] = [&["sql", "db"], &["sql"], &["css", "api"]];
+        for i in 0..300u64 {
+            let task = t(i, fs[(i % 3) as usize]);
+            let (x, y) = (a.select(&task, &[0, 1, 2], &mut r1), b.select(&task, &[0, 1, 2], &mut r2));
+            assert_eq!(x, y);
+            let rew = if i % 4 == 0 { 1.0 } else { 0.0 };
+            a.update(&task, x, rew);
+            b.update(&task, y, rew);
+        }
+        // pooling: "db" co-occurs with "sql"; evidence on "sql" alone informs "db"
+        let cfg = PoolConfig { lam: 1.0, jmin: 0.3, ..PoolConfig::default() };
+        let mut p = PooledGuarded::new(EpsGreedyRouter::new(3, 1.0, 0.0), map(), 3, cfg);
+        for _ in 0..10 {
+            p.update(&t(0, &["sql", "db"]), 1, 1.0);
+        }
+        for _ in 0..10 {
+            p.update(&t(0, &["sql"]), 1, 0.0);
+        }
+        let own = p.cell("db", 1);
+        let pool = p.smoothed("db", 1, true);
+        assert!(pool.1 > own.1, "neighbour failures must be shared: {own:?} {pool:?}");
     }
 
     #[test]

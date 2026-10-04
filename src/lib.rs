@@ -16,3 +16,6 @@ pub mod oscillations;
 pub mod workmem;
 pub mod spatial;
 pub mod cognition;
+pub mod addons;
+pub mod knowledge;
+pub mod coupling;

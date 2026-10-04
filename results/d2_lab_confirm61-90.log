@@ -1,0 +1,170 @@
+warning: value assigned to `verdict_ok` is never read
+    --> src\cognition.rs:1020:17
+     |
+1020 |                 verdict_ok = None;
+     |                 ^^^^^^^^^^^^^^^^^ this value is reassigned later and never used
+...
+1033 |                     verdict_ok = Some(flagged == !correct1);
+     |                     --------------------------------------- `verdict_ok` is overwritten here before the previous value is read
+     |
+     = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: `neural-mesh` (lib) generated 1 warning
+    Finished `release` profile [optimized] target(s) in 0.96s
+     Running `C:/Users/mariu/nm-target-r2\release\d2_lab.exe --held 61-90 --out results/d2_lab_confirm61-90.json`
+d2_lab: tune seeds 1-8, held-out 61-90
+[tune 1-8] c=0.05: obj 0.00621  pool_g 32 pool_c 8 pool_l 0 k_chk 0 k_cell 0 disc 0.995
+[tune 1-8] c=0.1: obj 0.00208  pool_g 128 pool_c 2 pool_l 0 k_chk 1 k_cell 0 disc 0.995
+
+=== v-fixed (held-out, qscale 1, fascale 0.3); best fair baseline = warm(hebbian-robust) ===
+policy                          E-success   calls     chk        net@0.05        net@0.10      net250@.05      net500@.05
+keyword                    0.7043+-0.0018   1.000   0.000  0.6543+-0.0018  0.6043+-0.0018  0.6951+-0.0042  0.6916+-0.0039
+eps-greedy                 0.7292+-0.0084   1.000   0.000  0.6792+-0.0084  0.6292+-0.0084  0.5772+-0.0095  0.6336+-0.0088
+pooled-ts                  0.7191+-0.0044   1.000   0.000  0.6691+-0.0044  0.6191+-0.0044  0.5506+-0.0091  0.6022+-0.0084
+hebbian-robust             0.7337+-0.0121   1.000   0.000  0.6837+-0.0121  0.6337+-0.0121  0.5922+-0.0182  0.6436+-0.0162
+warm(hebbian-robust)       0.7700+-0.0072   1.000   0.000  0.7200+-0.0072  0.6700+-0.0072  0.6839+-0.0110  0.7125+-0.0085
+mesh-robust                0.7500+-0.0092   1.000   0.000  0.7000+-0.0092  0.6500+-0.0092  0.5889+-0.0177  0.6458+-0.0150
+SO-old(c=0.05)             0.8173+-0.0043   1.727   0.580  0.7309+-0.0049  0.6446+-0.0063  0.6955+-0.0085  0.7199+-0.0062
+SO-hier(c=0.05)            0.8185+-0.0062   1.745   0.594  0.7313+-0.0053  0.6441+-0.0064  0.6964+-0.0090  0.7197+-0.0063
+SO-old(c=0.1)              0.7883+-0.0063   1.152   0.115  0.7307+-0.0063  0.6731+-0.0066  0.6936+-0.0111  0.7215+-0.0080
+SO-hier(c=0.1)             0.7893+-0.0079   1.158   0.120  0.7314+-0.0067  0.6734+-0.0063  0.6944+-0.0115  0.7214+-0.0087
+
+=== v-random (held-out, qscale 1, fascale 0.3); best fair baseline = warm(hebbian-robust) ===
+policy                          E-success   calls     chk        net@0.05        net@0.10      net250@.05      net500@.05
+keyword                    0.6752+-0.0195   1.000   0.000  0.6252+-0.0195  0.5752+-0.0195  0.6759+-0.0163  0.6728+-0.0176
+eps-greedy                 0.7380+-0.0109   1.000   0.000  0.6880+-0.0109  0.6380+-0.0109  0.5785+-0.0132  0.6449+-0.0122
+pooled-ts                  0.7259+-0.0089   1.000   0.000  0.6759+-0.0089  0.6259+-0.0089  0.5555+-0.0105  0.6228+-0.0104
+hebbian-robust             0.7656+-0.0122   1.000   0.000  0.7156+-0.0122  0.6656+-0.0122  0.6367+-0.0173  0.6944+-0.0143
+warm(hebbian-robust)       0.7744+-0.0102   1.000   0.000  0.7244+-0.0102  0.6744+-0.0102  0.7013+-0.0131  0.7291+-0.0111
+mesh-robust                0.7727+-0.0084   1.000   0.000  0.7227+-0.0084  0.6727+-0.0084  0.6383+-0.0154  0.6982+-0.0122
+SO-old(c=0.05)             0.8141+-0.0077   1.580   0.459  0.7351+-0.0089  0.6561+-0.0107  0.7101+-0.0101  0.7346+-0.0086
+SO-hier(c=0.05)            0.8141+-0.0072   1.575   0.454  0.7354+-0.0084  0.6566+-0.0106  0.7106+-0.0097  0.7346+-0.0082
+SO-old(c=0.1)              0.7901+-0.0088   1.127   0.096  0.7338+-0.0093  0.6774+-0.0100  0.7086+-0.0125  0.7359+-0.0104
+SO-hier(c=0.1)             0.7898+-0.0104   1.123   0.092  0.7337+-0.0100  0.6776+-0.0100  0.7078+-0.0135  0.7345+-0.0112
+
+=== v-notraps (held-out, qscale 1, fascale 0.3); best fair baseline = keyword ===
+policy                          E-success   calls     chk        net@0.05        net@0.10      net250@.05      net500@.05
+keyword                    0.7855+-0.0128   1.000   0.000  0.7355+-0.0128  0.6855+-0.0128  0.7922+-0.0046  0.7812+-0.0123
+eps-greedy                 0.7286+-0.0128   1.000   0.000  0.6786+-0.0128  0.6286+-0.0128  0.5747+-0.0140  0.6376+-0.0141
+pooled-ts                  0.7177+-0.0120   1.000   0.000  0.6677+-0.0120  0.6177+-0.0120  0.5480+-0.0122  0.6090+-0.0120
+hebbian-robust             0.7532+-0.0104   1.000   0.000  0.7032+-0.0104  0.6532+-0.0104  0.6214+-0.0158  0.6722+-0.0146
+warm(hebbian-robust)       0.7736+-0.0117   1.000   0.000  0.7236+-0.0117  0.6736+-0.0117  0.7437+-0.0113  0.7467+-0.0123
+mesh-robust                0.7630+-0.0090   1.000   0.000  0.7130+-0.0090  0.6630+-0.0090  0.6203+-0.0154  0.6740+-0.0139
+SO-old(c=0.05)             0.8137+-0.0088   1.634   0.506  0.7320+-0.0101  0.6503+-0.0120  0.7365+-0.0091  0.7427+-0.0111
+SO-hier(c=0.05)            0.8149+-0.0082   1.616   0.489  0.7341+-0.0099  0.6533+-0.0124  0.7388+-0.0098  0.7443+-0.0114
+SO-old(c=0.1)              0.7924+-0.0094   1.149   0.112  0.7349+-0.0102  0.6775+-0.0113  0.7458+-0.0111  0.7488+-0.0125
+SO-hier(c=0.1)             0.7884+-0.0101   1.129   0.098  0.7320+-0.0107  0.6755+-0.0117  0.7459+-0.0107  0.7492+-0.0117
+
+=== v-weak (held-out, qscale 0.5, fascale 0.5); best fair baseline = warm(hebbian-robust) ===
+policy                          E-success   calls     chk        net@0.05        net@0.10      net250@.05      net500@.05
+keyword                    0.6752+-0.0195   1.000   0.000  0.6252+-0.0195  0.5752+-0.0195  0.6759+-0.0163  0.6728+-0.0176
+eps-greedy                 0.7380+-0.0109   1.000   0.000  0.6880+-0.0109  0.6380+-0.0109  0.5785+-0.0132  0.6449+-0.0122
+pooled-ts                  0.7259+-0.0089   1.000   0.000  0.6759+-0.0089  0.6259+-0.0089  0.5555+-0.0105  0.6228+-0.0104
+hebbian-robust             0.7656+-0.0122   1.000   0.000  0.7156+-0.0122  0.6656+-0.0122  0.6367+-0.0173  0.6944+-0.0143
+warm(hebbian-robust)       0.7744+-0.0102   1.000   0.000  0.7244+-0.0102  0.6744+-0.0102  0.7013+-0.0131  0.7291+-0.0111
+mesh-robust                0.7727+-0.0084   1.000   0.000  0.7227+-0.0084  0.6727+-0.0084  0.6383+-0.0154  0.6982+-0.0122
+SO-old(c=0.05)             0.7846+-0.0088   1.200   0.158  0.7246+-0.0098  0.6646+-0.0108  0.6923+-0.0122  0.7245+-0.0103
+SO-hier(c=0.05)            0.7794+-0.0105   1.093   0.074  0.7248+-0.0103  0.6701+-0.0103  0.6993+-0.0127  0.7282+-0.0108
+SO-old(c=0.1)              0.7765+-0.0101   1.031   0.025  0.7250+-0.0102  0.6735+-0.0103  0.7016+-0.0131  0.7295+-0.0111
+SO-hier(c=0.1)             0.7756+-0.0101   1.015   0.012  0.7249+-0.0102  0.6741+-0.0102  0.7014+-0.0132  0.7293+-0.0111
+
+=== none-fixed (held-out, qscale 0, fascale 0.3); best fair baseline = warm(hebbian-robust) ===
+policy                          E-success   calls     chk        net@0.05        net@0.10      net250@.05      net500@.05
+keyword                    0.7043+-0.0018   1.000   0.000  0.6543+-0.0018  0.6043+-0.0018  0.6951+-0.0042  0.6916+-0.0039
+eps-greedy                 0.7292+-0.0084   1.000   0.000  0.6792+-0.0084  0.6292+-0.0084  0.5772+-0.0095  0.6336+-0.0088
+pooled-ts                  0.7191+-0.0044   1.000   0.000  0.6691+-0.0044  0.6191+-0.0044  0.5506+-0.0091  0.6022+-0.0084
+hebbian-robust             0.7337+-0.0121   1.000   0.000  0.6837+-0.0121  0.6337+-0.0121  0.5922+-0.0182  0.6436+-0.0162
+warm(hebbian-robust)       0.7700+-0.0072   1.000   0.000  0.7200+-0.0072  0.6700+-0.0072  0.6839+-0.0110  0.7125+-0.0085
+mesh-robust                0.7500+-0.0092   1.000   0.000  0.7000+-0.0092  0.6500+-0.0092  0.5889+-0.0177  0.6458+-0.0150
+SO-old(c=0.05)             0.7700+-0.0072   1.036   0.033  0.7181+-0.0072  0.6663+-0.0072  0.6731+-0.0110  0.7068+-0.0085
+SO-hier(c=0.05)            0.7700+-0.0072   1.009   0.009  0.7195+-0.0072  0.6690+-0.0072  0.6807+-0.0109  0.7108+-0.0085
+SO-old(c=0.1)              0.7700+-0.0072   1.011   0.010  0.7194+-0.0072  0.6688+-0.0073  0.6812+-0.0110  0.7110+-0.0085
+SO-hier(c=0.1)             0.7700+-0.0072   1.003   0.003  0.7198+-0.0072  0.6696+-0.0072  0.6829+-0.0110  0.7119+-0.0085
+
+=== none-random (held-out, qscale 0, fascale 0.3); best fair baseline = warm(hebbian-robust) ===
+policy                          E-success   calls     chk        net@0.05        net@0.10      net250@.05      net500@.05
+keyword                    0.6752+-0.0195   1.000   0.000  0.6252+-0.0195  0.5752+-0.0195  0.6759+-0.0163  0.6728+-0.0176
+eps-greedy                 0.7380+-0.0109   1.000   0.000  0.6880+-0.0109  0.6380+-0.0109  0.5785+-0.0132  0.6449+-0.0122
+pooled-ts                  0.7259+-0.0089   1.000   0.000  0.6759+-0.0089  0.6259+-0.0089  0.5555+-0.0105  0.6228+-0.0104
+hebbian-robust             0.7656+-0.0122   1.000   0.000  0.7156+-0.0122  0.6656+-0.0122  0.6367+-0.0173  0.6944+-0.0143
+warm(hebbian-robust)       0.7744+-0.0102   1.000   0.000  0.7244+-0.0102  0.6744+-0.0102  0.7013+-0.0131  0.7291+-0.0111
+mesh-robust                0.7727+-0.0084   1.000   0.000  0.7227+-0.0084  0.6727+-0.0084  0.6383+-0.0154  0.6982+-0.0122
+SO-old(c=0.05)             0.7744+-0.0102   1.039   0.035  0.7225+-0.0102  0.6706+-0.0102  0.6908+-0.0130  0.7236+-0.0110
+SO-hier(c=0.05)            0.7744+-0.0102   1.010   0.009  0.7239+-0.0102  0.6734+-0.0102  0.6981+-0.0131  0.7274+-0.0111
+SO-old(c=0.1)              0.7744+-0.0102   1.012   0.011  0.7238+-0.0102  0.6732+-0.0102  0.6990+-0.0132  0.7278+-0.0111
+SO-hier(c=0.1)             0.7744+-0.0102   1.004   0.003  0.7242+-0.0102  0.6741+-0.0102  0.7004+-0.0131  0.7286+-0.0111
+
+#### all tests (72 tests, Holm over all)
+v-fixed      hier(c=0.05)   net@0.05     vs best-fair:warm(hebbian-robust) +0.0113 CI[+0.0078,+0.0149] wins 29/30 calls 1.745 Holm p=0.0000 BEATS
+v-fixed      hier(c=0.05)   net@0.05     vs warm(hebbian-robust)           +0.0113 CI[+0.0078,+0.0149] wins 29/30 calls 1.745 Holm p=0.0000 BEATS
+v-fixed      old(c=0.05)    net@0.05     vs warm(hebbian-robust)           +0.0110 CI[+0.0078,+0.0142] wins 28/30 calls 1.727 Holm p=0.0000 BEATS
+v-fixed      hier(c=0.05)   net@0.05     vs SO-old(c=0.05)                 +0.0004 CI[-0.0024,+0.0031] wins 16/30 calls 1.745 Holm p=1.0000 n.s.
+v-fixed      hier(c=0.05)   net@H250@0.05 vs SO-old(c=0.05)                 +0.0010 CI[-0.0029,+0.0048] wins 14/30 calls 1.745 Holm p=1.0000 n.s.
+v-fixed      hier(c=0.05)   net@H500@0.05 vs SO-old(c=0.05)                 -0.0002 CI[-0.0026,+0.0023] wins 13/30 calls 1.745 Holm p=1.0000 n.s.
+v-fixed      hier(c=0.1)    net@0.1      vs best-fair:warm(hebbian-robust) +0.0035 CI[+0.0014,+0.0056] wins 26/30 calls 1.158 Holm p=0.0468 BEATS
+v-fixed      hier(c=0.1)    net@0.1      vs warm(hebbian-robust)           +0.0035 CI[+0.0014,+0.0056] wins 26/30 calls 1.158 Holm p=0.0468 BEATS
+v-fixed      old(c=0.1)     net@0.1      vs warm(hebbian-robust)           +0.0032 CI[+0.0018,+0.0045] wins 26/30 calls 1.152 Holm p=0.0016 BEATS
+v-fixed      hier(c=0.1)    net@0.1      vs SO-old(c=0.1)                  +0.0003 CI[-0.0015,+0.0022] wins 18/30 calls 1.158 Holm p=1.0000 n.s.
+v-fixed      hier(c=0.1)    net@H250@0.1 vs SO-old(c=0.1)                  +0.0000 CI[-0.0028,+0.0028] wins 16/30 calls 1.158 Holm p=1.0000 n.s.
+v-fixed      hier(c=0.1)    net@H500@0.1 vs SO-old(c=0.1)                  -0.0010 CI[-0.0036,+0.0016] wins 14/30 calls 1.158 Holm p=1.0000 n.s.
+v-random     hier(c=0.05)   net@0.05     vs best-fair:warm(hebbian-robust) +0.0109 CI[+0.0079,+0.0140] wins 29/30 calls 1.575 Holm p=0.0000 BEATS
+v-random     hier(c=0.05)   net@0.05     vs warm(hebbian-robust)           +0.0109 CI[+0.0079,+0.0140] wins 29/30 calls 1.575 Holm p=0.0000 BEATS
+v-random     old(c=0.05)    net@0.05     vs warm(hebbian-robust)           +0.0107 CI[+0.0076,+0.0137] wins 28/30 calls 1.580 Holm p=0.0000 BEATS
+v-random     hier(c=0.05)   net@0.05     vs SO-old(c=0.05)                 +0.0003 CI[-0.0016,+0.0022] wins 14/30 calls 1.575 Holm p=1.0000 n.s.
+v-random     hier(c=0.05)   net@H250@0.05 vs SO-old(c=0.05)                 +0.0005 CI[-0.0029,+0.0038] wins 15/30 calls 1.575 Holm p=1.0000 n.s.
+v-random     hier(c=0.05)   net@H500@0.05 vs SO-old(c=0.05)                 -0.0000 CI[-0.0026,+0.0026] wins 15/30 calls 1.575 Holm p=1.0000 n.s.
+v-random     hier(c=0.1)    net@0.1      vs best-fair:warm(hebbian-robust) +0.0031 CI[+0.0015,+0.0048] wins 21/30 calls 1.123 Holm p=0.0173 BEATS
+v-random     hier(c=0.1)    net@0.1      vs warm(hebbian-robust)           +0.0031 CI[+0.0015,+0.0048] wins 21/30 calls 1.123 Holm p=0.0173 BEATS
+v-random     old(c=0.1)     net@0.1      vs warm(hebbian-robust)           +0.0030 CI[+0.0010,+0.0050] wins 23/30 calls 1.127 Holm p=0.1028 n.s.
+v-random     hier(c=0.1)    net@0.1      vs SO-old(c=0.1)                  +0.0002 CI[-0.0019,+0.0022] wins 14/30 calls 1.123 Holm p=1.0000 n.s.
+v-random     hier(c=0.1)    net@H250@0.1 vs SO-old(c=0.1)                  +0.0007 CI[-0.0013,+0.0027] wins 17/30 calls 1.123 Holm p=1.0000 n.s.
+v-random     hier(c=0.1)    net@H500@0.1 vs SO-old(c=0.1)                  -0.0003 CI[-0.0016,+0.0010] wins 17/30 calls 1.123 Holm p=1.0000 n.s.
+v-notraps    hier(c=0.05)   net@0.05     vs best-fair:keyword              -0.0014 CI[-0.0070,+0.0043] wins 16/30 calls 1.616 Holm p=1.0000 n.s.
+v-notraps    hier(c=0.05)   net@0.05     vs warm(hebbian-robust)           +0.0105 CI[+0.0069,+0.0141] wins 28/30 calls 1.616 Holm p=0.0001 BEATS
+v-notraps    old(c=0.05)    net@0.05     vs warm(hebbian-robust)           +0.0084 CI[+0.0055,+0.0112] wins 27/30 calls 1.634 Holm p=0.0001 BEATS
+v-notraps    hier(c=0.05)   net@0.05     vs SO-old(c=0.05)                 +0.0021 CI[+0.0004,+0.0039] wins 20/30 calls 1.616 Holm p=0.4693 n.s.
+v-notraps    hier(c=0.05)   net@H250@0.05 vs SO-old(c=0.05)                 +0.0022 CI[-0.0009,+0.0053] wins 21/30 calls 1.616 Holm p=1.0000 n.s.
+v-notraps    hier(c=0.05)   net@H500@0.05 vs SO-old(c=0.05)                 +0.0016 CI[-0.0008,+0.0040] wins 21/30 calls 1.616 Holm p=1.0000 n.s.
+v-notraps    hier(c=0.1)    net@0.1      vs best-fair:keyword              -0.0100 CI[-0.0159,-0.0040] wins  7/30 calls 1.129 Holm p=0.0469 WORSE
+v-notraps    hier(c=0.1)    net@0.1      vs warm(hebbian-robust)           +0.0019 CI[+0.0003,+0.0035] wins 20/30 calls 1.129 Holm p=0.4693 n.s.
+v-notraps    old(c=0.1)     net@0.1      vs warm(hebbian-robust)           +0.0039 CI[+0.0017,+0.0060] wins 24/30 calls 1.149 Holm p=0.0275 BEATS
+v-notraps    hier(c=0.1)    net@0.1      vs SO-old(c=0.1)                  -0.0020 CI[-0.0042,+0.0003] wins 11/30 calls 1.129 Holm p=1.0000 n.s.
+v-notraps    hier(c=0.1)    net@H250@0.1 vs SO-old(c=0.1)                  -0.0007 CI[-0.0019,+0.0005] wins 13/30 calls 1.129 Holm p=1.0000 n.s.
+v-notraps    hier(c=0.1)    net@H500@0.1 vs SO-old(c=0.1)                  -0.0003 CI[-0.0017,+0.0012] wins 13/30 calls 1.129 Holm p=1.0000 n.s.
+v-weak       hier(c=0.05)   net@0.05     vs best-fair:warm(hebbian-robust) +0.0004 CI[-0.0002,+0.0009] wins 13/30 calls 1.093 Holm p=1.0000 n.s.
+v-weak       hier(c=0.05)   net@0.05     vs warm(hebbian-robust)           +0.0004 CI[-0.0002,+0.0009] wins 13/30 calls 1.093 Holm p=1.0000 n.s.
+v-weak       old(c=0.05)    net@0.05     vs warm(hebbian-robust)           +0.0002 CI[-0.0012,+0.0015] wins 11/30 calls 1.200 Holm p=1.0000 n.s.
+v-weak       hier(c=0.05)   net@0.05     vs SO-old(c=0.05)                 +0.0002 CI[-0.0012,+0.0016] wins 18/30 calls 1.093 Holm p=1.0000 n.s.
+v-weak       hier(c=0.05)   net@H250@0.05 vs SO-old(c=0.05)                 +0.0070 CI[+0.0055,+0.0085] wins 30/30 calls 1.093 Holm p=0.0000 BEATS
+v-weak       hier(c=0.05)   net@H500@0.05 vs SO-old(c=0.05)                 +0.0037 CI[+0.0024,+0.0050] wins 27/30 calls 1.093 Holm p=0.0001 BEATS
+v-weak       hier(c=0.1)    net@0.1      vs best-fair:warm(hebbian-robust) -0.0003 CI[-0.0004,-0.0002] wins  1/30 calls 1.015 Holm p=0.0003 WORSE
+v-weak       hier(c=0.1)    net@0.1      vs warm(hebbian-robust)           -0.0003 CI[-0.0004,-0.0002] wins  1/30 calls 1.015 Holm p=0.0003 WORSE
+v-weak       old(c=0.1)     net@0.1      vs warm(hebbian-robust)           -0.0010 CI[-0.0012,-0.0007] wins  1/30 calls 1.031 Holm p=0.0000 WORSE
+v-weak       hier(c=0.1)    net@0.1      vs SO-old(c=0.1)                  +0.0007 CI[+0.0004,+0.0009] wins 27/30 calls 1.015 Holm p=0.0004 BEATS
+v-weak       hier(c=0.1)    net@H250@0.1 vs SO-old(c=0.1)                  +0.0019 CI[+0.0011,+0.0027] wins 27/30 calls 1.015 Holm p=0.0016 BEATS
+v-weak       hier(c=0.1)    net@H500@0.1 vs SO-old(c=0.1)                  +0.0010 CI[+0.0006,+0.0014] wins 25/30 calls 1.015 Holm p=0.0011 BEATS
+none-fixed   hier(c=0.05)   net@0.05     vs best-fair:warm(hebbian-robust) -0.0005 CI[-0.0005,-0.0004] wins  0/30 calls 1.009 Holm p=0.0000 WORSE
+none-fixed   hier(c=0.05)   net@0.05     vs warm(hebbian-robust)           -0.0005 CI[-0.0005,-0.0004] wins  0/30 calls 1.009 Holm p=0.0000 WORSE
+none-fixed   old(c=0.05)    net@0.05     vs warm(hebbian-robust)           -0.0018 CI[-0.0019,-0.0017] wins  0/30 calls 1.036 Holm p=0.0000 WORSE
+none-fixed   hier(c=0.05)   net@0.05     vs SO-old(c=0.05)                 +0.0013 CI[+0.0013,+0.0014] wins 30/30 calls 1.009 Holm p=0.0000 BEATS
+none-fixed   hier(c=0.05)   net@H250@0.05 vs SO-old(c=0.05)                 +0.0076 CI[+0.0071,+0.0081] wins 30/30 calls 1.009 Holm p=0.0000 BEATS
+none-fixed   hier(c=0.05)   net@H500@0.05 vs SO-old(c=0.05)                 +0.0040 CI[+0.0037,+0.0042] wins 30/30 calls 1.009 Holm p=0.0000 BEATS
+none-fixed   hier(c=0.1)    net@0.1      vs best-fair:warm(hebbian-robust) -0.0003 CI[-0.0004,-0.0003] wins  0/30 calls 1.003 Holm p=0.0000 WORSE
+none-fixed   hier(c=0.1)    net@0.1      vs warm(hebbian-robust)           -0.0003 CI[-0.0004,-0.0003] wins  0/30 calls 1.003 Holm p=0.0000 WORSE
+none-fixed   old(c=0.1)     net@0.1      vs warm(hebbian-robust)           -0.0011 CI[-0.0012,-0.0010] wins  0/30 calls 1.011 Holm p=0.0000 WORSE
+none-fixed   hier(c=0.1)    net@0.1      vs SO-old(c=0.1)                  +0.0008 CI[+0.0007,+0.0009] wins 30/30 calls 1.003 Holm p=0.0000 BEATS
+none-fixed   hier(c=0.1)    net@H250@0.1 vs SO-old(c=0.1)                  +0.0034 CI[+0.0030,+0.0038] wins 30/30 calls 1.003 Holm p=0.0000 BEATS
+none-fixed   hier(c=0.1)    net@H500@0.1 vs SO-old(c=0.1)                  +0.0020 CI[+0.0017,+0.0022] wins 30/30 calls 1.003 Holm p=0.0000 BEATS
+none-random  hier(c=0.05)   net@0.05     vs best-fair:warm(hebbian-robust) -0.0005 CI[-0.0005,-0.0004] wins  0/30 calls 1.010 Holm p=0.0000 WORSE
+none-random  hier(c=0.05)   net@0.05     vs warm(hebbian-robust)           -0.0005 CI[-0.0005,-0.0004] wins  0/30 calls 1.010 Holm p=0.0000 WORSE
+none-random  old(c=0.05)    net@0.05     vs warm(hebbian-robust)           -0.0019 CI[-0.0020,-0.0018] wins  0/30 calls 1.039 Holm p=0.0000 WORSE
+none-random  hier(c=0.05)   net@0.05     vs SO-old(c=0.05)                 +0.0014 CI[+0.0013,+0.0015] wins 30/30 calls 1.010 Holm p=0.0000 BEATS
+none-random  hier(c=0.05)   net@H250@0.05 vs SO-old(c=0.05)                 +0.0073 CI[+0.0068,+0.0078] wins 30/30 calls 1.010 Holm p=0.0000 BEATS
+none-random  hier(c=0.05)   net@H500@0.05 vs SO-old(c=0.05)                 +0.0039 CI[+0.0036,+0.0041] wins 30/30 calls 1.010 Holm p=0.0000 BEATS
+none-random  hier(c=0.1)    net@0.1      vs best-fair:warm(hebbian-robust) -0.0004 CI[-0.0004,-0.0003] wins  0/30 calls 1.004 Holm p=0.0000 WORSE
+none-random  hier(c=0.1)    net@0.1      vs warm(hebbian-robust)           -0.0004 CI[-0.0004,-0.0003] wins  0/30 calls 1.004 Holm p=0.0000 WORSE
+none-random  old(c=0.1)     net@0.1      vs warm(hebbian-robust)           -0.0012 CI[-0.0013,-0.0011] wins  0/30 calls 1.012 Holm p=0.0000 WORSE
+none-random  hier(c=0.1)    net@0.1      vs SO-old(c=0.1)                  +0.0009 CI[+0.0008,+0.0010] wins 30/30 calls 1.004 Holm p=0.0000 BEATS
+none-random  hier(c=0.1)    net@H250@0.1 vs SO-old(c=0.1)                  +0.0029 CI[+0.0023,+0.0034] wins 30/30 calls 1.004 Holm p=0.0000 BEATS
+none-random  hier(c=0.1)    net@H500@0.1 vs SO-old(c=0.1)                  +0.0017 CI[+0.0014,+0.0019] wins 30/30 calls 1.004 Holm p=0.0000 BEATS
+wrote results/d2_lab_confirm61-90.json

@@ -558,6 +558,32 @@ impl<R: Router> NeuralMesh<R> {
     /// (for `team[0]`), co-activation edges (teams of size >= 2) and health of
     /// every member.
     pub fn feedback(&mut self, task: &Task, team: &[usize], reward: f64) {
+        self.feedback_opt(task, team, reward, true);
+    }
+
+    /// Opt-in liveness probe evidence (not a task outcome; cost accounting is the caller's).
+    /// `alive = true` restores the node to the health of the healthiest peer and clears its
+    /// bench; `alive = false` zeroes its health and benches it now. Does not touch the leader
+    /// router or edges.
+    pub fn observe_probe(&mut self, a: usize, alive: bool) {
+        self.ensure_agents(a + 1);
+        self.probation[a] = false;
+        self.fail_streak[a] = 0;
+        if alive {
+            let best = self.health.iter().cloned().fold(0.0_f64, f64::max);
+            self.health[a] = self.health[a].max(best);
+            self.benched_since[a] = None;
+        } else {
+            self.health[a] = 0.0;
+            if self.benched_since[a].is_none() {
+                self.benched_since[a] = Some(self.routes);
+            }
+        }
+    }
+
+    /// Like `feedback`, but `update_leader = false` updates health/edges only and leaves the
+    /// leader router untouched (outcome attributed to an outage, not to skill).
+    pub fn feedback_opt(&mut self, task: &Task, team: &[usize], reward: f64, update_leader: bool) {
         if team.is_empty() || !reward.is_finite() {
             return;
         }
@@ -566,7 +592,9 @@ impl<R: Router> NeuralMesh<R> {
             self.ensure_agents(mx + 1);
         }
         let leader = team[0];
-        self.leader.update(task, leader, reward);
+        if update_leader {
+            self.leader.update(task, leader, reward);
+        }
 
         // Unique members.
         let mut members: Vec<usize> = Vec::with_capacity(team.len());
@@ -1076,5 +1104,32 @@ mod tests {
         v.as_object_mut().unwrap().remove("ctx_health");
         let back: NeuralMesh<ThompsonRouter> = serde_json::from_value(v).unwrap();
         assert!(back.context_bench.is_none());
+    }
+
+    #[test]
+    fn probe_dead_benches_and_alive_clears_without_touching_router() {
+        let mut m = NeuralMesh::new(3, FirstRouter, MeshConfig { team_size: 1, ..MeshConfig::default() });
+        let t = task(0);
+        let c = [0usize, 1, 2];
+        assert_eq!(m.route(&t, &c, &mut Rng::new(1))[0], 0);
+        m.observe_probe(0, false);
+        assert_eq!(m.health(0), 0.0);
+        assert_ne!(m.route(&t, &c, &mut Rng::new(1))[0], 0, "probe-dead node must be benched");
+        m.observe_probe(0, true);
+        assert!(!m.is_benched(0));
+        assert_eq!(m.route(&t, &c, &mut Rng::new(1))[0], 0, "probe-alive node is routable again");
+    }
+
+    #[test]
+    fn feedback_opt_false_skips_router_but_updates_health() {
+        let mut a = NeuralMesh::new(2, HebbianRouter::new(2, HebbianConfig::default()), MeshConfig::default());
+        let b = a.clone();
+        let t = task(0);
+        a.feedback_opt(&t, &[1], 0.0, false);
+        assert!(a.health(1) < 1.0);
+        assert_eq!(a.leader().updates(), b.leader().updates(), "router untouched");
+        let mut c = b.clone();
+        c.feedback(&t, &[1], 0.0);
+        assert_eq!(c.leader().updates(), b.leader().updates() + 1);
     }
 }
