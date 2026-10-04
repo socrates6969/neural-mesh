@@ -979,3 +979,308 @@ impl Router for SeqAddRouter {
         }
     }
 }
+
+// ---------------------------------------------------------------------------
+// X2: uncertainty-triggered second opinion (critical-thinking checker).
+// ---------------------------------------------------------------------------
+
+/// Config of [`SecondOpinion`]. `cost` is the per-call cost the deployment pays
+/// (known, not tuned); the other knobs are learned-estimate hyper-parameters.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SecondOpinionConfig {
+    /// Cost of one agent call in reward units (0.05 = a call costs 5% of a success).
+    pub cost: f64,
+    /// Doubt bonus: the leader's success estimate is lowered by `kappa` posterior sds
+    /// and checker reliability raised by `kappa` sds (optimism for unexplored checkers).
+    pub kappa: f64,
+    /// Beta prior (a, b) of checker catch probability.
+    pub q_prior: (f64, f64),
+    /// Beta prior (a, b) of checker false-alarm probability.
+    pub fa_prior: (f64, f64),
+    /// Per-observation discount of the evidence counts of a (feature, agent) cell
+    /// (1.0 = no forgetting; < 1 tracks drift).
+    pub discount: f64,
+    /// Never check when fewer than this many agents are candidates (need leader + checker).
+    pub min_candidates: usize,
+    /// Hierarchical pooling of checker estimates: a (feature, checker) cell's prior is
+    /// the checker's feature-pooled posterior mean with this many pseudo-counts
+    /// (0 = off: every cell starts from `q_prior` / `fa_prior`).
+    #[serde(default)]
+    pub pool: f64,
+}
+
+impl Default for SecondOpinionConfig {
+    fn default() -> Self {
+        SecondOpinionConfig { cost: 0.05, kappa: 1.0, q_prior: (1.0, 1.0), fa_prior: (1.0, 3.0), discount: 0.99, min_candidates: 2, pool: 0.0 }
+    }
+}
+
+/// Discounted Beta evidence (successes, failures).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
+struct BetaCell {
+    s: f64,
+    f: f64,
+}
+
+impl BetaCell {
+    fn obs(&mut self, hit: bool, discount: f64) {
+        self.s *= discount;
+        self.f *= discount;
+        if hit {
+            self.s += 1.0;
+        } else {
+            self.f += 1.0;
+        }
+    }
+    /// (mean, sd) under a Beta(a + s, b + f) posterior.
+    fn post(&self, prior: (f64, f64)) -> (f64, f64) {
+        let a = prior.0 + self.s;
+        let b = prior.1 + self.f;
+        let n = a + b;
+        (a / n, (a * b / (n * n * (n + 1.0))).sqrt())
+    }
+}
+
+/// Decision taken by [`SecondOpinion::decide`].
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct CheckPlan {
+    pub checker: usize,
+    /// agent that redoes the task if the checker flags it
+    pub retry: usize,
+    /// expected gain in success probability from checking
+    pub gain: f64,
+    /// expected extra cost (check call + probable retry call)
+    pub extra_cost: f64,
+}
+
+/// Uncertainty-triggered second opinion: a calibrated memory of who succeeds on
+/// what (per feature x agent) and which checker catches whose failures (per
+/// feature x checker). The leader's pick is checked ONLY when the expected value
+/// of checking exceeds its cost:
+///
+/// `gain = P(leader fails) * q(checker) * P(retry succeeds)`,
+/// `extra_cost = cost * (1 + P(flag))`, `P(flag) = P(fail) q + P(success) fa`,
+///
+/// with the leader's success estimate lowered by `kappa` sds (low evidence => more
+/// doubt) and checker reliability raised by `kappa` sds (optimistic exploration).
+/// Flags are assumed *verifiable*: a flagged output is re-done by the best other
+/// agent and the confirmed-good output is delivered, so a false alarm costs a retry
+/// call but never discards a correct result. Deterministic: consumes no rng, so a
+/// router wrapped by it sees exactly the same rng stream as without it.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SecondOpinion {
+    pub cfg: SecondOpinionConfig,
+    n_agents: usize,
+    succ: HashMap<String, Vec<BetaCell>>,
+    catch: HashMap<String, Vec<BetaCell>>,
+    alarm: HashMap<String, Vec<BetaCell>>,
+    /// feature-pooled (per checker) catch / false-alarm evidence
+    #[serde(default)]
+    catch_g: Vec<BetaCell>,
+    #[serde(default)]
+    alarm_g: Vec<BetaCell>,
+    pub checks: u64,
+    pub decisions: u64,
+}
+
+impl SecondOpinion {
+    pub fn new(n_agents: usize, cfg: SecondOpinionConfig) -> Self {
+        SecondOpinion {
+            cfg,
+            n_agents,
+            succ: HashMap::new(),
+            catch: HashMap::new(),
+            alarm: HashMap::new(),
+            catch_g: Vec::new(),
+            alarm_g: Vec::new(),
+            checks: 0,
+            decisions: 0,
+        }
+    }
+
+    fn mean_post(table: &HashMap<String, Vec<BetaCell>>, task: &Task, a: usize, prior: (f64, f64)) -> (f64, f64) {
+        let keys = task_keys(task);
+        if keys.is_empty() {
+            return BetaCell::default().post(prior);
+        }
+        let (mut m, mut v) = (0.0, 0.0);
+        for k in &keys {
+            let c = table.get(k).and_then(|r| r.get(a)).copied().unwrap_or_default();
+            let (mi, si) = c.post(prior);
+            m += mi;
+            v += si;
+        }
+        let n = keys.len() as f64;
+        (m / n, v / n)
+    }
+
+    /// Calibrated success estimate (mean, sd) of `agent` on `task`.
+    pub fn predict(&self, task: &Task, agent: usize) -> (f64, f64) {
+        Self::mean_post(&self.succ, task, agent, (1.0, 1.0))
+    }
+
+    /// Cell prior: the configured prior, or (with pooling) the checker's pooled mean.
+    fn cell_prior(&self, global: &[BetaCell], c: usize, prior: (f64, f64)) -> (f64, f64) {
+        if self.cfg.pool <= 0.0 {
+            return prior;
+        }
+        let m = global.get(c).copied().unwrap_or_default().post(prior).0;
+        (self.cfg.pool * m, self.cfg.pool * (1.0 - m))
+    }
+
+    /// Estimated probability that `checker` catches a failure on `task`.
+    pub fn reliability(&self, task: &Task, checker: usize) -> (f64, f64) {
+        let pr = self.cell_prior(&self.catch_g, checker, self.cfg.q_prior);
+        Self::mean_post(&self.catch, task, checker, pr)
+    }
+
+    /// Estimated false-alarm probability of `checker` on `task`.
+    pub fn false_alarm(&self, task: &Task, checker: usize) -> (f64, f64) {
+        let pr = self.cell_prior(&self.alarm_g, checker, self.cfg.fa_prior);
+        Self::mean_post(&self.alarm, task, checker, pr)
+    }
+
+    /// Decide whether to ask for a second opinion on `leader`'s pick.
+    pub fn decide(&mut self, task: &Task, leader: usize, candidates: &[usize]) -> Option<CheckPlan> {
+        self.decisions += 1;
+        let plan = self.plan(task, leader, candidates, false);
+        if plan.is_some() {
+            self.checks += 1;
+        }
+        plan
+    }
+
+    /// Best check plan; with `force` the plan is returned even when its expected net
+    /// value is negative (used by the always-check ablation).
+    pub fn plan(&self, task: &Task, leader: usize, candidates: &[usize], force: bool) -> Option<CheckPlan> {
+        let others: Vec<usize> = candidates.iter().copied().filter(|&c| c != leader).collect();
+        if candidates.len() < self.cfg.min_candidates || others.is_empty() {
+            return None;
+        }
+        let k = self.cfg.kappa;
+        let (pl, sl) = self.predict(task, leader);
+        let p_l = (pl - k * sl).clamp(0.0, 1.0);
+        let retry = *others.iter().max_by(|&&a, &&b| self.predict(task, a).0.total_cmp(&self.predict(task, b).0)).unwrap();
+        let p_r = self.predict(task, retry).0;
+        let mut best: Option<(f64, CheckPlan)> = None;
+        for &c in &others {
+            let (qm, qs) = self.reliability(task, c);
+            let q = (qm + k * qs).clamp(0.0, 1.0);
+            let fa = self.false_alarm(task, c).0;
+            let gain = (1.0 - p_l) * q * p_r;
+            let extra = self.cfg.cost * (1.0 + (1.0 - p_l) * q + p_l * fa);
+            let net = gain - extra;
+            if (force || net > 0.0) && best.as_ref().is_none_or(|b| net > b.0) {
+                best = Some((net, CheckPlan { checker: c, retry, gain, extra_cost: extra }));
+            }
+        }
+        best.map(|b| b.1)
+    }
+
+    /// Outcome of an attempt by `agent` (leader or retry).
+    pub fn observe_attempt(&mut self, task: &Task, agent: usize, success: bool) {
+        let n = self.n_agents.max(agent + 1);
+        self.n_agents = n;
+        let d = self.cfg.discount;
+        Self::obs(&mut self.succ, task, agent, success, d, n);
+    }
+
+    /// Outcome of a check: did `checker` flag the leader's output, and had the leader
+    /// actually failed (verifiable after the fact)?
+    pub fn observe_check(&mut self, task: &Task, checker: usize, leader_failed: bool, flagged: bool) {
+        let n = self.n_agents.max(checker + 1);
+        self.n_agents = n;
+        let d = self.cfg.discount;
+        let (table, global) = if leader_failed { (&mut self.catch, &mut self.catch_g) } else { (&mut self.alarm, &mut self.alarm_g) };
+        if global.len() < n {
+            global.resize(n, BetaCell::default());
+        }
+        global[checker].obs(flagged, d);
+        Self::obs(table, task, checker, flagged, d, n);
+    }
+
+    fn obs(table: &mut HashMap<String, Vec<BetaCell>>, task: &Task, a: usize, hit: bool, d: f64, n: usize) {
+        for k in task_keys(task) {
+            let row = table.entry(k).or_insert_with(|| vec![BetaCell::default(); n]);
+            if row.len() < n {
+                row.resize(n, BetaCell::default());
+            }
+            row[a].obs(hit, d);
+        }
+    }
+
+    /// Fraction of decisions that triggered a check.
+    pub fn check_rate(&self) -> f64 {
+        if self.decisions == 0 { 0.0 } else { self.checks as f64 / self.decisions as f64 }
+    }
+}
+
+#[cfg(test)]
+mod second_opinion_tests {
+    use super::*;
+
+    fn t(f: &[&str]) -> Task {
+        Task { id: 0, task_type: None, features: f.iter().map(|s| s.to_string()).collect() }
+    }
+
+    #[test]
+    fn learns_leader_success_and_stops_doubting_reliable_leader() {
+        let mut so = SecondOpinion::new(3, SecondOpinionConfig { cost: 0.1, ..Default::default() });
+        let task = t(&["a", "b"]);
+        assert!(so.decide(&task, 0, &[0, 1, 2]).is_some(), "no evidence: doubt");
+        for _ in 0..200 {
+            so.observe_attempt(&task, 0, true);
+            so.observe_attempt(&task, 1, true);
+        }
+        assert!(so.predict(&task, 0).0 > 0.95);
+        assert!(so.decide(&task, 0, &[0, 1, 2]).is_none(), "reliable leader: no check");
+        assert!(so.plan(&task, 0, &[0, 1, 2], true).is_some(), "force always yields a plan");
+    }
+
+    #[test]
+    fn learns_which_checker_is_reliable_per_feature() {
+        let mut so = SecondOpinion::new(3, SecondOpinionConfig { cost: 0.02, kappa: 0.0, discount: 1.0, ..Default::default() });
+        let task = t(&["sec"]);
+        for i in 0..100 {
+            so.observe_attempt(&task, 0, i % 2 == 0); // leader 50%
+            so.observe_attempt(&task, 1, true);
+            so.observe_attempt(&task, 2, true);
+            so.observe_check(&task, 1, true, i % 10 != 0); // checker 1 catches 90%
+            so.observe_check(&task, 2, true, i % 10 == 0); // checker 2 catches 10%
+        }
+        let plan = so.decide(&task, 0, &[0, 1, 2]).expect("uncertain leader with good checker: check");
+        assert_eq!(plan.checker, 1);
+        assert!(so.reliability(&task, 1).0 > 0.8 && so.reliability(&task, 2).0 < 0.2);
+    }
+
+    #[test]
+    fn useless_checkers_stop_being_asked() {
+        let mut so = SecondOpinion::new(3, SecondOpinionConfig { cost: 0.05, ..Default::default() });
+        let task = t(&["x"]);
+        for i in 0..300 {
+            so.observe_attempt(&task, 0, i % 3 != 0);
+            so.observe_attempt(&task, 1, i % 3 != 0);
+            so.observe_attempt(&task, 2, i % 3 != 0);
+            so.observe_check(&task, 1, true, false);
+            so.observe_check(&task, 2, true, false);
+        }
+        assert!(so.decide(&task, 0, &[0, 1, 2]).is_none());
+        assert!(so.decide(&task, 0, &[0]).is_none(), "no checker available");
+    }
+
+    #[test]
+    fn pooling_transfers_checker_reliability_to_unseen_features() {
+        let cfg = SecondOpinionConfig { cost: 0.05, kappa: 0.0, discount: 1.0, pool: 4.0, ..Default::default() };
+        let mut so = SecondOpinion::new(3, cfg.clone());
+        let mut flat = SecondOpinion::new(3, SecondOpinionConfig { pool: 0.0, ..cfg });
+        for i in 0..50 {
+            let task = t(&[["a", "b", "c", "d", "e"][i % 5]]);
+            for s in [&mut so, &mut flat] {
+                s.observe_check(&task, 1, true, false); // checker 1 never catches anything
+            }
+        }
+        let unseen = t(&["zzz"]);
+        assert!(so.reliability(&unseen, 1).0 < 0.1, "pooled: useless everywhere");
+        assert!((flat.reliability(&unseen, 1).0 - 0.5).abs() < 1e-9, "flat: prior on unseen feature");
+    }
+}

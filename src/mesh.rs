@@ -63,6 +63,81 @@ impl Default for FaultConfig {
     }
 }
 
+/// Opt-in context-specific benching (see `NeuralMesh::with_context_bench`).
+///
+/// Health is additionally tracked per (task feature, agent): an EMA of the rewards
+/// the agent earned on tasks carrying that feature (starts at 1.0). For a task, an
+/// agent's *context health* is the mean over the task's features. A candidate whose
+/// context health is below `threshold * best context health among candidates` is
+/// skipped for THIS task only (it stays eligible for tasks in other contexts). Every
+/// `retry_every`-th time an agent is context-benched it is let through anyway
+/// (probation), so a recovered agent is re-measured. Deterministic (no rng).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ContextBenchConfig {
+    pub alpha: f64,
+    pub threshold: f64,
+    pub retry_every: u64,
+}
+
+impl Default for ContextBenchConfig {
+    fn default() -> Self {
+        ContextBenchConfig { alpha: 0.3, threshold: 0.5, retry_every: 20 }
+    }
+}
+
+/// Per-(feature, agent) health memory for context benching.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+struct ContextHealth {
+    h: std::collections::HashMap<String, Vec<f64>>,
+    skips: Vec<u64>,
+}
+
+impl ContextHealth {
+    fn score(&self, task: &Task, a: usize) -> f64 {
+        if task.features.is_empty() {
+            return 1.0;
+        }
+        let s: f64 = task.features.iter().map(|f| self.h.get(f).and_then(|r| r.get(a)).copied().unwrap_or(1.0)).sum();
+        s / task.features.len() as f64
+    }
+
+    /// Filter `eligible` by context health; never returns an empty list.
+    fn filter(&mut self, cfg: &ContextBenchConfig, task: &Task, eligible: Vec<usize>) -> Vec<usize> {
+        let n = eligible.iter().copied().max().map_or(0, |m| m + 1);
+        if self.skips.len() < n {
+            self.skips.resize(n, 0);
+        }
+        let scores: Vec<f64> = eligible.iter().map(|&a| self.score(task, a)).collect();
+        let best = scores.iter().cloned().fold(0.0_f64, f64::max);
+        let thr = cfg.threshold * best;
+        let mut out = Vec::with_capacity(eligible.len());
+        for (&a, &s) in eligible.iter().zip(&scores) {
+            if s >= thr {
+                out.push(a);
+                continue;
+            }
+            self.skips[a] += 1;
+            if cfg.retry_every > 0 && self.skips[a] >= cfg.retry_every {
+                self.skips[a] = 0;
+                out.push(a);
+            }
+        }
+        if out.is_empty() { eligible } else { out }
+    }
+
+    fn observe(&mut self, task: &Task, members: &[usize], reward: f64, alpha: f64, n_agents: usize) {
+        for f in &task.features {
+            let row = self.h.entry(f.clone()).or_insert_with(|| vec![1.0; n_agents]);
+            if row.len() < n_agents {
+                row.resize(n_agents, 1.0);
+            }
+            for &a in members {
+                row[a] += alpha * (reward - row[a]);
+            }
+        }
+    }
+}
+
 /// Default per-slot helper exploration probability.
 pub const DEFAULT_HELPER_EPSILON: f64 = 0.05;
 /// EMA rate of the per-leader team-reward baseline used by edge learning.
@@ -230,6 +305,11 @@ pub struct NeuralMesh<R: Router> {
     retry_mult: Vec<f64>,
     #[serde(default)]
     probation: Vec<bool>,
+    /// Opt-in context-specific benching. `None` = original behaviour.
+    #[serde(default)]
+    pub context_bench: Option<ContextBenchConfig>,
+    #[serde(default)]
+    ctx_health: ContextHealth,
 }
 
 impl<R: Router> NeuralMesh<R> {
@@ -252,6 +332,8 @@ impl<R: Router> NeuralMesh<R> {
             fail_streak: Vec::new(),
             retry_mult: Vec::new(),
             probation: Vec::new(),
+            context_bench: None,
+            ctx_health: ContextHealth::default(),
             team_size_sum: 0,
             teams_routed: 0,
         };
@@ -299,6 +381,17 @@ impl<R: Router> NeuralMesh<R> {
     pub fn with_fault(mut self, f: FaultConfig) -> Self {
         self.fault = Some(f);
         self
+    }
+
+    /// Enable context-specific benching (opt-in; default behaviour unchanged).
+    pub fn with_context_bench(mut self, c: ContextBenchConfig) -> Self {
+        self.context_bench = Some(c);
+        self
+    }
+
+    /// Context health of agent `a` for `task` (mean per-feature health; 1.0 if unseen).
+    pub fn context_health(&self, task: &Task, a: usize) -> f64 {
+        self.ctx_health.score(task, a)
     }
 
     /// Enable gated recruitment: `k` becomes an upper bound on team size.
@@ -426,6 +519,9 @@ impl<R: Router> NeuralMesh<R> {
             let best = cands.iter().map(|&c| self.health[c]).fold(f64::NEG_INFINITY, f64::max);
             eligible = cands.iter().copied().filter(|&c| self.health[c] >= best).collect();
         }
+        if let Some(cb) = self.context_bench.clone() {
+            eligible = self.ctx_health.filter(&cb, task, eligible);
+        }
 
         let leader = self.leader.select(task, &eligible, rng);
         let mut team = vec![leader];
@@ -506,6 +602,11 @@ impl<R: Router> NeuralMesh<R> {
         if let Some(alpha) = self.gate.as_ref().map(|g| g.value_alpha) {
             self.gate_state.ensure(self.n_agents);
             self.gate_state.observe(&members, reward, alpha);
+        }
+
+        if let Some(alpha) = self.context_bench.as_ref().map(|c| c.alpha) {
+            let n = self.n_agents;
+            self.ctx_health.observe(task, &members, reward, alpha, n);
         }
 
         let al = self.cfg.health_alpha;
@@ -928,5 +1029,52 @@ mod tests {
         let mut rng = Rng::new(0);
         assert_eq!(mesh.route(&task(0), &[0, 1, 2, 3], &mut rng).len(), 3);
         assert_eq!(mesh.mean_team_size(), 3.0);
+    }
+
+    fn ftask(f: &str) -> Task {
+        Task { id: 0, task_type: None, features: vec![f.to_string()] }
+    }
+
+    #[test]
+    fn context_bench_is_context_specific() {
+        // agent 0 always fails on "sec" tasks but succeeds on "docs" tasks
+        let cfg = MeshConfig { team_size: 1, health_threshold: 0.0, ..MeshConfig::default() };
+        let mut m = NeuralMesh::new(3, FirstRouter, cfg).with_context_bench(ContextBenchConfig { retry_every: 1000, ..Default::default() });
+        let mut rng = Rng::new(1);
+        for _ in 0..10 {
+            let (s, d) = (ftask("sec"), ftask("docs"));
+            let a = m.route(&s, &[0, 1, 2], &mut rng)[0];
+            m.feedback(&s, &[a], if a == 0 { 0.0 } else { 1.0 });
+            let b = m.route(&d, &[0, 1, 2], &mut rng)[0];
+            m.feedback(&d, &[b], 1.0);
+        }
+        assert_ne!(m.route(&ftask("sec"), &[0, 1, 2], &mut rng)[0], 0, "benched for sec");
+        assert_eq!(m.route(&ftask("docs"), &[0, 1, 2], &mut rng)[0], 0, "still used for docs");
+        assert!(m.context_health(&ftask("sec"), 0) < 0.5 && m.context_health(&ftask("docs"), 0) > 0.9);
+    }
+
+    #[test]
+    fn context_bench_probation_and_never_empty() {
+        let cfg = MeshConfig { team_size: 1, health_threshold: 0.0, ..MeshConfig::default() };
+        let mut m = NeuralMesh::new(2, FirstRouter, cfg).with_context_bench(ContextBenchConfig { retry_every: 3, ..Default::default() });
+        let mut rng = Rng::new(1);
+        let s = ftask("sec");
+        for _ in 0..5 {
+            m.feedback(&s, &[0], 0.0);
+        }
+        let picks: Vec<usize> = (0..6).map(|_| m.route(&s, &[0, 1], &mut rng)[0]).collect();
+        assert_eq!(picks.iter().filter(|&&a| a == 0).count(), 2, "probation every 3rd skip: {picks:?}");
+        assert_eq!(m.route(&s, &[0], &mut rng), vec![0], "sole candidate is never dropped");
+    }
+
+    #[test]
+    fn context_bench_off_by_default_and_serde_compatible() {
+        let m = NeuralMesh::new(2, FirstRouter, MeshConfig::default());
+        assert!(m.context_bench.is_none());
+        let mut v: serde_json::Value = serde_json::to_value(NeuralMesh::new(2, ThompsonRouter::new(2), MeshConfig::default())).unwrap();
+        v.as_object_mut().unwrap().remove("context_bench");
+        v.as_object_mut().unwrap().remove("ctx_health");
+        let back: NeuralMesh<ThompsonRouter> = serde_json::from_value(v).unwrap();
+        assert!(back.context_bench.is_none());
     }
 }

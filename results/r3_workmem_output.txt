@@ -1,0 +1,319 @@
+r3_workmem: 1500 tasks/run, tune seeds 1-8, held-out 31-60
+[tune 1-8] eps-greedy: 9 configs, best 0.5385 -> Eps(0.95, 0.02)
+[tune 1-8] pooled-ts: 4 configs, best 0.5060 -> Pts(1.0)
+[tune 1-8] warm(hebbian-robust) [= K=0 no-buffer]: 30 configs, best 0.5435 -> WarmHebR(3.0, Global)
+[tune 1-8] warm+workmem K=2: 72 configs, best 0.5438 -> Wm(Wm { cap: 2, min_n: 0, init_g: true, chunk: false, warm: Some((10.0, Mean)) })
+[tune 1-8] warm+workmem K=4: 72 configs, best 0.5549 -> Wm(Wm { cap: 4, min_n: 0, init_g: true, chunk: false, warm: Some((3.0, Mean)) })
+[tune 1-8] warm+workmem K=7: 72 configs, best 0.5954 -> Wm(Wm { cap: 7, min_n: 0, init_g: false, chunk: false, warm: Some((3.0, Mean)) })
+[tune 1-8] warm+workmem K=9: 72 configs, best 0.5954 -> Wm(Wm { cap: 9, min_n: 0, init_g: false, chunk: false, warm: Some((3.0, Mean)) })
+[tune 1-8] warm+workmem K=inf: 72 configs, best 0.5954 -> Wm(Wm { cap: 18446744073709551615, min_n: 0, init_g: false, chunk: false, warm: Some((3.0, Mean)) })
+[tune 1-8] bare workmem K=4: 6 configs, best 0.5460 -> Wm(Wm { cap: 4, min_n: 0, init_g: true, chunk: false, warm: None })
+[tune 1-8] bare workmem K=inf: 6 configs, best 0.5904 -> Wm(Wm { cap: 18446744073709551615, min_n: 3, init_g: false, chunk: false, warm: None })
+[tune 1-8] warm+workmem K=2 chunk: 72 configs, best 0.5639 -> Wm(Wm { cap: 2, min_n: 10, init_g: true, chunk: true, warm: Some((3.0, Mean)) })
+[tune 1-8] warm+workmem K=4 chunk: 72 configs, best 0.6269 -> Wm(Wm { cap: 4, min_n: 0, init_g: false, chunk: true, warm: Some((3.0, Mean)) })
+[tune 1-8] warm+workmem K=7 chunk: 72 configs, best 0.6269 -> Wm(Wm { cap: 7, min_n: 0, init_g: false, chunk: true, warm: Some((3.0, Mean)) })
+
+=== recur-6fam (held-out 31-60, mean expected success; oracle 0.850) ===
+router                             overall   first third       revisit   first-visit
+keyword                       0.486+-0.011  0.491+-0.013  0.486+-0.010  0.484+-0.015
+eps-greedy(tuned)             0.529+-0.008  0.500+-0.010  0.542+-0.008  0.465+-0.009
+pooled-ts(tuned)              0.500+-0.006  0.471+-0.006  0.510+-0.007  0.446+-0.006
+hebbian-robust                0.529+-0.008  0.503+-0.011  0.538+-0.008  0.482+-0.013
+warm(hebbian-robust)=K0       0.533+-0.007  0.507+-0.011  0.543+-0.007  0.477+-0.010
+warm+wm[K=2]                  0.527+-0.008  0.508+-0.011  0.535+-0.008  0.484+-0.012
+warm+wm[K=4]                  0.549+-0.009  0.518+-0.011  0.562+-0.009  0.482+-0.010
+warm+wm[K=7]                  0.594+-0.010  0.527+-0.011  0.615+-0.011  0.482+-0.010
+warm+wm[K=9]                  0.594+-0.010  0.527+-0.011  0.615+-0.011  0.482+-0.010
+warm+wm[K=inf]                0.594+-0.010  0.527+-0.011  0.615+-0.011  0.482+-0.010
+wm[K=4]                       0.543+-0.009  0.513+-0.011  0.554+-0.010  0.482+-0.012
+wm[K=inf]                     0.587+-0.009  0.516+-0.012  0.609+-0.009  0.471+-0.012
+warm+wm[K=2,chunk]            0.538+-0.009  0.515+-0.012  0.548+-0.009  0.486+-0.012
+warm+wm[K=4,chunk]            0.532+-0.008  0.512+-0.010  0.542+-0.009  0.482+-0.010
+warm+wm[K=7,chunk]            0.594+-0.010  0.527+-0.011  0.615+-0.011  0.482+-0.010
+best fair baseline here: warm(hebbian-robust)=K0
+  warm+wm[K=2]           vs best-fair(warm(hebbian-robust)=K0) -0.0054 [-0.0146,+0.0038] holm p=1.0000 | vs no-buffer -0.0054 [-0.0146,+0.0038] | vs unbounded -0.0668 [-0.0778,-0.0559]
+  warm+wm[K=4]           vs best-fair(warm(hebbian-robust)=K0) +0.0167 [+0.0080,+0.0254] holm p=0.0197 WIN | vs no-buffer +0.0167 [+0.0080,+0.0254] | vs unbounded -0.0447 [-0.0557,-0.0338]
+  warm+wm[K=7]           vs best-fair(warm(hebbian-robust)=K0) +0.0614 [+0.0499,+0.0730] holm p=0.0000 WIN | vs no-buffer +0.0614 [+0.0499,+0.0730] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  warm+wm[K=9]           vs best-fair(warm(hebbian-robust)=K0) +0.0614 [+0.0499,+0.0730] holm p=0.0000 WIN | vs no-buffer +0.0614 [+0.0499,+0.0730] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  warm+wm[K=inf]         vs best-fair(warm(hebbian-robust)=K0) +0.0614 [+0.0499,+0.0730] holm p=0.0000 WIN | vs no-buffer +0.0614 [+0.0499,+0.0730] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  wm[K=4]                vs best-fair(warm(hebbian-robust)=K0) +0.0101 [-0.0000,+0.0202] holm p=1.0000 | vs no-buffer +0.0101 [-0.0000,+0.0202] | vs unbounded -0.0514 [-0.0643,-0.0384]
+  wm[K=inf]              vs best-fair(warm(hebbian-robust)=K0) +0.0541 [+0.0438,+0.0644] holm p=0.0000 WIN | vs no-buffer +0.0541 [+0.0438,+0.0644] | vs unbounded -0.0073 [-0.0206,+0.0059]
+  warm+wm[K=2,chunk]     vs best-fair(warm(hebbian-robust)=K0) +0.0057 [-0.0030,+0.0144] holm p=1.0000 | vs no-buffer +0.0057 [-0.0030,+0.0144] | vs unbounded -0.0557 [-0.0669,-0.0445]
+  warm+wm[K=4,chunk]     vs best-fair(warm(hebbian-robust)=K0) -0.0003 [-0.0115,+0.0110] holm p=1.0000 | vs no-buffer -0.0003 [-0.0115,+0.0110] | vs unbounded -0.0617 [-0.0709,-0.0525]
+  warm+wm[K=7,chunk]     vs best-fair(warm(hebbian-robust)=K0) +0.0614 [+0.0499,+0.0730] holm p=0.0000 WIN | vs no-buffer +0.0614 [+0.0499,+0.0730] | vs unbounded +0.0000 [+0.0000,+0.0000]
+
+=== recur-4fam-x3var (held-out 31-60, mean expected success; oracle 0.850) ===
+router                             overall   first third       revisit   first-visit
+keyword                       0.489+-0.018  0.488+-0.017  0.488+-0.018  0.490+-0.018
+eps-greedy(tuned)             0.552+-0.012  0.512+-0.013  0.577+-0.014  0.498+-0.011
+pooled-ts(tuned)              0.523+-0.010  0.486+-0.010  0.540+-0.011  0.483+-0.012
+hebbian-robust                0.547+-0.010  0.511+-0.012  0.564+-0.011  0.509+-0.011
+warm(hebbian-robust)=K0       0.555+-0.013  0.517+-0.013  0.574+-0.014  0.512+-0.014
+warm+wm[K=2]                  0.551+-0.012  0.516+-0.013  0.567+-0.013  0.513+-0.013
+warm+wm[K=4]                  0.558+-0.013  0.523+-0.012  0.576+-0.014  0.517+-0.013
+warm+wm[K=7]                  0.515+-0.008  0.501+-0.010  0.532+-0.010  0.475+-0.007
+warm+wm[K=9]                  0.531+-0.009  0.501+-0.010  0.556+-0.011  0.475+-0.007
+warm+wm[K=inf]                0.544+-0.007  0.501+-0.010  0.575+-0.009  0.475+-0.007
+wm[K=4]                       0.553+-0.011  0.515+-0.012  0.573+-0.012  0.509+-0.011
+wm[K=inf]                     0.539+-0.010  0.496+-0.011  0.567+-0.011  0.477+-0.010
+warm+wm[K=2,chunk]            0.560+-0.012  0.525+-0.013  0.579+-0.013  0.516+-0.013
+warm+wm[K=4,chunk]            0.633+-0.009  0.550+-0.013  0.665+-0.009  0.563+-0.012
+warm+wm[K=7,chunk]            0.633+-0.009  0.550+-0.013  0.665+-0.009  0.563+-0.012
+best fair baseline here: warm(hebbian-robust)=K0
+  warm+wm[K=2]           vs best-fair(warm(hebbian-robust)=K0) -0.0047 [-0.0149,+0.0056] holm p=1.0000 | vs no-buffer -0.0047 [-0.0149,+0.0056] | vs unbounded +0.0063 [-0.0035,+0.0160]
+  warm+wm[K=4]           vs best-fair(warm(hebbian-robust)=K0) +0.0026 [-0.0056,+0.0109] holm p=1.0000 | vs no-buffer +0.0026 [-0.0056,+0.0109] | vs unbounded +0.0136 [+0.0024,+0.0248]
+  warm+wm[K=7]           vs best-fair(warm(hebbian-robust)=K0) -0.0405 [-0.0533,-0.0277] holm p=0.0000 | vs no-buffer -0.0405 [-0.0533,-0.0277] | vs unbounded -0.0296 [-0.0343,-0.0249]
+  warm+wm[K=9]           vs best-fair(warm(hebbian-robust)=K0) -0.0240 [-0.0361,-0.0119] holm p=0.0133 | vs no-buffer -0.0240 [-0.0361,-0.0119] | vs unbounded -0.0131 [-0.0169,-0.0092]
+  warm+wm[K=inf]         vs best-fair(warm(hebbian-robust)=K0) -0.0109 [-0.0227,+0.0008] holm p=1.0000 | vs no-buffer -0.0109 [-0.0227,+0.0008] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  wm[K=4]                vs best-fair(warm(hebbian-robust)=K0) -0.0020 [-0.0115,+0.0076] holm p=1.0000 | vs no-buffer -0.0020 [-0.0115,+0.0076] | vs unbounded +0.0090 [-0.0009,+0.0188]
+  wm[K=inf]              vs best-fair(warm(hebbian-robust)=K0) -0.0160 [-0.0315,-0.0005] holm p=0.9925 | vs no-buffer -0.0160 [-0.0315,-0.0005] | vs unbounded -0.0051 [-0.0148,+0.0046]
+  warm+wm[K=2,chunk]     vs best-fair(warm(hebbian-robust)=K0) +0.0046 [-0.0030,+0.0122] holm p=1.0000 | vs no-buffer +0.0046 [-0.0030,+0.0122] | vs unbounded +0.0155 [+0.0055,+0.0255]
+  warm+wm[K=4,chunk]     vs best-fair(warm(hebbian-robust)=K0) +0.0782 [+0.0636,+0.0927] holm p=0.0000 WIN | vs no-buffer +0.0782 [+0.0636,+0.0927] | vs unbounded +0.0891 [+0.0818,+0.0964]
+  warm+wm[K=7,chunk]     vs best-fair(warm(hebbian-robust)=K0) +0.0782 [+0.0636,+0.0927] holm p=0.0000 WIN | vs no-buffer +0.0782 [+0.0636,+0.0927] | vs unbounded +0.0891 [+0.0818,+0.0964]
+
+=== recur-12ctx (held-out 31-60, mean expected success; oracle 0.850) ===
+router                             overall   first third       revisit   first-visit
+keyword                       0.485+-0.010  0.486+-0.010  0.485+-0.011  0.486+-0.010
+eps-greedy(tuned)             0.504+-0.008  0.478+-0.009  0.524+-0.009  0.462+-0.008
+pooled-ts(tuned)              0.479+-0.005  0.460+-0.007  0.494+-0.006  0.448+-0.007
+hebbian-robust                0.502+-0.008  0.483+-0.010  0.517+-0.010  0.469+-0.008
+warm(hebbian-robust)=K0       0.507+-0.009  0.484+-0.011  0.524+-0.010  0.469+-0.010
+warm+wm[K=2]                  0.516+-0.010  0.497+-0.012  0.529+-0.011  0.486+-0.010
+warm+wm[K=4]                  0.514+-0.008  0.496+-0.010  0.530+-0.009  0.480+-0.010
+warm+wm[K=7]                  0.510+-0.007  0.501+-0.010  0.524+-0.009  0.479+-0.006
+warm+wm[K=9]                  0.529+-0.008  0.502+-0.010  0.553+-0.010  0.479+-0.006
+warm+wm[K=inf]                0.543+-0.007  0.502+-0.010  0.572+-0.008  0.479+-0.006
+wm[K=4]                       0.504+-0.010  0.487+-0.009  0.521+-0.012  0.466+-0.008
+wm[K=inf]                     0.544+-0.008  0.497+-0.009  0.577+-0.009  0.474+-0.007
+warm+wm[K=2,chunk]            0.516+-0.007  0.496+-0.011  0.533+-0.008  0.480+-0.009
+warm+wm[K=4,chunk]            0.489+-0.006  0.494+-0.010  0.493+-0.007  0.479+-0.006
+warm+wm[K=7,chunk]            0.510+-0.007  0.501+-0.010  0.524+-0.009  0.479+-0.006
+best fair baseline here: warm(hebbian-robust)=K0
+  warm+wm[K=2]           vs best-fair(warm(hebbian-robust)=K0) +0.0088 [-0.0006,+0.0183] holm p=1.0000 | vs no-buffer +0.0088 [-0.0006,+0.0183] | vs unbounded -0.0270 [-0.0362,-0.0178]
+  warm+wm[K=4]           vs best-fair(warm(hebbian-robust)=K0) +0.0071 [-0.0015,+0.0156] holm p=1.0000 | vs no-buffer +0.0071 [-0.0015,+0.0156] | vs unbounded -0.0287 [-0.0366,-0.0209]
+  warm+wm[K=7]           vs best-fair(warm(hebbian-robust)=K0) +0.0028 [-0.0079,+0.0135] holm p=1.0000 | vs no-buffer +0.0028 [-0.0079,+0.0135] | vs unbounded -0.0330 [-0.0374,-0.0286]
+  warm+wm[K=9]           vs best-fair(warm(hebbian-robust)=K0) +0.0225 [+0.0118,+0.0333] holm p=0.0075 WIN | vs no-buffer +0.0225 [+0.0118,+0.0333] | vs unbounded -0.0133 [-0.0177,-0.0088]
+  warm+wm[K=inf]         vs best-fair(warm(hebbian-robust)=K0) +0.0358 [+0.0251,+0.0466] holm p=0.0000 WIN | vs no-buffer +0.0358 [+0.0251,+0.0466] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  wm[K=4]                vs best-fair(warm(hebbian-robust)=K0) -0.0034 [-0.0134,+0.0066] holm p=1.0000 | vs no-buffer -0.0034 [-0.0134,+0.0066] | vs unbounded -0.0392 [-0.0490,-0.0294]
+  wm[K=inf]              vs best-fair(warm(hebbian-robust)=K0) +0.0374 [+0.0249,+0.0498] holm p=0.0001 WIN | vs no-buffer +0.0374 [+0.0249,+0.0498] | vs unbounded +0.0015 [-0.0072,+0.0103]
+  warm+wm[K=2,chunk]     vs best-fair(warm(hebbian-robust)=K0) +0.0093 [+0.0027,+0.0159] holm p=0.2084 | vs no-buffer +0.0093 [+0.0027,+0.0159] | vs unbounded -0.0265 [-0.0336,-0.0195]
+  warm+wm[K=4,chunk]     vs best-fair(warm(hebbian-robust)=K0) -0.0180 [-0.0288,-0.0073] holm p=0.0665 | vs no-buffer -0.0180 [-0.0288,-0.0073] | vs unbounded -0.0538 [-0.0583,-0.0493]
+  warm+wm[K=7,chunk]     vs best-fair(warm(hebbian-robust)=K0) +0.0028 [-0.0079,+0.0135] holm p=1.0000 | vs no-buffer +0.0028 [-0.0079,+0.0135] | vs unbounded -0.0330 [-0.0374,-0.0286]
+
+=== recur-6fam-marker50 (held-out 31-60, mean expected success; oracle 0.850) ===
+router                             overall   first third       revisit   first-visit
+keyword                       0.486+-0.011  0.491+-0.013  0.486+-0.010  0.484+-0.015
+eps-greedy(tuned)             0.519+-0.007  0.488+-0.010  0.529+-0.008  0.464+-0.009
+pooled-ts(tuned)              0.491+-0.006  0.466+-0.008  0.500+-0.007  0.441+-0.007
+hebbian-robust                0.519+-0.008  0.497+-0.011  0.528+-0.009  0.473+-0.012
+warm(hebbian-robust)=K0       0.520+-0.007  0.502+-0.013  0.529+-0.007  0.474+-0.013
+warm+wm[K=2]                  0.514+-0.008  0.502+-0.009  0.520+-0.009  0.485+-0.013
+warm+wm[K=4]                  0.535+-0.007  0.504+-0.010  0.547+-0.007  0.470+-0.012
+warm+wm[K=7]                  0.607+-0.008  0.527+-0.008  0.631+-0.008  0.477+-0.008
+warm+wm[K=9]                  0.607+-0.008  0.527+-0.008  0.631+-0.008  0.477+-0.008
+warm+wm[K=inf]                0.607+-0.008  0.527+-0.008  0.631+-0.008  0.477+-0.008
+wm[K=4]                       0.544+-0.008  0.513+-0.009  0.556+-0.009  0.480+-0.010
+wm[K=inf]                     0.606+-0.007  0.527+-0.009  0.632+-0.008  0.470+-0.010
+warm+wm[K=2,chunk]            0.518+-0.008  0.494+-0.010  0.527+-0.009  0.473+-0.012
+warm+wm[K=4,chunk]            0.542+-0.007  0.511+-0.008  0.554+-0.007  0.477+-0.008
+warm+wm[K=7,chunk]            0.607+-0.008  0.527+-0.008  0.631+-0.008  0.477+-0.008
+best fair baseline here: warm(hebbian-robust)=K0
+  warm+wm[K=2]           vs best-fair(warm(hebbian-robust)=K0) -0.0056 [-0.0146,+0.0033] holm p=1.0000 | vs no-buffer -0.0056 [-0.0146,+0.0033] | vs unbounded -0.0920 [-0.1037,-0.0804]
+  warm+wm[K=4]           vs best-fair(warm(hebbian-robust)=K0) +0.0145 [+0.0076,+0.0215] holm p=0.0079 WIN | vs no-buffer +0.0145 [+0.0076,+0.0215] | vs unbounded -0.0719 [-0.0803,-0.0635]
+  warm+wm[K=7]           vs best-fair(warm(hebbian-robust)=K0) +0.0864 [+0.0758,+0.0970] holm p=0.0000 WIN | vs no-buffer +0.0864 [+0.0758,+0.0970] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  warm+wm[K=9]           vs best-fair(warm(hebbian-robust)=K0) +0.0864 [+0.0758,+0.0970] holm p=0.0000 WIN | vs no-buffer +0.0864 [+0.0758,+0.0970] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  warm+wm[K=inf]         vs best-fair(warm(hebbian-robust)=K0) +0.0864 [+0.0758,+0.0970] holm p=0.0000 WIN | vs no-buffer +0.0864 [+0.0758,+0.0970] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  wm[K=4]                vs best-fair(warm(hebbian-robust)=K0) +0.0234 [+0.0153,+0.0315] holm p=0.0001 WIN | vs no-buffer +0.0234 [+0.0153,+0.0315] | vs unbounded -0.0630 [-0.0758,-0.0502]
+  wm[K=inf]              vs best-fair(warm(hebbian-robust)=K0) +0.0863 [+0.0763,+0.0964] holm p=0.0000 WIN | vs no-buffer +0.0863 [+0.0763,+0.0964] | vs unbounded -0.0000 [-0.0095,+0.0094]
+  warm+wm[K=2,chunk]     vs best-fair(warm(hebbian-robust)=K0) -0.0019 [-0.0089,+0.0051] holm p=1.0000 | vs no-buffer -0.0019 [-0.0089,+0.0051] | vs unbounded -0.0883 [-0.0991,-0.0775]
+  warm+wm[K=4,chunk]     vs best-fair(warm(hebbian-robust)=K0) +0.0214 [+0.0105,+0.0323] holm p=0.0152 WIN | vs no-buffer +0.0214 [+0.0105,+0.0323] | vs unbounded -0.0650 [-0.0724,-0.0576]
+  warm+wm[K=7,chunk]     vs best-fair(warm(hebbian-robust)=K0) +0.0864 [+0.0758,+0.0970] holm p=0.0000 WIN | vs no-buffer +0.0864 [+0.0758,+0.0970] | vs unbounded +0.0000 [+0.0000,+0.0000]
+
+=== CONTROL unique-contexts (held-out 31-60, mean expected success; oracle 0.850) ===
+router                             overall   first third       revisit   first-visit
+keyword                       0.488+-0.006  0.484+-0.009      NaN+-NaN  0.488+-0.006
+eps-greedy(tuned)             0.475+-0.005  0.468+-0.007      NaN+-NaN  0.475+-0.005
+pooled-ts(tuned)              0.456+-0.006  0.445+-0.007      NaN+-NaN  0.456+-0.006
+hebbian-robust                0.478+-0.007  0.471+-0.010      NaN+-NaN  0.478+-0.007
+warm(hebbian-robust)=K0       0.482+-0.008  0.475+-0.012      NaN+-NaN  0.482+-0.008
+warm+wm[K=2]                  0.484+-0.006  0.483+-0.010      NaN+-NaN  0.484+-0.006
+warm+wm[K=4]                  0.488+-0.009  0.481+-0.011      NaN+-NaN  0.488+-0.009
+warm+wm[K=7]                  0.469+-0.003  0.474+-0.006      NaN+-NaN  0.469+-0.003
+warm+wm[K=9]                  0.469+-0.003  0.474+-0.006      NaN+-NaN  0.469+-0.003
+warm+wm[K=inf]                0.469+-0.003  0.474+-0.006      NaN+-NaN  0.469+-0.003
+wm[K=4]                       0.478+-0.007  0.471+-0.010      NaN+-NaN  0.478+-0.007
+wm[K=inf]                     0.472+-0.004  0.473+-0.005      NaN+-NaN  0.472+-0.004
+warm+wm[K=2,chunk]            0.486+-0.008  0.480+-0.011      NaN+-NaN  0.486+-0.008
+warm+wm[K=4,chunk]            0.469+-0.003  0.474+-0.006      NaN+-NaN  0.469+-0.003
+warm+wm[K=7,chunk]            0.469+-0.003  0.474+-0.006      NaN+-NaN  0.469+-0.003
+best fair baseline here: keyword
+  warm+wm[K=2]           vs best-fair(keyword) -0.0039 [-0.0089,+0.0012] holm p=1.0000 | vs no-buffer +0.0021 [-0.0046,+0.0088] | vs unbounded +0.0148 [+0.0080,+0.0216]
+  warm+wm[K=4]           vs best-fair(keyword) -0.0003 [-0.0064,+0.0058] holm p=1.0000 | vs no-buffer +0.0057 [-0.0016,+0.0129] | vs unbounded +0.0184 [+0.0094,+0.0274]
+  warm+wm[K=7]           vs best-fair(keyword) -0.0187 [-0.0252,-0.0122] holm p=0.0001 | vs no-buffer -0.0127 [-0.0214,-0.0041] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  warm+wm[K=9]           vs best-fair(keyword) -0.0187 [-0.0252,-0.0122] holm p=0.0001 | vs no-buffer -0.0127 [-0.0214,-0.0041] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  warm+wm[K=inf]         vs best-fair(keyword) -0.0187 [-0.0252,-0.0122] holm p=0.0001 | vs no-buffer -0.0127 [-0.0214,-0.0041] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  wm[K=4]                vs best-fair(keyword) -0.0103 [-0.0181,-0.0026] holm p=0.2707 | vs no-buffer -0.0044 [-0.0110,+0.0022] | vs unbounded +0.0083 [-0.0001,+0.0168]
+  wm[K=inf]              vs best-fair(keyword) -0.0160 [-0.0231,-0.0088] holm p=0.0036 | vs no-buffer -0.0100 [-0.0179,-0.0022] | vs unbounded +0.0027 [-0.0017,+0.0071]
+  warm+wm[K=2,chunk]     vs best-fair(keyword) -0.0019 [-0.0078,+0.0039] holm p=1.0000 | vs no-buffer +0.0040 [-0.0026,+0.0106] | vs unbounded +0.0167 [+0.0086,+0.0248]
+  warm+wm[K=4,chunk]     vs best-fair(keyword) -0.0187 [-0.0252,-0.0122] holm p=0.0001 | vs no-buffer -0.0127 [-0.0214,-0.0041] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  warm+wm[K=7,chunk]     vs best-fair(keyword) -0.0187 [-0.0252,-0.0122] holm p=0.0001 | vs no-buffer -0.0127 [-0.0214,-0.0041] | vs unbounded +0.0000 [+0.0000,+0.0000]
+
+=== CONTROL irrelevant-contexts (held-out 31-60, mean expected success; oracle 0.850) ===
+router                             overall   first third       revisit   first-visit
+keyword                       0.662+-0.011  0.661+-0.011  0.662+-0.011  0.663+-0.014
+eps-greedy(tuned)             0.725+-0.008  0.644+-0.009  0.752+-0.008  0.578+-0.012
+pooled-ts(tuned)              0.681+-0.007  0.584+-0.010  0.706+-0.006  0.546+-0.011
+hebbian-robust                0.728+-0.013  0.649+-0.016  0.750+-0.014  0.611+-0.015
+warm(hebbian-robust)=K0       0.750+-0.009  0.690+-0.016  0.769+-0.008  0.651+-0.017
+warm+wm[K=2]                  0.737+-0.007  0.689+-0.009  0.750+-0.008  0.673+-0.010
+warm+wm[K=4]                  0.737+-0.009  0.677+-0.014  0.750+-0.009  0.671+-0.013
+warm+wm[K=7]                  0.619+-0.010  0.560+-0.012  0.637+-0.011  0.526+-0.011
+warm+wm[K=9]                  0.619+-0.010  0.560+-0.012  0.637+-0.011  0.526+-0.011
+warm+wm[K=inf]                0.619+-0.010  0.560+-0.012  0.637+-0.011  0.526+-0.011
+wm[K=4]                       0.714+-0.013  0.621+-0.017  0.735+-0.013  0.603+-0.017
+wm[K=inf]                     0.590+-0.012  0.519+-0.014  0.610+-0.013  0.482+-0.012
+warm+wm[K=2,chunk]            0.744+-0.009  0.692+-0.011  0.758+-0.009  0.670+-0.012
+warm+wm[K=4,chunk]            0.547+-0.011  0.552+-0.013  0.551+-0.012  0.526+-0.011
+warm+wm[K=7,chunk]            0.619+-0.010  0.560+-0.012  0.637+-0.011  0.526+-0.011
+best fair baseline here: warm(hebbian-robust)=K0
+  warm+wm[K=2]           vs best-fair(warm(hebbian-robust)=K0) -0.0127 [-0.0222,-0.0031] holm p=0.2707 | vs no-buffer -0.0127 [-0.0222,-0.0031] | vs unbounded +0.1184 [+0.1080,+0.1288]
+  warm+wm[K=4]           vs best-fair(warm(hebbian-robust)=K0) -0.0127 [-0.0222,-0.0033] holm p=0.2647 | vs no-buffer -0.0127 [-0.0222,-0.0033] | vs unbounded +0.1183 [+0.1075,+0.1291]
+  warm+wm[K=7]           vs best-fair(warm(hebbian-robust)=K0) -0.1310 [-0.1423,-0.1198] holm p=0.0000 | vs no-buffer -0.1310 [-0.1423,-0.1198] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  warm+wm[K=9]           vs best-fair(warm(hebbian-robust)=K0) -0.1310 [-0.1423,-0.1198] holm p=0.0000 | vs no-buffer -0.1310 [-0.1423,-0.1198] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  warm+wm[K=inf]         vs best-fair(warm(hebbian-robust)=K0) -0.1310 [-0.1423,-0.1198] holm p=0.0000 | vs no-buffer -0.1310 [-0.1423,-0.1198] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  wm[K=4]                vs best-fair(warm(hebbian-robust)=K0) -0.0358 [-0.0477,-0.0239] holm p=0.0001 | vs no-buffer -0.0358 [-0.0477,-0.0239] | vs unbounded +0.0952 [+0.0823,+0.1082]
+  wm[K=inf]              vs best-fair(warm(hebbian-robust)=K0) -0.1604 [-0.1727,-0.1481] holm p=0.0000 | vs no-buffer -0.1604 [-0.1727,-0.1481] | vs unbounded -0.0294 [-0.0397,-0.0190]
+  warm+wm[K=2,chunk]     vs best-fair(warm(hebbian-robust)=K0) -0.0058 [-0.0153,+0.0036] holm p=1.0000 | vs no-buffer -0.0058 [-0.0153,+0.0036] | vs unbounded +0.1252 [+0.1150,+0.1354]
+  warm+wm[K=4,chunk]     vs best-fair(warm(hebbian-robust)=K0) -0.2030 [-0.2163,-0.1898] holm p=0.0000 | vs no-buffer -0.2030 [-0.2163,-0.1898] | vs unbounded -0.0720 [-0.0790,-0.0650]
+  warm+wm[K=7,chunk]     vs best-fair(warm(hebbian-robust)=K0) -0.1310 [-0.1423,-0.1198] holm p=0.0000 | vs no-buffer -0.1310 [-0.1423,-0.1198] | vs unbounded +0.0000 [+0.0000,+0.0000]
+
+=== CONTROL sim:fixed (held-out 31-60, mean expected success; oracle 0.832) ===
+router                             overall   first third       revisit   first-visit
+keyword                       0.703+-0.002  0.737+-0.004      NaN+-NaN  0.703+-0.002
+eps-greedy(tuned)             0.712+-0.011  0.664+-0.012      NaN+-NaN  0.712+-0.011
+pooled-ts(tuned)              0.653+-0.006  0.571+-0.010      NaN+-NaN  0.653+-0.006
+hebbian-robust                0.695+-0.015  0.646+-0.015      NaN+-NaN  0.695+-0.015
+warm(hebbian-robust)=K0       0.724+-0.013  0.696+-0.017      NaN+-NaN  0.724+-0.013
+warm+wm[K=2]                  0.753+-0.006  0.736+-0.012      NaN+-NaN  0.753+-0.006
+warm+wm[K=4]                  0.745+-0.009  0.721+-0.015      NaN+-NaN  0.745+-0.009
+warm+wm[K=7]                  0.689+-0.008  0.714+-0.016      NaN+-NaN  0.689+-0.008
+warm+wm[K=9]                  0.689+-0.008  0.714+-0.016      NaN+-NaN  0.689+-0.008
+warm+wm[K=inf]                0.689+-0.008  0.714+-0.016      NaN+-NaN  0.689+-0.008
+wm[K=4]                       0.695+-0.015  0.646+-0.015      NaN+-NaN  0.695+-0.015
+wm[K=inf]                     0.653+-0.009  0.646+-0.015      NaN+-NaN  0.653+-0.009
+warm+wm[K=2,chunk]            0.748+-0.008  0.722+-0.013      NaN+-NaN  0.748+-0.008
+warm+wm[K=4,chunk]            0.689+-0.008  0.714+-0.016      NaN+-NaN  0.689+-0.008
+warm+wm[K=7,chunk]            0.689+-0.008  0.714+-0.016      NaN+-NaN  0.689+-0.008
+best fair baseline here: warm(hebbian-robust)=K0
+  warm+wm[K=2]           vs best-fair(warm(hebbian-robust)=K0) +0.0296 [+0.0174,+0.0419] holm p=0.0015 WIN | vs no-buffer +0.0296 [+0.0174,+0.0419] | vs unbounded +0.0645 [+0.0550,+0.0739]
+  warm+wm[K=4]           vs best-fair(warm(hebbian-robust)=K0) +0.0212 [+0.0066,+0.0359] holm p=0.1905 | vs no-buffer +0.0212 [+0.0066,+0.0359] | vs unbounded +0.0560 [+0.0472,+0.0648]
+  warm+wm[K=7]           vs best-fair(warm(hebbian-robust)=K0) -0.0348 [-0.0494,-0.0202] holm p=0.0018 | vs no-buffer -0.0348 [-0.0494,-0.0202] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  warm+wm[K=9]           vs best-fair(warm(hebbian-robust)=K0) -0.0348 [-0.0494,-0.0202] holm p=0.0018 | vs no-buffer -0.0348 [-0.0494,-0.0202] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  warm+wm[K=inf]         vs best-fair(warm(hebbian-robust)=K0) -0.0348 [-0.0494,-0.0202] holm p=0.0018 | vs no-buffer -0.0348 [-0.0494,-0.0202] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  wm[K=4]                vs best-fair(warm(hebbian-robust)=K0) -0.0283 [-0.0469,-0.0096] holm p=0.1410 | vs no-buffer -0.0283 [-0.0469,-0.0096] | vs unbounded +0.0066 [-0.0109,+0.0240]
+  wm[K=inf]              vs best-fair(warm(hebbian-robust)=K0) -0.0707 [-0.0869,-0.0545] holm p=0.0000 | vs no-buffer -0.0707 [-0.0869,-0.0545] | vs unbounded -0.0359 [-0.0479,-0.0239]
+  warm+wm[K=2,chunk]     vs best-fair(warm(hebbian-robust)=K0) +0.0242 [+0.0095,+0.0389] holm p=0.0788 | vs no-buffer +0.0242 [+0.0095,+0.0389] | vs unbounded +0.0590 [+0.0498,+0.0682]
+  warm+wm[K=4,chunk]     vs best-fair(warm(hebbian-robust)=K0) -0.0348 [-0.0494,-0.0202] holm p=0.0018 | vs no-buffer -0.0348 [-0.0494,-0.0202] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  warm+wm[K=7,chunk]     vs best-fair(warm(hebbian-robust)=K0) -0.0348 [-0.0494,-0.0202] holm p=0.0018 | vs no-buffer -0.0348 [-0.0494,-0.0202] | vs unbounded +0.0000 [+0.0000,+0.0000]
+
+=== CONTROL sim:random (held-out 31-60, mean expected success; oracle 0.838) ===
+router                             overall   first third       revisit   first-visit
+keyword                       0.696+-0.020  0.739+-0.019      NaN+-NaN  0.696+-0.020
+eps-greedy(tuned)             0.733+-0.010  0.688+-0.015      NaN+-NaN  0.733+-0.010
+pooled-ts(tuned)              0.687+-0.009  0.615+-0.014      NaN+-NaN  0.687+-0.009
+hebbian-robust                0.729+-0.016  0.684+-0.019      NaN+-NaN  0.729+-0.016
+warm(hebbian-robust)=K0       0.743+-0.013  0.721+-0.016      NaN+-NaN  0.743+-0.013
+warm+wm[K=2]                  0.762+-0.011  0.761+-0.013      NaN+-NaN  0.762+-0.011
+warm+wm[K=4]                  0.759+-0.011  0.745+-0.014      NaN+-NaN  0.759+-0.011
+warm+wm[K=7]                  0.710+-0.010  0.743+-0.015      NaN+-NaN  0.710+-0.010
+warm+wm[K=9]                  0.710+-0.010  0.743+-0.015      NaN+-NaN  0.710+-0.010
+warm+wm[K=inf]                0.710+-0.010  0.743+-0.015      NaN+-NaN  0.710+-0.010
+wm[K=4]                       0.729+-0.016  0.684+-0.019      NaN+-NaN  0.729+-0.016
+wm[K=inf]                     0.686+-0.015  0.684+-0.019      NaN+-NaN  0.686+-0.015
+warm+wm[K=2,chunk]            0.760+-0.010  0.746+-0.016      NaN+-NaN  0.760+-0.010
+warm+wm[K=4,chunk]            0.710+-0.010  0.743+-0.015      NaN+-NaN  0.710+-0.010
+warm+wm[K=7,chunk]            0.710+-0.010  0.743+-0.015      NaN+-NaN  0.710+-0.010
+best fair baseline here: warm(hebbian-robust)=K0
+  warm+wm[K=2]           vs best-fair(warm(hebbian-robust)=K0) +0.0193 [+0.0073,+0.0313] holm p=0.0922 | vs no-buffer +0.0193 [+0.0073,+0.0313] | vs unbounded +0.0526 [+0.0425,+0.0626]
+  warm+wm[K=4]           vs best-fair(warm(hebbian-robust)=K0) +0.0165 [+0.0048,+0.0282] holm p=0.2084 | vs no-buffer +0.0165 [+0.0048,+0.0282] | vs unbounded +0.0498 [+0.0401,+0.0594]
+  warm+wm[K=7]           vs best-fair(warm(hebbian-robust)=K0) -0.0333 [-0.0467,-0.0198] holm p=0.0012 | vs no-buffer -0.0333 [-0.0467,-0.0198] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  warm+wm[K=9]           vs best-fair(warm(hebbian-robust)=K0) -0.0333 [-0.0467,-0.0198] holm p=0.0012 | vs no-buffer -0.0333 [-0.0467,-0.0198] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  warm+wm[K=inf]         vs best-fair(warm(hebbian-robust)=K0) -0.0333 [-0.0467,-0.0198] holm p=0.0012 | vs no-buffer -0.0333 [-0.0467,-0.0198] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  wm[K=4]                vs best-fair(warm(hebbian-robust)=K0) -0.0137 [-0.0275,+0.0001] holm p=1.0000 | vs no-buffer -0.0137 [-0.0275,+0.0001] | vs unbounded +0.0196 [+0.0049,+0.0343]
+  wm[K=inf]              vs best-fair(warm(hebbian-robust)=K0) -0.0564 [-0.0716,-0.0413] holm p=0.0000 | vs no-buffer -0.0564 [-0.0716,-0.0413] | vs unbounded -0.0231 [-0.0351,-0.0112]
+  warm+wm[K=2,chunk]     vs best-fair(warm(hebbian-robust)=K0) +0.0168 [+0.0051,+0.0285] holm p=0.1962 | vs no-buffer +0.0168 [+0.0051,+0.0285] | vs unbounded +0.0501 [+0.0399,+0.0603]
+  warm+wm[K=4,chunk]     vs best-fair(warm(hebbian-robust)=K0) -0.0333 [-0.0467,-0.0198] holm p=0.0012 | vs no-buffer -0.0333 [-0.0467,-0.0198] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  warm+wm[K=7,chunk]     vs best-fair(warm(hebbian-robust)=K0) -0.0333 [-0.0467,-0.0198] holm p=0.0012 | vs no-buffer -0.0333 [-0.0467,-0.0198] | vs unbounded +0.0000 [+0.0000,+0.0000]
+
+=== CONTROL sim:no-synergy (held-out 31-60, mean expected success; oracle 0.838) ===
+router                             overall   first third       revisit   first-visit
+keyword                       0.696+-0.020  0.739+-0.019      NaN+-NaN  0.696+-0.020
+eps-greedy(tuned)             0.733+-0.010  0.688+-0.015      NaN+-NaN  0.733+-0.010
+pooled-ts(tuned)              0.687+-0.009  0.615+-0.014      NaN+-NaN  0.687+-0.009
+hebbian-robust                0.729+-0.016  0.684+-0.019      NaN+-NaN  0.729+-0.016
+warm(hebbian-robust)=K0       0.743+-0.013  0.721+-0.016      NaN+-NaN  0.743+-0.013
+warm+wm[K=2]                  0.762+-0.011  0.761+-0.013      NaN+-NaN  0.762+-0.011
+warm+wm[K=4]                  0.759+-0.011  0.745+-0.014      NaN+-NaN  0.759+-0.011
+warm+wm[K=7]                  0.710+-0.010  0.743+-0.015      NaN+-NaN  0.710+-0.010
+warm+wm[K=9]                  0.710+-0.010  0.743+-0.015      NaN+-NaN  0.710+-0.010
+warm+wm[K=inf]                0.710+-0.010  0.743+-0.015      NaN+-NaN  0.710+-0.010
+wm[K=4]                       0.729+-0.016  0.684+-0.019      NaN+-NaN  0.729+-0.016
+wm[K=inf]                     0.686+-0.015  0.684+-0.019      NaN+-NaN  0.686+-0.015
+warm+wm[K=2,chunk]            0.760+-0.010  0.746+-0.016      NaN+-NaN  0.760+-0.010
+warm+wm[K=4,chunk]            0.710+-0.010  0.743+-0.015      NaN+-NaN  0.710+-0.010
+warm+wm[K=7,chunk]            0.710+-0.010  0.743+-0.015      NaN+-NaN  0.710+-0.010
+best fair baseline here: warm(hebbian-robust)=K0
+  warm+wm[K=2]           vs best-fair(warm(hebbian-robust)=K0) +0.0193 [+0.0073,+0.0313] holm p=0.0922 | vs no-buffer +0.0193 [+0.0073,+0.0313] | vs unbounded +0.0526 [+0.0425,+0.0626]
+  warm+wm[K=4]           vs best-fair(warm(hebbian-robust)=K0) +0.0165 [+0.0048,+0.0282] holm p=0.2084 | vs no-buffer +0.0165 [+0.0048,+0.0282] | vs unbounded +0.0498 [+0.0401,+0.0594]
+  warm+wm[K=7]           vs best-fair(warm(hebbian-robust)=K0) -0.0333 [-0.0467,-0.0198] holm p=0.0012 | vs no-buffer -0.0333 [-0.0467,-0.0198] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  warm+wm[K=9]           vs best-fair(warm(hebbian-robust)=K0) -0.0333 [-0.0467,-0.0198] holm p=0.0012 | vs no-buffer -0.0333 [-0.0467,-0.0198] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  warm+wm[K=inf]         vs best-fair(warm(hebbian-robust)=K0) -0.0333 [-0.0467,-0.0198] holm p=0.0012 | vs no-buffer -0.0333 [-0.0467,-0.0198] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  wm[K=4]                vs best-fair(warm(hebbian-robust)=K0) -0.0137 [-0.0275,+0.0001] holm p=1.0000 | vs no-buffer -0.0137 [-0.0275,+0.0001] | vs unbounded +0.0196 [+0.0049,+0.0343]
+  wm[K=inf]              vs best-fair(warm(hebbian-robust)=K0) -0.0564 [-0.0716,-0.0413] holm p=0.0000 | vs no-buffer -0.0564 [-0.0716,-0.0413] | vs unbounded -0.0231 [-0.0351,-0.0112]
+  warm+wm[K=2,chunk]     vs best-fair(warm(hebbian-robust)=K0) +0.0168 [+0.0051,+0.0285] holm p=0.1962 | vs no-buffer +0.0168 [+0.0051,+0.0285] | vs unbounded +0.0501 [+0.0399,+0.0603]
+  warm+wm[K=4,chunk]     vs best-fair(warm(hebbian-robust)=K0) -0.0333 [-0.0467,-0.0198] holm p=0.0012 | vs no-buffer -0.0333 [-0.0467,-0.0198] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  warm+wm[K=7,chunk]     vs best-fair(warm(hebbian-robust)=K0) -0.0333 [-0.0467,-0.0198] holm p=0.0012 | vs no-buffer -0.0333 [-0.0467,-0.0198] | vs unbounded +0.0000 [+0.0000,+0.0000]
+
+=== CONTROL sim:no-traps (held-out 31-60, mean expected success; oracle 0.837) ===
+router                             overall   first third       revisit   first-visit
+keyword                       0.795+-0.009  0.840+-0.006      NaN+-NaN  0.795+-0.009
+eps-greedy(tuned)             0.716+-0.013  0.684+-0.012      NaN+-NaN  0.716+-0.013
+pooled-ts(tuned)              0.668+-0.013  0.601+-0.014      NaN+-NaN  0.668+-0.013
+hebbian-robust                0.707+-0.018  0.665+-0.021      NaN+-NaN  0.707+-0.018
+warm(hebbian-robust)=K0       0.748+-0.013  0.738+-0.016      NaN+-NaN  0.748+-0.013
+warm+wm[K=2]                  0.778+-0.009  0.798+-0.009      NaN+-NaN  0.778+-0.009
+warm+wm[K=4]                  0.765+-0.010  0.771+-0.011      NaN+-NaN  0.765+-0.010
+warm+wm[K=7]                  0.725+-0.012  0.773+-0.011      NaN+-NaN  0.725+-0.012
+warm+wm[K=9]                  0.725+-0.012  0.773+-0.011      NaN+-NaN  0.725+-0.012
+warm+wm[K=inf]                0.725+-0.012  0.773+-0.011      NaN+-NaN  0.725+-0.012
+wm[K=4]                       0.707+-0.018  0.665+-0.021      NaN+-NaN  0.707+-0.018
+wm[K=inf]                     0.667+-0.014  0.665+-0.021      NaN+-NaN  0.667+-0.014
+warm+wm[K=2,chunk]            0.768+-0.010  0.774+-0.011      NaN+-NaN  0.768+-0.010
+warm+wm[K=4,chunk]            0.725+-0.012  0.773+-0.011      NaN+-NaN  0.725+-0.012
+warm+wm[K=7,chunk]            0.725+-0.012  0.773+-0.011      NaN+-NaN  0.725+-0.012
+best fair baseline here: keyword
+  warm+wm[K=2]           vs best-fair(keyword) -0.0172 [-0.0220,-0.0123] holm p=0.0000 | vs no-buffer +0.0302 [+0.0221,+0.0382] | vs unbounded +0.0537 [+0.0460,+0.0614]
+  warm+wm[K=4]           vs best-fair(keyword) -0.0303 [-0.0382,-0.0224] holm p=0.0000 | vs no-buffer +0.0170 [+0.0071,+0.0270] | vs unbounded +0.0406 [+0.0335,+0.0477]
+  warm+wm[K=7]           vs best-fair(keyword) -0.0709 [-0.0802,-0.0615] holm p=0.0000 | vs no-buffer -0.0235 [-0.0341,-0.0130] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  warm+wm[K=9]           vs best-fair(keyword) -0.0709 [-0.0802,-0.0615] holm p=0.0000 | vs no-buffer -0.0235 [-0.0341,-0.0130] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  warm+wm[K=inf]         vs best-fair(keyword) -0.0709 [-0.0802,-0.0615] holm p=0.0000 | vs no-buffer -0.0235 [-0.0341,-0.0130] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  wm[K=4]                vs best-fair(keyword) -0.0883 [-0.1028,-0.0738] holm p=0.0000 | vs no-buffer -0.0410 [-0.0549,-0.0270] | vs unbounded -0.0174 [-0.0322,-0.0026]
+  wm[K=inf]              vs best-fair(keyword) -0.1280 [-0.1399,-0.1161] holm p=0.0000 | vs no-buffer -0.0807 [-0.0942,-0.0671] | vs unbounded -0.0571 [-0.0667,-0.0476]
+  warm+wm[K=2,chunk]     vs best-fair(keyword) -0.0278 [-0.0359,-0.0198] holm p=0.0000 | vs no-buffer +0.0195 [+0.0090,+0.0300] | vs unbounded +0.0430 [+0.0361,+0.0500]
+  warm+wm[K=4,chunk]     vs best-fair(keyword) -0.0709 [-0.0802,-0.0615] holm p=0.0000 | vs no-buffer -0.0235 [-0.0341,-0.0130] | vs unbounded +0.0000 [+0.0000,+0.0000]
+  warm+wm[K=7,chunk]     vs best-fair(keyword) -0.0709 [-0.0802,-0.0615] holm p=0.0000 | vs no-buffer -0.0235 [-0.0341,-0.0130] | vs unbounded +0.0000 [+0.0000,+0.0000]
+
+=== VERDICT inputs ===
+recur-6fam                         control=false Holm-significant wins over best fair baseline: ["warm+wm[K=4]", "warm+wm[K=7]", "warm+wm[K=9]", "warm+wm[K=inf]", "wm[K=inf]", "warm+wm[K=7,chunk]"]
+recur-4fam-x3var                   control=false Holm-significant wins over best fair baseline: ["warm+wm[K=4,chunk]", "warm+wm[K=7,chunk]"]
+recur-12ctx                        control=false Holm-significant wins over best fair baseline: ["warm+wm[K=9]", "warm+wm[K=inf]", "wm[K=inf]"]
+recur-6fam-marker50                control=false Holm-significant wins over best fair baseline: ["warm+wm[K=4]", "warm+wm[K=7]", "warm+wm[K=9]", "warm+wm[K=inf]", "wm[K=4]", "wm[K=inf]", "warm+wm[K=4,chunk]", "warm+wm[K=7,chunk]"]
+CONTROL unique-contexts            control=true  Holm-significant wins over best fair baseline: []
+CONTROL irrelevant-contexts        control=true  Holm-significant wins over best fair baseline: []
+CONTROL sim:fixed                  control=true  Holm-significant wins over best fair baseline: ["warm+wm[K=2]"]
+CONTROL sim:random                 control=true  Holm-significant wins over best fair baseline: []
+CONTROL sim:no-synergy             control=true  Holm-significant wins over best fair baseline: []
+CONTROL sim:no-traps               control=true  Holm-significant wins over best fair baseline: []
+worlds (non-control) with at least one Holm win: 4 -> bar (>1 world) MET
+
+wrote results/r3_memory_spatial.json (key workmem)

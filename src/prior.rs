@@ -323,6 +323,156 @@ impl<R: Router> Router for ArmWarm<R> {
     }
 }
 
+/// Configuration of [`Guarded`].
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct GuardConfig {
+    /// Abandon the keyword agent when its upper confidence bound falls below this
+    /// success rate ("proven not good enough").
+    pub tau: f64,
+    /// Width of the confidence bounds in posterior standard deviations.
+    pub z: f64,
+    /// Beta prior (pseudo-successes, pseudo-failures) of the KEYWORD agent: the
+    /// benefit of the doubt a keyword rule gets before evidence.
+    pub kw_a: f64,
+    pub kw_b: f64,
+    /// Per-update discount of the counts of the updated features (1 = none);
+    /// < 1 lets an abandoned rule regain trust (and be re-tried) over time.
+    pub discount: f64,
+    /// Also switch to a non-keyword agent whose LOWER bound (Beta(1,1) prior)
+    /// beats the keyword agent's UPPER bound ("proof of a better alternative").
+    pub challenge: bool,
+}
+
+impl Default for GuardConfig {
+    fn default() -> Self {
+        GuardConfig { tau: 0.6, z: 1.0, kw_a: 3.0, kw_b: 1.0, discount: 1.0, challenge: true }
+    }
+}
+
+/// Confidence-gated warm start (opt-in, new type; [`Warm`] is unchanged).
+///
+/// Deterministic hand-over rule — "don't abandon a working rule without proof":
+/// per (feature, agent) success/failure counts are pooled over the task's
+/// features (mean). The keyword agent `k` is followed while
+/// `UCB(k) >= tau` and (if `challenge`) no other candidate has `LCB(a) > UCB(k)`.
+/// If a challenger is proven better it is chosen directly; if the keyword agent
+/// is proven poor the inner router decides. Tasks without any keyword vote go to
+/// the inner router. The inner router is trained on every outcome.
+pub struct Guarded<R: Router> {
+    pub inner: R,
+    pub prior: KeywordPrior,
+    pub cfg: GuardConfig,
+    counts: HashMap<String, Vec<(f64, f64)>>,
+    /// Decisions taken: (keyword, challenger, inner).
+    pub decisions: [u64; 3],
+}
+
+fn beta_bounds(a: f64, b: f64, z: f64) -> (f64, f64) {
+    let n = a + b;
+    let m = a / n;
+    let sd = (m * (1.0 - m) / (n + 1.0)).sqrt();
+    (m - z * sd, m + z * sd)
+}
+
+impl<R: Router> Guarded<R> {
+    pub fn new(inner: R, map: HashMap<String, usize>, n_agents: usize, cfg: GuardConfig) -> Self {
+        Guarded { inner, prior: KeywordPrior::new(map, n_agents), cfg, counts: HashMap::new(), decisions: [0; 3] }
+    }
+
+    /// Pooled (successes, failures) of `agent` over the task's features (mean).
+    pub fn pooled(&self, task: &Task, agent: usize) -> (f64, f64) {
+        if task.features.is_empty() {
+            return (0.0, 0.0);
+        }
+        let (mut s, mut f) = (0.0, 0.0);
+        for k in &task.features {
+            if let Some(&(cs, cf)) = self.counts.get(k).and_then(|r| r.get(agent)) {
+                s += cs;
+                f += cf;
+            }
+        }
+        let n = task.features.len() as f64;
+        (s / n, f / n)
+    }
+
+    /// Number of feature rows with outcome counts.
+    pub fn n_rows(&self) -> usize {
+        self.counts.len()
+    }
+
+    /// (LCB, UCB) of the keyword agent's success rate on `task`.
+    pub fn keyword_bounds(&self, task: &Task, agent: usize) -> (f64, f64) {
+        let (s, f) = self.pooled(task, agent);
+        beta_bounds(self.cfg.kw_a + s, self.cfg.kw_b + f, self.cfg.z)
+    }
+
+    /// 0 = follow keyword, 1 = proven-better challenger `a`, 2 = inner router.
+    fn decide(&self, task: &Task, candidates: &[usize]) -> (u8, usize) {
+        // Same rule as KeywordRouter: most votes, ties -> lowest agent index.
+        let votes = self.prior.votes(task, candidates);
+        let Some(k) = votes.iter().fold(None, |b: Option<(usize, usize)>, &(a, v)| match b {
+            Some((_, bv)) if bv >= v => b,
+            _ => Some((a, v)),
+        }).map(|(a, _)| a) else {
+            return (2, 0);
+        };
+        let (_, ucb_k) = self.keyword_bounds(task, k);
+        if ucb_k < self.cfg.tau {
+            return (2, 0);
+        }
+        if self.cfg.challenge {
+            let mut best = (ucb_k, usize::MAX);
+            for &a in candidates {
+                if a == k {
+                    continue;
+                }
+                let (s, f) = self.pooled(task, a);
+                let (lcb, _) = beta_bounds(1.0 + s, 1.0 + f, self.cfg.z);
+                if lcb > best.0 {
+                    best = (lcb, a);
+                }
+            }
+            if best.1 != usize::MAX {
+                return (1, best.1);
+            }
+        }
+        (0, k)
+    }
+}
+
+impl<R: Router> Router for Guarded<R> {
+    fn name(&self) -> String {
+        format!("guarded({},tau={})", self.inner.name(), self.cfg.tau)
+    }
+
+    fn select(&mut self, task: &Task, candidates: &[usize], rng: &mut Rng) -> usize {
+        assert!(!candidates.is_empty(), "Guarded::select: no candidates");
+        let (d, a) = self.decide(task, candidates);
+        self.decisions[d as usize] += 1;
+        if d == 2 { self.inner.select(task, candidates, rng) } else { a }
+    }
+
+    fn update(&mut self, task: &Task, agent: usize, reward: f64) {
+        let r = reward.clamp(0.0, 1.0);
+        let n = self.prior.n_agents().max(agent + 1);
+        for k in &task.features {
+            let row = self.counts.entry(k.clone()).or_insert_with(|| vec![(0.0, 0.0); n]);
+            if row.len() < n {
+                row.resize(n, (0.0, 0.0));
+            }
+            if self.cfg.discount < 1.0 {
+                for c in row.iter_mut() {
+                    c.0 *= self.cfg.discount;
+                    c.1 *= self.cfg.discount;
+                }
+            }
+            row[agent].0 += r;
+            row[agent].1 += 1.0 - r;
+        }
+        self.inner.update(task, agent, reward);
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -431,5 +581,82 @@ mod tests {
         assert_eq!(p.votes(&t(0, &["sql", "db", "css"]), &[0, 1, 2]), vec![(1, 2), (2, 1)]);
         assert_eq!(p.votes(&t(0, &["sql", "db", "css"]), &[0, 2]), vec![(2, 1)]);
         assert_eq!(p.choose(&t(0, &["sql", "db", "css"]), &[0, 1, 2]), 1);
+    }
+
+    #[test]
+    fn guarded_keeps_good_keyword_and_abandons_bad() {
+        use crate::hebbian::{HebbianConfig, HebbianRouter};
+        let heb = || HebbianRouter::new(3, HebbianConfig { eta: 0.01, temperature: 0.002, epsilon: 0.0, ..HebbianConfig::default() });
+        let task = t(0, &["sql"]); // keyword agent = 1
+        // A: keyword agent is best -> never abandoned (deterministic guard).
+        let mut rng = Rng::new(5);
+        let mut w = Guarded::new(heb(), map(), 3, GuardConfig::default());
+        let p = [0.2, 0.85, 0.3];
+        let mut kw = 0;
+        for i in 0..600 {
+            let a = w.select(&task, &[0, 1, 2], &mut rng);
+            if i >= 300 && a == 1 {
+                kw += 1;
+            }
+            w.update(&task, a, if rng.bernoulli(p[a]) { 1.0 } else { 0.0 });
+        }
+        assert!(kw >= 295, "kept keyword {kw}/300");
+        // B: keyword agent is a trap -> handed over, best agent found.
+        let mut w = Guarded::new(heb(), map(), 3, GuardConfig::default());
+        let p = [0.2, 0.15, 0.9];
+        let mut best = 0;
+        for i in 0..800 {
+            let a = w.select(&task, &[0, 1, 2], &mut rng);
+            if i >= 500 && a == 2 {
+                best += 1;
+            }
+            w.update(&task, a, if rng.bernoulli(p[a]) { 1.0 } else { 0.0 });
+        }
+        assert!(best > 250, "late best picks {best}/300");
+        assert!(w.decisions[2] + w.decisions[1] > 0);
+    }
+
+    #[test]
+    fn guarded_is_keyword_at_zero_evidence_and_inner_without_votes() {
+        let mut g = Guarded::new(EpsGreedyRouter::new(3, 1.0, 0.0), map(), 3, GuardConfig::default());
+        let mut kw = KeywordRouter::new(map(), 3);
+        let mut rng = Rng::new(1);
+        for (i, f) in [&["sql"][..], &["css", "api"], &["db", "css", "sql"]].iter().enumerate() {
+            let task = t(i as u64, f);
+            assert_eq!(g.select(&task, &[0, 1, 2], &mut rng), kw.select(&task, &[0, 1, 2], &mut rng));
+        }
+        let _ = g.select(&t(9, &["zzz"]), &[0, 1, 2], &mut rng);
+        assert_eq!(g.decisions, [3, 0, 1]);
+        // keyword bounds: prior Beta(3,1) -> mean 0.75
+        let (lo, hi) = g.keyword_bounds(&t(0, &["sql"]), 1);
+        assert!(lo < 0.75 && hi > 0.75 && hi <= 1.0 + 1e-9);
+    }
+
+    #[test]
+    fn guarded_challenger_needs_proof_and_discount_restores_trust() {
+        let cfg = GuardConfig { tau: 0.0, z: 1.0, challenge: true, ..GuardConfig::default() };
+        let mut g = Guarded::new(EpsGreedyRouter::new(3, 1.0, 0.0), map(), 3, cfg);
+        let task = t(0, &["sql"]);
+        let mut rng = Rng::new(2);
+        // one lucky success of agent 2 is not proof
+        g.update(&task, 2, 1.0);
+        assert_eq!(g.select(&task, &[0, 1, 2], &mut rng), 1);
+        // keyword agent keeps failing, agent 2 keeps succeeding -> proven better
+        for _ in 0..30 {
+            g.update(&task, 1, 0.0);
+            g.update(&task, 2, 1.0);
+        }
+        assert_eq!(g.select(&task, &[0, 1, 2], &mut rng), 2);
+        // discount: failures fade, the keyword agent regains a UCB above tau
+        let cfg = GuardConfig { tau: 0.5, discount: 0.9, challenge: false, ..GuardConfig::default() };
+        let mut g = Guarded::new(EpsGreedyRouter::new(3, 1.0, 0.0), map(), 3, cfg);
+        for _ in 0..20 {
+            g.update(&task, 1, 0.0);
+        }
+        assert!(g.keyword_bounds(&task, 1).1 < 0.5);
+        for _ in 0..60 {
+            g.update(&task, 0, 0.0); // row discounted on every update of the feature
+        }
+        assert!(g.keyword_bounds(&task, 1).1 > 0.5);
     }
 }

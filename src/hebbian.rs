@@ -39,6 +39,14 @@
 //! * `weighting`: feature-reliability weighting of the score (IDF / entropy /
 //!   agreement contrast).
 //! * `ucb_c`: UCB-style exploration bonus for rarely tried (feature, agent) cells.
+//! * `agg`: robust aggregation of the per-feature weights (median instead of sum),
+//!   so a single confound keyword cannot flip a decision against the others.
+//!
+//! [`KalmanRouter`] (opt-in, separate type): Kalman / Rescorla-Wagner synapses.
+//! Every (feature, agent) synapse carries a mean and a variance; features compete
+//! to predict the outcome (delta rule on the agent's own prediction, credit
+//! proportional to each synapse's uncertainty), and selection is Thompson
+//! sampling over the posterior. A keyword map can seed the prior means.
 
 use std::collections::BTreeMap;
 
@@ -66,6 +74,17 @@ pub enum MetaKind {
     /// while successive surprises agree in sign with their running mean and
     /// shrinks multiplicatively when they do not.
     Dbd,
+}
+
+/// How per-feature weights are combined into an agent score (opt-in).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AggKind {
+    /// Plain (reliability-weighted) sum (original behaviour).
+    #[default]
+    Sum,
+    /// `n_features * median` of the per-feature weights: one outlier feature
+    /// (e.g. a confound keyword) cannot override a consistent majority.
+    Median,
 }
 
 /// Feature-reliability weighting of the score (opt-in; `Off` = plain sum).
@@ -135,6 +154,10 @@ pub struct HebbianConfig {
     /// Per-row-update discount of the (feature, agent) trial counts, so stale
     /// cells regain their bonus after a while.
     pub ucb_discount: f64,
+
+    // ---- opt-in: robust aggregation ---------------------------------------------
+    /// Score aggregation over active features (`Sum` = classic).
+    pub agg: AggKind,
 }
 
 impl Default for HebbianConfig {
@@ -162,6 +185,7 @@ impl Default for HebbianConfig {
             weight_alpha: 0.02,
             ucb_c: 0.0,
             ucb_discount: 0.995,
+            agg: AggKind::Sum,
         }
     }
 }
@@ -382,7 +406,19 @@ impl HebbianRouter {
     }
 
     fn score_of(&self, feats: &[String], rels: &[f64], agent: usize) -> f64 {
-        feats.iter().zip(rels).map(|(f, r)| r * self.weight(f, agent)).sum()
+        match self.cfg.agg {
+            AggKind::Sum => feats.iter().zip(rels).map(|(f, r)| r * self.weight(f, agent)).sum(),
+            AggKind::Median => {
+                let mut v: Vec<f64> = feats.iter().zip(rels).map(|(f, r)| r * self.weight(f, agent)).collect();
+                if v.is_empty() {
+                    return 0.0;
+                }
+                v.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+                let n = v.len();
+                let med = if n % 2 == 1 { v[n / 2] } else { 0.5 * (v[n / 2 - 1] + v[n / 2]) };
+                med * n as f64
+            }
+        }
     }
 
     /// Mean UCB bonus of `agent` over the active features.
@@ -530,6 +566,175 @@ impl Router for HebbianRouter {
                 }
             }
             self.baselines.insert(f, b + cfg.baseline_alpha * (reward - b));
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Kalman / Rescorla-Wagner synapses (opt-in, separate router)
+// ---------------------------------------------------------------------------
+
+/// Configuration of [`KalmanRouter`].
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct KalmanConfig {
+    /// Prior variance of a fresh synapse (logit units).
+    pub prior_var: f64,
+    /// Prior mean of a synapse from a keyword to its mapped agent.
+    pub kw_mean: f64,
+    /// Prior mean of every other synapse (pessimistic < 0 = "unknown agents are
+    /// probably worse than the base rate").
+    pub other_mean: f64,
+    /// Process noise added to the variance of a synapse each time its row is
+    /// updated (tracks drift; 0 = stationary).
+    pub process_noise: f64,
+    /// Thompson sampling scale on the posterior sd (0 = greedy on the mean).
+    pub ts_scale: f64,
+    /// Upper bound of a synapse variance (keeps process noise bounded).
+    pub max_var: f64,
+}
+
+impl Default for KalmanConfig {
+    fn default() -> Self {
+        KalmanConfig { prior_var: 1.0, kw_mean: 1.0, other_mean: 0.0, process_noise: 0.0, ts_scale: 1.0, max_var: 4.0 }
+    }
+}
+
+/// Bayesian logistic synapses with diagonal extended-Kalman updates.
+///
+/// Score of agent `a` for a task = logit `z_a = sum_f m[f][a]` over the active
+/// features (see [`active_features`]). On outcome `r` for the chosen agent `a`:
+/// `p = sigma(z_a)`, `h = p(1-p)`, innovation variance `S = h^2 sum_f v[f][a] + h`,
+/// gain `K_f = v[f][a] h / S`, `m[f][a] += K_f (r - p)`, `v[f][a] *= 1 - K_f h`.
+/// So features compete for credit (blocking: a feature that already predicts the
+/// outcome leaves little error for the others) and uncertain synapses learn
+/// fastest. Selection: argmax over candidates of `m + ts_scale * sqrt(v) * xi`
+/// summed over features (Thompson; `ts_scale = 0` is greedy).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct KalmanRouter {
+    pub cfg: KalmanConfig,
+    n_agents: usize,
+    /// keyword -> agent prior map (may be empty).
+    kw: BTreeMap<String, usize>,
+    mean: BTreeMap<String, Vec<f64>>,
+    var: BTreeMap<String, Vec<f64>>,
+}
+
+fn sigmoid(z: f64) -> f64 {
+    1.0 / (1.0 + (-z).exp())
+}
+
+/// Standard normal (Box-Muller, two uniforms).
+fn std_normal(rng: &mut Rng) -> f64 {
+    let u1 = 1.0 - rng.f64();
+    let u2 = rng.f64();
+    (-2.0 * u1.ln()).sqrt() * (std::f64::consts::TAU * u2).cos()
+}
+
+impl KalmanRouter {
+    pub fn new(n_agents: usize, cfg: KalmanConfig) -> Self {
+        KalmanRouter { cfg, n_agents, kw: BTreeMap::new(), mean: BTreeMap::new(), var: BTreeMap::new() }
+    }
+
+    /// Seed prior means from a keyword -> agent map.
+    pub fn with_keywords<I: IntoIterator<Item = (String, usize)>>(mut self, map: I) -> Self {
+        self.kw = map.into_iter().collect();
+        self
+    }
+
+    fn prior_row(&self, f: &str) -> Vec<f64> {
+        let k = self.kw.get(f).copied();
+        (0..self.n_agents).map(|a| if Some(a) == k { self.cfg.kw_mean } else { self.cfg.other_mean }).collect()
+    }
+
+    /// Posterior (mean, variance) of synapse (feature, agent).
+    pub fn synapse(&self, f: &str, a: usize) -> (f64, f64) {
+        let m = self.mean.get(f).and_then(|r| r.get(a).copied()).unwrap_or_else(|| {
+            if self.kw.get(f) == Some(&a) { self.cfg.kw_mean } else { self.cfg.other_mean }
+        });
+        let v = self.var.get(f).and_then(|r| r.get(a).copied()).unwrap_or(self.cfg.prior_var);
+        (m, v)
+    }
+
+    /// Number of learned feature rows.
+    pub fn n_rows(&self) -> usize {
+        self.mean.len()
+    }
+
+    /// Posterior mean logit per agent.
+    pub fn scores(&self, task: &Task) -> Vec<f64> {
+        let feats = active_features(task);
+        (0..self.n_agents).map(|a| feats.iter().map(|f| self.synapse(f, a).0).sum()).collect()
+    }
+
+    /// Predicted success probability of `agent` on `task`.
+    pub fn predict(&self, task: &Task, agent: usize) -> f64 {
+        sigmoid(self.scores(task).get(agent).copied().unwrap_or(0.0))
+    }
+
+    fn ensure_agents(&mut self, n: usize) {
+        if n > self.n_agents {
+            let (om, pv) = (self.cfg.other_mean, self.cfg.prior_var);
+            for r in self.mean.values_mut() {
+                r.resize(n, om);
+            }
+            for r in self.var.values_mut() {
+                r.resize(n, pv);
+            }
+            self.n_agents = n;
+        }
+    }
+}
+
+impl Router for KalmanRouter {
+    fn name(&self) -> String {
+        "kalman".into()
+    }
+
+    fn select(&mut self, task: &Task, candidates: &[usize], rng: &mut Rng) -> usize {
+        assert!(!candidates.is_empty(), "KalmanRouter::select: no candidates");
+        let feats = active_features(task);
+        let mut best = (f64::NEG_INFINITY, candidates[0]);
+        for &c in candidates {
+            let mut z = 0.0;
+            for f in &feats {
+                let (m, v) = self.synapse(f, c);
+                z += m;
+                if self.cfg.ts_scale > 0.0 {
+                    z += self.cfg.ts_scale * v.sqrt() * std_normal(rng);
+                }
+            }
+            if z > best.0 {
+                best = (z, c);
+            }
+        }
+        best.1
+    }
+
+    fn update(&mut self, task: &Task, agent: usize, reward: f64) {
+        let r = if reward.is_finite() { reward.clamp(0.0, 1.0) } else { return };
+        self.ensure_agents(agent + 1);
+        let feats = active_features(task);
+        for f in &feats {
+            if !self.mean.contains_key(f) {
+                let row = self.prior_row(f);
+                self.mean.insert(f.clone(), row);
+                self.var.insert(f.clone(), vec![self.cfg.prior_var; self.n_agents]);
+            }
+            let v = self.var.get_mut(f).unwrap();
+            for x in v.iter_mut() {
+                *x = (*x + self.cfg.process_noise).min(self.cfg.max_var);
+            }
+        }
+        let z: f64 = feats.iter().map(|f| self.mean[f][agent]).sum();
+        let p = sigmoid(z);
+        let h = (p * (1.0 - p)).max(1e-6);
+        let s: f64 = h * h * feats.iter().map(|f| self.var[f][agent]).sum::<f64>() + h;
+        for f in &feats {
+            let v = self.var[f][agent];
+            let k = v * h / s;
+            self.mean.get_mut(f).unwrap()[agent] += k * (r - p);
+            self.var.get_mut(f).unwrap()[agent] = (v * (1.0 - k * h)).max(1e-6);
         }
     }
 }
@@ -831,5 +1036,67 @@ mod tests {
         let mut b = back;
         let mut rng = Rng::new(1);
         let _ = b.select(&t, &[0, 1, 2, 3, 4], &mut rng);
+    }
+
+    #[test]
+    fn median_aggregation_resists_one_confound() {
+        let cfg = HebbianConfig { agg: AggKind::Median, ..HebbianConfig::default() };
+        let mut r = HebbianRouter::new(3, cfg);
+        let a = Task { id: 0, task_type: None, features: vec!["a1".into(), "a2".into()] };
+        let c = Task { id: 0, task_type: None, features: vec!["c".into()] };
+        for _ in 0..50 {
+            r.update(&a, 0, 1.0); // a1, a2 -> agent 0 (moderate)
+            r.update(&c, 1, 1.0); // c -> agent 1 (strong)
+        }
+        let mixed = Task { id: 0, task_type: None, features: vec!["a1".into(), "a2".into(), "c".into()] };
+        let s = r.scores(&mixed);
+        assert!(s[0] > s[1], "median keeps the 2-feature majority: {s:?}");
+        let sum = HebbianRouter { cfg: HebbianConfig::default(), ..r.clone() };
+        assert_eq!(sum.scores(&a), r.scores(&a).iter().map(|x| *x).collect::<Vec<_>>()); // n=2: median*2 == sum
+        assert_eq!(HebbianConfig::default().agg, AggKind::Sum);
+    }
+
+    #[test]
+    fn kalman_prior_learning_and_credit_assignment() {
+        let kw = [("sql".to_string(), 1usize)];
+        let mut r = KalmanRouter::new(3, KalmanConfig { ts_scale: 0.0, ..KalmanConfig::default() }).with_keywords(kw.clone());
+        let t = Task { id: 0, task_type: None, features: vec!["sql".into()] };
+        let mut rng = Rng::new(1);
+        assert_eq!(r.select(&t, &[0, 1, 2], &mut rng), 1); // keyword prior
+        // repeated failures of agent 1 -> switch
+        for _ in 0..10 {
+            r.update(&t, 1, 0.0);
+        }
+        assert_ne!(r.select(&t, &[0, 1, 2], &mut rng), 1);
+        let (_, v) = r.synapse("sql", 1);
+        assert!(v < KalmanConfig::default().prior_var);
+        // blocking: an established predictor takes little credit away from... a new
+        // (uncertain) feature gets most of the update
+        let mut r = KalmanRouter::new(2, KalmanConfig { ts_scale: 0.0, kw_mean: 0.0, ..KalmanConfig::default() });
+        let old = Task { id: 0, task_type: None, features: vec!["old".into()] };
+        for _ in 0..200 {
+            r.update(&old, 0, 1.0);
+        }
+        let both = Task { id: 0, task_type: None, features: vec!["old".into(), "new".into()] };
+        let (m_old0, _) = r.synapse("old", 0);
+        r.update(&both, 0, 0.0);
+        let d_old = m_old0 - r.synapse("old", 0).0;
+        let d_new = 0.0 - r.synapse("new", 0).0;
+        assert!(d_new > 5.0 * d_old, "uncertain new cue takes the blame: new {d_new} old {d_old}");
+        // finds a better agent on a stationary bandit with Thompson exploration
+        let mut r = KalmanRouter::new(2, KalmanConfig::default());
+        let mut hits = 0;
+        for i in 0..1500 {
+            let a = r.select(&t, &[0, 1], &mut rng);
+            r.update(&t, a, if rng.bernoulli([0.3, 0.8][a]) { 1.0 } else { 0.0 });
+            if i >= 1000 && a == 1 {
+                hits += 1;
+            }
+        }
+        assert!(hits > 400, "{hits}/500");
+        let back: KalmanRouter = serde_json::from_str(&serde_json::to_string(&r).unwrap()).unwrap();
+        assert_eq!(back.n_rows(), r.n_rows());
+        r.update(&t, 4, 1.0);
+        assert_eq!(r.scores(&t).len(), 5);
     }
 }

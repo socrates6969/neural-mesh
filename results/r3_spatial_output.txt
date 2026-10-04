@@ -1,0 +1,80 @@
+== (a) spatial index benchmarks (single thread, correctness-checked vs brute force) ==
+D=2 N=1000 uniform (kd build 0.1 ms, grid build 0.0 ms, correct=true)
+  nearest    brute        0.7 us | kd      0.23 us (    2.9x) | grid      0.17 us (    3.8x)
+  knn10      brute       40.4 us | kd      0.91 us (   44.4x) | grid      0.74 us (   54.8x)
+  range      brute        2.9 us | kd      0.67 us (    4.3x) | grid      0.50 us (    5.7x)
+  radius     brute        0.9 us | kd      0.88 us (    1.0x) | grid      0.74 us (    1.2x)
+D=3 N=1000 uniform (kd build 0.1 ms, grid build 0.0 ms, correct=true)
+  nearest    brute        0.8 us | kd      0.40 us (    2.1x) | grid      0.38 us (    2.2x)
+  knn10      brute       40.5 us | kd      1.46 us (   27.7x) | grid      1.51 us (   26.8x)
+  range      brute        3.8 us | kd      0.97 us (    3.9x) | grid      0.67 us (    5.6x)
+  radius     brute        1.0 us | kd      1.50 us (    0.6x) | grid      1.19 us (    0.8x)
+D=2 N=10000 uniform (kd build 0.5 ms, grid build 0.3 ms, correct=true)
+  nearest    brute        6.0 us | kd      0.34 us (   17.5x) | grid      0.43 us (   14.0x)
+  knn10      brute      598.5 us | kd      1.23 us (  485.7x) | grid      1.41 us (  424.3x)
+  range      brute       25.0 us | kd      0.96 us (   26.1x) | grid      0.85 us (   29.3x)
+  radius     brute        5.1 us | kd      1.09 us (    4.7x) | grid      0.85 us (    6.0x)
+D=3 N=10000 uniform (kd build 0.5 ms, grid build 0.3 ms, correct=true)
+  nearest    brute        9.0 us | kd      0.60 us (   14.9x) | grid      0.69 us (   13.0x)
+  knn10      brute      600.6 us | kd      2.08 us (  289.2x) | grid      2.64 us (  227.1x)
+  range      brute       32.4 us | kd      1.73 us (   18.7x) | grid      1.31 us (   24.6x)
+  radius     brute        7.0 us | kd      2.22 us (    3.2x) | grid      1.59 us (    4.4x)
+D=2 N=100000 uniform (kd build 6.1 ms, grid build 3.3 ms, correct=true)
+  nearest    brute       60.3 us | kd      1.12 us (   53.8x) | grid      1.02 us (   59.1x)
+  knn10      brute     7494.3 us | kd      2.62 us ( 2860.1x) | grid      2.69 us ( 2785.6x)
+  range      brute      236.4 us | kd      2.23 us (  106.1x) | grid      1.97 us (  120.2x)
+  radius     brute       49.9 us | kd      2.58 us (   19.3x) | grid      2.40 us (   20.8x)
+D=3 N=100000 uniform (kd build 6.4 ms, grid build 3.7 ms, correct=true)
+  nearest    brute       79.2 us | kd      1.94 us (   40.8x) | grid      2.69 us (   29.5x)
+  knn10      brute     7669.9 us | kd      4.64 us ( 1651.2x) | grid      6.98 us ( 1098.1x)
+  range      brute      277.4 us | kd      3.96 us (   70.0x) | grid      2.96 us (   93.8x)
+  radius     brute       69.1 us | kd      5.15 us (   13.4x) | grid      4.29 us (   16.1x)
+D=2 N=1000000 uniform (kd build 99.0 ms, grid build 72.4 ms, correct=true)
+  nearest    brute      613.9 us | kd      2.20 us (  278.6x) | grid      1.51 us (  405.2x)
+  knn10      brute    92789.7 us | kd      6.91 us (13436.1x) | grid      5.93 us (15647.5x)
+  range      brute     2423.3 us | kd      5.90 us (  410.5x) | grid      3.89 us (  622.8x)
+  radius     brute      702.5 us | kd      4.70 us (  149.6x) | grid      3.45 us (  203.7x)
+D=3 N=1000000 uniform (kd build 224.3 ms, grid build 96.9 ms, correct=true)
+  nearest    brute      804.0 us | kd      3.29 us (  244.5x) | grid      3.66 us (  219.9x)
+  knn10      brute   100405.9 us | kd     11.57 us ( 8678.9x) | grid     15.07 us ( 6663.5x)
+  range      brute     2697.3 us | kd      6.74 us (  400.1x) | grid      4.10 us (  658.0x)
+  radius     brute      801.4 us | kd     11.89 us (   67.4x) | grid      8.12 us (   98.7x)
+D=2 N=100000 clustered (kd build 9.2 ms, grid build 3.5 ms, correct=true)
+  nearest    brute      120.9 us | kd     13.05 us (    9.3x) | grid     45.30 us (    2.7x)
+  knn10      brute     9856.5 us | kd     25.19 us (  391.2x) | grid     50.67 us (  194.5x)
+  range      brute      282.6 us | kd      4.49 us (   63.0x) | grid      1.87 us (  151.3x)
+  radius     brute      109.7 us | kd      5.15 us (   21.3x) | grid      3.07 us (   35.8x)
+D=3 N=100000 clustered (kd build 16.0 ms, grid build 3.1 ms, correct=true)
+  nearest    brute       97.3 us | kd    131.72 us (    0.7x) | grid    119.02 us (    0.8x)
+  knn10      brute     8414.7 us | kd    112.30 us (   74.9x) | grid     91.03 us (   92.4x)
+  range      brute      323.2 us | kd      4.02 us (   80.5x) | grid      1.20 us (  269.9x)
+  radius     brute      115.4 us | kd     12.78 us (    9.0x) | grid      4.43 us (   26.1x)
+
+== path length (4-connected grid, Manhattan A* vs BFS) ==
+  256x256 dens 0.2: BFS 776 us/query, A* 380 us/query (2.0x), agree=true, reachable 50/50, A* expands 3285 of 52474 free cells (mean)
+  512x512 dens 0.2: BFS 4533 us/query, A* 1849 us/query (2.5x), agree=true, reachable 50/50, A* expands 11152 of 209514 free cells (mean)
+  512x512 dens 0.3: BFS 5151 us/query, A* 2255 us/query (2.3x), agree=true, reachable 49/50, A* expands 12386 of 183663 free cells (mean)
+
+== AABB layout overlap (sweep-and-prune vs brute) ==
+  n=500: pairs 4 agree=true brute 137 us, sweep 15 us (9.3x)
+  n=2000: pairs 80 agree=true brute 2547 us, sweep 126 us (20.3x)
+  n=8000: pairs 1085 agree=true brute 66117 us, sweep 1197 us (55.2x)
+
+== (b) layout-derived spatial features as router features ==
+tuned on seeds 1-8 (plain features, informative world): Eps(0.99, 0.02) Pts(1.0) WarmHebR(3.0, Mean)
+  informative (best agent depends on layout class) keyword                plain 0.531  +spatial 0.531  diff +0.0000 [+0.0000,+0.0000] holm p=1.0000
+  informative (best agent depends on layout class) eps-greedy             plain 0.544  +spatial 0.568  diff +0.0241 [+0.0115,+0.0367] holm p=0.0036 BETTER
+  informative (best agent depends on layout class) pooled-ts              plain 0.522  +spatial 0.515  diff -0.0071 [-0.0154,+0.0013] holm p=0.3583
+  informative (best agent depends on layout class) hebbian-robust         plain 0.553  +spatial 0.532  diff -0.0216 [-0.0329,-0.0103] holm p=0.0036 WORSE
+  informative (best agent depends on layout class) warm(hebbian-robust)   plain 0.564  +spatial 0.552  diff -0.0116 [-0.0211,-0.0020] holm p=0.0952
+  CONTROL uninformative (layout irrelevant)        keyword                plain 0.787  +spatial 0.787  diff +0.0000 [+0.0000,+0.0000] holm p=1.0000
+  CONTROL uninformative (layout irrelevant)        eps-greedy             plain 0.731  +spatial 0.715  diff -0.0159 [-0.0345,+0.0026] holm p=0.3583
+  CONTROL uninformative (layout irrelevant)        pooled-ts              plain 0.706  +spatial 0.605  diff -0.1011 [-0.1100,-0.0921] holm p=0.0000 WORSE
+  CONTROL uninformative (layout irrelevant)        hebbian-robust         plain 0.762  +spatial 0.687  diff -0.0742 [-0.0872,-0.0612] holm p=0.0000 WORSE
+  CONTROL uninformative (layout irrelevant)        warm(hebbian-robust)   plain 0.797  +spatial 0.742  diff -0.0544 [-0.0639,-0.0449] holm p=0.0000 WORSE
+note: the informative-world gain is information added to the task description (the layout class), not a routing mechanism; the control shows what is lost when the feature is noise.
+wrote results/r3_memory_spatial.json (key spatial)
+
+real	1m10.168s
+user	0m0.000s
+sys	0m0.062s

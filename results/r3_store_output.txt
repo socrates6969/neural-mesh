@@ -1,0 +1,17 @@
+r3_store: N=30000 dim=128, 1000 queries, dir C:\Users\mariu\AppData\Local\Temp\r3_store_30776
+append 200801 rec/s (0.15s, fsync 0.006s, checkpoint 0.051s); log 16458890 B (548.6 B/vec, raw f32 15360000 B, overhead 7.15%), snapshot 15600028 B
+open flat: cold replay 38.0 ms, warm snapshot 33.0 ms (1.2x)
+open hnsw: build-by-append 11.2s, cold replay (sequential rebuild) 10763 ms, warm snapshot (parallel batch rebuild) 1371 ms
+flat exact: p50 340 us p99 525 us, recall@10 = 1.000 (by definition), resident 15600000 B
+hnsw ef=16   p50 136 us p99 250 us recall@10 0.889 (speedup vs flat p50 2.5x) resident ~179760000 B
+hnsw ef=32   p50 212 us p99 521 us recall@10 0.962 (speedup vs flat p50 1.6x) resident ~179760000 B
+hnsw ef=64   p50 198 us p99 356 us recall@10 0.979 (speedup vs flat p50 1.7x) resident ~179760000 B
+hnsw ef=128  p50 266 us p99 393 us recall@10 0.990 (speedup vs flat p50 1.3x) resident ~179760000 B
+hnsw ef=256  p50 500 us p99 799 us recall@10 0.991 (speedup vs flat p50 0.7x) resident ~179760000 B
+crash safety: truncation 150/150 recovered exactly, single-bit-flip 150/150 detected at the damaged record
+multi-reader: 1 writer (20000 appends) + 4 concurrent readers: clean=true [Object {"final_len": Number(20000), "refreshes": Number(1304), "search_checks": Number(3912), "violations": Number(0)}, Object {"final_len": Number(20000), "refreshes": Number(1279), "search_checks": Number(3837), "violations": Number(0)}, Object {"final_len": Number(20000), "refreshes": Number(1313), "search_checks": Number(3939), "violations": Number(0)}, Object {"final_len": Number(20000), "refreshes": Number(1294), "search_checks": Number(3882), "violations": Number(0)}]
+wrote results/r3_memory_spatial.json (key store)
+
+real	0m49.107s
+user	0m0.015s
+sys	0m0.109s
