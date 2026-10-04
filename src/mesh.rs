@@ -22,6 +22,18 @@
 //! * If no candidate is eligible, the healthiest candidates are used, so the
 //!   team is never empty when at least one candidate exists.
 //!
+//! * **Gated recruitment** (optional, `with_gate`): `k` becomes an upper bound.
+//!   Helper candidates are tried strongest-edge first; helper `h` joins leader
+//!   `l` only if its learned marginal value `with[l][h] - baseline` exceeds
+//!   `GateConfig::min_gain`, where `with[l][h]` is an EMA of the team reward of
+//!   teams led by `l` that included `h`, and `baseline` is the leader's EMA
+//!   solo reward (or the best `with` of helpers already recruited). Candidates
+//!   are ordered proven-helpful, unmeasured, known-harmful (edge strength within
+//!   each group), so a stale or decayed edge cannot hide a proven helper. Recruitment
+//!   stops at the first helper that fails the gate. Unmeasured pairs are tried
+//!   optimistically after `min_obs` solo observations exist, and every failed
+//!   gate is overridden with probability `explore` so values keep updating.
+//!
 //! RNG: with `team_size == 1` the mesh consumes randomness *only* through the
 //! leader router, and while no node is benched the leader sees exactly the
 //! caller's candidate list. Hence a mesh with team size 1 makes the same
@@ -38,6 +50,99 @@ pub const DEFAULT_HELPER_EPSILON: f64 = 0.05;
 pub const EDGE_BASELINE_ALPHA: f64 = 0.1;
 /// Initial per-leader team-reward baseline.
 pub const INIT_EDGE_BASELINE: f64 = 0.5;
+
+/// Learned-value gate for helper recruitment (sparse activation).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct GateConfig {
+    /// A helper must raise expected reward over the baseline by more than this.
+    pub min_gain: f64,
+    /// Probability of recruiting a helper even though the gate says no.
+    pub explore: f64,
+    /// EMA rate for the value estimates (running mean until `1/alpha` samples).
+    pub value_alpha: f64,
+    /// Observations needed (solo per leader, team per pair) before trusting them.
+    pub min_obs: u32,
+}
+
+impl Default for GateConfig {
+    fn default() -> Self {
+        GateConfig { min_gain: 0.02, explore: 0.05, value_alpha: 0.1, min_obs: 3 }
+    }
+}
+
+/// Per-leader solo reward and per-(leader, helper) team reward estimates.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+struct GateState {
+    solo: Vec<f64>,
+    n_solo: Vec<u32>,
+    with: Vec<Vec<f64>>,
+    n_with: Vec<Vec<u32>>,
+}
+
+fn ema(v: &mut f64, n: &mut u32, x: f64, alpha: f64) {
+    *n = n.saturating_add(1);
+    let a = alpha.max(1.0 / *n as f64);
+    *v += a * (x - *v);
+}
+
+impl GateState {
+    fn ensure(&mut self, n: usize) {
+        if self.solo.len() >= n && self.with.len() >= n {
+            return;
+        }
+        self.solo.resize(n, 0.0);
+        self.n_solo.resize(n, 0);
+        self.with.resize(n, Vec::new());
+        self.n_with.resize(n, Vec::new());
+        for r in self.with.iter_mut() {
+            r.resize(n, 0.0);
+        }
+        for r in self.n_with.iter_mut() {
+            r.resize(n, 0);
+        }
+    }
+
+    fn observe(&mut self, members: &[usize], reward: f64, alpha: f64) {
+        let l = members[0];
+        if members.len() == 1 {
+            ema(&mut self.solo[l], &mut self.n_solo[l], reward, alpha);
+            return;
+        }
+        for &h in &members[1..] {
+            ema(&mut self.with[l][h], &mut self.n_with[l][h], reward, alpha);
+        }
+    }
+
+    /// Recruitment priority of `h` for leader `l`: 0 = measured and clears the
+    /// solo baseline, 1 = not yet measured, 2 = measured and does not help.
+    fn rank(&self, cfg: &GateConfig, l: usize, h: usize) -> u8 {
+        if self.n_solo[l] < cfg.min_obs || self.n_with[l][h] < cfg.min_obs {
+            1
+        } else if self.with[l][h] - self.solo[l] > cfg.min_gain {
+            0
+        } else {
+            2
+        }
+    }
+
+    /// Does helper `h` clear the gate for leader `l`, given helpers already in `team[1..]`?
+    fn admits(&self, cfg: &GateConfig, team: &[usize], h: usize) -> bool {
+        let l = team[0];
+        if self.n_solo[l] < cfg.min_obs {
+            return false; // measure the solo arm first
+        }
+        if self.n_with[l][h] < cfg.min_obs {
+            return true; // optimistic: unmeasured pair
+        }
+        let mut base = self.solo[l];
+        for &i in &team[1..] {
+            if self.n_with[l][i] >= cfg.min_obs {
+                base = base.max(self.with[l][i]);
+            }
+        }
+        self.with[l][h] - base > cfg.min_gain
+    }
+}
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct MeshConfig {
@@ -86,6 +191,17 @@ pub struct NeuralMesh<R: Router> {
     /// it replaces the co-activation edges for both team assembly and learning.
     #[serde(default)]
     trust: Option<crate::variants::TrustEdges>,
+    /// Optional gated recruitment (see module docs). `None` = fill up to `k`.
+    #[serde(default)]
+    pub gate: Option<GateConfig>,
+    #[serde(default)]
+    gate_state: GateState,
+    #[serde(default)]
+    last_gated: bool,
+    #[serde(default)]
+    team_size_sum: u64,
+    #[serde(default)]
+    teams_routed: u64,
 }
 
 impl<R: Router> NeuralMesh<R> {
@@ -101,6 +217,11 @@ impl<R: Router> NeuralMesh<R> {
             edge_baseline: Vec::new(),
             routes: 0,
             trust: None,
+            gate: None,
+            gate_state: GateState::default(),
+            last_gated: false,
+            team_size_sum: 0,
+            teams_routed: 0,
         };
         m.ensure_agents(n_agents);
         m
@@ -132,6 +253,34 @@ impl<R: Router> NeuralMesh<R> {
     pub fn with_trust_edges(mut self, cfg: crate::variants::TrustEdgesConfig) -> Self {
         self.trust = Some(crate::variants::TrustEdges::new(self.n_agents, cfg));
         self
+    }
+
+    /// Enable gated recruitment: `k` becomes an upper bound on team size.
+    pub fn with_gate(mut self, gate: GateConfig) -> Self {
+        self.gate = Some(gate);
+        self
+    }
+
+    /// True if the last route stopped recruiting because a helper failed the gate.
+    pub fn last_team_was_gated(&self) -> bool {
+        self.last_gated
+    }
+
+    /// Mean size of all teams routed so far (1.0 before any route).
+    pub fn mean_team_size(&self) -> f64 {
+        if self.teams_routed == 0 { 1.0 } else { self.team_size_sum as f64 / self.teams_routed as f64 }
+    }
+
+    fn count_team(&mut self, n: usize) {
+        self.team_size_sum += n as u64;
+        self.teams_routed += 1;
+    }
+
+    /// Gate decision for helper `h` (always true when no gate is configured).
+    fn admit(&mut self, team: &[usize], h: usize, rng: &mut Rng) -> bool {
+        let Some(cfg) = self.gate.clone() else { return true };
+        self.gate_state.ensure(self.n_agents);
+        rng.f64() < cfg.explore || self.gate_state.admits(&cfg, team, h)
     }
 
     /// Which edge rule is active: "co-activation" or "trust".
@@ -233,7 +382,9 @@ impl<R: Router> NeuralMesh<R> {
 
         let leader = self.leader.select(task, &eligible, rng);
         let mut team = vec![leader];
+        self.last_gated = false;
         if k == 1 {
+            self.count_team(1);
             return team;
         }
         let mut rest: Vec<usize> = eligible.iter().copied().filter(|&c| c != leader).collect();
@@ -243,10 +394,20 @@ impl<R: Router> NeuralMesh<R> {
             rest.swap(i, j);
         }
         rest.sort_by(|&a, &b| self.edge(leader, b).total_cmp(&self.edge(leader, a)));
+        if let Some(cfg) = self.gate.clone() {
+            // Stable: proven helpers first, then unmeasured, then known-harmful; edge order within.
+            self.gate_state.ensure(self.n_agents);
+            rest.sort_by_key(|&h| self.gate_state.rank(&cfg, leader, h));
+        }
         while team.len() < k && !rest.is_empty() {
             let idx = if rng.f64() < self.helper_epsilon { rng.below(rest.len()) } else { 0 };
+            if !self.admit(&team, rest[idx], rng) {
+                self.last_gated = true;
+                break;
+            }
             team.push(rest.remove(idx));
         }
+        self.count_team(team.len());
         team
     }
 
@@ -293,6 +454,11 @@ impl<R: Router> NeuralMesh<R> {
                 }
             }
             self.edge_baseline[leader] = b + EDGE_BASELINE_ALPHA * (reward - b);
+        }
+
+        if let Some(alpha) = self.gate.as_ref().map(|g| g.value_alpha) {
+            self.gate_state.ensure(self.n_agents);
+            self.gate_state.observe(&members, reward, alpha);
         }
 
         let al = self.cfg.health_alpha;
@@ -521,5 +687,120 @@ mod tests {
         v.as_object_mut().unwrap().remove("trust");
         let back: NeuralMesh<HebbianRouter> = serde_json::from_value(v).unwrap();
         assert_eq!(back.edge_rule(), "co-activation");
+    }
+
+    // ---- gated recruitment ----
+
+    /// Always picks the first candidate, so tests control the leader.
+    #[derive(Clone, Debug)]
+    struct FirstRouter;
+    impl Router for FirstRouter {
+        fn name(&self) -> String { "first".into() }
+        fn select(&mut self, _t: &Task, c: &[usize], _r: &mut Rng) -> usize { c[0] }
+        fn update(&mut self, _t: &Task, _a: usize, _r: f64) {}
+    }
+
+    fn gated_mesh(k: usize, trust: bool) -> NeuralMesh<FirstRouter> {
+        let cfg = MeshConfig { team_size: k, health_threshold: 0.0, ..MeshConfig::default() };
+        let m = NeuralMesh::new(4, FirstRouter, cfg).with_gate(GateConfig::default());
+        if trust { m.with_trust_edges(crate::variants::TrustEdgesConfig::default()) } else { m }
+    }
+
+    /// Pair {0,1} exactly: 0.9; any other team: 0.3; solo: 0.55.
+    fn toy_reward(team: &[usize], env: &mut Rng) -> f64 {
+        let p = match team.len() {
+            1 => 0.55,
+            2 if team.contains(&0) && team.contains(&1) => 0.9,
+            _ => 0.3,
+        };
+        if env.bernoulli(p) { 1.0 } else { 0.0 }
+    }
+
+    fn run_toy(trust: bool) {
+        let mut mesh = gated_mesh(3, trust);
+        let (mut rng, mut env) = (Rng::new(5), Rng::new(6));
+        let t = Task::default();
+        let (mut l0, mut l0_syn, mut l2, mut l2_size) = (0, 0, 0, 0);
+        for i in 0..6000 {
+            let cands: [usize; 4] = if i % 2 == 0 { [0, 1, 2, 3] } else { [2, 0, 1, 3] };
+            let team = mesh.route(&t, &cands, &mut rng);
+            if i >= 4000 {
+                if team[0] == 0 {
+                    l0 += 1;
+                    l0_syn += (team.len() == 2 && team[1] == 1) as i32;
+                } else {
+                    l2 += 1;
+                    l2_size += team.len();
+                }
+            }
+            let r = toy_reward(&team, &mut env);
+            mesh.feedback(&t, &team, r);
+        }
+        assert!(l0_syn as f64 / l0 as f64 > 0.85, "leader 0 recruited 1 only {l0_syn}/{l0}");
+        let mean2 = l2_size as f64 / l2 as f64;
+        assert!(mean2 < 1.25, "leader 2 mean team size {mean2}");
+        assert!(mesh.mean_team_size() < 2.0);
+    }
+
+    #[test]
+    fn gate_recruits_synergistic_helper_and_goes_solo_otherwise() {
+        run_toy(false);
+    }
+
+    #[test]
+    fn gate_works_with_trust_edges() {
+        run_toy(true);
+    }
+
+    #[test]
+    fn gate_solo_only_workload_converges_to_one_plus_explore() {
+        let mut mesh = gated_mesh(3, false);
+        let (mut rng, mut env) = (Rng::new(1), Rng::new(2));
+        let t = Task::default();
+        let (mut sum, mut n) = (0usize, 0usize);
+        for i in 0..5000 {
+            let team = mesh.route(&t, &[0, 1, 2, 3], &mut rng);
+            if i >= 3000 {
+                sum += team.len();
+                n += 1;
+            }
+            // Solo 0.8, any team 0.6: helpers never help.
+            let r = if env.bernoulli(if team.len() == 1 { 0.8 } else { 0.6 }) { 1.0 } else { 0.0 };
+            mesh.feedback(&t, &team, r);
+        }
+        let mean = sum as f64 / n as f64;
+        assert!(mean < 1.15, "mean team size {mean}");
+        assert!(mean >= 1.0);
+        assert!(mesh.mean_team_size() >= 1.0);
+    }
+
+    #[test]
+    fn gate_serde_roundtrip_and_old_state_loads() {
+        let m = NeuralMesh::new(3, HebbianRouter::new(3, HebbianConfig::default()), MeshConfig { team_size: 2, ..MeshConfig::default() })
+            .with_gate(GateConfig { min_gain: 0.1, ..GateConfig::default() });
+        let js = serde_json::to_string(&m).unwrap();
+        let back: NeuralMesh<HebbianRouter> = serde_json::from_str(&js).unwrap();
+        assert_eq!(back, m);
+        // Old state without any gate field loads with the gate off and works.
+        let mut v: serde_json::Value = serde_json::to_value(&m).unwrap();
+        for key in ["gate", "gate_state", "last_gated", "team_size_sum", "teams_routed"] {
+            v.as_object_mut().unwrap().remove(key);
+        }
+        let mut old: NeuralMesh<HebbianRouter> = serde_json::from_value(v).unwrap();
+        assert!(old.gate.is_none());
+        let mut rng = Rng::new(4);
+        let team = old.route(&task(0), &[0, 1, 2], &mut rng);
+        assert_eq!(team.len(), 2);
+        old.feedback(&task(0), &team, 1.0);
+        assert!(!old.last_team_was_gated());
+    }
+
+    #[test]
+    fn gate_off_by_default_fills_to_k() {
+        let cfg = MeshConfig { team_size: 3, ..MeshConfig::default() };
+        let mut mesh = NeuralMesh::new(4, FirstRouter, cfg);
+        let mut rng = Rng::new(0);
+        assert_eq!(mesh.route(&task(0), &[0, 1, 2, 3], &mut rng).len(), 3);
+        assert_eq!(mesh.mean_team_size(), 3.0);
     }
 }
