@@ -1,0 +1,816 @@
+{
+  "elapsed_s": 47.4324486,
+  "fixture": {
+    "bytes": 9360166,
+    "bytes_per_vector_mem": 1536,
+    "dim": 384,
+    "load_ms": 45.7824,
+    "n_texts": 2424,
+    "para_bytes": 1568621,
+    "para_path": "results/f6_para_fixture.json",
+    "path": "results/f6_minilm_fixture.json"
+  },
+  "held": [
+    31,
+    60
+  ],
+  "kinds": {
+    "dist": 2100,
+    "newq": 300,
+    "newsubj": 60,
+    "q": 288,
+    "subj": 36,
+    "typo": 48
+  },
+  "lab": "f6_fixture",
+  "latency_ns": [
+    {
+      "ns_per_embed": 69.76775,
+      "what": "TableEmbedding lookup (HashMap get + clone 384xf32)"
+    },
+    {
+      "ns_per_embed": 232.74475,
+      "what": "CachedEmbedding(Table) HIT"
+    },
+    {
+      "ns_per_embed": 231.413,
+      "what": "CachedEmbedding(Table) cap0 (always miss)"
+    },
+    {
+      "ns_per_embed": 70.03375,
+      "what": "Arc<dyn Embedding> from EmbeddingConfig (Real/Table)"
+    },
+    {
+      "ns_per_embed": 702.8625,
+      "what": "HashEmbedding(384).embed (whitespace words)"
+    },
+    {
+      "ns_per_embed": 750.4005,
+      "what": "WordHash(384).embed (f5 hash source)"
+    }
+  ],
+  "memory": {
+    "knowledge_2000rec_384d_bytes": 3258112,
+    "knowledge_2000rec_64d_bytes": 636672,
+    "table_payload_bytes": 3868559
+  },
+  "python_latency": {
+    "batch32_ms_per_text": 2.4472943627473547,
+    "intra_op_threads": 2,
+    "n_texts": 408,
+    "note": "end-to-end python embed incl. tokenisation and mean-pool, CPU, machine possibly loaded",
+    "onnxruntime": "1.23.2",
+    "single_ms_per_text_f5_questions": 2.771378500001447,
+    "single_ms_per_text_new": 2.6224379999985103
+  },
+  "real_embed_feature": true,
+  "retrieval_reproduction": [
+    {
+      "center": false,
+      "fixture": [
+        0.9952501182799403,
+        0.9891786570743405,
+        0.9922049279796125,
+        0.8541978463599376,
+        0.9035155003470714,
+        0.8747321445145649,
+        1.2222222222222223,
+        null,
+        null
+      ],
+      "k": 8,
+      "keys": [
+        "nbr_p",
+        "nbr_r",
+        "nbr_f1",
+        "anchor_p",
+        "anchor_r",
+        "anchor_f1",
+        "frag",
+        "spurious_dist",
+        "contam"
+      ],
+      "max_abs_diff_fixture_vs_f5_json": 1.1102230246251565e-16,
+      "max_abs_diff_fixture_vs_raw": 0.0,
+      "raw_f5_vectors": [
+        0.9952501182799403,
+        0.9891786570743405,
+        0.9922049279796125,
+        0.8541978463599376,
+        0.9035155003470714,
+        0.8747321445145649,
+        1.2222222222222223,
+        null,
+        null
+      ],
+      "sim_min": 0.5,
+      "world": "mini-q"
+    },
+    {
+      "center": true,
+      "fixture": [
+        0.9992333981466897,
+        0.9711266700924973,
+        0.9849792844342683,
+        0.9778326826635476,
+        0.6964493528132135,
+        0.8114652123813532,
+        1.9972222222222225,
+        null,
+        null
+      ],
+      "k": 8,
+      "keys": [
+        "nbr_p",
+        "nbr_r",
+        "nbr_f1",
+        "anchor_p",
+        "anchor_r",
+        "anchor_f1",
+        "frag",
+        "spurious_dist",
+        "contam"
+      ],
+      "max_abs_diff_fixture_vs_f5_json": 1.1102230246251565e-16,
+      "max_abs_diff_fixture_vs_raw": 0.0,
+      "raw_f5_vectors": [
+        0.9992333981466897,
+        0.9711266700924973,
+        0.9849792844342683,
+        0.9778326826635476,
+        0.6964493528132135,
+        0.8114652123813532,
+        1.9972222222222225,
+        null,
+        null
+      ],
+      "sim_min": 0.5,
+      "world": "mini-q"
+    },
+    {
+      "center": false,
+      "fixture": [
+        0.9986498664464528,
+        0.9707798047276466,
+        0.9845171807356935,
+        0.9665652714617365,
+        0.683512777019654,
+        0.7982685925058609,
+        2.0,
+        null,
+        null
+      ],
+      "k": 8,
+      "keys": [
+        "nbr_p",
+        "nbr_r",
+        "nbr_f1",
+        "anchor_p",
+        "anchor_r",
+        "anchor_f1",
+        "frag",
+        "spurious_dist",
+        "contam"
+      ],
+      "max_abs_diff_fixture_vs_f5_json": 1.1102230246251565e-16,
+      "max_abs_diff_fixture_vs_raw": 0.0,
+      "raw_f5_vectors": [
+        0.9986498664464528,
+        0.9707798047276466,
+        0.9845171807356935,
+        0.9665652714617365,
+        0.683512777019654,
+        0.7982685925058609,
+        2.0,
+        null,
+        null
+      ],
+      "sim_min": 0.6000000238418579,
+      "world": "mini-q"
+    },
+    {
+      "center": true,
+      "fixture": [
+        0.9999955088475703,
+        0.9535714285714287,
+        0.9762315811366781,
+        0.9964088460873451,
+        0.47830578950449715,
+        0.6440652191120717,
+        2.6611111111111114,
+        null,
+        null
+      ],
+      "k": 8,
+      "keys": [
+        "nbr_p",
+        "nbr_r",
+        "nbr_f1",
+        "anchor_p",
+        "anchor_r",
+        "anchor_f1",
+        "frag",
+        "spurious_dist",
+        "contam"
+      ],
+      "max_abs_diff_fixture_vs_f5_json": 4.440892098500626e-16,
+      "max_abs_diff_fixture_vs_raw": 0.0,
+      "raw_f5_vectors": [
+        0.9999955088475703,
+        0.9535714285714287,
+        0.9762315811366781,
+        0.9964088460873451,
+        0.47830578950449715,
+        0.6440652191120717,
+        2.6611111111111114,
+        null,
+        null
+      ],
+      "sim_min": 0.6000000238418579,
+      "world": "mini-q"
+    },
+    {
+      "center": false,
+      "fixture": [
+        0.9998290198176825,
+        0.9515908701610142,
+        0.9751135646572705,
+        0.9981304096740798,
+        0.4489533745003207,
+        0.6181379876961014,
+        2.738888888888889,
+        null,
+        null
+      ],
+      "k": 8,
+      "keys": [
+        "nbr_p",
+        "nbr_r",
+        "nbr_f1",
+        "anchor_p",
+        "anchor_r",
+        "anchor_f1",
+        "frag",
+        "spurious_dist",
+        "contam"
+      ],
+      "max_abs_diff_fixture_vs_f5_json": 1.1102230246251565e-16,
+      "max_abs_diff_fixture_vs_raw": 0.0,
+      "raw_f5_vectors": [
+        0.9998290198176825,
+        0.9515908701610142,
+        0.9751135646572705,
+        0.9981304096740798,
+        0.4489533745003207,
+        0.6181379876961014,
+        2.738888888888889,
+        null,
+        null
+      ],
+      "sim_min": 0.699999988079071,
+      "world": "mini-q"
+    },
+    {
+      "center": true,
+      "fixture": [
+        1.0,
+        0.931511219595752,
+        0.9645402318403524,
+        1.0,
+        0.3450327349595558,
+        0.5128213234491105,
+        3.652777777777777,
+        null,
+        null
+      ],
+      "k": 8,
+      "keys": [
+        "nbr_p",
+        "nbr_r",
+        "nbr_f1",
+        "anchor_p",
+        "anchor_r",
+        "anchor_f1",
+        "frag",
+        "spurious_dist",
+        "contam"
+      ],
+      "max_abs_diff_fixture_vs_f5_json": 0.0,
+      "max_abs_diff_fixture_vs_raw": 0.0,
+      "raw_f5_vectors": [
+        1.0,
+        0.931511219595752,
+        0.9645402318403524,
+        1.0,
+        0.3450327349595558,
+        0.5128213234491105,
+        3.652777777777777,
+        null,
+        null
+      ],
+      "sim_min": 0.699999988079071,
+      "world": "mini-q"
+    },
+    {
+      "center": false,
+      "fixture": [
+        1.0,
+        0.9962358684480986,
+        0.9981142104390077,
+        1.0,
+        0.9576983891863279,
+        0.9779830110711984,
+        1.1388888888888886,
+        null,
+        null
+      ],
+      "k": 8,
+      "keys": [
+        "nbr_p",
+        "nbr_r",
+        "nbr_f1",
+        "anchor_p",
+        "anchor_r",
+        "anchor_f1",
+        "frag",
+        "spurious_dist",
+        "contam"
+      ],
+      "max_abs_diff_fixture_vs_f5_json": 1.1102230246251565e-16,
+      "max_abs_diff_fixture_vs_raw": 0.0,
+      "raw_f5_vectors": [
+        1.0,
+        0.9962358684480986,
+        0.9981142104390077,
+        1.0,
+        0.9576983891863279,
+        0.9779830110711984,
+        1.1388888888888886,
+        null,
+        null
+      ],
+      "sim_min": 0.5,
+      "world": "mini-subj3"
+    },
+    {
+      "center": true,
+      "fixture": [
+        0.9999912533636972,
+        0.9763103802672146,
+        0.9880077838727813,
+        0.9961071761516351,
+        0.7441968053583147,
+        0.8511715351983202,
+        1.741666666666667,
+        null,
+        null
+      ],
+      "k": 8,
+      "keys": [
+        "nbr_p",
+        "nbr_r",
+        "nbr_f1",
+        "anchor_p",
+        "anchor_r",
+        "anchor_f1",
+        "frag",
+        "spurious_dist",
+        "contam"
+      ],
+      "max_abs_diff_fixture_vs_f5_json": 1.1102230246251565e-16,
+      "max_abs_diff_fixture_vs_raw": 0.0,
+      "raw_f5_vectors": [
+        0.9999912533636972,
+        0.9763103802672146,
+        0.9880077838727813,
+        0.9961071761516351,
+        0.7441968053583147,
+        0.8511715351983202,
+        1.741666666666667,
+        null,
+        null
+      ],
+      "sim_min": 0.5,
+      "world": "mini-subj3"
+    },
+    {
+      "center": false,
+      "fixture": [
+        1.0,
+        0.9590977218225418,
+        0.9791217601643606,
+        1.0,
+        0.48289548801547166,
+        0.6509274123285426,
+        2.475,
+        null,
+        null
+      ],
+      "k": 8,
+      "keys": [
+        "nbr_p",
+        "nbr_r",
+        "nbr_f1",
+        "anchor_p",
+        "anchor_r",
+        "anchor_f1",
+        "frag",
+        "spurious_dist",
+        "contam"
+      ],
+      "max_abs_diff_fixture_vs_f5_json": 0.0,
+      "max_abs_diff_fixture_vs_raw": 0.0,
+      "raw_f5_vectors": [
+        1.0,
+        0.9590977218225418,
+        0.9791217601643606,
+        1.0,
+        0.48289548801547166,
+        0.6509274123285426,
+        2.475,
+        null,
+        null
+      ],
+      "sim_min": 0.6000000238418579,
+      "world": "mini-subj3"
+    },
+    {
+      "center": true,
+      "fixture": [
+        1.0,
+        0.9566739465570401,
+        0.9778568028912695,
+        1.0,
+        0.4671502669565817,
+        0.6360817641609685,
+        2.5388888888888888,
+        null,
+        null
+      ],
+      "k": 8,
+      "keys": [
+        "nbr_p",
+        "nbr_r",
+        "nbr_f1",
+        "anchor_p",
+        "anchor_r",
+        "anchor_f1",
+        "frag",
+        "spurious_dist",
+        "contam"
+      ],
+      "max_abs_diff_fixture_vs_f5_json": 1.1102230246251565e-16,
+      "max_abs_diff_fixture_vs_raw": 0.0,
+      "raw_f5_vectors": [
+        1.0,
+        0.9566739465570401,
+        0.9778568028912695,
+        1.0,
+        0.4671502669565817,
+        0.6360817641609685,
+        2.5388888888888888,
+        null,
+        null
+      ],
+      "sim_min": 0.6000000238418579,
+      "world": "mini-subj3"
+    },
+    {
+      "center": false,
+      "fixture": [
+        1.0,
+        0.9491264131551905,
+        0.9738992881624038,
+        1.0,
+        0.3708467090232414,
+        0.5410303970787598,
+        2.833333333333333,
+        null,
+        null
+      ],
+      "k": 8,
+      "keys": [
+        "nbr_p",
+        "nbr_r",
+        "nbr_f1",
+        "anchor_p",
+        "anchor_r",
+        "anchor_f1",
+        "frag",
+        "spurious_dist",
+        "contam"
+      ],
+      "max_abs_diff_fixture_vs_f5_json": 1.1102230246251565e-16,
+      "max_abs_diff_fixture_vs_raw": 0.0,
+      "raw_f5_vectors": [
+        1.0,
+        0.9491264131551905,
+        0.9738992881624038,
+        1.0,
+        0.3708467090232414,
+        0.5410303970787598,
+        2.833333333333333,
+        null,
+        null
+      ],
+      "sim_min": 0.699999988079071,
+      "world": "mini-subj3"
+    },
+    {
+      "center": true,
+      "fixture": [
+        1.0,
+        0.9458932853717027,
+        0.9721942037788339,
+        1.0,
+        0.35042178938855423,
+        0.51885530119862,
+        2.961111111111111,
+        null,
+        null
+      ],
+      "k": 8,
+      "keys": [
+        "nbr_p",
+        "nbr_r",
+        "nbr_f1",
+        "anchor_p",
+        "anchor_r",
+        "anchor_f1",
+        "frag",
+        "spurious_dist",
+        "contam"
+      ],
+      "max_abs_diff_fixture_vs_f5_json": 1.1102230246251565e-16,
+      "max_abs_diff_fixture_vs_raw": 0.0,
+      "raw_f5_vectors": [
+        1.0,
+        0.9458932853717027,
+        0.9721942037788339,
+        1.0,
+        0.35042178938855423,
+        0.51885530119862,
+        2.961111111111111,
+        null,
+        null
+      ],
+      "sim_min": 0.699999988079071,
+      "world": "mini-subj3"
+    },
+    {
+      "center": false,
+      "fixture": [
+        0.9899341322364364,
+        0.9772964654986047,
+        0.9835736212249311,
+        0.8328566651827245,
+        0.9048778263252705,
+        0.8643343650495753,
+        1.175,
+        0.9823959378178448,
+        0.0
+      ],
+      "k": 8,
+      "keys": [
+        "nbr_p",
+        "nbr_r",
+        "nbr_f1",
+        "anchor_p",
+        "anchor_r",
+        "anchor_f1",
+        "frag",
+        "spurious_dist",
+        "contam"
+      ],
+      "max_abs_diff_fixture_vs_f5_json": 1.1102230246251565e-16,
+      "max_abs_diff_fixture_vs_raw": 0.0,
+      "raw_f5_vectors": [
+        0.9899341322364364,
+        0.9772964654986047,
+        0.9835736212249311,
+        0.8328566651827245,
+        0.9048778263252705,
+        0.8643343650495753,
+        1.175,
+        0.9823959378178448,
+        0.0
+      ],
+      "sim_min": 0.5,
+      "world": "mini-q-mixed50"
+    },
+    {
+      "center": true,
+      "fixture": [
+        0.9947557788940574,
+        0.962573062952482,
+        0.9783952514749689,
+        0.9375605679560481,
+        0.83384291178738,
+        0.8791385978420256,
+        1.558333333333334,
+        0.9543079361725468,
+        0.0
+      ],
+      "k": 8,
+      "keys": [
+        "nbr_p",
+        "nbr_r",
+        "nbr_f1",
+        "anchor_p",
+        "anchor_r",
+        "anchor_f1",
+        "frag",
+        "spurious_dist",
+        "contam"
+      ],
+      "max_abs_diff_fixture_vs_f5_json": 1.1102230246251565e-16,
+      "max_abs_diff_fixture_vs_raw": 0.0,
+      "raw_f5_vectors": [
+        0.9947557788940574,
+        0.962573062952482,
+        0.9783952514749689,
+        0.9375605679560481,
+        0.83384291178738,
+        0.8791385978420256,
+        1.558333333333334,
+        0.9543079361725468,
+        0.0
+      ],
+      "sim_min": 0.5,
+      "world": "mini-q-mixed50"
+    },
+    {
+      "center": false,
+      "fixture": [
+        0.9970179599452728,
+        0.9399403016610604,
+        0.9676362631778505,
+        0.9759385383962952,
+        0.6760159760684965,
+        0.7969501057759959,
+        1.9861111111111112,
+        0.9407248562634096,
+        0.0
+      ],
+      "k": 8,
+      "keys": [
+        "nbr_p",
+        "nbr_r",
+        "nbr_f1",
+        "anchor_p",
+        "anchor_r",
+        "anchor_f1",
+        "frag",
+        "spurious_dist",
+        "contam"
+      ],
+      "max_abs_diff_fixture_vs_f5_json": 0.0,
+      "max_abs_diff_fixture_vs_raw": 0.0,
+      "raw_f5_vectors": [
+        0.9970179599452728,
+        0.9399403016610604,
+        0.9676362631778505,
+        0.9759385383962952,
+        0.6760159760684965,
+        0.7969501057759959,
+        1.9861111111111112,
+        0.9407248562634096,
+        0.0
+      ],
+      "sim_min": 0.6000000238418579,
+      "world": "mini-q-mixed50"
+    },
+    {
+      "center": true,
+      "fixture": [
+        0.9988612121928997,
+        0.9239216282114386,
+        0.959928723907569,
+        0.9961906529162273,
+        0.5671779055709891,
+        0.7210575742679671,
+        2.3416666666666663,
+        0.8674590538135383,
+        0.0
+      ],
+      "k": 8,
+      "keys": [
+        "nbr_p",
+        "nbr_r",
+        "nbr_f1",
+        "anchor_p",
+        "anchor_r",
+        "anchor_f1",
+        "frag",
+        "spurious_dist",
+        "contam"
+      ],
+      "max_abs_diff_fixture_vs_f5_json": 1.1102230246251565e-16,
+      "max_abs_diff_fixture_vs_raw": 0.0,
+      "raw_f5_vectors": [
+        0.9988612121928997,
+        0.9239216282114386,
+        0.959928723907569,
+        0.9961906529162273,
+        0.5671779055709891,
+        0.7210575742679671,
+        2.3416666666666663,
+        0.8674590538135383,
+        0.0
+      ],
+      "sim_min": 0.6000000238418579,
+      "world": "mini-q-mixed50"
+    },
+    {
+      "center": false,
+      "fixture": [
+        0.999546673294702,
+        0.8990875457062523,
+        0.9466564247630603,
+        0.998702145343258,
+        0.43630551691610836,
+        0.6066494998676035,
+        2.772222222222223,
+        0.8083160378153031,
+        0.0
+      ],
+      "k": 8,
+      "keys": [
+        "nbr_p",
+        "nbr_r",
+        "nbr_f1",
+        "anchor_p",
+        "anchor_r",
+        "anchor_f1",
+        "frag",
+        "spurious_dist",
+        "contam"
+      ],
+      "max_abs_diff_fixture_vs_f5_json": 1.1102230246251565e-16,
+      "max_abs_diff_fixture_vs_raw": 0.0,
+      "raw_f5_vectors": [
+        0.999546673294702,
+        0.8990875457062523,
+        0.9466564247630603,
+        0.998702145343258,
+        0.43630551691610836,
+        0.6066494998676035,
+        2.772222222222223,
+        0.8083160378153031,
+        0.0
+      ],
+      "sim_min": 0.699999988079071,
+      "world": "mini-q-mixed50"
+    },
+    {
+      "center": true,
+      "fixture": [
+        1.0,
+        0.8840666528056477,
+        0.9384643999105092,
+        1.0,
+        0.3843833562533144,
+        0.5543964939777288,
+        3.1250000000000004,
+        0.666087800581353,
+        0.0
+      ],
+      "k": 8,
+      "keys": [
+        "nbr_p",
+        "nbr_r",
+        "nbr_f1",
+        "anchor_p",
+        "anchor_r",
+        "anchor_f1",
+        "frag",
+        "spurious_dist",
+        "contam"
+      ],
+      "max_abs_diff_fixture_vs_f5_json": 0.0,
+      "max_abs_diff_fixture_vs_raw": 0.0,
+      "raw_f5_vectors": [
+        1.0,
+        0.8840666528056477,
+        0.9384643999105092,
+        1.0,
+        0.3843833562533144,
+        0.5543964939777288,
+        3.1250000000000004,
+        0.666087800581353,
+        0.0
+      ],
+      "sim_min": 0.699999988079071,
+      "world": "mini-q-mixed50"
+    }
+  ],
+  "vector_equivalence": {
+    "concept_max_abs_diff": 0.0,
+    "concept_texts": 324,
+    "concept_texts_bit_identical": 324,
+    "distractor_max_abs_diff_6dec": 5.066394805908203e-7,
+    "normalize_true_max_abs_diff": 6.258487701416016e-7
+  },
+  "worst_abs_diff_fixture_vs_f5_json_exact_worlds": 4.440892098500626e-16,
+  "worst_abs_diff_fixture_vs_raw_exact_worlds": 0.0
+}

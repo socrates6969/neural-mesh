@@ -25,7 +25,9 @@
 use std::cell::RefCell;
 use std::collections::{HashMap, VecDeque};
 use std::rc::Rc;
+use std::sync::Arc;
 
+use crate::embedding::Embedding;
 use crate::memory::{normalized, FlatIndex, SharedMemory};
 use crate::router::{Rng, Router, Task};
 use crate::tiered::{TieredConfig, TieredMemory};
@@ -179,16 +181,39 @@ pub struct Knowledge {
     /// gate statistics: (vote reward sum, vote n, front reward sum, front n)
     gate: [f64; 4],
     probe: usize,
+    /// Optional configured embedder (None = legacy [`hash_embed`] at `cfg.dim`).
+    embedder: Option<Arc<dyn Embedding>>,
 }
 
 impl Knowledge {
     pub fn new_shared(cfg: KnowledgeConfig) -> Self {
         let m = SharedMemory::new(Box::new(FlatIndex::new(cfg.dim)));
-        Knowledge { cfg, mem: Backend::Shared(m), recs: Vec::new(), astats: HashMap::new(), gate: [0.0; 4], probe: 0 }
+        Knowledge { cfg, mem: Backend::Shared(m), recs: Vec::new(), astats: HashMap::new(), gate: [0.0; 4], probe: 0, embedder: None }
     }
     pub fn new_tiered(cfg: KnowledgeConfig, tc: TieredConfig) -> Self {
         assert_eq!(cfg.dim, tc.dim, "Knowledge: tiered dim mismatch");
-        Knowledge { cfg, mem: Backend::Tiered(TieredMemory::new(tc)), recs: Vec::new(), astats: HashMap::new(), gate: [0.0; 4], probe: 0 }
+        Knowledge { cfg, mem: Backend::Tiered(TieredMemory::new(tc)), recs: Vec::new(), astats: HashMap::new(), gate: [0.0; 4], probe: 0, embedder: None }
+    }
+    /// Use `e` to embed tasks/texts (its `dim()` must equal `cfg.dim`). Without this call the
+    /// legacy [`hash_embed`] is used, bit-identically to before.
+    pub fn with_embedder(mut self, e: Arc<dyn Embedding>) -> Self {
+        assert_eq!(e.dim(), self.cfg.dim, "Knowledge: embedder dim mismatch");
+        self.embedder = Some(e);
+        self
+    }
+    /// Embedding of a routed task (configured embedder, else `hash_embed` at `cfg.dim`).
+    pub fn embed_task(&self, task: &Task) -> Vec<f32> {
+        match &self.embedder {
+            Some(e) => e.embed_task(task),
+            None => hash_embed(task, self.cfg.dim),
+        }
+    }
+    /// Embedding of free text (configured embedder, else hash of whitespace-split features).
+    pub fn embed_text(&self, text: &str) -> Vec<f32> {
+        match &self.embedder {
+            Some(e) => e.embed(text),
+            None => hash_embed(&Task { id: 0, task_type: None, features: text.split_whitespace().map(String::from).collect() }, self.cfg.dim),
+        }
     }
     pub fn len(&self) -> usize {
         self.recs.len()
@@ -418,6 +443,11 @@ impl<R: Router> KnowledgeRouter<R> {
     }
     pub fn set_context(&mut self, emb: &[f32]) {
         self.ctx = Some(emb.to_vec());
+    }
+    /// Convenience: embed `task` with the store's embedder and set it as the context.
+    pub fn set_context_task(&mut self, task: &Task) {
+        let e = self.kn.embed_task(task);
+        self.ctx = Some(e);
     }
     fn forget_old(&mut self) {
         while self.order.len() > self.cap {
@@ -688,5 +718,19 @@ mod tests {
         assert_eq!(a, hash_embed(&t, 32));
         let n: f32 = a.iter().map(|x| x * x).sum();
         assert!((n - 1.0).abs() < 1e-4);
+    }
+
+    #[test]
+    fn embedder_routing_default_is_hash_embed_and_custom_is_used() {
+        use crate::embedding::{HashEmbedding, TableEmbedding};
+        let t = Task { id: 1, task_type: Some("ty".into()), features: vec!["a".into(), "b".into()] };
+        let plain = Knowledge::new_shared(KnowledgeConfig::new(16));
+        assert_eq!(plain.embed_task(&t), hash_embed(&t, 16));
+        let wrapped = Knowledge::new_shared(KnowledgeConfig::new(16)).with_embedder(Arc::new(HashEmbedding::new(16)));
+        assert_eq!(wrapped.embed_task(&t), plain.embed_task(&t));
+        assert_eq!(wrapped.embed_text("a b"), plain.embed_text("a b"));
+        let tab = TableEmbedding::from_pairs("t", None, vec![("a b type:ty".to_string(), vec![0.0, 1.0])], false, false).unwrap();
+        let custom = Knowledge::new_shared(KnowledgeConfig::new(2)).with_embedder(Arc::new(tab));
+        assert_eq!(custom.embed_task(&t), vec![0.0, 1.0]);
     }
 }

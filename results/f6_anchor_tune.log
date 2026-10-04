@@ -1,0 +1,43 @@
+warning: value assigned to `verdict_ok` is never read
+    --> src\cognition.rs:1020:17
+     |
+1020 |                 verdict_ok = None;
+     |                 ^^^^^^^^^^^^^^^^^ this value is reassigned later and never used
+...
+1033 |                     verdict_ok = Some(flagged == !correct1);
+     |                     --------------------------------------- `verdict_ok` is overwritten here before the previous value is read
+     |
+     = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: `neural-mesh` (lib) generated 1 warning
+warning: unused variable: `kn`
+   --> src\bin\f6_anchor.rs:287:9
+    |
+287 |     let kn = |m: &Method, sg: Signal| (Kind2::Kn(m.clone()), sg);
+    |         ^^ help: if this is intentional, prefix it with an underscore: `_kn`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `neural-mesh` (bin "f6_anchor") generated 1 warning (run `cargo fix --bin "f6_anchor" -p neural-mesh` to apply 1 suggestion)
+    Finished `release` profile [optimized] target(s) in 0.35s
+     Running `C:/Users/mariu/nm-target-r2\release\f6_anchor.exe --part tune`
+f6_anchor: part tune, held 31-60, real-embed feature true, model sha 6fd5d72fe458
+tune: 362 configs x 5 worlds x 8 seeds (anchor pair-F1, mean over worlds)
+tuned (mean anchor F1 over 5 tune worlds, seeds 1-8):
+  leader          0.8867  leader(k8 s0.5)
+  centroid        0.9013  centroid(a0.45)
+  centroid+merge  0.9046  centroid+merge(a0.4 m0.55)+ctr
+  cen+knn union   0.8830  cen+knn(a0.45 m0.55 mm3 nn(k8 0.65))+ctr
+  avg-link        0.9186  avglink(a0.35 m0.35)+ctr
+  bridge          0.8728  bridge(k5 n0.5 m0.7 s2)
+top 8 overall:
+  0.9186  avglink(a0.35 m0.35)+ctr
+  0.9179  avglink(a0.4 m0.35)+ctr
+  0.9172  avglink(a0.45 m0.35)+ctr
+  0.9151  avglink(a0.3 m0.4)+ctr
+  0.9147  avglink(a0.45 m0.45)
+  0.9142  avglink(a0.3 m0.35)+ctr
+  0.9119  avglink(a0.4)
+  0.9115  avglink(a0.3 m0.45)+ctr
+  reference f5 d6cfg leader(k8 s.6) 0.7207, f5 mini-tuned leader(k8 s.5) 0.8867
+wrote results/f6_anchor_selected.json in 194s

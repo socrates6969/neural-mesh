@@ -1,0 +1,676 @@
+f1_lab: tune seeds 1-8, held-out 31-60, 5 experiments
+selfcheck ok: ForkSwap with no new agent == base router
+
+##### experiment A1-transfer : 60 cells, 6 baselines
+[tune 1-8] xfer-naive: 3 configs, best regret-averse obj -0.01743 -> Naive { k: 0.1 }
+[tune 1-8] xfer-guard-map: 96 configs, best regret-averse obj +0.02517 -> GuardMap { margin: 0.0, tau: 0.7, ka: 2.0, kb: 1.0, g_tau: 0.0, disagree: false, shrink: None }
+[tune 1-8] xfer-guard-map+inner: 192 configs, best regret-averse obj +0.02547 -> GuardMap { margin: 0.0, tau: 0.7, ka: 2.0, kb: 1.0, g_tau: 0.0, disagree: false, shrink: Some(0.3) }
+
+##### experiment A2-agent-added : 24 cells, 6 baselines
+[tune 1-8] fork-inherit: 8 configs, best regret-averse obj +0.00121 -> ACand { kappa: 0.5, mode: Declared, sub: Guarded }
+
+##### experiment B-ordering : 15 cells, 6 baselines
+[tune 1-8] coverage-order: 12 configs, best regret-averse obj +0.00292 -> BCand { learner: 5, policy: Coverage { agg: Min, eps: 0.0 } }
+
+##### experiment C-multiobjective : 63 cells, 6 baselines
+[tune 1-8] decoupled-separate: 24 configs, best regret-averse obj +0.00733 -> CCand { shared: false, gamma: 0.97, m0: 3.0, hi: 0.8, lo: 0.3, eps: 0.0 }
+[tune 1-8] decoupled-shared: 24 configs, best regret-averse obj +0.03306 -> CCand { shared: true, gamma: 0.97, m0: 3.0, hi: 0.8, lo: 0.3, eps: 0.0 }
+
+C-frontier traps8    after    0 tasks: HV ratio 0.906  Pareto recall 0.758  precision 0.951
+C-frontier traps8    after  100 tasks: HV ratio 0.941  Pareto recall 0.833  precision 0.905
+C-frontier traps8    after  250 tasks: HV ratio 0.958  Pareto recall 0.876  precision 0.890
+C-frontier traps8    after  500 tasks: HV ratio 0.966  Pareto recall 0.896  precision 0.876
+C-frontier traps8    after 1000 tasks: HV ratio 0.964  Pareto recall 0.904  precision 0.872
+C-frontier traps8    after 2000 tasks: HV ratio 0.967  Pareto recall 0.906  precision 0.884
+C-frontier many16    after    0 tasks: HV ratio 0.943  Pareto recall 0.793  precision 0.977
+C-frontier many16    after  100 tasks: HV ratio 0.957  Pareto recall 0.843  precision 0.937
+C-frontier many16    after  250 tasks: HV ratio 0.966  Pareto recall 0.871  precision 0.920
+C-frontier many16    after  500 tasks: HV ratio 0.972  Pareto recall 0.892  precision 0.908
+C-frontier many16    after 1000 tasks: HV ratio 0.981  Pareto recall 0.912  precision 0.898
+C-frontier many16    after 2000 tasks: HV ratio 0.985  Pareto recall 0.925  precision 0.891
+C-frontier correct8  after    0 tasks: HV ratio 0.951  Pareto recall 0.835  precision 1.000
+C-frontier correct8  after  100 tasks: HV ratio 0.968  Pareto recall 0.892  precision 0.932
+C-frontier correct8  after  250 tasks: HV ratio 0.975  Pareto recall 0.910  precision 0.904
+C-frontier correct8  after  500 tasks: HV ratio 0.976  Pareto recall 0.920  precision 0.887
+C-frontier correct8  after 1000 tasks: HV ratio 0.984  Pareto recall 0.933  precision 0.873
+C-frontier correct8  after 2000 tasks: HV ratio 0.985  Pareto recall 0.942  precision 0.869
+
+##### experiment D-committee : 20 cells, 6 baselines
+[tune 1-8] committee-plurality: 1 configs, best regret-averse obj +0.00207 -> Plurality
+[tune 1-8] committee-gated-explore: 9 configs, best regret-averse obj +0.00229 -> Gated { thr: 0.67, p: 0.5 }
+[tune 1-8] committee-uniform-eps: 4 configs, best regret-averse obj -0.00023 -> UniformEps { q: 0.02 }
+[tune 1-8] committee-weighted: 3 configs, best regret-averse obj -0.00683 -> Weighted { eta: 0.5 }
+
+D-diag traps8     tasks    0-250  AUC(disagreement->bad choice) 0.776  AUC(low-evidence->bad) 0.630  partial AUC(disagreement | evidence tercile) 0.766  (n seeds 30/30/30)
+D-diag traps8     tasks  250-1000 AUC(disagreement->bad choice) 0.803  AUC(low-evidence->bad) 0.581  partial AUC(disagreement | evidence tercile) 0.799  (n seeds 30/30/30)
+D-diag traps8     tasks 1000-2000 AUC(disagreement->bad choice) 0.827  AUC(low-evidence->bad) 0.536  partial AUC(disagreement | evidence tercile) 0.827  (n seeds 30/30/30)
+D-diag many16     tasks    0-250  AUC(disagreement->bad choice) 0.756  AUC(low-evidence->bad) 0.563  partial AUC(disagreement | evidence tercile) 0.747  (n seeds 30/30/30)
+D-diag many16     tasks  250-1000 AUC(disagreement->bad choice) 0.807  AUC(low-evidence->bad) 0.601  partial AUC(disagreement | evidence tercile) 0.804  (n seeds 30/30/30)
+D-diag many16     tasks 1000-2000 AUC(disagreement->bad choice) 0.806  AUC(low-evidence->bad) 0.536  partial AUC(disagreement | evidence tercile) 0.805  (n seeds 30/30/30)
+D-diag correct8   tasks    0-250  AUC(disagreement->bad choice) 0.712  AUC(low-evidence->bad) 0.584  partial AUC(disagreement | evidence tercile) 0.706  (n seeds 30/30/30)
+D-diag correct8   tasks  250-1000 AUC(disagreement->bad choice) 0.786  AUC(low-evidence->bad) 0.570  partial AUC(disagreement | evidence tercile) 0.784  (n seeds 30/30/30)
+D-diag correct8   tasks 1000-2000 AUC(disagreement->bad choice) 0.813  AUC(low-evidence->bad) 0.538  partial AUC(disagreement | evidence tercile) 0.808  (n seeds 30/30/30)
+D-diag flat8      tasks    0-250  AUC(disagreement->bad choice) -0.000  AUC(low-evidence->bad) -0.000  partial AUC(disagreement | evidence tercile) -0.000  (n seeds 0/0/0)
+D-diag flat8      tasks  250-1000 AUC(disagreement->bad choice) -0.000  AUC(low-evidence->bad) -0.000  partial AUC(disagreement | evidence tercile) -0.000  (n seeds 0/0/0)
+D-diag flat8      tasks 1000-2000 AUC(disagreement->bad choice) -0.000  AUC(low-evidence->bad) -0.000  partial AUC(disagreement | evidence tercile) -0.000  (n seeds 0/0/0)
+
+=================== A1 (held-out 31-60) ===================
+
+--- summary per (candidate, world): cells, mean diff vs best fair baseline, Holm(exp) WIN/LOSS, raw CI>0 / <0 ---
+xfer-guard-map             correct8                 [ctl] n=20  mean -0.0378  WIN 0   LOSS 20  (raw+ 0   raw- 20 )
+xfer-guard-map             many16                         n=15  mean +0.0120  WIN 6   LOSS 4   (raw+ 8   raw- 5  )
+xfer-guard-map             many16                   [ctl] n=5   mean -0.0742  WIN 0   LOSS 5   (raw+ 0   raw- 5  )
+xfer-guard-map             traps8                         n=15  mean +0.0365  WIN 10  LOSS 0   (raw+ 10  raw- 0  )
+xfer-guard-map             traps8                   [ctl] n=5   mean -0.0383  WIN 0   LOSS 5   (raw+ 0   raw- 5  )
+xfer-guard-map+inner       correct8                 [ctl] n=20  mean -0.0379  WIN 0   LOSS 20  (raw+ 0   raw- 20 )
+xfer-guard-map+inner       many16                         n=15  mean +0.0120  WIN 6   LOSS 4   (raw+ 8   raw- 5  )
+xfer-guard-map+inner       many16                   [ctl] n=5   mean -0.0737  WIN 0   LOSS 5   (raw+ 0   raw- 5  )
+xfer-guard-map+inner       traps8                         n=15  mean +0.0369  WIN 10  LOSS 0   (raw+ 10  raw- 0  )
+xfer-guard-map+inner       traps8                   [ctl] n=5   mean -0.0360  WIN 0   LOSS 5   (raw+ 0   raw- 5  )
+xfer-naive                 correct8                 [ctl] n=20  mean -0.0901  WIN 0   LOSS 20  (raw+ 0   raw- 20 )
+xfer-naive                 many16                         n=15  mean -0.0145  WIN 5   LOSS 5   (raw+ 5   raw- 6  )
+xfer-naive                 many16                   [ctl] n=5   mean -0.1814  WIN 0   LOSS 5   (raw+ 0   raw- 5  )
+xfer-naive                 traps8                         n=15  mean +0.0141  WIN 5   LOSS 2   (raw+ 6   raw- 5  )
+xfer-naive                 traps8                   [ctl] n=5   mean -0.1119  WIN 0   LOSS 5   (raw+ 0   raw- 5  )
+
+--- tests (cand vs best fair baseline; Holm over family) ---
+xfer-naive               traps8               rho0|H100        accept   vs guarded(hebr)  +0.1146 [+0.1029,+0.1263] w/l 30/0 holm 0.0000 WIN
+xfer-guard-map           traps8               rho0|H100        accept   vs guarded(hebr)  +0.1214 [+0.1077,+0.1351] w/l 30/0 holm 0.0000 WIN
+xfer-guard-map+inner     traps8               rho0|H100        accept   vs guarded(hebr)  +0.1214 [+0.1079,+0.1349] w/l 30/0 holm 0.0000 WIN
+xfer-naive               traps8               rho0|H250        accept   vs guarded(hebr)  +0.0806 [+0.0685,+0.0927] w/l 30/0 holm 0.0000 WIN
+xfer-guard-map           traps8               rho0|H250        accept   vs guarded(hebr)  +0.0845 [+0.0715,+0.0975] w/l 29/1 holm 0.0000 WIN
+xfer-guard-map+inner     traps8               rho0|H250        accept   vs guarded(hebr)  +0.0843 [+0.0712,+0.0974] w/l 29/1 holm 0.0000 WIN
+xfer-naive               traps8               rho0|H500        accept   vs guarded(hebr)  +0.0516 [+0.0410,+0.0622] w/l 30/0 holm 0.0000 WIN
+xfer-guard-map           traps8               rho0|H500        accept   vs guarded(hebr)  +0.0589 [+0.0477,+0.0701] w/l 29/1 holm 0.0000 WIN
+xfer-guard-map+inner     traps8               rho0|H500        accept   vs guarded(hebr)  +0.0583 [+0.0468,+0.0698] w/l 29/1 holm 0.0000 WIN
+xfer-naive               traps8               rho0|H1000       accept   vs warm(hebr)     +0.0267 [+0.0194,+0.0340] w/l 29/1 holm 0.0000 WIN
+xfer-guard-map           traps8               rho0|H1000       accept   vs warm(hebr)     +0.0359 [+0.0284,+0.0434] w/l 29/1 holm 0.0000 WIN
+xfer-guard-map+inner     traps8               rho0|H1000       accept   vs warm(hebr)     +0.0357 [+0.0282,+0.0432] w/l 29/1 holm 0.0000 WIN
+xfer-naive               traps8               rho0|H2000       accept   vs warm(hebr)     +0.0115 [+0.0072,+0.0159] w/l 27/3 holm 0.0005 WIN
+xfer-guard-map           traps8               rho0|H2000       accept   vs warm(hebr)     +0.0269 [+0.0221,+0.0317] w/l 30/0 holm 0.0000 WIN
+xfer-guard-map+inner     traps8               rho0|H2000       accept   vs warm(hebr)     +0.0269 [+0.0221,+0.0316] w/l 30/0 holm 0.0000 WIN
+xfer-guard-map           traps8               rho0.25|H100     accept   vs guarded(hebr)  +0.0733 [+0.0544,+0.0922] w/l 27/3 holm 0.0000 WIN
+xfer-guard-map+inner     traps8               rho0.25|H100     accept   vs guarded(hebr)  +0.0729 [+0.0547,+0.0911] w/l 27/3 holm 0.0000 WIN
+xfer-guard-map           traps8               rho0.25|H250     accept   vs guarded(hebr)  +0.0507 [+0.0347,+0.0668] w/l 26/4 holm 0.0000 WIN
+xfer-guard-map+inner     traps8               rho0.25|H250     accept   vs guarded(hebr)  +0.0504 [+0.0359,+0.0649] w/l 26/4 holm 0.0000 WIN
+xfer-guard-map           traps8               rho0.25|H500     accept   vs guarded(hebr)  +0.0329 [+0.0186,+0.0473] w/l 25/5 holm 0.0030 WIN
+xfer-guard-map+inner     traps8               rho0.25|H500     accept   vs guarded(hebr)  +0.0361 [+0.0252,+0.0470] w/l 27/3 holm 0.0000 WIN
+xfer-guard-map           traps8               rho0.25|H1000    accept   vs guarded(hebr)  +0.0184 [+0.0083,+0.0284] w/l 24/6 holm 0.0305 WIN
+xfer-guard-map+inner     traps8               rho0.25|H1000    accept   vs guarded(hebr)  +0.0219 [+0.0142,+0.0296] w/l 27/3 holm 0.0002 WIN
+xfer-guard-map           traps8               rho0.25|H2000    accept   vs warm(hebr)     +0.0113 [+0.0048,+0.0178] w/l 21/9 holm 0.0447 WIN
+xfer-guard-map+inner     traps8               rho0.25|H2000    accept   vs warm(hebr)     +0.0137 [+0.0081,+0.0192] w/l 23/7 holm 0.0012 WIN
+xfer-naive               traps8               rho0.5|H1000     accept   vs warm(hebr)     -0.0213 [-0.0330,-0.0096] w/l 10/20 holm 0.0305 LOSS
+xfer-naive               traps8               rho0.5|H2000     accept   vs warm(hebr)     -0.0144 [-0.0209,-0.0079] w/l 7/23 holm 0.0045 LOSS
+xfer-naive               traps8               rho1|H100        accept   vs guarded(hebr)  -0.1906 [-0.2314,-0.1498] w/l 2/28 holm 0.0000 LOSS [ctl]
+xfer-guard-map           traps8               rho1|H100        accept   vs guarded(hebr)  -0.0640 [-0.0886,-0.0394] w/l 6/24 holm 0.0006 LOSS [ctl]
+xfer-guard-map+inner     traps8               rho1|H100        accept   vs guarded(hebr)  -0.0622 [-0.0879,-0.0365] w/l 5/25 holm 0.0015 LOSS [ctl]
+xfer-naive               traps8               rho1|H250        accept   vs guarded(hebr)  -0.1564 [-0.1927,-0.1202] w/l 1/29 holm 0.0000 LOSS [ctl]
+xfer-guard-map           traps8               rho1|H250        accept   vs guarded(hebr)  -0.0388 [-0.0567,-0.0208] w/l 6/24 holm 0.0057 LOSS [ctl]
+xfer-guard-map+inner     traps8               rho1|H250        accept   vs guarded(hebr)  -0.0375 [-0.0570,-0.0180] w/l 7/23 holm 0.0199 LOSS [ctl]
+xfer-naive               traps8               rho1|H500        accept   vs guarded(hebr)  -0.1113 [-0.1392,-0.0833] w/l 2/28 holm 0.0000 LOSS [ctl]
+xfer-guard-map           traps8               rho1|H500        accept   vs guarded(hebr)  -0.0324 [-0.0450,-0.0199] w/l 6/24 holm 0.0007 LOSS [ctl]
+xfer-guard-map+inner     traps8               rho1|H500        accept   vs guarded(hebr)  -0.0304 [-0.0435,-0.0173] w/l 5/25 holm 0.0026 LOSS [ctl]
+xfer-naive               traps8               rho1|H1000       accept   vs guarded(hebr)  -0.0650 [-0.0856,-0.0444] w/l 5/25 holm 0.0000 LOSS [ctl]
+xfer-guard-map           traps8               rho1|H1000       accept   vs guarded(hebr)  -0.0282 [-0.0383,-0.0181] w/l 4/26 holm 0.0002 LOSS [ctl]
+xfer-guard-map+inner     traps8               rho1|H1000       accept   vs guarded(hebr)  -0.0254 [-0.0365,-0.0143] w/l 4/26 holm 0.0030 LOSS [ctl]
+xfer-naive               traps8               rho1|H2000       accept   vs guarded(hebr)  -0.0361 [-0.0519,-0.0203] w/l 5/25 holm 0.0030 LOSS [ctl]
+xfer-guard-map           traps8               rho1|H2000       accept   vs guarded(hebr)  -0.0281 [-0.0359,-0.0204] w/l 2/28 holm 0.0000 LOSS [ctl]
+xfer-guard-map+inner     traps8               rho1|H2000       accept   vs guarded(hebr)  -0.0247 [-0.0337,-0.0157] w/l 3/27 holm 0.0003 LOSS [ctl]
+xfer-naive               many16               rho0|H100        accept   vs guarded(hebr)  +0.0537 [+0.0426,+0.0648] w/l 29/1 holm 0.0000 WIN
+xfer-guard-map           many16               rho0|H100        accept   vs guarded(hebr)  +0.0641 [+0.0528,+0.0755] w/l 30/0 holm 0.0000 WIN
+xfer-guard-map+inner     many16               rho0|H100        accept   vs guarded(hebr)  +0.0644 [+0.0531,+0.0756] w/l 30/0 holm 0.0000 WIN
+xfer-naive               many16               rho0|H250        accept   vs guarded(hebr)  +0.0536 [+0.0449,+0.0622] w/l 30/0 holm 0.0000 WIN
+xfer-guard-map           many16               rho0|H250        accept   vs guarded(hebr)  +0.0551 [+0.0461,+0.0641] w/l 30/0 holm 0.0000 WIN
+xfer-guard-map+inner     many16               rho0|H250        accept   vs guarded(hebr)  +0.0551 [+0.0461,+0.0641] w/l 30/0 holm 0.0000 WIN
+xfer-naive               many16               rho0|H500        accept   vs guarded(hebr)  +0.0432 [+0.0360,+0.0503] w/l 30/0 holm 0.0000 WIN
+xfer-guard-map           many16               rho0|H500        accept   vs guarded(hebr)  +0.0423 [+0.0350,+0.0496] w/l 30/0 holm 0.0000 WIN
+xfer-guard-map+inner     many16               rho0|H500        accept   vs guarded(hebr)  +0.0420 [+0.0345,+0.0494] w/l 30/0 holm 0.0000 WIN
+xfer-naive               many16               rho0|H1000       accept   vs guarded(hebr)  +0.0262 [+0.0198,+0.0326] w/l 28/2 holm 0.0000 WIN
+xfer-guard-map           many16               rho0|H1000       accept   vs guarded(hebr)  +0.0283 [+0.0220,+0.0346] w/l 29/1 holm 0.0000 WIN
+xfer-guard-map+inner     many16               rho0|H1000       accept   vs guarded(hebr)  +0.0285 [+0.0221,+0.0348] w/l 29/1 holm 0.0000 WIN
+xfer-naive               many16               rho0|H2000       accept   vs guarded(hebr)  +0.0102 [+0.0054,+0.0149] w/l 23/7 holm 0.0061 WIN
+xfer-guard-map           many16               rho0|H2000       accept   vs guarded(hebr)  +0.0173 [+0.0125,+0.0221] w/l 29/1 holm 0.0000 WIN
+xfer-guard-map+inner     many16               rho0|H2000       accept   vs guarded(hebr)  +0.0174 [+0.0127,+0.0221] w/l 29/1 holm 0.0000 WIN
+xfer-guard-map           many16               rho0.25|H500     accept   vs guarded(hebr)  +0.0183 [+0.0084,+0.0282] w/l 23/7 holm 0.0283 WIN
+xfer-guard-map+inner     many16               rho0.25|H500     accept   vs guarded(hebr)  +0.0179 [+0.0077,+0.0282] w/l 23/7 holm 0.0447 WIN
+xfer-naive               many16               rho0.5|H100      accept   vs guarded(hebr)  -0.0948 [-0.1140,-0.0756] w/l 1/29 holm 0.0000 LOSS
+xfer-guard-map           many16               rho0.5|H100      accept   vs guarded(hebr)  -0.0445 [-0.0585,-0.0304] w/l 3/27 holm 0.0000 LOSS
+xfer-guard-map+inner     many16               rho0.5|H100      accept   vs guarded(hebr)  -0.0451 [-0.0592,-0.0311] w/l 3/27 holm 0.0000 LOSS
+xfer-naive               many16               rho0.5|H250      accept   vs guarded(hebr)  -0.1016 [-0.1195,-0.0837] w/l 1/29 holm 0.0000 LOSS
+xfer-guard-map           many16               rho0.5|H250      accept   vs guarded(hebr)  -0.0208 [-0.0316,-0.0099] w/l 9/21 holm 0.0207 LOSS
+xfer-guard-map+inner     many16               rho0.5|H250      accept   vs guarded(hebr)  -0.0210 [-0.0315,-0.0105] w/l 8/22 holm 0.0134 LOSS
+xfer-naive               many16               rho0.5|H500      accept   vs guarded(hebr)  -0.0824 [-0.0956,-0.0693] w/l 0/30 holm 0.0000 LOSS
+xfer-naive               many16               rho0.5|H1000     accept   vs guarded(hebr)  -0.0566 [-0.0675,-0.0457] w/l 0/30 holm 0.0000 LOSS
+xfer-guard-map           many16               rho0.5|H1000     accept   vs guarded(hebr)  -0.0112 [-0.0171,-0.0054] w/l 4/26 holm 0.0198 LOSS
+xfer-guard-map+inner     many16               rho0.5|H1000     accept   vs guarded(hebr)  -0.0109 [-0.0171,-0.0047] w/l 7/23 holm 0.0440 LOSS
+xfer-naive               many16               rho0.5|H2000     accept   vs guarded(hebr)  -0.0325 [-0.0402,-0.0248] w/l 2/28 holm 0.0000 LOSS
+xfer-guard-map           many16               rho0.5|H2000     accept   vs guarded(hebr)  -0.0119 [-0.0165,-0.0073] w/l 4/26 holm 0.0006 LOSS
+xfer-guard-map+inner     many16               rho0.5|H2000     accept   vs guarded(hebr)  -0.0114 [-0.0161,-0.0067] w/l 5/25 holm 0.0015 LOSS
+xfer-naive               many16               rho1|H100        accept   vs guarded(hebr)  -0.2358 [-0.2563,-0.2153] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map           many16               rho1|H100        accept   vs guarded(hebr)  -0.1354 [-0.1513,-0.1195] w/l 1/29 holm 0.0000 LOSS [ctl]
+xfer-guard-map+inner     many16               rho1|H100        accept   vs guarded(hebr)  -0.1350 [-0.1509,-0.1190] w/l 1/29 holm 0.0000 LOSS [ctl]
+xfer-naive               many16               rho1|H250        accept   vs guarded(hebr)  -0.2445 [-0.2626,-0.2264] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map           many16               rho1|H250        accept   vs guarded(hebr)  -0.0865 [-0.0979,-0.0751] w/l 1/29 holm 0.0000 LOSS [ctl]
+xfer-guard-map+inner     many16               rho1|H250        accept   vs guarded(hebr)  -0.0863 [-0.0977,-0.0750] w/l 1/29 holm 0.0000 LOSS [ctl]
+xfer-naive               many16               rho1|H500        accept   vs guarded(hebr)  -0.2055 [-0.2203,-0.1907] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map           many16               rho1|H500        accept   vs guarded(hebr)  -0.0610 [-0.0692,-0.0528] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map+inner     many16               rho1|H500        accept   vs guarded(hebr)  -0.0611 [-0.0694,-0.0528] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-naive               many16               rho1|H1000       accept   vs guarded(hebr)  -0.1404 [-0.1514,-0.1293] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map           many16               rho1|H1000       accept   vs guarded(hebr)  -0.0483 [-0.0544,-0.0421] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map+inner     many16               rho1|H1000       accept   vs guarded(hebr)  -0.0476 [-0.0539,-0.0412] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-naive               many16               rho1|H2000       accept   vs guarded(hebr)  -0.0808 [-0.0881,-0.0735] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map           many16               rho1|H2000       accept   vs guarded(hebr)  -0.0400 [-0.0444,-0.0355] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map+inner     many16               rho1|H2000       accept   vs guarded(hebr)  -0.0387 [-0.0430,-0.0344] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-naive               correct8             rho0|H100        accept   vs keyword        -0.0200 [-0.0250,-0.0149] w/l 3/27 holm 0.0000 LOSS [ctl]
+xfer-guard-map           correct8             rho0|H100        accept   vs keyword        -0.0129 [-0.0180,-0.0078] w/l 3/22 holm 0.0009 LOSS [ctl]
+xfer-guard-map+inner     correct8             rho0|H100        accept   vs keyword        -0.0128 [-0.0178,-0.0079] w/l 3/22 holm 0.0007 LOSS [ctl]
+xfer-naive               correct8             rho0|H250        accept   vs keyword        -0.0192 [-0.0242,-0.0142] w/l 1/29 holm 0.0000 LOSS [ctl]
+xfer-guard-map           correct8             rho0|H250        accept   vs keyword        -0.0099 [-0.0138,-0.0059] w/l 3/26 holm 0.0010 LOSS [ctl]
+xfer-guard-map+inner     correct8             rho0|H250        accept   vs keyword        -0.0105 [-0.0150,-0.0060] w/l 3/26 holm 0.0023 LOSS [ctl]
+xfer-naive               correct8             rho0|H500        accept   vs keyword        -0.0200 [-0.0234,-0.0165] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map           correct8             rho0|H500        accept   vs keyword        -0.0071 [-0.0096,-0.0045] w/l 4/26 holm 0.0002 LOSS [ctl]
+xfer-guard-map+inner     correct8             rho0|H500        accept   vs keyword        -0.0073 [-0.0101,-0.0046] w/l 4/26 holm 0.0004 LOSS [ctl]
+xfer-naive               correct8             rho0|H1000       accept   vs keyword        -0.0219 [-0.0252,-0.0186] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map           correct8             rho0|H1000       accept   vs keyword        -0.0051 [-0.0070,-0.0032] w/l 5/25 holm 0.0004 LOSS [ctl]
+xfer-guard-map+inner     correct8             rho0|H1000       accept   vs keyword        -0.0052 [-0.0071,-0.0033] w/l 5/25 holm 0.0003 LOSS [ctl]
+xfer-naive               correct8             rho0|H2000       accept   vs keyword        -0.0227 [-0.0254,-0.0201] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map           correct8             rho0|H2000       accept   vs keyword        -0.0046 [-0.0063,-0.0028] w/l 5/25 holm 0.0006 LOSS [ctl]
+xfer-guard-map+inner     correct8             rho0|H2000       accept   vs keyword        -0.0046 [-0.0064,-0.0029] w/l 5/25 holm 0.0005 LOSS [ctl]
+xfer-naive               correct8             rho0.25|H100     accept   vs keyword        -0.0835 [-0.1107,-0.0563] w/l 2/28 holm 0.0001 LOSS [ctl]
+xfer-guard-map           correct8             rho0.25|H100     accept   vs keyword        -0.0445 [-0.0584,-0.0306] w/l 1/29 holm 0.0000 LOSS [ctl]
+xfer-guard-map+inner     correct8             rho0.25|H100     accept   vs keyword        -0.0445 [-0.0583,-0.0306] w/l 1/29 holm 0.0000 LOSS [ctl]
+xfer-naive               correct8             rho0.25|H250     accept   vs keyword        -0.0688 [-0.0881,-0.0495] w/l 1/29 holm 0.0000 LOSS [ctl]
+xfer-guard-map           correct8             rho0.25|H250     accept   vs keyword        -0.0275 [-0.0366,-0.0185] w/l 1/29 holm 0.0001 LOSS [ctl]
+xfer-guard-map+inner     correct8             rho0.25|H250     accept   vs keyword        -0.0275 [-0.0365,-0.0185] w/l 1/29 holm 0.0001 LOSS [ctl]
+xfer-naive               correct8             rho0.25|H500     accept   vs keyword        -0.0504 [-0.0629,-0.0379] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map           correct8             rho0.25|H500     accept   vs keyword        -0.0191 [-0.0250,-0.0132] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map+inner     correct8             rho0.25|H500     accept   vs keyword        -0.0191 [-0.0249,-0.0132] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-naive               correct8             rho0.25|H1000    accept   vs keyword        -0.0388 [-0.0454,-0.0321] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map           correct8             rho0.25|H1000    accept   vs keyword        -0.0161 [-0.0207,-0.0115] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map+inner     correct8             rho0.25|H1000    accept   vs keyword        -0.0161 [-0.0208,-0.0115] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-naive               correct8             rho0.25|H2000    accept   vs keyword        -0.0324 [-0.0366,-0.0282] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map           correct8             rho0.25|H2000    accept   vs keyword        -0.0139 [-0.0178,-0.0100] w/l 1/29 holm 0.0000 LOSS [ctl]
+xfer-guard-map+inner     correct8             rho0.25|H2000    accept   vs keyword        -0.0140 [-0.0179,-0.0100] w/l 1/29 holm 0.0000 LOSS [ctl]
+xfer-naive               correct8             rho0.5|H100      accept   vs keyword        -0.1618 [-0.1845,-0.1392] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map           correct8             rho0.5|H100      accept   vs keyword        -0.0729 [-0.0860,-0.0598] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map+inner     correct8             rho0.5|H100      accept   vs keyword        -0.0728 [-0.0859,-0.0597] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-naive               correct8             rho0.5|H250      accept   vs keyword        -0.1369 [-0.1564,-0.1175] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map           correct8             rho0.5|H250      accept   vs keyword        -0.0478 [-0.0570,-0.0386] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map+inner     correct8             rho0.5|H250      accept   vs keyword        -0.0478 [-0.0571,-0.0385] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-naive               correct8             rho0.5|H500      accept   vs keyword        -0.1016 [-0.1162,-0.0871] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map           correct8             rho0.5|H500      accept   vs keyword        -0.0353 [-0.0407,-0.0300] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map+inner     correct8             rho0.5|H500      accept   vs keyword        -0.0353 [-0.0407,-0.0298] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-naive               correct8             rho0.5|H1000     accept   vs keyword        -0.0676 [-0.0781,-0.0571] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map           correct8             rho0.5|H1000     accept   vs keyword        -0.0280 [-0.0318,-0.0242] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map+inner     correct8             rho0.5|H1000     accept   vs keyword        -0.0278 [-0.0316,-0.0240] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-naive               correct8             rho0.5|H2000     accept   vs keyword        -0.0448 [-0.0506,-0.0390] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map           correct8             rho0.5|H2000     accept   vs keyword        -0.0248 [-0.0281,-0.0216] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map+inner     correct8             rho0.5|H2000     accept   vs keyword        -0.0248 [-0.0281,-0.0215] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-naive               correct8             rho1|H100        accept   vs keyword        -0.3152 [-0.3339,-0.2964] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map           correct8             rho1|H100        accept   vs keyword        -0.1450 [-0.1565,-0.1336] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map+inner     correct8             rho1|H100        accept   vs keyword        -0.1452 [-0.1567,-0.1337] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-naive               correct8             rho1|H250        accept   vs keyword        -0.2563 [-0.2703,-0.2424] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map           correct8             rho1|H250        accept   vs keyword        -0.0868 [-0.0932,-0.0805] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map+inner     correct8             rho1|H250        accept   vs keyword        -0.0873 [-0.0939,-0.0807] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-naive               correct8             rho1|H500        accept   vs keyword        -0.1748 [-0.1879,-0.1616] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map           correct8             rho1|H500        accept   vs keyword        -0.0615 [-0.0664,-0.0566] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map+inner     correct8             rho1|H500        accept   vs keyword        -0.0618 [-0.0667,-0.0568] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-naive               correct8             rho1|H1000       accept   vs keyword        -0.1034 [-0.1137,-0.0930] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map           correct8             rho1|H1000       accept   vs keyword        -0.0503 [-0.0536,-0.0470] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map+inner     correct8             rho1|H1000       accept   vs keyword        -0.0505 [-0.0539,-0.0472] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-naive               correct8             rho1|H2000       accept   vs keyword        -0.0619 [-0.0689,-0.0549] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map           correct8             rho1|H2000       accept   vs keyword        -0.0436 [-0.0460,-0.0412] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map+inner     correct8             rho1|H2000       accept   vs keyword        -0.0439 [-0.0464,-0.0413] w/l 0/30 holm 0.0000 LOSS [ctl]
+xfer-guard-map - xfer-naive traps8               rho0|H1000       ablation vs xfer-naive     +0.0092 [+0.0048,+0.0136] w/l 23/7 holm 0.0144 WIN
+xfer-guard-map - xfer-naive traps8               rho0|H2000       ablation vs xfer-naive     +0.0154 [+0.0126,+0.0182] w/l 29/1 holm 0.0000 WIN
+xfer-guard-map - xfer-naive traps8               rho0.25|H100     ablation vs xfer-naive     +0.0310 [+0.0153,+0.0466] w/l 25/5 holm 0.0268 WIN
+xfer-guard-map - xfer-naive traps8               rho0.25|H250     ablation vs xfer-naive     +0.0330 [+0.0159,+0.0501] w/l 25/5 holm 0.0348 WIN
+xfer-guard-map - xfer-naive traps8               rho0.5|H100      ablation vs xfer-naive     +0.0591 [+0.0440,+0.0743] w/l 29/1 holm 0.0000 WIN
+xfer-guard-map - xfer-naive traps8               rho0.5|H250      ablation vs xfer-naive     +0.0539 [+0.0387,+0.0692] w/l 30/0 holm 0.0000 WIN
+xfer-guard-map - xfer-naive traps8               rho0.5|H500      ablation vs xfer-naive     +0.0347 [+0.0231,+0.0462] w/l 25/5 holm 0.0001 WIN
+xfer-guard-map - xfer-naive traps8               rho0.5|H1000     ablation vs xfer-naive     +0.0202 [+0.0111,+0.0292] w/l 26/4 holm 0.0068 WIN
+xfer-guard-map - xfer-naive traps8               rho1|H100        ablation vs xfer-naive     +0.1265 [+0.0999,+0.1532] w/l 28/2 holm 0.0000 WIN [ctl]
+xfer-guard-map - xfer-naive traps8               rho1|H250        ablation vs xfer-naive     +0.1177 [+0.0908,+0.1446] w/l 28/2 holm 0.0000 WIN [ctl]
+xfer-guard-map - xfer-naive traps8               rho1|H500        ablation vs xfer-naive     +0.0788 [+0.0582,+0.0994] w/l 28/2 holm 0.0000 WIN [ctl]
+xfer-guard-map - xfer-naive traps8               rho1|H1000       ablation vs xfer-naive     +0.0368 [+0.0210,+0.0526] w/l 26/4 holm 0.0040 WIN [ctl]
+xfer-guard-map - xfer-naive traps8               rho1|H2000       ablation vs xfer-naive     +0.0080 [-0.0044,+0.0204] w/l 18/12 holm 1.0000 ns [ctl]
+xfer-guard-map - xfer-naive many16               rho0|H2000       ablation vs xfer-naive     +0.0071 [+0.0042,+0.0101] w/l 23/7 holm 0.0022 WIN
+xfer-guard-map - xfer-naive many16               rho0.25|H100     ablation vs xfer-naive     +0.0233 [+0.0135,+0.0331] w/l 25/5 holm 0.0029 WIN
+xfer-guard-map - xfer-naive many16               rho0.25|H250     ablation vs xfer-naive     +0.0294 [+0.0181,+0.0406] w/l 27/3 holm 0.0009 WIN
+xfer-guard-map - xfer-naive many16               rho0.25|H500     ablation vs xfer-naive     +0.0255 [+0.0152,+0.0359] w/l 27/3 holm 0.0018 WIN
+xfer-guard-map - xfer-naive many16               rho0.25|H1000    ablation vs xfer-naive     +0.0190 [+0.0120,+0.0260] w/l 27/3 holm 0.0005 WIN
+xfer-guard-map - xfer-naive many16               rho0.25|H2000    ablation vs xfer-naive     +0.0121 [+0.0070,+0.0171] w/l 26/4 holm 0.0028 WIN
+xfer-guard-map - xfer-naive many16               rho0.5|H100      ablation vs xfer-naive     +0.0503 [+0.0367,+0.0640] w/l 27/3 holm 0.0000 WIN
+xfer-guard-map - xfer-naive many16               rho0.5|H250      ablation vs xfer-naive     +0.0808 [+0.0681,+0.0935] w/l 30/0 holm 0.0000 WIN
+xfer-guard-map - xfer-naive many16               rho0.5|H500      ablation vs xfer-naive     +0.0707 [+0.0610,+0.0805] w/l 30/0 holm 0.0000 WIN
+xfer-guard-map - xfer-naive many16               rho0.5|H1000     ablation vs xfer-naive     +0.0454 [+0.0368,+0.0539] w/l 29/1 holm 0.0000 WIN
+xfer-guard-map - xfer-naive many16               rho0.5|H2000     ablation vs xfer-naive     +0.0206 [+0.0145,+0.0267] w/l 26/4 holm 0.0000 WIN
+xfer-guard-map - xfer-naive many16               rho1|H100        ablation vs xfer-naive     +0.1004 [+0.0838,+0.1170] w/l 29/1 holm 0.0000 WIN [ctl]
+xfer-guard-map - xfer-naive many16               rho1|H250        ablation vs xfer-naive     +0.1580 [+0.1434,+0.1726] w/l 30/0 holm 0.0000 WIN [ctl]
+xfer-guard-map - xfer-naive many16               rho1|H500        ablation vs xfer-naive     +0.1445 [+0.1324,+0.1567] w/l 30/0 holm 0.0000 WIN [ctl]
+xfer-guard-map - xfer-naive many16               rho1|H1000       ablation vs xfer-naive     +0.0921 [+0.0828,+0.1014] w/l 30/0 holm 0.0000 WIN [ctl]
+xfer-guard-map - xfer-naive many16               rho1|H2000       ablation vs xfer-naive     +0.0408 [+0.0335,+0.0482] w/l 29/1 holm 0.0000 WIN [ctl]
+xfer-guard-map - xfer-naive correct8             rho0|H100        ablation vs xfer-naive     +0.0071 [+0.0019,+0.0123] w/l 20/10 holm 0.6753 raw+ [ctl]
+xfer-guard-map - xfer-naive correct8             rho0|H250        ablation vs xfer-naive     +0.0093 [+0.0043,+0.0143] w/l 22/8 holm 0.0544 raw+ [ctl]
+xfer-guard-map - xfer-naive correct8             rho0|H500        ablation vs xfer-naive     +0.0129 [+0.0088,+0.0170] w/l 27/3 holm 0.0001 WIN [ctl]
+xfer-guard-map - xfer-naive correct8             rho0|H1000       ablation vs xfer-naive     +0.0168 [+0.0130,+0.0205] w/l 29/1 holm 0.0000 WIN [ctl]
+xfer-guard-map - xfer-naive correct8             rho0|H2000       ablation vs xfer-naive     +0.0182 [+0.0148,+0.0216] w/l 30/0 holm 0.0000 WIN [ctl]
+xfer-guard-map - xfer-naive correct8             rho0.25|H100     ablation vs xfer-naive     +0.0390 [+0.0196,+0.0584] w/l 21/9 holm 0.0231 WIN [ctl]
+xfer-guard-map - xfer-naive correct8             rho0.25|H250     ablation vs xfer-naive     +0.0412 [+0.0273,+0.0552] w/l 28/2 holm 0.0001 WIN [ctl]
+xfer-guard-map - xfer-naive correct8             rho0.25|H500     ablation vs xfer-naive     +0.0313 [+0.0223,+0.0403] w/l 29/1 holm 0.0000 WIN [ctl]
+xfer-guard-map - xfer-naive correct8             rho0.25|H1000    ablation vs xfer-naive     +0.0226 [+0.0171,+0.0281] w/l 29/1 holm 0.0000 WIN [ctl]
+xfer-guard-map - xfer-naive correct8             rho0.25|H2000    ablation vs xfer-naive     +0.0185 [+0.0142,+0.0228] w/l 29/1 holm 0.0000 WIN [ctl]
+xfer-guard-map - xfer-naive correct8             rho0.5|H100      ablation vs xfer-naive     +0.0889 [+0.0708,+0.1070] w/l 30/0 holm 0.0000 WIN [ctl]
+xfer-guard-map - xfer-naive correct8             rho0.5|H250      ablation vs xfer-naive     +0.0891 [+0.0730,+0.1052] w/l 30/0 holm 0.0000 WIN [ctl]
+xfer-guard-map - xfer-naive correct8             rho0.5|H500      ablation vs xfer-naive     +0.0663 [+0.0541,+0.0785] w/l 30/0 holm 0.0000 WIN [ctl]
+xfer-guard-map - xfer-naive correct8             rho0.5|H1000     ablation vs xfer-naive     +0.0396 [+0.0299,+0.0494] w/l 30/0 holm 0.0000 WIN [ctl]
+xfer-guard-map - xfer-naive correct8             rho0.5|H2000     ablation vs xfer-naive     +0.0199 [+0.0141,+0.0257] w/l 28/2 holm 0.0000 WIN [ctl]
+xfer-guard-map - xfer-naive correct8             rho1|H100        ablation vs xfer-naive     +0.1701 [+0.1505,+0.1897] w/l 30/0 holm 0.0000 WIN [ctl]
+xfer-guard-map - xfer-naive correct8             rho1|H250        ablation vs xfer-naive     +0.1695 [+0.1544,+0.1845] w/l 30/0 holm 0.0000 WIN [ctl]
+xfer-guard-map - xfer-naive correct8             rho1|H500        ablation vs xfer-naive     +0.1133 [+0.0999,+0.1267] w/l 30/0 holm 0.0000 WIN [ctl]
+xfer-guard-map - xfer-naive correct8             rho1|H1000       ablation vs xfer-naive     +0.0531 [+0.0431,+0.0631] w/l 30/0 holm 0.0000 WIN [ctl]
+xfer-guard-map - xfer-naive correct8             rho1|H2000       ablation vs xfer-naive     +0.0183 [+0.0112,+0.0254] w/l 27/3 holm 0.0010 WIN [ctl]
+xfer-guard-map+inner - xfer-guard-map traps8               rho1|H100        ablation vs xfer-guard-map +0.0018 [-0.0027,+0.0064] w/l 11/9 holm 1.0000 ns [ctl]
+xfer-guard-map+inner - xfer-guard-map traps8               rho1|H250        ablation vs xfer-guard-map +0.0012 [-0.0037,+0.0061] w/l 12/15 holm 1.0000 ns [ctl]
+xfer-guard-map+inner - xfer-guard-map traps8               rho1|H500        ablation vs xfer-guard-map +0.0020 [-0.0022,+0.0062] w/l 13/14 holm 1.0000 ns [ctl]
+xfer-guard-map+inner - xfer-guard-map traps8               rho1|H1000       ablation vs xfer-guard-map +0.0028 [-0.0024,+0.0080] w/l 13/14 holm 1.0000 ns [ctl]
+xfer-guard-map+inner - xfer-guard-map traps8               rho1|H2000       ablation vs xfer-guard-map +0.0034 [-0.0023,+0.0091] w/l 15/12 holm 1.0000 ns [ctl]
+xfer-guard-map+inner - xfer-guard-map many16               rho1|H100        ablation vs xfer-guard-map +0.0004 [-0.0009,+0.0017] w/l 7/5 holm 1.0000 ns [ctl]
+xfer-guard-map+inner - xfer-guard-map many16               rho1|H250        ablation vs xfer-guard-map +0.0002 [-0.0012,+0.0015] w/l 11/11 holm 1.0000 ns [ctl]
+xfer-guard-map+inner - xfer-guard-map many16               rho1|H500        ablation vs xfer-guard-map -0.0001 [-0.0024,+0.0022] w/l 14/15 holm 1.0000 ns [ctl]
+xfer-guard-map+inner - xfer-guard-map many16               rho1|H1000       ablation vs xfer-guard-map +0.0007 [-0.0015,+0.0029] w/l 15/14 holm 1.0000 ns [ctl]
+xfer-guard-map+inner - xfer-guard-map many16               rho1|H2000       ablation vs xfer-guard-map +0.0013 [-0.0003,+0.0028] w/l 18/11 holm 1.0000 ns [ctl]
+xfer-guard-map+inner - xfer-guard-map correct8             rho0|H100        ablation vs xfer-guard-map +0.0000 [-0.0003,+0.0004] w/l 4/2 holm 1.0000 ns [ctl]
+xfer-guard-map+inner - xfer-guard-map correct8             rho0|H250        ablation vs xfer-guard-map -0.0006 [-0.0016,+0.0003] w/l 2/4 holm 1.0000 ns [ctl]
+xfer-guard-map+inner - xfer-guard-map correct8             rho0|H500        ablation vs xfer-guard-map -0.0003 [-0.0008,+0.0003] w/l 2/4 holm 1.0000 ns [ctl]
+xfer-guard-map+inner - xfer-guard-map correct8             rho0|H1000       ablation vs xfer-guard-map -0.0001 [-0.0003,+0.0001] w/l 2/4 holm 1.0000 ns [ctl]
+xfer-guard-map+inner - xfer-guard-map correct8             rho0|H2000       ablation vs xfer-guard-map -0.0001 [-0.0002,+0.0000] w/l 2/4 holm 1.0000 ns [ctl]
+xfer-guard-map+inner - xfer-guard-map correct8             rho0.25|H100     ablation vs xfer-guard-map +0.0001 [-0.0001,+0.0002] w/l 2/1 holm 1.0000 ns [ctl]
+xfer-guard-map+inner - xfer-guard-map correct8             rho0.25|H250     ablation vs xfer-guard-map +0.0000 [-0.0000,+0.0001] w/l 4/1 holm 1.0000 ns [ctl]
+xfer-guard-map+inner - xfer-guard-map correct8             rho0.25|H500     ablation vs xfer-guard-map +0.0000 [-0.0000,+0.0001] w/l 4/1 holm 1.0000 ns [ctl]
+xfer-guard-map+inner - xfer-guard-map correct8             rho0.25|H1000    ablation vs xfer-guard-map -0.0000 [-0.0000,+0.0000] w/l 3/2 holm 1.0000 ns [ctl]
+xfer-guard-map+inner - xfer-guard-map correct8             rho0.25|H2000    ablation vs xfer-guard-map -0.0001 [-0.0003,+0.0001] w/l 3/2 holm 1.0000 ns [ctl]
+xfer-guard-map+inner - xfer-guard-map correct8             rho0.5|H100      ablation vs xfer-guard-map +0.0001 [-0.0000,+0.0003] w/l 3/0 holm 1.0000 ns [ctl]
+xfer-guard-map+inner - xfer-guard-map correct8             rho0.5|H250      ablation vs xfer-guard-map +0.0001 [-0.0004,+0.0006] w/l 5/1 holm 1.0000 ns [ctl]
+xfer-guard-map+inner - xfer-guard-map correct8             rho0.5|H500      ablation vs xfer-guard-map +0.0001 [-0.0001,+0.0003] w/l 5/1 holm 1.0000 ns [ctl]
+xfer-guard-map+inner - xfer-guard-map correct8             rho0.5|H1000     ablation vs xfer-guard-map +0.0002 [-0.0001,+0.0004] w/l 6/0 holm 1.0000 ns [ctl]
+xfer-guard-map+inner - xfer-guard-map correct8             rho0.5|H2000     ablation vs xfer-guard-map +0.0001 [-0.0000,+0.0002] w/l 6/0 holm 1.0000 ns [ctl]
+xfer-guard-map+inner - xfer-guard-map correct8             rho1|H100        ablation vs xfer-guard-map -0.0001 [-0.0007,+0.0004] w/l 2/4 holm 1.0000 ns [ctl]
+xfer-guard-map+inner - xfer-guard-map correct8             rho1|H250        ablation vs xfer-guard-map -0.0004 [-0.0013,+0.0005] w/l 2/5 holm 1.0000 ns [ctl]
+xfer-guard-map+inner - xfer-guard-map correct8             rho1|H500        ablation vs xfer-guard-map -0.0003 [-0.0006,+0.0000] w/l 2/6 holm 1.0000 ns [ctl]
+xfer-guard-map+inner - xfer-guard-map correct8             rho1|H1000       ablation vs xfer-guard-map -0.0002 [-0.0005,+0.0001] w/l 4/4 holm 1.0000 ns [ctl]
+xfer-guard-map+inner - xfer-guard-map correct8             rho1|H2000       ablation vs xfer-guard-map -0.0003 [-0.0006,+0.0000] w/l 3/5 holm 1.0000 ns [ctl]
+
+=================== A2 (held-out 31-60) ===================
+
+--- summary per (candidate, world): cells, mean diff vs best fair baseline, Holm(exp) WIN/LOSS, raw CI>0 / <0 ---
+fork-inherit               correct8/Specialist            n=4   mean +0.0004  WIN 0   LOSS 0   (raw+ 0   raw- 0  )
+fork-inherit               correct8/Unrelated       [ctl] n=4   mean -0.0166  WIN 0   LOSS 4   (raw+ 0   raw- 4  )
+fork-inherit               correct8/Upgrade               n=4   mean +0.0110  WIN 4   LOSS 0   (raw+ 4   raw- 0  )
+fork-inherit               traps8/Specialist              n=4   mean -0.0010  WIN 0   LOSS 0   (raw+ 0   raw- 0  )
+fork-inherit               traps8/Unrelated         [ctl] n=4   mean -0.0179  WIN 0   LOSS 2   (raw+ 0   raw- 4  )
+fork-inherit               traps8/Upgrade                 n=4   mean +0.0032  WIN 0   LOSS 0   (raw+ 0   raw- 0  )
+
+--- tests (cand vs best fair baseline; Holm over family) ---
+fork-inherit             traps8/Unrelated     post-add H100    accept   vs warm(hebr)     -0.0264 [-0.0406,-0.0123] w/l 8/22 holm 0.0102 LOSS [ctl]
+fork-inherit             traps8/Unrelated     post-add H250    accept   vs warm(hebr)     -0.0208 [-0.0326,-0.0091] w/l 9/21 holm 0.0163 LOSS [ctl]
+fork-inherit             traps8/Unrelated     post-add H500    accept   vs warm(hebr)     -0.0147 [-0.0242,-0.0051] w/l 6/24 holm 0.0526 raw- [ctl]
+fork-inherit             traps8/Unrelated     post-add H1000   accept   vs warm(hebr)     -0.0097 [-0.0174,-0.0020] w/l 9/21 holm 0.1986 raw- [ctl]
+fork-inherit             correct8/Upgrade     post-add H100    accept   vs guarded(hebr)  +0.0087 [+0.0059,+0.0114] w/l 24/3 holm 0.0000 WIN
+fork-inherit             correct8/Upgrade     post-add H250    accept   vs guarded(hebr)  +0.0102 [+0.0077,+0.0128] w/l 26/3 holm 0.0000 WIN
+fork-inherit             correct8/Upgrade     post-add H500    accept   vs guarded(hebr)  +0.0115 [+0.0088,+0.0143] w/l 28/2 holm 0.0000 WIN
+fork-inherit             correct8/Upgrade     post-add H1000   accept   vs guarded(hebr)  +0.0134 [+0.0104,+0.0165] w/l 27/3 holm 0.0000 WIN
+fork-inherit             correct8/Unrelated   post-add H100    accept   vs guarded(hebr)  -0.0247 [-0.0324,-0.0171] w/l 2/24 holm 0.0000 LOSS [ctl]
+fork-inherit             correct8/Unrelated   post-add H250    accept   vs keyword        -0.0187 [-0.0248,-0.0126] w/l 7/23 holm 0.0000 LOSS [ctl]
+fork-inherit             correct8/Unrelated   post-add H500    accept   vs keyword        -0.0140 [-0.0186,-0.0094] w/l 4/26 holm 0.0000 LOSS [ctl]
+fork-inherit             correct8/Unrelated   post-add H1000   accept   vs keyword        -0.0090 [-0.0119,-0.0061] w/l 3/27 holm 0.0000 LOSS [ctl]
+fork-inherit - fork-cold(kappa=0) traps8/Unrelated     post-add H100    ablation vs fork-cold(kappa=0) -0.0086 [-0.0125,-0.0047] w/l 2/19 holm 0.0032 LOSS [ctl]
+fork-inherit - fork-cold(kappa=0) traps8/Unrelated     post-add H250    ablation vs fork-cold(kappa=0) -0.0064 [-0.0095,-0.0032] w/l 3/20 holm 0.0070 LOSS [ctl]
+fork-inherit - fork-cold(kappa=0) traps8/Unrelated     post-add H500    ablation vs fork-cold(kappa=0) -0.0045 [-0.0071,-0.0018] w/l 6/19 holm 0.0456 LOSS [ctl]
+fork-inherit - fork-cold(kappa=0) traps8/Unrelated     post-add H1000   ablation vs fork-cold(kappa=0) -0.0025 [-0.0049,-0.0001] w/l 6/20 holm 0.5678 raw- [ctl]
+fork-inherit - fork-cold(kappa=0) correct8/Upgrade     post-add H100    ablation vs fork-cold(kappa=0) +0.0042 [+0.0025,+0.0059] w/l 20/2 holm 0.0006 WIN
+fork-inherit - fork-cold(kappa=0) correct8/Upgrade     post-add H250    ablation vs fork-cold(kappa=0) +0.0031 [+0.0016,+0.0045] w/l 20/4 holm 0.0036 WIN
+fork-inherit - fork-cold(kappa=0) correct8/Unrelated   post-add H100    ablation vs fork-cold(kappa=0) -0.0151 [-0.0203,-0.0100] w/l 1/21 holm 0.0001 LOSS [ctl]
+fork-inherit - fork-cold(kappa=0) correct8/Unrelated   post-add H250    ablation vs fork-cold(kappa=0) -0.0109 [-0.0146,-0.0072] w/l 0/23 holm 0.0001 LOSS [ctl]
+fork-inherit - fork-cold(kappa=0) correct8/Unrelated   post-add H500    ablation vs fork-cold(kappa=0) -0.0085 [-0.0114,-0.0055] w/l 2/23 holm 0.0001 LOSS [ctl]
+fork-inherit - fork-cold(kappa=0) correct8/Unrelated   post-add H1000   ablation vs fork-cold(kappa=0) -0.0055 [-0.0075,-0.0036] w/l 3/23 holm 0.0001 LOSS [ctl]
+fork-inherit - fork-wrong-sibling traps8/Upgrade       post-add H100    ablation vs fork-wrong-sibling +0.0233 [+0.0140,+0.0327] w/l 29/0 holm 0.0006 WIN
+fork-inherit - fork-wrong-sibling traps8/Upgrade       post-add H250    ablation vs fork-wrong-sibling +0.0200 [+0.0138,+0.0263] w/l 28/2 holm 0.0000 WIN
+fork-inherit - fork-wrong-sibling traps8/Upgrade       post-add H500    ablation vs fork-wrong-sibling +0.0190 [+0.0138,+0.0242] w/l 29/1 holm 0.0000 WIN
+fork-inherit - fork-wrong-sibling traps8/Upgrade       post-add H1000   ablation vs fork-wrong-sibling +0.0190 [+0.0144,+0.0237] w/l 29/1 holm 0.0000 WIN
+fork-inherit - fork-wrong-sibling traps8/Specialist    post-add H100    ablation vs fork-wrong-sibling +0.0171 [+0.0090,+0.0253] w/l 22/6 holm 0.0049 WIN
+fork-inherit - fork-wrong-sibling traps8/Specialist    post-add H250    ablation vs fork-wrong-sibling +0.0138 [+0.0073,+0.0203] w/l 24/5 holm 0.0045 WIN
+fork-inherit - fork-wrong-sibling traps8/Specialist    post-add H500    ablation vs fork-wrong-sibling +0.0109 [+0.0056,+0.0163] w/l 24/6 holm 0.0070 WIN
+fork-inherit - fork-wrong-sibling traps8/Unrelated     post-add H100    ablation vs fork-wrong-sibling +0.0182 [+0.0059,+0.0305] w/l 21/9 holm 0.1008 raw+ [ctl]
+fork-inherit - fork-wrong-sibling traps8/Unrelated     post-add H250    ablation vs fork-wrong-sibling +0.0151 [+0.0057,+0.0245] w/l 24/6 holm 0.0636 raw+ [ctl]
+fork-inherit - fork-wrong-sibling traps8/Unrelated     post-add H500    ablation vs fork-wrong-sibling +0.0107 [+0.0041,+0.0173] w/l 24/6 holm 0.0576 raw+ [ctl]
+fork-inherit - fork-wrong-sibling traps8/Unrelated     post-add H1000   ablation vs fork-wrong-sibling +0.0068 [+0.0009,+0.0127] w/l 22/8 holm 0.4005 raw+ [ctl]
+fork-inherit - fork-wrong-sibling correct8/Upgrade     post-add H100    ablation vs fork-wrong-sibling +0.0367 [+0.0281,+0.0453] w/l 30/0 holm 0.0000 WIN
+fork-inherit - fork-wrong-sibling correct8/Upgrade     post-add H250    ablation vs fork-wrong-sibling +0.0307 [+0.0251,+0.0364] w/l 30/0 holm 0.0000 WIN
+fork-inherit - fork-wrong-sibling correct8/Upgrade     post-add H500    ablation vs fork-wrong-sibling +0.0262 [+0.0220,+0.0303] w/l 30/0 holm 0.0000 WIN
+fork-inherit - fork-wrong-sibling correct8/Upgrade     post-add H1000   ablation vs fork-wrong-sibling +0.0233 [+0.0198,+0.0268] w/l 30/0 holm 0.0000 WIN
+fork-inherit - fork-wrong-sibling correct8/Specialist  post-add H100    ablation vs fork-wrong-sibling +0.0221 [+0.0129,+0.0314] w/l 25/4 holm 0.0010 WIN
+fork-inherit - fork-wrong-sibling correct8/Specialist  post-add H250    ablation vs fork-wrong-sibling +0.0164 [+0.0102,+0.0226] w/l 25/5 holm 0.0003 WIN
+fork-inherit - fork-wrong-sibling correct8/Specialist  post-add H500    ablation vs fork-wrong-sibling +0.0118 [+0.0072,+0.0164] w/l 25/5 holm 0.0005 WIN
+fork-inherit - fork-wrong-sibling correct8/Specialist  post-add H1000   ablation vs fork-wrong-sibling +0.0083 [+0.0052,+0.0114] w/l 25/5 holm 0.0003 WIN
+fork-inherit - fork-wrong-sibling correct8/Unrelated   post-add H100    ablation vs fork-wrong-sibling +0.0075 [-0.0081,+0.0232] w/l 15/15 holm 1.0000 ns [ctl]
+fork-inherit - fork-wrong-sibling correct8/Unrelated   post-add H250    ablation vs fork-wrong-sibling +0.0041 [-0.0065,+0.0147] w/l 18/12 holm 1.0000 ns [ctl]
+fork-inherit - fork-wrong-sibling correct8/Unrelated   post-add H500    ablation vs fork-wrong-sibling +0.0032 [-0.0050,+0.0113] w/l 19/11 holm 1.0000 ns [ctl]
+fork-inherit - fork-wrong-sibling correct8/Unrelated   post-add H1000   ablation vs fork-wrong-sibling +0.0027 [-0.0027,+0.0081] w/l 17/13 holm 1.0000 ns [ctl]
+
+=================== B (held-out 31-60) ===================
+
+--- summary per (candidate, world): cells, mean diff vs best fair baseline, Holm(exp) WIN/LOSS, raw CI>0 / <0 ---
+coverage-order             correct8                 [ctl] n=3   mean -0.0024  WIN 0   LOSS 2   (raw+ 0   raw- 3  )
+coverage-order             flat8                    [ctl] n=3   mean +0.0000  WIN 0   LOSS 0   (raw+ 0   raw- 0  )
+coverage-order             many16                         n=3   mean +0.0019  WIN 0   LOSS 0   (raw+ 0   raw- 0  )
+coverage-order             traps8                         n=3   mean +0.0010  WIN 0   LOSS 0   (raw+ 0   raw- 0  )
+coverage-order             zipf-traps8                    n=3   mean -0.0037  WIN 0   LOSS 0   (raw+ 0   raw- 0  )
+
+--- tests (cand vs best fair baseline; Holm over family) ---
+coverage-order           correct8             pool150          accept   vs keyword        -0.0027 [-0.0048,-0.0006] w/l 9/18 holm 0.1893 raw- [ctl]
+coverage-order           correct8             pool300          accept   vs keyword        -0.0029 [-0.0043,-0.0015] w/l 5/24 holm 0.0037 LOSS [ctl]
+coverage-order           correct8             pool600          accept   vs keyword        -0.0016 [-0.0026,-0.0006] w/l 6/24 holm 0.0352 LOSS [ctl]
+coverage-order           flat8                pool150          accept   vs guarded(hebr)  +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+coverage-order           flat8                pool300          accept   vs guarded(hebr)  +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+coverage-order           flat8                pool600          accept   vs guarded(hebr)  +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+coverage-order - fifo(same learner) correct8             pool150          ablation vs fifo(same learner) +0.0002 [-0.0012,+0.0016] w/l 9/8 holm 1.0000 ns [ctl]
+coverage-order - fifo(same learner) correct8             pool300          ablation vs fifo(same learner) -0.0003 [-0.0015,+0.0009] w/l 7/18 holm 1.0000 ns [ctl]
+coverage-order - fifo(same learner) correct8             pool600          ablation vs fifo(same learner) +0.0000 [-0.0007,+0.0008] w/l 15/13 holm 1.0000 ns [ctl]
+coverage-order - fifo(same learner) flat8                pool150          ablation vs fifo(same learner) +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+coverage-order - fifo(same learner) flat8                pool300          ablation vs fifo(same learner) +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+coverage-order - fifo(same learner) flat8                pool600          ablation vs fifo(same learner) +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+coverage-order - anti-coverage(control) correct8             pool150          ablation vs anti-coverage(control) +0.0011 [-0.0019,+0.0041] w/l 11/8 holm 1.0000 ns [ctl]
+coverage-order - anti-coverage(control) correct8             pool300          ablation vs anti-coverage(control) +0.0009 [-0.0015,+0.0034] w/l 15/12 holm 1.0000 ns [ctl]
+coverage-order - anti-coverage(control) correct8             pool600          ablation vs anti-coverage(control) +0.0018 [+0.0003,+0.0032] w/l 19/11 holm 0.5612 raw+ [ctl]
+coverage-order - anti-coverage(control) flat8                pool150          ablation vs anti-coverage(control) +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+coverage-order - anti-coverage(control) flat8                pool300          ablation vs anti-coverage(control) +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+coverage-order - anti-coverage(control) flat8                pool600          ablation vs anti-coverage(control) +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+
+=================== C (held-out 31-60) ===================
+
+--- summary per (candidate, world): cells, mean diff vs best fair baseline, Holm(exp) WIN/LOSS, raw CI>0 / <0 ---
+decoupled-separate         correct8/S1-single(ctl)  [ctl] n=5   mean -0.0037  WIN 0   LOSS 2   (raw+ 0   raw- 3  )
+decoupled-separate         correct8/S1-tenants4     [ctl] n=5   mean -0.0026  WIN 0   LOSS 2   (raw+ 0   raw- 3  )
+decoupled-separate         correct8/S2-noswitch(ctl) [ctl] n=4   mean -0.0045  WIN 0   LOSS 2   (raw+ 0   raw- 4  )
+decoupled-separate         correct8/S2-switch       [ctl] n=4   mean -0.0120  WIN 0   LOSS 4   (raw+ 0   raw- 4  )
+decoupled-separate         correct8/S3-new-tenant   [ctl] n=3   mean -0.0041  WIN 0   LOSS 0   (raw+ 0   raw- 1  )
+decoupled-separate         many16/S1-single(ctl)    [ctl] n=5   mean +0.0051  WIN 0   LOSS 0   (raw+ 1   raw- 0  )
+decoupled-separate         many16/S1-tenants4             n=5   mean +0.0093  WIN 3   LOSS 0   (raw+ 4   raw- 0  )
+decoupled-separate         many16/S2-noswitch(ctl)  [ctl] n=4   mean +0.0002  WIN 0   LOSS 0   (raw+ 0   raw- 0  )
+decoupled-separate         many16/S2-switch               n=4   mean +0.0014  WIN 0   LOSS 0   (raw+ 1   raw- 0  )
+decoupled-separate         many16/S3-new-tenant           n=3   mean +0.0108  WIN 0   LOSS 0   (raw+ 2   raw- 0  )
+decoupled-separate         traps8/S1-single(ctl)    [ctl] n=5   mean -0.0080  WIN 0   LOSS 0   (raw+ 0   raw- 3  )
+decoupled-separate         traps8/S1-tenants4             n=5   mean +0.0047  WIN 1   LOSS 0   (raw+ 2   raw- 0  )
+decoupled-separate         traps8/S2-noswitch(ctl)  [ctl] n=4   mean -0.0116  WIN 0   LOSS 0   (raw+ 0   raw- 1  )
+decoupled-separate         traps8/S2-switch               n=4   mean +0.0012  WIN 0   LOSS 0   (raw+ 2   raw- 1  )
+decoupled-separate         traps8/S3-new-tenant           n=3   mean +0.0185  WIN 3   LOSS 0   (raw+ 3   raw- 0  )
+decoupled-shared           correct8/S1-single(ctl)  [ctl] n=5   mean -0.0037  WIN 0   LOSS 2   (raw+ 0   raw- 3  )
+decoupled-shared           correct8/S1-tenants4     [ctl] n=5   mean -0.0049  WIN 0   LOSS 2   (raw+ 0   raw- 4  )
+decoupled-shared           correct8/S2-noswitch(ctl) [ctl] n=4   mean -0.0045  WIN 0   LOSS 2   (raw+ 0   raw- 4  )
+decoupled-shared           correct8/S2-switch       [ctl] n=4   mean -0.0120  WIN 0   LOSS 4   (raw+ 0   raw- 4  )
+decoupled-shared           correct8/S3-new-tenant   [ctl] n=3   mean -0.0093  WIN 0   LOSS 1   (raw+ 0   raw- 3  )
+decoupled-shared           many16/S1-single(ctl)    [ctl] n=5   mean +0.0051  WIN 0   LOSS 0   (raw+ 1   raw- 0  )
+decoupled-shared           many16/S1-tenants4             n=5   mean +0.0284  WIN 4   LOSS 0   (raw+ 4   raw- 0  )
+decoupled-shared           many16/S2-noswitch(ctl)  [ctl] n=4   mean +0.0002  WIN 0   LOSS 0   (raw+ 0   raw- 0  )
+decoupled-shared           many16/S2-switch               n=4   mean +0.0014  WIN 0   LOSS 0   (raw+ 1   raw- 0  )
+decoupled-shared           many16/S3-new-tenant           n=3   mean +0.0780  WIN 3   LOSS 0   (raw+ 3   raw- 0  )
+decoupled-shared           traps8/S1-single(ctl)    [ctl] n=5   mean -0.0080  WIN 0   LOSS 0   (raw+ 0   raw- 3  )
+decoupled-shared           traps8/S1-tenants4             n=5   mean +0.0374  WIN 5   LOSS 0   (raw+ 5   raw- 0  )
+decoupled-shared           traps8/S2-noswitch(ctl)  [ctl] n=4   mean -0.0116  WIN 0   LOSS 0   (raw+ 0   raw- 1  )
+decoupled-shared           traps8/S2-switch               n=4   mean +0.0012  WIN 0   LOSS 0   (raw+ 2   raw- 1  )
+decoupled-shared           traps8/S3-new-tenant           n=3   mean +0.1023  WIN 3   LOSS 0   (raw+ 3   raw- 0  )
+
+--- tests (cand vs best fair baseline; Holm over family) ---
+decoupled-shared         traps8/S1-tenants4   util H100        accept   vs scalarized:guarded(hebr) +0.0192 [+0.0107,+0.0278] w/l 22/8 holm 0.0071 WIN
+decoupled-separate       traps8/S1-tenants4   util H250        accept   vs scalarized:guarded(hebr) +0.0104 [+0.0049,+0.0158] w/l 22/8 holm 0.0434 WIN
+decoupled-shared         traps8/S1-tenants4   util H250        accept   vs scalarized:guarded(hebr) +0.0413 [+0.0289,+0.0537] w/l 28/2 holm 0.0000 WIN
+decoupled-shared         traps8/S1-tenants4   util H500        accept   vs scalarized:guarded(hebr) +0.0488 [+0.0371,+0.0604] w/l 28/2 holm 0.0000 WIN
+decoupled-shared         traps8/S1-tenants4   util H1000       accept   vs scalarized:guarded(hebr) +0.0439 [+0.0347,+0.0530] w/l 30/0 holm 0.0000 WIN
+decoupled-shared         traps8/S1-tenants4   util H2000       accept   vs scalarized:guarded(hebr) +0.0340 [+0.0264,+0.0417] w/l 28/2 holm 0.0000 WIN
+decoupled-separate       traps8/S1-single(ctl) util H100        accept   vs scalarized:guarded(hebr) +0.0032 [-0.0029,+0.0093] w/l 16/14 holm 1.0000 ns [ctl]
+decoupled-shared         traps8/S1-single(ctl) util H100        accept   vs scalarized:guarded(hebr) +0.0032 [-0.0029,+0.0093] w/l 16/14 holm 1.0000 ns [ctl]
+decoupled-separate       traps8/S1-single(ctl) util H250        accept   vs scalarized:guarded(hebr) -0.0067 [-0.0152,+0.0018] w/l 11/19 holm 1.0000 ns [ctl]
+decoupled-shared         traps8/S1-single(ctl) util H250        accept   vs scalarized:guarded(hebr) -0.0067 [-0.0152,+0.0018] w/l 11/19 holm 1.0000 ns [ctl]
+decoupled-separate       traps8/S1-single(ctl) util H500        accept   vs scalarized:guarded(hebr) -0.0117 [-0.0207,-0.0027] w/l 8/22 holm 0.8450 raw- [ctl]
+decoupled-shared         traps8/S1-single(ctl) util H500        accept   vs scalarized:guarded(hebr) -0.0117 [-0.0207,-0.0027] w/l 8/22 holm 0.8450 raw- [ctl]
+decoupled-separate       traps8/S1-single(ctl) util H1000       accept   vs scalarized:warm(hebr) -0.0130 [-0.0221,-0.0038] w/l 10/20 holm 0.5078 raw- [ctl]
+decoupled-shared         traps8/S1-single(ctl) util H1000       accept   vs scalarized:warm(hebr) -0.0130 [-0.0221,-0.0038] w/l 10/20 holm 0.5078 raw- [ctl]
+decoupled-separate       traps8/S1-single(ctl) util H2000       accept   vs scalarized:guarded(hebr) -0.0119 [-0.0222,-0.0017] w/l 13/17 holm 1.0000 raw- [ctl]
+decoupled-shared         traps8/S1-single(ctl) util H2000       accept   vs scalarized:guarded(hebr) -0.0119 [-0.0222,-0.0017] w/l 13/17 holm 1.0000 raw- [ctl]
+decoupled-separate       traps8/S2-noswitch(ctl) post-switch H100 accept   vs scalarized:hebbian-robust -0.0152 [-0.0292,-0.0012] w/l 13/17 holm 1.0000 raw- [ctl]
+decoupled-shared         traps8/S2-noswitch(ctl) post-switch H100 accept   vs scalarized:hebbian-robust -0.0152 [-0.0292,-0.0012] w/l 13/17 holm 1.0000 raw- [ctl]
+decoupled-separate       traps8/S2-noswitch(ctl) post-switch H250 accept   vs scalarized:hebbian-robust -0.0108 [-0.0237,+0.0022] w/l 13/17 holm 1.0000 ns [ctl]
+decoupled-shared         traps8/S2-noswitch(ctl) post-switch H250 accept   vs scalarized:hebbian-robust -0.0108 [-0.0237,+0.0022] w/l 13/17 holm 1.0000 ns [ctl]
+decoupled-separate       traps8/S2-noswitch(ctl) post-switch H500 accept   vs scalarized:hebbian-robust -0.0104 [-0.0228,+0.0019] w/l 13/17 holm 1.0000 ns [ctl]
+decoupled-shared         traps8/S2-noswitch(ctl) post-switch H500 accept   vs scalarized:hebbian-robust -0.0104 [-0.0228,+0.0019] w/l 13/17 holm 1.0000 ns [ctl]
+decoupled-separate       traps8/S2-noswitch(ctl) post-switch H1000 accept   vs scalarized:hebbian-robust -0.0102 [-0.0214,+0.0011] w/l 15/15 holm 1.0000 ns [ctl]
+decoupled-shared         traps8/S2-noswitch(ctl) post-switch H1000 accept   vs scalarized:hebbian-robust -0.0102 [-0.0214,+0.0011] w/l 15/15 holm 1.0000 ns [ctl]
+decoupled-separate       traps8/S3-new-tenant new-tenant H50   accept   vs scalarized:guarded(hebr) +0.0182 [+0.0100,+0.0265] w/l 23/7 holm 0.0085 WIN
+decoupled-shared         traps8/S3-new-tenant new-tenant H50   accept   vs scalarized:guarded(hebr) +0.1107 [+0.0889,+0.1325] w/l 30/0 holm 0.0000 WIN
+decoupled-separate       traps8/S3-new-tenant new-tenant H100  accept   vs scalarized:guarded(hebr) +0.0183 [+0.0096,+0.0270] w/l 23/7 holm 0.0164 WIN
+decoupled-shared         traps8/S3-new-tenant new-tenant H100  accept   vs scalarized:guarded(hebr) +0.1036 [+0.0881,+0.1191] w/l 30/0 holm 0.0000 WIN
+decoupled-separate       traps8/S3-new-tenant new-tenant H250  accept   vs scalarized:guarded(hebr) +0.0190 [+0.0098,+0.0281] w/l 22/8 holm 0.0179 WIN
+decoupled-shared         traps8/S3-new-tenant new-tenant H250  accept   vs scalarized:guarded(hebr) +0.0926 [+0.0786,+0.1066] w/l 30/0 holm 0.0000 WIN
+decoupled-shared         many16/S1-tenants4   util H250        accept   vs scalarized:guarded(hebr) +0.0207 [+0.0144,+0.0271] w/l 25/5 holm 0.0000 WIN
+decoupled-separate       many16/S1-tenants4   util H500        accept   vs scalarized:guarded(hebr) +0.0110 [+0.0058,+0.0162] w/l 26/4 holm 0.0134 WIN
+decoupled-shared         many16/S1-tenants4   util H500        accept   vs scalarized:guarded(hebr) +0.0339 [+0.0264,+0.0414] w/l 28/2 holm 0.0000 WIN
+decoupled-separate       many16/S1-tenants4   util H1000       accept   vs scalarized:guarded(hebr) +0.0128 [+0.0082,+0.0175] w/l 27/3 holm 0.0004 WIN
+decoupled-shared         many16/S1-tenants4   util H1000       accept   vs scalarized:guarded(hebr) +0.0408 [+0.0335,+0.0481] w/l 28/2 holm 0.0000 WIN
+decoupled-separate       many16/S1-tenants4   util H2000       accept   vs scalarized:guarded(hebr) +0.0110 [+0.0068,+0.0152] w/l 26/4 holm 0.0008 WIN
+decoupled-shared         many16/S1-tenants4   util H2000       accept   vs scalarized:guarded(hebr) +0.0403 [+0.0342,+0.0464] w/l 29/1 holm 0.0000 WIN
+decoupled-separate       many16/S1-single(ctl) util H100        accept   vs scalarized:guarded(hebr) +0.0063 [-0.0001,+0.0126] w/l 20/10 holm 1.0000 ns [ctl]
+decoupled-shared         many16/S1-single(ctl) util H100        accept   vs scalarized:guarded(hebr) +0.0063 [-0.0001,+0.0126] w/l 20/10 holm 1.0000 ns [ctl]
+decoupled-separate       many16/S1-single(ctl) util H250        accept   vs scalarized:guarded(hebr) +0.0087 [+0.0029,+0.0144] w/l 22/8 holm 0.3445 raw+ [ctl]
+decoupled-shared         many16/S1-single(ctl) util H250        accept   vs scalarized:guarded(hebr) +0.0087 [+0.0029,+0.0144] w/l 22/8 holm 0.3445 raw+ [ctl]
+decoupled-separate       many16/S1-single(ctl) util H500        accept   vs scalarized:guarded(hebr) +0.0050 [-0.0007,+0.0107] w/l 20/10 holm 1.0000 ns [ctl]
+decoupled-shared         many16/S1-single(ctl) util H500        accept   vs scalarized:guarded(hebr) +0.0050 [-0.0007,+0.0107] w/l 20/10 holm 1.0000 ns [ctl]
+decoupled-separate       many16/S1-single(ctl) util H1000       accept   vs scalarized:guarded(hebr) +0.0034 [-0.0018,+0.0086] w/l 19/11 holm 1.0000 ns [ctl]
+decoupled-shared         many16/S1-single(ctl) util H1000       accept   vs scalarized:guarded(hebr) +0.0034 [-0.0018,+0.0086] w/l 19/11 holm 1.0000 ns [ctl]
+decoupled-separate       many16/S1-single(ctl) util H2000       accept   vs scalarized:guarded(hebr) +0.0022 [-0.0025,+0.0069] w/l 21/9 holm 1.0000 ns [ctl]
+decoupled-shared         many16/S1-single(ctl) util H2000       accept   vs scalarized:guarded(hebr) +0.0022 [-0.0025,+0.0069] w/l 21/9 holm 1.0000 ns [ctl]
+decoupled-separate       many16/S2-noswitch(ctl) post-switch H100 accept   vs scalarized:guarded(hebr) -0.0028 [-0.0113,+0.0056] w/l 13/17 holm 1.0000 ns [ctl]
+decoupled-shared         many16/S2-noswitch(ctl) post-switch H100 accept   vs scalarized:guarded(hebr) -0.0028 [-0.0113,+0.0056] w/l 13/17 holm 1.0000 ns [ctl]
+decoupled-separate       many16/S2-noswitch(ctl) post-switch H250 accept   vs scalarized:guarded(hebr) +0.0004 [-0.0065,+0.0073] w/l 16/14 holm 1.0000 ns [ctl]
+decoupled-shared         many16/S2-noswitch(ctl) post-switch H250 accept   vs scalarized:guarded(hebr) +0.0004 [-0.0065,+0.0073] w/l 16/14 holm 1.0000 ns [ctl]
+decoupled-separate       many16/S2-noswitch(ctl) post-switch H500 accept   vs scalarized:guarded(hebr) +0.0012 [-0.0061,+0.0086] w/l 19/11 holm 1.0000 ns [ctl]
+decoupled-shared         many16/S2-noswitch(ctl) post-switch H500 accept   vs scalarized:guarded(hebr) +0.0012 [-0.0061,+0.0086] w/l 19/11 holm 1.0000 ns [ctl]
+decoupled-separate       many16/S2-noswitch(ctl) post-switch H1000 accept   vs scalarized:guarded(hebr) +0.0022 [-0.0037,+0.0081] w/l 21/9 holm 1.0000 ns [ctl]
+decoupled-shared         many16/S2-noswitch(ctl) post-switch H1000 accept   vs scalarized:guarded(hebr) +0.0022 [-0.0037,+0.0081] w/l 21/9 holm 1.0000 ns [ctl]
+decoupled-shared         many16/S3-new-tenant new-tenant H50   accept   vs scalarized:guarded(hebr) +0.0780 [+0.0617,+0.0943] w/l 29/1 holm 0.0000 WIN
+decoupled-shared         many16/S3-new-tenant new-tenant H100  accept   vs scalarized:guarded(hebr) +0.0818 [+0.0685,+0.0952] w/l 30/0 holm 0.0000 WIN
+decoupled-shared         many16/S3-new-tenant new-tenant H250  accept   vs scalarized:guarded(hebr) +0.0741 [+0.0635,+0.0848] w/l 30/0 holm 0.0000 WIN
+decoupled-separate       correct8/S1-tenants4 util H100        accept   vs scalarized:keyword -0.0002 [-0.0048,+0.0044] w/l 13/17 holm 1.0000 ns [ctl]
+decoupled-shared         correct8/S1-tenants4 util H100        accept   vs scalarized:keyword -0.0033 [-0.0090,+0.0023] w/l 12/18 holm 1.0000 ns [ctl]
+decoupled-separate       correct8/S1-tenants4 util H250        accept   vs scalarized:keyword -0.0015 [-0.0049,+0.0018] w/l 12/18 holm 1.0000 ns [ctl]
+decoupled-shared         correct8/S1-tenants4 util H250        accept   vs scalarized:keyword -0.0042 [-0.0081,-0.0002] w/l 9/21 holm 1.0000 raw- [ctl]
+decoupled-separate       correct8/S1-tenants4 util H500        accept   vs scalarized:keyword -0.0033 [-0.0064,-0.0001] w/l 13/17 holm 1.0000 raw- [ctl]
+decoupled-shared         correct8/S1-tenants4 util H500        accept   vs scalarized:keyword -0.0046 [-0.0072,-0.0020] w/l 10/20 holm 0.0993 raw- [ctl]
+decoupled-separate       correct8/S1-tenants4 util H1000       accept   vs scalarized:keyword -0.0040 [-0.0059,-0.0021] w/l 8/22 holm 0.0188 LOSS [ctl]
+decoupled-shared         correct8/S1-tenants4 util H1000       accept   vs scalarized:keyword -0.0060 [-0.0079,-0.0040] w/l 3/27 holm 0.0001 LOSS [ctl]
+decoupled-separate       correct8/S1-tenants4 util H2000       accept   vs scalarized:keyword -0.0039 [-0.0053,-0.0026] w/l 4/26 holm 0.0002 LOSS [ctl]
+decoupled-shared         correct8/S1-tenants4 util H2000       accept   vs scalarized:keyword -0.0065 [-0.0076,-0.0054] w/l 0/30 holm 0.0000 LOSS [ctl]
+decoupled-separate       correct8/S1-single(ctl) util H100        accept   vs scalarized:keyword -0.0026 [-0.0077,+0.0024] w/l 12/18 holm 1.0000 ns [ctl]
+decoupled-shared         correct8/S1-single(ctl) util H100        accept   vs scalarized:keyword -0.0026 [-0.0077,+0.0024] w/l 12/18 holm 1.0000 ns [ctl]
+decoupled-separate       correct8/S1-single(ctl) util H250        accept   vs scalarized:keyword -0.0031 [-0.0069,+0.0008] w/l 12/18 holm 1.0000 ns [ctl]
+decoupled-shared         correct8/S1-single(ctl) util H250        accept   vs scalarized:keyword -0.0031 [-0.0069,+0.0008] w/l 12/18 holm 1.0000 ns [ctl]
+decoupled-separate       correct8/S1-single(ctl) util H500        accept   vs scalarized:keyword -0.0032 [-0.0056,-0.0008] w/l 10/20 holm 0.7835 raw- [ctl]
+decoupled-shared         correct8/S1-single(ctl) util H500        accept   vs scalarized:keyword -0.0032 [-0.0056,-0.0008] w/l 10/20 holm 0.7835 raw- [ctl]
+decoupled-separate       correct8/S1-single(ctl) util H1000       accept   vs scalarized:keyword -0.0046 [-0.0062,-0.0030] w/l 3/27 holm 0.0002 LOSS [ctl]
+decoupled-shared         correct8/S1-single(ctl) util H1000       accept   vs scalarized:keyword -0.0046 [-0.0062,-0.0030] w/l 3/27 holm 0.0002 LOSS [ctl]
+decoupled-separate       correct8/S1-single(ctl) util H2000       accept   vs scalarized:keyword -0.0051 [-0.0059,-0.0043] w/l 0/30 holm 0.0000 LOSS [ctl]
+decoupled-shared         correct8/S1-single(ctl) util H2000       accept   vs scalarized:keyword -0.0051 [-0.0059,-0.0043] w/l 0/30 holm 0.0000 LOSS [ctl]
+decoupled-separate       correct8/S2-switch   post-switch H100 accept   vs scalarized:keyword -0.0154 [-0.0219,-0.0089] w/l 6/24 holm 0.0034 LOSS [ctl]
+decoupled-shared         correct8/S2-switch   post-switch H100 accept   vs scalarized:keyword -0.0154 [-0.0219,-0.0089] w/l 6/24 holm 0.0034 LOSS [ctl]
+decoupled-separate       correct8/S2-switch   post-switch H250 accept   vs scalarized:guarded(hebr) -0.0117 [-0.0165,-0.0068] w/l 6/24 holm 0.0032 LOSS [ctl]
+decoupled-shared         correct8/S2-switch   post-switch H250 accept   vs scalarized:guarded(hebr) -0.0117 [-0.0165,-0.0068] w/l 6/24 holm 0.0032 LOSS [ctl]
+decoupled-separate       correct8/S2-switch   post-switch H500 accept   vs scalarized:guarded(hebr) -0.0113 [-0.0150,-0.0076] w/l 3/27 holm 0.0001 LOSS [ctl]
+decoupled-shared         correct8/S2-switch   post-switch H500 accept   vs scalarized:guarded(hebr) -0.0113 [-0.0150,-0.0076] w/l 3/27 holm 0.0001 LOSS [ctl]
+decoupled-separate       correct8/S2-switch   post-switch H1000 accept   vs scalarized:guarded(hebr) -0.0095 [-0.0125,-0.0065] w/l 4/26 holm 0.0000 LOSS [ctl]
+decoupled-shared         correct8/S2-switch   post-switch H1000 accept   vs scalarized:guarded(hebr) -0.0095 [-0.0125,-0.0065] w/l 4/26 holm 0.0000 LOSS [ctl]
+decoupled-separate       correct8/S2-noswitch(ctl) post-switch H100 accept   vs scalarized:keyword -0.0039 [-0.0077,-0.0001] w/l 12/18 holm 1.0000 raw- [ctl]
+decoupled-shared         correct8/S2-noswitch(ctl) post-switch H100 accept   vs scalarized:keyword -0.0039 [-0.0077,-0.0001] w/l 12/18 holm 1.0000 raw- [ctl]
+decoupled-separate       correct8/S2-noswitch(ctl) post-switch H250 accept   vs scalarized:guarded(hebr) -0.0033 [-0.0061,-0.0005] w/l 7/23 holm 1.0000 raw- [ctl]
+decoupled-shared         correct8/S2-noswitch(ctl) post-switch H250 accept   vs scalarized:guarded(hebr) -0.0033 [-0.0061,-0.0005] w/l 7/23 holm 1.0000 raw- [ctl]
+decoupled-separate       correct8/S2-noswitch(ctl) post-switch H500 accept   vs scalarized:guarded(hebr) -0.0055 [-0.0074,-0.0035] w/l 5/25 holm 0.0003 LOSS [ctl]
+decoupled-shared         correct8/S2-noswitch(ctl) post-switch H500 accept   vs scalarized:guarded(hebr) -0.0055 [-0.0074,-0.0035] w/l 5/25 holm 0.0003 LOSS [ctl]
+decoupled-separate       correct8/S2-noswitch(ctl) post-switch H1000 accept   vs scalarized:guarded(hebr) -0.0054 [-0.0071,-0.0037] w/l 3/27 holm 0.0000 LOSS [ctl]
+decoupled-shared         correct8/S2-noswitch(ctl) post-switch H1000 accept   vs scalarized:guarded(hebr) -0.0054 [-0.0071,-0.0037] w/l 3/27 holm 0.0000 LOSS [ctl]
+decoupled-separate       correct8/S3-new-tenant new-tenant H50   accept   vs scalarized:keyword +0.0001 [-0.0078,+0.0081] w/l 13/16 holm 1.0000 ns [ctl]
+decoupled-shared         correct8/S3-new-tenant new-tenant H50   accept   vs scalarized:keyword -0.0107 [-0.0199,-0.0016] w/l 12/18 holm 1.0000 raw- [ctl]
+decoupled-separate       correct8/S3-new-tenant new-tenant H100  accept   vs scalarized:keyword -0.0054 [-0.0116,+0.0008] w/l 10/20 holm 1.0000 ns [ctl]
+decoupled-shared         correct8/S3-new-tenant new-tenant H100  accept   vs scalarized:keyword -0.0088 [-0.0143,-0.0033] w/l 8/22 holm 0.2331 raw- [ctl]
+decoupled-separate       correct8/S3-new-tenant new-tenant H250  accept   vs scalarized:keyword -0.0069 [-0.0129,-0.0008] w/l 9/21 holm 1.0000 raw- [ctl]
+decoupled-shared         correct8/S3-new-tenant new-tenant H250  accept   vs scalarized:keyword -0.0085 [-0.0129,-0.0040] w/l 10/20 holm 0.0461 LOSS [ctl]
+decoupled-shared - decoupled-separate traps8/S1-tenants4   util H100        ablation vs decoupled-separate +0.0140 [+0.0084,+0.0196] w/l 26/4 holm 0.0009 WIN
+decoupled-shared - decoupled-separate traps8/S1-tenants4   util H250        ablation vs decoupled-separate +0.0309 [+0.0224,+0.0394] w/l 30/0 holm 0.0000 WIN
+decoupled-shared - decoupled-separate traps8/S1-tenants4   util H500        ablation vs decoupled-separate +0.0411 [+0.0324,+0.0498] w/l 29/1 holm 0.0000 WIN
+decoupled-shared - decoupled-separate traps8/S1-tenants4   util H1000       ablation vs decoupled-separate +0.0428 [+0.0350,+0.0506] w/l 29/1 holm 0.0000 WIN
+decoupled-shared - decoupled-separate traps8/S1-tenants4   util H2000       ablation vs decoupled-separate +0.0350 [+0.0293,+0.0408] w/l 30/0 holm 0.0000 WIN
+decoupled-shared - decoupled-separate traps8/S1-single(ctl) util H100        ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate traps8/S1-single(ctl) util H250        ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate traps8/S1-single(ctl) util H500        ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate traps8/S1-single(ctl) util H1000       ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate traps8/S1-single(ctl) util H2000       ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate traps8/S2-noswitch(ctl) post-switch H100 ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate traps8/S2-noswitch(ctl) post-switch H250 ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate traps8/S2-noswitch(ctl) post-switch H500 ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate traps8/S2-noswitch(ctl) post-switch H1000 ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate traps8/S3-new-tenant new-tenant H50   ablation vs decoupled-separate +0.0924 [+0.0729,+0.1120] w/l 30/0 holm 0.0000 WIN
+decoupled-shared - decoupled-separate traps8/S3-new-tenant new-tenant H100  ablation vs decoupled-separate +0.0853 [+0.0710,+0.0996] w/l 29/1 holm 0.0000 WIN
+decoupled-shared - decoupled-separate traps8/S3-new-tenant new-tenant H250  ablation vs decoupled-separate +0.0736 [+0.0607,+0.0865] w/l 30/0 holm 0.0000 WIN
+decoupled-shared - decoupled-separate many16/S1-tenants4   util H250        ablation vs decoupled-separate +0.0127 [+0.0072,+0.0182] w/l 24/6 holm 0.0026 WIN
+decoupled-shared - decoupled-separate many16/S1-tenants4   util H500        ablation vs decoupled-separate +0.0229 [+0.0177,+0.0280] w/l 29/1 holm 0.0000 WIN
+decoupled-shared - decoupled-separate many16/S1-tenants4   util H1000       ablation vs decoupled-separate +0.0280 [+0.0231,+0.0328] w/l 30/0 holm 0.0000 WIN
+decoupled-shared - decoupled-separate many16/S1-tenants4   util H2000       ablation vs decoupled-separate +0.0293 [+0.0251,+0.0336] w/l 30/0 holm 0.0000 WIN
+decoupled-shared - decoupled-separate many16/S1-single(ctl) util H100        ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate many16/S1-single(ctl) util H250        ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate many16/S1-single(ctl) util H500        ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate many16/S1-single(ctl) util H1000       ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate many16/S1-single(ctl) util H2000       ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate many16/S2-noswitch(ctl) post-switch H100 ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate many16/S2-noswitch(ctl) post-switch H250 ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate many16/S2-noswitch(ctl) post-switch H500 ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate many16/S2-noswitch(ctl) post-switch H1000 ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate many16/S3-new-tenant new-tenant H50   ablation vs decoupled-separate +0.0697 [+0.0537,+0.0857] w/l 29/1 holm 0.0000 WIN
+decoupled-shared - decoupled-separate many16/S3-new-tenant new-tenant H100  ablation vs decoupled-separate +0.0706 [+0.0582,+0.0831] w/l 29/1 holm 0.0000 WIN
+decoupled-shared - decoupled-separate many16/S3-new-tenant new-tenant H250  ablation vs decoupled-separate +0.0613 [+0.0500,+0.0727] w/l 29/1 holm 0.0000 WIN
+decoupled-shared - decoupled-separate correct8/S1-tenants4 util H100        ablation vs decoupled-separate -0.0031 [-0.0070,+0.0007] w/l 11/18 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate correct8/S1-tenants4 util H250        ablation vs decoupled-separate -0.0026 [-0.0055,+0.0003] w/l 10/20 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate correct8/S1-tenants4 util H500        ablation vs decoupled-separate -0.0013 [-0.0033,+0.0006] w/l 12/18 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate correct8/S1-tenants4 util H1000       ablation vs decoupled-separate -0.0020 [-0.0034,-0.0006] w/l 11/19 holm 0.3650 raw- [ctl]
+decoupled-shared - decoupled-separate correct8/S1-tenants4 util H2000       ablation vs decoupled-separate -0.0026 [-0.0036,-0.0015] w/l 6/24 holm 0.0010 LOSS [ctl]
+decoupled-shared - decoupled-separate correct8/S1-single(ctl) util H100        ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate correct8/S1-single(ctl) util H250        ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate correct8/S1-single(ctl) util H500        ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate correct8/S1-single(ctl) util H1000       ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate correct8/S1-single(ctl) util H2000       ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate correct8/S2-switch   post-switch H100 ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate correct8/S2-switch   post-switch H250 ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate correct8/S2-switch   post-switch H500 ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate correct8/S2-switch   post-switch H1000 ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate correct8/S2-noswitch(ctl) post-switch H100 ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate correct8/S2-noswitch(ctl) post-switch H250 ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate correct8/S2-noswitch(ctl) post-switch H500 ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate correct8/S2-noswitch(ctl) post-switch H1000 ablation vs decoupled-separate +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate correct8/S3-new-tenant new-tenant H50   ablation vs decoupled-separate -0.0109 [-0.0180,-0.0037] w/l 9/21 holm 0.1998 raw- [ctl]
+decoupled-shared - decoupled-separate correct8/S3-new-tenant new-tenant H100  ablation vs decoupled-separate -0.0034 [-0.0088,+0.0020] w/l 11/19 holm 1.0000 ns [ctl]
+decoupled-shared - decoupled-separate correct8/S3-new-tenant new-tenant H250  ablation vs decoupled-separate -0.0016 [-0.0067,+0.0035] w/l 12/18 holm 1.0000 ns [ctl]
+
+=================== D (held-out 31-60) ===================
+
+--- summary per (candidate, world): cells, mean diff vs best fair baseline, Holm(exp) WIN/LOSS, raw CI>0 / <0 ---
+committee-gated-explore    correct8                 [ctl] n=5   mean -0.0094  WIN 0   LOSS 5   (raw+ 0   raw- 5  )
+committee-gated-explore    flat8                    [ctl] n=5   mean +0.0000  WIN 0   LOSS 0   (raw+ 0   raw- 0  )
+committee-gated-explore    many16                         n=5   mean +0.0011  WIN 0   LOSS 0   (raw+ 0   raw- 0  )
+committee-gated-explore    traps8                         n=5   mean +0.0064  WIN 0   LOSS 0   (raw+ 2   raw- 0  )
+committee-plurality        correct8                 [ctl] n=5   mean -0.0093  WIN 0   LOSS 5   (raw+ 0   raw- 5  )
+committee-plurality        flat8                    [ctl] n=5   mean +0.0000  WIN 0   LOSS 0   (raw+ 0   raw- 0  )
+committee-plurality        many16                         n=5   mean +0.0011  WIN 0   LOSS 0   (raw+ 0   raw- 0  )
+committee-plurality        traps8                         n=5   mean +0.0066  WIN 0   LOSS 0   (raw+ 2   raw- 0  )
+committee-uniform-eps      correct8                 [ctl] n=5   mean -0.0162  WIN 0   LOSS 5   (raw+ 0   raw- 5  )
+committee-uniform-eps      flat8                    [ctl] n=5   mean +0.0000  WIN 0   LOSS 0   (raw+ 0   raw- 0  )
+committee-uniform-eps      many16                         n=5   mean -0.0059  WIN 0   LOSS 0   (raw+ 0   raw- 3  )
+committee-uniform-eps      traps8                         n=5   mean -0.0001  WIN 0   LOSS 0   (raw+ 0   raw- 0  )
+committee-weighted         correct8                 [ctl] n=5   mean -0.0094  WIN 0   LOSS 5   (raw+ 0   raw- 5  )
+committee-weighted         flat8                    [ctl] n=5   mean +0.0000  WIN 0   LOSS 0   (raw+ 0   raw- 0  )
+committee-weighted         many16                         n=5   mean -0.0017  WIN 0   LOSS 0   (raw+ 0   raw- 1  )
+committee-weighted         traps8                         n=5   mean -0.0013  WIN 0   LOSS 0   (raw+ 0   raw- 0  )
+
+--- tests (cand vs best fair baseline; Holm over family) ---
+committee-plurality      correct8             H100             accept   vs keyword        -0.0154 [-0.0201,-0.0108] w/l 3/27 holm 0.0000 LOSS [ctl]
+committee-gated-explore  correct8             H100             accept   vs keyword        -0.0154 [-0.0201,-0.0108] w/l 3/27 holm 0.0000 LOSS [ctl]
+committee-uniform-eps    correct8             H100             accept   vs keyword        -0.0236 [-0.0298,-0.0173] w/l 1/29 holm 0.0000 LOSS [ctl]
+committee-weighted       correct8             H100             accept   vs keyword        -0.0120 [-0.0151,-0.0089] w/l 1/27 holm 0.0000 LOSS [ctl]
+committee-plurality      correct8             H250             accept   vs keyword        -0.0107 [-0.0139,-0.0076] w/l 3/27 holm 0.0000 LOSS [ctl]
+committee-gated-explore  correct8             H250             accept   vs keyword        -0.0107 [-0.0139,-0.0076] w/l 3/27 holm 0.0000 LOSS [ctl]
+committee-uniform-eps    correct8             H250             accept   vs keyword        -0.0178 [-0.0211,-0.0146] w/l 0/30 holm 0.0000 LOSS [ctl]
+committee-weighted       correct8             H250             accept   vs keyword        -0.0110 [-0.0143,-0.0077] w/l 2/28 holm 0.0000 LOSS [ctl]
+committee-plurality      correct8             H500             accept   vs keyword        -0.0068 [-0.0092,-0.0044] w/l 5/25 holm 0.0002 LOSS [ctl]
+committee-gated-explore  correct8             H500             accept   vs keyword        -0.0069 [-0.0093,-0.0045] w/l 5/25 holm 0.0002 LOSS [ctl]
+committee-uniform-eps    correct8             H500             accept   vs keyword        -0.0145 [-0.0167,-0.0124] w/l 0/30 holm 0.0000 LOSS [ctl]
+committee-weighted       correct8             H500             accept   vs keyword        -0.0087 [-0.0111,-0.0063] w/l 1/29 holm 0.0000 LOSS [ctl]
+committee-plurality      correct8             H1000            accept   vs keyword        -0.0057 [-0.0075,-0.0040] w/l 2/28 holm 0.0000 LOSS [ctl]
+committee-gated-explore  correct8             H1000            accept   vs keyword        -0.0059 [-0.0078,-0.0040] w/l 2/28 holm 0.0000 LOSS [ctl]
+committee-uniform-eps    correct8             H1000            accept   vs keyword        -0.0122 [-0.0136,-0.0108] w/l 0/30 holm 0.0000 LOSS [ctl]
+committee-weighted       correct8             H1000            accept   vs keyword        -0.0073 [-0.0090,-0.0056] w/l 2/28 holm 0.0000 LOSS [ctl]
+committee-plurality      correct8             H2000            accept   vs keyword        -0.0077 [-0.0087,-0.0067] w/l 0/30 holm 0.0000 LOSS [ctl]
+committee-gated-explore  correct8             H2000            accept   vs keyword        -0.0078 [-0.0088,-0.0069] w/l 0/30 holm 0.0000 LOSS [ctl]
+committee-uniform-eps    correct8             H2000            accept   vs keyword        -0.0128 [-0.0138,-0.0117] w/l 0/30 holm 0.0000 LOSS [ctl]
+committee-weighted       correct8             H2000            accept   vs keyword        -0.0081 [-0.0092,-0.0069] w/l 0/30 holm 0.0000 LOSS [ctl]
+committee-plurality      flat8                H100             accept   vs guarded(hebr)  +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-gated-explore  flat8                H100             accept   vs guarded(hebr)  +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-uniform-eps    flat8                H100             accept   vs guarded(hebr)  +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-weighted       flat8                H100             accept   vs guarded(hebr)  +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-plurality      flat8                H250             accept   vs guarded(hebr)  +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-gated-explore  flat8                H250             accept   vs guarded(hebr)  +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-uniform-eps    flat8                H250             accept   vs guarded(hebr)  +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-weighted       flat8                H250             accept   vs guarded(hebr)  +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-plurality      flat8                H500             accept   vs guarded(hebr)  +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-gated-explore  flat8                H500             accept   vs guarded(hebr)  +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-uniform-eps    flat8                H500             accept   vs guarded(hebr)  +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-weighted       flat8                H500             accept   vs guarded(hebr)  +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-plurality      flat8                H1000            accept   vs guarded(hebr)  +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-gated-explore  flat8                H1000            accept   vs guarded(hebr)  +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-uniform-eps    flat8                H1000            accept   vs guarded(hebr)  +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-weighted       flat8                H1000            accept   vs guarded(hebr)  +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-plurality      flat8                H2000            accept   vs guarded(hebr)  +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-gated-explore  flat8                H2000            accept   vs guarded(hebr)  +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-uniform-eps    flat8                H2000            accept   vs guarded(hebr)  +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-weighted       flat8                H2000            accept   vs guarded(hebr)  +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-gated-explore - committee-uniform-eps many16               H1000            ablation vs committee-uniform-eps +0.0069 [+0.0034,+0.0105] w/l 24/6 holm 0.0229 WIN
+committee-gated-explore - committee-uniform-eps many16               H2000            ablation vs committee-uniform-eps +0.0063 [+0.0031,+0.0095] w/l 26/4 holm 0.0219 WIN
+committee-gated-explore - committee-uniform-eps correct8             H100             ablation vs committee-uniform-eps +0.0082 [+0.0016,+0.0147] w/l 20/10 holm 0.8113 raw+ [ctl]
+committee-gated-explore - committee-uniform-eps correct8             H250             ablation vs committee-uniform-eps +0.0071 [+0.0036,+0.0106] w/l 22/8 holm 0.0157 WIN [ctl]
+committee-gated-explore - committee-uniform-eps correct8             H500             ablation vs committee-uniform-eps +0.0077 [+0.0057,+0.0096] w/l 29/1 holm 0.0000 WIN [ctl]
+committee-gated-explore - committee-uniform-eps correct8             H1000            ablation vs committee-uniform-eps +0.0063 [+0.0049,+0.0076] w/l 28/2 holm 0.0000 WIN [ctl]
+committee-gated-explore - committee-uniform-eps correct8             H2000            ablation vs committee-uniform-eps +0.0049 [+0.0040,+0.0059] w/l 30/0 holm 0.0000 WIN [ctl]
+committee-gated-explore - committee-uniform-eps flat8                H100             ablation vs committee-uniform-eps +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-gated-explore - committee-uniform-eps flat8                H250             ablation vs committee-uniform-eps +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-gated-explore - committee-uniform-eps flat8                H500             ablation vs committee-uniform-eps +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-gated-explore - committee-uniform-eps flat8                H1000            ablation vs committee-uniform-eps +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-gated-explore - committee-uniform-eps flat8                H2000            ablation vs committee-uniform-eps +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-gated-explore - committee-plurality correct8             H100             ablation vs committee-plurality +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-gated-explore - committee-plurality correct8             H250             ablation vs committee-plurality +0.0000 [-0.0002,+0.0003] w/l 1/1 holm 1.0000 ns [ctl]
+committee-gated-explore - committee-plurality correct8             H500             ablation vs committee-plurality -0.0001 [-0.0004,+0.0001] w/l 1/2 holm 1.0000 ns [ctl]
+committee-gated-explore - committee-plurality correct8             H1000            ablation vs committee-plurality -0.0002 [-0.0006,+0.0002] w/l 2/1 holm 1.0000 ns [ctl]
+committee-gated-explore - committee-plurality correct8             H2000            ablation vs committee-plurality -0.0001 [-0.0003,+0.0001] w/l 2/4 holm 1.0000 ns [ctl]
+committee-gated-explore - committee-plurality flat8                H100             ablation vs committee-plurality +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-gated-explore - committee-plurality flat8                H250             ablation vs committee-plurality +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-gated-explore - committee-plurality flat8                H500             ablation vs committee-plurality +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-gated-explore - committee-plurality flat8                H1000            ablation vs committee-plurality +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-gated-explore - committee-plurality flat8                H2000            ablation vs committee-plurality +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-weighted - committee-plurality traps8               H1000            ablation vs committee-plurality -0.0089 [-0.0136,-0.0043] w/l 6/24 holm 0.0284 LOSS
+committee-weighted - committee-plurality correct8             H100             ablation vs committee-plurality +0.0034 [-0.0008,+0.0076] w/l 18/8 holm 1.0000 ns [ctl]
+committee-weighted - committee-plurality correct8             H250             ablation vs committee-plurality -0.0003 [-0.0034,+0.0028] w/l 15/15 holm 1.0000 ns [ctl]
+committee-weighted - committee-plurality correct8             H500             ablation vs committee-plurality -0.0019 [-0.0040,+0.0002] w/l 12/18 holm 1.0000 ns [ctl]
+committee-weighted - committee-plurality correct8             H1000            ablation vs committee-plurality -0.0015 [-0.0030,-0.0001] w/l 9/21 holm 1.0000 raw- [ctl]
+committee-weighted - committee-plurality correct8             H2000            ablation vs committee-plurality -0.0004 [-0.0014,+0.0007] w/l 12/18 holm 1.0000 ns [ctl]
+committee-weighted - committee-plurality flat8                H100             ablation vs committee-plurality +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-weighted - committee-plurality flat8                H250             ablation vs committee-plurality +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-weighted - committee-plurality flat8                H500             ablation vs committee-plurality +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-weighted - committee-plurality flat8                H1000            ablation vs committee-plurality +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+committee-weighted - committee-plurality flat8                H2000            ablation vs committee-plurality +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.0000 ns [ctl]
+
+GLOBAL Holm over 425 acceptance tests: WIN 63, LOSS 143
+wrote results/f1_lab.json (16s)

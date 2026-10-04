@@ -1,0 +1,43 @@
+{
+  "fixture_bytes": {
+    "bge_f32_all_2424": 7446528,
+    "bge_table_json": 2613272,
+    "mini_f32_all_2424": 3723264
+  },
+  "lab": "f8_bge_embed/latency",
+  "model_bytes": 435811539,
+  "n_texts_timed": 324,
+  "note": "Table/cached rows are the cost of the Rust embedding path when the vector is precomputed (what the fixture design does). A live BGE call (onnxruntime, 4 intra-op threads, CPU) costs the onnx_cpu_python_ms_per_text numbers; it is never on the Rust side in this design.",
+  "onnx_cpu_python_ms_per_text": {
+    "bge-base": {
+      "batched32_ms_per_text": 9.63,
+      "single_ms_mean": 12.09,
+      "single_ms_p50": 11.83,
+      "single_ms_p95": 15.06
+    },
+    "minilm": {
+      "batched32_ms_per_text": 1.24,
+      "single_ms_mean": 2.4,
+      "single_ms_p50": 2.4,
+      "single_ms_p95": 2.93
+    },
+    "python_dict_cached_ms": 0.000027
+  },
+  "python_ram_mb": {
+    "after_bge_load_peak": 572,
+    "after_bge_load_ws": 484,
+    "baseline_ws": 51,
+    "final_peak": 693,
+    "final_ws_both_models": 649
+  },
+  "rust_ns_per_embed": {
+    "cached_table_cold_first_call": 1694.7530864197531,
+    "cached_table_hit": 237.33179012345678,
+    "hash_embedding_384": 899.675925925926,
+    "table_lookup_768_clone": 113.29012345679013
+  },
+  "sink": 2220.724365234375,
+  "table_entries": 324,
+  "table_json_load_ms": 11.4289,
+  "table_vs_f32_maxabsdiff": 5.066394805908203e-7
+}

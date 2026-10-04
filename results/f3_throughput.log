@@ -1,0 +1,88 @@
+# f3_throughput  logical cores=16  threads=[1, 2, 4, 8]  secs/point=1.5  reps=3
+AMD Ryzen 7 8700F 8-Core Processor              / 8 cores / 16 threads
+9.9 % cpu busy before run
+[selftest] lock-sharded brain == dense compact brain on 2000 decisions
+
+=== world sim-fixed (6 agents, 2000 tasks) ===
+service                    thr    decisions/s     scale      p50 us      p99 us
+crate-mutex(global lock)     1         879256      100%        1.10        2.30   bg cpu   1%
+crate-mutex(global lock)     2         631516       36%        3.90       21.40   bg cpu  33%
+crate-mutex(global lock)     4         528448       15%        1.60       98.30   bg cpu   3%
+crate-mutex(global lock)     8         491190        7%        1.60      186.00   bg cpu  12%
+compact-mutex                1        2501413      100%        0.40        0.70   bg cpu   1%
+compact-mutex                2        2023739       40%        1.00        2.10   bg cpu   2%
+compact-mutex                4        1463954       15%        0.50       18.90   bg cpu   7%
+compact-mutex                8        1402052        7%        0.50       44.70   bg cpu   1%
+compact-rwlock               1        2509758      100%        0.40        0.70   bg cpu   1%
+compact-rwlock               2        2111904       42%        0.90        2.40   bg cpu  21%
+compact-rwlock               4        1523500       15%        1.20       18.50   bg cpu   4%
+compact-rwlock               8        1305336        7%        1.30       57.30   bg cpu   2%
+compact-sharded(row locks)   1        2985522      100%        0.30        0.60   bg cpu   1%
+compact-sharded(row locks)   2        4715617       79%        0.40        0.80   bg cpu   0%
+compact-sharded(row locks)   4        7595728       64%        0.50        1.10   bg cpu   7%
+compact-sharded(row locks)   8       11624727       49%        0.70        1.60   bg cpu   0%
+independent brains           1        2596948      100%           -           -
+independent brains           2        5114273       98%           -           -
+independent brains           4        9796800       94%           -           -
+independent brains           8       16999668       82%           -           -
+serve-tcp (defaults flush 64/1s)   1            804      100%      1197.6      2177.6
+serve-tcp (defaults flush 64/1s)   2           1378       86%      1417.7      2502.0
+serve-tcp (defaults flush 64/1s)   4           2464       77%      1508.1      2490.3
+serve-tcp (defaults flush 64/1s)   8           3409       53%      2231.4      3420.7
+serve-tcp (flush off)        1            812      100%      1205.6      1720.0
+serve-tcp (flush off)        2           1440       89%      1414.0      1808.3
+serve-tcp (flush off)        4           2651       82%      1507.3      1883.7
+serve-tcp (flush off)        8           3709       57%      2197.6      2484.1
+serve-tcp pipelined (flush 64/1s)   1            832      100%           -           -   bg cpu   1%
+serve-tcp pipelined (flush 64/1s)   2           1472       88%           -           -   bg cpu   1%
+serve-tcp pipelined (flush 64/1s)   4           2624       79%           -           -   bg cpu   0%
+serve-tcp pipelined (flush 64/1s)   8           3583       54%           -           -   bg cpu   2%
+serve-tcp pipelined (flush off)   1            864      100%           -           -   bg cpu   1%
+serve-tcp pipelined (flush off)   2           1520       88%           -           -   bg cpu   2%
+serve-tcp pipelined (flush off)   4           2799       81%           -           -   bg cpu   0%
+serve-tcp pipelined (flush off)   8           3584       52%           -           -   bg cpu   3%
+[selftest] lock-sharded brain == dense compact brain on 4000 decisions
+
+=== world big-32agents (32 agents, 4000 tasks) ===
+service                    thr    decisions/s     scale      p50 us      p99 us
+crate-mutex(global lock)     1         329879      100%        2.70        6.50   bg cpu   9%
+crate-mutex(global lock)     2         282778       43%       11.70       93.70   bg cpu   4%
+crate-mutex(global lock)     4         218537       17%        5.90      193.60   bg cpu   1%
+crate-mutex(global lock)     8         193187        7%        7.30      435.10   bg cpu  17%
+compact-mutex                1         675774      100%        1.40        2.90   bg cpu  28%
+compact-mutex                2         585473       43%        3.40       13.10   bg cpu  39%
+compact-mutex                4         399237       15%        2.20       68.10   bg cpu  37%
+compact-mutex                8         384742        7%        2.50      148.60   bg cpu  34%
+compact-rwlock               1         667595      100%        1.40        2.70   bg cpu  37%
+compact-rwlock               2         656526       49%        2.70       11.90   bg cpu  12%
+compact-rwlock               4         463929       17%        3.80       58.60   bg cpu  12%
+compact-rwlock               8         435081        8%        4.70      135.20   bg cpu  11%
+compact-sharded(row locks)   1         841834      100%        1.20        1.90   bg cpu   0%
+compact-sharded(row locks)   2        1548972       92%        1.20        2.20   bg cpu  10%
+compact-sharded(row locks)   4        2740500       81%        1.40        3.00   bg cpu   1%
+compact-sharded(row locks)   8        4747310       70%        1.50        3.20   bg cpu   8%
+independent brains           1         749861      100%           -           -
+independent brains           2        1304795       87%           -           -
+independent brains           4        2347075       78%           -           -
+independent brains           8        3854837       64%           -           -
+
+=== serve diagnosis ===
+{
+  "BufWriter + writeln + flush": {
+    "received": 3000,
+    "us_per_response": 9.487666666666666
+  },
+  "format to String then one write_all": {
+    "received": 3000,
+    "us_per_response": 8.901299999999999
+  },
+  "response_bytes": 194,
+  "unbuffered writeln!(stream, \"{value}\") + flush [what serve.rs does]": {
+    "received": 3000,
+    "us_per_response": 928.6542333333332
+  },
+  "write_calls_per_response_with_writeln_on_unbuffered_stream": 124
+}
+serve --stdio (pipe, no sockets, 1 stream, global mutex): 14987 decisions/s  = 33.4 us per request (median of 3)
+
+wrote results/f3_throughput.json

@@ -1,0 +1,42 @@
+{
+ "note": "BGE-base-en-v1.5 vectors for the SAME 2424 SYNTHETIC f5 texts (results/f5_corpus.json order). CLS pooling, L2-normalised, 768-d, row-major f32 LE, no query instruction.",
+ "dim": 768,
+ "n": 2424,
+ "model": "BAAI/bge-base-en-v1.5@a5beb1e3e68b9ab74eb54cfd186867f64f240e1a (onnx/model.onnx)",
+ "model_sha256": "9bc579acdba21c253c62a9bf866891355a63ffa3442b52c8a37d75b2ccb91848",
+ "tokenizer_sha256": "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66",
+ "model_bytes": 435811539,
+ "fixture_bytes": 7446528,
+ "onnxruntime": "1.23.2",
+ "sanity_mean_cos": {
+  "same_concept": 0.794,
+  "sibling": 0.567,
+  "diff_topic": 0.462,
+  "distractor_distractor": 0.522
+ },
+ "minilm_harness_maxdiff_vs_f5": 0.0,
+ "latency_ms": {
+  "bge-base": {
+   "single_ms_mean": 12.09,
+   "single_ms_p50": 11.83,
+   "single_ms_p95": 15.06,
+   "batched32_ms_per_text": 9.63
+  },
+  "minilm": {
+   "single_ms_mean": 2.4,
+   "single_ms_p50": 2.4,
+   "single_ms_p95": 2.93,
+   "batched32_ms_per_text": 1.24
+  },
+  "python_dict_cached_ms": 2.7e-05
+ },
+ "load_seconds_bge": 0.5,
+ "embed_all_seconds_bge": 22.0,
+ "ram_mb": {
+  "baseline_ws": 51,
+  "after_bge_load_ws": 484,
+  "after_bge_load_peak": 572,
+  "final_ws_both_models": 649,
+  "final_peak": 693
+ }
+}

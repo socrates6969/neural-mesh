@@ -1,0 +1,223 @@
+# f3_brain  cores(logical)=16  quick=false
+[selftest] compact f64/f64 == crate guarded(hebr) on sim-fixed (2000 decisions, identical rng stream)
+[selftest] compact f64/f64 == crate guarded(hebr) on sim-random (2000 decisions, identical rng stream)
+[selftest] compact f64/f64 == crate guarded(hebr) on big-32agents (4000 decisions, identical rng stream)
+[selftest] compact f64/f64 == crate guarded(hebr) on big-32agents-longtail (4000 decisions, identical rng stream)
+[selftest] sparse rows == dense rows (f64/f64 and u16/q16) on sim-fixed
+[selftest] sparse rows == dense rows (f64/f64 and u16/q16) on big-32agents
+[selftest] sparse rows == dense rows (f64/f64 and u16/q16) on big-32agents-longtail
+[selftest] hash32 ids == interned ids on big-32agents (no collisions among 232 features)
+[selftest] binary16 conversion round-trips all finite values; bf16 ok
+[selftest] counting allocator ok
+[selftest] row budget 200 respected on the long-tail world (4098 evictions)
+[calibrate] windows heap commit per block for sizes [24, 64, 200]: [34.0, 86.0, 218.0] => overhead [10.0, 22.0, 18.0] B
+
+=== PART 1: per-decision cost Pareto (held-out seeds 31..60; cost measured on seed 31) ===
+
+-- world sim-fixed
+   (background cpu before this world: 9%)
+keyword                                      acc 0.7026 [0.7012,0.7040] vs-guarded -0.0635  state      2422 B live (   34 blocks, ~     2983 B w/ heap hdr)  peak      3413 B  ns/dec      99 (first500    100, last500     99)  allocs/dec steady   1.0 all   1.0
+warm(hebr)                                   acc 0.7673 [0.7612,0.7733] vs-guarded +0.0012  state     88989 B live ( 1074 blocks, ~   106711 B w/ heap hdr)  peak    102525 B  ns/dec    1654 (first500   1685, last500   1663)  allocs/dec steady  24.3 all  24.7
+guarded(hebr) [recommended default]          acc 0.7661 [0.7622,0.7700] vs-guarded +0.0000  state     16936 B live (  207 blocks, ~    20352 B w/ heap hdr)  peak     17270 B  ns/dec    1077 (first500   1063, last500   1087)  allocs/dec steady  13.1 all  12.9
+coupled(guarded+health+shield+probe)         acc 0.7717 [0.7688,0.7745] vs-guarded +0.0055  state     17782 B live (  210 blocks, ~    21247 B w/ heap hdr)  peak     18164 B  ns/dec    1618 (first500   1617, last500   1615)  allocs/dec steady  19.7 all  19.6
+guarded + knowledge(kn-feat hidden)          acc 0.7640 [0.7594,0.7686] vs-guarded -0.0021  state    520172 B live (  780 blocks, ~   533042 B w/ heap hdr)  peak    521166 B  ns/dec    6317 (first500   3832, last500   8602)  allocs/dec steady  31.1 all  30.8
+mesh-robust team 1 [= CLI/serve state]       acc 0.7571 [0.7497,0.7644] vs-guarded -0.0091  state      9324 B live (  122 blocks, ~    11337 B w/ heap hdr)  peak      9755 B  ns/dec    1164 (first500   1171, last500   1182)  allocs/dec steady  18.3 all  18.3
+mesh-robust team 3 (edges+health)            acc 0.7438 [0.7362,0.7514] vs-guarded -0.0223  state      9324 B live (  122 blocks, ~    11337 B w/ heap hdr)  peak      9755 B  ns/dec    1652 (first500   1578, last500   1593)  allocs/dec steady  21.3 all  21.2
+compact guarded u16/q16 (string API)         acc 0.7661 [0.7622,0.7700] vs-guarded -0.0000  state      4437 B live (   41 blocks, ~     5114 B w/ heap hdr)  peak      5271 B  ns/dec     518 (first500    506, last500    496)  allocs/dec steady   0.0 all   0.1
+compact guarded u16/q16 SPARSE (string API)  acc 0.7661 [0.7622,0.7700] vs-guarded -0.0000  state      5436 B live (   44 blocks, ~     6162 B w/ heap hdr)  peak      7350 B  ns/dec     507 (first500    492, last500    500)  allocs/dec steady   0.0 all   0.1
+compact guarded u16/q16 (ids API)            acc 0.7661 [0.7622,0.7700] vs-guarded -0.0000  state      2232 B live (    6 blocks, ~     2331 B w/ heap hdr)  peak      2232 B  ns/dec     370 (first500    364, last500    372)  allocs/dec steady   0.0 all   0.0
+   Pareto-optimal (acc ties within 0.003): ["keyword", "coupled(guarded+health+shield+probe)", "compact guarded u16/q16 (ids API)"]
+
+-- world sim-random
+   (background cpu before this world: 25%)
+keyword                                      acc 0.6968 [0.6784,0.7152] vs-guarded -0.0789  state      2422 B live (   34 blocks, ~     2983 B w/ heap hdr)  peak      3413 B  ns/dec     146 (first500    146, last500    146)  allocs/dec steady   1.0 all   1.0
+warm(hebr)                                   acc 0.7757 [0.7660,0.7854] vs-guarded -0.0001  state     87998 B live ( 1043 blocks, ~   105208 B w/ heap hdr)  peak    101516 B  ns/dec    2527 (first500   2593, last500   2368)  allocs/dec steady  24.5 all  24.5
+guarded(hebr) [recommended default]          acc 0.7758 [0.7664,0.7852] vs-guarded +0.0000  state     16936 B live (  207 blocks, ~    20352 B w/ heap hdr)  peak     17271 B  ns/dec    2002 (first500   1970, last500   1937)  allocs/dec steady  13.7 all  13.6
+coupled(guarded+health+shield+probe)         acc 0.7830 [0.7750,0.7910] vs-guarded +0.0072  state     17782 B live (  210 blocks, ~    21247 B w/ heap hdr)  peak     18164 B  ns/dec    3069 (first500   3071, last500   3076)  allocs/dec steady  19.9 all  20.0
+guarded + knowledge(kn-feat hidden)          acc 0.7754 [0.7659,0.7848] vs-guarded -0.0004  state    520172 B live (  780 blocks, ~   533042 B w/ heap hdr)  peak    521166 B  ns/dec   11571 (first500   6239, last500  16107)  allocs/dec steady  31.4 all  31.4
+mesh-robust team 1 [= CLI/serve state]       acc 0.7672 [0.7584,0.7760] vs-guarded -0.0086  state      9324 B live (  122 blocks, ~    11337 B w/ heap hdr)  peak      9755 B  ns/dec    2246 (first500   2258, last500   2352)  allocs/dec steady  18.3 all  18.3
+mesh-robust team 3 (edges+health)            acc 0.7580 [0.7473,0.7688] vs-guarded -0.0177  state      9324 B live (  122 blocks, ~    11337 B w/ heap hdr)  peak      9755 B  ns/dec    2675 (first500   2698, last500   2733)  allocs/dec steady  21.2 all  21.1
+compact guarded u16/q16 (string API)         acc 0.7757 [0.7664,0.7851] vs-guarded -0.0000  state      4437 B live (   41 blocks, ~     5114 B w/ heap hdr)  peak      5272 B  ns/dec     764 (first500    814, last500    732)  allocs/dec steady   0.0 all   0.1
+compact guarded u16/q16 SPARSE (string API)  acc 0.7757 [0.7664,0.7851] vs-guarded -0.0000  state      4968 B live (   44 blocks, ~     5694 B w/ heap hdr)  peak      6036 B  ns/dec     760 (first500    769, last500    755)  allocs/dec steady   0.0 all   0.1
+compact guarded u16/q16 (ids API)            acc 0.7757 [0.7664,0.7851] vs-guarded -0.0000  state      2232 B live (    6 blocks, ~     2331 B w/ heap hdr)  peak      2232 B  ns/dec     361 (first500    355, last500    360)  allocs/dec steady   0.0 all   0.0
+   Pareto-optimal (acc ties within 0.003): ["keyword", "coupled(guarded+health+shield+probe)", "compact guarded u16/q16 (ids API)"]
+
+-- world sim-no-traps
+   (background cpu before this world: 23%)
+keyword                                      acc 0.7927 [0.7838,0.8017] vs-guarded -0.0012  state      2422 B live (   34 blocks, ~     2983 B w/ heap hdr)  peak      3413 B  ns/dec     106 (first500    106, last500    106)  allocs/dec steady   1.0 all   1.0
+warm(hebr)                                   acc 0.7787 [0.7671,0.7903] vs-guarded -0.0153  state     91346 B live ( 1159 blocks, ~   110470 B w/ heap hdr)  peak    104243 B  ns/dec    1734 (first500   1768, last500   1761)  allocs/dec steady  25.6 all  25.6
+guarded(hebr) [recommended default]          acc 0.7940 [0.7855,0.8024] vs-guarded +0.0000  state     16936 B live (  207 blocks, ~    20352 B w/ heap hdr)  peak     17267 B  ns/dec    1477 (first500   1319, last500   1416)  allocs/dec steady  12.3 all  11.9
+coupled(guarded+health+shield+probe)         acc 0.7996 [0.7920,0.8073] vs-guarded +0.0057  state     17782 B live (  210 blocks, ~    21247 B w/ heap hdr)  peak     18163 B  ns/dec    1645 (first500   1645, last500   1648)  allocs/dec steady  18.4 all  18.3
+guarded + knowledge(kn-feat hidden)          acc 0.7942 [0.7854,0.8029] vs-guarded +0.0002  state    520028 B live (  780 blocks, ~   532898 B w/ heap hdr)  peak    521026 B  ns/dec    6803 (first500   3835, last500   9016)  allocs/dec steady  28.7 all  28.3
+mesh-robust team 1 [= CLI/serve state]       acc 0.7636 [0.7539,0.7733] vs-guarded -0.0304  state      9324 B live (  122 blocks, ~    11337 B w/ heap hdr)  peak      9755 B  ns/dec    1207 (first500   1252, last500   1247)  allocs/dec steady  18.3 all  18.3
+mesh-robust team 3 (edges+health)            acc 0.7529 [0.7386,0.7673] vs-guarded -0.0410  state      9324 B live (  122 blocks, ~    11337 B w/ heap hdr)  peak      9755 B  ns/dec    1381 (first500   1376, last500   1418)  allocs/dec steady  21.1 all  21.0
+compact guarded u16/q16 (string API)         acc 0.7941 [0.7857,0.8025] vs-guarded +0.0002  state      4437 B live (   41 blocks, ~     5114 B w/ heap hdr)  peak      5279 B  ns/dec     426 (first500    429, last500    414)  allocs/dec steady   0.0 all   0.1
+compact guarded u16/q16 SPARSE (string API)  acc 0.7941 [0.7857,0.8025] vs-guarded +0.0002  state      6576 B live (   44 blocks, ~     7302 B w/ heap hdr)  peak      6576 B  ns/dec     459 (first500    437, last500    451)  allocs/dec steady   0.0 all   0.1
+compact guarded u16/q16 (ids API)            acc 0.7941 [0.7857,0.8025] vs-guarded +0.0002  state      2232 B live (    6 blocks, ~     2331 B w/ heap hdr)  peak      2232 B  ns/dec     343 (first500    338, last500    342)  allocs/dec steady   0.0 all   0.0
+   Pareto-optimal (acc ties within 0.003): ["keyword", "coupled(guarded+health+shield+probe)", "compact guarded u16/q16 (ids API)"]
+
+-- world big-32agents
+   (background cpu before this world: 5%)
+keyword                                      acc 0.6264 [0.6043,0.6485] vs-guarded -0.0868  state      9440 B live (  194 blocks, ~    12641 B w/ heap hdr)  peak      9632 B  ns/dec     115 (first500    118, last500    115)  allocs/dec steady   1.0 all   1.0
+warm(hebr)                                   acc 0.6724 [0.6613,0.6835] vs-guarded -0.0408  state    401556 B live ( 4973 blocks, ~   483614 B w/ heap hdr)  peak    456556 B  ns/dec    4540 (first500   4101, last500   4600)  allocs/dec steady  25.8 all  25.9
+guarded(hebr) [recommended default]          acc 0.7132 [0.6989,0.7275] vs-guarded +0.0000  state    248154 B live ( 1423 blocks, ~   271634 B w/ heap hdr)  peak    252640 B  ns/dec    3152 (first500   2989, last500   3383)  allocs/dec steady  15.0 all  14.4
+coupled(guarded+health+shield+probe)         acc 0.6983 [0.6842,0.7125] vs-guarded -0.0149  state    249650 B live ( 1426 blocks, ~   273180 B w/ heap hdr)  peak    255052 B  ns/dec    5619 (first500   5805, last500   5625)  allocs/dec steady  21.0 all  20.8
+guarded + knowledge(kn-feat hidden)          acc 0.6877 [0.6691,0.7063] vs-guarded -0.0256  state   1173936 B live ( 2128 blocks, ~  1209049 B w/ heap hdr)  peak   1175616 B  ns/dec   13591 (first500   6174, last500  19865)  allocs/dec steady  33.8 all  32.7
+mesh-robust team 1 [= CLI/serve state]       acc 0.5848 [0.5713,0.5983] vs-guarded -0.1284  state    104764 B live (  804 blocks, ~   118031 B w/ heap hdr)  peak    106251 B  ns/dec    4085 (first500   4223, last500   3985)  allocs/dec steady  19.2 all  19.3
+mesh-robust team 3 (edges+health)            acc 0.5522 [0.5399,0.5645] vs-guarded -0.1611  state    104764 B live (  804 blocks, ~   118031 B w/ heap hdr)  peak    106251 B  ns/dec    6045 (first500   5536, last500   6288)  allocs/dec steady  24.2 all  24.2
+compact guarded u16/q16 (string API)         acc 0.7132 [0.6987,0.7277] vs-guarded -0.0000  state     67565 B live (  241 blocks, ~    71542 B w/ heap hdr)  peak     73963 B  ns/dec    2202 (first500   2212, last500   2247)  allocs/dec steady   0.0 all   0.1
+compact guarded u16/q16 SPARSE (string API)  acc 0.7132 [0.6987,0.7277] vs-guarded -0.0000  state     61608 B live (  244 blocks, ~    65634 B w/ heap hdr)  peak     66096 B  ns/dec    1454 (first500   1224, last500   1638)  allocs/dec steady   0.0 all   0.1
+compact guarded u16/q16 (ids API)            acc 0.7132 [0.6987,0.7277] vs-guarded -0.0000  state     52088 B live (    6 blocks, ~    52187 B w/ heap hdr)  peak     52088 B  ns/dec    2027 (first500   2026, last500   2089)  allocs/dec steady   0.0 all   0.0
+   Pareto-optimal (acc ties within 0.003): ["keyword", "compact guarded u16/q16 SPARSE (string API)", "compact guarded u16/q16 (ids API)"]
+
+-- world big-32agents-longtail
+   (background cpu before this world: 41%)
+keyword                                      acc 0.6260 [0.6034,0.6485] vs-guarded -0.0711  state      9440 B live (  194 blocks, ~    12641 B w/ heap hdr)  peak      9632 B  ns/dec     126 (first500    127, last500    125)  allocs/dec steady   1.0 all   1.0
+warm(hebr)                                   acc 0.6743 [0.6624,0.6861] vs-guarded -0.0228  state   1236819 B live (14076 blocks, ~  1469082 B w/ heap hdr)  peak   1282412 B  ns/dec    7389 (first500   5767, last500   8195)  allocs/dec steady  26.8 all  27.2
+guarded(hebr) [recommended default]          acc 0.6971 [0.6827,0.7115] vs-guarded +0.0000  state   1878593 B live ( 9879 blocks, ~  2041603 B w/ heap hdr)  peak   1937530 B  ns/dec    6860 (first500   5656, last500   7975)  allocs/dec steady  16.5 all  16.2
+coupled(guarded+health+shield+probe)         acc 0.7010 [0.6889,0.7132] vs-guarded +0.0039  state   1849909 B live ( 9707 blocks, ~  2010081 B w/ heap hdr)  peak   1939205 B  ns/dec    9924 (first500   8132, last500   9727)  allocs/dec steady  22.9 all  22.9
+guarded + knowledge(kn-feat hidden)          acc 0.6866 [0.6680,0.7052] vs-guarded -0.0105  state   2836599 B live (10690 blocks, ~  3012991 B w/ heap hdr)  peak   2890214 B  ns/dec   21165 (first500   9910, last500  34152)  allocs/dec steady  35.1 all  34.3
+mesh-robust team 1 [= CLI/serve state]       acc 0.5770 [0.5664,0.5877] vs-guarded -0.1200  state    729798 B live ( 6048 blocks, ~   829594 B w/ heap hdr)  peak    730922 B  ns/dec   10131 (first500   9149, last500  11166)  allocs/dec steady  20.5 all  20.6
+mesh-robust team 3 (edges+health)            acc 0.5674 [0.5537,0.5812] vs-guarded -0.1296  state    729798 B live ( 6048 blocks, ~   829594 B w/ heap hdr)  peak    731018 B  ns/dec   11608 (first500  10027, last500  13176)  allocs/dec steady  25.5 all  25.6
+compact guarded u16/q16 (string API)         acc 0.6974 [0.6824,0.7125] vs-guarded +0.0004  state    526666 B live ( 1847 blocks, ~   557143 B w/ heap hdr)  peak    577675 B  ns/dec    1863 (first500   1703, last500   2187)  allocs/dec steady   0.3 all   0.5
+compact guarded u16/q16 SPARSE (string API)  acc 0.6974 [0.6824,0.7125] vs-guarded +0.0004  state    197281 B live ( 1850 blocks, ~   227807 B w/ heap hdr)  peak    248290 B  ns/dec    1635 (first500   1315, last500   1859)  allocs/dec steady   0.3 all   0.5
+compact guarded u16/q16 (ids API)            acc 0.6974 [0.6824,0.7125] vs-guarded +0.0004  state    414072 B live (    6 blocks, ~   414171 B w/ heap hdr)  peak    414072 B  ns/dec    2350 (first500   2255, last500   2399)  allocs/dec steady   0.0 all   0.0
+   Pareto-optimal (acc ties within 0.003): ["keyword", "coupled(guarded+health+shield+probe)", "compact guarded u16/q16 SPARSE (string API)"]
+
+=== PART 2: smallest representation that keeps accuracy (margin 0.003, Holm, TOST) ===
+[tune 1-8] guard-count scale 1/64: mean diff per world [0.0053, 0.001, 0.0009, 0.0036, 0.0049]  sum|diff| 0.01568
+[tune 1-8] guard-count scale 1/256: mean diff per world [0.0044, -0.0009, 0.0007, 0.0048, -0.0044]  sum|diff| 0.01526
+[tune 1-8] guard-count scale 1/1024: mean diff per world [0.0032, -0.0009, 0.0, 0.0011, -0.0047]  sum|diff| 0.00987
+[tune 1-8] guard-count scale 1/4096: mean diff per world [0.0133, 0.0096, 0.0039, 0.0058, -0.0067]  sum|diff| 0.03933
+[tune 1-8] frozen guard-count scale = 1/1024
+
+held-out seeds: diff of full-run expected success vs f64 crate guarded(hebr) [95% CI]  (verdict)
+scheme                                                          sim-fixed                         sim-random                       sim-no-traps                       big-32agents              big-32agents-longtail
+c f64/f64 (layout only)                 +0.0000 [+0.0000,+0.0000]  EQUIVALENT  +0.0000 [+0.0000,+0.0000]  EQUIVALENT  +0.0000 [+0.0000,+0.0000]  EQUIVALENT  +0.0000 [+0.0000,+0.0000]  EQUIVALENT  +0.0000 [+0.0000,+0.0000]  EQUIVALENT
+c f32/f32                               +0.0000 [+0.0000,+0.0000]  EQUIVALENT  +0.0000 [+0.0000,+0.0000]  EQUIVALENT  +0.0000 [+0.0000,+0.0000]  EQUIVALENT  +0.0000 [+0.0000,+0.0000]  EQUIVALENT  +0.0000 [+0.0000,+0.0000]  EQUIVALENT
+c u16/f32                               +0.0000 [+0.0000,+0.0000]  EQUIVALENT  -0.0000 [-0.0001,+0.0001]  EQUIVALENT  +0.0001 [-0.0001,+0.0004]  EQUIVALENT  -0.0010 [-0.0062,+0.0043] inconclusive  +0.0002 [-0.0023,+0.0026] inconclusive
+c u16/q16 (frozen scale)                -0.0000 [-0.0000,+0.0000]  EQUIVALENT  -0.0000 [-0.0009,+0.0009]  EQUIVALENT  +0.0002 [-0.0001,+0.0004]  EQUIVALENT  -0.0000 [-0.0056,+0.0055] inconclusive  +0.0004 [-0.0023,+0.0030] inconclusive
+c u16/q16 + hash32 ids                  -0.0000 [-0.0000,+0.0000]  EQUIVALENT  -0.0000 [-0.0009,+0.0009]  EQUIVALENT  +0.0002 [-0.0001,+0.0004]  EQUIVALENT  -0.0000 [-0.0056,+0.0055] inconclusive  +0.0004 [-0.0023,+0.0030] inconclusive
+c u16/q16 sparse rows                   -0.0000 [-0.0000,+0.0000]  EQUIVALENT  -0.0000 [-0.0009,+0.0009]  EQUIVALENT  +0.0002 [-0.0001,+0.0004]  EQUIVALENT  -0.0000 [-0.0056,+0.0055] inconclusive  +0.0004 [-0.0023,+0.0030] inconclusive
+c f32/f32 sparse rows                   +0.0000 [+0.0000,+0.0000]  EQUIVALENT  +0.0000 [+0.0000,+0.0000]  EQUIVALENT  +0.0000 [+0.0000,+0.0000]  EQUIVALENT  +0.0000 [+0.0000,+0.0000]  EQUIVALENT  +0.0000 [+0.0000,+0.0000]  EQUIVALENT
+c f16/q16 (binary16 weights)            -0.0001 [-0.0003,+0.0001]  EQUIVALENT  -0.0004 [-0.0012,+0.0005]  EQUIVALENT  -0.0000 [-0.0002,+0.0002]  EQUIVALENT  -0.0073 [-0.0156,+0.0010] inconclusive  -0.0012 [-0.0061,+0.0036] inconclusive
+c bf16/q16 (bfloat16 weights)           -0.0004 [-0.0030,+0.0021] inconclusive  +0.0005 [-0.0031,+0.0040] inconclusive  -0.0005 [-0.0023,+0.0013] inconclusive  -0.0037 [-0.0156,+0.0082] inconclusive  -0.0003 [-0.0095,+0.0088] inconclusive
+c f16/f16 (binary16 weights+counts)     -0.0003 [-0.0010,+0.0004]  EQUIVALENT  -0.0003 [-0.0012,+0.0006]  EQUIVALENT  -0.0000 [-0.0005,+0.0005]  EQUIVALENT  -0.0071 [-0.0157,+0.0014] inconclusive  -0.0012 [-0.0059,+0.0035] inconclusive
+c u8/q16 (u8 weights)                   -0.0114 [-0.0143,-0.0086]        LOSS  -0.0040 [-0.0103,+0.0024] inconclusive  +0.0004 [-0.0013,+0.0022] inconclusive  +0.0009 [-0.0086,+0.0105] inconclusive  +0.0108 [+0.0006,+0.0211]        GAIN
+c u16/q8 s=8 (u8 counts)                -0.0040 [-0.0080,+0.0000] inconclusive  -0.0002 [-0.0061,+0.0057] inconclusive  +0.0011 [-0.0013,+0.0035] inconclusive  -0.0079 [-0.0173,+0.0016] inconclusive  -0.0045 [-0.0135,+0.0045] inconclusive
+c u16/q16 + LRU 50% rows                -0.0632 [-0.0675,-0.0590]        LOSS  -0.0778 [-0.0911,-0.0644]        LOSS  -0.0012 [-0.0040,+0.0015] inconclusive  -0.0284 [-0.0371,-0.0196]        LOSS  +0.0007 [-0.0023,+0.0037] inconclusive
+c u16/q16 + LRU 25% rows                -0.0635 [-0.0677,-0.0592]        LOSS  -0.0788 [-0.0922,-0.0654]        LOSS  -0.0013 [-0.0041,+0.0016] inconclusive  -0.0598 [-0.0718,-0.0477]        LOSS  +0.0029 [-0.0025,+0.0084] inconclusive
+c u16/q16 + LFU 25% rows                -0.0478 [-0.0533,-0.0422]        LOSS  -0.0613 [-0.0738,-0.0487]        LOSS  -0.0018 [-0.0049,+0.0014] inconclusive  -0.0235 [-0.0327,-0.0143]        LOSS  +0.0014 [-0.0039,+0.0066] inconclusive
+c u16/q16 + admit>=2                    -0.0015 [-0.0056,+0.0026] inconclusive  +0.0012 [-0.0037,+0.0061] inconclusive  -0.0004 [-0.0024,+0.0015] inconclusive  -0.0155 [-0.0261,-0.0049]        LOSS  -0.0063 [-0.0188,+0.0061] inconclusive
+c u16/q16 + admit>=2 + LRU 512 rows     -0.0015 [-0.0056,+0.0026] inconclusive  +0.0012 [-0.0037,+0.0061] inconclusive  -0.0004 [-0.0024,+0.0015] inconclusive  -0.0155 [-0.0261,-0.0049]        LOSS  -0.0063 [-0.0187,+0.0060] inconclusive
+c u16/q16 + admit>=2 + LRU 256 rows     -0.0015 [-0.0056,+0.0026] inconclusive  +0.0012 [-0.0037,+0.0061] inconclusive  -0.0004 [-0.0024,+0.0015] inconclusive  -0.0155 [-0.0261,-0.0049]        LOSS  -0.0048 [-0.0174,+0.0077] inconclusive
+c u16/q16 SPARSE + admit>=2 + LRU 512   -0.0015 [-0.0056,+0.0026] inconclusive  +0.0012 [-0.0037,+0.0061] inconclusive  -0.0004 [-0.0024,+0.0015] inconclusive  -0.0155 [-0.0261,-0.0049]        LOSS  -0.0063 [-0.0187,+0.0060] inconclusive
+
+confirm seeds: diff of full-run expected success vs f64 crate guarded(hebr) [95% CI]  (verdict)
+scheme                                                          sim-fixed                         sim-random                       sim-no-traps                       big-32agents              big-32agents-longtail
+c f64/f64 (layout only)                 +0.0000 [+0.0000,+0.0000]  EQUIVALENT  +0.0000 [+0.0000,+0.0000]  EQUIVALENT  +0.0000 [+0.0000,+0.0000]  EQUIVALENT  +0.0000 [+0.0000,+0.0000]  EQUIVALENT  +0.0000 [+0.0000,+0.0000]  EQUIVALENT
+c f32/f32                               +0.0000 [+0.0000,+0.0000]  EQUIVALENT  +0.0000 [+0.0000,+0.0000]  EQUIVALENT  +0.0000 [+0.0000,+0.0000]  EQUIVALENT  +0.0000 [+0.0000,+0.0000]  EQUIVALENT  +0.0000 [+0.0000,+0.0000]  EQUIVALENT
+c u16/f32                               +0.0001 [-0.0001,+0.0002]  EQUIVALENT  +0.0001 [-0.0000,+0.0001]  EQUIVALENT  +0.0001 [-0.0003,+0.0006]  EQUIVALENT  +0.0013 [-0.0027,+0.0052] inconclusive  +0.0009 [-0.0017,+0.0036] inconclusive
+c u16/q16 (frozen scale)                -0.0002 [-0.0006,+0.0003]  EQUIVALENT  +0.0008 [-0.0018,+0.0034] inconclusive  +0.0001 [-0.0003,+0.0006]  EQUIVALENT  +0.0011 [-0.0029,+0.0051] inconclusive  +0.0003 [-0.0027,+0.0032] inconclusive
+c u16/q16 + hash32 ids                  -0.0002 [-0.0006,+0.0003]  EQUIVALENT  +0.0008 [-0.0018,+0.0034] inconclusive  +0.0001 [-0.0003,+0.0006]  EQUIVALENT  +0.0011 [-0.0029,+0.0051] inconclusive  +0.0003 [-0.0027,+0.0032] inconclusive
+c u16/q16 sparse rows                   -0.0002 [-0.0006,+0.0003]  EQUIVALENT  +0.0008 [-0.0018,+0.0034] inconclusive  +0.0001 [-0.0003,+0.0006]  EQUIVALENT  +0.0011 [-0.0029,+0.0051] inconclusive  +0.0003 [-0.0027,+0.0032] inconclusive
+c f32/f32 sparse rows                   +0.0000 [+0.0000,+0.0000]  EQUIVALENT  +0.0000 [+0.0000,+0.0000]  EQUIVALENT  +0.0000 [+0.0000,+0.0000]  EQUIVALENT  +0.0000 [+0.0000,+0.0000]  EQUIVALENT  +0.0000 [+0.0000,+0.0000]  EQUIVALENT
+c f16/q16 (binary16 weights)            -0.0005 [-0.0026,+0.0017] inconclusive  -0.0002 [-0.0031,+0.0027] inconclusive  -0.0001 [-0.0003,+0.0001]  EQUIVALENT  +0.0042 [-0.0011,+0.0096] inconclusive  +0.0036 [-0.0060,+0.0132] inconclusive
+c bf16/q16 (bfloat16 weights)           -0.0008 [-0.0041,+0.0025] inconclusive  +0.0037 [-0.0008,+0.0081] inconclusive  -0.0011 [-0.0025,+0.0003] inconclusive  -0.0005 [-0.0115,+0.0106] inconclusive  -0.0060 [-0.0197,+0.0077] inconclusive
+c f16/f16 (binary16 weights+counts)     -0.0001 [-0.0025,+0.0024] inconclusive  -0.0002 [-0.0024,+0.0021] inconclusive  -0.0009 [-0.0017,-0.0001]  EQUIVALENT  +0.0034 [-0.0018,+0.0087] inconclusive  +0.0031 [-0.0083,+0.0145] inconclusive
+c u8/q16 (u8 weights)                   -0.0107 [-0.0143,-0.0071]        LOSS  -0.0058 [-0.0115,-0.0002]        LOSS  -0.0001 [-0.0020,+0.0019] inconclusive  +0.0008 [-0.0096,+0.0113] inconclusive  +0.0031 [-0.0070,+0.0131] inconclusive
+c u16/q8 s=8 (u8 counts)                -0.0010 [-0.0063,+0.0043] inconclusive  +0.0045 [-0.0004,+0.0094] inconclusive  -0.0001 [-0.0023,+0.0021] inconclusive  -0.0025 [-0.0141,+0.0091] inconclusive  -0.0023 [-0.0143,+0.0097] inconclusive
+c u16/q16 + LRU 50% rows                -0.0630 [-0.0682,-0.0578]        LOSS  -0.0950 [-0.1086,-0.0813]        LOSS  -0.0035 [-0.0065,-0.0004]        LOSS  -0.0225 [-0.0316,-0.0133]        LOSS  +0.0002 [-0.0030,+0.0035] inconclusive
+c u16/q16 + LRU 25% rows                -0.0636 [-0.0689,-0.0583]        LOSS  -0.0961 [-0.1102,-0.0821]        LOSS  -0.0041 [-0.0074,-0.0007]        LOSS  -0.0506 [-0.0623,-0.0390]        LOSS  +0.0023 [-0.0041,+0.0087] inconclusive
+c u16/q16 + LFU 25% rows                -0.0540 [-0.0615,-0.0464]        LOSS  -0.0841 [-0.0982,-0.0700]        LOSS  -0.0036 [-0.0065,-0.0007]        LOSS  -0.0109 [-0.0218,+0.0001] inconclusive  +0.0023 [-0.0026,+0.0072] inconclusive
+c u16/q16 + admit>=2                    -0.0000 [-0.0040,+0.0040] inconclusive  +0.0006 [-0.0070,+0.0082] inconclusive  -0.0009 [-0.0026,+0.0008] inconclusive  +0.0012 [-0.0123,+0.0147] inconclusive  -0.0100 [-0.0238,+0.0037] inconclusive
+c u16/q16 + admit>=2 + LRU 512 rows     -0.0000 [-0.0040,+0.0040] inconclusive  +0.0006 [-0.0070,+0.0082] inconclusive  -0.0009 [-0.0026,+0.0008] inconclusive  +0.0012 [-0.0123,+0.0147] inconclusive  -0.0103 [-0.0240,+0.0035] inconclusive
+c u16/q16 + admit>=2 + LRU 256 rows     -0.0000 [-0.0040,+0.0040] inconclusive  +0.0006 [-0.0070,+0.0082] inconclusive  -0.0009 [-0.0026,+0.0008] inconclusive  +0.0012 [-0.0123,+0.0147] inconclusive  -0.0110 [-0.0243,+0.0023] inconclusive
+c u16/q16 SPARSE + admit>=2 + LRU 512   -0.0000 [-0.0040,+0.0040] inconclusive  +0.0006 [-0.0070,+0.0082] inconclusive  -0.0009 [-0.0026,+0.0008] inconclusive  +0.0012 [-0.0123,+0.0147] inconclusive  -0.0106 [-0.0246,+0.0033] inconclusive
+
+power (300 extra seeds 100-399, equivalence-focused) seeds: diff of full-run expected success vs f64 crate guarded(hebr) [95% CI]  (verdict)
+scheme                                                          sim-fixed                         sim-random                       sim-no-traps                       big-32agents              big-32agents-longtail
+c f32/f32                               +0.0000 [+0.0000,+0.0000]  EQUIVALENT  +0.0000 [+0.0000,+0.0000]  EQUIVALENT  +0.0000 [+0.0000,+0.0000]  EQUIVALENT  +0.0000 [+0.0000,+0.0000]  EQUIVALENT  +0.0000 [+0.0000,+0.0000]  EQUIVALENT
+c u16/f32                               +0.0001 [-0.0002,+0.0003]  EQUIVALENT  +0.0003 [-0.0001,+0.0007]  EQUIVALENT  -0.0000 [-0.0001,+0.0001]  EQUIVALENT  -0.0002 [-0.0019,+0.0015]  EQUIVALENT  -0.0004 [-0.0021,+0.0012]  EQUIVALENT
+c u16/q16 (frozen scale)                +0.0001 [-0.0002,+0.0005]  EQUIVALENT  +0.0003 [-0.0002,+0.0008]  EQUIVALENT  -0.0000 [-0.0002,+0.0001]  EQUIVALENT  -0.0002 [-0.0021,+0.0017]  EQUIVALENT  -0.0007 [-0.0024,+0.0010] inconclusive
+c u16/q16 + hash32 ids                  +0.0001 [-0.0002,+0.0005]  EQUIVALENT  +0.0003 [-0.0002,+0.0008]  EQUIVALENT  -0.0000 [-0.0002,+0.0001]  EQUIVALENT  -0.0002 [-0.0021,+0.0017]  EQUIVALENT  -0.0007 [-0.0024,+0.0010] inconclusive
+c f16/q16 (binary16 weights)            +0.0000 [-0.0004,+0.0004]  EQUIVALENT  +0.0002 [-0.0004,+0.0007]  EQUIVALENT  -0.0000 [-0.0002,+0.0001]  EQUIVALENT  +0.0003 [-0.0017,+0.0023] inconclusive  -0.0000 [-0.0020,+0.0020]  EQUIVALENT
+c bf16/q16 (bfloat16 weights)           +0.0007 [-0.0001,+0.0015]  EQUIVALENT  -0.0002 [-0.0013,+0.0010]  EQUIVALENT  -0.0000 [-0.0004,+0.0004]  EQUIVALENT  +0.0012 [-0.0014,+0.0038] inconclusive  +0.0004 [-0.0023,+0.0031] inconclusive
+c f16/f16 (binary16 weights+counts)     +0.0001 [-0.0004,+0.0006]  EQUIVALENT  +0.0001 [-0.0005,+0.0007]  EQUIVALENT  -0.0000 [-0.0003,+0.0003]  EQUIVALENT  +0.0005 [-0.0016,+0.0025] inconclusive  -0.0001 [-0.0021,+0.0019]  EQUIVALENT
+c u8/q16 (u8 weights)                   -0.0104 [-0.0116,-0.0092]        LOSS  -0.0061 [-0.0076,-0.0046]        LOSS  +0.0000 [-0.0006,+0.0006]  EQUIVALENT  +0.0068 [+0.0036,+0.0101]        GAIN  +0.0058 [+0.0026,+0.0090]        GAIN
+c u16/q16 + admit>=2                    -0.0005 [-0.0018,+0.0009]  EQUIVALENT  -0.0011 [-0.0026,+0.0005] inconclusive  +0.0002 [-0.0004,+0.0008]  EQUIVALENT  -0.0003 [-0.0037,+0.0031] inconclusive  +0.0017 [-0.0018,+0.0052] inconclusive
+c u16/q16 + admit>=2 + LRU 512 rows     -0.0005 [-0.0018,+0.0009]  EQUIVALENT  -0.0011 [-0.0026,+0.0005] inconclusive  +0.0002 [-0.0004,+0.0008]  EQUIVALENT  -0.0003 [-0.0037,+0.0031] inconclusive  +0.0017 [-0.0017,+0.0052] inconclusive
+
+state bytes after run tasks (allocator-measured live bytes after shrink-to-fit; per-brain only, shared vocab/kw excluded):
+   [touched] c u16/q16 (frozen scale) / sim-fixed: rows 32 mean agents-touched/row 5.72 (of 6) max 6 frac<=4 0.00
+   [touched] c u16/q16 (frozen scale) / sim-random: rows 32 mean agents-touched/row 4.66 (of 6) max 6 frac<=4 0.50
+   [touched] c u16/q16 (frozen scale) / sim-no-traps: rows 32 mean agents-touched/row 5.09 (of 6) max 6 frac<=4 0.16
+   [touched] c u16/q16 (frozen scale) / big-32agents: rows 232 mean agents-touched/row 8.11 (of 32) max 20 frac<=4 0.19
+   [touched] c u16/q16 (frozen scale) / big-32agents-longtail: rows 1838 mean agents-touched/row 2.03 (of 32) max 22 frac<=4 0.91
+scheme                                                          sim-fixed                 sim-random               sim-no-traps               big-32agents      big-32agents-longtail
+crate guarded(hebr) f64 (BTreeMap<String,..>)       16936 B/ 207 blk/   0r      16936 B/ 207 blk/   0r      16936 B/ 207 blk/   0r     248154 B/1423 blk/   0r    1878593 B/9879 blk/   0r
+c f64/f64 (layout only)                              5472 B/   5 blk/  32r       5472 B/   5 blk/  32r       5472 B/   5 blk/  32r     182240 B/   5 blk/ 232r    1441344 B/   5 blk/1838r
+c f32/f32                                            3040 B/   5 blk/  32r       3040 B/   5 blk/  32r       3040 B/   5 blk/  32r      92224 B/   5 blk/ 232r     728200 B/   5 blk/1838r
+c u16/f32                                            2592 B/   5 blk/  32r       2592 B/   5 blk/  32r       2592 B/   5 blk/  32r      76912 B/   5 blk/ 232r     606892 B/   5 blk/1838r
+c u16/q16 (frozen scale)                             1824 B/   5 blk/  32r       1824 B/   5 blk/  32r       1824 B/   5 blk/  32r      47216 B/   5 blk/ 232r     371628 B/   5 blk/1838r
+c u16/q16 + hash32 ids                               1824 B/   5 blk/  32r       1824 B/   5 blk/  32r       1824 B/   5 blk/  32r      47216 B/   5 blk/ 232r     371628 B/   5 blk/1838r
+c u16/q16 sparse rows                                2298 B/   8 blk/  32r       2094 B/   8 blk/  32r       2178 B/   8 blk/  32r      17292 B/   8 blk/ 232r      66882 B/   8 blk/1838r
+c f32/f32 sparse rows                                3524 B/   8 blk/  32r       3116 B/   8 blk/  32r       3284 B/   8 blk/  32r      29464 B/   8 blk/ 232r      96884 B/   8 blk/1838r
+c f16/q16 (binary16 weights)                         1824 B/   5 blk/  32r       1824 B/   5 blk/  32r       1824 B/   5 blk/  32r      47216 B/   5 blk/ 232r     371628 B/   5 blk/1838r
+c bf16/q16 (bfloat16 weights)                        1824 B/   5 blk/  32r       1824 B/   5 blk/  32r       1824 B/   5 blk/  32r      47216 B/   5 blk/ 232r     371628 B/   5 blk/1838r
+c f16/f16 (binary16 weights+counts)                  1824 B/   5 blk/  32r       1824 B/   5 blk/  32r       1824 B/   5 blk/  32r      47216 B/   5 blk/ 232r     371628 B/   5 blk/1838r
+c u8/q16 (u8 weights)                                1600 B/   5 blk/  32r       1600 B/   5 blk/  32r       1600 B/   5 blk/  32r      39560 B/   5 blk/ 232r     310974 B/   5 blk/1838r
+c u16/q8 s=8 (u8 counts)                             1440 B/   5 blk/  32r       1440 B/   5 blk/  32r       1440 B/   5 blk/  32r      32368 B/   5 blk/ 232r     253996 B/   5 blk/1838r
+c u16/q16 + LRU 50% rows                             1216 B/   6 blk/  16r       1216 B/   6 blk/  16r       1216 B/   6 blk/  16r      24712 B/   6 blk/ 116r     193342 B/   6 blk/ 919r
+c u16/q16 + LRU 25% rows                              784 B/   6 blk/   8r        784 B/   6 blk/   8r        784 B/   6 blk/   8r      12532 B/   6 blk/  58r      96952 B/   6 blk/ 460r
+c u16/q16 + LFU 25% rows                              784 B/   6 blk/   8r        784 B/   6 blk/   8r        784 B/   6 blk/   8r      12532 B/   6 blk/  58r      96952 B/   6 blk/ 460r
+c u16/q16 + admit>=2                                 3872 B/   6 blk/  32r       3872 B/   6 blk/  32r       3872 B/   6 blk/  32r      49264 B/   6 blk/ 232r     187028 B/   6 blk/ 914r
+c u16/q16 + admit>=2 + LRU 512 rows                  4128 B/   7 blk/  32r       4128 B/   7 blk/  32r       4128 B/   7 blk/  32r      51120 B/   7 blk/ 232r     109920 B/   7 blk/ 512r
+c u16/q16 + admit>=2 + LRU 256 rows                  4128 B/   7 blk/  32r       4128 B/   7 blk/  32r       4128 B/   7 blk/  32r      51120 B/   7 blk/ 232r      56160 B/   7 blk/ 256r
+c u16/q16 SPARSE + admit>=2 + LRU 512                4596 B/  10 blk/  32r       4392 B/  10 blk/  32r       4410 B/  10 blk/  32r      21226 B/  10 blk/ 232r      29106 B/  10 blk/ 512r
+
+=== PART 3: how many brains fit per GiB (K brains actually built; live bytes from the counting allocator, commit charge from a fresh child process per row) ===
+
+-- world sim-fixed (6 agents, 2000 tasks)
+brain                                          sharing    rows     live B   blocks    commit B shared once     brains/GiB
+crate guarded(hebr) f64 [String keys, BTreeMap] private       0      16952    207.0       22502           0          47717   (est live+hdr 20368 B, ws 22451 B, K=160)
+c f32/f32 dense                                private      32       5230     39.0        6079           0         176642   (est live+hdr 5874 B, ws 5930 B, K=14534)
+c f32/f32 dense                                shared       32       3104      5.0        3297        2110         325696   (est live+hdr 3187 B, ws 3207 B, K=14534)
+c u16/q16 dense                                private      32       4014     39.0        4843           0         221719   (est live+hdr 4658 B, ws 4714 B, K=26041)
+c u16/q16 dense                                shared       32       1888      5.0        2040        2110         526247   (est live+hdr 1971 B, ws 1993 B, K=26041)
+c u16/q16 sparse                               private      32       4488     42.0        5386           0         199344   (est live+hdr 5181 B, ws 5251 B, K=20725)
+c u16/q16 sparse                               shared       32       2362      8.0        2589        2110         414664   (est live+hdr 2494 B, ws 2534 B, K=20725)
+c u16/q16 sparse hash32                        private      32       2634      9.0        2898           0         370495   (est live+hdr 2783 B, ws 2832 B, K=20725)
+c u16/q16 sparse hash32                        shared       32       2362      8.0        2590         256         414601   (est live+hdr 2494 B, ws 2534 B, K=20725)
+c u16/q16 sparse + admit>=2 + LRU 512          private      32       6804     44.0        7881           0         136250   (est live+hdr 7530 B, ws 7708 B, K=9420)
+c u16/q16 sparse + admit>=2 + LRU 512          shared       32       4678     10.0        5049        2110         212677   (est live+hdr 4843 B, ws 4948 B, K=9420)
+
+-- world big-32agents (32 agents, 4000 tasks)
+brain                                          sharing    rows     live B   blocks    commit B shared once     brains/GiB
+crate guarded(hebr) f64 [String keys, BTreeMap] private       0     248170   1423.0      278477           0           3856   (est live+hdr 271651 B, ws 273254 B, K=160)
+c f32/f32 dense                                private     232     107686    239.0      112871           0           9513   (est live+hdr 111630 B, ws 111392 B, K=435)
+c f32/f32 dense                                shared      232      92288      5.0       92297       15382          11624   (est live+hdr 92371 B, ws 92212 B, K=435)
+c u16/q16 dense                                private     232      62678    239.0       68949           0          15573   (est live+hdr 66622 B, ws 66647 B, K=852)
+c u16/q16 dense                                shared      232      47280      5.0       48690       15382          22052   (est live+hdr 47363 B, ws 47753 B, K=852)
+c u16/q16 sparse                               private     232      33426    242.0       39650           0          27081   (est live+hdr 37419 B, ws 37902 B, K=2273)
+c u16/q16 sparse                               shared      232      18028      8.0       19399       15382          55350   (est live+hdr 18160 B, ws 19019 B, K=2273)
+c u16/q16 sparse hash32                        private     232      19580      9.0       21177           0          50702   (est live+hdr 19729 B, ws 20752 B, K=2273)
+c u16/q16 sparse hash32                        shared      232      18028      8.0       19417        1536          55300   (est live+hdr 18160 B, ws 19037 B, K=2273)
+c u16/q16 sparse + admit>=2 + LRU 512          private     232      36862    244.0       42748           0          25118   (est live+hdr 40888 B, ws 40885 B, K=1901)
+c u16/q16 sparse + admit>=2 + LRU 512          shared      232      21464     10.0       22602       15382          47505   (est live+hdr 21629 B, ws 21967 B, K=1901)
+
+-- world big-32agents-longtail (32 agents, 4000 tasks)
+brain                                          sharing    rows     live B   blocks    commit B shared once     brains/GiB
+crate guarded(hebr) f64 [String keys, BTreeMap] private       0    1878609   9879.0     2111147           0            509   (est live+hdr 2041619 B, ws 2072235 B, K=24)
+c f32/f32 dense                                private    1838     840779   1845.0      868079           0           1232   (est live+hdr 871223 B, ws 861252 B, K=300)
+c f32/f32 dense                                shared     1838     728264      5.0      733293      112499           1464   (est live+hdr 728347 B, ws 727586 B, K=300)
+c u16/q16 dense                                private    1838     484207   1845.0      511235           0           2086   (est live+hdr 514651 B, ws 505091 B, K=300)
+c u16/q16 dense                                shared     1838     371692      5.0      374156      112499           2869   (est live+hdr 371775 B, ws 371275 B, K=300)
+c u16/q16 sparse                               private    1838     179395   1848.0      209741           0           5116   (est live+hdr 209888 B, ws 202319 B, K=601)
+c u16/q16 sparse                               shared     1838      66880      8.0       72508      112499          14807   (est live+hdr 67012 B, ws 68296 B, K=601)
+c u16/q16 sparse hash32                        private    1838      68432      9.0       73980           0          14514   (est live+hdr 68581 B, ws 70089 B, K=601)
+c u16/q16 sparse hash32                        shared     1838      66880      8.0       72515        1536          14807   (est live+hdr 67012 B, ws 68262 B, K=601)
+c u16/q16 sparse + admit>=2 + LRU 512          private     512     141769   1850.0      168234           0           6232   (est live+hdr 172295 B, ws 164002 B, K=1387)
+c u16/q16 sparse + admit>=2 + LRU 512          shared      512      29254     10.0       30748      112499          34917   (est live+hdr 29419 B, ws 30090 B, K=1387)
+
+wrote results/f3_brain.json  (118s)

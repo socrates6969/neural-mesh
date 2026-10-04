@@ -1,0 +1,539 @@
+warning: value assigned to `verdict_ok` is never read
+    --> src\cognition.rs:1020:17
+     |
+1020 |                 verdict_ok = None;
+     |                 ^^^^^^^^^^^^^^^^^ this value is reassigned later and never used
+...
+1033 |                     verdict_ok = Some(flagged == !correct1);
+     |                     --------------------------------------- `verdict_ok` is overwritten here before the previous value is read
+     |
+     = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: `neural-mesh` (lib) generated 1 warning
+    Finished `release` profile [optimized] target(s) in 0.37s
+     Running `C:/Users/mariu/nm-target-r1\release\e1_default.exe --held 61-90 --out results/e1_default_confirm61-90.json`
+e1_default: 2000 tasks/run, tune seeds 1-8 on 11 worlds (family = drift-heavy/misleading incl. q-twins + variants), held-out 61-90
+[tune 1-8] eps-greedy: 16 configs, best mean score 0.58221 -> eps-greedy(gamma=0.9,eps=0)
+[tune 1-8] pooled-ts: 4 configs, best mean score 0.55070 -> pooled-ts(gamma=1)
+[tune 1-8] guarded regret objective on 6 worlds: 1441 configs, best -0.00379 -> guarded(tau=0.8,z=1,kw=Beta(4,1),discount=1,challenge=false; inner=Heb(0.01))
+[tune 1-8] guarded regret objective on 11 worlds: 1441 configs, best -0.00364 -> guarded(tau=0.8,z=1,kw=Beta(8,2),discount=1,challenge=false; inner=Heb(0.01))
+[tune 1-8] guarded safe objective on 11 worlds: 1441 configs, best -0.00415 -> guarded(tau=0.7,z=0.5,kw=Beta(4,1),discount=0.98,challenge=true; inner=Heb(0.01))
+tuning done in 28.0s
+src/defaults.rs recommended_guard() == tuned guarded-safe config: true
+
+=== world traps(main) | held-out 61-90 | mean expected score over first H ===
+router                         100     250     500    2000
+keyword                     0.6557  0.6586  0.6578  0.6557
+eps-greedy(tuned)           0.4995  0.5772  0.6644  0.7566
+pooled-ts(tuned)            0.4808  0.5378  0.6102  0.7241
+hebbian-robust              0.5335  0.6357  0.7015  0.7685
+warm(hebr)                  0.6406  0.6946  0.7367  0.7814   <- candidate
+guarded-x1(frozen)          0.6727  0.7095  0.7430  0.7821   <- candidate
+guarded-fam(retuned)        0.6709  0.7093  0.7454  0.7869   <- candidate
+guarded-all(retuned)        0.6673  0.7062  0.7439  0.7869   <- candidate
+guarded-safe(retuned)       0.6704  0.7042  0.7381  0.7779   <- candidate
+
+=== world correct-keywords | held-out 61-90 | mean expected score over first H ===
+router                         100     250     500    2000
+keyword                     0.8202  0.8194  0.8191  0.8178
+eps-greedy(tuned)           0.4911  0.5810  0.6618  0.7515
+pooled-ts(tuned)            0.4813  0.5478  0.6168  0.7261
+hebbian-robust              0.5444  0.6334  0.7007  0.7703
+warm(hebr)                  0.7331  0.7534  0.7762  0.7905   <- candidate
+guarded-x1(frozen)          0.8143  0.8140  0.8161  0.8166   <- candidate
+guarded-fam(retuned)        0.8045  0.8000  0.8030  0.8093   <- candidate
+guarded-all(retuned)        0.8117  0.8074  0.8087  0.8123   <- candidate
+guarded-safe(retuned)       0.8123  0.8101  0.8124  0.8154   <- candidate
+
+=== world many-topics(16) | held-out 61-90 | mean expected score over first H ===
+router                         100     250     500    2000
+keyword                     0.7134  0.7091  0.7113  0.7120
+eps-greedy(tuned)           0.4785  0.5161  0.5875  0.7243
+pooled-ts(tuned)            0.4370  0.4818  0.5424  0.6756
+hebbian-robust              0.5007  0.5712  0.6413  0.7488
+warm(hebr)                  0.6742  0.6905  0.7217  0.7770   <- candidate
+guarded-x1(frozen)          0.7173  0.7262  0.7475  0.7846   <- candidate
+guarded-fam(retuned)        0.7133  0.7217  0.7426  0.7833   <- candidate
+guarded-all(retuned)        0.7156  0.7207  0.7431  0.7849   <- candidate
+guarded-safe(retuned)       0.7156  0.7222  0.7449  0.7829   <- candidate
+
+=== world sim-random | held-out 61-90 | mean expected score over first H ===
+router                         100     250     500    2000
+keyword                     0.7256  0.7259  0.7228  0.6752
+eps-greedy(tuned)           0.5391  0.6318  0.7013  0.7459
+pooled-ts(tuned)            0.5202  0.6055  0.6728  0.7259
+hebbian-robust              0.6036  0.6867  0.7444  0.7656
+warm(hebr)                  0.7138  0.7513  0.7791  0.7744   <- candidate
+guarded-x1(frozen)          0.7391  0.7626  0.7825  0.7690   <- candidate
+guarded-fam(retuned)        0.7421  0.7701  0.7922  0.7738   <- candidate
+guarded-all(retuned)        0.7356  0.7637  0.7885  0.7703   <- candidate
+guarded-safe(retuned)       0.7387  0.7632  0.7833  0.7714   <- candidate
+
+=== world sim-notraps | held-out 61-90 | mean expected score over first H ===
+router                         100     250     500    2000
+keyword                     0.8420  0.8422  0.8312  0.7855
+eps-greedy(tuned)           0.5483  0.6318  0.6989  0.7405
+pooled-ts(tuned)            0.5177  0.5980  0.6590  0.7177
+hebbian-robust              0.5859  0.6714  0.7222  0.7532
+warm(hebr)                  0.7757  0.7937  0.7967  0.7736   <- candidate
+guarded-x1(frozen)          0.8410  0.8411  0.8305  0.7869   <- candidate
+guarded-fam(retuned)        0.8325  0.8309  0.8227  0.7775   <- candidate
+guarded-all(retuned)        0.8392  0.8391  0.8289  0.7792   <- candidate
+guarded-safe(retuned)       0.8391  0.8388  0.8291  0.7896   <- candidate
+
+=== world drift-heavy | held-out 61-90 | mean expected score over first H ===
+router                         100     250     500    2000
+keyword                     0.7320  0.7352  0.6980  0.5275
+eps-greedy(tuned)           0.4993  0.5799  0.6262  0.6412
+pooled-ts(tuned)            0.4773  0.5363  0.5779  0.5893
+hebbian-robust              0.5448  0.6369  0.6632  0.6852
+warm(hebr)                  0.6795  0.7138  0.7085  0.7016   <- candidate
+guarded-x1(frozen)          0.7412  0.7609  0.7339  0.6569   <- candidate
+guarded-fam(retuned)        0.7301  0.7484  0.7259  0.6923   <- candidate
+guarded-all(retuned)        0.7374  0.7556  0.7309  0.6907   <- candidate
+guarded-safe(retuned)       0.7383  0.7568  0.7328  0.6786   <- candidate
+
+=== world misleading | held-out 61-90 | mean expected score over first H ===
+router                         100     250     500    2000
+keyword                     0.5065  0.5043  0.5036  0.5030
+eps-greedy(tuned)           0.4523  0.5162  0.5707  0.6390
+pooled-ts(tuned)            0.4613  0.4950  0.5389  0.6255
+hebbian-robust              0.4949  0.5585  0.6064  0.6633
+warm(hebr)                  0.5265  0.5658  0.6071  0.6636   <- candidate
+guarded-x1(frozen)          0.5243  0.5613  0.5997  0.6461   <- candidate
+guarded-fam(retuned)        0.5290  0.5679  0.6095  0.6647   <- candidate
+guarded-all(retuned)        0.5208  0.5610  0.6037  0.6638   <- candidate
+guarded-safe(retuned)       0.5237  0.5586  0.5967  0.6497   <- candidate
+
+=== world q-misleading | held-out 61-90 | mean expected score over first H ===
+router                         100     250     500    2000
+keyword                     0.5547  0.5552  0.5543  0.5541
+eps-greedy(tuned)           0.4287  0.4689  0.5287  0.6117
+pooled-ts(tuned)            0.4352  0.4498  0.4648  0.5215
+hebbian-robust              0.4648  0.5015  0.5408  0.6112
+warm(hebr)                  0.5210  0.5404  0.5731  0.6295   <- candidate
+guarded-x1(frozen)          0.5552  0.5621  0.5721  0.6010   <- candidate
+guarded-fam(retuned)        0.5584  0.5717  0.5895  0.6365   <- candidate
+guarded-all(retuned)        0.5562  0.5694  0.5874  0.6349   <- candidate
+guarded-safe(retuned)       0.5567  0.5692  0.5868  0.6243   <- candidate
+
+=== world q-drift | held-out 61-90 | mean expected score over first H ===
+router                         100     250     500    2000
+keyword                     0.7212  0.7206  0.7197  0.6352
+eps-greedy(tuned)           0.4280  0.4802  0.5733  0.6461
+pooled-ts(tuned)            0.4359  0.4569  0.4857  0.5428
+hebbian-robust              0.4785  0.5376  0.5974  0.6490
+warm(hebr)                  0.6310  0.6570  0.6881  0.6889   <- candidate
+guarded-x1(frozen)          0.7211  0.7214  0.7220  0.6476   <- candidate
+guarded-fam(retuned)        0.7215  0.7232  0.7254  0.6964   <- candidate
+guarded-all(retuned)        0.7211  0.7218  0.7248  0.6963   <- candidate
+guarded-safe(retuned)       0.7214  0.7218  0.7237  0.6741   <- candidate
+
+=== A) candidates vs KEYWORD: Holm over 180 tests (WIN/LOSS only listed; ns omitted) ===
+traps(main)        guarded-x1(frozen)     H=100   vs keyword                +0.0170 [+0.0121,+0.0218] w/l 29/1 holm 0.0000 WIN
+traps(main)        guarded-fam(retuned)   H=100   vs keyword                +0.0152 [+0.0073,+0.0230] w/l 24/6 holm 0.0299 WIN
+traps(main)        guarded-all(retuned)   H=100   vs keyword                +0.0115 [+0.0068,+0.0163] w/l 23/7 holm 0.0024 WIN
+traps(main)        guarded-safe(retuned)  H=100   vs keyword                +0.0147 [+0.0094,+0.0199] w/l 27/3 holm 0.0003 WIN
+traps(main)        warm(hebr)             H=250   vs keyword                +0.0361 [+0.0209,+0.0512] w/l 24/6 holm 0.0030 WIN
+traps(main)        guarded-x1(frozen)     H=250   vs keyword                +0.0510 [+0.0421,+0.0599] w/l 30/0 holm 0.0000 WIN
+traps(main)        guarded-fam(retuned)   H=250   vs keyword                +0.0507 [+0.0385,+0.0629] w/l 29/1 holm 0.0000 WIN
+traps(main)        guarded-all(retuned)   H=250   vs keyword                +0.0476 [+0.0382,+0.0570] w/l 30/0 holm 0.0000 WIN
+traps(main)        guarded-safe(retuned)  H=250   vs keyword                +0.0457 [+0.0366,+0.0547] w/l 29/1 holm 0.0000 WIN
+traps(main)        warm(hebr)             H=500   vs keyword                +0.0789 [+0.0616,+0.0961] w/l 29/1 holm 0.0000 WIN
+traps(main)        guarded-x1(frozen)     H=500   vs keyword                +0.0852 [+0.0718,+0.0985] w/l 30/0 holm 0.0000 WIN
+traps(main)        guarded-fam(retuned)   H=500   vs keyword                +0.0875 [+0.0743,+0.1008] w/l 30/0 holm 0.0000 WIN
+traps(main)        guarded-all(retuned)   H=500   vs keyword                +0.0860 [+0.0740,+0.0981] w/l 30/0 holm 0.0000 WIN
+traps(main)        guarded-safe(retuned)  H=500   vs keyword                +0.0803 [+0.0684,+0.0921] w/l 30/0 holm 0.0000 WIN
+traps(main)        warm(hebr)             H=2000  vs keyword                +0.1257 [+0.1132,+0.1382] w/l 30/0 holm 0.0000 WIN
+traps(main)        guarded-x1(frozen)     H=2000  vs keyword                +0.1264 [+0.1138,+0.1390] w/l 30/0 holm 0.0000 WIN
+traps(main)        guarded-fam(retuned)   H=2000  vs keyword                +0.1312 [+0.1192,+0.1432] w/l 30/0 holm 0.0000 WIN
+traps(main)        guarded-all(retuned)   H=2000  vs keyword                +0.1312 [+0.1200,+0.1425] w/l 30/0 holm 0.0000 WIN
+traps(main)        guarded-safe(retuned)  H=2000  vs keyword                +0.1222 [+0.1101,+0.1343] w/l 30/0 holm 0.0000 WIN
+correct-keywords   warm(hebr)             H=100   vs keyword                -0.0871 [-0.1020,-0.0723] w/l 0/30 holm 0.0000 LOSS
+correct-keywords   warm(hebr)             H=250   vs keyword                -0.0660 [-0.0755,-0.0564] w/l 0/30 holm 0.0000 LOSS
+correct-keywords   guarded-fam(retuned)   H=250   vs keyword                -0.0194 [-0.0290,-0.0097] w/l 3/26 holm 0.0217 LOSS
+correct-keywords   guarded-all(retuned)   H=250   vs keyword                -0.0120 [-0.0173,-0.0066] w/l 3/26 holm 0.0062 LOSS
+correct-keywords   warm(hebr)             H=500   vs keyword                -0.0429 [-0.0499,-0.0359] w/l 0/30 holm 0.0000 LOSS
+correct-keywords   guarded-fam(retuned)   H=500   vs keyword                -0.0161 [-0.0244,-0.0078] w/l 1/29 holm 0.0288 LOSS
+correct-keywords   guarded-all(retuned)   H=500   vs keyword                -0.0104 [-0.0152,-0.0056] w/l 2/28 holm 0.0095 LOSS
+correct-keywords   warm(hebr)             H=2000  vs keyword                -0.0273 [-0.0304,-0.0242] w/l 0/30 holm 0.0000 LOSS
+correct-keywords   guarded-all(retuned)   H=2000  vs keyword                -0.0054 [-0.0079,-0.0029] w/l 2/28 holm 0.0097 LOSS
+many-topics(16)    warm(hebr)             H=100   vs keyword                -0.0392 [-0.0518,-0.0265] w/l 4/26 holm 0.0001 LOSS
+many-topics(16)    guarded-x1(frozen)     H=250   vs keyword                +0.0170 [+0.0113,+0.0228] w/l 26/4 holm 0.0001 WIN
+many-topics(16)    guarded-all(retuned)   H=250   vs keyword                +0.0116 [+0.0060,+0.0172] w/l 22/8 holm 0.0160 WIN
+many-topics(16)    guarded-safe(retuned)  H=250   vs keyword                +0.0131 [+0.0075,+0.0186] w/l 24/6 holm 0.0037 WIN
+many-topics(16)    guarded-x1(frozen)     H=500   vs keyword                +0.0361 [+0.0304,+0.0419] w/l 30/0 holm 0.0000 WIN
+many-topics(16)    guarded-fam(retuned)   H=500   vs keyword                +0.0312 [+0.0240,+0.0384] w/l 30/0 holm 0.0000 WIN
+many-topics(16)    guarded-all(retuned)   H=500   vs keyword                +0.0317 [+0.0260,+0.0375] w/l 30/0 holm 0.0000 WIN
+many-topics(16)    guarded-safe(retuned)  H=500   vs keyword                +0.0336 [+0.0274,+0.0398] w/l 30/0 holm 0.0000 WIN
+many-topics(16)    warm(hebr)             H=2000  vs keyword                +0.0649 [+0.0565,+0.0733] w/l 30/0 holm 0.0000 WIN
+many-topics(16)    guarded-x1(frozen)     H=2000  vs keyword                +0.0726 [+0.0667,+0.0785] w/l 30/0 holm 0.0000 WIN
+many-topics(16)    guarded-fam(retuned)   H=2000  vs keyword                +0.0713 [+0.0648,+0.0778] w/l 30/0 holm 0.0000 WIN
+many-topics(16)    guarded-all(retuned)   H=2000  vs keyword                +0.0729 [+0.0670,+0.0787] w/l 30/0 holm 0.0000 WIN
+many-topics(16)    guarded-safe(retuned)  H=2000  vs keyword                +0.0709 [+0.0644,+0.0774] w/l 30/0 holm 0.0000 WIN
+sim-random         guarded-x1(frozen)     H=250   vs keyword                +0.0366 [+0.0266,+0.0466] w/l 28/2 holm 0.0000 WIN
+sim-random         guarded-fam(retuned)   H=250   vs keyword                +0.0442 [+0.0309,+0.0574] w/l 27/3 holm 0.0000 WIN
+sim-random         guarded-all(retuned)   H=250   vs keyword                +0.0378 [+0.0285,+0.0471] w/l 28/2 holm 0.0000 WIN
+sim-random         guarded-safe(retuned)  H=250   vs keyword                +0.0372 [+0.0286,+0.0458] w/l 29/1 holm 0.0000 WIN
+sim-random         warm(hebr)             H=500   vs keyword                +0.0564 [+0.0401,+0.0727] w/l 26/4 holm 0.0000 WIN
+sim-random         guarded-x1(frozen)     H=500   vs keyword                +0.0598 [+0.0470,+0.0725] w/l 29/1 holm 0.0000 WIN
+sim-random         guarded-fam(retuned)   H=500   vs keyword                +0.0695 [+0.0555,+0.0834] w/l 29/1 holm 0.0000 WIN
+sim-random         guarded-all(retuned)   H=500   vs keyword                +0.0657 [+0.0527,+0.0787] w/l 28/2 holm 0.0000 WIN
+sim-random         guarded-safe(retuned)  H=500   vs keyword                +0.0605 [+0.0495,+0.0715] w/l 29/1 holm 0.0000 WIN
+sim-random         warm(hebr)             H=2000  vs keyword                +0.0992 [+0.0780,+0.1204] w/l 28/2 holm 0.0000 WIN
+sim-random         guarded-x1(frozen)     H=2000  vs keyword                +0.0938 [+0.0775,+0.1102] w/l 29/1 holm 0.0000 WIN
+sim-random         guarded-fam(retuned)   H=2000  vs keyword                +0.0986 [+0.0818,+0.1154] w/l 30/0 holm 0.0000 WIN
+sim-random         guarded-all(retuned)   H=2000  vs keyword                +0.0950 [+0.0775,+0.1126] w/l 30/0 holm 0.0000 WIN
+sim-random         guarded-safe(retuned)  H=2000  vs keyword                +0.0962 [+0.0821,+0.1103] w/l 30/0 holm 0.0000 WIN
+sim-notraps        warm(hebr)             H=100   vs keyword                -0.0663 [-0.0789,-0.0536] w/l 0/30 holm 0.0000 LOSS
+sim-notraps        warm(hebr)             H=250   vs keyword                -0.0484 [-0.0575,-0.0394] w/l 0/30 holm 0.0000 LOSS
+sim-notraps        warm(hebr)             H=500   vs keyword                -0.0344 [-0.0421,-0.0268] w/l 1/29 holm 0.0000 LOSS
+sim-notraps        warm(hebr)             H=2000  vs keyword                -0.0118 [-0.0179,-0.0058] w/l 6/24 holm 0.0280 LOSS
+drift-heavy        warm(hebr)             H=100   vs keyword                -0.0525 [-0.0643,-0.0408] w/l 2/28 holm 0.0000 LOSS
+drift-heavy        guarded-x1(frozen)     H=250   vs keyword                +0.0258 [+0.0166,+0.0349] w/l 27/3 holm 0.0003 WIN
+drift-heavy        guarded-all(retuned)   H=250   vs keyword                +0.0204 [+0.0120,+0.0288] w/l 24/6 holm 0.0022 WIN
+drift-heavy        guarded-safe(retuned)  H=250   vs keyword                +0.0216 [+0.0128,+0.0305] w/l 26/4 holm 0.0020 WIN
+drift-heavy        guarded-x1(frozen)     H=500   vs keyword                +0.0359 [+0.0264,+0.0454] w/l 30/0 holm 0.0000 WIN
+drift-heavy        guarded-fam(retuned)   H=500   vs keyword                +0.0279 [+0.0160,+0.0398] w/l 24/6 holm 0.0037 WIN
+drift-heavy        guarded-all(retuned)   H=500   vs keyword                +0.0328 [+0.0242,+0.0414] w/l 28/2 holm 0.0000 WIN
+drift-heavy        guarded-safe(retuned)  H=500   vs keyword                +0.0347 [+0.0272,+0.0423] w/l 29/1 holm 0.0000 WIN
+drift-heavy        warm(hebr)             H=2000  vs keyword                +0.1741 [+0.1584,+0.1899] w/l 30/0 holm 0.0000 WIN
+drift-heavy        guarded-x1(frozen)     H=2000  vs keyword                +0.1293 [+0.1172,+0.1415] w/l 30/0 holm 0.0000 WIN
+drift-heavy        guarded-fam(retuned)   H=2000  vs keyword                +0.1648 [+0.1502,+0.1795] w/l 30/0 holm 0.0000 WIN
+drift-heavy        guarded-all(retuned)   H=2000  vs keyword                +0.1631 [+0.1470,+0.1793] w/l 30/0 holm 0.0000 WIN
+drift-heavy        guarded-safe(retuned)  H=2000  vs keyword                +0.1511 [+0.1361,+0.1660] w/l 30/0 holm 0.0000 WIN
+misleading         guarded-x1(frozen)     H=100   vs keyword                +0.0177 [+0.0099,+0.0256] w/l 24/6 holm 0.0056 WIN
+misleading         guarded-fam(retuned)   H=100   vs keyword                +0.0225 [+0.0132,+0.0317] w/l 25/5 holm 0.0023 WIN
+misleading         guarded-safe(retuned)  H=100   vs keyword                +0.0172 [+0.0087,+0.0257] w/l 22/8 holm 0.0188 WIN
+misleading         warm(hebr)             H=250   vs keyword                +0.0615 [+0.0429,+0.0800] w/l 27/3 holm 0.0000 WIN
+misleading         guarded-x1(frozen)     H=250   vs keyword                +0.0570 [+0.0458,+0.0682] w/l 30/0 holm 0.0000 WIN
+misleading         guarded-fam(retuned)   H=250   vs keyword                +0.0635 [+0.0495,+0.0775] w/l 29/1 holm 0.0000 WIN
+misleading         guarded-all(retuned)   H=250   vs keyword                +0.0567 [+0.0443,+0.0691] w/l 30/0 holm 0.0000 WIN
+misleading         guarded-safe(retuned)  H=250   vs keyword                +0.0542 [+0.0425,+0.0659] w/l 30/0 holm 0.0000 WIN
+misleading         warm(hebr)             H=500   vs keyword                +0.1034 [+0.0869,+0.1200] w/l 29/1 holm 0.0000 WIN
+misleading         guarded-x1(frozen)     H=500   vs keyword                +0.0960 [+0.0838,+0.1083] w/l 30/0 holm 0.0000 WIN
+misleading         guarded-fam(retuned)   H=500   vs keyword                +0.1058 [+0.0900,+0.1217] w/l 30/0 holm 0.0000 WIN
+misleading         guarded-all(retuned)   H=500   vs keyword                +0.1001 [+0.0871,+0.1130] w/l 30/0 holm 0.0000 WIN
+misleading         guarded-safe(retuned)  H=500   vs keyword                +0.0930 [+0.0813,+0.1048] w/l 30/0 holm 0.0000 WIN
+misleading         warm(hebr)             H=2000  vs keyword                +0.1606 [+0.1452,+0.1760] w/l 30/0 holm 0.0000 WIN
+misleading         guarded-x1(frozen)     H=2000  vs keyword                +0.1431 [+0.1288,+0.1574] w/l 30/0 holm 0.0000 WIN
+misleading         guarded-fam(retuned)   H=2000  vs keyword                +0.1617 [+0.1453,+0.1781] w/l 30/0 holm 0.0000 WIN
+misleading         guarded-all(retuned)   H=2000  vs keyword                +0.1608 [+0.1479,+0.1737] w/l 30/0 holm 0.0000 WIN
+misleading         guarded-safe(retuned)  H=2000  vs keyword                +0.1467 [+0.1354,+0.1581] w/l 30/0 holm 0.0000 WIN
+q-misleading       warm(hebr)             H=100   vs keyword                -0.0337 [-0.0426,-0.0248] w/l 2/28 holm 0.0000 LOSS
+q-misleading       warm(hebr)             H=250   vs keyword                -0.0148 [-0.0220,-0.0076] w/l 7/23 holm 0.0166 LOSS
+q-misleading       guarded-x1(frozen)     H=250   vs keyword                +0.0069 [+0.0052,+0.0086] w/l 28/2 holm 0.0000 WIN
+q-misleading       guarded-fam(retuned)   H=250   vs keyword                +0.0165 [+0.0131,+0.0200] w/l 30/0 holm 0.0000 WIN
+q-misleading       guarded-all(retuned)   H=250   vs keyword                +0.0142 [+0.0108,+0.0177] w/l 30/0 holm 0.0000 WIN
+q-misleading       guarded-safe(retuned)  H=250   vs keyword                +0.0140 [+0.0115,+0.0166] w/l 30/0 holm 0.0000 WIN
+q-misleading       warm(hebr)             H=500   vs keyword                +0.0188 [+0.0095,+0.0280] w/l 23/7 holm 0.0188 WIN
+q-misleading       guarded-x1(frozen)     H=500   vs keyword                +0.0178 [+0.0143,+0.0214] w/l 30/0 holm 0.0000 WIN
+q-misleading       guarded-fam(retuned)   H=500   vs keyword                +0.0352 [+0.0293,+0.0412] w/l 30/0 holm 0.0000 WIN
+q-misleading       guarded-all(retuned)   H=500   vs keyword                +0.0331 [+0.0275,+0.0388] w/l 30/0 holm 0.0000 WIN
+q-misleading       guarded-safe(retuned)  H=500   vs keyword                +0.0325 [+0.0281,+0.0369] w/l 30/0 holm 0.0000 WIN
+q-misleading       warm(hebr)             H=2000  vs keyword                +0.0754 [+0.0684,+0.0824] w/l 30/0 holm 0.0000 WIN
+q-misleading       guarded-x1(frozen)     H=2000  vs keyword                +0.0469 [+0.0419,+0.0519] w/l 30/0 holm 0.0000 WIN
+q-misleading       guarded-fam(retuned)   H=2000  vs keyword                +0.0823 [+0.0761,+0.0886] w/l 30/0 holm 0.0000 WIN
+q-misleading       guarded-all(retuned)   H=2000  vs keyword                +0.0808 [+0.0753,+0.0862] w/l 30/0 holm 0.0000 WIN
+q-misleading       guarded-safe(retuned)  H=2000  vs keyword                +0.0702 [+0.0651,+0.0754] w/l 30/0 holm 0.0000 WIN
+q-drift            warm(hebr)             H=100   vs keyword                -0.0902 [-0.0993,-0.0811] w/l 0/30 holm 0.0000 LOSS
+q-drift            warm(hebr)             H=250   vs keyword                -0.0636 [-0.0707,-0.0565] w/l 0/30 holm 0.0000 LOSS
+q-drift            warm(hebr)             H=500   vs keyword                -0.0316 [-0.0376,-0.0256] w/l 2/28 holm 0.0000 LOSS
+q-drift            warm(hebr)             H=2000  vs keyword                +0.0538 [+0.0496,+0.0579] w/l 30/0 holm 0.0000 WIN
+q-drift            guarded-x1(frozen)     H=2000  vs keyword                +0.0125 [+0.0088,+0.0161] w/l 30/0 holm 0.0000 WIN
+q-drift            guarded-fam(retuned)   H=2000  vs keyword                +0.0612 [+0.0559,+0.0666] w/l 30/0 holm 0.0000 WIN
+q-drift            guarded-all(retuned)   H=2000  vs keyword                +0.0611 [+0.0564,+0.0658] w/l 30/0 holm 0.0000 WIN
+q-drift            guarded-safe(retuned)  H=2000  vs keyword                +0.0389 [+0.0346,+0.0431] w/l 30/0 holm 0.0000 WIN
+
+=== B) candidates vs BEST FAIR baseline: Holm over 180 tests (WIN/LOSS only listed; ns omitted) ===
+traps(main)        guarded-x1(frozen)     H=100   vs keyword                +0.0170 [+0.0121,+0.0218] w/l 29/1 holm 0.0000 WIN
+traps(main)        guarded-fam(retuned)   H=100   vs keyword                +0.0152 [+0.0073,+0.0230] w/l 24/6 holm 0.0424 WIN
+traps(main)        guarded-all(retuned)   H=100   vs keyword                +0.0115 [+0.0068,+0.0163] w/l 23/7 holm 0.0035 WIN
+traps(main)        guarded-safe(retuned)  H=100   vs keyword                +0.0147 [+0.0094,+0.0199] w/l 27/3 holm 0.0004 WIN
+traps(main)        warm(hebr)             H=250   vs keyword                +0.0361 [+0.0209,+0.0512] w/l 24/6 holm 0.0042 WIN
+traps(main)        guarded-x1(frozen)     H=250   vs keyword                +0.0510 [+0.0421,+0.0599] w/l 30/0 holm 0.0000 WIN
+traps(main)        guarded-fam(retuned)   H=250   vs keyword                +0.0507 [+0.0385,+0.0629] w/l 29/1 holm 0.0000 WIN
+traps(main)        guarded-all(retuned)   H=250   vs keyword                +0.0476 [+0.0382,+0.0570] w/l 30/0 holm 0.0000 WIN
+traps(main)        guarded-safe(retuned)  H=250   vs keyword                +0.0457 [+0.0366,+0.0547] w/l 29/1 holm 0.0000 WIN
+traps(main)        guarded-x1(frozen)     H=500   vs hebbian-robust         +0.0414 [+0.0242,+0.0587] w/l 25/5 holm 0.0037 WIN
+traps(main)        guarded-fam(retuned)   H=500   vs hebbian-robust         +0.0438 [+0.0266,+0.0610] w/l 28/2 holm 0.0017 WIN
+traps(main)        guarded-all(retuned)   H=500   vs hebbian-robust         +0.0423 [+0.0267,+0.0579] w/l 26/4 holm 0.0007 WIN
+traps(main)        guarded-safe(retuned)  H=500   vs hebbian-robust         +0.0365 [+0.0190,+0.0541] w/l 23/7 holm 0.0207 WIN
+traps(main)        guarded-fam(retuned)   H=2000  vs hebbian-robust         +0.0183 [+0.0106,+0.0260] w/l 25/5 holm 0.0042 WIN
+traps(main)        guarded-all(retuned)   H=2000  vs hebbian-robust         +0.0184 [+0.0109,+0.0259] w/l 27/3 holm 0.0027 WIN
+correct-keywords   warm(hebr)             H=100   vs keyword                -0.0871 [-0.1020,-0.0723] w/l 0/30 holm 0.0000 LOSS
+correct-keywords   warm(hebr)             H=250   vs keyword                -0.0660 [-0.0755,-0.0564] w/l 0/30 holm 0.0000 LOSS
+correct-keywords   guarded-fam(retuned)   H=250   vs keyword                -0.0194 [-0.0290,-0.0097] w/l 3/26 holm 0.0304 LOSS
+correct-keywords   guarded-all(retuned)   H=250   vs keyword                -0.0120 [-0.0173,-0.0066] w/l 3/26 holm 0.0087 LOSS
+correct-keywords   warm(hebr)             H=500   vs keyword                -0.0429 [-0.0499,-0.0359] w/l 0/30 holm 0.0000 LOSS
+correct-keywords   guarded-fam(retuned)   H=500   vs keyword                -0.0161 [-0.0244,-0.0078] w/l 1/29 holm 0.0407 LOSS
+correct-keywords   guarded-all(retuned)   H=500   vs keyword                -0.0104 [-0.0152,-0.0056] w/l 2/28 holm 0.0131 LOSS
+correct-keywords   warm(hebr)             H=2000  vs keyword                -0.0273 [-0.0304,-0.0242] w/l 0/30 holm 0.0000 LOSS
+correct-keywords   guarded-all(retuned)   H=2000  vs keyword                -0.0054 [-0.0079,-0.0029] w/l 2/28 holm 0.0134 LOSS
+many-topics(16)    warm(hebr)             H=100   vs keyword                -0.0392 [-0.0518,-0.0265] w/l 4/26 holm 0.0001 LOSS
+many-topics(16)    guarded-x1(frozen)     H=250   vs keyword                +0.0170 [+0.0113,+0.0228] w/l 26/4 holm 0.0002 WIN
+many-topics(16)    guarded-all(retuned)   H=250   vs keyword                +0.0116 [+0.0060,+0.0172] w/l 22/8 holm 0.0220 WIN
+many-topics(16)    guarded-safe(retuned)  H=250   vs keyword                +0.0131 [+0.0075,+0.0186] w/l 24/6 holm 0.0051 WIN
+many-topics(16)    guarded-x1(frozen)     H=500   vs keyword                +0.0361 [+0.0304,+0.0419] w/l 30/0 holm 0.0000 WIN
+many-topics(16)    guarded-fam(retuned)   H=500   vs keyword                +0.0312 [+0.0240,+0.0384] w/l 30/0 holm 0.0000 WIN
+many-topics(16)    guarded-all(retuned)   H=500   vs keyword                +0.0317 [+0.0260,+0.0375] w/l 30/0 holm 0.0000 WIN
+many-topics(16)    guarded-safe(retuned)  H=500   vs keyword                +0.0336 [+0.0274,+0.0398] w/l 30/0 holm 0.0000 WIN
+many-topics(16)    warm(hebr)             H=2000  vs hebbian-robust         +0.0282 [+0.0181,+0.0382] w/l 26/4 holm 0.0004 WIN
+many-topics(16)    guarded-x1(frozen)     H=2000  vs hebbian-robust         +0.0359 [+0.0265,+0.0452] w/l 29/1 holm 0.0000 WIN
+many-topics(16)    guarded-fam(retuned)   H=2000  vs hebbian-robust         +0.0345 [+0.0251,+0.0440] w/l 28/2 holm 0.0000 WIN
+many-topics(16)    guarded-all(retuned)   H=2000  vs hebbian-robust         +0.0361 [+0.0273,+0.0449] w/l 30/0 holm 0.0000 WIN
+many-topics(16)    guarded-safe(retuned)  H=2000  vs hebbian-robust         +0.0341 [+0.0257,+0.0425] w/l 30/0 holm 0.0000 WIN
+sim-random         guarded-x1(frozen)     H=250   vs keyword                +0.0366 [+0.0266,+0.0466] w/l 28/2 holm 0.0000 WIN
+sim-random         guarded-fam(retuned)   H=250   vs keyword                +0.0442 [+0.0309,+0.0574] w/l 27/3 holm 0.0000 WIN
+sim-random         guarded-all(retuned)   H=250   vs keyword                +0.0378 [+0.0285,+0.0471] w/l 28/2 holm 0.0000 WIN
+sim-random         guarded-safe(retuned)  H=250   vs keyword                +0.0372 [+0.0286,+0.0458] w/l 29/1 holm 0.0000 WIN
+sim-random         warm(hebr)             H=500   vs hebbian-robust         +0.0348 [+0.0208,+0.0488] w/l 24/6 holm 0.0025 WIN
+sim-random         guarded-x1(frozen)     H=500   vs hebbian-robust         +0.0382 [+0.0219,+0.0545] w/l 22/8 holm 0.0050 WIN
+sim-random         guarded-fam(retuned)   H=500   vs hebbian-robust         +0.0479 [+0.0310,+0.0648] w/l 25/5 holm 0.0004 WIN
+sim-random         guarded-all(retuned)   H=500   vs hebbian-robust         +0.0441 [+0.0288,+0.0594] w/l 27/3 holm 0.0003 WIN
+sim-random         guarded-safe(retuned)  H=500   vs hebbian-robust         +0.0389 [+0.0215,+0.0563] w/l 23/7 holm 0.0091 WIN
+sim-notraps        warm(hebr)             H=100   vs keyword                -0.0663 [-0.0789,-0.0536] w/l 0/30 holm 0.0000 LOSS
+sim-notraps        warm(hebr)             H=250   vs keyword                -0.0484 [-0.0575,-0.0394] w/l 0/30 holm 0.0000 LOSS
+sim-notraps        warm(hebr)             H=500   vs keyword                -0.0344 [-0.0421,-0.0268] w/l 1/29 holm 0.0000 LOSS
+sim-notraps        warm(hebr)             H=2000  vs keyword                -0.0118 [-0.0179,-0.0058] w/l 6/24 holm 0.0394 LOSS
+drift-heavy        warm(hebr)             H=100   vs keyword                -0.0525 [-0.0643,-0.0408] w/l 2/28 holm 0.0000 LOSS
+drift-heavy        guarded-x1(frozen)     H=250   vs keyword                +0.0258 [+0.0166,+0.0349] w/l 27/3 holm 0.0004 WIN
+drift-heavy        guarded-all(retuned)   H=250   vs keyword                +0.0204 [+0.0120,+0.0288] w/l 24/6 holm 0.0031 WIN
+drift-heavy        guarded-safe(retuned)  H=250   vs keyword                +0.0216 [+0.0128,+0.0305] w/l 26/4 holm 0.0028 WIN
+drift-heavy        guarded-x1(frozen)     H=500   vs keyword                +0.0359 [+0.0264,+0.0454] w/l 30/0 holm 0.0000 WIN
+drift-heavy        guarded-fam(retuned)   H=500   vs keyword                +0.0279 [+0.0160,+0.0398] w/l 24/6 holm 0.0052 WIN
+drift-heavy        guarded-all(retuned)   H=500   vs keyword                +0.0328 [+0.0242,+0.0414] w/l 28/2 holm 0.0000 WIN
+drift-heavy        guarded-safe(retuned)  H=500   vs keyword                +0.0347 [+0.0272,+0.0423] w/l 29/1 holm 0.0000 WIN
+drift-heavy        warm(hebr)             H=2000  vs hebbian-robust         +0.0164 [+0.0088,+0.0240] w/l 22/8 holm 0.0130 WIN
+drift-heavy        guarded-x1(frozen)     H=2000  vs hebbian-robust         -0.0284 [-0.0381,-0.0186] w/l 4/26 holm 0.0002 LOSS
+misleading         guarded-x1(frozen)     H=100   vs keyword                +0.0177 [+0.0099,+0.0256] w/l 24/6 holm 0.0079 WIN
+misleading         guarded-fam(retuned)   H=100   vs keyword                +0.0225 [+0.0132,+0.0317] w/l 25/5 holm 0.0032 WIN
+misleading         guarded-safe(retuned)  H=100   vs keyword                +0.0172 [+0.0087,+0.0257] w/l 22/8 holm 0.0262 WIN
+misleading         guarded-x1(frozen)     H=2000  vs hebbian-robust         -0.0172 [-0.0237,-0.0106] w/l 4/26 holm 0.0011 LOSS
+q-misleading       warm(hebr)             H=100   vs keyword                -0.0337 [-0.0426,-0.0248] w/l 2/28 holm 0.0000 LOSS
+q-misleading       warm(hebr)             H=250   vs keyword                -0.0148 [-0.0220,-0.0076] w/l 7/23 holm 0.0230 LOSS
+q-misleading       guarded-x1(frozen)     H=250   vs keyword                +0.0069 [+0.0052,+0.0086] w/l 28/2 holm 0.0000 WIN
+q-misleading       guarded-fam(retuned)   H=250   vs keyword                +0.0165 [+0.0131,+0.0200] w/l 30/0 holm 0.0000 WIN
+q-misleading       guarded-all(retuned)   H=250   vs keyword                +0.0142 [+0.0108,+0.0177] w/l 30/0 holm 0.0000 WIN
+q-misleading       guarded-safe(retuned)  H=250   vs keyword                +0.0140 [+0.0115,+0.0166] w/l 30/0 holm 0.0000 WIN
+q-misleading       warm(hebr)             H=500   vs keyword                +0.0188 [+0.0095,+0.0280] w/l 23/7 holm 0.0262 WIN
+q-misleading       guarded-x1(frozen)     H=500   vs keyword                +0.0178 [+0.0143,+0.0214] w/l 30/0 holm 0.0000 WIN
+q-misleading       guarded-fam(retuned)   H=500   vs keyword                +0.0352 [+0.0293,+0.0412] w/l 30/0 holm 0.0000 WIN
+q-misleading       guarded-all(retuned)   H=500   vs keyword                +0.0331 [+0.0275,+0.0388] w/l 30/0 holm 0.0000 WIN
+q-misleading       guarded-safe(retuned)  H=500   vs keyword                +0.0325 [+0.0281,+0.0369] w/l 30/0 holm 0.0000 WIN
+q-misleading       warm(hebr)             H=2000  vs eps-greedy(tuned)      +0.0179 [+0.0127,+0.0230] w/l 28/2 holm 0.0000 WIN
+q-misleading       guarded-fam(retuned)   H=2000  vs eps-greedy(tuned)      +0.0248 [+0.0193,+0.0302] w/l 29/1 holm 0.0000 WIN
+q-misleading       guarded-all(retuned)   H=2000  vs eps-greedy(tuned)      +0.0232 [+0.0183,+0.0280] w/l 30/0 holm 0.0000 WIN
+q-misleading       guarded-safe(retuned)  H=2000  vs eps-greedy(tuned)      +0.0126 [+0.0070,+0.0183] w/l 26/4 holm 0.0086 WIN
+q-drift            warm(hebr)             H=100   vs keyword                -0.0902 [-0.0993,-0.0811] w/l 0/30 holm 0.0000 LOSS
+q-drift            warm(hebr)             H=250   vs keyword                -0.0636 [-0.0707,-0.0565] w/l 0/30 holm 0.0000 LOSS
+q-drift            warm(hebr)             H=500   vs keyword                -0.0316 [-0.0376,-0.0256] w/l 2/28 holm 0.0000 LOSS
+q-drift            warm(hebr)             H=2000  vs hebbian-robust         +0.0399 [+0.0334,+0.0464] w/l 30/0 holm 0.0000 WIN
+q-drift            guarded-fam(retuned)   H=2000  vs hebbian-robust         +0.0474 [+0.0410,+0.0537] w/l 30/0 holm 0.0000 WIN
+q-drift            guarded-all(retuned)   H=2000  vs hebbian-robust         +0.0473 [+0.0400,+0.0546] w/l 30/0 holm 0.0000 WIN
+q-drift            guarded-safe(retuned)  H=2000  vs hebbian-robust         +0.0250 [+0.0180,+0.0321] w/l 29/1 holm 0.0000 WIN
+
+=== C) retuned guarded head-to-head: Holm over 216 tests (WIN/LOSS only listed; ns omitted) ===
+traps(main)        guarded-fam(retuned)   H=100   vs warm(hebr)             +0.0303 [+0.0152,+0.0454] w/l 20/10 holm 0.0405 WIN
+traps(main)        guarded-safe(retuned)  H=100   vs warm(hebr)             +0.0298 [+0.0153,+0.0444] w/l 23/7 holm 0.0332 WIN
+correct-keywords   guarded-fam(retuned)   H=100   vs warm(hebr)             +0.0714 [+0.0580,+0.0848] w/l 30/0 holm 0.0000 WIN
+correct-keywords   guarded-all(retuned)   H=100   vs warm(hebr)             +0.0786 [+0.0649,+0.0924] w/l 30/0 holm 0.0000 WIN
+correct-keywords   guarded-safe(retuned)  H=100   vs warm(hebr)             +0.0792 [+0.0649,+0.0935] w/l 30/0 holm 0.0000 WIN
+correct-keywords   guarded-fam(retuned)   H=250   vs warm(hebr)             +0.0466 [+0.0359,+0.0573] w/l 29/1 holm 0.0000 WIN
+correct-keywords   guarded-all(retuned)   H=250   vs warm(hebr)             +0.0540 [+0.0445,+0.0634] w/l 30/0 holm 0.0000 WIN
+correct-keywords   guarded-safe(retuned)  H=250   vs warm(hebr)             +0.0567 [+0.0464,+0.0670] w/l 30/0 holm 0.0000 WIN
+correct-keywords   guarded-fam(retuned)   H=500   vs warm(hebr)             +0.0268 [+0.0181,+0.0354] w/l 27/3 holm 0.0001 WIN
+correct-keywords   guarded-all(retuned)   H=500   vs warm(hebr)             +0.0325 [+0.0246,+0.0404] w/l 28/2 holm 0.0000 WIN
+correct-keywords   guarded-safe(retuned)  H=500   vs warm(hebr)             +0.0362 [+0.0277,+0.0447] w/l 29/1 holm 0.0000 WIN
+correct-keywords   guarded-fam(retuned)   H=2000  vs warm(hebr)             +0.0188 [+0.0134,+0.0243] w/l 27/3 holm 0.0000 WIN
+correct-keywords   guarded-all(retuned)   H=2000  vs warm(hebr)             +0.0219 [+0.0179,+0.0259] w/l 29/1 holm 0.0000 WIN
+correct-keywords   guarded-safe(retuned)  H=2000  vs warm(hebr)             +0.0250 [+0.0213,+0.0286] w/l 29/1 holm 0.0000 WIN
+many-topics(16)    guarded-fam(retuned)   H=100   vs warm(hebr)             +0.0391 [+0.0280,+0.0502] w/l 27/3 holm 0.0000 WIN
+many-topics(16)    guarded-all(retuned)   H=100   vs warm(hebr)             +0.0414 [+0.0296,+0.0533] w/l 28/2 holm 0.0000 WIN
+many-topics(16)    guarded-safe(retuned)  H=100   vs warm(hebr)             +0.0414 [+0.0301,+0.0526] w/l 28/2 holm 0.0000 WIN
+many-topics(16)    guarded-fam(retuned)   H=250   vs warm(hebr)             +0.0312 [+0.0215,+0.0409] w/l 26/4 holm 0.0001 WIN
+many-topics(16)    guarded-all(retuned)   H=250   vs warm(hebr)             +0.0303 [+0.0194,+0.0411] w/l 24/6 holm 0.0006 WIN
+many-topics(16)    guarded-safe(retuned)  H=250   vs warm(hebr)             +0.0317 [+0.0217,+0.0418] w/l 25/5 holm 0.0001 WIN
+many-topics(16)    guarded-fam(retuned)   H=500   vs warm(hebr)             +0.0209 [+0.0119,+0.0298] w/l 23/7 holm 0.0068 WIN
+many-topics(16)    guarded-all(retuned)   H=500   vs warm(hebr)             +0.0214 [+0.0114,+0.0314] w/l 22/8 holm 0.0209 WIN
+many-topics(16)    guarded-safe(retuned)  H=500   vs warm(hebr)             +0.0232 [+0.0143,+0.0322] w/l 25/5 holm 0.0017 WIN
+sim-random         guarded-safe(retuned)  H=100   vs warm(hebr)             +0.0249 [+0.0127,+0.0371] w/l 21/9 holm 0.0333 WIN
+sim-notraps        guarded-fam(retuned)   H=100   vs warm(hebr)             +0.0568 [+0.0437,+0.0699] w/l 29/1 holm 0.0000 WIN
+sim-notraps        guarded-all(retuned)   H=100   vs warm(hebr)             +0.0635 [+0.0508,+0.0762] w/l 30/0 holm 0.0000 WIN
+sim-notraps        guarded-safe(retuned)  H=100   vs warm(hebr)             +0.0634 [+0.0508,+0.0760] w/l 30/0 holm 0.0000 WIN
+sim-notraps        guarded-fam(retuned)   H=250   vs warm(hebr)             +0.0371 [+0.0266,+0.0476] w/l 28/2 holm 0.0000 WIN
+sim-notraps        guarded-all(retuned)   H=250   vs warm(hebr)             +0.0453 [+0.0368,+0.0539] w/l 30/0 holm 0.0000 WIN
+sim-notraps        guarded-safe(retuned)  H=250   vs warm(hebr)             +0.0451 [+0.0360,+0.0541] w/l 30/0 holm 0.0000 WIN
+sim-notraps        guarded-fam(retuned)   H=500   vs warm(hebr)             +0.0260 [+0.0184,+0.0335] w/l 27/3 holm 0.0000 WIN
+sim-notraps        guarded-all(retuned)   H=500   vs warm(hebr)             +0.0321 [+0.0255,+0.0388] w/l 30/0 holm 0.0000 WIN
+sim-notraps        guarded-safe(retuned)  H=500   vs warm(hebr)             +0.0324 [+0.0256,+0.0391] w/l 29/1 holm 0.0000 WIN
+sim-notraps        guarded-safe(retuned)  H=2000  vs warm(hebr)             +0.0160 [+0.0102,+0.0219] w/l 29/1 holm 0.0007 WIN
+drift-heavy        guarded-fam(retuned)   H=100   vs warm(hebr)             +0.0506 [+0.0419,+0.0593] w/l 29/1 holm 0.0000 WIN
+drift-heavy        guarded-all(retuned)   H=100   vs warm(hebr)             +0.0579 [+0.0487,+0.0671] w/l 29/1 holm 0.0000 WIN
+drift-heavy        guarded-safe(retuned)  H=100   vs warm(hebr)             +0.0588 [+0.0495,+0.0680] w/l 30/0 holm 0.0000 WIN
+drift-heavy        guarded-fam(retuned)   H=250   vs warm(hebr)             +0.0346 [+0.0232,+0.0459] w/l 27/3 holm 0.0001 WIN
+drift-heavy        guarded-all(retuned)   H=250   vs warm(hebr)             +0.0418 [+0.0317,+0.0518] w/l 27/3 holm 0.0000 WIN
+drift-heavy        guarded-safe(retuned)  H=250   vs warm(hebr)             +0.0430 [+0.0335,+0.0526] w/l 28/2 holm 0.0000 WIN
+drift-heavy        guarded-all(retuned)   H=500   vs warm(hebr)             +0.0223 [+0.0137,+0.0309] w/l 25/5 holm 0.0016 WIN
+drift-heavy        guarded-safe(retuned)  H=500   vs warm(hebr)             +0.0242 [+0.0163,+0.0322] w/l 25/5 holm 0.0001 WIN
+drift-heavy        guarded-fam(retuned)   H=2000  vs guarded-x1(frozen)     +0.0355 [+0.0268,+0.0442] w/l 29/1 holm 0.0000 WIN
+drift-heavy        guarded-all(retuned)   H=2000  vs guarded-x1(frozen)     +0.0338 [+0.0249,+0.0426] w/l 29/1 holm 0.0000 WIN
+drift-heavy        guarded-safe(retuned)  H=2000  vs warm(hebr)             -0.0231 [-0.0304,-0.0157] w/l 4/26 holm 0.0001 LOSS
+drift-heavy        guarded-safe(retuned)  H=2000  vs guarded-x1(frozen)     +0.0217 [+0.0129,+0.0305] w/l 24/6 holm 0.0031 WIN
+misleading         guarded-fam(retuned)   H=2000  vs guarded-x1(frozen)     +0.0186 [+0.0107,+0.0266] w/l 26/4 holm 0.0063 WIN
+misleading         guarded-all(retuned)   H=2000  vs guarded-x1(frozen)     +0.0177 [+0.0106,+0.0248] w/l 25/5 holm 0.0029 WIN
+q-misleading       guarded-fam(retuned)   H=100   vs warm(hebr)             +0.0374 [+0.0289,+0.0460] w/l 28/2 holm 0.0000 WIN
+q-misleading       guarded-all(retuned)   H=100   vs warm(hebr)             +0.0353 [+0.0267,+0.0438] w/l 28/2 holm 0.0000 WIN
+q-misleading       guarded-safe(retuned)  H=100   vs warm(hebr)             +0.0357 [+0.0272,+0.0443] w/l 28/2 holm 0.0000 WIN
+q-misleading       guarded-fam(retuned)   H=250   vs warm(hebr)             +0.0313 [+0.0244,+0.0383] w/l 28/2 holm 0.0000 WIN
+q-misleading       guarded-fam(retuned)   H=250   vs guarded-x1(frozen)     +0.0097 [+0.0070,+0.0123] w/l 28/2 holm 0.0000 WIN
+q-misleading       guarded-all(retuned)   H=250   vs warm(hebr)             +0.0291 [+0.0220,+0.0361] w/l 27/3 holm 0.0000 WIN
+q-misleading       guarded-all(retuned)   H=250   vs guarded-x1(frozen)     +0.0074 [+0.0050,+0.0098] w/l 27/3 holm 0.0001 WIN
+q-misleading       guarded-safe(retuned)  H=250   vs warm(hebr)             +0.0288 [+0.0219,+0.0358] w/l 28/2 holm 0.0000 WIN
+q-misleading       guarded-safe(retuned)  H=250   vs guarded-x1(frozen)     +0.0072 [+0.0054,+0.0089] w/l 29/1 holm 0.0000 WIN
+q-misleading       guarded-fam(retuned)   H=500   vs warm(hebr)             +0.0165 [+0.0094,+0.0235] w/l 26/4 holm 0.0068 WIN
+q-misleading       guarded-fam(retuned)   H=500   vs guarded-x1(frozen)     +0.0174 [+0.0135,+0.0213] w/l 28/2 holm 0.0000 WIN
+q-misleading       guarded-all(retuned)   H=500   vs warm(hebr)             +0.0144 [+0.0079,+0.0209] w/l 25/5 holm 0.0137 WIN
+q-misleading       guarded-all(retuned)   H=500   vs guarded-x1(frozen)     +0.0153 [+0.0118,+0.0189] w/l 29/1 holm 0.0000 WIN
+q-misleading       guarded-safe(retuned)  H=500   vs guarded-x1(frozen)     +0.0147 [+0.0114,+0.0180] w/l 28/2 holm 0.0000 WIN
+q-misleading       guarded-fam(retuned)   H=2000  vs guarded-x1(frozen)     +0.0354 [+0.0305,+0.0403] w/l 30/0 holm 0.0000 WIN
+q-misleading       guarded-all(retuned)   H=2000  vs guarded-x1(frozen)     +0.0338 [+0.0295,+0.0382] w/l 30/0 holm 0.0000 WIN
+q-misleading       guarded-safe(retuned)  H=2000  vs guarded-x1(frozen)     +0.0233 [+0.0190,+0.0275] w/l 30/0 holm 0.0000 WIN
+q-drift            guarded-fam(retuned)   H=100   vs warm(hebr)             +0.0905 [+0.0814,+0.0995] w/l 30/0 holm 0.0000 WIN
+q-drift            guarded-all(retuned)   H=100   vs warm(hebr)             +0.0901 [+0.0811,+0.0992] w/l 30/0 holm 0.0000 WIN
+q-drift            guarded-safe(retuned)  H=100   vs warm(hebr)             +0.0904 [+0.0813,+0.0995] w/l 30/0 holm 0.0000 WIN
+q-drift            guarded-fam(retuned)   H=250   vs warm(hebr)             +0.0662 [+0.0602,+0.0722] w/l 30/0 holm 0.0000 WIN
+q-drift            guarded-all(retuned)   H=250   vs warm(hebr)             +0.0648 [+0.0582,+0.0714] w/l 30/0 holm 0.0000 WIN
+q-drift            guarded-safe(retuned)  H=250   vs warm(hebr)             +0.0648 [+0.0581,+0.0714] w/l 30/0 holm 0.0000 WIN
+q-drift            guarded-fam(retuned)   H=500   vs warm(hebr)             +0.0373 [+0.0331,+0.0415] w/l 30/0 holm 0.0000 WIN
+q-drift            guarded-all(retuned)   H=500   vs warm(hebr)             +0.0367 [+0.0323,+0.0411] w/l 30/0 holm 0.0000 WIN
+q-drift            guarded-safe(retuned)  H=500   vs warm(hebr)             +0.0356 [+0.0311,+0.0401] w/l 30/0 holm 0.0000 WIN
+q-drift            guarded-fam(retuned)   H=2000  vs warm(hebr)             +0.0075 [+0.0050,+0.0100] w/l 25/5 holm 0.0002 WIN
+q-drift            guarded-fam(retuned)   H=2000  vs guarded-x1(frozen)     +0.0488 [+0.0453,+0.0522] w/l 30/0 holm 0.0000 WIN
+q-drift            guarded-all(retuned)   H=2000  vs warm(hebr)             +0.0074 [+0.0044,+0.0104] w/l 25/5 holm 0.0037 WIN
+q-drift            guarded-all(retuned)   H=2000  vs guarded-x1(frozen)     +0.0487 [+0.0453,+0.0521] w/l 30/0 holm 0.0000 WIN
+q-drift            guarded-safe(retuned)  H=2000  vs warm(hebr)             -0.0149 [-0.0175,-0.0122] w/l 0/30 holm 0.0000 LOSS
+q-drift            guarded-safe(retuned)  H=2000  vs guarded-x1(frozen)     +0.0264 [+0.0242,+0.0287] w/l 30/0 holm 0.0000 WIN
+
+=== D) baselines vs keyword: Holm over 108 tests (WIN/LOSS only listed; ns omitted) ===
+traps(main)        eps-greedy(tuned)      H=100   vs keyword                -0.1563 [-0.1707,-0.1419] w/l 0/30 holm 0.0000 LOSS
+traps(main)        pooled-ts(tuned)       H=100   vs keyword                -0.1749 [-0.1921,-0.1577] w/l 0/30 holm 0.0000 LOSS
+traps(main)        hebbian-robust         H=100   vs keyword                -0.1222 [-0.1524,-0.0920] w/l 1/29 holm 0.0000 LOSS
+traps(main)        eps-greedy(tuned)      H=250   vs keyword                -0.0814 [-0.0979,-0.0649] w/l 1/29 holm 0.0000 LOSS
+traps(main)        pooled-ts(tuned)       H=250   vs keyword                -0.1207 [-0.1382,-0.1032] w/l 0/30 holm 0.0000 LOSS
+traps(main)        pooled-ts(tuned)       H=500   vs keyword                -0.0476 [-0.0657,-0.0295] w/l 5/25 holm 0.0001 LOSS
+traps(main)        hebbian-robust         H=500   vs keyword                +0.0437 [+0.0215,+0.0659] w/l 22/8 holm 0.0049 WIN
+traps(main)        eps-greedy(tuned)      H=2000  vs keyword                +0.1009 [+0.0858,+0.1160] w/l 29/1 holm 0.0000 WIN
+traps(main)        pooled-ts(tuned)       H=2000  vs keyword                +0.0684 [+0.0556,+0.0812] w/l 30/0 holm 0.0000 WIN
+traps(main)        hebbian-robust         H=2000  vs keyword                +0.1128 [+0.0982,+0.1274] w/l 30/0 holm 0.0000 WIN
+correct-keywords   eps-greedy(tuned)      H=100   vs keyword                -0.3291 [-0.3433,-0.3149] w/l 0/30 holm 0.0000 LOSS
+correct-keywords   pooled-ts(tuned)       H=100   vs keyword                -0.3389 [-0.3521,-0.3257] w/l 0/30 holm 0.0000 LOSS
+correct-keywords   hebbian-robust         H=100   vs keyword                -0.2758 [-0.2976,-0.2540] w/l 0/30 holm 0.0000 LOSS
+correct-keywords   eps-greedy(tuned)      H=250   vs keyword                -0.2384 [-0.2525,-0.2243] w/l 0/30 holm 0.0000 LOSS
+correct-keywords   pooled-ts(tuned)       H=250   vs keyword                -0.2716 [-0.2842,-0.2590] w/l 0/30 holm 0.0000 LOSS
+correct-keywords   hebbian-robust         H=250   vs keyword                -0.1860 [-0.2039,-0.1681] w/l 0/30 holm 0.0000 LOSS
+correct-keywords   eps-greedy(tuned)      H=500   vs keyword                -0.1573 [-0.1676,-0.1470] w/l 0/30 holm 0.0000 LOSS
+correct-keywords   pooled-ts(tuned)       H=500   vs keyword                -0.2023 [-0.2129,-0.1916] w/l 0/30 holm 0.0000 LOSS
+correct-keywords   hebbian-robust         H=500   vs keyword                -0.1184 [-0.1323,-0.1044] w/l 0/30 holm 0.0000 LOSS
+correct-keywords   eps-greedy(tuned)      H=2000  vs keyword                -0.0663 [-0.0738,-0.0587] w/l 0/30 holm 0.0000 LOSS
+correct-keywords   pooled-ts(tuned)       H=2000  vs keyword                -0.0917 [-0.0947,-0.0886] w/l 0/30 holm 0.0000 LOSS
+correct-keywords   hebbian-robust         H=2000  vs keyword                -0.0475 [-0.0534,-0.0416] w/l 0/30 holm 0.0000 LOSS
+many-topics(16)    eps-greedy(tuned)      H=100   vs keyword                -0.2349 [-0.2533,-0.2164] w/l 0/30 holm 0.0000 LOSS
+many-topics(16)    pooled-ts(tuned)       H=100   vs keyword                -0.2764 [-0.2926,-0.2603] w/l 0/30 holm 0.0000 LOSS
+many-topics(16)    hebbian-robust         H=100   vs keyword                -0.2127 [-0.2365,-0.1889] w/l 0/30 holm 0.0000 LOSS
+many-topics(16)    eps-greedy(tuned)      H=250   vs keyword                -0.1930 [-0.2058,-0.1802] w/l 0/30 holm 0.0000 LOSS
+many-topics(16)    pooled-ts(tuned)       H=250   vs keyword                -0.2274 [-0.2404,-0.2143] w/l 0/30 holm 0.0000 LOSS
+many-topics(16)    hebbian-robust         H=250   vs keyword                -0.1379 [-0.1582,-0.1176] w/l 1/29 holm 0.0000 LOSS
+many-topics(16)    eps-greedy(tuned)      H=500   vs keyword                -0.1239 [-0.1367,-0.1111] w/l 0/30 holm 0.0000 LOSS
+many-topics(16)    pooled-ts(tuned)       H=500   vs keyword                -0.1689 [-0.1826,-0.1553] w/l 0/30 holm 0.0000 LOSS
+many-topics(16)    hebbian-robust         H=500   vs keyword                -0.0701 [-0.0878,-0.0523] w/l 1/29 holm 0.0000 LOSS
+many-topics(16)    pooled-ts(tuned)       H=2000  vs keyword                -0.0364 [-0.0464,-0.0264] w/l 1/29 holm 0.0000 LOSS
+many-topics(16)    hebbian-robust         H=2000  vs keyword                +0.0368 [+0.0246,+0.0489] w/l 28/2 holm 0.0000 WIN
+sim-random         eps-greedy(tuned)      H=100   vs keyword                -0.1865 [-0.2121,-0.1609] w/l 0/30 holm 0.0000 LOSS
+sim-random         pooled-ts(tuned)       H=100   vs keyword                -0.2054 [-0.2269,-0.1840] w/l 0/30 holm 0.0000 LOSS
+sim-random         hebbian-robust         H=100   vs keyword                -0.1220 [-0.1503,-0.0937] w/l 2/28 holm 0.0000 LOSS
+sim-random         eps-greedy(tuned)      H=250   vs keyword                -0.0941 [-0.1187,-0.0695] w/l 2/28 holm 0.0000 LOSS
+sim-random         pooled-ts(tuned)       H=250   vs keyword                -0.1204 [-0.1395,-0.1013] w/l 0/30 holm 0.0000 LOSS
+sim-random         hebbian-robust         H=250   vs keyword                -0.0392 [-0.0644,-0.0140] w/l 10/20 holm 0.0345 LOSS
+sim-random         pooled-ts(tuned)       H=500   vs keyword                -0.0500 [-0.0695,-0.0305] w/l 3/27 holm 0.0002 LOSS
+sim-random         eps-greedy(tuned)      H=2000  vs keyword                +0.0707 [+0.0494,+0.0921] w/l 27/3 holm 0.0000 WIN
+sim-random         pooled-ts(tuned)       H=2000  vs keyword                +0.0507 [+0.0335,+0.0679] w/l 25/5 holm 0.0000 WIN
+sim-random         hebbian-robust         H=2000  vs keyword                +0.0904 [+0.0702,+0.1105] w/l 28/2 holm 0.0000 WIN
+sim-notraps        eps-greedy(tuned)      H=100   vs keyword                -0.2937 [-0.3071,-0.2803] w/l 0/30 holm 0.0000 LOSS
+sim-notraps        pooled-ts(tuned)       H=100   vs keyword                -0.3243 [-0.3379,-0.3107] w/l 0/30 holm 0.0000 LOSS
+sim-notraps        hebbian-robust         H=100   vs keyword                -0.2561 [-0.2753,-0.2370] w/l 0/30 holm 0.0000 LOSS
+sim-notraps        eps-greedy(tuned)      H=250   vs keyword                -0.2104 [-0.2247,-0.1961] w/l 0/30 holm 0.0000 LOSS
+sim-notraps        pooled-ts(tuned)       H=250   vs keyword                -0.2441 [-0.2554,-0.2329] w/l 0/30 holm 0.0000 LOSS
+sim-notraps        hebbian-robust         H=250   vs keyword                -0.1708 [-0.1870,-0.1546] w/l 0/30 holm 0.0000 LOSS
+sim-notraps        eps-greedy(tuned)      H=500   vs keyword                -0.1323 [-0.1452,-0.1194] w/l 0/30 holm 0.0000 LOSS
+sim-notraps        pooled-ts(tuned)       H=500   vs keyword                -0.1722 [-0.1832,-0.1612] w/l 0/30 holm 0.0000 LOSS
+sim-notraps        hebbian-robust         H=500   vs keyword                -0.1090 [-0.1232,-0.0949] w/l 0/30 holm 0.0000 LOSS
+sim-notraps        eps-greedy(tuned)      H=2000  vs keyword                -0.0450 [-0.0546,-0.0354] w/l 1/29 holm 0.0000 LOSS
+sim-notraps        pooled-ts(tuned)       H=2000  vs keyword                -0.0678 [-0.0726,-0.0630] w/l 0/30 holm 0.0000 LOSS
+sim-notraps        hebbian-robust         H=2000  vs keyword                -0.0323 [-0.0392,-0.0253] w/l 1/29 holm 0.0000 LOSS
+drift-heavy        eps-greedy(tuned)      H=100   vs keyword                -0.2327 [-0.2499,-0.2154] w/l 0/30 holm 0.0000 LOSS
+drift-heavy        pooled-ts(tuned)       H=100   vs keyword                -0.2547 [-0.2679,-0.2415] w/l 0/30 holm 0.0000 LOSS
+drift-heavy        hebbian-robust         H=100   vs keyword                -0.1872 [-0.2132,-0.1612] w/l 0/30 holm 0.0000 LOSS
+drift-heavy        eps-greedy(tuned)      H=250   vs keyword                -0.1553 [-0.1702,-0.1404] w/l 0/30 holm 0.0000 LOSS
+drift-heavy        pooled-ts(tuned)       H=250   vs keyword                -0.1989 [-0.2116,-0.1862] w/l 0/30 holm 0.0000 LOSS
+drift-heavy        hebbian-robust         H=250   vs keyword                -0.0983 [-0.1208,-0.0758] w/l 3/27 holm 0.0000 LOSS
+drift-heavy        eps-greedy(tuned)      H=500   vs keyword                -0.0718 [-0.0854,-0.0582] w/l 0/30 holm 0.0000 LOSS
+drift-heavy        pooled-ts(tuned)       H=500   vs keyword                -0.1202 [-0.1306,-0.1097] w/l 0/30 holm 0.0000 LOSS
+drift-heavy        hebbian-robust         H=500   vs keyword                -0.0348 [-0.0524,-0.0172] w/l 8/22 holm 0.0049 LOSS
+drift-heavy        eps-greedy(tuned)      H=2000  vs keyword                +0.1137 [+0.0930,+0.1344] w/l 28/2 holm 0.0000 WIN
+drift-heavy        pooled-ts(tuned)       H=2000  vs keyword                +0.0617 [+0.0479,+0.0756] w/l 28/2 holm 0.0000 WIN
+drift-heavy        hebbian-robust         H=2000  vs keyword                +0.1577 [+0.1426,+0.1728] w/l 30/0 holm 0.0000 WIN
+misleading         eps-greedy(tuned)      H=100   vs keyword                -0.0542 [-0.0692,-0.0391] w/l 5/25 holm 0.0000 LOSS
+misleading         pooled-ts(tuned)       H=100   vs keyword                -0.0452 [-0.0616,-0.0288] w/l 5/25 holm 0.0001 LOSS
+misleading         hebbian-robust         H=250   vs keyword                +0.0541 [+0.0336,+0.0746] w/l 22/8 holm 0.0001 WIN
+misleading         eps-greedy(tuned)      H=500   vs keyword                +0.0670 [+0.0523,+0.0818] w/l 29/1 holm 0.0000 WIN
+misleading         pooled-ts(tuned)       H=500   vs keyword                +0.0353 [+0.0246,+0.0460] w/l 24/6 holm 0.0000 WIN
+misleading         hebbian-robust         H=500   vs keyword                +0.1028 [+0.0837,+0.1218] w/l 30/0 holm 0.0000 WIN
+misleading         eps-greedy(tuned)      H=2000  vs keyword                +0.1360 [+0.1210,+0.1511] w/l 30/0 holm 0.0000 WIN
+misleading         pooled-ts(tuned)       H=2000  vs keyword                +0.1225 [+0.1091,+0.1358] w/l 30/0 holm 0.0000 WIN
+misleading         hebbian-robust         H=2000  vs keyword                +0.1603 [+0.1450,+0.1755] w/l 30/0 holm 0.0000 WIN
+q-misleading       eps-greedy(tuned)      H=100   vs keyword                -0.1260 [-0.1369,-0.1151] w/l 0/30 holm 0.0000 LOSS
+q-misleading       pooled-ts(tuned)       H=100   vs keyword                -0.1195 [-0.1288,-0.1102] w/l 0/30 holm 0.0000 LOSS
+q-misleading       hebbian-robust         H=100   vs keyword                -0.0899 [-0.1040,-0.0759] w/l 1/29 holm 0.0000 LOSS
+q-misleading       eps-greedy(tuned)      H=250   vs keyword                -0.0862 [-0.0932,-0.0793] w/l 0/30 holm 0.0000 LOSS
+q-misleading       pooled-ts(tuned)       H=250   vs keyword                -0.1054 [-0.1124,-0.0984] w/l 0/30 holm 0.0000 LOSS
+q-misleading       hebbian-robust         H=250   vs keyword                -0.0537 [-0.0652,-0.0423] w/l 2/28 holm 0.0000 LOSS
+q-misleading       eps-greedy(tuned)      H=500   vs keyword                -0.0256 [-0.0333,-0.0179] w/l 4/26 holm 0.0000 LOSS
+q-misleading       pooled-ts(tuned)       H=500   vs keyword                -0.0895 [-0.0971,-0.0820] w/l 0/30 holm 0.0000 LOSS
+q-misleading       eps-greedy(tuned)      H=2000  vs keyword                +0.0576 [+0.0506,+0.0645] w/l 30/0 holm 0.0000 WIN
+q-misleading       pooled-ts(tuned)       H=2000  vs keyword                -0.0326 [-0.0382,-0.0271] w/l 1/29 holm 0.0000 LOSS
+q-misleading       hebbian-robust         H=2000  vs keyword                +0.0571 [+0.0477,+0.0665] w/l 30/0 holm 0.0000 WIN
+q-drift            eps-greedy(tuned)      H=100   vs keyword                -0.2932 [-0.3018,-0.2846] w/l 0/30 holm 0.0000 LOSS
+q-drift            pooled-ts(tuned)       H=100   vs keyword                -0.2853 [-0.2943,-0.2763] w/l 0/30 holm 0.0000 LOSS
+q-drift            hebbian-robust         H=100   vs keyword                -0.2428 [-0.2542,-0.2313] w/l 0/30 holm 0.0000 LOSS
+q-drift            eps-greedy(tuned)      H=250   vs keyword                -0.2404 [-0.2481,-0.2328] w/l 0/30 holm 0.0000 LOSS
+q-drift            pooled-ts(tuned)       H=250   vs keyword                -0.2637 [-0.2724,-0.2551] w/l 0/30 holm 0.0000 LOSS
+q-drift            hebbian-robust         H=250   vs keyword                -0.1830 [-0.1944,-0.1717] w/l 0/30 holm 0.0000 LOSS
+q-drift            eps-greedy(tuned)      H=500   vs keyword                -0.1464 [-0.1542,-0.1386] w/l 0/30 holm 0.0000 LOSS
+q-drift            pooled-ts(tuned)       H=500   vs keyword                -0.2340 [-0.2424,-0.2256] w/l 0/30 holm 0.0000 LOSS
+q-drift            hebbian-robust         H=500   vs keyword                -0.1223 [-0.1336,-0.1111] w/l 0/30 holm 0.0000 LOSS
+q-drift            eps-greedy(tuned)      H=2000  vs keyword                +0.0109 [+0.0053,+0.0165] w/l 25/5 holm 0.0051 WIN
+q-drift            pooled-ts(tuned)       H=2000  vs keyword                -0.0924 [-0.0984,-0.0864] w/l 0/30 holm 0.0000 LOSS
+q-drift            hebbian-robust         H=2000  vs keyword                +0.0138 [+0.0059,+0.0218] w/l 20/10 holm 0.0138 WIN
+
+=== candidate summary (held-out 61-90; 9 worlds x 4 horizons = 36 cells; required = first 7 worlds) ===
+candidate                    mean       dKW     dBest   A-W   A-L A-L(raw)   B-W   B-L  worst cell vs keyword
+warm(hebr)                 0.6951   +0.0111   -0.0126    13    15       18     7    15  -0.0902 (q-drift H100)
+guarded-x1(frozen)         0.7173   +0.0333   +0.0096    21     0        5    13     2  -0.0059 (correct-keywords H100)
+guarded-fam(retuned)       0.7201   +0.0360   +0.0124    19     2        7    14     2  -0.0194 (correct-keywords H250)
+guarded-all(retuned)       0.7203   +0.0362   +0.0125    20     3        6    15     3  -0.0120 (correct-keywords H250)
+guarded-safe(retuned)      0.7187   +0.0346   +0.0110    21     0        6    15     0  -0.0093 (correct-keywords H250)
+
+RECOMMENDED DEFAULT (this run): guarded-safe(retuned) (mean score 0.7187)
+
+=== cost: ns per (select+update), traps(main) seed 1 ===
+keyword                           81 ns/route
+eps-greedy(tuned)                896 ns/route
+pooled-ts(tuned)                1289 ns/route
+hebbian-robust                   722 ns/route
+warm(hebr)                      1267 ns/route
+guarded-x1(frozen)               864 ns/route
+guarded-fam(retuned)             653 ns/route
+guarded-all(retuned)             670 ns/route
+guarded-safe(retuned)            751 ns/route
+wrote results/e1_default_confirm61-90.json  (total 29.6s)

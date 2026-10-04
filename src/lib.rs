@@ -19,3 +19,7 @@ pub mod cognition;
 pub mod addons;
 pub mod knowledge;
 pub mod coupling;
+
+pub mod research;
+pub mod defaults;
+pub mod embedding;

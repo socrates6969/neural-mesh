@@ -1,0 +1,245 @@
+f8: held 31-60 (30 seeds), tune seeds 1-8, 21 worlds; corpus 2424 texts, 12 concepts, model sha 6fd5d72fe458
+
+--- embedding geometry (seed 1; mean cosine of sampled pairs) ---
+bge-q                  {"diff_topic":0.45996074169921064,"dist_concept":null,"dist_dist":null,"same_concept":0.7931216627749686,"sibling_concept":0.5717559863546946}
+bge-subj3              {"diff_topic":0.44131183324140744,"dist_concept":null,"dist_dist":null,"same_concept":0.8471382348248706,"sibling_concept":0.5735989735020791}
+bge-q-mild             {"diff_topic":0.45996074169921064,"dist_concept":null,"dist_dist":null,"same_concept":0.7931216627749686,"sibling_concept":0.5717559863546946}
+bge-q-mixed50          {"diff_topic":0.4644091891590341,"dist_concept":0.36155280167345083,"dist_dist":0.5201760028996221,"same_concept":0.8000000393135284,"sibling_concept":0.567559154334661}
+bge-ctl-irrel          {"diff_topic":0.45996074169921064,"dist_concept":null,"dist_dist":null,"same_concept":0.7931216627749686,"sibling_concept":0.5717559863546946}
+bge-ctl-unique         {"diff_topic":null,"dist_concept":null,"dist_dist":0.5220825915885693,"same_concept":null,"sibling_concept":null}
+bge-ctl-none           {"diff_topic":null,"dist_concept":null,"dist_dist":0.5220825915885693,"same_concept":null,"sibling_concept":null}
+mini-q                 {"diff_topic":0.11769450891310743,"dist_concept":null,"dist_dist":null,"same_concept":0.6503907374556693,"sibling_concept":0.27705528465277995}
+mini-subj3             {"diff_topic":0.020441108919147497,"dist_concept":null,"dist_dist":null,"same_concept":0.6965979267161625,"sibling_concept":0.2207021188735513}
+mini-q-mild            {"diff_topic":0.11769450891310743,"dist_concept":null,"dist_dist":null,"same_concept":0.6503907374556693,"sibling_concept":0.27705528465277995}
+mini-q-mixed50         {"diff_topic":0.12298726079602414,"dist_concept":0.018667127687332686,"dist_dist":0.25473715373089884,"same_concept":0.6553848165667955,"sibling_concept":0.273856140084495}
+mini-ctl-irrel         {"diff_topic":0.11769450891310743,"dist_concept":null,"dist_dist":null,"same_concept":0.6503907374556693,"sibling_concept":0.27705528465277995}
+mini-ctl-unique        {"diff_topic":null,"dist_concept":null,"dist_dist":0.25604129869781767,"same_concept":null,"sibling_concept":null}
+mini-ctl-none          {"diff_topic":null,"dist_concept":null,"dist_dist":0.25604129869781767,"same_concept":null,"sibling_concept":null}
+hash-q                 {"diff_topic":0.20626694720378813,"dist_concept":null,"dist_dist":null,"same_concept":0.3777292738237224,"sibling_concept":0.20996958853010167}
+hash-subj3             {"diff_topic":0.14210142093502612,"dist_concept":null,"dist_dist":null,"same_concept":0.4750080857857945,"sibling_concept":0.1522431026030867}
+hash-q-mild            {"diff_topic":0.20626694720378813,"dist_concept":null,"dist_dist":null,"same_concept":0.3777292738237224,"sibling_concept":0.20996958853010167}
+hash-q-mixed50         {"diff_topic":0.20072415357148735,"dist_concept":0.061240114813543585,"dist_dist":0.25184969671579427,"same_concept":0.3860000111909001,"sibling_concept":0.19621120818828022}
+hash-ctl-irrel         {"diff_topic":0.20626694720378813,"dist_concept":null,"dist_dist":null,"same_concept":0.3777292738237224,"sibling_concept":0.20996958853010167}
+hash-ctl-unique        {"diff_topic":null,"dist_concept":null,"dist_dist":0.2543460828242425,"same_concept":null,"sibling_concept":null}
+hash-ctl-none          {"diff_topic":null,"dist_concept":null,"dist_dist":0.2543460828242425,"same_concept":null,"sibling_concept":null}
+
+[tune:bge] retuned feat(hidden) KnCfg { label: "feat-hid k8 s0.7 cfalse", feat: Hidden, k: 8, sim_min: 0.7, vote: None, center: false } obj -0.0050
+[tune:bge] retuned dir+vote KnCfg { label: "dir+vote k8 s0.75 n3 t0.7 cfalse", feat: Direct, k: 8, sim_min: 0.75, vote: Some((3.0, 0.7, None, Some((6.0, 0.02, 25)))), center: false } obj -0.0008
+
+[tune:mini] retuned feat(hidden) KnCfg { label: "feat-hid k8 s0.5 cfalse", feat: Hidden, k: 8, sim_min: 0.5, vote: None, center: false } obj -0.0034
+[tune:mini] retuned dir+vote KnCfg { label: "dir+vote k5 s0.5 n3 t0.7 ctrue", feat: Direct, k: 5, sim_min: 0.5, vote: Some((3.0, 0.7, None, Some((6.0, 0.02, 25)))), center: true } obj -0.0012
+
+[tune:hash] retuned feat(hidden) KnCfg { label: "feat-hid k5 s0.7 cfalse", feat: Hidden, k: 5, sim_min: 0.7, vote: None, center: false } obj -0.0069
+[tune:hash] retuned dir+vote KnCfg { label: "dir+vote k8 s0.8 n3 t0.7 cfalse", feat: Direct, k: 8, sim_min: 0.8, vote: Some((3.0, 0.7, None, Some((6.0, 0.02, 25)))), center: false } obj -0.0040
+
+=== [S-bge] world bge-q | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4740   0.4760   0.4758   0.4652   0.4031
+eps-greedy                           0.4478   0.4453   0.4436   0.4265   0.4063
+pooled-ts                            0.4164   0.4190   0.4202   0.4264   0.4090
+hebbian-robust                       0.4228   0.4247   0.4235   0.4269   0.4202
+warm(hebr)                           0.4731   0.4761   0.4745   0.4640   0.4482
+guarded(hebr)                        0.4740   0.4760   0.4760   0.4639   0.4182
+shaped(guarded)                      0.4734   0.4754   0.4756   0.4686   0.4389
+shaped(warm)                         0.4500   0.4512   0.4556   0.4552   0.4472
+shaped+kn-feat(d6cfg)                0.4738   0.4758   0.4767   0.4706   0.4459
+shaped+kn-d+vote(d6cfg)              0.4743   0.4800   0.4854   0.4864   0.4604
+shaped+kn-feat(retuned)              0.4740   0.4758   0.4769   0.4726   0.4538
+shaped+kn-d+vote(retuned)            0.4747   0.4824   0.4944   0.5132   0.4875
+
+=== [S-bge] world bge-q-mixed50 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.6070   0.6122   0.6099   0.5836   0.4999
+eps-greedy                           0.4804   0.4836   0.4820   0.4643   0.4490
+pooled-ts                            0.4342   0.4378   0.4413   0.4585   0.4423
+hebbian-robust                       0.4493   0.4510   0.4502   0.4556   0.4473
+warm(hebr)                           0.5910   0.5989   0.5967   0.5645   0.5420
+guarded(hebr)                        0.6070   0.6122   0.6100   0.5729   0.5147
+shaped(guarded)                      0.6040   0.6102   0.6108   0.5885   0.5401
+shaped(warm)                         0.5419   0.5543   0.5625   0.5605   0.5364
+shaped+kn-feat(d6cfg)                0.6039   0.6097   0.6099   0.5879   0.5382
+shaped+kn-d+vote(d6cfg)              0.6028   0.6079   0.6066   0.5853   0.5334
+shaped+kn-feat(retuned)              0.6042   0.6104   0.6115   0.5890   0.5416
+shaped+kn-d+vote(retuned)            0.6045   0.6109   0.6103   0.5882   0.5359
+
+=== [S-bge] world bge-ctl-irrel | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7377   0.7406   0.7379   0.7026   0.6082
+eps-greedy                           0.5263   0.5294   0.5336   0.5127   0.5040
+pooled-ts                            0.4496   0.4533   0.4613   0.4977   0.4805
+hebbian-robust                       0.4768   0.4790   0.4792   0.4889   0.4782
+warm(hebr)                           0.7149   0.7194   0.7172   0.6696   0.6442
+guarded(hebr)                        0.7377   0.7406   0.7381   0.6845   0.6225
+shaped(guarded)                      0.7390   0.7447   0.7480   0.7200   0.6613
+shaped(warm)                         0.6570   0.6940   0.7200   0.7235   0.6891
+shaped+kn-feat(d6cfg)                0.7386   0.7439   0.7469   0.7186   0.6591
+shaped+kn-d+vote(d6cfg)              0.7353   0.7395   0.7418   0.7098   0.6476
+shaped+kn-feat(retuned)              0.7386   0.7447   0.7481   0.7195   0.6590
+shaped+kn-d+vote(retuned)            0.7376   0.7410   0.7390   0.7086   0.6459
+
+=== [S-bge] world bge-ctl-unique | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4789   0.4769   0.4770   0.4650   0.4021
+eps-greedy                           0.4340   0.4325   0.4323   0.4231   0.4125
+pooled-ts                            0.4222   0.4232   0.4205   0.4234   0.4066
+hebbian-robust                       0.4226   0.4251   0.4237   0.4258   0.4176
+warm(hebr)                           0.4733   0.4720   0.4726   0.4621   0.4482
+guarded(hebr)                        0.4789   0.4769   0.4771   0.4628   0.4170
+shaped(guarded)                      0.4777   0.4756   0.4765   0.4676   0.4397
+shaped(warm)                         0.4530   0.4484   0.4446   0.4391   0.4229
+shaped+kn-feat(d6cfg)                0.4775   0.4756   0.4763   0.4674   0.4388
+shaped+kn-d+vote(d6cfg)              0.4772   0.4761   0.4769   0.4679   0.4375
+shaped+kn-feat(retuned)              0.4779   0.4757   0.4767   0.4677   0.4400
+shaped+kn-d+vote(retuned)            0.4780   0.4759   0.4764   0.4672   0.4342
+
+=== [S-bge] world bge-q-useless-proxies | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4740   0.4760   0.4758   0.4652   0.4031
+eps-greedy                           0.4478   0.4453   0.4436   0.4265   0.4063
+pooled-ts                            0.4164   0.4190   0.4202   0.4264   0.4090
+hebbian-robust                       0.4228   0.4247   0.4235   0.4269   0.4202
+warm(hebr)                           0.4731   0.4761   0.4745   0.4640   0.4482
+guarded(hebr)                        0.4740   0.4760   0.4760   0.4639   0.4182
+shaped(guarded)                      0.4739   0.4745   0.4744   0.4664   0.4363
+shaped(warm)                         0.4451   0.4423   0.4375   0.4248   0.4123
+shaped+kn-feat(d6cfg)                0.4731   0.4739   0.4746   0.4664   0.4358
+shaped+kn-d+vote(d6cfg)              0.4708   0.4735   0.4744   0.4671   0.4363
+shaped+kn-feat(retuned)              0.4735   0.4739   0.4743   0.4666   0.4354
+shaped+kn-d+vote(retuned)            0.4737   0.4755   0.4753   0.4671   0.4346
+### [bge] SHAPER-ADJACENT: knowledge on shaped reward vs best fair baseline (incl. shaped(guarded))  (Holm over 80 tests) -> Holm WINS 5, Holm LOSSES 3
+
+--- bge shaper-adjacent vs best fair baseline | H2000 diff (* Holm WIN, ! Holm LOSS) ---
+world                    shaped+kn-feat(d6cfg shaped+kn-d+vote(d6c shaped+kn-feat(retun shaped+kn-d+vote(ret
+bge-q                                +0.0020              +0.0178*             +0.0040*             +0.0446*
+bge-q-mixed50                        -0.0006              -0.0033              +0.0004              -0.0004 
+bge-ctl-irrel                        -0.0048              -0.0137              -0.0040              -0.0149 
+bge-ctl-unique                       -0.0002              +0.0003              +0.0001              -0.0004 
+bge-q-useless-proxies                -0.0001              +0.0007              +0.0002              +0.0007 
+### [bge] SHAPER-ADJACENT ABLATION: vs the same shaped(guarded) front  (Holm over 80 tests) -> Holm WINS 6, Holm LOSSES 3
+
+--- bge shaper-adjacent vs same front | H2000 diff (* Holm WIN, ! Holm LOSS) ---
+world                    shaped+kn-feat(d6cfg shaped+kn-d+vote(d6c shaped+kn-feat(retun shaped+kn-d+vote(ret
+bge-q                                +0.0020              +0.0178*             +0.0040*             +0.0446*
+bge-q-mixed50                        -0.0006              -0.0033              +0.0004              -0.0004 
+bge-ctl-irrel                        -0.0014              -0.0102!             -0.0005              -0.0114!
+bge-ctl-unique                       -0.0002              +0.0003              +0.0001              -0.0004 
+bge-q-useless-proxies                -0.0001              +0.0007              +0.0002              +0.0007 
+
+=== [S-mini] world mini-q | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4740   0.4760   0.4758   0.4652   0.4031
+eps-greedy                           0.4478   0.4453   0.4436   0.4265   0.4063
+pooled-ts                            0.4164   0.4190   0.4202   0.4264   0.4090
+hebbian-robust                       0.4228   0.4247   0.4235   0.4269   0.4202
+warm(hebr)                           0.4731   0.4761   0.4745   0.4640   0.4482
+guarded(hebr)                        0.4740   0.4760   0.4760   0.4639   0.4182
+shaped(guarded)                      0.4734   0.4754   0.4756   0.4686   0.4389
+shaped(warm)                         0.4500   0.4512   0.4556   0.4552   0.4472
+shaped+kn-feat(d6cfg)                0.4743   0.4760   0.4772   0.4715   0.4501
+shaped+kn-d+vote(d6cfg)              0.4752   0.4836   0.4939   0.5098   0.4839
+shaped+kn-feat(retuned)              0.4741   0.4759   0.4772   0.4726   0.4530
+shaped+kn-d+vote(retuned)            0.4749   0.4822   0.4915   0.5096   0.4838
+
+=== [S-mini] world mini-q-mixed50 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.6070   0.6122   0.6099   0.5836   0.4999
+eps-greedy                           0.4804   0.4836   0.4820   0.4643   0.4490
+pooled-ts                            0.4342   0.4378   0.4413   0.4585   0.4423
+hebbian-robust                       0.4493   0.4510   0.4502   0.4556   0.4473
+warm(hebr)                           0.5910   0.5989   0.5967   0.5645   0.5420
+guarded(hebr)                        0.6070   0.6122   0.6100   0.5729   0.5147
+shaped(guarded)                      0.6040   0.6102   0.6108   0.5885   0.5401
+shaped(warm)                         0.5419   0.5543   0.5625   0.5605   0.5364
+shaped+kn-feat(d6cfg)                0.6040   0.6099   0.6103   0.5884   0.5394
+shaped+kn-d+vote(d6cfg)              0.6052   0.6107   0.6094   0.5863   0.5364
+shaped+kn-feat(retuned)              0.6040   0.6101   0.6108   0.5884   0.5412
+shaped+kn-d+vote(retuned)            0.6053   0.6106   0.6098   0.5871   0.5370
+
+=== [S-mini] world mini-ctl-irrel | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7377   0.7406   0.7379   0.7026   0.6082
+eps-greedy                           0.5263   0.5294   0.5336   0.5127   0.5040
+pooled-ts                            0.4496   0.4533   0.4613   0.4977   0.4805
+hebbian-robust                       0.4768   0.4790   0.4792   0.4889   0.4782
+warm(hebr)                           0.7149   0.7194   0.7172   0.6696   0.6442
+guarded(hebr)                        0.7377   0.7406   0.7381   0.6845   0.6225
+shaped(guarded)                      0.7390   0.7447   0.7480   0.7200   0.6613
+shaped(warm)                         0.6570   0.6940   0.7200   0.7235   0.6891
+shaped+kn-feat(d6cfg)                0.7384   0.7437   0.7460   0.7190   0.6611
+shaped+kn-d+vote(d6cfg)              0.7371   0.7408   0.7409   0.7102   0.6487
+shaped+kn-feat(retuned)              0.7386   0.7449   0.7478   0.7195   0.6589
+shaped+kn-d+vote(retuned)            0.7379   0.7413   0.7399   0.7101   0.6478
+
+=== [S-mini] world mini-ctl-unique | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4789   0.4769   0.4770   0.4650   0.4021
+eps-greedy                           0.4340   0.4325   0.4323   0.4231   0.4125
+pooled-ts                            0.4222   0.4232   0.4205   0.4234   0.4066
+hebbian-robust                       0.4226   0.4251   0.4237   0.4258   0.4176
+warm(hebr)                           0.4733   0.4720   0.4726   0.4621   0.4482
+guarded(hebr)                        0.4789   0.4769   0.4771   0.4628   0.4170
+shaped(guarded)                      0.4777   0.4756   0.4765   0.4676   0.4397
+shaped(warm)                         0.4530   0.4484   0.4446   0.4391   0.4229
+shaped+kn-feat(d6cfg)                0.4776   0.4757   0.4764   0.4675   0.4401
+shaped+kn-d+vote(d6cfg)              0.4782   0.4755   0.4761   0.4671   0.4350
+shaped+kn-feat(retuned)              0.4773   0.4752   0.4766   0.4677   0.4406
+shaped+kn-d+vote(retuned)            0.4780   0.4758   0.4767   0.4671   0.4352
+
+=== [S-mini] world mini-q-useless-proxies | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4740   0.4760   0.4758   0.4652   0.4031
+eps-greedy                           0.4478   0.4453   0.4436   0.4265   0.4063
+pooled-ts                            0.4164   0.4190   0.4202   0.4264   0.4090
+hebbian-robust                       0.4228   0.4247   0.4235   0.4269   0.4202
+warm(hebr)                           0.4731   0.4761   0.4745   0.4640   0.4482
+guarded(hebr)                        0.4740   0.4760   0.4760   0.4639   0.4182
+shaped(guarded)                      0.4739   0.4745   0.4744   0.4664   0.4363
+shaped(warm)                         0.4451   0.4423   0.4375   0.4248   0.4123
+shaped+kn-feat(d6cfg)                0.4736   0.4742   0.4745   0.4668   0.4358
+shaped+kn-d+vote(d6cfg)              0.4732   0.4754   0.4749   0.4675   0.4354
+shaped+kn-feat(retuned)              0.4735   0.4740   0.4744   0.4662   0.4345
+shaped+kn-d+vote(retuned)            0.4734   0.4756   0.4750   0.4677   0.4365
+### [mini] SHAPER-ADJACENT: knowledge on shaped reward vs best fair baseline (incl. shaped(guarded))  (Holm over 80 tests) -> Holm WINS 6, Holm LOSSES 2
+
+--- mini shaper-adjacent vs best fair baseline | H2000 diff (* Holm WIN, ! Holm LOSS) ---
+world                    shaped+kn-feat(d6cfg shaped+kn-d+vote(d6c shaped+kn-feat(retun shaped+kn-d+vote(ret
+mini-q                               +0.0029*             +0.0412*             +0.0040*             +0.0410*
+mini-q-mixed50                       -0.0002              -0.0022              -0.0002              -0.0014 
+mini-ctl-irrel                       -0.0044              -0.0133              -0.0040              -0.0134 
+mini-ctl-unique                      -0.0001              -0.0005              +0.0001              -0.0005 
+mini-q-useless-proxies               +0.0003              +0.0011              -0.0003              +0.0013 
+### [mini] SHAPER-ADJACENT ABLATION: vs the same shaped(guarded) front  (Holm over 80 tests) -> Holm WINS 8, Holm LOSSES 4
+
+--- mini shaper-adjacent vs same front | H2000 diff (* Holm WIN, ! Holm LOSS) ---
+world                    shaped+kn-feat(d6cfg shaped+kn-d+vote(d6c shaped+kn-feat(retun shaped+kn-d+vote(ret
+mini-q                               +0.0029*             +0.0412*             +0.0040*             +0.0410*
+mini-q-mixed50                       -0.0002              -0.0022              -0.0002              -0.0014 
+mini-ctl-irrel                       -0.0010              -0.0098!             -0.0005              -0.0099!
+mini-ctl-unique                      -0.0001              -0.0005              +0.0001              -0.0005 
+mini-q-useless-proxies               +0.0003              +0.0011              -0.0003              +0.0013 
+
+=== [S-hash] world hash-q | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4740   0.4760   0.4758   0.4652   0.4031
+eps-greedy                           0.4478   0.4453   0.4436   0.4265   0.4063
+pooled-ts                            0.4164   0.4190   0.4202   0.4264   0.4090
+hebbian-robust                       0.4228   0.4247   0.4235   0.4269   0.4202
+warm(hebr)                           0.4731   0.4761   0.4745   0.4640   0.4482
+guarded(hebr)                        0.4740   0.4760   0.4760   0.4639   0.4182
+shaped(guarded)                      0.4734   0.4754   0.4756   0.4686   0.4389
+shaped(warm)                         0.4500   0.4512   0.4556   0.4552   0.4472
+shaped+kn-feat(d6cfg)                0.4737   0.4753   0.4757   0.4694   0.4445
+shaped+kn-d+vote(d6cfg)              0.4736   0.4748   0.4761   0.4712   0.4415
+shaped+kn-feat(retuned)              0.4735   0.4755   0.4756   0.4686   0.4413
+shaped+kn-d+vote(retuned)            0.4734   0.4755   0.4757   0.4701   0.4385
+### [hash] SHAPER-ADJACENT: knowledge on shaped reward vs best fair baseline (incl. shaped(guarded))  (Holm over 16 tests) -> Holm WINS 1, Holm LOSSES 0
+
+--- hash shaper-adjacent vs best fair baseline | H2000 diff (* Holm WIN, ! Holm LOSS) ---
+world                    shaped+kn-feat(d6cfg shaped+kn-d+vote(d6c shaped+kn-feat(retun shaped+kn-d+vote(ret
+hash-q                               +0.0008              +0.0026*             +0.0000              +0.0015 
+### [hash] SHAPER-ADJACENT ABLATION: vs the same shaped(guarded) front  (Holm over 16 tests) -> Holm WINS 1, Holm LOSSES 0
+
+--- hash shaper-adjacent vs same front | H2000 diff (* Holm WIN, ! Holm LOSS) ---
+world                    shaped+kn-feat(d6cfg shaped+kn-d+vote(d6c shaped+kn-feat(retun shaped+kn-d+vote(ret
+hash-q                               +0.0008              +0.0026*             +0.0000              +0.0015 
+wrote results/f8_shaper.json

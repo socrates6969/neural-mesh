@@ -1,0 +1,219 @@
+f6_anchor: part retrieval, held 31-60, real-embed feature true, model sha 6fd5d72fe458
+
+=== ANCHOR layer vs ground-truth concept (held 31-60) ===
+P/R/F1 = pairwise anchor clustering over concept tasks (anchor as seen at arrival); frag = anchors/concept; early = pair-F1 over first 300 concept tasks;
+fin = pair-F1 after later merges; fh1 = first occurrences that joined an existing anchor; contam = one-off tasks sharing an anchor with a concept task; post* = q2para unseen-phrasing tasks (ok/wrong/new anchor)
+world            method          P     R    F1  frag early   fin   fh1 contam |   pOK   pWR  pNEW
+mini-q           L-d6cfg      0.97  0.68 0.798  2.00  0.79  0.80  0.01    NaN |   NaN   NaN   NaN
+mini-q           L-f5tuned    0.85  0.90 0.875  1.22  0.86  0.87  0.05    NaN |   NaN   NaN   NaN
+mini-q           L-retuned    0.85  0.90 0.875  1.22  0.86  0.87  0.05    NaN |   NaN   NaN   NaN
+mini-q           centroid     0.89  0.91 0.899  1.12  0.89  0.90  0.08    NaN |   NaN   NaN   NaN
+mini-q           cen+merge    0.97  0.86 0.908  1.48  0.89  0.91  0.02    NaN |   NaN   NaN   NaN
+mini-q           cen+knn      0.96  0.82 0.883  1.74  0.85  0.89  0.01    NaN |   NaN   NaN   NaN
+mini-q           avg-link     0.96  0.90 0.929  1.47  0.91  0.93  0.04    NaN |   NaN   NaN   NaN
+mini-q           bridge       0.80  0.90 0.844  1.22  0.84  0.85  0.05    NaN |   NaN   NaN   NaN
+mini-subj3       L-d6cfg      1.00  0.48 0.651  2.48  0.65  0.65  0.00    NaN |   NaN   NaN   NaN
+mini-subj3       L-f5tuned    1.00  0.96 0.978  1.14  0.98  0.98  0.00    NaN |   NaN   NaN   NaN
+mini-subj3       L-retuned    1.00  0.96 0.978  1.14  0.98  0.98  0.00    NaN |   NaN   NaN   NaN
+mini-subj3       centroid     0.93  0.94 0.935  1.05  0.94  0.94  0.04    NaN |   NaN   NaN   NaN
+mini-subj3       cen+merge    0.93  0.90 0.911  1.18  0.90  0.91  0.05    NaN |   NaN   NaN   NaN
+mini-subj3       cen+knn      0.97  0.84 0.897  1.41  0.88  0.90  0.02    NaN |   NaN   NaN   NaN
+mini-subj3       avg-link     0.94  0.95 0.946  1.18  0.94  0.95  0.07    NaN |   NaN   NaN   NaN
+mini-subj3       bridge       1.00  0.96 0.977  1.14  0.98  0.98  0.00    NaN |   NaN   NaN   NaN
+mini-q-mixed50   L-d6cfg      0.98  0.68 0.797  1.99  0.79  0.80  0.01   0.00 |   NaN   NaN   NaN
+mini-q-mixed50   L-f5tuned    0.83  0.90 0.864  1.18  0.85  0.86  0.07   0.00 |   NaN   NaN   NaN
+mini-q-mixed50   L-retuned    0.83  0.90 0.864  1.18  0.85  0.86  0.07   0.00 |   NaN   NaN   NaN
+mini-q-mixed50   centroid     0.88  0.91 0.890  1.08  0.88  0.89  0.08   0.00 |   NaN   NaN   NaN
+mini-q-mixed50   cen+merge    0.88  0.93 0.898  1.09  0.89  0.90  0.07   0.00 |   NaN   NaN   NaN
+mini-q-mixed50   cen+knn      0.87  0.91 0.886  1.30  0.88  0.89  0.03   0.00 |   NaN   NaN   NaN
+mini-q-mixed50   avg-link     0.89  0.94 0.913  1.22  0.90  0.91  0.11   0.00 |   NaN   NaN   NaN
+mini-q-mixed50   bridge       0.78  0.89 0.828  1.18  0.84  0.82  0.07   0.00 |   NaN   NaN   NaN
+mini-para        L-d6cfg      1.00  0.43 0.602  5.00  0.57  0.60  0.00    NaN |   NaN   NaN   NaN
+mini-para        L-f5tuned    0.99  0.72 0.833  2.75  0.81  0.83  0.00    NaN |   NaN   NaN   NaN
+mini-para        L-retuned    0.99  0.72 0.833  2.75  0.81  0.83  0.00    NaN |   NaN   NaN   NaN
+mini-para        centroid     1.00  0.77 0.867  2.11  0.86  0.87  0.00    NaN |   NaN   NaN   NaN
+mini-para        cen+merge    1.00  0.77 0.871  2.44  0.83  0.88  0.00    NaN |   NaN   NaN   NaN
+mini-para        cen+knn      0.99  0.68 0.809  3.34  0.75  0.83  0.00    NaN |   NaN   NaN   NaN
+mini-para        avg-link     1.00  0.79 0.881  2.98  0.85  0.89  0.01    NaN |   NaN   NaN   NaN
+mini-para        bridge       0.99  0.72 0.829  2.75  0.81  0.84  0.00    NaN |   NaN   NaN   NaN
+mini-qpara       L-d6cfg      1.00  0.55 0.710  3.99  0.66  0.71  0.00    NaN |   NaN   NaN   NaN
+mini-qpara       L-f5tuned    0.98  0.86 0.915  1.93  0.89  0.91  0.00    NaN |   NaN   NaN   NaN
+mini-qpara       L-retuned    0.98  0.86 0.915  1.93  0.89  0.91  0.00    NaN |   NaN   NaN   NaN
+mini-qpara       centroid     0.99  0.86 0.922  1.61  0.92  0.92  0.01    NaN |   NaN   NaN   NaN
+mini-qpara       cen+merge    0.99  0.88 0.932  1.97  0.90  0.94  0.00    NaN |   NaN   NaN   NaN
+mini-qpara       cen+knn      0.97  0.83 0.892  2.58  0.84  0.90  0.00    NaN |   NaN   NaN   NaN
+mini-qpara       avg-link     1.00  0.86 0.921  3.26  0.89  0.94  0.02    NaN |   NaN   NaN   NaN
+mini-qpara       bridge       0.93  0.85 0.889  1.93  0.88  0.89  0.00    NaN |   NaN   NaN   NaN
+mini-q2para      L-d6cfg      0.97  0.64 0.771  3.10  0.79  0.77  0.01    NaN |  0.85  0.01  0.14
+mini-q2para      L-f5tuned    0.86  0.91 0.882  1.36  0.86  0.88  0.05    NaN |  0.91  0.07  0.02
+mini-q2para      L-retuned    0.86  0.91 0.882  1.36  0.86  0.88  0.05    NaN |  0.91  0.07  0.02
+mini-q2para      centroid     0.92  0.89 0.906  1.43  0.89  0.91  0.08    NaN |  0.92  0.02  0.06
+mini-q2para      cen+merge    0.98  0.87 0.923  1.74  0.89  0.95  0.02    NaN |  0.98  0.00  0.02
+mini-q2para      cen+knn      0.97  0.82 0.888  2.19  0.85  0.93  0.01    NaN |  0.94  0.01  0.05
+mini-q2para      avg-link     0.98  0.86 0.917  2.44  0.91  0.93  0.04    NaN |  0.93  0.00  0.06
+mini-q2para      bridge       0.81  0.90 0.850  1.36  0.84  0.85  0.05    NaN |  0.87  0.12  0.02
+mini-ctl-unique  L-d6cfg      0.00  0.00 0.000  0.00  0.00  0.00   NaN   0.00 |   NaN   NaN   NaN
+mini-ctl-unique  L-f5tuned    0.00  0.00 0.000  0.00  0.00  0.00   NaN   0.00 |   NaN   NaN   NaN
+mini-ctl-unique  L-retuned    0.00  0.00 0.000  0.00  0.00  0.00   NaN   0.00 |   NaN   NaN   NaN
+mini-ctl-unique  centroid     0.00  0.00 0.000  0.00  0.00  0.00   NaN   0.00 |   NaN   NaN   NaN
+mini-ctl-unique  cen+merge    0.00  0.00 0.000  0.00  0.00  0.00   NaN   0.00 |   NaN   NaN   NaN
+mini-ctl-unique  cen+knn      0.00  0.00 0.000  0.00  0.00  0.00   NaN   0.00 |   NaN   NaN   NaN
+mini-ctl-unique  avg-link     0.00  0.00 0.000  0.00  0.00  0.00   NaN   0.00 |   NaN   NaN   NaN
+mini-ctl-unique  bridge       0.00  0.00 0.000  0.00  0.00  0.00   NaN   0.00 |   NaN   NaN   NaN
+hash-q           L-d6cfg      0.13  0.20 0.152  2.17  0.16  0.15  0.29    NaN |   NaN   NaN   NaN
+hash-q           L-f5tuned    0.10  0.26 0.141  0.79  0.14  0.14  0.50    NaN |   NaN   NaN   NaN
+hash-q           L-retuned    0.10  0.26 0.141  0.79  0.14  0.14  0.50    NaN |   NaN   NaN   NaN
+hash-q           centroid     0.09  0.13 0.105  0.81  0.11  0.11  0.53    NaN |   NaN   NaN   NaN
+hash-q           cen+merge    0.11  0.13 0.116  1.46  0.12  0.12  0.35    NaN |   NaN   NaN   NaN
+hash-q           cen+knn      0.09  0.43 0.145  5.89  0.13  0.15  0.27    NaN |   NaN   NaN   NaN
+hash-q           avg-link     0.17  0.14 0.154  2.47  0.13  0.15  0.39    NaN |   NaN   NaN   NaN
+hash-q           bridge       0.09  0.48 0.146  0.81  0.15  0.15  0.49    NaN |   NaN   NaN   NaN
+hash-subj3       L-d6cfg      1.00  0.33 0.500  3.00  0.50  0.50  0.00    NaN |   NaN   NaN   NaN
+hash-subj3       L-f5tuned    1.00  0.33 0.500  3.00  0.50  0.50  0.00    NaN |   NaN   NaN   NaN
+hash-subj3       L-retuned    1.00  0.33 0.500  3.00  0.50  0.50  0.00    NaN |   NaN   NaN   NaN
+hash-subj3       centroid     1.00  0.35 0.520  2.92  0.52  0.52  0.00    NaN |   NaN   NaN   NaN
+hash-subj3       cen+merge    1.00  0.33 0.501  3.00  0.50  0.50  0.00    NaN |   NaN   NaN   NaN
+hash-subj3       cen+knn      1.00  0.33 0.500  3.01  0.50  0.50  0.00    NaN |   NaN   NaN   NaN
+hash-subj3       avg-link     1.00  0.35 0.518  2.93  0.52  0.52  0.00    NaN |   NaN   NaN   NaN
+hash-subj3       bridge       1.00  0.33 0.500  3.00  0.50  0.50  0.00    NaN |   NaN   NaN   NaN
+hash-para        L-d6cfg      0.42  0.17 0.235  8.04  0.23  0.24  0.04    NaN |   NaN   NaN   NaN
+hash-para        L-f5tuned    0.18  0.23 0.199  4.38  0.19  0.20  0.16    NaN |   NaN   NaN   NaN
+hash-para        L-retuned    0.18  0.23 0.199  4.38  0.19  0.20  0.16    NaN |   NaN   NaN   NaN
+hash-para        centroid     0.47  0.12 0.197  6.11  0.16  0.20  0.25    NaN |   NaN   NaN   NaN
+hash-para        cen+merge    0.61  0.13 0.214  6.52  0.18  0.21  0.15    NaN |   NaN   NaN   NaN
+hash-para        cen+knn      0.24  0.21 0.213  7.21  0.21  0.22  0.08    NaN |   NaN   NaN   NaN
+hash-para        avg-link     0.80  0.14 0.240  7.24  0.19  0.24  0.19    NaN |   NaN   NaN   NaN
+hash-para        bridge       0.13  0.27 0.169  4.46  0.20  0.17  0.16    NaN |   NaN   NaN   NaN
+
+--- paired anchor-F1 difference (method - f5 baseline), 95% t-CI, Holm over 108 tests ---
+mini-q           L-retuned  - L-f5tuned: +0.0000 [+0.0000,+0.0000] Holm 1.0000
+mini-q           centroid   - L-f5tuned: +0.0241 [+0.0043,+0.0439] Holm 0.5874
+mini-q           cen+merge  - L-f5tuned: +0.0336 [+0.0147,+0.0525] Holm 0.0398 WIN
+mini-q           cen+knn    - L-f5tuned: +0.0084 [-0.0168,+0.0335] Holm 1.0000
+mini-q           avg-link   - L-f5tuned: +0.0546 [+0.0349,+0.0744] Holm 0.0002 WIN
+mini-q           bridge     - L-f5tuned: -0.0304 [-0.0432,-0.0175] Holm 0.0019 LOSS
+mini-subj3       L-retuned  - L-f5tuned: +0.0000 [+0.0000,+0.0000] Holm 1.0000
+mini-subj3       centroid   - L-f5tuned: -0.0429 [-0.0587,-0.0271] Holm 0.0003 LOSS
+mini-subj3       cen+merge  - L-f5tuned: -0.0668 [-0.0834,-0.0503] Holm 0.0000 LOSS
+mini-subj3       cen+knn    - L-f5tuned: -0.0814 [-0.0932,-0.0697] Holm 0.0000 LOSS
+mini-subj3       avg-link   - L-f5tuned: -0.0322 [-0.0460,-0.0185] Holm 0.0021 LOSS
+mini-subj3       bridge     - L-f5tuned: -0.0012 [-0.0029,+0.0005] Holm 1.0000
+mini-q-mixed50   L-retuned  - L-f5tuned: +0.0000 [+0.0000,+0.0000] Holm 1.0000
+mini-q-mixed50   centroid   - L-f5tuned: +0.0255 [+0.0045,+0.0466] Holm 0.5874
+mini-q-mixed50   cen+merge  - L-f5tuned: +0.0332 [+0.0078,+0.0586] Holm 0.4153
+mini-q-mixed50   cen+knn    - L-f5tuned: +0.0221 [+0.0027,+0.0416] Holm 0.7375
+mini-q-mixed50   avg-link   - L-f5tuned: +0.0485 [+0.0161,+0.0810] Holm 0.1656
+mini-q-mixed50   bridge     - L-f5tuned: -0.0366 [-0.0552,-0.0180] Holm 0.0151 LOSS
+mini-para        L-retuned  - L-f5tuned: +0.0000 [+0.0000,+0.0000] Holm 1.0000
+mini-para        centroid   - L-f5tuned: +0.0343 [+0.0205,+0.0481] Holm 0.0010 WIN
+mini-para        cen+merge  - L-f5tuned: +0.0379 [+0.0240,+0.0518] Holm 0.0003 WIN
+mini-para        cen+knn    - L-f5tuned: -0.0235 [-0.0351,-0.0120] Holm 0.0110 LOSS
+mini-para        avg-link   - L-f5tuned: +0.0476 [+0.0358,+0.0593] Holm 0.0000 WIN
+mini-para        bridge     - L-f5tuned: -0.0040 [-0.0086,+0.0006] Holm 1.0000
+mini-qpara       L-retuned  - L-f5tuned: +0.0000 [+0.0000,+0.0000] Holm 1.0000
+mini-qpara       centroid   - L-f5tuned: +0.0070 [-0.0057,+0.0198] Holm 1.0000
+mini-qpara       cen+merge  - L-f5tuned: +0.0176 [+0.0040,+0.0313] Holm 0.4302
+mini-qpara       cen+knn    - L-f5tuned: -0.0228 [-0.0420,-0.0035] Holm 0.6448
+mini-qpara       avg-link   - L-f5tuned: +0.0064 [-0.0060,+0.0187] Holm 1.0000
+mini-qpara       bridge     - L-f5tuned: -0.0262 [-0.0392,-0.0132] Holm 0.0120 LOSS
+mini-q2para      L-retuned  - L-f5tuned: +0.0000 [+0.0000,+0.0000] Holm 1.0000
+mini-q2para      centroid   - L-f5tuned: +0.0237 [+0.0034,+0.0440] Holm 0.6580
+mini-q2para      cen+merge  - L-f5tuned: +0.0416 [+0.0228,+0.0604] Holm 0.0041 WIN
+mini-q2para      cen+knn    - L-f5tuned: +0.0059 [-0.0187,+0.0305] Holm 1.0000
+mini-q2para      avg-link   - L-f5tuned: +0.0352 [+0.0159,+0.0546] Holm 0.0330 WIN
+mini-q2para      bridge     - L-f5tuned: -0.0315 [-0.0452,-0.0179] Holm 0.0025 LOSS
+hash-q           L-retuned  - L-f5tuned: +0.0000 [+0.0000,+0.0000] Holm 1.0000
+hash-q           centroid   - L-f5tuned: -0.0359 [-0.0390,-0.0329] Holm 0.0000 LOSS
+hash-q           cen+merge  - L-f5tuned: -0.0259 [-0.0291,-0.0227] Holm 0.0000 LOSS
+hash-q           cen+knn    - L-f5tuned: +0.0040 [+0.0016,+0.0063] Holm 0.0598
+hash-q           avg-link   - L-f5tuned: +0.0124 [+0.0079,+0.0168] Holm 0.0002 WIN
+hash-q           bridge     - L-f5tuned: +0.0046 [+0.0025,+0.0067] Holm 0.0036 WIN
+hash-subj3       L-retuned  - L-f5tuned: +0.0000 [+0.0000,+0.0000] Holm 1.0000
+hash-subj3       centroid   - L-f5tuned: +0.0206 [+0.0195,+0.0217] Holm 0.0000 WIN
+hash-subj3       cen+merge  - L-f5tuned: +0.0013 [-0.0007,+0.0032] Holm 1.0000
+hash-subj3       cen+knn    - L-f5tuned: -0.0000 [-0.0001,+0.0000] Holm 1.0000
+hash-subj3       avg-link   - L-f5tuned: +0.0187 [+0.0144,+0.0231] Holm 0.0000 WIN
+hash-subj3       bridge     - L-f5tuned: +0.0000 [+0.0000,+0.0000] Holm 1.0000
+hash-para        L-retuned  - L-f5tuned: +0.0000 [+0.0000,+0.0000] Holm 1.0000
+hash-para        centroid   - L-f5tuned: -0.0025 [-0.0092,+0.0042] Holm 1.0000
+hash-para        cen+merge  - L-f5tuned: +0.0152 [+0.0078,+0.0225] Holm 0.0091 WIN
+hash-para        cen+knn    - L-f5tuned: +0.0132 [+0.0029,+0.0235] Holm 0.4347
+hash-para        avg-link   - L-f5tuned: +0.0404 [+0.0329,+0.0479] Holm 0.0000 WIN
+hash-para        bridge     - L-f5tuned: -0.0306 [-0.0368,-0.0244] Holm 0.0000 LOSS
+
+=== threshold SENSITIVITY of anchor pair-F1 (held) ===
+method (threshold)                 q      para   mixed50     subj3
+leader k8 s0.4                 0.705     0.892     0.734     0.889
+leader k8 s0.45                0.833     0.890     0.815     0.926
+leader k8 s0.5                 0.875     0.833     0.864     0.978
+leader k8 s0.55                0.885     0.727     0.867     0.793
+leader k8 s0.6                 0.798     0.602     0.797     0.651
+leader k8 s0.65                0.715     0.451     0.699     0.606
+leader k8 s0.7                 0.618     0.346     0.607     0.541
+centroid a0.4                  0.820     0.904     0.827     0.922
+centroid a0.45                 0.899     0.867     0.890     0.935
+centroid a0.5                  0.897     0.777     0.900     0.937
+centroid a0.55                 0.842     0.664     0.833     0.784
+centroid a0.6                  0.736     0.533     0.736     0.646
+centroid a0.65                 0.631     0.406     0.620     0.595
+centroid a0.7                  0.541     0.325     0.544     0.541
+cen+merge a0.4 m0.50           0.625     0.911     0.632     0.880
+cen+merge a0.45 m0.55          0.843     0.911     0.843     0.938
+cen+merge a0.5 m0.60           0.898     0.848     0.882     0.941
+cen+merge a0.55 m0.65          0.892     0.717     0.888     0.787
+cen+merge a0.6 m0.70           0.810     0.577     0.797     0.646
+cen+merge a0.65 m0.75          0.665     0.430     0.648     0.595
+cen+merge a0.7 m0.80           0.553     0.328     0.550     0.541
+avglink a0.4 m0.4              0.887     0.910     0.890     0.940
+avglink a0.45 m0.45            0.922     0.828     0.921     0.940
+avglink a0.5 m0.5              0.920     0.700     0.916     0.953
+avglink a0.55 m0.55            0.885     0.606     0.878     0.791
+avglink a0.6 m0.6              0.720     0.487     0.704     0.625
+avglink a0.65 m0.65            0.600     0.368     0.596     0.579
+avglink a0.7 m0.7              0.522     0.313     0.519     0.541
+bridge n0.4 m0.50 s2           0.409     0.761     0.439     0.864
+bridge n0.45 m0.55 s2          0.581     0.819     0.572     0.921
+bridge n0.5 m0.60 s2           0.711     0.819     0.697     0.980
+bridge n0.55 m0.65 s2          0.827     0.752     0.807     0.800
+bridge n0.6 m0.70 s2           0.821     0.618     0.801     0.653
+bridge n0.65 m0.75 s2          0.775     0.470     0.742     0.609
+bridge n0.7 m0.80 s2           0.674     0.357     0.639     0.541
+  F1 spread over thresholds .40-.70 [leader]: q 0.267 para 0.546 mixed50 0.260 subj3 0.437
+  F1 spread over thresholds .40-.70 [centroid a]: q 0.358 para 0.578 mixed50 0.355 subj3 0.396
+  F1 spread over thresholds .40-.70 [cen+merge]: q 0.345 para 0.583 mixed50 0.338 subj3 0.400
+  F1 spread over thresholds .40-.70 [avglink]: q 0.400 para 0.597 mixed50 0.402 subj3 0.412
+  F1 spread over thresholds .40-.70 [bridge]: q 0.419 para 0.462 mixed50 0.368 subj3 0.439
+
+=== NEIGHBOUR list P/R/F1 (independent of the anchor threshold), held ===
+world           k  thr |      P      R     F1
+mini-q          3  0.5 |  0.998  0.995  0.997
+mini-q          3  0.6 |  0.999  0.987  0.993
+mini-q          5  0.5 |  0.997  0.993  0.995
+mini-q          5  0.6 |  0.999  0.981  0.990
+mini-q          8  0.5 |  0.995  0.989  0.992
+mini-q          8  0.6 |  0.999  0.971  0.985
+mini-para       3  0.5 |  0.999  0.978  0.988
+mini-para       3  0.6 |  1.000  0.952  0.975
+mini-para       5  0.5 |  0.998  0.967  0.983
+mini-para       5  0.6 |  1.000  0.929  0.963
+mini-para       8  0.5 |  0.998  0.952  0.975
+mini-para       8  0.6 |  1.000  0.897  0.945
+mini-q2para     3  0.5 |  1.000  0.997  0.998  (queries after the phrasing switch)
+mini-q2para     3  0.6 |  1.000  0.973  0.986  (queries after the phrasing switch)
+mini-q2para     5  0.5 |  1.000  0.994  0.997  (queries after the phrasing switch)
+mini-q2para     5  0.6 |  1.000  0.959  0.979  (queries after the phrasing switch)
+mini-q2para     8  0.5 |  0.999  0.991  0.995  (queries after the phrasing switch)
+mini-q2para     8  0.6 |  1.000  0.935  0.967  (queries after the phrasing switch)
+hash-q          3  0.5 |  0.858  0.861  0.860
+hash-q          3  0.6 |  0.868  0.855  0.861
+hash-q          5  0.5 |  0.791  0.794  0.792
+hash-q          5  0.6 |  0.803  0.786  0.794
+hash-q          8  0.5 |  0.705  0.709  0.707
+hash-q          8  0.6 |  0.721  0.698  0.709
+hash-para       3  0.5 |  0.936  0.898  0.917
+hash-para       3  0.6 |  0.964  0.883  0.922
+hash-para       5  0.5 |  0.906  0.851  0.878
+hash-para       5  0.6 |  0.946  0.828  0.883
+hash-para       8  0.5 |  0.866  0.789  0.825
+hash-para       8  0.6 |  0.922  0.756  0.831
+wrote results/f6_anchor_retrieval.json in 95s

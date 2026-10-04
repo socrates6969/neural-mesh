@@ -1,0 +1,274 @@
+cores available: 16
+
+--- tuning on seeds 1-8 ---
+  kw-gate@0.35/learn-all         worst-world dQ -0.0702  mean full-select fraction 0.078
+  kw-gate@0.45/learn-all         worst-world dQ -0.0319  mean full-select fraction 0.177
+  kw-gate@0.50/learn-all         worst-world dQ -0.0192  mean full-select fraction 0.228
+  kw-gate@0.55/learn-all         worst-world dQ -0.0143  mean full-select fraction 0.292
+  kw-gate@0.60/learn-all         worst-world dQ -0.0087  mean full-select fraction 0.336
+  kw-gate@0.65/learn-all         worst-world dQ -0.0100  mean full-select fraction 0.387
+  kw-gate@0.70/learn-all         worst-world dQ -0.0115  mean full-select fraction 0.464
+  kw-gate@0.75/learn-all         worst-world dQ -0.0277  mean full-select fraction 0.601
+  kw-gate@0.80/learn-all         worst-world dQ -0.0191  mean full-select fraction 0.786
+  kw-gate@0.35/learn-routed      worst-world dQ -0.0699  mean full-select fraction 0.078
+  kw-gate@0.45/learn-routed      worst-world dQ -0.0307  mean full-select fraction 0.182
+  kw-gate@0.50/learn-routed      worst-world dQ -0.0191  mean full-select fraction 0.226
+  kw-gate@0.55/learn-routed      worst-world dQ -0.0135  mean full-select fraction 0.274
+  kw-gate@0.60/learn-routed      worst-world dQ -0.0083  mean full-select fraction 0.313
+  kw-gate@0.65/learn-routed      worst-world dQ -0.0042  mean full-select fraction 0.373
+  kw-gate@0.70/learn-routed      worst-world dQ -0.0047  mean full-select fraction 0.453
+  kw-gate@0.75/learn-routed      worst-world dQ -0.0097  mean full-select fraction 0.591
+  kw-gate@0.80/learn-routed      worst-world dQ -0.0063  mean full-select fraction 0.782
+  cache-gate@0.35/learn-all      worst-world dQ -0.0475  mean full-select fraction 0.094
+  cache-gate@0.45/learn-all      worst-world dQ -0.0287  mean full-select fraction 0.126
+  cache-gate@0.50/learn-all      worst-world dQ -0.0313  mean full-select fraction 0.164
+  cache-gate@0.55/learn-all      worst-world dQ -0.0241  mean full-select fraction 0.173
+  cache-gate@0.60/learn-all      worst-world dQ -0.0201  mean full-select fraction 0.213
+  cache-gate@0.65/learn-all      worst-world dQ -0.0189  mean full-select fraction 0.258
+  cache-gate@0.70/learn-all      worst-world dQ -0.0148  mean full-select fraction 0.356
+  cache-gate@0.75/learn-all      worst-world dQ -0.0192  mean full-select fraction 0.534
+  cache-gate@0.80/learn-all      worst-world dQ -0.0214  mean full-select fraction 0.773
+  cache-gate@0.35/learn-routed   worst-world dQ -0.0546  mean full-select fraction 0.101
+  cache-gate@0.45/learn-routed   worst-world dQ -0.0236  mean full-select fraction 0.130
+  cache-gate@0.50/learn-routed   worst-world dQ -0.0365  mean full-select fraction 0.160
+  cache-gate@0.55/learn-routed   worst-world dQ -0.0189  mean full-select fraction 0.172
+  cache-gate@0.60/learn-routed   worst-world dQ -0.0248  mean full-select fraction 0.213
+  cache-gate@0.65/learn-routed   worst-world dQ -0.0168  mean full-select fraction 0.262
+  cache-gate@0.70/learn-routed   worst-world dQ -0.0114  mean full-select fraction 0.357
+  cache-gate@0.75/learn-routed   worst-world dQ -0.0092  mean full-select fraction 0.532
+  cache-gate@0.80/learn-routed   worst-world dQ -0.0017  mean full-select fraction 0.772
+  OP-A (strict, tune worst-world dQ >= -0.003): Some("cache-gate@0.80/learn-routed")
+  OP-C (mid,    tune worst-world dQ >= -0.006): Some("kw-gate@0.65/learn-routed")
+  OP-B (loose,  tune worst-world dQ >= -0.010): Some("kw-gate@0.60/learn-routed")
+
+unit costs (ns, single thread, min of 9): Units { full_sel: 1193.2, full_upd: 1622.85, gate_kw: 359.4, gate_cache: 556.65, kw_route: 189.15, cheap_upd: 177.2, coin: 1.9 }
+
+=== F2(c) held-out 31-60: quality vs always-full router (Warm<Hebbian>), n=30 ===
+policy                                       world           fullSel  fullUpd     estNs     dQ vs full [95% CI]   Holm    LL
+keyword                                      sim-fixed         0.000    0.000       189 -0.0647 [-0.0712,-0.0582]  1.000    no
+guarded(x1)                                  sim-fixed         0.050    1.000       NaN -0.0090 [-0.0158,-0.0021]  1.000    no
+OP-A cache-gate@0.80/learn-routed            sim-fixed         0.800    0.800      2988 +0.0040 [-0.0038,+0.0119]  1.000    no
+OP-A-control randgate q=0.77                 sim-fixed         0.775    0.775      2227 -0.0154 [-0.0213,-0.0095]  1.000    no
+OP-C kw-gate@0.65/learn-routed               sim-fixed         0.405    0.405      1677 -0.0042 [-0.0131,+0.0047]  1.000    no
+OP-C-control randgate q=0.37                 sim-fixed         0.374    0.374      1174 -0.0516 [-0.0595,-0.0438]  1.000    no
+OP-B kw-gate@0.60/learn-routed               sim-fixed         0.326    0.326      1455 +0.0001 [-0.0072,+0.0074]  1.000    no
+OP-B-control randgate q=0.31                 sim-fixed         0.313    0.313      1012 -0.0537 [-0.0604,-0.0471]  1.000    no
+keyword                                      sim-random        0.000    0.000       189 -0.0788 [-0.0944,-0.0633]  1.000    no
+guarded(x1)                                  sim-random        0.048    1.000       NaN -0.0079 [-0.0165,+0.0007]  1.000    no
+OP-A cache-gate@0.80/learn-routed            sim-random        0.747    0.747      2836 +0.0028 [-0.0019,+0.0075]  1.000    no
+OP-A-control randgate q=0.77                 sim-random        0.775    0.775      2227 -0.0232 [-0.0299,-0.0165]  1.000    no
+OP-C kw-gate@0.65/learn-routed               sim-random        0.376    0.376      1595 -0.0013 [-0.0085,+0.0059]  1.000    no
+OP-C-control randgate q=0.37                 sim-random        0.374    0.374      1174 -0.0639 [-0.0770,-0.0507]  1.000    no
+OP-B kw-gate@0.60/learn-routed               sim-random        0.322    0.322      1444 -0.0039 [-0.0117,+0.0039]  1.000    no
+OP-B-control randgate q=0.31                 sim-random        0.313    0.313      1012 -0.0669 [-0.0794,-0.0544]  1.000    no
+keyword                                      sim-no-traps      0.000    0.000       189 +0.0141 [+0.0073,+0.0208]  1.000    no
+guarded(x1)                                  sim-no-traps      0.011    1.000       NaN +0.0121 [+0.0056,+0.0186]  1.000    no
+OP-A cache-gate@0.80/learn-routed            sim-no-traps      0.745    0.745      2832 +0.0016 [-0.0047,+0.0079]  1.000    no
+OP-A-control randgate q=0.77                 sim-no-traps      0.775    0.775      2227 +0.0014 [-0.0048,+0.0077]  1.000    no
+OP-C kw-gate@0.65/learn-routed               sim-no-traps      0.177    0.177      1036 +0.0092 [-0.0003,+0.0187]  1.000    no
+OP-C-control randgate q=0.37                 sim-no-traps      0.374    0.374      1174 +0.0046 [-0.0025,+0.0118]  1.000    no
+OP-B kw-gate@0.60/learn-routed               sim-no-traps      0.124    0.124       886 +0.0072 [-0.0003,+0.0146]  1.000    no
+OP-B-control randgate q=0.31                 sim-no-traps      0.313    0.313      1012 +0.0028 [-0.0040,+0.0096]  1.000    no
+keyword                                      big-32agents      0.000    0.000       189 -0.0460 [-0.0661,-0.0259]  1.000    no
+guarded(x1)                                  big-32agents      0.176    1.000       NaN +0.0237 [+0.0056,+0.0419]  1.000    no
+OP-A cache-gate@0.80/learn-routed            big-32agents      0.805    0.805      3002 +0.0101 [+0.0009,+0.0193]  1.000    no
+OP-A-control randgate q=0.77                 big-32agents      0.774    0.774      2224 -0.0253 [-0.0393,-0.0114]  1.000    no
+OP-C kw-gate@0.65/learn-routed               big-32agents      0.503    0.503      1952 +0.0170 [+0.0016,+0.0324]  1.000    no
+OP-C-control randgate q=0.37                 big-32agents      0.373    0.373      1172 -0.0446 [-0.0612,-0.0281]  1.000    no
+OP-B kw-gate@0.60/learn-routed               big-32agents      0.452    0.452      1809 +0.0297 [+0.0147,+0.0448]  1.000    no
+OP-B-control randgate q=0.31                 big-32agents      0.313    0.313      1013 -0.0482 [-0.0655,-0.0308]  1.000    no
+-- OP minus matched random gate (paired, two-sided) --
+  OP-A minus matched random gate     sim-fixed      +0.0195 [+0.0125,+0.0264]   Holm p 0.0001
+  OP-A minus guarded(x1)             sim-fixed      +0.0130 [+0.0054,+0.0207]   Holm p 0.0243
+  OP-C minus matched random gate     sim-fixed      +0.0474 [+0.0394,+0.0555]   Holm p 0.0000
+  OP-C minus guarded(x1)             sim-fixed      +0.0048 [-0.0022,+0.0117]   Holm p 1.0000
+  OP-B minus matched random gate     sim-fixed      +0.0538 [+0.0471,+0.0605]   Holm p 0.0000
+  OP-B minus guarded(x1)             sim-fixed      +0.0090 [+0.0031,+0.0150]   Holm p 0.0591
+  OP-A minus matched random gate     sim-random     +0.0260 [+0.0197,+0.0323]   Holm p 0.0000
+  OP-A minus guarded(x1)             sim-random     +0.0107 [+0.0029,+0.0184]   Holm p 0.1115
+  OP-C minus matched random gate     sim-random     +0.0626 [+0.0505,+0.0747]   Holm p 0.0000
+  OP-C minus guarded(x1)             sim-random     +0.0066 [-0.0021,+0.0153]   Holm p 1.0000
+  OP-B minus matched random gate     sim-random     +0.0630 [+0.0521,+0.0739]   Holm p 0.0000
+  OP-B minus guarded(x1)             sim-random     +0.0040 [-0.0031,+0.0112]   Holm p 1.0000
+  OP-A minus matched random gate     sim-no-traps   +0.0002 [-0.0071,+0.0074]   Holm p 1.0000
+  OP-A minus guarded(x1)             sim-no-traps   -0.0105 [-0.0181,-0.0029]   Holm p 0.1115
+  OP-C minus matched random gate     sim-no-traps   +0.0046 [-0.0023,+0.0115]   Holm p 1.0000
+  OP-C minus guarded(x1)             sim-no-traps   -0.0029 [-0.0100,+0.0042]   Holm p 1.0000
+  OP-B minus matched random gate     sim-no-traps   +0.0044 [+0.0001,+0.0087]   Holm p 0.5195
+  OP-B minus guarded(x1)             sim-no-traps   -0.0050 [-0.0099,+0.0000]   Holm p 0.5195
+  OP-A minus matched random gate     big-32agents   +0.0354 [+0.0225,+0.0483]   Holm p 0.0001
+  OP-A minus guarded(x1)             big-32agents   -0.0136 [-0.0286,+0.0013]   Holm p 0.6523
+  OP-C minus matched random gate     big-32agents   +0.0617 [+0.0479,+0.0754]   Holm p 0.0000
+  OP-C minus guarded(x1)             big-32agents   -0.0067 [-0.0204,+0.0070]   Holm p 1.0000
+  OP-B minus matched random gate     big-32agents   +0.0779 [+0.0619,+0.0940]   Holm p 0.0000
+  OP-B minus guarded(x1)             big-32agents   +0.0060 [-0.0094,+0.0215]   Holm p 1.0000
+-- full frontier on held-out (display only; operating points were fixed on seeds 1-8) --
+  kw-gate@0.35/learn-all         | -0.0524 [-0.0588,-0.0460] fs=0.06 | -0.0543 [-0.0669,-0.0417] fs=0.08 | +0.0133 [+0.0066,+0.0199] fs=0.01 | -0.0036 [-0.0182,+0.0110] fs=0.21
+  kw-gate@0.45/learn-all         | -0.0151 [-0.0212,-0.0090] fs=0.18 | -0.0200 [-0.0302,-0.0098] fs=0.19 | +0.0108 [+0.0037,+0.0178] fs=0.02 | +0.0248 [+0.0071,+0.0426] fs=0.32
+  kw-gate@0.50/learn-all         | -0.0074 [-0.0137,-0.0011] fs=0.24 | -0.0085 [-0.0168,-0.0001] fs=0.23 | +0.0058 [-0.0000,+0.0117] fs=0.05 | +0.0254 [+0.0118,+0.0389] fs=0.36
+  kw-gate@0.55/learn-all         | -0.0097 [-0.0179,-0.0015] fs=0.31 | -0.0072 [-0.0147,+0.0002] fs=0.29 | -0.0060 [-0.0135,+0.0016] fs=0.11 | +0.0329 [+0.0169,+0.0489] fs=0.42
+  kw-gate@0.60/learn-all         | -0.0117 [-0.0209,-0.0024] fs=0.37 | -0.0009 [-0.0091,+0.0073] fs=0.33 | -0.0042 [-0.0112,+0.0029] fs=0.15 | +0.0176 [+0.0013,+0.0338] fs=0.47
+  kw-gate@0.65/learn-all         | -0.0059 [-0.0144,+0.0027] fs=0.43 | -0.0024 [-0.0101,+0.0052] fs=0.40 | +0.0062 [-0.0021,+0.0146] fs=0.19 | +0.0168 [+0.0062,+0.0274] fs=0.51
+  kw-gate@0.70/learn-all         | -0.0019 [-0.0103,+0.0065] fs=0.49 | -0.0028 [-0.0097,+0.0041] fs=0.48 | +0.0006 [-0.0069,+0.0080] fs=0.30 | +0.0125 [-0.0015,+0.0265] fs=0.57
+  kw-gate@0.75/learn-all         | +0.0029 [-0.0048,+0.0106] fs=0.59 | +0.0006 [-0.0055,+0.0068] fs=0.61 | +0.0028 [-0.0037,+0.0092] fs=0.46 | +0.0117 [-0.0013,+0.0247] fs=0.67
+  kw-gate@0.80/learn-all         | -0.0039 [-0.0105,+0.0026] fs=0.81 | +0.0006 [-0.0046,+0.0059] fs=0.80 | +0.0013 [-0.0045,+0.0071] fs=0.72 | -0.0030 [-0.0129,+0.0069] fs=0.84
+  kw-gate@0.35/learn-routed      | -0.0529 [-0.0593,-0.0466] fs=0.05 | -0.0511 [-0.0629,-0.0393] fs=0.08 | +0.0134 [+0.0066,+0.0202] fs=0.01 | +0.0063 [-0.0093,+0.0218] fs=0.20
+  kw-gate@0.45/learn-routed      | -0.0184 [-0.0244,-0.0123] fs=0.18 | -0.0155 [-0.0231,-0.0079] fs=0.18 | +0.0116 [+0.0048,+0.0184] fs=0.02 | +0.0244 [+0.0116,+0.0372] fs=0.32
+  kw-gate@0.50/learn-routed      | -0.0097 [-0.0172,-0.0021] fs=0.24 | -0.0094 [-0.0175,-0.0013] fs=0.23 | +0.0098 [+0.0031,+0.0165] fs=0.05 | +0.0300 [+0.0163,+0.0436] fs=0.36
+  kw-gate@0.55/learn-routed      | -0.0041 [-0.0099,+0.0018] fs=0.29 | -0.0072 [-0.0144,-0.0001] fs=0.28 | +0.0080 [+0.0020,+0.0140] fs=0.08 | +0.0374 [+0.0253,+0.0494] fs=0.41
+  kw-gate@0.60/learn-routed      | +0.0001 [-0.0072,+0.0074] fs=0.33 | -0.0039 [-0.0117,+0.0039] fs=0.32 | +0.0072 [-0.0003,+0.0146] fs=0.12 | +0.0297 [+0.0147,+0.0448] fs=0.45
+  kw-gate@0.65/learn-routed      | -0.0042 [-0.0131,+0.0047] fs=0.41 | -0.0013 [-0.0085,+0.0059] fs=0.38 | +0.0092 [-0.0003,+0.0187] fs=0.18 | +0.0170 [+0.0016,+0.0324] fs=0.50
+  kw-gate@0.70/learn-routed      | +0.0033 [-0.0049,+0.0114] fs=0.48 | +0.0006 [-0.0053,+0.0066] fs=0.47 | +0.0040 [-0.0020,+0.0099] fs=0.28 | +0.0129 [+0.0040,+0.0219] fs=0.57
+  kw-gate@0.75/learn-routed      | +0.0041 [-0.0041,+0.0124] fs=0.59 | +0.0008 [-0.0054,+0.0070] fs=0.61 | +0.0064 [-0.0015,+0.0144] fs=0.45 | +0.0120 [-0.0027,+0.0266] fs=0.67
+  kw-gate@0.80/learn-routed      | -0.0014 [-0.0073,+0.0046] fs=0.80 | +0.0042 [-0.0016,+0.0100] fs=0.80 | +0.0067 [-0.0005,+0.0138] fs=0.71 | +0.0112 [+0.0016,+0.0209] fs=0.83
+  cache-gate@0.35/learn-all      | -0.0306 [-0.0380,-0.0233] fs=0.05 | -0.0285 [-0.0390,-0.0181] fs=0.05 | -0.0227 [-0.0316,-0.0138] fs=0.04 | -0.0034 [-0.0163,+0.0094] fs=0.23
+  cache-gate@0.45/learn-all      | -0.0208 [-0.0294,-0.0122] fs=0.07 | -0.0224 [-0.0309,-0.0138] fs=0.08 | -0.0229 [-0.0301,-0.0158] fs=0.06 | +0.0047 [-0.0097,+0.0191] fs=0.28
+  cache-gate@0.50/learn-all      | -0.0215 [-0.0293,-0.0137] fs=0.10 | -0.0189 [-0.0264,-0.0114] fs=0.10 | -0.0221 [-0.0295,-0.0146] fs=0.09 | +0.0060 [-0.0052,+0.0173] fs=0.33
+  cache-gate@0.55/learn-all      | -0.0253 [-0.0344,-0.0161] fs=0.13 | -0.0207 [-0.0283,-0.0131] fs=0.13 | -0.0182 [-0.0249,-0.0115] fs=0.11 | +0.0104 [-0.0044,+0.0252] fs=0.36
+  cache-gate@0.60/learn-all      | -0.0242 [-0.0322,-0.0162] fs=0.18 | -0.0188 [-0.0252,-0.0124] fs=0.16 | -0.0144 [-0.0201,-0.0088] fs=0.14 | +0.0003 [-0.0143,+0.0148] fs=0.41
+  cache-gate@0.65/learn-all      | -0.0126 [-0.0200,-0.0052] fs=0.22 | -0.0115 [-0.0199,-0.0030] fs=0.20 | -0.0118 [-0.0184,-0.0053] fs=0.19 | -0.0019 [-0.0150,+0.0112] fs=0.46
+  cache-gate@0.70/learn-all      | -0.0035 [-0.0102,+0.0033] fs=0.31 | +0.0001 [-0.0055,+0.0058] fs=0.28 | -0.0061 [-0.0124,+0.0002] fs=0.29 | +0.0097 [-0.0041,+0.0236] fs=0.50
+  cache-gate@0.75/learn-all      | -0.0072 [-0.0151,+0.0006] fs=0.54 | -0.0003 [-0.0062,+0.0055] fs=0.48 | -0.0013 [-0.0081,+0.0054] fs=0.48 | +0.0005 [-0.0117,+0.0127] fs=0.63
+  cache-gate@0.80/learn-all      | +0.0001 [-0.0071,+0.0073] fs=0.80 | -0.0063 [-0.0131,+0.0005] fs=0.75 | -0.0018 [-0.0071,+0.0036] fs=0.75 | +0.0016 [-0.0094,+0.0126] fs=0.81
+  cache-gate@0.35/learn-routed   | -0.0457 [-0.0516,-0.0397] fs=0.06 | -0.0245 [-0.0328,-0.0162] fs=0.05 | -0.0214 [-0.0316,-0.0112] fs=0.04 | -0.0057 [-0.0185,+0.0072] fs=0.24
+  cache-gate@0.45/learn-routed   | -0.0200 [-0.0267,-0.0133] fs=0.07 | -0.0171 [-0.0247,-0.0095] fs=0.07 | -0.0172 [-0.0241,-0.0104] fs=0.06 | +0.0017 [-0.0096,+0.0130] fs=0.29
+  cache-gate@0.50/learn-routed   | -0.0235 [-0.0310,-0.0160] fs=0.10 | -0.0193 [-0.0279,-0.0107] fs=0.10 | -0.0138 [-0.0203,-0.0073] fs=0.07 | +0.0002 [-0.0121,+0.0125] fs=0.35
+  cache-gate@0.55/learn-routed   | -0.0157 [-0.0241,-0.0073] fs=0.11 | -0.0143 [-0.0214,-0.0072] fs=0.11 | -0.0162 [-0.0248,-0.0076] fs=0.10 | +0.0100 [-0.0065,+0.0266] fs=0.36
+  cache-gate@0.60/learn-routed   | -0.0164 [-0.0244,-0.0084] fs=0.16 | -0.0128 [-0.0185,-0.0070] fs=0.15 | -0.0148 [-0.0221,-0.0075] fs=0.14 | +0.0134 [-0.0007,+0.0275] fs=0.39
+  cache-gate@0.65/learn-routed   | -0.0132 [-0.0195,-0.0068] fs=0.23 | -0.0096 [-0.0168,-0.0025] fs=0.20 | -0.0085 [-0.0137,-0.0034] fs=0.18 | +0.0086 [-0.0043,+0.0215] fs=0.44
+  cache-gate@0.70/learn-routed   | -0.0096 [-0.0167,-0.0024] fs=0.34 | -0.0092 [-0.0154,-0.0030] fs=0.31 | -0.0045 [-0.0104,+0.0014] fs=0.29 | +0.0074 [-0.0054,+0.0202] fs=0.50
+  cache-gate@0.75/learn-routed   | -0.0050 [-0.0121,+0.0020] fs=0.55 | +0.0015 [-0.0046,+0.0076] fs=0.49 | +0.0011 [-0.0069,+0.0090] fs=0.47 | +0.0022 [-0.0103,+0.0147] fs=0.63
+  cache-gate@0.80/learn-routed   | +0.0040 [-0.0038,+0.0119] fs=0.80 | +0.0028 [-0.0019,+0.0075] fs=0.75 | +0.0016 [-0.0047,+0.0079] fs=0.75 | +0.0101 [+0.0009,+0.0193] fs=0.81
+
+=== F2(c) confirm 61-90 (frozen): quality vs always-full router (Warm<Hebbian>), n=30 ===
+policy                                       world           fullSel  fullUpd     estNs     dQ vs full [95% CI]   Holm    LL
+keyword                                      sim-fixed         0.000    0.000       189 -0.0656 [-0.0723,-0.0589]  1.000    no
+guarded(x1)                                  sim-fixed         0.047    1.000       NaN -0.0068 [-0.0139,+0.0002]  1.000    no
+OP-A cache-gate@0.80/learn-routed            sim-fixed         0.805    0.805      3000 -0.0009 [-0.0066,+0.0048]  1.000    no
+OP-A-control randgate q=0.77                 sim-fixed         0.774    0.774      2223 -0.0234 [-0.0306,-0.0163]  1.000    no
+OP-C kw-gate@0.65/learn-routed               sim-fixed         0.385    0.385      1621 +0.0044 [-0.0022,+0.0109]  1.000    no
+OP-C-control randgate q=0.37                 sim-fixed         0.375    0.375      1175 -0.0537 [-0.0604,-0.0470]  1.000    no
+OP-B kw-gate@0.60/learn-routed               sim-fixed         0.329    0.329      1462 -0.0061 [-0.0144,+0.0023]  1.000    no
+OP-B-control randgate q=0.31                 sim-fixed         0.314    0.314      1017 -0.0560 [-0.0626,-0.0494]  1.000    no
+keyword                                      sim-random        0.000    0.000       189 -0.0992 [-0.1204,-0.0780]  1.000    no
+guarded(x1)                                  sim-random        0.052    1.000       NaN -0.0054 [-0.0153,+0.0045]  1.000    no
+OP-A cache-gate@0.80/learn-routed            sim-random        0.730    0.730      2788 +0.0084 [+0.0016,+0.0151]  1.000    no
+OP-A-control randgate q=0.77                 sim-random        0.774    0.774      2223 -0.0272 [-0.0374,-0.0170]  1.000    no
+OP-C kw-gate@0.65/learn-routed               sim-random        0.413    0.413      1699 +0.0059 [-0.0037,+0.0155]  1.000    no
+OP-C-control randgate q=0.37                 sim-random        0.375    0.375      1175 -0.0754 [-0.0917,-0.0592]  1.000    no
+OP-B kw-gate@0.60/learn-routed               sim-random        0.360    0.360      1551 +0.0005 [-0.0105,+0.0114]  1.000    no
+OP-B-control randgate q=0.31                 sim-random        0.314    0.314      1017 -0.0800 [-0.0969,-0.0630]  1.000    no
+keyword                                      sim-no-traps      0.000    0.000       189 +0.0118 [+0.0058,+0.0179]  1.000    no
+guarded(x1)                                  sim-no-traps      0.012    1.000       NaN +0.0132 [+0.0076,+0.0189]  1.000    no
+OP-A cache-gate@0.80/learn-routed            sim-no-traps      0.767    0.767      2894 +0.0010 [-0.0063,+0.0084]  1.000    no
+OP-A-control randgate q=0.77                 sim-no-traps      0.774    0.774      2223 +0.0007 [-0.0078,+0.0092]  1.000    no
+OP-C kw-gate@0.65/learn-routed               sim-no-traps      0.205    0.205      1114 +0.0058 [-0.0023,+0.0139]  1.000    no
+OP-C-control randgate q=0.37                 sim-no-traps      0.375    0.375      1175 -0.0018 [-0.0093,+0.0057]  1.000    no
+OP-B kw-gate@0.60/learn-routed               sim-no-traps      0.141    0.141       932 +0.0088 [+0.0013,+0.0163]  1.000    no
+OP-B-control randgate q=0.31                 sim-no-traps      0.314    0.314      1017 +0.0016 [-0.0044,+0.0076]  1.000    no
+keyword                                      big-32agents      0.000    0.000       189 -0.0432 [-0.0610,-0.0254]  1.000    no
+guarded(x1)                                  big-32agents      0.192    1.000       NaN +0.0205 [+0.0088,+0.0323]  1.000    no
+OP-A cache-gate@0.80/learn-routed            big-32agents      0.833    0.833      3080 +0.0086 [-0.0018,+0.0190]  1.000    no
+OP-A-control randgate q=0.77                 big-32agents      0.774    0.774      2225 -0.0118 [-0.0222,-0.0013]  1.000    no
+OP-C kw-gate@0.65/learn-routed               big-32agents      0.498    0.498      1939 +0.0322 [+0.0187,+0.0457]  1.000    no
+OP-C-control randgate q=0.37                 big-32agents      0.374    0.374      1173 -0.0406 [-0.0547,-0.0264]  1.000    no
+OP-B kw-gate@0.60/learn-routed               big-32agents      0.452    0.452      1810 +0.0261 [+0.0172,+0.0349]  1.000    no
+OP-B-control randgate q=0.31                 big-32agents      0.313    0.313      1014 -0.0429 [-0.0576,-0.0282]  1.000    no
+-- OP minus matched random gate (paired, two-sided) --
+  OP-A minus matched random gate     sim-fixed      +0.0226 [+0.0151,+0.0301]   Holm p 0.0000
+  OP-A minus guarded(x1)             sim-fixed      +0.0060 [-0.0011,+0.0131]   Holm p 0.5754
+  OP-C minus matched random gate     sim-fixed      +0.0580 [+0.0524,+0.0637]   Holm p 0.0000
+  OP-C minus guarded(x1)             sim-fixed      +0.0112 [+0.0058,+0.0166]   Holm p 0.0033
+  OP-B minus matched random gate     sim-fixed      +0.0499 [+0.0423,+0.0576]   Holm p 0.0000
+  OP-B minus guarded(x1)             sim-fixed      +0.0008 [-0.0068,+0.0084]   Holm p 1.0000
+  OP-A minus matched random gate     sim-random     +0.0356 [+0.0283,+0.0429]   Holm p 0.0000
+  OP-A minus guarded(x1)             sim-random     +0.0137 [+0.0060,+0.0214]   Holm p 0.0145
+  OP-C minus matched random gate     sim-random     +0.0814 [+0.0684,+0.0943]   Holm p 0.0000
+  OP-C minus guarded(x1)             sim-random     +0.0113 [+0.0027,+0.0199]   Holm p 0.1396
+  OP-B minus matched random gate     sim-random     +0.0804 [+0.0694,+0.0914]   Holm p 0.0000
+  OP-B minus guarded(x1)             sim-random     +0.0058 [-0.0011,+0.0127]   Holm p 0.5754
+  OP-A minus matched random gate     sim-no-traps   +0.0003 [-0.0058,+0.0065]   Holm p 1.0000
+  OP-A minus guarded(x1)             sim-no-traps   -0.0122 [-0.0173,-0.0071]   Holm p 0.0005
+  OP-C minus matched random gate     sim-no-traps   +0.0076 [+0.0017,+0.0135]   Holm p 0.1462
+  OP-C minus guarded(x1)             sim-no-traps   -0.0074 [-0.0133,-0.0016]   Holm p 0.1462
+  OP-B minus matched random gate     sim-no-traps   +0.0072 [+0.0015,+0.0129]   Holm p 0.1462
+  OP-B minus guarded(x1)             sim-no-traps   -0.0044 [-0.0092,+0.0003]   Holm p 0.5170
+  OP-A minus matched random gate     big-32agents   +0.0204 [+0.0088,+0.0319]   Holm p 0.0150
+  OP-A minus guarded(x1)             big-32agents   -0.0119 [-0.0281,+0.0042]   Holm p 0.5754
+  OP-C minus matched random gate     big-32agents   +0.0728 [+0.0598,+0.0857]   Holm p 0.0000
+  OP-C minus guarded(x1)             big-32agents   +0.0117 [-0.0012,+0.0246]   Holm p 0.5170
+  OP-B minus matched random gate     big-32agents   +0.0690 [+0.0552,+0.0827]   Holm p 0.0000
+  OP-B minus guarded(x1)             big-32agents   +0.0055 [-0.0055,+0.0165]   Holm p 0.9351
+
+=== F2(c) power extension 91-250 (frozen): quality vs always-full router (Warm<Hebbian>), n=160 ===
+policy                                       world           fullSel  fullUpd     estNs     dQ vs full [95% CI]   Holm    LL
+keyword                                      sim-fixed         0.000    0.000       189 -0.0652 [-0.0679,-0.0624]  1.000    no
+guarded(x1)                                  sim-fixed         0.048    1.000       NaN -0.0075 [-0.0105,-0.0045]  1.000    no
+OP-A cache-gate@0.80/learn-routed            sim-fixed         0.799    0.799      2985 +0.0031 [+0.0005,+0.0057]  1.000    no
+OP-A-control randgate q=0.77                 sim-fixed         0.772    0.772      2219 -0.0194 [-0.0221,-0.0167]  1.000    no
+OP-C kw-gate@0.65/learn-routed               sim-fixed         0.387    0.387      1627 +0.0001 [-0.0035,+0.0037]  1.000    no
+OP-C-control randgate q=0.37                 sim-fixed         0.372    0.372      1168 -0.0503 [-0.0530,-0.0476]  1.000    no
+OP-B kw-gate@0.60/learn-routed               sim-fixed         0.324    0.324      1448 -0.0009 [-0.0042,+0.0024]  1.000    no
+OP-B-control randgate q=0.31                 sim-fixed         0.312    0.312      1010 -0.0550 [-0.0577,-0.0522]  1.000    no
+keyword                                      sim-random        0.000    0.000       189 -0.0890 [-0.0969,-0.0811]  1.000    no
+guarded(x1)                                  sim-random        0.058    1.000       NaN -0.0076 [-0.0116,-0.0036]  1.000    no
+OP-A cache-gate@0.80/learn-routed            sim-random        0.760    0.760      2873 +0.0046 [+0.0018,+0.0074]  1.000    no
+OP-A-control randgate q=0.77                 sim-random        0.772    0.772      2219 -0.0226 [-0.0262,-0.0191]  1.000    no
+OP-C kw-gate@0.65/learn-routed               sim-random        0.413    0.413      1700 +0.0047 [+0.0012,+0.0083]  1.000    no
+OP-C-control randgate q=0.37                 sim-random        0.372    0.372      1168 -0.0667 [-0.0724,-0.0610]  1.000    no
+OP-B kw-gate@0.60/learn-routed               sim-random        0.355    0.355      1537 +0.0011 [-0.0023,+0.0045]  1.000    no
+OP-B-control randgate q=0.31                 sim-random        0.312    0.312      1010 -0.0723 [-0.0784,-0.0663]  1.000    no
+keyword                                      sim-no-traps      0.000    0.000       189 +0.0132 [+0.0100,+0.0165]  1.000    no
+guarded(x1)                                  sim-no-traps      0.012    1.000       NaN +0.0140 [+0.0109,+0.0170]  1.000    no
+OP-A cache-gate@0.80/learn-routed            sim-no-traps      0.749    0.749      2844 +0.0043 [+0.0020,+0.0065]  1.000    no
+OP-A-control randgate q=0.77                 sim-no-traps      0.772    0.772      2219 +0.0021 [-0.0007,+0.0048]  1.000    no
+OP-C kw-gate@0.65/learn-routed               sim-no-traps      0.187    0.187      1063 +0.0088 [+0.0058,+0.0119]  1.000    no
+OP-C-control randgate q=0.37                 sim-no-traps      0.372    0.372      1168 +0.0028 [-0.0002,+0.0059]  1.000    no
+OP-B kw-gate@0.60/learn-routed               sim-no-traps      0.128    0.128       897 +0.0081 [+0.0049,+0.0113]  1.000    no
+OP-B-control randgate q=0.31                 sim-no-traps      0.312    0.312      1010 +0.0036 [+0.0005,+0.0067]  1.000    no
+keyword                                      big-32agents      0.000    0.000       189 -0.0492 [-0.0583,-0.0402]  1.000    no
+guarded(x1)                                  big-32agents      0.190    1.000       NaN +0.0154 [+0.0093,+0.0216]  1.000    no
+OP-A cache-gate@0.80/learn-routed            big-32agents      0.832    0.832      3076 +0.0024 [-0.0025,+0.0074]  1.000    no
+OP-A-control randgate q=0.77                 big-32agents      0.772    0.772      2220 -0.0233 [-0.0284,-0.0181]  1.000    no
+OP-C kw-gate@0.65/learn-routed               big-32agents      0.508    0.508      1967 +0.0160 [+0.0105,+0.0215]  1.000    no
+OP-C-control randgate q=0.37                 big-32agents      0.372    0.372      1169 -0.0458 [-0.0528,-0.0389]  1.000    no
+OP-B kw-gate@0.60/learn-routed               big-32agents      0.452    0.452      1811 +0.0286 [+0.0232,+0.0340]  1.000    no
+OP-B-control randgate q=0.31                 big-32agents      0.312    0.312      1011 -0.0496 [-0.0570,-0.0421]  1.000    no
+-- OP minus matched random gate (paired, two-sided) --
+  OP-A minus matched random gate     sim-fixed      +0.0225 [+0.0196,+0.0254]   Holm p 0.0000
+  OP-A minus guarded(x1)             sim-fixed      +0.0106 [+0.0075,+0.0138]   Holm p 0.0000
+  OP-C minus matched random gate     sim-fixed      +0.0504 [+0.0475,+0.0533]   Holm p 0.0000
+  OP-C minus guarded(x1)             sim-fixed      +0.0076 [+0.0044,+0.0108]   Holm p 0.0000
+  OP-B minus matched random gate     sim-fixed      +0.0540 [+0.0514,+0.0566]   Holm p 0.0000
+  OP-B minus guarded(x1)             sim-fixed      +0.0066 [+0.0040,+0.0092]   Holm p 0.0000
+  OP-A minus matched random gate     sim-random     +0.0272 [+0.0234,+0.0310]   Holm p 0.0000
+  OP-A minus guarded(x1)             sim-random     +0.0122 [+0.0080,+0.0164]   Holm p 0.0000
+  OP-C minus matched random gate     sim-random     +0.0714 [+0.0663,+0.0765]   Holm p 0.0000
+  OP-C minus guarded(x1)             sim-random     +0.0124 [+0.0084,+0.0163]   Holm p 0.0000
+  OP-B minus matched random gate     sim-random     +0.0734 [+0.0679,+0.0788]   Holm p 0.0000
+  OP-B minus guarded(x1)             sim-random     +0.0087 [+0.0051,+0.0123]   Holm p 0.0000
+  OP-A minus matched random gate     sim-no-traps   +0.0022 [-0.0004,+0.0048]   Holm p 0.1911
+  OP-A minus guarded(x1)             sim-no-traps   -0.0097 [-0.0127,-0.0067]   Holm p 0.0000
+  OP-C minus matched random gate     sim-no-traps   +0.0060 [+0.0037,+0.0083]   Holm p 0.0000
+  OP-C minus guarded(x1)             sim-no-traps   -0.0051 [-0.0075,-0.0027]   Holm p 0.0002
+  OP-B minus matched random gate     sim-no-traps   +0.0045 [+0.0026,+0.0064]   Holm p 0.0001
+  OP-B minus guarded(x1)             sim-no-traps   -0.0059 [-0.0080,-0.0038]   Holm p 0.0000
+  OP-A minus matched random gate     big-32agents   +0.0257 [+0.0203,+0.0310]   Holm p 0.0000
+  OP-A minus guarded(x1)             big-32agents   -0.0130 [-0.0191,-0.0069]   Holm p 0.0002
+  OP-C minus matched random gate     big-32agents   +0.0618 [+0.0554,+0.0682]   Holm p 0.0000
+  OP-C minus guarded(x1)             big-32agents   +0.0005 [-0.0055,+0.0065]   Holm p 0.8645
+  OP-B minus matched random gate     big-32agents   +0.0782 [+0.0714,+0.0850]   Holm p 0.0000
+  OP-B minus guarded(x1)             big-32agents   +0.0132 [+0.0071,+0.0193]   Holm p 0.0002
+
+--- measured end-to-end ns/task and per-task (select+update) latency, world sim-random ---
+  always-full                                    end-to-end     3139 ns/task   latency mean    1886 p50    1800 p90    2400 p99    3000 ns
+  keyword                                        end-to-end      171 ns/task   latency mean     109 p50     100 p90     100 p99     200 ns
+  guarded(x1)                                    end-to-end     2230 ns/task   latency mean    1978 p50    2000 p90    2700 p99    3300 ns
+  OP-A cache-gate@0.80/learn-routed              end-to-end     3624 ns/task   latency mean    2061 p50    2200 p90    3000 p99    3700 ns
+  OP-A-control randgate q=0.77                   end-to-end     1694 ns/task   latency mean    1473 p50    1700 p90    2300 p99    3000 ns
+  OP-C kw-gate@0.65/learn-routed                 end-to-end     2557 ns/task   latency mean    2098 p50    1100 p90    4000 p99    5600 ns
+  OP-C-control randgate q=0.37                   end-to-end     1993 ns/task   latency mean     808 p50     200 p90    2100 p99    2900 ns
+  OP-B kw-gate@0.60/learn-routed                 end-to-end     1877 ns/task   latency mean    1793 p50     800 p90    3800 p99    5500 ns
+  OP-B-control randgate q=0.31                   end-to-end     1209 ns/task   latency mean     697 p50     100 p90    2100 p99    2900 ns
+wrote results/f2_sched.json
+runtime 98.7s

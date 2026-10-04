@@ -1,0 +1,457 @@
+f4_levers: part all, tune seeds 1-8, eval 31-60
+   best-by-anchor-pairF1 R-thr0.80k5-exp(m3,b0.5)                 pairF1 0.5945 (F1 0.8214)
+[A tune] seeds 1-8 objective = mean F1 over 9 treatment worlds (123 configs, 87s)
+   best raw            R-thr0.60k3                              F1 0.9173
+   best center         C-thr0.50k3                              F1 0.9201
+   best center+expand  C-thr0.50k5-exp(m2,b1)                   F1 0.9117
+   best raw+expand     R-thr0.60k5-exp(m2,b1)                   F1 0.9072
+   best center+rel     C-thr0.40k5-rel0.2                       F1 0.9038
+   best raw+rel        R-thr0.60k5-rel0.2                       F1 0.9004
+   best center+mmr     C-thr0.50k5-mmr0.9                       F1 0.9002
+   best raw+mmr        R-thr0.60k5-mmr0.7                       F1 0.8730
+   baseline research-default raw thr.6 k5 tune-F1 0.9000
+
+[A eval] held-out seeds 31-60: mean P / R / F1 | anchor-acc | false-hit rate | anchors-per-concept
+  world iso-ref
+    research-default   R-thr0.60k5                          P 1.000 R 1.000 F1 1.000 (first300 1.000) | anc-pairF1 1.000 | fh 0.000 | frag 1.01 | ret/q 4.91
+    raw*               R-thr0.60k3                          P 1.000 R 1.000 F1 1.000 (first300 1.000) | anc-pairF1 1.000 | fh 0.000 | frag 1.01 | ret/q 2.96
+    center*            C-thr0.50k3                          P 1.000 R 1.000 F1 1.000 (first300 1.000) | anc-pairF1 1.000 | fh 0.000 | frag 1.00 | ret/q 2.96
+    center+expand*     C-thr0.50k5-exp(m2,b1)               P 1.000 R 1.000 F1 1.000 (first300 1.000) | anc-pairF1 0.999 | fh 0.000 | frag 1.00 | ret/q 4.91
+    raw+expand*        R-thr0.60k5-exp(m2,b1)               P 1.000 R 1.000 F1 1.000 (first300 1.000) | anc-pairF1 1.000 | fh 0.000 | frag 1.01 | ret/q 4.91
+    center+rel*        C-thr0.40k5-rel0.2                   P 1.000 R 1.000 F1 1.000 (first300 1.000) | anc-pairF1 0.985 | fh 0.031 | frag 1.00 | ret/q 4.91
+    raw+rel*           R-thr0.60k5-rel0.2                   P 1.000 R 1.000 F1 1.000 (first300 1.000) | anc-pairF1 1.000 | fh 0.000 | frag 1.01 | ret/q 4.91
+    center+mmr*        C-thr0.50k5-mmr0.9                   P 1.000 R 1.000 F1 1.000 (first300 1.000) | anc-pairF1 1.000 | fh 0.000 | frag 1.00 | ret/q 4.91
+    raw+mmr*           R-thr0.60k5-mmr0.7                   P 1.000 R 1.000 F1 1.000 (first300 1.000) | anc-pairF1 1.000 | fh 0.000 | frag 1.01 | ret/q 4.91
+    anchorF1-tuned*    R-thr0.80k5-exp(m3,b0.5)             P 1.000 R 0.974 F1 0.987 (first300 0.943) | anc-pairF1 0.977 | fh 0.000 | frag 5.36 | ret/q 4.78
+  world aniso-n0.8
+    research-default   R-thr0.60k5                          P 0.984 R 0.995 F1 0.989 (first300 0.940) | anc-pairF1 0.402 | fh 0.606 | frag 1.29 | ret/q 4.96
+    raw*               R-thr0.60k3                          P 0.989 R 0.996 F1 0.993 (first300 0.959) | anc-pairF1 0.415 | fh 0.606 | frag 1.23 | ret/q 2.98
+    center*            C-thr0.50k3                          P 0.990 R 0.996 F1 0.993 (first300 0.959) | anc-pairF1 0.365 | fh 0.686 | frag 1.22 | ret/q 2.98
+    center+expand*     C-thr0.50k5-exp(m2,b1)               P 0.986 R 0.997 F1 0.991 (first300 0.947) | anc-pairF1 0.308 | fh 0.686 | frag 1.29 | ret/q 4.96
+    raw+expand*        R-thr0.60k5-exp(m2,b1)               P 0.985 R 0.997 F1 0.991 (first300 0.942) | anc-pairF1 0.361 | fh 0.606 | frag 1.33 | ret/q 4.97
+    center+rel*        C-thr0.40k5-rel0.2                   P 0.989 R 0.993 F1 0.991 (first300 0.950) | anc-pairF1 0.281 | fh 0.817 | frag 1.09 | ret/q 4.93
+    raw+rel*           R-thr0.60k5-rel0.2                   P 0.986 R 0.995 F1 0.990 (first300 0.946) | anc-pairF1 0.419 | fh 0.606 | frag 1.28 | ret/q 4.95
+    center+mmr*        C-thr0.50k5-mmr0.9                   P 0.986 R 0.993 F1 0.989 (first300 0.942) | anc-pairF1 0.346 | fh 0.686 | frag 1.25 | ret/q 4.95
+    raw+mmr*           R-thr0.60k5-mmr0.7                   P 0.977 R 0.987 F1 0.982 (first300 0.914) | anc-pairF1 0.404 | fh 0.606 | frag 1.26 | ret/q 4.96
+    anchorF1-tuned*    R-thr0.80k5-exp(m3,b0.5)             P 0.996 R 0.985 F1 0.990 (first300 0.951) | anc-pairF1 0.869 | fh 0.078 | frag 3.02 | ret/q 4.86
+  world aniso-n1.2
+    research-default   R-thr0.60k5                          P 0.930 R 0.931 F1 0.930 (first300 0.819) | anc-pairF1 0.405 | fh 0.478 | frag 2.56 | ret/q 4.91
+    raw*               R-thr0.60k3                          P 0.943 R 0.944 F1 0.944 (first300 0.854) | anc-pairF1 0.403 | fh 0.478 | frag 2.57 | ret/q 2.97
+    center*            C-thr0.50k3                          P 0.947 R 0.936 F1 0.942 (first300 0.841) | anc-pairF1 0.352 | fh 0.603 | frag 3.27 | ret/q 2.93
+    center+expand*     C-thr0.50k5-exp(m2,b1)               P 0.940 R 0.939 F1 0.940 (first300 0.830) | anc-pairF1 0.331 | fh 0.603 | frag 3.19 | ret/q 4.90
+    raw+expand*        R-thr0.60k5-exp(m2,b1)               P 0.936 R 0.943 F1 0.940 (first300 0.832) | anc-pairF1 0.374 | fh 0.478 | frag 2.54 | ret/q 4.95
+    center+rel*        C-thr0.40k5-rel0.2                   P 0.932 R 0.931 F1 0.931 (first300 0.818) | anc-pairF1 0.294 | fh 0.769 | frag 1.71 | ret/q 4.90
+    raw+rel*           R-thr0.60k5-rel0.2                   P 0.930 R 0.931 F1 0.931 (first300 0.820) | anc-pairF1 0.409 | fh 0.478 | frag 2.57 | ret/q 4.91
+    center+mmr*        C-thr0.50k5-mmr0.9                   P 0.933 R 0.914 F1 0.924 (first300 0.796) | anc-pairF1 0.352 | fh 0.603 | frag 3.16 | ret/q 4.81
+    raw+mmr*           R-thr0.60k5-mmr0.7                   P 0.897 R 0.898 F1 0.898 (first300 0.774) | anc-pairF1 0.394 | fh 0.478 | frag 2.54 | ret/q 4.91
+    anchorF1-tuned*    R-thr0.80k5-exp(m3,b0.5)             P 0.966 R 0.749 F1 0.842 (first300 0.631) | anc-pairF1 0.611 | fh 0.028 | frag 34.24 | ret/q 3.81
+  world aniso-n1.6
+    research-default   R-thr0.60k5                          P 0.797 R 0.766 F1 0.781 (first300 0.619) | anc-pairF1 0.311 | fh 0.342 | frag 6.64 | ret/q 4.72
+    raw*               R-thr0.60k3                          P 0.819 R 0.796 F1 0.807 (first300 0.667) | anc-pairF1 0.324 | fh 0.342 | frag 7.18 | ret/q 2.88
+    center*            C-thr0.50k3                          P 0.830 R 0.783 F1 0.806 (first300 0.642) | anc-pairF1 0.309 | fh 0.533 | frag 8.74 | ret/q 2.80
+    center+expand*     C-thr0.50k5-exp(m2,b1)               P 0.809 R 0.782 F1 0.795 (first300 0.624) | anc-pairF1 0.300 | fh 0.533 | frag 8.15 | ret/q 4.75
+    raw+expand*        R-thr0.60k5-exp(m2,b1)               P 0.798 R 0.790 F1 0.794 (first300 0.638) | anc-pairF1 0.311 | fh 0.342 | frag 6.16 | ret/q 4.86
+    center+rel*        C-thr0.40k5-rel0.2                   P 0.795 R 0.786 F1 0.790 (first300 0.635) | anc-pairF1 0.275 | fh 0.697 | frag 2.79 | ret/q 4.85
+    raw+rel*           R-thr0.60k5-rel0.2                   P 0.797 R 0.766 F1 0.781 (first300 0.618) | anc-pairF1 0.311 | fh 0.342 | frag 6.66 | ret/q 4.72
+    center+mmr*        C-thr0.50k5-mmr0.9                   P 0.807 R 0.739 F1 0.771 (first300 0.578) | anc-pairF1 0.308 | fh 0.533 | frag 8.41 | ret/q 4.50
+    raw+mmr*           R-thr0.60k5-mmr0.7                   P 0.758 R 0.728 F1 0.743 (first300 0.594) | anc-pairF1 0.320 | fh 0.342 | frag 6.57 | ret/q 4.72
+    anchorF1-tuned*    R-thr0.80k5-exp(m3,b0.5)             P 0.873 R 0.347 F1 0.492 (first300 0.240) | anc-pairF1 0.206 | fh 0.014 | frag 94.25 | ret/q 1.96
+  world para-n0.8
+    research-default   R-thr0.60k5                          P 0.980 R 0.984 F1 0.982 (first300 0.889) | anc-pairF1 0.477 | fh 0.472 | frag 1.78 | ret/q 4.93
+    raw*               R-thr0.60k3                          P 0.986 R 0.989 F1 0.988 (first300 0.921) | anc-pairF1 0.496 | fh 0.472 | frag 1.71 | ret/q 2.97
+    center*            C-thr0.50k3                          P 0.987 R 0.988 F1 0.988 (first300 0.921) | anc-pairF1 0.432 | fh 0.578 | frag 1.72 | ret/q 2.96
+    center+expand*     C-thr0.50k5-exp(m2,b1)               P 0.983 R 0.987 F1 0.985 (first300 0.903) | anc-pairF1 0.384 | fh 0.578 | frag 1.79 | ret/q 4.93
+    raw+expand*        R-thr0.60k5-exp(m2,b1)               P 0.979 R 0.988 F1 0.983 (first300 0.895) | anc-pairF1 0.437 | fh 0.472 | frag 1.79 | ret/q 4.95
+    center+rel*        C-thr0.40k5-rel0.2                   P 0.986 R 0.972 F1 0.979 (first300 0.868) | anc-pairF1 0.304 | fh 0.747 | frag 1.34 | ret/q 4.84
+    raw+rel*           R-thr0.60k5-rel0.2                   P 0.982 R 0.982 F1 0.982 (first300 0.890) | anc-pairF1 0.486 | fh 0.472 | frag 1.77 | ret/q 4.91
+    center+mmr*        C-thr0.50k5-mmr0.9                   P 0.983 R 0.980 F1 0.981 (first300 0.888) | anc-pairF1 0.404 | fh 0.578 | frag 1.76 | ret/q 4.90
+    raw+mmr*           R-thr0.60k5-mmr0.7                   P 0.968 R 0.973 F1 0.971 (first300 0.855) | anc-pairF1 0.477 | fh 0.472 | frag 1.73 | ret/q 4.93
+    anchorF1-tuned*    R-thr0.80k5-exp(m3,b0.5)             P 0.996 R 0.952 F1 0.973 (first300 0.845) | anc-pairF1 0.643 | fh 0.033 | frag 5.36 | ret/q 4.69
+  world para-n1.2
+    research-default   R-thr0.60k5                          P 0.938 R 0.929 F1 0.933 (first300 0.786) | anc-pairF1 0.456 | fh 0.364 | frag 3.57 | ret/q 4.87
+    raw*               R-thr0.60k3                          P 0.953 R 0.947 F1 0.950 (first300 0.830) | anc-pairF1 0.475 | fh 0.364 | frag 3.60 | ret/q 2.95
+    center*            C-thr0.50k3                          P 0.957 R 0.944 F1 0.951 (first300 0.822) | anc-pairF1 0.401 | fh 0.525 | frag 3.60 | ret/q 2.92
+    center+expand*     C-thr0.50k5-exp(m2,b1)               P 0.950 R 0.944 F1 0.947 (first300 0.804) | anc-pairF1 0.370 | fh 0.525 | frag 3.60 | ret/q 4.88
+    raw+expand*        R-thr0.60k5-exp(m2,b1)               P 0.943 R 0.945 F1 0.944 (first300 0.803) | anc-pairF1 0.429 | fh 0.364 | frag 3.49 | ret/q 4.92
+    center+rel*        C-thr0.40k5-rel0.2                   P 0.940 R 0.929 F1 0.935 (first300 0.777) | anc-pairF1 0.307 | fh 0.711 | frag 2.00 | ret/q 4.85
+    raw+rel*           R-thr0.60k5-rel0.2                   P 0.938 R 0.928 F1 0.933 (first300 0.785) | anc-pairF1 0.457 | fh 0.364 | frag 3.56 | ret/q 4.86
+    center+mmr*        C-thr0.50k5-mmr0.9                   P 0.942 R 0.918 F1 0.930 (first300 0.766) | anc-pairF1 0.387 | fh 0.525 | frag 3.55 | ret/q 4.79
+    raw+mmr*           R-thr0.60k5-mmr0.7                   P 0.903 R 0.895 F1 0.899 (first300 0.745) | anc-pairF1 0.462 | fh 0.364 | frag 3.52 | ret/q 4.87
+    anchorF1-tuned*    R-thr0.80k5-exp(m3,b0.5)             P 0.979 R 0.719 F1 0.827 (first300 0.538) | anc-pairF1 0.423 | fh 0.022 | frag 36.73 | ret/q 3.61
+  world drift1-n0.8
+    research-default   R-thr0.60k5                          P 0.985 R 0.995 F1 0.990 (first300 0.940) | anc-pairF1 0.400 | fh 0.606 | frag 1.29 | ret/q 4.96
+    raw*               R-thr0.60k3                          P 0.990 R 0.997 F1 0.993 (first300 0.959) | anc-pairF1 0.418 | fh 0.606 | frag 1.23 | ret/q 2.98
+    center*            C-thr0.50k3                          P 0.990 R 0.996 F1 0.993 (first300 0.959) | anc-pairF1 0.365 | fh 0.686 | frag 1.22 | ret/q 2.98
+    center+expand*     C-thr0.50k5-exp(m2,b1)               P 0.986 R 0.997 F1 0.992 (first300 0.947) | anc-pairF1 0.311 | fh 0.686 | frag 1.29 | ret/q 4.96
+    raw+expand*        R-thr0.60k5-exp(m2,b1)               P 0.985 R 0.997 F1 0.991 (first300 0.943) | anc-pairF1 0.363 | fh 0.606 | frag 1.32 | ret/q 4.97
+    center+rel*        C-thr0.40k5-rel0.2                   P 0.989 R 0.994 F1 0.991 (first300 0.950) | anc-pairF1 0.281 | fh 0.817 | frag 1.09 | ret/q 4.93
+    raw+rel*           R-thr0.60k5-rel0.2                   P 0.987 R 0.995 F1 0.991 (first300 0.946) | anc-pairF1 0.419 | fh 0.606 | frag 1.28 | ret/q 4.95
+    center+mmr*        C-thr0.50k5-mmr0.9                   P 0.986 R 0.993 F1 0.990 (first300 0.942) | anc-pairF1 0.344 | fh 0.686 | frag 1.25 | ret/q 4.95
+    raw+mmr*           R-thr0.60k5-mmr0.7                   P 0.978 R 0.988 F1 0.983 (first300 0.914) | anc-pairF1 0.403 | fh 0.606 | frag 1.26 | ret/q 4.96
+    anchorF1-tuned*    R-thr0.80k5-exp(m3,b0.5)             P 0.996 R 0.985 F1 0.990 (first300 0.951) | anc-pairF1 0.870 | fh 0.078 | frag 3.04 | ret/q 4.85
+  world para+drift1-n1.2
+    research-default   R-thr0.60k5                          P 0.944 R 0.936 F1 0.940 (first300 0.786) | anc-pairF1 0.457 | fh 0.367 | frag 3.42 | ret/q 4.87
+    raw*               R-thr0.60k3                          P 0.958 R 0.952 F1 0.955 (first300 0.831) | anc-pairF1 0.471 | fh 0.367 | frag 3.41 | ret/q 2.95
+    center*            C-thr0.50k3                          P 0.962 R 0.948 F1 0.955 (first300 0.822) | anc-pairF1 0.404 | fh 0.525 | frag 3.46 | ret/q 2.92
+    center+expand*     C-thr0.50k5-exp(m2,b1)               P 0.955 R 0.949 F1 0.952 (first300 0.803) | anc-pairF1 0.368 | fh 0.525 | frag 3.46 | ret/q 4.88
+    raw+expand*        R-thr0.60k5-exp(m2,b1)               P 0.949 R 0.951 F1 0.950 (first300 0.804) | anc-pairF1 0.433 | fh 0.367 | frag 3.40 | ret/q 4.92
+    center+rel*        C-thr0.40k5-rel0.2                   P 0.946 R 0.936 F1 0.941 (first300 0.777) | anc-pairF1 0.306 | fh 0.711 | frag 1.96 | ret/q 4.85
+    raw+rel*           R-thr0.60k5-rel0.2                   P 0.945 R 0.935 F1 0.940 (first300 0.785) | anc-pairF1 0.457 | fh 0.367 | frag 3.42 | ret/q 4.86
+    center+mmr*        C-thr0.50k5-mmr0.9                   P 0.948 R 0.925 F1 0.936 (first300 0.767) | anc-pairF1 0.385 | fh 0.525 | frag 3.42 | ret/q 4.79
+    raw+mmr*           R-thr0.60k5-mmr0.7                   P 0.914 R 0.906 F1 0.910 (first300 0.746) | anc-pairF1 0.455 | fh 0.367 | frag 3.38 | ret/q 4.87
+    anchorF1-tuned*    R-thr0.80k5-exp(m3,b0.5)             P 0.983 R 0.728 F1 0.834 (first300 0.538) | anc-pairF1 0.439 | fh 0.022 | frag 35.50 | ret/q 3.63
+  world k48-aniso-n0.8
+    research-default   R-thr0.60k5                          P 0.902 R 0.961 F1 0.931 (first300 0.733) | anc-pairF1 0.172 | fh 0.838 | frag 1.36 | ret/q 4.94
+    raw*               R-thr0.60k3                          P 0.932 R 0.971 F1 0.951 (first300 0.794) | anc-pairF1 0.194 | fh 0.838 | frag 1.33 | ret/q 2.98
+    center*            C-thr0.50k3                          P 0.943 R 0.971 F1 0.956 (first300 0.823) | anc-pairF1 0.180 | fh 0.754 | frag 1.37 | ret/q 2.94
+    center+expand*     C-thr0.50k5-exp(m2,b1)               P 0.923 R 0.973 F1 0.947 (first300 0.774) | anc-pairF1 0.141 | fh 0.754 | frag 1.41 | ret/q 4.89
+    raw+expand*        R-thr0.60k5-exp(m2,b1)               P 0.909 R 0.972 F1 0.940 (first300 0.732) | anc-pairF1 0.154 | fh 0.838 | frag 1.33 | ret/q 4.96
+    center+rel*        C-thr0.40k5-rel0.2                   P 0.924 R 0.958 F1 0.941 (first300 0.782) | anc-pairF1 0.123 | fh 0.900 | frag 1.19 | ret/q 4.81
+    raw+rel*           R-thr0.60k5-rel0.2                   P 0.905 R 0.961 F1 0.932 (first300 0.741) | anc-pairF1 0.191 | fh 0.838 | frag 1.37 | ret/q 4.92
+    center+mmr*        C-thr0.50k5-mmr0.9                   P 0.917 R 0.955 F1 0.936 (first300 0.779) | anc-pairF1 0.163 | fh 0.754 | frag 1.41 | ret/q 4.83
+    raw+mmr*           R-thr0.60k5-mmr0.7                   P 0.862 R 0.918 F1 0.889 (first300 0.693) | anc-pairF1 0.172 | fh 0.838 | frag 1.39 | ret/q 4.94
+    anchorF1-tuned*    R-thr0.80k5-exp(m3,b0.5)             P 0.955 R 0.941 F1 0.948 (first300 0.830) | anc-pairF1 0.658 | fh 0.215 | frag 2.78 | ret/q 4.57
+  world k96-para-n1.2
+    research-default   R-thr0.60k5                          P 0.570 R 0.620 F1 0.594 (first300 0.418) | anc-pairF1 0.081 | fh 0.739 | frag 2.64 | ret/q 4.66
+    raw*               R-thr0.60k3                          P 0.631 R 0.664 F1 0.647 (first300 0.458) | anc-pairF1 0.090 | fh 0.739 | frag 2.84 | ret/q 2.86
+    center*            C-thr0.50k3                          P 0.656 R 0.666 F1 0.661 (first300 0.468) | anc-pairF1 0.110 | fh 0.699 | frag 3.25 | ret/q 2.76
+    center+expand*     C-thr0.50k5-exp(m2,b1)               P 0.592 R 0.644 F1 0.617 (first300 0.422) | anc-pairF1 0.093 | fh 0.699 | frag 2.94 | ret/q 4.66
+    raw+expand*        R-thr0.60k5-exp(m2,b1)               P 0.566 R 0.637 F1 0.600 (first300 0.399) | anc-pairF1 0.078 | fh 0.739 | frag 2.48 | ret/q 4.82
+    center+rel*        C-thr0.40k5-rel0.2                   P 0.572 R 0.628 F1 0.599 (first300 0.408) | anc-pairF1 0.068 | fh 0.904 | frag 1.76 | ret/q 4.70
+    raw+rel*           R-thr0.60k5-rel0.2                   P 0.571 R 0.619 F1 0.594 (first300 0.419) | anc-pairF1 0.081 | fh 0.739 | frag 2.64 | ret/q 4.65
+    center+mmr*        C-thr0.50k5-mmr0.9                   P 0.595 R 0.610 F1 0.602 (first300 0.433) | anc-pairF1 0.097 | fh 0.699 | frag 3.10 | ret/q 4.39
+    raw+mmr*           R-thr0.60k5-mmr0.7                   P 0.520 R 0.565 F1 0.542 (first300 0.396) | anc-pairF1 0.077 | fh 0.739 | frag 2.56 | ret/q 4.66
+    anchorF1-tuned*    R-thr0.80k5-exp(m3,b0.5)             P 0.764 R 0.387 F1 0.510 (first300 0.320) | anc-pairF1 0.240 | fh 0.095 | frag 10.68 | ret/q 2.18
+  world ctl-unique
+    research-default   R-thr0.60k5                          P 0.000 R 0.000 F1 0.000 (first300 0.000) | anc-pairF1 0.000 | fh 0.992 | frag NaN | ret/q 4.89
+    raw*               R-thr0.60k3                          P 0.000 R 0.000 F1 0.000 (first300 0.000) | anc-pairF1 0.000 | fh 0.992 | frag NaN | ret/q 2.95
+    center*            C-thr0.50k3                          P 0.000 R 0.000 F1 0.000 (first300 0.000) | anc-pairF1 0.000 | fh 0.952 | frag NaN | ret/q 2.72
+    center+expand*     C-thr0.50k5-exp(m2,b1)               P 0.000 R 0.000 F1 0.000 (first300 0.000) | anc-pairF1 0.000 | fh 0.952 | frag NaN | ret/q 4.66
+    raw+expand*        R-thr0.60k5-exp(m2,b1)               P 0.000 R 0.000 F1 0.000 (first300 0.000) | anc-pairF1 0.000 | fh 0.992 | frag NaN | ret/q 4.94
+    center+rel*        C-thr0.40k5-rel0.2                   P 0.000 R 0.000 F1 0.000 (first300 0.000) | anc-pairF1 0.000 | fh 0.994 | frag NaN | ret/q 4.85
+    raw+rel*           R-thr0.60k5-rel0.2                   P 0.000 R 0.000 F1 0.000 (first300 0.000) | anc-pairF1 0.000 | fh 0.992 | frag NaN | ret/q 4.89
+    center+mmr*        C-thr0.50k5-mmr0.9                   P 0.000 R 0.000 F1 0.000 (first300 0.000) | anc-pairF1 0.000 | fh 0.952 | frag NaN | ret/q 4.34
+    raw+mmr*           R-thr0.60k5-mmr0.7                   P 0.000 R 0.000 F1 0.000 (first300 0.000) | anc-pairF1 0.000 | fh 0.992 | frag NaN | ret/q 4.89
+    anchorF1-tuned*    R-thr0.80k5-exp(m3,b0.5)             P 0.000 R 0.000 F1 0.000 (first300 0.000) | anc-pairF1 0.000 | fh 0.602 | frag NaN | ret/q 2.78
+
+[A] Holm family 561 tests: WIN 106 LOSS 196
+   raw*           vs default  aniso-n0.8         F1 +0.0033 [+0.0030,+0.0037] WIN
+   raw*           vs default  aniso-n1.2         F1 +0.0132 [+0.0122,+0.0142] WIN
+   raw*           vs default  aniso-n1.6         F1 +0.0265 [+0.0251,+0.0279] WIN
+   raw*           vs default  para-n0.8          F1 +0.0059 [+0.0055,+0.0064] WIN
+   raw*           vs default  para-n1.2          F1 +0.0167 [+0.0155,+0.0178] WIN
+   raw*           vs default  drift1-n0.8        F1 +0.0032 [+0.0029,+0.0035] WIN
+   raw*           vs default  para+drift1-n1.2   F1 +0.0152 [+0.0142,+0.0163] WIN
+   raw*           vs default  k48-aniso-n0.8     F1 +0.0201 [+0.0194,+0.0207] WIN
+   raw*           vs default  k96-para-n1.2      F1 +0.0535 [+0.0520,+0.0551] WIN
+   center*        vs default  aniso-n0.8         F1 +0.0033 [+0.0028,+0.0038] WIN
+   center*        vs default  aniso-n1.2         F1 +0.0112 [+0.0090,+0.0134] WIN
+   center*        vs default  aniso-n1.6         F1 +0.0249 [+0.0215,+0.0283] WIN
+   center*        vs default  para-n0.8          F1 +0.0060 [+0.0055,+0.0065] WIN
+   center*        vs default  para-n1.2          F1 +0.0171 [+0.0151,+0.0191] WIN
+   center*        vs default  drift1-n0.8        F1 +0.0031 [+0.0026,+0.0035] WIN
+   center*        vs default  para+drift1-n1.2   F1 +0.0150 [+0.0132,+0.0169] WIN
+   center*        vs default  k48-aniso-n0.8     F1 +0.0258 [+0.0243,+0.0272] WIN
+   center*        vs default  k96-para-n1.2      F1 +0.0674 [+0.0644,+0.0703] WIN
+   center+expand* vs default  aniso-n0.8         F1 +0.0019 [+0.0013,+0.0024] WIN
+   center+expand* vs default  aniso-n1.2         F1 +0.0092 [+0.0061,+0.0122] WIN
+   center+expand* vs default  aniso-n1.6         F1 +0.0145 [+0.0096,+0.0194] WIN
+   center+expand* vs default  para-n0.8          F1 +0.0031 [+0.0025,+0.0038] WIN
+   center+expand* vs default  para-n1.2          F1 +0.0136 [+0.0115,+0.0156] WIN
+   center+expand* vs default  drift1-n0.8        F1 +0.0016 [+0.0011,+0.0021] WIN
+   center+expand* vs default  para+drift1-n1.2   F1 +0.0116 [+0.0097,+0.0136] WIN
+   center+expand* vs default  k48-aniso-n0.8     F1 +0.0167 [+0.0151,+0.0183] WIN
+   center+expand* vs default  k96-para-n1.2      F1 +0.0230 [+0.0198,+0.0262] WIN
+   raw+expand*    vs default  aniso-n0.8         F1 +0.0012 [+0.0008,+0.0015] WIN
+   raw+expand*    vs default  aniso-n1.2         F1 +0.0091 [+0.0082,+0.0101] WIN
+   raw+expand*    vs default  aniso-n1.6         F1 +0.0133 [+0.0107,+0.0158] WIN
+   raw+expand*    vs default  para-n0.8          F1 +0.0018 [+0.0014,+0.0022] WIN
+   raw+expand*    vs default  para-n1.2          F1 +0.0108 [+0.0098,+0.0118] WIN
+   raw+expand*    vs default  drift1-n0.8        F1 +0.0010 [+0.0008,+0.0013] WIN
+   raw+expand*    vs default  para+drift1-n1.2   F1 +0.0096 [+0.0087,+0.0104] WIN
+   raw+expand*    vs default  k48-aniso-n0.8     F1 +0.0088 [+0.0080,+0.0096] WIN
+   raw+expand*    vs default  k96-para-n1.2      F1 +0.0061 [+0.0044,+0.0078] WIN
+   center+rel*    vs default  aniso-n0.8         F1 +0.0016 [+0.0010,+0.0021] WIN
+   center+rel*    vs default  aniso-n1.6         F1 +0.0095 [+0.0065,+0.0125] WIN
+   center+rel*    vs default  para-n0.8          F1 -0.0026 [-0.0033,-0.0019] LOSS
+   center+rel*    vs default  drift1-n0.8        F1 +0.0015 [+0.0010,+0.0019] WIN
+   center+rel*    vs default  k48-aniso-n0.8     F1 +0.0103 [+0.0089,+0.0117] WIN
+   raw+rel*       vs default  aniso-n0.8         F1 +0.0009 [+0.0008,+0.0010] WIN
+   raw+rel*       vs default  aniso-n1.2         F1 +0.0002 [+0.0001,+0.0002] WIN
+   raw+rel*       vs default  drift1-n0.8        F1 +0.0009 [+0.0008,+0.0010] WIN
+   raw+rel*       vs default  k48-aniso-n0.8     F1 +0.0015 [+0.0014,+0.0017] WIN
+   raw+rel*       vs default  k96-para-n1.2      F1 +0.0003 [+0.0002,+0.0003] WIN
+   center+mmr*    vs default  aniso-n1.2         F1 -0.0068 [-0.0089,-0.0046] LOSS
+   center+mmr*    vs default  aniso-n1.6         F1 -0.0097 [-0.0129,-0.0065] LOSS
+   center+mmr*    vs default  para-n1.2          F1 -0.0039 [-0.0055,-0.0023] LOSS
+   center+mmr*    vs default  para+drift1-n1.2   F1 -0.0040 [-0.0058,-0.0023] LOSS
+   center+mmr*    vs default  k48-aniso-n0.8     F1 +0.0050 [+0.0036,+0.0063] WIN
+   center+mmr*    vs default  k96-para-n1.2      F1 +0.0088 [+0.0066,+0.0109] WIN
+   raw+mmr*       vs default  aniso-n0.8         F1 -0.0077 [-0.0083,-0.0071] LOSS
+   raw+mmr*       vs default  aniso-n1.2         F1 -0.0325 [-0.0345,-0.0306] LOSS
+   raw+mmr*       vs default  aniso-n1.6         F1 -0.0382 [-0.0406,-0.0358] LOSS
+   raw+mmr*       vs default  para-n0.8          F1 -0.0111 [-0.0118,-0.0104] LOSS
+   raw+mmr*       vs default  para-n1.2          F1 -0.0345 [-0.0362,-0.0327] LOSS
+   raw+mmr*       vs default  drift1-n0.8        F1 -0.0067 [-0.0072,-0.0061] LOSS
+   raw+mmr*       vs default  para+drift1-n1.2   F1 -0.0302 [-0.0320,-0.0283] LOSS
+   raw+mmr*       vs default  k48-aniso-n0.8     F1 -0.0416 [-0.0432,-0.0400] LOSS
+   raw+mmr*       vs default  k96-para-n1.2      F1 -0.0521 [-0.0541,-0.0500] LOSS
+   anchorF1-tuned* vs default  iso-ref            F1 -0.0132 [-0.0164,-0.0101] LOSS
+   anchorF1-tuned* vs default  aniso-n1.2         F1 -0.0889 [-0.1056,-0.0722] LOSS
+   anchorF1-tuned* vs default  aniso-n1.6         F1 -0.2892 [-0.3169,-0.2615] LOSS
+   anchorF1-tuned* vs default  para-n0.8          F1 -0.0083 [-0.0108,-0.0058] LOSS
+   anchorF1-tuned* vs default  para-n1.2          F1 -0.1060 [-0.1211,-0.0908] LOSS
+   anchorF1-tuned* vs default  para+drift1-n1.2   F1 -0.1055 [-0.1215,-0.0896] LOSS
+   anchorF1-tuned* vs default  k48-aniso-n0.8     F1 +0.0171 [+0.0140,+0.0202] WIN
+   anchorF1-tuned* vs default  k96-para-n1.2      F1 -0.0833 [-0.0983,-0.0683] LOSS
+
+[freeze] retrieval configs: tuned raw = R-thr0.60k3, tuned centered = C-thr0.50k3, best family = center C-thr0.50k3
+
+[B tune] warm_k plain=10 reuse=3 (1s)
+
+[B] held-out 31-60: gross H250 / H500 / H2000 | graded outcomes to q>=.80 (reached) | to acc>=.70 | ctx-hit, ctx precision
+  world aniso-n0.8 (oracle skill-quality 0.895)
+    keyword                              0.738 0.738 0.726 |    572 (0.50) |    121 (0.97) | hit 0.00 prec NaN
+    plain(warm,raw-bit)                  0.728 0.729 0.685 |    620 (0.43) |    141 (0.97) | hit 0.00 prec NaN
+    cold+reuse(no warm start)            0.620 0.672 0.751 |    444 (0.87) |    145 (1.00) | hit 0.00 prec NaN
+    warm+reuse                           0.744 0.762 0.789 |    196 (1.00) |     54 (1.00) | hit 0.00 prec NaN
+    +retr(research-default raw .6 k5)    0.751 0.790 0.844 |    125 (1.00) |     55 (1.00) | hit 0.98 prec 0.92
+    +retr(tuned raw)                     0.760 0.798 0.843 |    108 (1.00) |     55 (1.00) | hit 0.98 prec 0.94
+    +retr(tuned centered)                0.782 0.812 0.848 |     89 (1.00) |     58 (1.00) | hit 0.96 prec 0.97
+    +retr(best family)                   0.782 0.812 0.848 |     89 (1.00) |     58 (1.00) | hit 0.96 prec 0.97
+    +retr(oracle ceiling)                0.802 0.825 0.852 |     75 (1.00) |     62 (1.00) | hit 0.95 prec 1.00
+  world para-n1.2 (oracle skill-quality 0.896)
+    keyword                              0.707 0.705 0.685 |    624 (0.43) |    252 (0.83) | hit 0.00 prec NaN
+    plain(warm,raw-bit)                  0.697 0.695 0.652 |    708 (0.33) |    247 (0.90) | hit 0.00 prec NaN
+    cold+reuse(no warm start)            0.628 0.676 0.746 |    464 (0.90) |    147 (1.00) | hit 0.00 prec NaN
+    warm+reuse                           0.726 0.748 0.779 |    223 (1.00) |     74 (1.00) | hit 0.00 prec NaN
+    +retr(research-default raw .6 k5)    0.724 0.757 0.814 |    176 (1.00) |     74 (1.00) | hit 0.96 prec 0.84
+    +retr(tuned raw)                     0.729 0.763 0.816 |    171 (1.00) |     74 (1.00) | hit 0.96 prec 0.87
+    +retr(tuned centered)                0.739 0.771 0.820 |    169 (1.00) |     78 (1.00) | hit 0.93 prec 0.90
+    +retr(best family)                   0.739 0.771 0.820 |    169 (1.00) |     78 (1.00) | hit 0.93 prec 0.90
+    +retr(oracle ceiling)                0.772 0.801 0.837 |    112 (1.00) |     75 (1.00) | hit 0.94 prec 1.00
+  world drift1-n0.8 (oracle skill-quality 0.894)
+    keyword                              0.708 0.705 0.683 |    808 (0.20) |    183 (0.87) | hit 0.00 prec NaN
+    plain(warm,raw-bit)                  0.699 0.695 0.649 |    825 (0.20) |    204 (0.90) | hit 0.00 prec NaN
+    cold+reuse(no warm start)            0.629 0.679 0.751 |    386 (0.97) |    142 (1.00) | hit 0.00 prec NaN
+    warm+reuse                           0.723 0.750 0.778 |    265 (1.00) |     55 (1.00) | hit 0.00 prec NaN
+    +retr(research-default raw .6 k5)    0.724 0.767 0.830 |    164 (1.00) |     57 (1.00) | hit 0.98 prec 0.91
+    +retr(tuned raw)                     0.734 0.774 0.833 |    154 (1.00) |     55 (1.00) | hit 0.98 prec 0.92
+    +retr(tuned centered)                0.758 0.793 0.838 |    109 (1.00) |     54 (1.00) | hit 0.96 prec 0.97
+    +retr(best family)                   0.758 0.793 0.838 |    109 (1.00) |     54 (1.00) | hit 0.96 prec 0.97
+    +retr(oracle ceiling)                0.774 0.804 0.836 |     85 (1.00) |     57 (1.00) | hit 0.94 prec 1.00
+  world k48-aniso-n0.8 (oracle skill-quality 0.895)
+    keyword                              0.708 0.713 0.697 |    766 (0.37) |     63 (1.00) | hit 0.00 prec NaN
+    plain(warm,raw-bit)                  0.681 0.681 0.657 |    944 (0.07) |    228 (0.87) | hit 0.00 prec NaN
+    cold+reuse(no warm start)            0.563 0.605 0.685 |    901 (0.53) |    333 (1.00) | hit 0.00 prec NaN
+    warm+reuse                           0.672 0.684 0.732 |    646 (0.93) |    113 (1.00) | hit 0.00 prec NaN
+    +retr(research-default raw .6 k5)    0.628 0.658 0.745 |    586 (1.00) |    105 (1.00) | hit 0.97 prec 0.67
+    +retr(tuned raw)                     0.637 0.670 0.756 |    518 (1.00) |    104 (1.00) | hit 0.97 prec 0.73
+    +retr(tuned centered)                0.670 0.693 0.763 |    497 (1.00) |    113 (1.00) | hit 0.93 prec 0.80
+    +retr(best family)                   0.670 0.693 0.763 |    497 (1.00) |    113 (1.00) | hit 0.93 prec 0.80
+    +retr(oracle ceiling)                0.705 0.730 0.791 |    290 (1.00) |    111 (1.00) | hit 0.84 prec 1.00
+  world aniso-n1.6 (oracle skill-quality 0.896)
+    keyword                              0.735 0.734 0.715 |    553 (0.50) |    146 (0.93) | hit 0.00 prec NaN
+    plain(warm,raw-bit)                  0.723 0.721 0.672 |    594 (0.47) |    186 (0.90) | hit 0.00 prec NaN
+    cold+reuse(no warm start)            0.641 0.690 0.756 |    417 (0.90) |    147 (1.00) | hit 0.00 prec NaN
+    warm+reuse                           0.745 0.762 0.788 |    209 (0.97) |     54 (1.00) | hit 0.00 prec NaN
+    +retr(research-default raw .6 k5)    0.735 0.759 0.806 |    189 (1.00) |     58 (1.00) | hit 0.94 prec 0.72
+    +retr(tuned raw)                     0.738 0.763 0.810 |    188 (1.00) |     57 (1.00) | hit 0.94 prec 0.74
+    +retr(tuned centered)                0.749 0.772 0.815 |    164 (1.00) |     52 (1.00) | hit 0.89 prec 0.78
+    +retr(best family)                   0.749 0.772 0.815 |    164 (1.00) |     52 (1.00) | hit 0.89 prec 0.78
+    +retr(oracle ceiling)                0.792 0.819 0.847 |     84 (1.00) |     56 (1.00) | hit 0.95 prec 1.00
+  world irrelevant-notes (oracle skill-quality 0.897)
+    keyword                              0.731 0.730 0.715 |    525 (0.53) |    203 (0.90) | hit 0.00 prec NaN
+    plain(warm,raw-bit)                  0.719 0.717 0.677 |    701 (0.40) |    176 (0.93) | hit 0.00 prec NaN
+    cold+reuse(no warm start)            0.646 0.699 0.766 |    328 (1.00) |    105 (1.00) | hit 0.00 prec NaN
+    warm+reuse                           0.743 0.763 0.784 |    207 (1.00) |     58 (1.00) | hit 0.00 prec NaN
+    +retr(research-default raw .6 k5)    0.743 0.763 0.784 |    207 (1.00) |     58 (1.00) | hit 0.98 prec 0.91
+    +retr(tuned raw)                     0.743 0.763 0.784 |    207 (1.00) |     58 (1.00) | hit 0.98 prec 0.93
+    +retr(tuned centered)                0.743 0.763 0.784 |    207 (1.00) |     58 (1.00) | hit 0.96 prec 0.96
+    +retr(best family)                   0.743 0.763 0.784 |    207 (1.00) |     58 (1.00) | hit 0.96 prec 0.96
+    +retr(oracle ceiling)                0.743 0.763 0.784 |    207 (1.00) |     58 (1.00) | hit 0.94 prec 1.00
+  world control-equal (oracle skill-quality 0.700)
+    keyword                              0.701 0.701 0.700 |    994 (0.00) |     40 (1.00) | hit 0.00 prec NaN
+    plain(warm,raw-bit)                  0.701 0.701 0.700 |    994 (0.00) |     40 (1.00) | hit 0.00 prec NaN
+    cold+reuse(no warm start)            0.702 0.701 0.700 |    994 (0.00) |     40 (1.00) | hit 0.00 prec NaN
+    warm+reuse                           0.701 0.701 0.700 |    994 (0.00) |     40 (1.00) | hit 0.00 prec NaN
+    +retr(research-default raw .6 k5)    0.701 0.701 0.700 |    994 (0.00) |     40 (1.00) | hit 0.98 prec 0.95
+    +retr(tuned raw)                     0.701 0.701 0.700 |    994 (0.00) |     40 (1.00) | hit 0.98 prec 0.97
+    +retr(tuned centered)                0.701 0.701 0.700 |    994 (0.00) |     40 (1.00) | hit 0.98 prec 0.98
+    +retr(best family)                   0.701 0.701 0.700 |    994 (0.00) |     40 (1.00) | hit 0.98 prec 0.98
+    +retr(oracle ceiling)                0.701 0.701 0.700 |    994 (0.00) |     40 (1.00) | hit 0.97 prec 1.00
+
+[B] Holm family 350 tests: WIN 142 LOSS 7. Selected (gross_H2000 and outcomes_to_q0.80):
+   aniso-n0.8       reuse path (warm+reuse vs plain)             gross_H2000        +0.1042 [+0.0894,+0.1191] WIN
+   aniso-n0.8       reuse path (warm+reuse vs plain)             outcomes_to_q0.80  -423.9000 [-566.5262,-281.2738] WIN
+   aniso-n0.8       warm start (warm+reuse vs cold+reuse)        gross_H2000        +0.0379 [+0.0245,+0.0513] WIN
+   aniso-n0.8       retrieval default vs warm+reuse              gross_H2000        +0.0552 [+0.0503,+0.0602] WIN
+   aniso-n0.8       retrieval tuned raw vs warm+reuse            gross_H2000        +0.0544 [+0.0479,+0.0608] WIN
+   aniso-n0.8       retrieval tuned centered vs warm+reuse       gross_H2000        +0.0591 [+0.0522,+0.0659] WIN
+   aniso-n0.8       retrieval tuned centered vs warm+reuse       outcomes_to_q0.80  -106.7000 [-153.5264,-59.8736] WIN
+   aniso-n0.8       retrieval best family vs warm+reuse          gross_H2000        +0.0591 [+0.0522,+0.0659] WIN
+   aniso-n0.8       retrieval best family vs warm+reuse          outcomes_to_q0.80  -106.7000 [-153.5264,-59.8736] WIN
+   aniso-n0.8       retrieval best family vs default             outcomes_to_q0.80  -35.8333 [-52.3071,-19.3595] WIN
+   aniso-n0.8       warm+reuse vs keyword                        gross_H2000        +0.0632 [+0.0467,+0.0797] WIN
+   aniso-n0.8       warm+reuse vs keyword                        outcomes_to_q0.80  -376.6667 [-521.1835,-232.1498] WIN
+   para-n1.2        reuse path (warm+reuse vs plain)             gross_H2000        +0.1269 [+0.1108,+0.1431] WIN
+   para-n1.2        reuse path (warm+reuse vs plain)             outcomes_to_q0.80  -484.4000 [-622.5351,-346.2649] WIN
+   para-n1.2        warm start (warm+reuse vs cold+reuse)        gross_H2000        +0.0331 [+0.0183,+0.0479] WIN
+   para-n1.2        retrieval default vs warm+reuse              gross_H2000        +0.0349 [+0.0305,+0.0394] WIN
+   para-n1.2        retrieval tuned raw vs warm+reuse            gross_H2000        +0.0363 [+0.0303,+0.0423] WIN
+   para-n1.2        retrieval tuned centered vs warm+reuse       gross_H2000        +0.0406 [+0.0341,+0.0470] WIN
+   para-n1.2        retrieval best family vs warm+reuse          gross_H2000        +0.0406 [+0.0341,+0.0470] WIN
+   para-n1.2        oracle retrieval vs best family (headroom)   gross_H2000        +0.0169 [+0.0114,+0.0224] WIN
+   para-n1.2        warm+reuse vs keyword                        gross_H2000        +0.0943 [+0.0707,+0.1179] WIN
+   para-n1.2        warm+reuse vs keyword                        outcomes_to_q0.80  -400.4000 [-541.9930,-258.8070] WIN
+   drift1-n0.8      reuse path (warm+reuse vs plain)             gross_H2000        +0.1289 [+0.1135,+0.1443] WIN
+   drift1-n0.8      reuse path (warm+reuse vs plain)             outcomes_to_q0.80  -559.8667 [-679.7773,-439.9560] WIN
+   drift1-n0.8      warm start (warm+reuse vs cold+reuse)        gross_H2000        +0.0271 [+0.0166,+0.0377] WIN
+   drift1-n0.8      retrieval default vs warm+reuse              gross_H2000        +0.0520 [+0.0443,+0.0598] WIN
+   drift1-n0.8      retrieval tuned raw vs warm+reuse            gross_H2000        +0.0550 [+0.0496,+0.0604] WIN
+   drift1-n0.8      retrieval tuned centered vs warm+reuse       gross_H2000        +0.0599 [+0.0541,+0.0657] WIN
+   drift1-n0.8      retrieval tuned centered vs warm+reuse       outcomes_to_q0.80  -156.5000 [-227.6410,-85.3590] WIN
+   drift1-n0.8      retrieval best family vs warm+reuse          gross_H2000        +0.0599 [+0.0541,+0.0657] WIN
+   drift1-n0.8      retrieval best family vs warm+reuse          outcomes_to_q0.80  -156.5000 [-227.6410,-85.3590] WIN
+   drift1-n0.8      retrieval best family vs default             outcomes_to_q0.80  -55.3000 [-80.0890,-30.5110] WIN
+   drift1-n0.8      warm+reuse vs keyword                        gross_H2000        +0.0949 [+0.0763,+0.1135] WIN
+   drift1-n0.8      warm+reuse vs keyword                        outcomes_to_q0.80  -542.8000 [-671.1452,-414.4548] WIN
+   k48-aniso-n0.8   reuse path (warm+reuse vs plain)             gross_H2000        +0.0745 [+0.0609,+0.0881] WIN
+   k48-aniso-n0.8   reuse path (warm+reuse vs plain)             outcomes_to_q0.80  -298.0000 [-411.9397,-184.0603] WIN
+   k48-aniso-n0.8   warm start (warm+reuse vs cold+reuse)        gross_H2000        +0.0467 [+0.0360,+0.0575] WIN
+   k48-aniso-n0.8   warm start (warm+reuse vs cold+reuse)        outcomes_to_q0.80  -254.8000 [-341.1717,-168.4283] WIN
+   k48-aniso-n0.8   retrieval default vs warm+reuse              gross_H2000        +0.0138 [+0.0092,+0.0184] WIN
+   k48-aniso-n0.8   retrieval tuned raw vs warm+reuse            gross_H2000        +0.0240 [+0.0192,+0.0288] WIN
+   k48-aniso-n0.8   retrieval tuned raw vs warm+reuse            outcomes_to_q0.80  -128.2000 [-189.1872,-67.2128] WIN
+   k48-aniso-n0.8   retrieval tuned centered vs warm+reuse       gross_H2000        +0.0311 [+0.0251,+0.0371] WIN
+   k48-aniso-n0.8   retrieval tuned centered vs warm+reuse       outcomes_to_q0.80  -148.5000 [-215.4432,-81.5568] WIN
+   k48-aniso-n0.8   retrieval best family vs warm+reuse          gross_H2000        +0.0311 [+0.0251,+0.0371] WIN
+   k48-aniso-n0.8   retrieval best family vs warm+reuse          outcomes_to_q0.80  -148.5000 [-215.4432,-81.5568] WIN
+   k48-aniso-n0.8   retrieval best family vs default             gross_H2000        +0.0173 [+0.0117,+0.0230] WIN
+   k48-aniso-n0.8   oracle retrieval vs best family (headroom)   gross_H2000        +0.0280 [+0.0224,+0.0335] WIN
+   k48-aniso-n0.8   oracle retrieval vs best family (headroom)   outcomes_to_q0.80  -207.7667 [-275.8363,-139.6971] WIN
+   k48-aniso-n0.8   warm+reuse vs keyword                        gross_H2000        +0.0350 [+0.0240,+0.0460] WIN
+   aniso-n1.6       reuse path (warm+reuse vs plain)             gross_H2000        +0.1160 [+0.1020,+0.1301] WIN
+   aniso-n1.6       reuse path (warm+reuse vs plain)             outcomes_to_q0.80  -384.8333 [-534.4723,-235.1944] WIN
+   aniso-n1.6       warm start (warm+reuse vs cold+reuse)        gross_H2000        +0.0325 [+0.0166,+0.0484] WIN
+   aniso-n1.6       retrieval default vs warm+reuse              gross_H2000        +0.0178 [+0.0119,+0.0236] WIN
+   aniso-n1.6       retrieval tuned raw vs warm+reuse            gross_H2000        +0.0216 [+0.0169,+0.0263] WIN
+   aniso-n1.6       retrieval tuned centered vs warm+reuse       gross_H2000        +0.0268 [+0.0205,+0.0332] WIN
+   aniso-n1.6       retrieval best family vs warm+reuse          gross_H2000        +0.0268 [+0.0205,+0.0332] WIN
+   aniso-n1.6       retrieval best family vs default             gross_H2000        +0.0091 [+0.0047,+0.0135] WIN
+   aniso-n1.6       oracle retrieval vs best family (headroom)   gross_H2000        +0.0316 [+0.0263,+0.0369] WIN
+   aniso-n1.6       warm+reuse vs keyword                        gross_H2000        +0.0739 [+0.0574,+0.0904] WIN
+   aniso-n1.6       warm+reuse vs keyword                        outcomes_to_q0.80  -343.5333 [-494.6345,-192.4322] WIN
+   irrelevant-notes reuse path (warm+reuse vs plain)             gross_H2000        +0.1063 [+0.0906,+0.1220] WIN
+   irrelevant-notes reuse path (warm+reuse vs plain)             outcomes_to_q0.80  -494.5000 [-638.9963,-350.0037] WIN
+   irrelevant-notes warm+reuse vs keyword                        gross_H2000        +0.0686 [+0.0495,+0.0877] WIN
+   irrelevant-notes warm+reuse vs keyword                        outcomes_to_q0.80  -317.8000 [-457.5766,-178.0234] WIN
+
+[C] 31 cells x 22 arms x 38 seeds (151s)
+  cost 0.01: global theta conf -> conf<0.4, combo -> combo<0.4
+  cost 0.03: global theta conf -> conf<0.3, combo -> combo<0.2
+  cost 0.1: global theta conf -> conf<0.1, combo -> combo<0.1
+
+[C] net-of-cost value of a critic vs NO critic (same retrieval+reuse), held-out 31-60; Holm family 1674 tests: net WIN 74 LOSS 242
+  call cost 0.01:
+    cell                          bad% | net diff of: e3-gate | conf(glob) | combo(glob) | disagree | no-support | oracle-trigger   (+ = pays, * = Holm WIN, ! = Holm LOSS)
+    floor0.00-chk1.0-rho0.0       8.3% | -0.0180! | -0.0053! | -0.0075  | -0.0002  | -0.0025  | +0.0104 
+    floor0.00-chk1.0-rho0.2       8.0% | -0.0177! | -0.0002  | -0.0021  | +0.0010  | -0.0008  | +0.0122*
+    floor0.00-chk1.0-rho0.3       8.3% | -0.0185! | +0.0041  | +0.0053  | +0.0021  | -0.0007  | +0.0146*
+    floor0.00-chk1.0-rho0.6       8.9% | -0.0162! | +0.0078* | +0.0084  | +0.0015  | -0.0022  | +0.0145*
+    floor0.00-chk1.0-rho1.0       8.5% | -0.0202! | +0.0057  | +0.0019  | +0.0018  | -0.0098  | +0.0039 
+    floor0.00-chk0.5-rho0.0       7.7% | -0.0251! | -0.0104! | -0.0117! | -0.0015  | -0.0031  | +0.0048 
+    floor0.00-chk0.5-rho0.2       8.3% | -0.0262! | -0.0043  | -0.0030  | -0.0034  | -0.0022  | +0.0061 
+    floor0.00-chk0.5-rho0.3       7.8% | -0.0261! | -0.0080  | -0.0095  | -0.0007  | -0.0077  | -0.0005 
+    floor0.00-chk0.5-rho0.6       8.9% | -0.0195! | +0.0024  | +0.0015  | +0.0003  | -0.0014  | +0.0065 
+    floor0.00-chk0.5-rho1.0       8.4% | -0.0243! | +0.0055  | +0.0040  | -0.0004  | +0.0001  | +0.0084*
+    floor0.15-chk1.0-rho0.0      16.9% | +0.0061  | -0.0048  | -0.0001  | +0.0046  | +0.0016  | +0.0247*
+    floor0.15-chk1.0-rho0.2      16.5% | -0.0025  | +0.0032  | +0.0058  | +0.0038  | -0.0016  | +0.0255*
+    floor0.15-chk1.0-rho0.3      16.3% | +0.0000  | +0.0042  | +0.0050  | +0.0015  | -0.0051  | +0.0192*
+    floor0.15-chk1.0-rho0.6      16.7% | +0.0056  | +0.0180* | +0.0212* | +0.0081  | +0.0054  | +0.0284*
+    floor0.15-chk1.0-rho1.0      16.7% | +0.0011  | +0.0212* | +0.0181  | +0.0033  | -0.0031  | +0.0268*
+    floor0.15-chk0.5-rho0.0      16.4% | -0.0166! | -0.0062! | -0.0067  | -0.0007  | -0.0006  | +0.0142*
+    floor0.15-chk0.5-rho0.2      17.1% | -0.0117  | +0.0038  | +0.0035  | +0.0025  | -0.0002  | +0.0156*
+    floor0.15-chk0.5-rho0.3      16.5% | -0.0195! | +0.0041  | -0.0004  | +0.0010  | -0.0017  | +0.0145*
+    floor0.15-chk0.5-rho0.6      16.9% | -0.0205! | +0.0080  | +0.0035  | +0.0022  | -0.0042  | +0.0117*
+    floor0.15-chk0.5-rho1.0      17.2% | -0.0156  | +0.0150* | +0.0112  | +0.0002  | +0.0030  | +0.0161*
+    floor0.30-chk1.0-rho0.0      25.5% | +0.0275* | +0.0004  | +0.0099  | +0.0075  | +0.0030  | +0.0389*
+    floor0.30-chk1.0-rho0.2      24.8% | +0.0195* | +0.0096  | +0.0147  | +0.0067  | +0.0025  | +0.0373*
+    floor0.30-chk1.0-rho0.3      25.4% | +0.0233* | +0.0132  | +0.0173  | +0.0069  | +0.0012  | +0.0334*
+    floor0.30-chk1.0-rho0.6      25.5% | +0.0210* | +0.0257* | +0.0229* | +0.0097  | +0.0048  | +0.0353*
+    floor0.30-chk1.0-rho1.0      24.4% | +0.0162* | +0.0284* | +0.0226* | +0.0074  | -0.0064  | +0.0326*
+    floor0.30-chk0.5-rho0.0      25.6% | -0.0073  | -0.0040  | -0.0046  | +0.0009  | -0.0016  | +0.0176 
+    floor0.30-chk0.5-rho0.2      25.0% | -0.0025  | +0.0013  | +0.0011  | -0.0005  | -0.0020  | +0.0190*
+    floor0.30-chk0.5-rho0.3      26.3% | -0.0047  | +0.0079  | +0.0067  | +0.0040  | +0.0007  | +0.0221*
+    floor0.30-chk0.5-rho0.6      25.1% | -0.0063  | +0.0077  | +0.0024  | +0.0002  | -0.0065  | +0.0147 
+    floor0.30-chk0.5-rho1.0      25.7% | +0.0026  | +0.0182* | +0.0140* | +0.0051  | +0.0028  | +0.0218*
+    ctl-no-errors-equal           0.2% | -0.0029! | -0.0013! | -0.0021! | -0.0006! | -0.0003! | +0.0001*
+  call cost 0.03:
+    cell                          bad% | net diff of: e3-gate | conf(glob) | combo(glob) | disagree | no-support | oracle-trigger   (+ = pays, * = Holm WIN, ! = Holm LOSS)
+    floor0.00-chk1.0-rho0.0       8.3% | -0.0275! | -0.0053  | -0.0086  | -0.0030  | -0.0033  | +0.0080 
+    floor0.00-chk1.0-rho0.2       8.0% | -0.0267! | -0.0004  | -0.0041  | -0.0011  | -0.0015  | +0.0100 
+    floor0.00-chk1.0-rho0.3       8.3% | -0.0256! | +0.0029  | +0.0024  | -0.0005  | -0.0015  | +0.0123*
+    floor0.00-chk1.0-rho0.6       8.9% | -0.0303! | +0.0050  | +0.0009  | -0.0016  | -0.0030  | +0.0121*
+    floor0.00-chk1.0-rho1.0       8.5% | -0.0303! | +0.0035  | -0.0034  | -0.0004  | -0.0106  | +0.0014 
+    floor0.00-chk0.5-rho0.0       7.7% | -0.0213! | -0.0084! | -0.0094! | -0.0038  | -0.0039  | +0.0028 
+    floor0.00-chk0.5-rho0.2       8.3% | -0.0208! | -0.0045  | -0.0042  | -0.0059  | -0.0030  | +0.0040 
+    floor0.00-chk0.5-rho0.3       7.8% | -0.0170! | -0.0076  | -0.0116  | -0.0031  | -0.0085  | -0.0025 
+    floor0.00-chk0.5-rho0.6       8.9% | -0.0142  | +0.0019  | -0.0034  | -0.0020  | -0.0023  | +0.0044 
+    floor0.00-chk0.5-rho1.0       8.4% | -0.0191! | +0.0028  | -0.0014  | -0.0030  | -0.0007  | +0.0064 
+    floor0.15-chk1.0-rho0.0      16.9% | -0.0149! | -0.0057  | -0.0044  | +0.0009  | +0.0006  | +0.0198*
+    floor0.15-chk1.0-rho0.2      16.5% | -0.0232! | +0.0004  | -0.0006  | +0.0001  | -0.0026  | +0.0209*
+    floor0.15-chk1.0-rho0.3      16.3% | -0.0240! | +0.0022  | -0.0027  | -0.0020  | -0.0060  | +0.0144 
+    floor0.15-chk1.0-rho0.6      16.7% | -0.0170  | +0.0126* | +0.0113* | +0.0045  | +0.0045  | +0.0237*
+    floor0.15-chk1.0-rho1.0      16.7% | -0.0234! | +0.0142  | +0.0075  | -0.0002  | -0.0040  | +0.0221*
+    floor0.15-chk0.5-rho0.0      16.4% | -0.0346! | -0.0059  | -0.0085  | -0.0043  | -0.0015  | +0.0101*
+    floor0.15-chk0.5-rho0.2      17.1% | -0.0337! | +0.0003  | -0.0008  | -0.0008  | -0.0012  | +0.0114 
+    floor0.15-chk0.5-rho0.3      16.5% | -0.0389! | -0.0000  | -0.0063  | -0.0023  | -0.0026  | +0.0104*
+    floor0.15-chk0.5-rho0.6      16.9% | -0.0383! | +0.0012  | -0.0042  | -0.0011  | -0.0052  | +0.0075 
+    floor0.15-chk0.5-rho1.0      17.2% | -0.0383! | +0.0088  | +0.0019  | -0.0034  | +0.0021  | +0.0119*
+    floor0.30-chk1.0-rho0.0      25.5% | +0.0015  | -0.0015  | +0.0032  | +0.0026  | +0.0019  | +0.0317*
+    floor0.30-chk1.0-rho0.2      24.8% | -0.0049  | +0.0028  | +0.0044  | +0.0024  | +0.0014  | +0.0303*
+    floor0.30-chk1.0-rho0.3      25.4% | -0.0009  | +0.0045  | +0.0038  | +0.0019  | +0.0001  | +0.0261*
+    floor0.30-chk1.0-rho0.6      25.5% | -0.0043  | +0.0155* | +0.0087  | +0.0053  | +0.0037  | +0.0283*
+    floor0.30-chk1.0-rho1.0      24.4% | -0.0065  | +0.0191* | +0.0094  | +0.0028  | -0.0075  | +0.0255*
+    floor0.30-chk0.5-rho0.0      25.6% | -0.0303! | -0.0052  | -0.0087  | -0.0040  | -0.0027  | +0.0111 
+    floor0.30-chk0.5-rho0.2      25.0% | -0.0274! | -0.0016  | -0.0052  | -0.0046  | -0.0031  | +0.0127 
+    floor0.30-chk0.5-rho0.3      26.3% | -0.0258! | +0.0014  | -0.0003  | -0.0009  | -0.0005  | +0.0156*
+    floor0.30-chk0.5-rho0.6      25.1% | -0.0273! | +0.0034  | -0.0096  | -0.0043  | -0.0078  | +0.0083 
+    floor0.30-chk0.5-rho1.0      25.7% | -0.0224! | +0.0135  | +0.0023  | +0.0009  | +0.0015  | +0.0155*
+    ctl-no-errors-equal           0.2% | -0.0027! | -0.0017! | -0.0033! | -0.0019! | -0.0008! | +0.0001 
+  call cost 0.1:
+    cell                          bad% | net diff of: e3-gate | conf(glob) | combo(glob) | disagree | no-support | oracle-trigger   (+ = pays, * = Holm WIN, ! = Holm LOSS)
+    floor0.00-chk1.0-rho0.0       8.3% | -0.0087  | -0.0030! | -0.0220! | -0.0130! | -0.0059  | -0.0002 
+    floor0.00-chk1.0-rho0.2       8.0% | -0.0082  | -0.0008! | -0.0151! | -0.0086! | -0.0042  | +0.0022 
+    floor0.00-chk1.0-rho0.3       8.3% | -0.0106  | +0.0003  | -0.0110! | -0.0094  | -0.0041  | +0.0045 
+    floor0.00-chk1.0-rho0.6       8.9% | -0.0128! | -0.0006  | -0.0159! | -0.0126! | -0.0060  | +0.0035 
+    floor0.00-chk1.0-rho1.0       8.5% | -0.0121  | -0.0009  | -0.0182! | -0.0082! | -0.0134  | -0.0072 
+    floor0.00-chk0.5-rho0.0       7.7% | -0.0085  | -0.0029! | -0.0200! | -0.0118! | -0.0065  | -0.0042 
+    floor0.00-chk0.5-rho0.2       8.3% | -0.0069  | -0.0034  | -0.0160! | -0.0147! | -0.0058  | -0.0031 
+    floor0.00-chk0.5-rho0.3       7.8% | -0.0053! | -0.0003  | -0.0239! | -0.0113! | -0.0112  | -0.0097 
+    floor0.00-chk0.5-rho0.6       8.9% | -0.0031  | -0.0006  | -0.0161! | -0.0103! | -0.0052  | -0.0032 
+    floor0.00-chk0.5-rho1.0       8.4% | -0.0061! | -0.0007  | -0.0153! | -0.0121! | -0.0035  | -0.0006 
+    floor0.15-chk1.0-rho0.0      16.9% | -0.0189! | -0.0030  | -0.0218! | -0.0119! | -0.0026  | +0.0027 
+    floor0.15-chk1.0-rho0.2      16.5% | -0.0300! | -0.0013  | -0.0187  | -0.0130  | -0.0061  | +0.0047 
+    floor0.15-chk1.0-rho0.3      16.3% | -0.0250! | -0.0008  | -0.0217! | -0.0146! | -0.0093  | -0.0024 
+    floor0.15-chk1.0-rho0.6      16.7% | -0.0169! | +0.0015  | -0.0086  | -0.0081  | +0.0012  | +0.0072 
+    floor0.15-chk1.0-rho1.0      16.7% | -0.0258! | +0.0022  | -0.0161  | -0.0127! | -0.0075  | +0.0056 
+    floor0.15-chk0.5-rho0.0      16.4% | -0.0098  | -0.0027! | -0.0240! | -0.0167! | -0.0046  | -0.0040 
+    floor0.15-chk0.5-rho0.2      17.1% | -0.0123! | -0.0010! | -0.0164! | -0.0123! | -0.0048  | -0.0033 
+    floor0.15-chk0.5-rho0.3      16.5% | -0.0096  | -0.0004  | -0.0219! | -0.0137! | -0.0057  | -0.0039 
+    floor0.15-chk0.5-rho0.6      16.9% | -0.0150  | -0.0062  | -0.0223! | -0.0127! | -0.0089  | -0.0072 
+    floor0.15-chk0.5-rho1.0      17.2% | -0.0091  | -0.0017  | -0.0194! | -0.0158! | -0.0011  | -0.0029 
+    floor0.30-chk1.0-rho0.0      25.5% | -0.0394! | -0.0017  | -0.0184! | -0.0144  | -0.0021  | +0.0068 
+    floor0.30-chk1.0-rho0.2      24.8% | -0.0392! | +0.0006  | -0.0167  | -0.0125  | -0.0024  | +0.0059 
+    floor0.30-chk1.0-rho0.3      25.4% | -0.0458! | -0.0004  | -0.0200  | -0.0156! | -0.0038  | +0.0007 
+    floor0.30-chk1.0-rho0.6      25.5% | -0.0428! | +0.0024  | -0.0158! | -0.0103  | -0.0003  | +0.0036 
+    floor0.30-chk1.0-rho1.0      24.4% | -0.0455! | -0.0013  | -0.0218! | -0.0130  | -0.0116  | +0.0006 
+    floor0.30-chk0.5-rho0.0      25.6% | -0.0159  | -0.0028! | -0.0306! | -0.0211! | -0.0067  | -0.0115 
+    floor0.30-chk0.5-rho0.2      25.0% | -0.0155! | +0.0003  | -0.0248! | -0.0192! | -0.0072  | -0.0091 
+    floor0.30-chk0.5-rho0.3      26.3% | -0.0091  | -0.0012  | -0.0234! | -0.0180! | -0.0046  | -0.0070 
+    floor0.30-chk0.5-rho0.6      25.1% | -0.0182! | -0.0064  | -0.0330! | -0.0200! | -0.0123  | -0.0142 
+    floor0.30-chk0.5-rho1.0      25.7% | -0.0063  | -0.0003  | -0.0241! | -0.0141! | -0.0028  | -0.0067 
+    ctl-no-errors-equal           0.2% | -0.0028! | -0.0006! | -0.0097! | -0.0063! | -0.0026! | -0.0001!
+[C] (cell,cost) pairs where some critic arm is a Holm net WIN: 39 of 93
+
+wrote results/f4_levers.json  total runtime 272.5s

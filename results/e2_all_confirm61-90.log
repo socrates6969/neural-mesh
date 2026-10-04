@@ -1,0 +1,1445 @@
+warning: value assigned to `verdict_ok` is never read
+    --> src\cognition.rs:1020:17
+     |
+1020 |                 verdict_ok = None;
+     |                 ^^^^^^^^^^^^^^^^^ this value is reassigned later and never used
+...
+1033 |                     verdict_ok = Some(flagged == !correct1);
+     |                     --------------------------------------- `verdict_ok` is overwritten here before the previous value is read
+     |
+     = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: `neural-mesh` (lib) generated 1 warning
+warning: method `oracle` is never used
+   --> src\bin\e2_embed.rs:361:12
+    |
+294 |     impl CtxWorld {
+    |     ------------- method in this implementation
+...
+361 |         fn oracle(&self) -> f64 {
+    |            ^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `label` is never used
+   --> src\bin\e2_embed.rs:472:16
+    |
+471 |     impl Signal {
+    |     ----------- method in this implementation
+472 |         pub fn label(self) -> &'static str {
+    |                ^^^^^
+
+warning: `neural-mesh` (bin "e2_embed") generated 2 warnings
+    Finished `release` profile [optimized] target(s) in 0.46s
+     Running `C:/Users/mariu/nm-target-r2\release\e2_embed.exe --part all --held 61-90`
+e2 knowledge: held 61-90 (30 seeds), tune seeds 1-8, 17 worlds, dim 48
+
+--- embedding geometry (seed 1; mean cosine of sampled pairs) ---
+iso-ref(d6)              {"cos_diff_topic":null,"cos_same_concept_diff_submode":null,"cos_same_concept_same_submode":0.8108838471779708,"cos_sibling_concept_same_topic":-0.005734339205499399}
+aniso-n0.4               {"cos_diff_topic":0.36389395584241774,"cos_same_concept_diff_submode":null,"cos_same_concept_same_submode":0.9470526189875479,"cos_sibling_concept_same_topic":0.563068600152167}
+aniso-n0.8               {"cos_diff_topic":0.3217657879216981,"cos_same_concept_diff_submode":null,"cos_same_concept_same_submode":0.8152292551520546,"cos_sibling_concept_same_topic":0.4945815150678964}
+aniso-n1.2               {"cos_diff_topic":0.26816162304989166,"cos_same_concept_diff_submode":null,"cos_same_concept_same_submode":0.6584185958112397,"cos_sibling_concept_same_topic":0.41077451150095623}
+aniso-n1.6               {"cos_diff_topic":0.2168303064856704,"cos_same_concept_diff_submode":null,"cos_same_concept_same_submode":0.5150418841404004,"cos_sibling_concept_same_topic":0.3316882850199701}
+para-n0.4                {"cos_diff_topic":0.27192520284089033,"cos_same_concept_diff_submode":0.7192052216254137,"cos_same_concept_same_submode":0.9620602989911607,"cos_sibling_concept_same_topic":0.44563997998930494}
+para-n0.8                {"cos_diff_topic":0.24545589073793977,"cos_same_concept_diff_submode":0.6426195984270874,"cos_same_concept_same_submode":0.863991509651455,"cos_sibling_concept_same_topic":0.399693028780008}
+para-n1.2                {"cos_diff_topic":0.21189337520164087,"cos_same_concept_diff_submode":0.5457129712174456,"cos_same_concept_same_submode":0.7391654627772225,"cos_sibling_concept_same_topic":0.34138326581518047}
+drift1-n0.8              {"cos_diff_topic":0.29354428091493145,"cos_same_concept_diff_submode":null,"cos_same_concept_same_submode":0.7927105429878734,"cos_sibling_concept_same_topic":0.4418999835502135}
+drift2-n0.8              {"cos_diff_topic":0.23391574743002233,"cos_same_concept_diff_submode":null,"cos_same_concept_same_submode":0.7746505299391078,"cos_sibling_concept_same_topic":0.35450061894385254}
+para+drift1-n0.8         {"cos_diff_topic":0.2032660985928133,"cos_same_concept_diff_submode":0.6578130927737853,"cos_same_concept_same_submode":0.856255798263226,"cos_sibling_concept_same_topic":0.34134162367132287}
+mild-random-n0.8         {"cos_diff_topic":0.29206058608308266,"cos_same_concept_diff_submode":null,"cos_same_concept_same_submode":0.8292197125873653,"cos_sibling_concept_same_topic":0.4950726800605474}
+ctl-irrel-aniso          {"cos_diff_topic":0.3217657879216981,"cos_same_concept_diff_submode":null,"cos_same_concept_same_submode":0.8152292551520546,"cos_sibling_concept_same_topic":0.4945815150678964}
+ctl-irrel-para           {"cos_diff_topic":0.24545589073793977,"cos_same_concept_diff_submode":0.6426195984270874,"cos_same_concept_same_submode":0.863991509651455,"cos_sibling_concept_same_topic":0.399693028780008}
+ctl-irrel-para+drift     {"cos_diff_topic":0.1765830940156325,"cos_same_concept_diff_submode":0.565560465492722,"cos_same_concept_same_submode":0.7389775889069194,"cos_sibling_concept_same_topic":0.29301268303700584}
+ctl-unique-aniso         {"cos_diff_topic":0.38602423205803704,"cos_same_concept_diff_submode":null,"cos_same_concept_same_submode":null,"cos_sibling_concept_same_topic":null}
+ctl-none-random          {"cos_diff_topic":0.38602423205803704,"cos_same_concept_diff_submode":null,"cos_same_concept_same_submode":null,"cos_sibling_concept_same_topic":null}
+[tune] feat-hid k5 s0.6 cfalse                      obj -0.0025
+[tune] dir+vote k5 s0.6 n2 t0.7 cfalse              obj -0.0194
+[tune] dir+vote k5 s0.6 n3 t0.7 cfalse              obj -0.0124
+[tune] feat-hid k5 s0.6 ctrue                       obj +0.0007
+[tune] dir+vote k5 s0.6 n2 t0.7 ctrue               obj +0.0005
+[tune] dir+vote k5 s0.6 n3 t0.7 ctrue               obj +0.0028
+[tune] feat-hid k5 s0.7 cfalse                      obj -0.0003
+[tune] dir+vote k5 s0.7 n2 t0.7 cfalse              obj -0.0083
+[tune] dir+vote k5 s0.7 n3 t0.7 cfalse              obj -0.0022
+[tune] feat-hid k5 s0.7 ctrue                       obj +0.0004
+[tune] dir+vote k5 s0.7 n2 t0.7 ctrue               obj +0.0030
+[tune] dir+vote k5 s0.7 n3 t0.7 ctrue               obj +0.0044
+[tune] feat-hid k5 s0.8 cfalse                      obj +0.0006
+[tune] dir+vote k5 s0.8 n2 t0.7 cfalse              obj +0.0009
+[tune] dir+vote k5 s0.8 n3 t0.7 cfalse              obj +0.0027
+[tune] feat-hid k5 s0.8 ctrue                       obj -0.0020
+[tune] dir+vote k5 s0.8 n2 t0.7 ctrue               obj -0.0004
+[tune] dir+vote k5 s0.8 n3 t0.7 ctrue               obj +0.0001
+[tune] feat-hid k5 s0.9 cfalse                      obj -0.0032
+[tune] dir+vote k5 s0.9 n2 t0.7 cfalse              obj -0.0013
+[tune] dir+vote k5 s0.9 n3 t0.7 cfalse              obj -0.0011
+[tune] feat-hid k5 s0.9 ctrue                       obj -0.0042
+[tune] dir+vote k5 s0.9 n2 t0.7 ctrue               obj -0.0030
+[tune] dir+vote k5 s0.9 n3 t0.7 ctrue               obj -0.0032
+[tune] feat-hid k8 s0.6 cfalse                      obj -0.0035
+[tune] dir+vote k8 s0.6 n2 t0.7 cfalse              obj -0.0212
+[tune] dir+vote k8 s0.6 n3 t0.7 cfalse              obj -0.0131
+[tune] feat-hid k8 s0.6 ctrue                       obj +0.0007
+[tune] dir+vote k8 s0.6 n2 t0.7 ctrue               obj +0.0014
+[tune] dir+vote k8 s0.6 n3 t0.7 ctrue               obj +0.0032
+[tune] feat-hid k8 s0.7 cfalse                      obj -0.0003
+[tune] dir+vote k8 s0.7 n2 t0.7 cfalse              obj -0.0076
+[tune] dir+vote k8 s0.7 n3 t0.7 cfalse              obj -0.0031
+[tune] feat-hid k8 s0.7 ctrue                       obj +0.0004
+[tune] dir+vote k8 s0.7 n2 t0.7 ctrue               obj +0.0029
+[tune] dir+vote k8 s0.7 n3 t0.7 ctrue               obj +0.0040
+[tune] feat-hid k8 s0.8 cfalse                      obj +0.0004
+[tune] dir+vote k8 s0.8 n2 t0.7 cfalse              obj +0.0004
+[tune] dir+vote k8 s0.8 n3 t0.7 cfalse              obj +0.0029
+[tune] feat-hid k8 s0.8 ctrue                       obj -0.0021
+[tune] dir+vote k8 s0.8 n2 t0.7 ctrue               obj -0.0001
+[tune] dir+vote k8 s0.8 n3 t0.7 ctrue               obj +0.0004
+[tune] feat-hid k8 s0.9 cfalse                      obj -0.0032
+[tune] dir+vote k8 s0.9 n2 t0.7 cfalse              obj -0.0014
+[tune] dir+vote k8 s0.9 n3 t0.7 cfalse              obj -0.0012
+[tune] feat-hid k8 s0.9 ctrue                       obj -0.0041
+[tune] dir+vote k8 s0.9 n2 t0.7 ctrue               obj -0.0030
+[tune] dir+vote k8 s0.9 n3 t0.7 ctrue               obj -0.0032
+[tune] retuned hid(any) KnCfg { label: "feat-hid k5 s0.6 ctrue", feat: Hidden, k: 5, sim_min: 0.6, vote: None, center: true }
+[tune] retuned hid(no-center) KnCfg { label: "feat-hid k5 s0.8 cfalse", feat: Hidden, k: 5, sim_min: 0.8, vote: None, center: false }
+[tune] retuned dir+vote(any) KnCfg { label: "dir+vote k5 s0.7 n3 t0.7 ctrue", feat: Direct, k: 5, sim_min: 0.7, vote: Some((3.0, 0.7, None, Some((6.0, 0.02, 25)))), center: true }
+[tune] retuned dir+vote(no-center) KnCfg { label: "dir+vote k8 s0.8 n3 t0.7 cfalse", feat: Direct, k: 8, sim_min: 0.8, vote: Some((3.0, 0.7, None, Some((6.0, 0.02, 25)))), center: false }
+
+=== [O] world iso-ref(d6) | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4789   0.4798   0.4792   0.4691   0.3955
+eps-greedy                           0.4326   0.4365   0.4462   0.4644   0.4190
+pooled-ts                            0.4272   0.4330   0.4376   0.4511   0.4058
+hebbian-robust                       0.4396   0.4435   0.4495   0.4604   0.4361
+warm(hebr)                           0.4545   0.4519   0.4559   0.4623   0.4379
+guarded(hebr)                        0.4727   0.4705   0.4687   0.4728   0.4380
+kn-feat(d6cfg)                       0.4812   0.4917   0.5031   0.5375   0.5048
+kn-d+vote(d6cfg)                     0.4992   0.5329   0.5735   0.6556   0.6098
+kn-feat(retuned)                     0.4804   0.4907   0.5039   0.5378   0.5040
+kn-d+vote(retuned)                   0.4897   0.5216   0.5662   0.6535   0.6098
+
+=== [O] world aniso-n0.4 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4808   0.4798   0.4769   0.4648   0.3942
+eps-greedy                           0.4299   0.4359   0.4435   0.4608   0.4171
+pooled-ts                            0.4347   0.4377   0.4423   0.4569   0.4254
+hebbian-robust                       0.4371   0.4406   0.4528   0.4657   0.4513
+warm(hebr)                           0.4475   0.4472   0.4557   0.4656   0.4433
+guarded(hebr)                        0.4784   0.4736   0.4718   0.4712   0.4385
+kn-feat(d6cfg)                       0.4799   0.4827   0.4865   0.4937   0.4760
+kn-d+vote(d6cfg)                     0.4805   0.4847   0.4928   0.5058   0.4807
+kn-feat(retuned)                     0.4827   0.4904   0.5025   0.5299   0.5037
+kn-d+vote(retuned)                   0.4898   0.5256   0.5667   0.6418   0.6023
+
+=== [O] world aniso-n0.8 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4808   0.4798   0.4769   0.4648   0.3942
+eps-greedy                           0.4299   0.4359   0.4435   0.4608   0.4171
+pooled-ts                            0.4347   0.4377   0.4423   0.4569   0.4254
+hebbian-robust                       0.4371   0.4406   0.4528   0.4657   0.4513
+warm(hebr)                           0.4475   0.4472   0.4557   0.4656   0.4433
+guarded(hebr)                        0.4784   0.4736   0.4718   0.4712   0.4385
+kn-feat(d6cfg)                       0.4798   0.4820   0.4883   0.4964   0.4689
+kn-d+vote(d6cfg)                     0.4807   0.4869   0.4980   0.5146   0.4852
+kn-feat(retuned)                     0.4821   0.4896   0.5015   0.5323   0.5025
+kn-d+vote(retuned)                   0.4816   0.5069   0.5466   0.6307   0.5840
+
+=== [O] world aniso-n1.2 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4808   0.4798   0.4769   0.4648   0.3942
+eps-greedy                           0.4299   0.4359   0.4435   0.4608   0.4171
+pooled-ts                            0.4347   0.4377   0.4423   0.4569   0.4254
+hebbian-robust                       0.4371   0.4406   0.4528   0.4657   0.4513
+warm(hebr)                           0.4475   0.4472   0.4557   0.4656   0.4433
+guarded(hebr)                        0.4784   0.4736   0.4718   0.4712   0.4385
+kn-feat(d6cfg)                       0.4773   0.4805   0.4871   0.4956   0.4651
+kn-d+vote(d6cfg)                     0.4807   0.4865   0.4937   0.5107   0.4738
+kn-feat(retuned)                     0.4795   0.4804   0.4874   0.5108   0.4839
+kn-d+vote(retuned)                   0.4788   0.4806   0.4906   0.5381   0.4983
+
+=== [O] world aniso-n1.6 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4808   0.4798   0.4769   0.4648   0.3942
+eps-greedy                           0.4299   0.4359   0.4435   0.4608   0.4171
+pooled-ts                            0.4347   0.4377   0.4423   0.4569   0.4254
+hebbian-robust                       0.4371   0.4406   0.4528   0.4657   0.4513
+warm(hebr)                           0.4475   0.4472   0.4557   0.4656   0.4433
+guarded(hebr)                        0.4784   0.4736   0.4718   0.4712   0.4385
+kn-feat(d6cfg)                       0.4779   0.4777   0.4802   0.4855   0.4608
+kn-d+vote(d6cfg)                     0.4762   0.4798   0.4849   0.4925   0.4607
+kn-feat(retuned)                     0.4777   0.4743   0.4785   0.4911   0.4617
+kn-d+vote(retuned)                   0.4773   0.4724   0.4736   0.4882   0.4513
+
+=== [O] world para-n0.4 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4751   0.4757   0.4720   0.4623   0.3915
+eps-greedy                           0.4335   0.4425   0.4508   0.4703   0.4202
+pooled-ts                            0.4279   0.4331   0.4375   0.4565   0.4057
+hebbian-robust                       0.4367   0.4456   0.4514   0.4670   0.4387
+warm(hebr)                           0.4488   0.4502   0.4549   0.4654   0.4388
+guarded(hebr)                        0.4697   0.4694   0.4703   0.4759   0.4388
+kn-feat(d6cfg)                       0.4746   0.4837   0.4911   0.5031   0.4677
+kn-d+vote(d6cfg)                     0.4849   0.4973   0.5089   0.5288   0.4896
+kn-feat(retuned)                     0.4737   0.4842   0.4960   0.5233   0.4953
+kn-d+vote(retuned)                   0.4770   0.4941   0.5172   0.5934   0.5384
+
+=== [O] world para-n0.8 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4751   0.4757   0.4720   0.4623   0.3915
+eps-greedy                           0.4335   0.4425   0.4508   0.4703   0.4202
+pooled-ts                            0.4279   0.4331   0.4375   0.4565   0.4057
+hebbian-robust                       0.4367   0.4456   0.4514   0.4670   0.4387
+warm(hebr)                           0.4488   0.4502   0.4549   0.4654   0.4388
+guarded(hebr)                        0.4697   0.4694   0.4703   0.4759   0.4388
+kn-feat(d6cfg)                       0.4760   0.4821   0.4900   0.4993   0.4649
+kn-d+vote(d6cfg)                     0.4810   0.4949   0.5025   0.5206   0.4768
+kn-feat(retuned)                     0.4732   0.4799   0.4902   0.5169   0.4805
+kn-d+vote(retuned)                   0.4759   0.4880   0.5074   0.5791   0.5280
+
+=== [O] world para-n1.2 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4751   0.4757   0.4720   0.4623   0.3915
+eps-greedy                           0.4335   0.4425   0.4508   0.4703   0.4202
+pooled-ts                            0.4279   0.4331   0.4375   0.4565   0.4057
+hebbian-robust                       0.4367   0.4456   0.4514   0.4670   0.4387
+warm(hebr)                           0.4488   0.4502   0.4549   0.4654   0.4388
+guarded(hebr)                        0.4697   0.4694   0.4703   0.4759   0.4388
+kn-feat(d6cfg)                       0.4743   0.4792   0.4874   0.4971   0.4617
+kn-d+vote(d6cfg)                     0.4761   0.4841   0.4913   0.5111   0.4696
+kn-feat(retuned)                     0.4712   0.4764   0.4831   0.5073   0.4731
+kn-d+vote(retuned)                   0.4704   0.4753   0.4829   0.5248   0.4845
+
+=== [O] world drift1-n0.8 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4808   0.4798   0.4769   0.4648   0.3942
+eps-greedy                           0.4299   0.4359   0.4435   0.4608   0.4171
+pooled-ts                            0.4347   0.4377   0.4423   0.4569   0.4254
+hebbian-robust                       0.4371   0.4406   0.4528   0.4657   0.4513
+warm(hebr)                           0.4475   0.4472   0.4557   0.4656   0.4433
+guarded(hebr)                        0.4784   0.4736   0.4718   0.4712   0.4385
+kn-feat(d6cfg)                       0.4803   0.4820   0.4883   0.4976   0.4703
+kn-d+vote(d6cfg)                     0.4811   0.4869   0.4975   0.5152   0.4863
+kn-feat(retuned)                     0.4819   0.4897   0.5010   0.5301   0.5027
+kn-d+vote(retuned)                   0.4813   0.5051   0.5450   0.6304   0.5962
+
+=== [O] world drift2-n0.8 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4808   0.4798   0.4769   0.4648   0.3942
+eps-greedy                           0.4299   0.4359   0.4435   0.4608   0.4171
+pooled-ts                            0.4347   0.4377   0.4423   0.4569   0.4254
+hebbian-robust                       0.4371   0.4406   0.4528   0.4657   0.4513
+warm(hebr)                           0.4475   0.4472   0.4557   0.4656   0.4433
+guarded(hebr)                        0.4784   0.4736   0.4718   0.4712   0.4385
+kn-feat(d6cfg)                       0.4805   0.4827   0.4892   0.4980   0.4699
+kn-d+vote(d6cfg)                     0.4807   0.4870   0.4995   0.5164   0.4834
+kn-feat(retuned)                     0.4821   0.4891   0.5010   0.5308   0.5025
+kn-d+vote(retuned)                   0.4814   0.5043   0.5418   0.6341   0.6010
+
+=== [O] world para+drift1-n0.8 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4751   0.4757   0.4720   0.4623   0.3915
+eps-greedy                           0.4335   0.4425   0.4508   0.4703   0.4202
+pooled-ts                            0.4279   0.4331   0.4375   0.4565   0.4057
+hebbian-robust                       0.4367   0.4456   0.4514   0.4670   0.4387
+warm(hebr)                           0.4488   0.4502   0.4549   0.4654   0.4388
+guarded(hebr)                        0.4697   0.4694   0.4703   0.4759   0.4388
+kn-feat(d6cfg)                       0.4763   0.4838   0.4911   0.5005   0.4695
+kn-d+vote(d6cfg)                     0.4817   0.4954   0.5023   0.5205   0.4806
+kn-feat(retuned)                     0.4735   0.4797   0.4910   0.5168   0.4821
+kn-d+vote(retuned)                   0.4759   0.4880   0.5056   0.5799   0.5305
+
+=== [O] world mild-random-n0.8 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.5694   0.5695   0.5665   0.5380   0.4333
+eps-greedy                           0.4482   0.4671   0.4935   0.5264   0.4533
+pooled-ts                            0.4435   0.4611   0.4779   0.5189   0.4644
+hebbian-robust                       0.4510   0.4722   0.4999   0.5291   0.5114
+warm(hebr)                           0.5097   0.5063   0.5200   0.5406   0.5093
+guarded(hebr)                        0.5660   0.5642   0.5685   0.5633   0.5094
+kn-feat(d6cfg)                       0.5656   0.5693   0.5756   0.5647   0.5135
+kn-d+vote(d6cfg)                     0.5582   0.5618   0.5689   0.5617   0.5090
+kn-feat(retuned)                     0.5660   0.5687   0.5739   0.5687   0.5153
+kn-d+vote(retuned)                   0.5686   0.5694   0.5743   0.5683   0.5089
+
+=== [O] world ctl-irrel-aniso | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7463   0.7451   0.7416   0.7043   0.5955
+eps-greedy                           0.5620   0.6272   0.6836   0.7292   0.6407
+pooled-ts                            0.5420   0.6006   0.6522   0.7191   0.6432
+hebbian-robust                       0.5741   0.6422   0.6936   0.7337   0.6856
+warm(hebr)                           0.7077   0.7339   0.7625   0.7700   0.7086
+guarded(hebr)                        0.7485   0.7609   0.7728   0.7631   0.6702
+kn-feat(d6cfg)                       0.7497   0.7552   0.7662   0.7609   0.6679
+kn-d+vote(d6cfg)                     0.7257   0.7359   0.7450   0.7388   0.6587
+kn-feat(retuned)                     0.7503   0.7589   0.7703   0.7618   0.6734
+kn-d+vote(retuned)                   0.7376   0.7463   0.7546   0.7419   0.6562
+
+=== [O] world ctl-irrel-para | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7463   0.7451   0.7416   0.7043   0.5955
+eps-greedy                           0.5620   0.6272   0.6836   0.7292   0.6407
+pooled-ts                            0.5420   0.6006   0.6522   0.7191   0.6432
+hebbian-robust                       0.5741   0.6422   0.6936   0.7337   0.6856
+warm(hebr)                           0.7077   0.7339   0.7625   0.7700   0.7086
+guarded(hebr)                        0.7485   0.7609   0.7728   0.7631   0.6702
+kn-feat(d6cfg)                       0.7482   0.7578   0.7682   0.7610   0.6693
+kn-d+vote(d6cfg)                     0.7233   0.7380   0.7507   0.7438   0.6619
+kn-feat(retuned)                     0.7479   0.7574   0.7699   0.7616   0.6706
+kn-d+vote(retuned)                   0.7446   0.7485   0.7595   0.7447   0.6500
+
+=== [O] world ctl-irrel-para+drift | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7463   0.7451   0.7416   0.7043   0.5955
+eps-greedy                           0.5620   0.6272   0.6836   0.7292   0.6407
+pooled-ts                            0.5420   0.6006   0.6522   0.7191   0.6432
+hebbian-robust                       0.5741   0.6422   0.6936   0.7337   0.6856
+warm(hebr)                           0.7077   0.7339   0.7625   0.7700   0.7086
+guarded(hebr)                        0.7485   0.7609   0.7728   0.7631   0.6702
+kn-feat(d6cfg)                       0.7482   0.7594   0.7699   0.7598   0.6711
+kn-d+vote(d6cfg)                     0.7264   0.7386   0.7501   0.7418   0.6565
+kn-feat(retuned)                     0.7494   0.7592   0.7718   0.7630   0.6715
+kn-d+vote(retuned)                   0.7463   0.7524   0.7608   0.7489   0.6579
+
+=== [O] world ctl-unique-aniso | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4752   0.4790   0.4766   0.4662   0.3966
+eps-greedy                           0.4218   0.4294   0.4323   0.4362   0.3914
+pooled-ts                            0.4259   0.4260   0.4243   0.4298   0.3879
+hebbian-robust                       0.4225   0.4274   0.4301   0.4347   0.4150
+warm(hebr)                           0.4406   0.4350   0.4325   0.4352   0.4128
+guarded(hebr)                        0.4682   0.4622   0.4567   0.4483   0.4163
+kn-feat(d6cfg)                       0.4656   0.4639   0.4570   0.4489   0.4230
+kn-d+vote(d6cfg)                     0.4617   0.4608   0.4580   0.4519   0.4229
+kn-feat(retuned)                     0.4675   0.4640   0.4568   0.4484   0.4165
+kn-d+vote(retuned)                   0.4675   0.4610   0.4544   0.4498   0.4147
+
+=== [O] world ctl-none-random | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7256   0.7259   0.7228   0.6752   0.5430
+eps-greedy                           0.5400   0.6285   0.6949   0.7380   0.6421
+pooled-ts                            0.5202   0.6055   0.6728   0.7259   0.6403
+hebbian-robust                       0.6036   0.6867   0.7444   0.7656   0.6979
+warm(hebr)                           0.7138   0.7513   0.7791   0.7744   0.7018
+guarded(hebr)                        0.7391   0.7626   0.7825   0.7690   0.6681
+kn-feat(d6cfg)                       0.7321   0.7510   0.7716   0.7576   0.6545
+kn-d+vote(d6cfg)                     0.7058   0.7276   0.7444   0.7324   0.6380
+kn-feat(retuned)                     0.7378   0.7609   0.7817   0.7681   0.6691
+kn-d+vote(retuned)                   0.7339   0.7540   0.7734   0.7640   0.6627
+
+### REGIME O: knowledge vs best fair baseline  (Holm over 272 tests)
+iso-ref(d6)                kn-feat(d6cfg)                  2000   +0.0647 [ +0.0591, +0.0703]  30/30   0.0000  guarded(hebr) WIN
+iso-ref(d6)                kn-d+vote(d6cfg)                2000   +0.1829 [ +0.1728, +0.1929]  30/30   0.0000  guarded(hebr) WIN
+iso-ref(d6)                kn-feat(retuned)                2000   +0.0651 [ +0.0593, +0.0709]  30/30   0.0000  guarded(hebr) WIN
+iso-ref(d6)                kn-d+vote(retuned)              2000   +0.1807 [ +0.1710, +0.1905]  30/30   0.0000  guarded(hebr) WIN
+aniso-n0.4                 kn-feat(d6cfg)                  2000   +0.0225 [ +0.0173, +0.0277]  28/30   0.0000  guarded(hebr) WIN
+aniso-n0.4                 kn-d+vote(d6cfg)                2000   +0.0346 [ +0.0257, +0.0435]  30/30   0.0000  guarded(hebr) WIN
+aniso-n0.4                 kn-feat(retuned)                2000   +0.0587 [ +0.0511, +0.0664]  30/30   0.0000  guarded(hebr) WIN
+aniso-n0.4                 kn-d+vote(retuned)              2000   +0.1706 [ +0.1597, +0.1816]  30/30   0.0000  guarded(hebr) WIN
+aniso-n0.8                 kn-feat(d6cfg)                  2000   +0.0252 [ +0.0199, +0.0306]  29/30   0.0000  guarded(hebr) WIN
+aniso-n0.8                 kn-d+vote(d6cfg)                2000   +0.0434 [ +0.0320, +0.0548]  30/30   0.0000  guarded(hebr) WIN
+aniso-n0.8                 kn-feat(retuned)                2000   +0.0611 [ +0.0538, +0.0684]  30/30   0.0000  guarded(hebr) WIN
+aniso-n0.8                 kn-d+vote(retuned)              2000   +0.1596 [ +0.1473, +0.1718]  30/30   0.0000  guarded(hebr) WIN
+aniso-n1.2                 kn-feat(d6cfg)                  2000   +0.0244 [ +0.0196, +0.0292]  29/30   0.0000  guarded(hebr) WIN
+aniso-n1.2                 kn-d+vote(d6cfg)                2000   +0.0395 [ +0.0321, +0.0469]  29/30   0.0000  guarded(hebr) WIN
+aniso-n1.2                 kn-feat(retuned)                2000   +0.0396 [ +0.0333, +0.0458]  30/30   0.0000  guarded(hebr) WIN
+aniso-n1.2                 kn-d+vote(retuned)              2000   +0.0669 [ +0.0591, +0.0747]  30/30   0.0000  guarded(hebr) WIN
+aniso-n1.6                 kn-feat(d6cfg)                  2000   +0.0143 [ +0.0098, +0.0187]  25/30   0.0001  guarded(hebr) WIN
+aniso-n1.6                 kn-d+vote(d6cfg)                2000   +0.0213 [ +0.0165, +0.0261]  29/30   0.0000  guarded(hebr) WIN
+aniso-n1.6                 kn-feat(retuned)                2000   +0.0199 [ +0.0154, +0.0243]  27/30   0.0000  guarded(hebr) WIN
+aniso-n1.6                 kn-d+vote(retuned)              2000   +0.0170 [ +0.0111, +0.0230]  26/30   0.0004  guarded(hebr) WIN
+para-n0.4                  kn-feat(d6cfg)                  2000   +0.0273 [ +0.0222, +0.0324]  30/30   0.0000  guarded(hebr) WIN
+para-n0.4                  kn-d+vote(d6cfg)                2000   +0.0529 [ +0.0418, +0.0640]  30/30   0.0000  guarded(hebr) WIN
+para-n0.4                  kn-feat(retuned)                2000   +0.0474 [ +0.0422, +0.0526]  30/30   0.0000  guarded(hebr) WIN
+para-n0.4                  kn-d+vote(retuned)              2000   +0.1176 [ +0.1085, +0.1267]  30/30   0.0000  guarded(hebr) WIN
+para-n0.8                  kn-feat(d6cfg)                  2000   +0.0234 [ +0.0191, +0.0278]  30/30   0.0000  guarded(hebr) WIN
+para-n0.8                  kn-d+vote(d6cfg)                2000   +0.0448 [ +0.0347, +0.0548]  30/30   0.0000  guarded(hebr) WIN
+para-n0.8                  kn-feat(retuned)                2000   +0.0410 [ +0.0364, +0.0456]  30/30   0.0000  guarded(hebr) WIN
+para-n0.8                  kn-d+vote(retuned)              2000   +0.1032 [ +0.0940, +0.1124]  30/30   0.0000  guarded(hebr) WIN
+para-n1.2                  kn-feat(d6cfg)                  2000   +0.0213 [ +0.0177, +0.0248]  30/30   0.0000  guarded(hebr) WIN
+para-n1.2                  kn-d+vote(d6cfg)                2000   +0.0352 [ +0.0284, +0.0419]  30/30   0.0000  guarded(hebr) WIN
+para-n1.2                  kn-feat(retuned)                2000   +0.0314 [ +0.0277, +0.0350]  30/30   0.0000  guarded(hebr) WIN
+para-n1.2                  kn-d+vote(retuned)              2000   +0.0489 [ +0.0412, +0.0567]  30/30   0.0000  guarded(hebr) WIN
+drift1-n0.8                kn-feat(d6cfg)                  2000   +0.0264 [ +0.0213, +0.0315]  29/30   0.0000  guarded(hebr) WIN
+drift1-n0.8                kn-d+vote(d6cfg)                2000   +0.0440 [ +0.0328, +0.0552]  30/30   0.0000  guarded(hebr) WIN
+drift1-n0.8                kn-feat(retuned)                2000   +0.0589 [ +0.0518, +0.0661]  30/30   0.0000  guarded(hebr) WIN
+drift1-n0.8                kn-d+vote(retuned)              2000   +0.1592 [ +0.1472, +0.1712]  30/30   0.0000  guarded(hebr) WIN
+drift2-n0.8                kn-feat(d6cfg)                  2000   +0.0268 [ +0.0215, +0.0320]  29/30   0.0000  guarded(hebr) WIN
+drift2-n0.8                kn-d+vote(d6cfg)                2000   +0.0452 [ +0.0347, +0.0558]  30/30   0.0000  guarded(hebr) WIN
+drift2-n0.8                kn-feat(retuned)                2000   +0.0596 [ +0.0522, +0.0670]  30/30   0.0000  guarded(hebr) WIN
+drift2-n0.8                kn-d+vote(retuned)              2000   +0.1630 [ +0.1515, +0.1744]  30/30   0.0000  guarded(hebr) WIN
+para+drift1-n0.8           kn-feat(d6cfg)                  2000   +0.0246 [ +0.0196, +0.0296]  30/30   0.0000  guarded(hebr) WIN
+para+drift1-n0.8           kn-d+vote(d6cfg)                2000   +0.0446 [ +0.0338, +0.0554]  30/30   0.0000  guarded(hebr) WIN
+para+drift1-n0.8           kn-feat(retuned)                2000   +0.0409 [ +0.0366, +0.0452]  30/30   0.0000  guarded(hebr) WIN
+para+drift1-n0.8           kn-d+vote(retuned)              2000   +0.1040 [ +0.0956, +0.1124]  30/30   0.0000  guarded(hebr) WIN
+ctl-irrel-aniso            kn-d+vote(d6cfg)                2000   -0.0311 [ -0.0380, -0.0242]   1/30   0.0000  warm(hebr) LOSS
+ctl-irrel-aniso            kn-d+vote(retuned)              2000   -0.0281 [ -0.0360, -0.0202]   3/30   0.0000  warm(hebr) LOSS
+ctl-irrel-para             kn-d+vote(d6cfg)                2000   -0.0262 [ -0.0330, -0.0194]   3/30   0.0000  warm(hebr) LOSS
+ctl-irrel-para             kn-d+vote(retuned)              2000   -0.0253 [ -0.0331, -0.0174]   3/30   0.0001  warm(hebr) LOSS
+ctl-irrel-para+drift       kn-d+vote(d6cfg)                2000   -0.0281 [ -0.0339, -0.0223]   1/30   0.0000  warm(hebr) LOSS
+ctl-irrel-para+drift       kn-d+vote(retuned)              2000   -0.0211 [ -0.0283, -0.0139]   3/30   0.0003  warm(hebr) LOSS
+ctl-unique-aniso           kn-feat(d6cfg)                  2000   -0.0172 [ -0.0205, -0.0139]   1/30   0.0000  keyword LOSS
+ctl-unique-aniso           kn-d+vote(d6cfg)                2000   -0.0142 [ -0.0171, -0.0114]   0/30   0.0000  keyword LOSS
+ctl-unique-aniso           kn-feat(retuned)                2000   -0.0177 [ -0.0204, -0.0151]   0/30   0.0000  keyword LOSS
+ctl-unique-aniso           kn-d+vote(retuned)              2000   -0.0163 [ -0.0185, -0.0142]   0/30   0.0000  keyword LOSS
+ctl-none-random            kn-d+vote(d6cfg)                2000   -0.0421 [ -0.0600, -0.0242]   6/30   0.0071  warm(hebr) LOSS
+-> Holm WINS 84, Holm LOSSES 41
+
+--- regime O, vs best fair baseline | H2000 diff vs reference (* Holm WIN, ! Holm LOSS) ---
+world                           kn-feat(d6cfg)  kn-d+vote(d6cfg)  kn-feat(retuned) kn-d+vote(retuned
+iso-ref(d6)                           +0.0647*          +0.1829*          +0.0651*          +0.1807*
+aniso-n0.4                            +0.0225*          +0.0346*          +0.0587*          +0.1706*
+aniso-n0.8                            +0.0252*          +0.0434*          +0.0611*          +0.1596*
+aniso-n1.2                            +0.0244*          +0.0395*          +0.0396*          +0.0669*
+aniso-n1.6                            +0.0143*          +0.0213*          +0.0199*          +0.0170*
+para-n0.4                             +0.0273*          +0.0529*          +0.0474*          +0.1176*
+para-n0.8                             +0.0234*          +0.0448*          +0.0410*          +0.1032*
+para-n1.2                             +0.0213*          +0.0352*          +0.0314*          +0.0489*
+drift1-n0.8                           +0.0264*          +0.0440*          +0.0589*          +0.1592*
+drift2-n0.8                           +0.0268*          +0.0452*          +0.0596*          +0.1630*
+para+drift1-n0.8                      +0.0246*          +0.0446*          +0.0409*          +0.1040*
+mild-random-n0.8                      +0.0014           -0.0016           +0.0054           +0.0050 
+ctl-irrel-aniso                       -0.0091           -0.0311!          -0.0081           -0.0281!
+ctl-irrel-para                        -0.0090           -0.0262!          -0.0083           -0.0253!
+ctl-irrel-para+drift                  -0.0102           -0.0281!          -0.0069           -0.0211!
+ctl-unique-aniso                      -0.0172!          -0.0142!          -0.0177!          -0.0163!
+ctl-none-random                       -0.0168           -0.0421!          -0.0063           -0.0104 
+
+--- regime O, vs best fair baseline | H500 diff vs reference (* Holm WIN, ! Holm LOSS) ---
+world                           kn-feat(d6cfg)  kn-d+vote(d6cfg)  kn-feat(retuned) kn-d+vote(retuned
+iso-ref(d6)                           +0.0239*          +0.0942*          +0.0247*          +0.0869*
+aniso-n0.4                            +0.0096           +0.0159           +0.0256*          +0.0898*
+aniso-n0.8                            +0.0114           +0.0211*          +0.0246*          +0.0697*
+aniso-n1.2                            +0.0102           +0.0168           +0.0105           +0.0137 
+aniso-n1.6                            +0.0033           +0.0080           +0.0016           -0.0033 
+para-n0.4                             +0.0192*          +0.0369*          +0.0240*          +0.0452*
+para-n0.8                             +0.0181*          +0.0305*          +0.0182*          +0.0354*
+para-n1.2                             +0.0155           +0.0193*          +0.0111           +0.0109 
+drift1-n0.8                           +0.0114           +0.0206           +0.0241*          +0.0681*
+drift2-n0.8                           +0.0123           +0.0226*          +0.0241*          +0.0649*
+para+drift1-n0.8                      +0.0191*          +0.0303*          +0.0190*          +0.0336*
+mild-random-n0.8                      +0.0071           +0.0004           +0.0054           +0.0058 
+ctl-irrel-aniso                       -0.0066           -0.0279!          -0.0026           -0.0182!
+ctl-irrel-para                        -0.0046           -0.0221!          -0.0029           -0.0133!
+ctl-irrel-para+drift                  -0.0030           -0.0228!          -0.0010           -0.0120 
+ctl-unique-aniso                      -0.0196!          -0.0185!          -0.0197!          -0.0222!
+ctl-none-random                       -0.0109           -0.0382!          -0.0008           -0.0091 
+
+### ABLATION O: knowledge vs the same guarded(hebr) front without knowledge  (Holm over 272 tests)
+iso-ref(d6)                kn-feat(d6cfg)                  2000   +0.0647 [ +0.0591, +0.0703]  30/30   0.0000  front WIN
+iso-ref(d6)                kn-d+vote(d6cfg)                2000   +0.1829 [ +0.1728, +0.1929]  30/30   0.0000  front WIN
+iso-ref(d6)                kn-feat(retuned)                2000   +0.0651 [ +0.0593, +0.0709]  30/30   0.0000  front WIN
+iso-ref(d6)                kn-d+vote(retuned)              2000   +0.1807 [ +0.1710, +0.1905]  30/30   0.0000  front WIN
+aniso-n0.4                 kn-feat(d6cfg)                  2000   +0.0225 [ +0.0173, +0.0277]  28/30   0.0000  front WIN
+aniso-n0.4                 kn-d+vote(d6cfg)                2000   +0.0346 [ +0.0257, +0.0435]  30/30   0.0000  front WIN
+aniso-n0.4                 kn-feat(retuned)                2000   +0.0587 [ +0.0511, +0.0664]  30/30   0.0000  front WIN
+aniso-n0.4                 kn-d+vote(retuned)              2000   +0.1706 [ +0.1597, +0.1816]  30/30   0.0000  front WIN
+aniso-n0.8                 kn-feat(d6cfg)                  2000   +0.0252 [ +0.0199, +0.0306]  29/30   0.0000  front WIN
+aniso-n0.8                 kn-d+vote(d6cfg)                2000   +0.0434 [ +0.0320, +0.0548]  30/30   0.0000  front WIN
+aniso-n0.8                 kn-feat(retuned)                2000   +0.0611 [ +0.0538, +0.0684]  30/30   0.0000  front WIN
+aniso-n0.8                 kn-d+vote(retuned)              2000   +0.1596 [ +0.1473, +0.1718]  30/30   0.0000  front WIN
+aniso-n1.2                 kn-feat(d6cfg)                  2000   +0.0244 [ +0.0196, +0.0292]  29/30   0.0000  front WIN
+aniso-n1.2                 kn-d+vote(d6cfg)                2000   +0.0395 [ +0.0321, +0.0469]  29/30   0.0000  front WIN
+aniso-n1.2                 kn-feat(retuned)                2000   +0.0396 [ +0.0333, +0.0458]  30/30   0.0000  front WIN
+aniso-n1.2                 kn-d+vote(retuned)              2000   +0.0669 [ +0.0591, +0.0747]  30/30   0.0000  front WIN
+aniso-n1.6                 kn-feat(d6cfg)                  2000   +0.0143 [ +0.0098, +0.0187]  25/30   0.0001  front WIN
+aniso-n1.6                 kn-d+vote(d6cfg)                2000   +0.0213 [ +0.0165, +0.0261]  29/30   0.0000  front WIN
+aniso-n1.6                 kn-feat(retuned)                2000   +0.0199 [ +0.0154, +0.0243]  27/30   0.0000  front WIN
+aniso-n1.6                 kn-d+vote(retuned)              2000   +0.0170 [ +0.0111, +0.0230]  26/30   0.0004  front WIN
+para-n0.4                  kn-feat(d6cfg)                  2000   +0.0273 [ +0.0222, +0.0324]  30/30   0.0000  front WIN
+para-n0.4                  kn-d+vote(d6cfg)                2000   +0.0529 [ +0.0418, +0.0640]  30/30   0.0000  front WIN
+para-n0.4                  kn-feat(retuned)                2000   +0.0474 [ +0.0422, +0.0526]  30/30   0.0000  front WIN
+para-n0.4                  kn-d+vote(retuned)              2000   +0.1176 [ +0.1085, +0.1267]  30/30   0.0000  front WIN
+para-n0.8                  kn-feat(d6cfg)                  2000   +0.0234 [ +0.0191, +0.0278]  30/30   0.0000  front WIN
+para-n0.8                  kn-d+vote(d6cfg)                2000   +0.0448 [ +0.0347, +0.0548]  30/30   0.0000  front WIN
+para-n0.8                  kn-feat(retuned)                2000   +0.0410 [ +0.0364, +0.0456]  30/30   0.0000  front WIN
+para-n0.8                  kn-d+vote(retuned)              2000   +0.1032 [ +0.0940, +0.1124]  30/30   0.0000  front WIN
+para-n1.2                  kn-feat(d6cfg)                  2000   +0.0213 [ +0.0177, +0.0248]  30/30   0.0000  front WIN
+para-n1.2                  kn-d+vote(d6cfg)                2000   +0.0352 [ +0.0284, +0.0419]  30/30   0.0000  front WIN
+para-n1.2                  kn-feat(retuned)                2000   +0.0314 [ +0.0277, +0.0350]  30/30   0.0000  front WIN
+para-n1.2                  kn-d+vote(retuned)              2000   +0.0489 [ +0.0412, +0.0567]  30/30   0.0000  front WIN
+drift1-n0.8                kn-feat(d6cfg)                  2000   +0.0264 [ +0.0213, +0.0315]  29/30   0.0000  front WIN
+drift1-n0.8                kn-d+vote(d6cfg)                2000   +0.0440 [ +0.0328, +0.0552]  30/30   0.0000  front WIN
+drift1-n0.8                kn-feat(retuned)                2000   +0.0589 [ +0.0518, +0.0661]  30/30   0.0000  front WIN
+drift1-n0.8                kn-d+vote(retuned)              2000   +0.1592 [ +0.1472, +0.1712]  30/30   0.0000  front WIN
+drift2-n0.8                kn-feat(d6cfg)                  2000   +0.0268 [ +0.0215, +0.0320]  29/30   0.0000  front WIN
+drift2-n0.8                kn-d+vote(d6cfg)                2000   +0.0452 [ +0.0347, +0.0558]  30/30   0.0000  front WIN
+drift2-n0.8                kn-feat(retuned)                2000   +0.0596 [ +0.0522, +0.0670]  30/30   0.0000  front WIN
+drift2-n0.8                kn-d+vote(retuned)              2000   +0.1630 [ +0.1515, +0.1744]  30/30   0.0000  front WIN
+para+drift1-n0.8           kn-feat(d6cfg)                  2000   +0.0246 [ +0.0196, +0.0296]  30/30   0.0000  front WIN
+para+drift1-n0.8           kn-d+vote(d6cfg)                2000   +0.0446 [ +0.0338, +0.0554]  30/30   0.0000  front WIN
+para+drift1-n0.8           kn-feat(retuned)                2000   +0.0409 [ +0.0366, +0.0452]  30/30   0.0000  front WIN
+para+drift1-n0.8           kn-d+vote(retuned)              2000   +0.1040 [ +0.0956, +0.1124]  30/30   0.0000  front WIN
+ctl-irrel-aniso            kn-d+vote(d6cfg)                2000   -0.0243 [ -0.0296, -0.0189]   1/30   0.0000  front LOSS
+ctl-irrel-aniso            kn-d+vote(retuned)              2000   -0.0212 [ -0.0261, -0.0163]   1/30   0.0000  front LOSS
+ctl-irrel-para             kn-d+vote(d6cfg)                2000   -0.0193 [ -0.0229, -0.0158]   0/30   0.0000  front LOSS
+ctl-irrel-para             kn-d+vote(retuned)              2000   -0.0184 [ -0.0225, -0.0144]   1/30   0.0000  front LOSS
+ctl-irrel-para+drift       kn-d+vote(d6cfg)                2000   -0.0213 [ -0.0252, -0.0173]   2/30   0.0000  front LOSS
+ctl-irrel-para+drift       kn-d+vote(retuned)              2000   -0.0143 [ -0.0186, -0.0099]   5/30   0.0000  front LOSS
+ctl-none-random            kn-d+vote(d6cfg)                2000   -0.0367 [ -0.0502, -0.0231]   2/30   0.0008  front LOSS
+-> Holm WINS 121, Holm LOSSES 24
+
+--- regime O, vs same front (must-not-hurt) | H2000 diff vs reference (* Holm WIN, ! Holm LOSS) ---
+world                           kn-feat(d6cfg)  kn-d+vote(d6cfg)  kn-feat(retuned) kn-d+vote(retuned
+iso-ref(d6)                           +0.0647*          +0.1829*          +0.0651*          +0.1807*
+aniso-n0.4                            +0.0225*          +0.0346*          +0.0587*          +0.1706*
+aniso-n0.8                            +0.0252*          +0.0434*          +0.0611*          +0.1596*
+aniso-n1.2                            +0.0244*          +0.0395*          +0.0396*          +0.0669*
+aniso-n1.6                            +0.0143*          +0.0213*          +0.0199*          +0.0170*
+para-n0.4                             +0.0273*          +0.0529*          +0.0474*          +0.1176*
+para-n0.8                             +0.0234*          +0.0448*          +0.0410*          +0.1032*
+para-n1.2                             +0.0213*          +0.0352*          +0.0314*          +0.0489*
+drift1-n0.8                           +0.0264*          +0.0440*          +0.0589*          +0.1592*
+drift2-n0.8                           +0.0268*          +0.0452*          +0.0596*          +0.1630*
+para+drift1-n0.8                      +0.0246*          +0.0446*          +0.0409*          +0.1040*
+mild-random-n0.8                      +0.0014           -0.0016           +0.0054           +0.0050 
+ctl-irrel-aniso                       -0.0022           -0.0243!          -0.0013           -0.0212!
+ctl-irrel-para                        -0.0021           -0.0193!          -0.0015           -0.0184!
+ctl-irrel-para+drift                  -0.0033           -0.0213!          -0.0001           -0.0143!
+ctl-unique-aniso                      +0.0006           +0.0036           +0.0001           +0.0015 
+ctl-none-random                       -0.0114           -0.0367!          -0.0010           -0.0051 
+
+### DIAG O: centering / non-centered retune vs same front  (Holm over 272 tests)
+iso-ref(d6)                kn-feat(d6cfg+ctr)              2000   +0.0647 [ +0.0588, +0.0707]  30/30   0.0000  front WIN
+iso-ref(d6)                kn-d+vote(d6cfg+ctr)            2000   +0.1825 [ +0.1741, +0.1908]  30/30   0.0000  front WIN
+iso-ref(d6)                kn-feat(retuned-noctr)          2000   +0.0616 [ +0.0562, +0.0671]  30/30   0.0000  front WIN
+iso-ref(d6)                kn-d+vote(retuned-noctr)        2000   +0.1695 [ +0.1589, +0.1800]  30/30   0.0000  front WIN
+aniso-n0.4                 kn-feat(d6cfg+ctr)              2000   +0.0585 [ +0.0508, +0.0662]  30/30   0.0000  front WIN
+aniso-n0.4                 kn-d+vote(d6cfg+ctr)            2000   +0.1526 [ +0.1377, +0.1675]  30/30   0.0000  front WIN
+aniso-n0.4                 kn-feat(retuned-noctr)          2000   +0.0589 [ +0.0517, +0.0661]  30/30   0.0000  front WIN
+aniso-n0.4                 kn-d+vote(retuned-noctr)        2000   +0.1469 [ +0.1321, +0.1617]  30/30   0.0000  front WIN
+aniso-n0.8                 kn-feat(d6cfg+ctr)              2000   +0.0592 [ +0.0522, +0.0662]  30/30   0.0000  front WIN
+aniso-n0.8                 kn-d+vote(d6cfg+ctr)            2000   +0.1561 [ +0.1418, +0.1704]  30/30   0.0000  front WIN
+aniso-n0.8                 kn-feat(retuned-noctr)          2000   +0.0591 [ +0.0528, +0.0654]  30/30   0.0000  front WIN
+aniso-n0.8                 kn-d+vote(retuned-noctr)        2000   +0.1587 [ +0.1446, +0.1729]  30/30   0.0000  front WIN
+aniso-n1.2                 kn-feat(d6cfg+ctr)              2000   +0.0398 [ +0.0338, +0.0458]  30/30   0.0000  front WIN
+aniso-n1.2                 kn-d+vote(d6cfg+ctr)            2000   +0.0987 [ +0.0869, +0.1105]  30/30   0.0000  front WIN
+aniso-n1.2                 kn-feat(retuned-noctr)          2000   +0.0301 [ +0.0253, +0.0350]  30/30   0.0000  front WIN
+aniso-n1.2                 kn-d+vote(retuned-noctr)        2000   +0.0773 [ +0.0669, +0.0877]  30/30   0.0000  front WIN
+aniso-n1.6                 kn-feat(d6cfg+ctr)              2000   +0.0193 [ +0.0145, +0.0241]  27/30   0.0000  front WIN
+aniso-n1.6                 kn-d+vote(d6cfg+ctr)            2000   +0.0350 [ +0.0282, +0.0418]  29/30   0.0000  front WIN
+aniso-n1.6                 kn-feat(retuned-noctr)          2000   +0.0085 [ +0.0049, +0.0122]  25/30   0.0059  front WIN
+aniso-n1.6                 kn-d+vote(retuned-noctr)        2000   +0.0171 [ +0.0129, +0.0214]  27/30   0.0000  front WIN
+para-n0.4                  kn-feat(d6cfg+ctr)              2000   +0.0478 [ +0.0426, +0.0529]  30/30   0.0000  front WIN
+para-n0.4                  kn-d+vote(d6cfg+ctr)            2000   +0.1324 [ +0.1191, +0.1458]  30/30   0.0000  front WIN
+para-n0.4                  kn-feat(retuned-noctr)          2000   +0.0468 [ +0.0417, +0.0519]  30/30   0.0000  front WIN
+para-n0.4                  kn-d+vote(retuned-noctr)        2000   +0.1268 [ +0.1146, +0.1389]  30/30   0.0000  front WIN
+para-n0.8                  kn-feat(d6cfg+ctr)              2000   +0.0425 [ +0.0379, +0.0472]  30/30   0.0000  front WIN
+para-n0.8                  kn-d+vote(d6cfg+ctr)            2000   +0.1219 [ +0.1111, +0.1327]  30/30   0.0000  front WIN
+para-n0.8                  kn-feat(retuned-noctr)          2000   +0.0361 [ +0.0317, +0.0404]  30/30   0.0000  front WIN
+para-n0.8                  kn-d+vote(retuned-noctr)        2000   +0.1104 [ +0.1007, +0.1201]  30/30   0.0000  front WIN
+para-n1.2                  kn-feat(d6cfg+ctr)              2000   +0.0320 [ +0.0279, +0.0361]  30/30   0.0000  front WIN
+para-n1.2                  kn-d+vote(d6cfg+ctr)            2000   +0.0825 [ +0.0744, +0.0905]  30/30   0.0000  front WIN
+para-n1.2                  kn-feat(retuned-noctr)          2000   +0.0165 [ +0.0127, +0.0203]  29/30   0.0000  front WIN
+para-n1.2                  kn-d+vote(retuned-noctr)        2000   +0.0545 [ +0.0466, +0.0624]  30/30   0.0000  front WIN
+drift1-n0.8                kn-feat(d6cfg+ctr)              2000   +0.0602 [ +0.0536, +0.0668]  30/30   0.0000  front WIN
+drift1-n0.8                kn-d+vote(d6cfg+ctr)            2000   +0.1521 [ +0.1362, +0.1679]  30/30   0.0000  front WIN
+drift1-n0.8                kn-feat(retuned-noctr)          2000   +0.0604 [ +0.0535, +0.0674]  30/30   0.0000  front WIN
+drift1-n0.8                kn-d+vote(retuned-noctr)        2000   +0.1624 [ +0.1480, +0.1767]  30/30   0.0000  front WIN
+drift2-n0.8                kn-feat(d6cfg+ctr)              2000   +0.0605 [ +0.0532, +0.0677]  30/30   0.0000  front WIN
+drift2-n0.8                kn-d+vote(d6cfg+ctr)            2000   +0.1528 [ +0.1378, +0.1678]  30/30   0.0000  front WIN
+drift2-n0.8                kn-feat(retuned-noctr)          2000   +0.0608 [ +0.0541, +0.0676]  30/30   0.0000  front WIN
+drift2-n0.8                kn-d+vote(retuned-noctr)        2000   +0.1601 [ +0.1466, +0.1737]  30/30   0.0000  front WIN
+para+drift1-n0.8           kn-feat(d6cfg+ctr)              2000   +0.0410 [ +0.0362, +0.0458]  30/30   0.0000  front WIN
+para+drift1-n0.8           kn-d+vote(d6cfg+ctr)            2000   +0.1200 [ +0.1090, +0.1309]  30/30   0.0000  front WIN
+para+drift1-n0.8           kn-feat(retuned-noctr)          2000   +0.0370 [ +0.0330, +0.0411]  30/30   0.0000  front WIN
+para+drift1-n0.8           kn-d+vote(retuned-noctr)        2000   +0.1116 [ +0.1028, +0.1205]  30/30   0.0000  front WIN
+ctl-irrel-aniso            kn-d+vote(d6cfg+ctr)            2000   -0.0216 [ -0.0252, -0.0180]   2/30   0.0000  front LOSS
+ctl-irrel-aniso            kn-d+vote(retuned-noctr)        2000   -0.0220 [ -0.0269, -0.0171]   2/30   0.0000  front LOSS
+ctl-irrel-para             kn-d+vote(d6cfg+ctr)            2000   -0.0186 [ -0.0229, -0.0144]   2/30   0.0000  front LOSS
+ctl-irrel-para             kn-d+vote(retuned-noctr)        2000   -0.0197 [ -0.0237, -0.0156]   2/30   0.0000  front LOSS
+ctl-irrel-para+drift       kn-d+vote(d6cfg+ctr)            2000   -0.0197 [ -0.0242, -0.0151]   1/30   0.0000  front LOSS
+ctl-irrel-para+drift       kn-d+vote(retuned-noctr)        2000   -0.0134 [ -0.0168, -0.0100]   1/30   0.0000  front LOSS
+ctl-none-random            kn-d+vote(d6cfg+ctr)            2000   -0.0167 [ -0.0232, -0.0102]   2/30   0.0017  front LOSS
+ctl-none-random            kn-d+vote(retuned-noctr)        2000   -0.0109 [ -0.0151, -0.0067]   4/30   0.0015  front LOSS
+-> Holm WINS 131, Holm LOSSES 28
+
+--- regime O, DIAG vs same front | H2000 diff vs reference (* Holm WIN, ! Holm LOSS) ---
+world                        kn-feat(d6cfg+ctr kn-d+vote(d6cfg+c kn-feat(retuned-n kn-d+vote(retuned
+iso-ref(d6)                           +0.0647*          +0.1825*          +0.0616*          +0.1695*
+aniso-n0.4                            +0.0585*          +0.1526*          +0.0589*          +0.1469*
+aniso-n0.8                            +0.0592*          +0.1561*          +0.0591*          +0.1587*
+aniso-n1.2                            +0.0398*          +0.0987*          +0.0301*          +0.0773*
+aniso-n1.6                            +0.0193*          +0.0350*          +0.0085*          +0.0171*
+para-n0.4                             +0.0478*          +0.1324*          +0.0468*          +0.1268*
+para-n0.8                             +0.0425*          +0.1219*          +0.0361*          +0.1104*
+para-n1.2                             +0.0320*          +0.0825*          +0.0165*          +0.0545*
+drift1-n0.8                           +0.0602*          +0.1521*          +0.0604*          +0.1624*
+drift2-n0.8                           +0.0605*          +0.1528*          +0.0608*          +0.1601*
+para+drift1-n0.8                      +0.0410*          +0.1200*          +0.0370*          +0.1116*
+mild-random-n0.8                      +0.0039           +0.0023           +0.0044           +0.0018 
+ctl-irrel-aniso                       -0.0013           -0.0216!          -0.0025           -0.0220!
+ctl-irrel-para                        -0.0019           -0.0186!          -0.0031           -0.0197!
+ctl-irrel-para+drift                  -0.0018           -0.0197!          -0.0013           -0.0134!
+ctl-unique-aniso                      +0.0014           +0.0028           +0.0023           +0.0016 
+ctl-none-random                       -0.0025           -0.0167!          -0.0016           -0.0109!
+
+=== [W] world iso-ref(d6) | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4789   0.4798   0.4792   0.4691   0.3955
+eps-greedy                           0.4454   0.4456   0.4387   0.4305   0.4147
+pooled-ts                            0.4181   0.4177   0.4187   0.4265   0.4149
+hebbian-robust                       0.4224   0.4256   0.4239   0.4249   0.4153
+warm(hebr)                           0.4651   0.4650   0.4643   0.4569   0.4429
+guarded(hebr)                        0.4789   0.4798   0.4793   0.4681   0.4088
+guarded(hebr)+reuse                  0.4760   0.4712   0.4659   0.4597   0.4321
+warm(hebr)+reuse                     0.4638   0.4540   0.4483   0.4432   0.4201
+kn-feat(d6cfg)                       0.4761   0.4747   0.4751   0.4968   0.4707
+kn-d+vote(d6cfg)                     0.4801   0.4861   0.4926   0.5302   0.5052
+kn-feat(retuned)                     0.4761   0.4747   0.4750   0.4964   0.4701
+kn-d+vote(retuned)                   0.4785   0.4800   0.4875   0.5300   0.5046
+
+=== [W] world aniso-n0.4 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4808   0.4798   0.4769   0.4648   0.3942
+eps-greedy                           0.4459   0.4451   0.4416   0.4271   0.4093
+pooled-ts                            0.4244   0.4222   0.4185   0.4209   0.4017
+hebbian-robust                       0.4156   0.4170   0.4180   0.4210   0.4075
+warm(hebr)                           0.4734   0.4721   0.4700   0.4608   0.4463
+guarded(hebr)                        0.4808   0.4798   0.4770   0.4649   0.4083
+guarded(hebr)+reuse                  0.4792   0.4720   0.4653   0.4576   0.4311
+warm(hebr)+reuse                     0.4682   0.4545   0.4488   0.4507   0.4289
+kn-feat(d6cfg)                       0.4801   0.4753   0.4726   0.4753   0.4551
+kn-d+vote(d6cfg)                     0.4767   0.4747   0.4741   0.4796   0.4616
+kn-feat(retuned)                     0.4794   0.4752   0.4758   0.4923   0.4692
+kn-d+vote(retuned)                   0.4804   0.4795   0.4894   0.5326   0.5078
+
+=== [W] world aniso-n0.8 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4808   0.4798   0.4769   0.4648   0.3942
+eps-greedy                           0.4459   0.4451   0.4416   0.4271   0.4093
+pooled-ts                            0.4244   0.4222   0.4185   0.4209   0.4017
+hebbian-robust                       0.4156   0.4170   0.4180   0.4210   0.4075
+warm(hebr)                           0.4734   0.4721   0.4700   0.4608   0.4463
+guarded(hebr)                        0.4808   0.4798   0.4770   0.4649   0.4083
+guarded(hebr)+reuse                  0.4792   0.4720   0.4653   0.4576   0.4311
+warm(hebr)+reuse                     0.4682   0.4545   0.4488   0.4507   0.4289
+kn-feat(d6cfg)                       0.4803   0.4753   0.4732   0.4766   0.4502
+kn-d+vote(d6cfg)                     0.4756   0.4754   0.4763   0.4828   0.4597
+kn-feat(retuned)                     0.4800   0.4750   0.4759   0.4894   0.4630
+kn-d+vote(retuned)                   0.4803   0.4778   0.4821   0.5209   0.4882
+
+=== [W] world aniso-n1.2 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4808   0.4798   0.4769   0.4648   0.3942
+eps-greedy                           0.4459   0.4451   0.4416   0.4271   0.4093
+pooled-ts                            0.4244   0.4222   0.4185   0.4209   0.4017
+hebbian-robust                       0.4156   0.4170   0.4180   0.4210   0.4075
+warm(hebr)                           0.4734   0.4721   0.4700   0.4608   0.4463
+guarded(hebr)                        0.4808   0.4798   0.4770   0.4649   0.4083
+guarded(hebr)+reuse                  0.4792   0.4720   0.4653   0.4576   0.4311
+warm(hebr)+reuse                     0.4682   0.4545   0.4488   0.4507   0.4289
+kn-feat(d6cfg)                       0.4803   0.4749   0.4727   0.4739   0.4458
+kn-d+vote(d6cfg)                     0.4791   0.4759   0.4750   0.4816   0.4578
+kn-feat(retuned)                     0.4797   0.4742   0.4709   0.4781   0.4497
+kn-d+vote(retuned)                   0.4796   0.4759   0.4730   0.4806   0.4510
+
+=== [W] world aniso-n1.6 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4808   0.4798   0.4769   0.4648   0.3942
+eps-greedy                           0.4459   0.4451   0.4416   0.4271   0.4093
+pooled-ts                            0.4244   0.4222   0.4185   0.4209   0.4017
+hebbian-robust                       0.4156   0.4170   0.4180   0.4210   0.4075
+warm(hebr)                           0.4734   0.4721   0.4700   0.4608   0.4463
+guarded(hebr)                        0.4808   0.4798   0.4770   0.4649   0.4083
+guarded(hebr)+reuse                  0.4792   0.4720   0.4653   0.4576   0.4311
+warm(hebr)+reuse                     0.4682   0.4545   0.4488   0.4507   0.4289
+kn-feat(d6cfg)                       0.4797   0.4744   0.4726   0.4729   0.4470
+kn-d+vote(d6cfg)                     0.4766   0.4728   0.4719   0.4747   0.4540
+kn-feat(retuned)                     0.4796   0.4726   0.4689   0.4695   0.4451
+kn-d+vote(retuned)                   0.4794   0.4731   0.4688   0.4693   0.4415
+
+=== [W] world para-n0.4 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4751   0.4757   0.4720   0.4623   0.3915
+eps-greedy                           0.4344   0.4417   0.4397   0.4286   0.4199
+pooled-ts                            0.4316   0.4287   0.4278   0.4287   0.4131
+hebbian-robust                       0.4184   0.4233   0.4219   0.4225   0.4088
+warm(hebr)                           0.4625   0.4643   0.4624   0.4527   0.4398
+guarded(hebr)                        0.4751   0.4757   0.4720   0.4626   0.4063
+guarded(hebr)+reuse                  0.4732   0.4721   0.4663   0.4579   0.4323
+warm(hebr)+reuse                     0.4593   0.4529   0.4503   0.4492   0.4264
+kn-feat(d6cfg)                       0.4729   0.4736   0.4731   0.4805   0.4593
+kn-d+vote(d6cfg)                     0.4685   0.4711   0.4731   0.4841   0.4619
+kn-feat(retuned)                     0.4732   0.4745   0.4731   0.4849   0.4620
+kn-d+vote(retuned)                   0.4739   0.4760   0.4758   0.5015   0.4758
+
+=== [W] world para-n0.8 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4751   0.4757   0.4720   0.4623   0.3915
+eps-greedy                           0.4344   0.4417   0.4397   0.4286   0.4199
+pooled-ts                            0.4316   0.4287   0.4278   0.4287   0.4131
+hebbian-robust                       0.4184   0.4233   0.4219   0.4225   0.4088
+warm(hebr)                           0.4625   0.4643   0.4624   0.4527   0.4398
+guarded(hebr)                        0.4751   0.4757   0.4720   0.4626   0.4063
+guarded(hebr)+reuse                  0.4732   0.4721   0.4663   0.4579   0.4323
+warm(hebr)+reuse                     0.4593   0.4529   0.4503   0.4492   0.4264
+kn-feat(d6cfg)                       0.4731   0.4738   0.4728   0.4786   0.4533
+kn-d+vote(d6cfg)                     0.4682   0.4717   0.4737   0.4847   0.4560
+kn-feat(retuned)                     0.4732   0.4737   0.4713   0.4814   0.4583
+kn-d+vote(retuned)                   0.4743   0.4754   0.4734   0.4913   0.4614
+
+=== [W] world para-n1.2 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4751   0.4757   0.4720   0.4623   0.3915
+eps-greedy                           0.4344   0.4417   0.4397   0.4286   0.4199
+pooled-ts                            0.4316   0.4287   0.4278   0.4287   0.4131
+hebbian-robust                       0.4184   0.4233   0.4219   0.4225   0.4088
+warm(hebr)                           0.4625   0.4643   0.4624   0.4527   0.4398
+guarded(hebr)                        0.4751   0.4757   0.4720   0.4626   0.4063
+guarded(hebr)+reuse                  0.4732   0.4721   0.4663   0.4579   0.4323
+warm(hebr)+reuse                     0.4593   0.4529   0.4503   0.4492   0.4264
+kn-feat(d6cfg)                       0.4730   0.4738   0.4708   0.4715   0.4500
+kn-d+vote(d6cfg)                     0.4684   0.4705   0.4720   0.4814   0.4615
+kn-feat(retuned)                     0.4729   0.4722   0.4686   0.4740   0.4484
+kn-d+vote(retuned)                   0.4740   0.4734   0.4696   0.4781   0.4483
+
+=== [W] world drift1-n0.8 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4808   0.4798   0.4769   0.4648   0.3942
+eps-greedy                           0.4459   0.4451   0.4416   0.4271   0.4093
+pooled-ts                            0.4244   0.4222   0.4185   0.4209   0.4017
+hebbian-robust                       0.4156   0.4170   0.4180   0.4210   0.4075
+warm(hebr)                           0.4734   0.4721   0.4700   0.4608   0.4463
+guarded(hebr)                        0.4808   0.4798   0.4770   0.4649   0.4083
+guarded(hebr)+reuse                  0.4792   0.4720   0.4653   0.4576   0.4311
+warm(hebr)+reuse                     0.4682   0.4545   0.4488   0.4507   0.4289
+kn-feat(d6cfg)                       0.4803   0.4754   0.4734   0.4762   0.4505
+kn-d+vote(d6cfg)                     0.4756   0.4758   0.4764   0.4835   0.4603
+kn-feat(retuned)                     0.4800   0.4750   0.4759   0.4917   0.4697
+kn-d+vote(retuned)                   0.4801   0.4780   0.4810   0.5186   0.4856
+
+=== [W] world drift2-n0.8 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4808   0.4798   0.4769   0.4648   0.3942
+eps-greedy                           0.4459   0.4451   0.4416   0.4271   0.4093
+pooled-ts                            0.4244   0.4222   0.4185   0.4209   0.4017
+hebbian-robust                       0.4156   0.4170   0.4180   0.4210   0.4075
+warm(hebr)                           0.4734   0.4721   0.4700   0.4608   0.4463
+guarded(hebr)                        0.4808   0.4798   0.4770   0.4649   0.4083
+guarded(hebr)+reuse                  0.4792   0.4720   0.4653   0.4576   0.4311
+warm(hebr)+reuse                     0.4682   0.4545   0.4488   0.4507   0.4289
+kn-feat(d6cfg)                       0.4801   0.4752   0.4731   0.4775   0.4517
+kn-d+vote(d6cfg)                     0.4757   0.4751   0.4757   0.4836   0.4621
+kn-feat(retuned)                     0.4800   0.4749   0.4759   0.4909   0.4654
+kn-d+vote(retuned)                   0.4801   0.4782   0.4809   0.5213   0.4865
+
+=== [W] world para+drift1-n0.8 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4751   0.4757   0.4720   0.4623   0.3915
+eps-greedy                           0.4344   0.4417   0.4397   0.4286   0.4199
+pooled-ts                            0.4316   0.4287   0.4278   0.4287   0.4131
+hebbian-robust                       0.4184   0.4233   0.4219   0.4225   0.4088
+warm(hebr)                           0.4625   0.4643   0.4624   0.4527   0.4398
+guarded(hebr)                        0.4751   0.4757   0.4720   0.4626   0.4063
+guarded(hebr)+reuse                  0.4732   0.4721   0.4663   0.4579   0.4323
+warm(hebr)+reuse                     0.4593   0.4529   0.4503   0.4492   0.4264
+kn-feat(d6cfg)                       0.4731   0.4741   0.4731   0.4783   0.4523
+kn-d+vote(d6cfg)                     0.4682   0.4723   0.4734   0.4862   0.4549
+kn-feat(retuned)                     0.4732   0.4737   0.4715   0.4824   0.4587
+kn-d+vote(retuned)                   0.4743   0.4754   0.4732   0.4934   0.4649
+
+=== [W] world mild-random-n0.8 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.5694   0.5695   0.5665   0.5380   0.4333
+eps-greedy                           0.4119   0.4153   0.4233   0.4313   0.4222
+pooled-ts                            0.4172   0.4203   0.4215   0.4278   0.4068
+hebbian-robust                       0.4209   0.4239   0.4224   0.4237   0.4117
+warm(hebr)                           0.5514   0.5505   0.5475   0.5178   0.4878
+guarded(hebr)                        0.5694   0.5695   0.5666   0.5302   0.4564
+guarded(hebr)+reuse                  0.5675   0.5555   0.5474   0.5346   0.5000
+warm(hebr)+reuse                     0.5394   0.5151   0.4993   0.4896   0.4503
+kn-feat(d6cfg)                       0.5675   0.5571   0.5512   0.5316   0.4968
+kn-d+vote(d6cfg)                     0.5543   0.5460   0.5491   0.5341   0.5012
+kn-feat(retuned)                     0.5678   0.5557   0.5487   0.5371   0.5037
+kn-d+vote(retuned)                   0.5680   0.5607   0.5558   0.5411   0.4959
+
+=== [W] world ctl-irrel-aniso | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7463   0.7451   0.7416   0.7043   0.5955
+eps-greedy                           0.5162   0.5223   0.5219   0.5041   0.4767
+pooled-ts                            0.4734   0.4764   0.4761   0.4892   0.4655
+hebbian-robust                       0.4626   0.4686   0.4661   0.4744   0.4562
+warm(hebr)                           0.7122   0.7107   0.7100   0.6677   0.6424
+guarded(hebr)                        0.7463   0.7451   0.7417   0.6924   0.6100
+guarded(hebr)+reuse                  0.7450   0.7436   0.7433   0.7212   0.6521
+warm(hebr)+reuse                     0.7049   0.6814   0.6877   0.6974   0.6507
+kn-feat(d6cfg)                       0.7450   0.7408   0.7407   0.7217   0.6564
+kn-d+vote(d6cfg)                     0.6991   0.6962   0.7157   0.7029   0.6320
+kn-feat(retuned)                     0.7448   0.7422   0.7431   0.7210   0.6516
+kn-d+vote(retuned)                   0.7456   0.7404   0.7348   0.7071   0.6357
+
+=== [W] world ctl-irrel-para | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7463   0.7451   0.7416   0.7043   0.5955
+eps-greedy                           0.5299   0.5310   0.5314   0.5091   0.5015
+pooled-ts                            0.4799   0.4772   0.4799   0.5004   0.4840
+hebbian-robust                       0.4565   0.4602   0.4591   0.4710   0.4479
+warm(hebr)                           0.7113   0.7096   0.7072   0.6626   0.6358
+guarded(hebr)                        0.7463   0.7451   0.7417   0.6945   0.6094
+guarded(hebr)+reuse                  0.7445   0.7417   0.7412   0.7209   0.6480
+warm(hebr)+reuse                     0.7007   0.6793   0.6795   0.6867   0.6387
+kn-feat(d6cfg)                       0.7447   0.7419   0.7391   0.7209   0.6433
+kn-d+vote(d6cfg)                     0.7005   0.7013   0.7133   0.7076   0.6344
+kn-feat(retuned)                     0.7445   0.7416   0.7387   0.7203   0.6443
+kn-d+vote(retuned)                   0.7456   0.7428   0.7368   0.7122   0.6341
+
+=== [W] world ctl-irrel-para+drift | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7463   0.7451   0.7416   0.7043   0.5955
+eps-greedy                           0.5299   0.5310   0.5314   0.5091   0.5015
+pooled-ts                            0.4799   0.4772   0.4799   0.5004   0.4840
+hebbian-robust                       0.4565   0.4602   0.4591   0.4710   0.4479
+warm(hebr)                           0.7113   0.7096   0.7072   0.6626   0.6358
+guarded(hebr)                        0.7463   0.7451   0.7417   0.6945   0.6094
+guarded(hebr)+reuse                  0.7445   0.7417   0.7412   0.7209   0.6480
+warm(hebr)+reuse                     0.7007   0.6793   0.6795   0.6867   0.6387
+kn-feat(d6cfg)                       0.7447   0.7410   0.7393   0.7161   0.6422
+kn-d+vote(d6cfg)                     0.7085   0.7061   0.7175   0.7058   0.6347
+kn-feat(retuned)                     0.7444   0.7420   0.7413   0.7223   0.6531
+kn-d+vote(retuned)                   0.7452   0.7419   0.7389   0.7135   0.6354
+
+=== [W] world ctl-unique-aniso | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.4752   0.4790   0.4766   0.4662   0.3966
+eps-greedy                           0.4251   0.4301   0.4293   0.4240   0.4128
+pooled-ts                            0.4336   0.4293   0.4262   0.4225   0.4068
+hebbian-robust                       0.4184   0.4215   0.4222   0.4230   0.4113
+warm(hebr)                           0.4680   0.4701   0.4692   0.4606   0.4482
+guarded(hebr)                        0.4752   0.4790   0.4767   0.4643   0.4095
+guarded(hebr)+reuse                  0.4724   0.4702   0.4613   0.4449   0.4167
+warm(hebr)+reuse                     0.4576   0.4495   0.4391   0.4308   0.4047
+kn-feat(d6cfg)                       0.4727   0.4698   0.4616   0.4462   0.4247
+kn-d+vote(d6cfg)                     0.4688   0.4662   0.4608   0.4485   0.4283
+kn-feat(retuned)                     0.4723   0.4699   0.4607   0.4456   0.4206
+kn-d+vote(retuned)                   0.4728   0.4711   0.4626   0.4470   0.4214
+
+=== [W] world ctl-none-random | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7256   0.7259   0.7228   0.6752   0.5430
+eps-greedy                           0.4423   0.4479   0.4587   0.4776   0.4519
+pooled-ts                            0.4313   0.4323   0.4383   0.4669   0.4338
+hebbian-robust                       0.4406   0.4435   0.4419   0.4449   0.4262
+warm(hebr)                           0.6892   0.6894   0.6863   0.6288   0.5827
+guarded(hebr)                        0.7256   0.7259   0.7228   0.6573   0.5633
+guarded(hebr)+reuse                  0.7243   0.7262   0.7354   0.7255   0.6512
+warm(hebr)+reuse                     0.6872   0.6709   0.6903   0.7055   0.6544
+kn-feat(d6cfg)                       0.7246   0.7226   0.7271   0.7014   0.6280
+kn-d+vote(d6cfg)                     0.6837   0.6844   0.7027   0.7034   0.6319
+kn-feat(retuned)                     0.7241   0.7252   0.7337   0.7212   0.6463
+kn-d+vote(retuned)                   0.7245   0.7270   0.7316   0.7164   0.6404
+
+### REGIME W: knowledge vs best fair baseline  (Holm over 272 tests)
+iso-ref(d6)                kn-feat(d6cfg)                  2000   +0.0277 [ +0.0186, +0.0368]  29/30   0.0002  keyword WIN
+iso-ref(d6)                kn-d+vote(d6cfg)                2000   +0.0611 [ +0.0500, +0.0722]  30/30   0.0000  keyword WIN
+iso-ref(d6)                kn-feat(retuned)                2000   +0.0272 [ +0.0183, +0.0362]  29/30   0.0002  keyword WIN
+iso-ref(d6)                kn-d+vote(retuned)              2000   +0.0609 [ +0.0492, +0.0725]  29/30   0.0000  keyword WIN
+aniso-n0.4                 kn-feat(retuned)                2000   +0.0273 [ +0.0185, +0.0362]  27/30   0.0002  guarded(hebr) WIN
+aniso-n0.4                 kn-d+vote(retuned)              2000   +0.0677 [ +0.0565, +0.0789]  30/30   0.0000  guarded(hebr) WIN
+aniso-n0.8                 kn-feat(retuned)                2000   +0.0245 [ +0.0156, +0.0334]  27/30   0.0010  guarded(hebr) WIN
+aniso-n0.8                 kn-d+vote(retuned)              2000   +0.0560 [ +0.0471, +0.0649]  30/30   0.0000  guarded(hebr) WIN
+aniso-n1.2                 kn-d+vote(retuned)              2000   +0.0157 [ +0.0083, +0.0231]  25/30   0.0349  guarded(hebr) WIN
+para-n0.4                  kn-feat(d6cfg)                  2000   +0.0179 [ +0.0103, +0.0255]  25/30   0.0095  guarded(hebr) WIN
+para-n0.4                  kn-d+vote(d6cfg)                2000   +0.0215 [ +0.0121, +0.0309]  24/30   0.0128  guarded(hebr) WIN
+para-n0.4                  kn-feat(retuned)                2000   +0.0223 [ +0.0156, +0.0290]  28/30   0.0000  guarded(hebr) WIN
+para-n0.4                  kn-d+vote(retuned)              2000   +0.0389 [ +0.0314, +0.0464]  30/30   0.0000  guarded(hebr) WIN
+para-n0.8                  kn-feat(d6cfg)                  2000   +0.0160 [ +0.0093, +0.0227]  24/30   0.0081  guarded(hebr) WIN
+para-n0.8                  kn-d+vote(d6cfg)                2000   +0.0221 [ +0.0132, +0.0310]  26/30   0.0045  guarded(hebr) WIN
+para-n0.8                  kn-feat(retuned)                2000   +0.0188 [ +0.0123, +0.0254]  26/30   0.0005  guarded(hebr) WIN
+para-n0.8                  kn-d+vote(retuned)              2000   +0.0286 [ +0.0200, +0.0373]  29/30   0.0000  guarded(hebr) WIN
+para-n1.2                  kn-d+vote(d6cfg)                2000   +0.0188 [ +0.0102, +0.0274]  26/30   0.0235  guarded(hebr) WIN
+drift1-n0.8                kn-feat(retuned)                2000   +0.0267 [ +0.0178, +0.0357]  28/30   0.0003  guarded(hebr) WIN
+drift1-n0.8                kn-d+vote(retuned)              2000   +0.0537 [ +0.0440, +0.0634]  29/30   0.0000  guarded(hebr) WIN
+drift2-n0.8                kn-feat(retuned)                2000   +0.0260 [ +0.0174, +0.0346]  27/30   0.0002  guarded(hebr) WIN
+drift2-n0.8                kn-d+vote(retuned)              2000   +0.0564 [ +0.0457, +0.0671]  30/30   0.0000  guarded(hebr) WIN
+para+drift1-n0.8           kn-feat(d6cfg)                  2000   +0.0157 [ +0.0084, +0.0231]  25/30   0.0312  guarded(hebr) WIN
+para+drift1-n0.8           kn-d+vote(d6cfg)                2000   +0.0236 [ +0.0150, +0.0321]  26/30   0.0010  guarded(hebr) WIN
+para+drift1-n0.8           kn-feat(retuned)                2000   +0.0198 [ +0.0123, +0.0273]  25/30   0.0020  guarded(hebr) WIN
+para+drift1-n0.8           kn-d+vote(retuned)              2000   +0.0307 [ +0.0215, +0.0400]  29/30   0.0000  guarded(hebr) WIN
+ctl-irrel-aniso            kn-d+vote(d6cfg)                2000   -0.0182 [ -0.0253, -0.0112]   6/30   0.0027  guarded(hebr)+reuse LOSS
+ctl-irrel-aniso            kn-d+vote(retuned)              2000   -0.0140 [ -0.0204, -0.0076]   8/30   0.0233  guarded(hebr)+reuse LOSS
+ctl-unique-aniso           kn-feat(d6cfg)                  2000   -0.0199 [ -0.0234, -0.0165]   0/30   0.0000  keyword LOSS
+ctl-unique-aniso           kn-d+vote(d6cfg)                2000   -0.0176 [ -0.0211, -0.0141]   1/30   0.0000  keyword LOSS
+ctl-unique-aniso           kn-feat(retuned)                2000   -0.0206 [ -0.0242, -0.0169]   0/30   0.0000  keyword LOSS
+ctl-unique-aniso           kn-d+vote(retuned)              2000   -0.0192 [ -0.0221, -0.0163]   0/30   0.0000  keyword LOSS
+ctl-none-random            kn-d+vote(d6cfg)                2000   -0.0221 [ -0.0310, -0.0132]   4/30   0.0044  guarded(hebr)+reuse LOSS
+-> Holm WINS 26, Holm LOSSES 35
+
+--- regime W, vs best fair baseline | H2000 diff vs reference (* Holm WIN, ! Holm LOSS) ---
+world                           kn-feat(d6cfg)  kn-d+vote(d6cfg)  kn-feat(retuned) kn-d+vote(retuned
+iso-ref(d6)                           +0.0277*          +0.0611*          +0.0272*          +0.0609*
+aniso-n0.4                            +0.0104           +0.0146           +0.0273*          +0.0677*
+aniso-n0.8                            +0.0117           +0.0179           +0.0245*          +0.0560*
+aniso-n1.2                            +0.0089           +0.0167           +0.0131           +0.0157*
+aniso-n1.6                            +0.0080           +0.0098           +0.0046           +0.0044 
+para-n0.4                             +0.0179*          +0.0215*          +0.0223*          +0.0389*
+para-n0.8                             +0.0160*          +0.0221*          +0.0188*          +0.0286*
+para-n1.2                             +0.0089           +0.0188*          +0.0114           +0.0154 
+drift1-n0.8                           +0.0112           +0.0186           +0.0267*          +0.0537*
+drift2-n0.8                           +0.0125           +0.0186           +0.0260*          +0.0564*
+para+drift1-n0.8                      +0.0157*          +0.0236*          +0.0198*          +0.0307*
+mild-random-n0.8                      -0.0064           -0.0040           -0.0009           +0.0031 
+ctl-irrel-aniso                       +0.0005           -0.0182!          -0.0002           -0.0140!
+ctl-irrel-para                        -0.0000           -0.0133           -0.0006           -0.0087 
+ctl-irrel-para+drift                  -0.0048           -0.0151           +0.0014           -0.0074 
+ctl-unique-aniso                      -0.0199!          -0.0176!          -0.0206!          -0.0192!
+ctl-none-random                       -0.0241           -0.0221!          -0.0043           -0.0092 
+
+--- regime W, vs best fair baseline | H500 diff vs reference (* Holm WIN, ! Holm LOSS) ---
+world                           kn-feat(d6cfg)  kn-d+vote(d6cfg)  kn-feat(retuned) kn-d+vote(retuned
+iso-ref(d6)                           -0.0042           +0.0133           -0.0043           +0.0082 
+aniso-n0.4                            -0.0043           -0.0029           -0.0012           +0.0125 
+aniso-n0.8                            -0.0037           -0.0006           -0.0011           +0.0051 
+aniso-n1.2                            -0.0043           -0.0019           -0.0061           -0.0040 
+aniso-n1.6                            -0.0044           -0.0051           -0.0080           -0.0081 
+para-n0.4                             +0.0010           +0.0010           +0.0010           +0.0037 
+para-n0.8                             +0.0007           +0.0016           -0.0007           +0.0014 
+para-n1.2                             -0.0012           -0.0001           -0.0035           -0.0025 
+drift1-n0.8                           -0.0036           -0.0006           -0.0011           +0.0040 
+drift2-n0.8                           -0.0038           -0.0013           -0.0011           +0.0040 
+para+drift1-n0.8                      +0.0010           +0.0014           -0.0005           +0.0012 
+mild-random-n0.8                      -0.0153           -0.0174!          -0.0179!          -0.0107 
+ctl-irrel-aniso                       -0.0026           -0.0276!          -0.0002           -0.0085 
+ctl-irrel-para                        -0.0025           -0.0284!          -0.0029           -0.0049 
+ctl-irrel-para+drift                  -0.0024           -0.0242!          -0.0004           -0.0028 
+ctl-unique-aniso                      -0.0151!          -0.0159!          -0.0160!          -0.0141!
+ctl-none-random                       -0.0084           -0.0328!          -0.0017           -0.0038 
+
+### ABLATION W: knowledge vs the same guarded(hebr) front without knowledge  (Holm over 272 tests)
+iso-ref(d6)                kn-feat(d6cfg)                  2000   +0.0371 [ +0.0323, +0.0419]  30/30   0.0000  front WIN
+iso-ref(d6)                kn-d+vote(d6cfg)                2000   +0.0705 [ +0.0618, +0.0792]  30/30   0.0000  front WIN
+iso-ref(d6)                kn-feat(retuned)                2000   +0.0366 [ +0.0320, +0.0412]  30/30   0.0000  front WIN
+iso-ref(d6)                kn-d+vote(retuned)              2000   +0.0703 [ +0.0608, +0.0797]  30/30   0.0000  front WIN
+aniso-n0.4                 kn-feat(d6cfg)                  2000   +0.0177 [ +0.0117, +0.0238]  25/30   0.0003  front WIN
+aniso-n0.4                 kn-d+vote(d6cfg)                2000   +0.0220 [ +0.0144, +0.0296]  28/30   0.0005  front WIN
+aniso-n0.4                 kn-feat(retuned)                2000   +0.0347 [ +0.0291, +0.0403]  30/30   0.0000  front WIN
+aniso-n0.4                 kn-d+vote(retuned)              2000   +0.0751 [ +0.0658, +0.0843]  30/30   0.0000  front WIN
+aniso-n0.8                 kn-feat(d6cfg)                  2000   +0.0190 [ +0.0116, +0.0264]  26/30   0.0026  front WIN
+aniso-n0.8                 kn-d+vote(d6cfg)                2000   +0.0252 [ +0.0173, +0.0332]  27/30   0.0001  front WIN
+aniso-n0.8                 kn-feat(retuned)                2000   +0.0319 [ +0.0265, +0.0372]  30/30   0.0000  front WIN
+aniso-n0.8                 kn-d+vote(retuned)              2000   +0.0634 [ +0.0554, +0.0714]  30/30   0.0000  front WIN
+aniso-n1.2                 kn-feat(d6cfg)                  2000   +0.0163 [ +0.0099, +0.0228]  25/30   0.0034  front WIN
+aniso-n1.2                 kn-d+vote(d6cfg)                2000   +0.0240 [ +0.0180, +0.0301]  30/30   0.0000  front WIN
+aniso-n1.2                 kn-feat(retuned)                2000   +0.0205 [ +0.0163, +0.0247]  30/30   0.0000  front WIN
+aniso-n1.2                 kn-d+vote(retuned)              2000   +0.0230 [ +0.0174, +0.0287]  30/30   0.0000  front WIN
+aniso-n1.6                 kn-feat(d6cfg)                  2000   +0.0154 [ +0.0102, +0.0206]  28/30   0.0003  front WIN
+aniso-n1.6                 kn-d+vote(d6cfg)                2000   +0.0172 [ +0.0108, +0.0236]  26/30   0.0014  front WIN
+aniso-n1.6                 kn-feat(retuned)                2000   +0.0120 [ +0.0073, +0.0166]  23/30   0.0024  front WIN
+aniso-n1.6                 kn-d+vote(retuned)              2000   +0.0117 [ +0.0064, +0.0171]  23/30   0.0204  front WIN
+para-n0.4                  kn-feat(d6cfg)                  2000   +0.0227 [ +0.0171, +0.0282]  28/30   0.0000  front WIN
+para-n0.4                  kn-d+vote(d6cfg)                2000   +0.0262 [ +0.0190, +0.0335]  28/30   0.0000  front WIN
+para-n0.4                  kn-feat(retuned)                2000   +0.0270 [ +0.0216, +0.0324]  30/30   0.0000  front WIN
+para-n0.4                  kn-d+vote(retuned)              2000   +0.0436 [ +0.0376, +0.0497]  30/30   0.0000  front WIN
+para-n0.8                  kn-feat(d6cfg)                  2000   +0.0207 [ +0.0155, +0.0259]  28/30   0.0000  front WIN
+para-n0.8                  kn-d+vote(d6cfg)                2000   +0.0268 [ +0.0204, +0.0333]  29/30   0.0000  front WIN
+para-n0.8                  kn-feat(retuned)                2000   +0.0235 [ +0.0188, +0.0283]  28/30   0.0000  front WIN
+para-n0.8                  kn-d+vote(retuned)              2000   +0.0334 [ +0.0266, +0.0401]  29/30   0.0000  front WIN
+para-n1.2                  kn-d+vote(d6cfg)                2000   +0.0235 [ +0.0168, +0.0303]  29/30   0.0000  front WIN
+para-n1.2                  kn-feat(retuned)                2000   +0.0161 [ +0.0107, +0.0216]  25/30   0.0003  front WIN
+para-n1.2                  kn-d+vote(retuned)              2000   +0.0202 [ +0.0152, +0.0251]  29/30   0.0000  front WIN
+drift1-n0.8                kn-feat(d6cfg)                  2000   +0.0186 [ +0.0111, +0.0261]  26/30   0.0040  front WIN
+drift1-n0.8                kn-d+vote(d6cfg)                2000   +0.0260 [ +0.0181, +0.0339]  27/30   0.0000  front WIN
+drift1-n0.8                kn-feat(retuned)                2000   +0.0341 [ +0.0284, +0.0398]  30/30   0.0000  front WIN
+drift1-n0.8                kn-d+vote(retuned)              2000   +0.0611 [ +0.0529, +0.0692]  30/30   0.0000  front WIN
+drift2-n0.8                kn-feat(d6cfg)                  2000   +0.0199 [ +0.0123, +0.0276]  27/30   0.0022  front WIN
+drift2-n0.8                kn-d+vote(d6cfg)                2000   +0.0260 [ +0.0180, +0.0340]  27/30   0.0001  front WIN
+drift2-n0.8                kn-feat(retuned)                2000   +0.0334 [ +0.0284, +0.0384]  30/30   0.0000  front WIN
+drift2-n0.8                kn-d+vote(retuned)              2000   +0.0638 [ +0.0541, +0.0735]  30/30   0.0000  front WIN
+para+drift1-n0.8           kn-feat(d6cfg)                  2000   +0.0204 [ +0.0147, +0.0262]  27/30   0.0000  front WIN
+para+drift1-n0.8           kn-d+vote(d6cfg)                2000   +0.0283 [ +0.0227, +0.0339]  30/30   0.0000  front WIN
+para+drift1-n0.8           kn-feat(retuned)                2000   +0.0245 [ +0.0201, +0.0290]  29/30   0.0000  front WIN
+para+drift1-n0.8           kn-d+vote(retuned)              2000   +0.0355 [ +0.0291, +0.0419]  30/30   0.0000  front WIN
+ctl-irrel-aniso            kn-d+vote(d6cfg)                2000   -0.0182 [ -0.0253, -0.0112]   6/30   0.0025  front LOSS
+ctl-irrel-aniso            kn-d+vote(retuned)              2000   -0.0140 [ -0.0204, -0.0076]   8/30   0.0209  front LOSS
+ctl-none-random            kn-d+vote(d6cfg)                2000   -0.0221 [ -0.0310, -0.0132]   4/30   0.0041  front LOSS
+-> Holm WINS 69, Holm LOSSES 15
+
+--- regime W, vs same front (must-not-hurt) | H2000 diff vs reference (* Holm WIN, ! Holm LOSS) ---
+world                           kn-feat(d6cfg)  kn-d+vote(d6cfg)  kn-feat(retuned) kn-d+vote(retuned
+iso-ref(d6)                           +0.0371*          +0.0705*          +0.0366*          +0.0703*
+aniso-n0.4                            +0.0177*          +0.0220*          +0.0347*          +0.0751*
+aniso-n0.8                            +0.0190*          +0.0252*          +0.0319*          +0.0634*
+aniso-n1.2                            +0.0163*          +0.0240*          +0.0205*          +0.0230*
+aniso-n1.6                            +0.0154*          +0.0172*          +0.0120*          +0.0117*
+para-n0.4                             +0.0227*          +0.0262*          +0.0270*          +0.0436*
+para-n0.8                             +0.0207*          +0.0268*          +0.0235*          +0.0334*
+para-n1.2                             +0.0136           +0.0235*          +0.0161*          +0.0202*
+drift1-n0.8                           +0.0186*          +0.0260*          +0.0341*          +0.0611*
+drift2-n0.8                           +0.0199*          +0.0260*          +0.0334*          +0.0638*
+para+drift1-n0.8                      +0.0204*          +0.0283*          +0.0245*          +0.0355*
+mild-random-n0.8                      -0.0030           -0.0006           +0.0025           +0.0065 
+ctl-irrel-aniso                       +0.0005           -0.0182!          -0.0002           -0.0140!
+ctl-irrel-para                        -0.0000           -0.0133           -0.0006           -0.0087 
+ctl-irrel-para+drift                  -0.0048           -0.0151           +0.0014           -0.0074 
+ctl-unique-aniso                      +0.0013           +0.0036           +0.0007           +0.0020 
+ctl-none-random                       -0.0241           -0.0221!          -0.0043           -0.0092 
+
+### DIAG W: centering / non-centered retune vs same front  (Holm over 272 tests)
+iso-ref(d6)                kn-feat(d6cfg+ctr)              2000   +0.0366 [ +0.0319, +0.0413]  30/30   0.0000  front WIN
+iso-ref(d6)                kn-d+vote(d6cfg+ctr)            2000   +0.0705 [ +0.0609, +0.0802]  30/30   0.0000  front WIN
+iso-ref(d6)                kn-feat(retuned-noctr)          2000   +0.0348 [ +0.0301, +0.0395]  30/30   0.0000  front WIN
+iso-ref(d6)                kn-d+vote(retuned-noctr)        2000   +0.0622 [ +0.0548, +0.0696]  30/30   0.0000  front WIN
+aniso-n0.4                 kn-feat(d6cfg+ctr)              2000   +0.0347 [ +0.0291, +0.0403]  30/30   0.0000  front WIN
+aniso-n0.4                 kn-d+vote(d6cfg+ctr)            2000   +0.0603 [ +0.0493, +0.0712]  30/30   0.0000  front WIN
+aniso-n0.4                 kn-feat(retuned-noctr)          2000   +0.0336 [ +0.0283, +0.0389]  30/30   0.0000  front WIN
+aniso-n0.4                 kn-d+vote(retuned-noctr)        2000   +0.0636 [ +0.0547, +0.0724]  30/30   0.0000  front WIN
+aniso-n0.8                 kn-feat(d6cfg+ctr)              2000   +0.0336 [ +0.0288, +0.0383]  30/30   0.0000  front WIN
+aniso-n0.8                 kn-d+vote(d6cfg+ctr)            2000   +0.0587 [ +0.0498, +0.0676]  30/30   0.0000  front WIN
+aniso-n0.8                 kn-feat(retuned-noctr)          2000   +0.0321 [ +0.0263, +0.0379]  30/30   0.0000  front WIN
+aniso-n0.8                 kn-d+vote(retuned-noctr)        2000   +0.0688 [ +0.0584, +0.0791]  30/30   0.0000  front WIN
+aniso-n1.2                 kn-feat(d6cfg+ctr)              2000   +0.0233 [ +0.0187, +0.0279]  30/30   0.0000  front WIN
+aniso-n1.2                 kn-d+vote(d6cfg+ctr)            2000   +0.0380 [ +0.0330, +0.0429]  30/30   0.0000  front WIN
+aniso-n1.2                 kn-feat(retuned-noctr)          2000   +0.0133 [ +0.0100, +0.0167]  30/30   0.0000  front WIN
+aniso-n1.2                 kn-d+vote(retuned-noctr)        2000   +0.0279 [ +0.0220, +0.0339]  30/30   0.0000  front WIN
+aniso-n1.6                 kn-feat(d6cfg+ctr)              2000   +0.0126 [ +0.0089, +0.0163]  27/30   0.0000  front WIN
+aniso-n1.6                 kn-d+vote(d6cfg+ctr)            2000   +0.0196 [ +0.0128, +0.0263]  26/30   0.0004  front WIN
+para-n0.4                  kn-feat(d6cfg+ctr)              2000   +0.0287 [ +0.0232, +0.0341]  30/30   0.0000  front WIN
+para-n0.4                  kn-d+vote(d6cfg+ctr)            2000   +0.0523 [ +0.0451, +0.0595]  30/30   0.0000  front WIN
+para-n0.4                  kn-feat(retuned-noctr)          2000   +0.0237 [ +0.0192, +0.0283]  29/30   0.0000  front WIN
+para-n0.4                  kn-d+vote(retuned-noctr)        2000   +0.0454 [ +0.0392, +0.0516]  30/30   0.0000  front WIN
+para-n0.8                  kn-feat(d6cfg+ctr)              2000   +0.0250 [ +0.0203, +0.0297]  29/30   0.0000  front WIN
+para-n0.8                  kn-d+vote(d6cfg+ctr)            2000   +0.0476 [ +0.0406, +0.0546]  30/30   0.0000  front WIN
+para-n0.8                  kn-feat(retuned-noctr)          2000   +0.0191 [ +0.0135, +0.0248]  28/30   0.0000  front WIN
+para-n0.8                  kn-d+vote(retuned-noctr)        2000   +0.0406 [ +0.0344, +0.0467]  30/30   0.0000  front WIN
+para-n1.2                  kn-feat(d6cfg+ctr)              2000   +0.0182 [ +0.0131, +0.0234]  28/30   0.0000  front WIN
+para-n1.2                  kn-d+vote(d6cfg+ctr)            2000   +0.0329 [ +0.0269, +0.0389]  29/30   0.0000  front WIN
+para-n1.2                  kn-d+vote(retuned-noctr)        2000   +0.0197 [ +0.0142, +0.0251]  29/30   0.0000  front WIN
+drift1-n0.8                kn-feat(d6cfg+ctr)              2000   +0.0356 [ +0.0304, +0.0407]  30/30   0.0000  front WIN
+drift1-n0.8                kn-d+vote(d6cfg+ctr)            2000   +0.0564 [ +0.0472, +0.0656]  30/30   0.0000  front WIN
+drift1-n0.8                kn-feat(retuned-noctr)          2000   +0.0329 [ +0.0271, +0.0386]  29/30   0.0000  front WIN
+drift1-n0.8                kn-d+vote(retuned-noctr)        2000   +0.0682 [ +0.0581, +0.0783]  30/30   0.0000  front WIN
+drift2-n0.8                kn-feat(d6cfg+ctr)              2000   +0.0340 [ +0.0289, +0.0391]  30/30   0.0000  front WIN
+drift2-n0.8                kn-d+vote(d6cfg+ctr)            2000   +0.0572 [ +0.0484, +0.0661]  30/30   0.0000  front WIN
+drift2-n0.8                kn-feat(retuned-noctr)          2000   +0.0324 [ +0.0260, +0.0388]  30/30   0.0000  front WIN
+drift2-n0.8                kn-d+vote(retuned-noctr)        2000   +0.0694 [ +0.0601, +0.0786]  30/30   0.0000  front WIN
+para+drift1-n0.8           kn-feat(d6cfg+ctr)              2000   +0.0246 [ +0.0198, +0.0293]  29/30   0.0000  front WIN
+para+drift1-n0.8           kn-d+vote(d6cfg+ctr)            2000   +0.0495 [ +0.0415, +0.0575]  30/30   0.0000  front WIN
+para+drift1-n0.8           kn-feat(retuned-noctr)          2000   +0.0195 [ +0.0137, +0.0253]  28/30   0.0000  front WIN
+para+drift1-n0.8           kn-d+vote(retuned-noctr)        2000   +0.0366 [ +0.0290, +0.0441]  29/30   0.0000  front WIN
+-> Holm WINS 75, Holm LOSSES 7
+
+--- regime W, DIAG vs same front | H2000 diff vs reference (* Holm WIN, ! Holm LOSS) ---
+world                        kn-feat(d6cfg+ctr kn-d+vote(d6cfg+c kn-feat(retuned-n kn-d+vote(retuned
+iso-ref(d6)                           +0.0366*          +0.0705*          +0.0348*          +0.0622*
+aniso-n0.4                            +0.0347*          +0.0603*          +0.0336*          +0.0636*
+aniso-n0.8                            +0.0336*          +0.0587*          +0.0321*          +0.0688*
+aniso-n1.2                            +0.0233*          +0.0380*          +0.0133*          +0.0279*
+aniso-n1.6                            +0.0126*          +0.0196*          +0.0038           +0.0084 
+para-n0.4                             +0.0287*          +0.0523*          +0.0237*          +0.0454*
+para-n0.8                             +0.0250*          +0.0476*          +0.0191*          +0.0406*
+para-n1.2                             +0.0182*          +0.0329*          +0.0073           +0.0197*
+drift1-n0.8                           +0.0356*          +0.0564*          +0.0329*          +0.0682*
+drift2-n0.8                           +0.0340*          +0.0572*          +0.0324*          +0.0694*
+para+drift1-n0.8                      +0.0246*          +0.0495*          +0.0195*          +0.0366*
+mild-random-n0.8                      +0.0013           +0.0064           -0.0016           +0.0042 
+ctl-irrel-aniso                       +0.0001           -0.0120           -0.0027           -0.0127 
+ctl-irrel-para                        -0.0001           -0.0101           -0.0063           -0.0105 
+ctl-irrel-para+drift                  +0.0011           -0.0118           -0.0004           -0.0074 
+ctl-unique-aniso                      +0.0013           +0.0040           -0.0003           +0.0035 
+ctl-none-random                       -0.0052           -0.0167           -0.0064           -0.0125 
+
+wrote results/e2_knowledge_confirm61-90.json in 65.7s
+e2 shaper: held 61-90 (30 seeds), tune 1-8, 20 worlds (tune on 16 informative)
+tuned shaped(guarded(hebr)): Sp { center: 0.6, gain: 0.3, debias_agent: 0.0, factor: false } obj 0.7373
+tuned shaped(hebbian-robust): Sp { center: 0.6, gain: 0.3, debias_agent: 0.0, factor: false } obj 0.5776
+
+=== [S] world fixed-rich | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7463   0.7451   0.7416   0.7043   0.5955
+eps-greedy                           0.5247   0.5239   0.5288   0.5088   0.4939
+pooled-ts                            0.4771   0.4745   0.4768   0.4948   0.4750
+hebbian-robust                       0.4630   0.4699   0.4700   0.4765   0.4598
+warm(hebr) k1                        0.7098   0.7077   0.7060   0.6674   0.6356
+warm(hebr) k10                       0.7440   0.7439   0.7415   0.6848   0.6449
+guarded(hebr)                        0.7463   0.7451   0.7417   0.6912   0.6103
+shaped(guarded) d4cfg                0.7457   0.7466   0.7503   0.7208   0.6561
+shaped(guarded) retuned              0.7444   0.7485   0.7564   0.7317   0.6682
+shaped(hebr) retuned                 0.5317   0.5876   0.6349   0.6862   0.6552
+
+=== [S] world fixed-heavy-tail | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7463   0.7451   0.7416   0.7043   0.5955
+eps-greedy                           0.5258   0.5277   0.5261   0.5135   0.5016
+pooled-ts                            0.4736   0.4740   0.4749   0.4894   0.4689
+hebbian-robust                       0.4576   0.4627   0.4614   0.4748   0.4532
+warm(hebr) k1                        0.7081   0.7047   0.7034   0.6630   0.6328
+warm(hebr) k10                       0.7437   0.7438   0.7414   0.6891   0.6463
+guarded(hebr)                        0.7463   0.7451   0.7417   0.6901   0.6099
+shaped(guarded) d4cfg                0.7471   0.7466   0.7474   0.7208   0.6548
+shaped(guarded) retuned              0.7458   0.7505   0.7561   0.7366   0.6693
+shaped(hebr) retuned                 0.5274   0.5868   0.6276   0.6913   0.6642
+
+=== [S] world fixed-load | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7463   0.7451   0.7416   0.7043   0.5955
+eps-greedy                           0.5247   0.5239   0.5288   0.5088   0.4939
+pooled-ts                            0.4771   0.4745   0.4768   0.4948   0.4750
+hebbian-robust                       0.4630   0.4699   0.4700   0.4765   0.4598
+warm(hebr) k1                        0.7098   0.7077   0.7060   0.6674   0.6356
+warm(hebr) k10                       0.7440   0.7439   0.7415   0.6848   0.6449
+guarded(hebr)                        0.7463   0.7451   0.7417   0.6912   0.6103
+shaped(guarded) d4cfg                0.7454   0.7453   0.7483   0.7154   0.6504
+shaped(guarded) retuned              0.7422   0.7444   0.7503   0.7218   0.6628
+shaped(hebr) retuned                 0.5230   0.5833   0.6320   0.6563   0.6250
+
+=== [S] world fixed-spd-drift | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7463   0.7451   0.7416   0.7043   0.5955
+eps-greedy                           0.5247   0.5239   0.5288   0.5088   0.4939
+pooled-ts                            0.4771   0.4745   0.4768   0.4948   0.4750
+hebbian-robust                       0.4630   0.4699   0.4700   0.4765   0.4598
+warm(hebr) k1                        0.7098   0.7077   0.7060   0.6674   0.6356
+warm(hebr) k10                       0.7440   0.7439   0.7415   0.6848   0.6449
+guarded(hebr)                        0.7463   0.7451   0.7417   0.6912   0.6103
+shaped(guarded) d4cfg                0.7460   0.7461   0.7495   0.7182   0.6522
+shaped(guarded) retuned              0.7446   0.7471   0.7555   0.7267   0.6630
+shaped(hebr) retuned                 0.5335   0.5888   0.6328   0.6692   0.6570
+
+=== [S] world fixed-weak-.75 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7463   0.7451   0.7416   0.7043   0.5955
+eps-greedy                           0.5247   0.5239   0.5288   0.5088   0.4939
+pooled-ts                            0.4771   0.4745   0.4768   0.4948   0.4750
+hebbian-robust                       0.4630   0.4699   0.4700   0.4765   0.4598
+warm(hebr) k1                        0.7098   0.7077   0.7060   0.6674   0.6356
+warm(hebr) k10                       0.7440   0.7439   0.7415   0.6848   0.6449
+guarded(hebr)                        0.7463   0.7451   0.7417   0.6912   0.6103
+shaped(guarded) d4cfg                0.7450   0.7438   0.7456   0.7127   0.6421
+shaped(guarded) retuned              0.7424   0.7420   0.7463   0.7225   0.6581
+shaped(hebr) retuned                 0.5129   0.5707   0.6160   0.6686   0.6449
+
+=== [S] world fixed-weak-.5 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7463   0.7451   0.7416   0.7043   0.5955
+eps-greedy                           0.5247   0.5239   0.5288   0.5088   0.4939
+pooled-ts                            0.4771   0.4745   0.4768   0.4948   0.4750
+hebbian-robust                       0.4630   0.4699   0.4700   0.4765   0.4598
+warm(hebr) k1                        0.7098   0.7077   0.7060   0.6674   0.6356
+warm(hebr) k10                       0.7440   0.7439   0.7415   0.6848   0.6449
+guarded(hebr)                        0.7463   0.7451   0.7417   0.6912   0.6103
+shaped(guarded) d4cfg                0.7451   0.7433   0.7441   0.7099   0.6434
+shaped(guarded) retuned              0.7413   0.7368   0.7390   0.7109   0.6483
+shaped(hebr) retuned                 0.5040   0.5474   0.5804   0.6225   0.6007
+
+=== [S] world fixed-weak-.25 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7463   0.7451   0.7416   0.7043   0.5955
+eps-greedy                           0.5247   0.5239   0.5288   0.5088   0.4939
+pooled-ts                            0.4771   0.4745   0.4768   0.4948   0.4750
+hebbian-robust                       0.4630   0.4699   0.4700   0.4765   0.4598
+warm(hebr) k1                        0.7098   0.7077   0.7060   0.6674   0.6356
+warm(hebr) k10                       0.7440   0.7439   0.7415   0.6848   0.6449
+guarded(hebr)                        0.7463   0.7451   0.7417   0.6912   0.6103
+shaped(guarded) d4cfg                0.7431   0.7414   0.7412   0.7047   0.6378
+shaped(guarded) retuned              0.7404   0.7359   0.7345   0.7010   0.6368
+shaped(hebr) retuned                 0.4843   0.5097   0.5267   0.5566   0.5526
+
+=== [S] world fixed-harsh | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7463   0.7451   0.7416   0.7043   0.5955
+eps-greedy                           0.5258   0.5277   0.5261   0.5135   0.5016
+pooled-ts                            0.4736   0.4740   0.4749   0.4894   0.4689
+hebbian-robust                       0.4576   0.4627   0.4614   0.4748   0.4532
+warm(hebr) k1                        0.7081   0.7047   0.7034   0.6630   0.6328
+warm(hebr) k10                       0.7437   0.7438   0.7414   0.6891   0.6463
+guarded(hebr)                        0.7463   0.7451   0.7417   0.6901   0.6099
+shaped(guarded) d4cfg                0.7428   0.7419   0.7396   0.7058   0.6403
+shaped(guarded) retuned              0.7360   0.7320   0.7312   0.6973   0.6325
+shaped(hebr) retuned                 0.5003   0.5370   0.5574   0.5598   0.5335
+
+=== [S] world fixed-useless | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7463   0.7451   0.7416   0.7043   0.5955
+eps-greedy                           0.5247   0.5239   0.5288   0.5088   0.4939
+pooled-ts                            0.4771   0.4745   0.4768   0.4948   0.4750
+hebbian-robust                       0.4630   0.4699   0.4700   0.4765   0.4598
+warm(hebr) k1                        0.7098   0.7077   0.7060   0.6674   0.6356
+warm(hebr) k10                       0.7440   0.7439   0.7415   0.6848   0.6449
+guarded(hebr)                        0.7463   0.7451   0.7417   0.6912   0.6103
+shaped(guarded) d4cfg                0.7437   0.7406   0.7381   0.7034   0.6381
+shaped(guarded) retuned              0.7392   0.7298   0.7269   0.6916   0.6301
+shaped(hebr) retuned                 0.4604   0.4658   0.4736   0.4732   0.4694
+
+=== [S] world fixed-useless-harsh | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7463   0.7451   0.7416   0.7043   0.5955
+eps-greedy                           0.5258   0.5277   0.5261   0.5135   0.5016
+pooled-ts                            0.4736   0.4740   0.4749   0.4894   0.4689
+hebbian-robust                       0.4576   0.4627   0.4614   0.4748   0.4532
+warm(hebr) k1                        0.7081   0.7047   0.7034   0.6630   0.6328
+warm(hebr) k10                       0.7437   0.7438   0.7414   0.6891   0.6463
+guarded(hebr)                        0.7463   0.7451   0.7417   0.6901   0.6099
+shaped(guarded) d4cfg                0.7428   0.7373   0.7343   0.6986   0.6330
+shaped(guarded) retuned              0.7343   0.7233   0.7167   0.6841   0.6224
+shaped(hebr) retuned                 0.4626   0.4615   0.4614   0.4709   0.4491
+
+=== [S] world random-rich | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7256   0.7259   0.7228   0.6752   0.5430
+eps-greedy                           0.4433   0.4456   0.4569   0.4766   0.4675
+pooled-ts                            0.4281   0.4285   0.4358   0.4519   0.4279
+hebbian-robust                       0.4366   0.4401   0.4385   0.4362   0.4175
+warm(hebr) k1                        0.6885   0.6909   0.6880   0.6277   0.5807
+warm(hebr) k10                       0.7220   0.7242   0.7221   0.6509   0.5960
+guarded(hebr)                        0.7256   0.7259   0.7228   0.6553   0.5634
+shaped(guarded) d4cfg                0.7263   0.7317   0.7371   0.7056   0.6191
+shaped(guarded) retuned              0.7259   0.7374   0.7472   0.7304   0.6520
+shaped(hebr) retuned                 0.5386   0.6237   0.6727   0.7088   0.6649
+
+=== [S] world random-heavy-tail | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7256   0.7259   0.7228   0.6752   0.5430
+eps-greedy                           0.4379   0.4339   0.4364   0.4553   0.4333
+pooled-ts                            0.4346   0.4384   0.4415   0.4752   0.4649
+hebbian-robust                       0.4358   0.4397   0.4375   0.4382   0.4142
+warm(hebr) k1                        0.6917   0.6930   0.6929   0.6402   0.5976
+warm(hebr) k10                       0.7217   0.7242   0.7221   0.6572   0.6022
+guarded(hebr)                        0.7256   0.7259   0.7228   0.6575   0.5647
+shaped(guarded) d4cfg                0.7265   0.7301   0.7346   0.7079   0.6207
+shaped(guarded) retuned              0.7252   0.7325   0.7463   0.7338   0.6565
+shaped(hebr) retuned                 0.5171   0.5923   0.6525   0.7131   0.6830
+
+=== [S] world random-load | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7256   0.7259   0.7228   0.6752   0.5430
+eps-greedy                           0.4433   0.4456   0.4569   0.4766   0.4675
+pooled-ts                            0.4281   0.4285   0.4358   0.4519   0.4279
+hebbian-robust                       0.4366   0.4401   0.4385   0.4362   0.4175
+warm(hebr) k1                        0.6885   0.6909   0.6880   0.6277   0.5807
+warm(hebr) k10                       0.7220   0.7242   0.7221   0.6509   0.5960
+guarded(hebr)                        0.7256   0.7259   0.7228   0.6553   0.5634
+shaped(guarded) d4cfg                0.7264   0.7325   0.7375   0.6997   0.6180
+shaped(guarded) retuned              0.7249   0.7346   0.7453   0.7211   0.6464
+shaped(hebr) retuned                 0.5365   0.6042   0.6610   0.6832   0.6507
+
+=== [S] world random-spd-drift | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7256   0.7259   0.7228   0.6752   0.5430
+eps-greedy                           0.4433   0.4456   0.4569   0.4766   0.4675
+pooled-ts                            0.4281   0.4285   0.4358   0.4519   0.4279
+hebbian-robust                       0.4366   0.4401   0.4385   0.4362   0.4175
+warm(hebr) k1                        0.6885   0.6909   0.6880   0.6277   0.5807
+warm(hebr) k10                       0.7220   0.7242   0.7221   0.6509   0.5960
+guarded(hebr)                        0.7256   0.7259   0.7228   0.6553   0.5634
+shaped(guarded) d4cfg                0.7264   0.7312   0.7352   0.7037   0.6276
+shaped(guarded) retuned              0.7266   0.7401   0.7498   0.7227   0.6438
+shaped(hebr) retuned                 0.5393   0.6208   0.6733   0.6964   0.6714
+
+=== [S] world random-weak-.75 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7256   0.7259   0.7228   0.6752   0.5430
+eps-greedy                           0.4433   0.4456   0.4569   0.4766   0.4675
+pooled-ts                            0.4281   0.4285   0.4358   0.4519   0.4279
+hebbian-robust                       0.4366   0.4401   0.4385   0.4362   0.4175
+warm(hebr) k1                        0.6885   0.6909   0.6880   0.6277   0.5807
+warm(hebr) k10                       0.7220   0.7242   0.7221   0.6509   0.5960
+guarded(hebr)                        0.7256   0.7259   0.7228   0.6553   0.5634
+shaped(guarded) d4cfg                0.7258   0.7281   0.7302   0.6931   0.6057
+shaped(guarded) retuned              0.7254   0.7325   0.7374   0.7067   0.6221
+shaped(hebr) retuned                 0.5274   0.5984   0.6494   0.6884   0.6664
+
+=== [S] world random-weak-.5 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7256   0.7259   0.7228   0.6752   0.5430
+eps-greedy                           0.4433   0.4456   0.4569   0.4766   0.4675
+pooled-ts                            0.4281   0.4285   0.4358   0.4519   0.4279
+hebbian-robust                       0.4366   0.4401   0.4385   0.4362   0.4175
+warm(hebr) k1                        0.6885   0.6909   0.6880   0.6277   0.5807
+warm(hebr) k10                       0.7220   0.7242   0.7221   0.6509   0.5960
+guarded(hebr)                        0.7256   0.7259   0.7228   0.6553   0.5634
+shaped(guarded) d4cfg                0.7243   0.7254   0.7246   0.6845   0.5949
+shaped(guarded) retuned              0.7221   0.7260   0.7286   0.6952   0.6088
+shaped(hebr) retuned                 0.5082   0.5569   0.6013   0.6439   0.6100
+
+=== [S] world random-weak-.25 | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7256   0.7259   0.7228   0.6752   0.5430
+eps-greedy                           0.4433   0.4456   0.4569   0.4766   0.4675
+pooled-ts                            0.4281   0.4285   0.4358   0.4519   0.4279
+hebbian-robust                       0.4366   0.4401   0.4385   0.4362   0.4175
+warm(hebr) k1                        0.6885   0.6909   0.6880   0.6277   0.5807
+warm(hebr) k10                       0.7220   0.7242   0.7221   0.6509   0.5960
+guarded(hebr)                        0.7256   0.7259   0.7228   0.6553   0.5634
+shaped(guarded) d4cfg                0.7253   0.7269   0.7243   0.6799   0.5928
+shaped(guarded) retuned              0.7207   0.7211   0.7203   0.6785   0.5903
+shaped(hebr) retuned                 0.4775   0.5163   0.5494   0.5782   0.5599
+
+=== [S] world random-harsh | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7256   0.7259   0.7228   0.6752   0.5430
+eps-greedy                           0.4379   0.4339   0.4364   0.4553   0.4333
+pooled-ts                            0.4346   0.4384   0.4415   0.4752   0.4649
+hebbian-robust                       0.4358   0.4397   0.4375   0.4382   0.4142
+warm(hebr) k1                        0.6917   0.6930   0.6929   0.6402   0.5976
+warm(hebr) k10                       0.7217   0.7242   0.7221   0.6572   0.6022
+guarded(hebr)                        0.7256   0.7259   0.7228   0.6575   0.5647
+shaped(guarded) d4cfg                0.7244   0.7242   0.7240   0.6820   0.5995
+shaped(guarded) retuned              0.7177   0.7198   0.7243   0.6823   0.6036
+shaped(hebr) retuned                 0.4828   0.5356   0.5673   0.5608   0.5435
+
+=== [S] world random-useless | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7256   0.7259   0.7228   0.6752   0.5430
+eps-greedy                           0.4433   0.4456   0.4569   0.4766   0.4675
+pooled-ts                            0.4281   0.4285   0.4358   0.4519   0.4279
+hebbian-robust                       0.4366   0.4401   0.4385   0.4362   0.4175
+warm(hebr) k1                        0.6885   0.6909   0.6880   0.6277   0.5807
+warm(hebr) k10                       0.7220   0.7242   0.7221   0.6509   0.5960
+guarded(hebr)                        0.7256   0.7259   0.7228   0.6553   0.5634
+shaped(guarded) d4cfg                0.7235   0.7227   0.7200   0.6734   0.5827
+shaped(guarded) retuned              0.7194   0.7142   0.7095   0.6636   0.5717
+shaped(hebr) retuned                 0.4303   0.4346   0.4398   0.4417   0.4313
+
+=== [S] world random-useless-harsh | mean expected success (prefix H) | fail-window ===
+policy                                 H100     H250     H500    H2000     fail
+keyword                              0.7256   0.7259   0.7228   0.6752   0.5430
+eps-greedy                           0.4379   0.4339   0.4364   0.4553   0.4333
+pooled-ts                            0.4346   0.4384   0.4415   0.4752   0.4649
+hebbian-robust                       0.4358   0.4397   0.4375   0.4382   0.4142
+warm(hebr) k1                        0.6917   0.6930   0.6929   0.6402   0.5976
+warm(hebr) k10                       0.7217   0.7242   0.7221   0.6572   0.6022
+guarded(hebr)                        0.7256   0.7259   0.7228   0.6575   0.5647
+shaped(guarded) d4cfg                0.7216   0.7184   0.7147   0.6700   0.5904
+shaped(guarded) retuned              0.7130   0.7070   0.7022   0.6548   0.5675
+shaped(hebr) retuned                 0.4281   0.4392   0.4371   0.4378   0.4117
+
+### SHAPER: shaped(learner) on realistic proxies vs best raw-feedback baseline  (Holm over 240 tests)
+fixed-rich                 shaped(guarded) d4cfg           2000   +0.0164 [ +0.0107, +0.0222]  24/30   0.0004  keyword WIN
+fixed-rich                 shaped(guarded) retuned         2000   +0.0273 [ +0.0217, +0.0329]  29/30   0.0000  keyword WIN
+fixed-heavy-tail           shaped(guarded) d4cfg           2000   +0.0164 [ +0.0108, +0.0221]  27/30   0.0003  keyword WIN
+fixed-heavy-tail           shaped(guarded) retuned         2000   +0.0322 [ +0.0245, +0.0399]  27/30   0.0000  keyword WIN
+fixed-load                 shaped(guarded) d4cfg           2000   +0.0111 [ +0.0065, +0.0157]  25/30   0.0041  keyword WIN
+fixed-load                 shaped(guarded) retuned         2000   +0.0174 [ +0.0113, +0.0236]  26/30   0.0004  keyword WIN
+fixed-load                 shaped(hebr) retuned            2000   -0.0480 [ -0.0658, -0.0302]   4/30   0.0009  keyword LOSS
+fixed-spd-drift            shaped(guarded) d4cfg           2000   +0.0139 [ +0.0080, +0.0197]  24/30   0.0051  keyword WIN
+fixed-spd-drift            shaped(guarded) retuned         2000   +0.0223 [ +0.0158, +0.0289]  28/30   0.0000  keyword WIN
+fixed-spd-drift            shaped(hebr) retuned            2000   -0.0351 [ -0.0488, -0.0215]   5/30   0.0018  keyword LOSS
+fixed-weak-.75             shaped(guarded) retuned         2000   +0.0181 [ +0.0124, +0.0238]  26/30   0.0001  keyword WIN
+fixed-weak-.75             shaped(hebr) retuned            2000   -0.0357 [ -0.0492, -0.0222]   4/30   0.0012  keyword LOSS
+fixed-weak-.5              shaped(hebr) retuned            2000   -0.0819 [ -0.0984, -0.0654]   2/30   0.0000  keyword LOSS
+fixed-weak-.25             shaped(hebr) retuned            2000   -0.1477 [ -0.1644, -0.1310]   0/30   0.0000  keyword LOSS
+fixed-harsh                shaped(hebr) retuned            2000   -0.1446 [ -0.1594, -0.1298]   0/30   0.0000  keyword LOSS
+fixed-useless              shaped(guarded) retuned         2000   -0.0128 [ -0.0168, -0.0088]   3/30   0.0001  keyword LOSS
+fixed-useless              shaped(hebr) retuned            2000   -0.2311 [ -0.2488, -0.2134]   0/30   0.0000  keyword LOSS
+fixed-useless-harsh        shaped(guarded) retuned         2000   -0.0202 [ -0.0260, -0.0144]   1/30   0.0000  keyword LOSS
+fixed-useless-harsh        shaped(hebr) retuned            2000   -0.2334 [ -0.2452, -0.2217]   0/30   0.0000  keyword LOSS
+random-rich                shaped(guarded) d4cfg           2000   +0.0304 [ +0.0207, +0.0402]  28/30   0.0001  keyword WIN
+random-rich                shaped(guarded) retuned         2000   +0.0552 [ +0.0424, +0.0679]  29/30   0.0000  keyword WIN
+random-heavy-tail          shaped(guarded) d4cfg           2000   +0.0326 [ +0.0210, +0.0443]  26/30   0.0005  keyword WIN
+random-heavy-tail          shaped(guarded) retuned         2000   +0.0586 [ +0.0422, +0.0749]  28/30   0.0000  keyword WIN
+random-heavy-tail          shaped(hebr) retuned            2000   +0.0379 [ +0.0188, +0.0570]  23/30   0.0440  keyword WIN
+random-load                shaped(guarded) d4cfg           2000   +0.0245 [ +0.0141, +0.0349]  27/30   0.0058  keyword WIN
+random-load                shaped(guarded) retuned         2000   +0.0459 [ +0.0323, +0.0596]  27/30   0.0000  keyword WIN
+random-spd-drift           shaped(guarded) d4cfg           2000   +0.0285 [ +0.0196, +0.0373]  27/30   0.0001  keyword WIN
+random-spd-drift           shaped(guarded) retuned         2000   +0.0475 [ +0.0343, +0.0607]  28/30   0.0000  keyword WIN
+random-weak-.75            shaped(guarded) d4cfg           2000   +0.0179 [ +0.0105, +0.0253]  24/30   0.0041  keyword WIN
+random-weak-.75            shaped(guarded) retuned         2000   +0.0315 [ +0.0206, +0.0424]  25/30   0.0003  keyword WIN
+random-weak-.5             shaped(guarded) d4cfg           2000   +0.0093 [ +0.0049, +0.0137]  21/30   0.0235  keyword WIN
+random-weak-.5             shaped(guarded) retuned         2000   +0.0200 [ +0.0112, +0.0288]  23/30   0.0089  keyword WIN
+random-weak-.25            shaped(hebr) retuned            2000   -0.0971 [ -0.1217, -0.0724]   2/30   0.0000  keyword LOSS
+random-harsh               shaped(hebr) retuned            2000   -0.1144 [ -0.1408, -0.0880]   0/30   0.0000  keyword LOSS
+random-useless             shaped(hebr) retuned            2000   -0.2335 [ -0.2567, -0.2103]   0/30   0.0000  keyword LOSS
+random-useless-harsh       shaped(guarded) retuned         2000   -0.0204 [ -0.0294, -0.0114]   3/30   0.0096  keyword LOSS
+random-useless-harsh       shaped(hebr) retuned            2000   -0.2374 [ -0.2591, -0.2157]   0/30   0.0000  keyword LOSS
+-> Holm WINS 32, Holm LOSSES 84
+
+--- shaper vs best raw baseline | H2000 diff vs reference (* Holm WIN, ! Holm LOSS) ---
+world                        shaped(guarded) d shaped(guarded) r shaped(hebr) retu
+fixed-rich                            +0.0164*          +0.0273*          -0.0181 
+fixed-heavy-tail                      +0.0164*          +0.0322*          -0.0130 
+fixed-load                            +0.0111*          +0.0174*          -0.0480!
+fixed-spd-drift                       +0.0139*          +0.0223*          -0.0351!
+fixed-weak-.75                        +0.0084           +0.0181*          -0.0357!
+fixed-weak-.5                         +0.0055           +0.0066           -0.0819!
+fixed-weak-.25                        +0.0004           -0.0033           -0.1477!
+fixed-harsh                           +0.0014           -0.0071           -0.1446!
+fixed-useless                         -0.0009           -0.0128!          -0.2311!
+fixed-useless-harsh                   -0.0058           -0.0202!          -0.2334!
+random-rich                           +0.0304*          +0.0552*          +0.0336 
+random-heavy-tail                     +0.0326*          +0.0586*          +0.0379*
+random-load                           +0.0245*          +0.0459*          +0.0080 
+random-spd-drift                      +0.0285*          +0.0475*          +0.0212 
+random-weak-.75                       +0.0179*          +0.0315*          +0.0132 
+random-weak-.5                        +0.0093*          +0.0200*          -0.0313 
+random-weak-.25                       +0.0046           +0.0033           -0.0971!
+random-harsh                          +0.0068           +0.0071           -0.1144!
+random-useless                        -0.0018           -0.0116           -0.2335!
+random-useless-harsh                  -0.0052           -0.0204!          -0.2374!
+
+--- shaper vs best raw baseline | H500 diff vs reference (* Holm WIN, ! Holm LOSS) ---
+world                        shaped(guarded) d shaped(guarded) r shaped(hebr) retu
+fixed-rich                            +0.0086*          +0.0147*          -0.1068!
+fixed-heavy-tail                      +0.0057           +0.0144*          -0.1141!
+fixed-load                            +0.0067           +0.0086           -0.1097!
+fixed-spd-drift                       +0.0078*          +0.0138*          -0.1089!
+fixed-weak-.75                        +0.0039           +0.0046           -0.1257!
+fixed-weak-.5                         +0.0024           -0.0027           -0.1613!
+fixed-weak-.25                        -0.0005           -0.0072           -0.2150!
+fixed-harsh                           -0.0021           -0.0105           -0.1843!
+fixed-useless                         -0.0035           -0.0148!          -0.2681!
+fixed-useless-harsh                   -0.0074           -0.0250!          -0.2803!
+random-rich                           +0.0143*          +0.0243*          -0.0501 
+random-heavy-tail                     +0.0118           +0.0235*          -0.0703!
+random-load                           +0.0147           +0.0225*          -0.0618!
+random-spd-drift                      +0.0124           +0.0270*          -0.0496 
+random-weak-.75                       +0.0074           +0.0146           -0.0734!
+random-weak-.5                        +0.0018           +0.0058           -0.1215!
+random-weak-.25                       +0.0014           -0.0025           -0.1734!
+random-harsh                          +0.0012           +0.0015           -0.1555!
+random-useless                        -0.0028           -0.0133!          -0.2830!
+random-useless-harsh                  -0.0081           -0.0206!          -0.2857!
+
+### SHAPER ABLATION: shaped(guarded) vs raw guarded(hebr) (same front, hook bit only)  (Holm over 160 tests)
+fixed-rich                 shaped(guarded) d4cfg           2000   +0.0296 [ +0.0223, +0.0369]  27/30   0.0000  guarded(hebr) raw WIN
+fixed-rich                 shaped(guarded) retuned         2000   +0.0405 [ +0.0328, +0.0482]  29/30   0.0000  guarded(hebr) raw WIN
+fixed-heavy-tail           shaped(guarded) d4cfg           2000   +0.0307 [ +0.0238, +0.0377]  30/30   0.0000  guarded(hebr) raw WIN
+fixed-heavy-tail           shaped(guarded) retuned         2000   +0.0465 [ +0.0381, +0.0549]  30/30   0.0000  guarded(hebr) raw WIN
+fixed-load                 shaped(guarded) d4cfg           2000   +0.0243 [ +0.0181, +0.0304]  28/30   0.0000  guarded(hebr) raw WIN
+fixed-load                 shaped(guarded) retuned         2000   +0.0306 [ +0.0238, +0.0374]  29/30   0.0000  guarded(hebr) raw WIN
+fixed-spd-drift            shaped(guarded) d4cfg           2000   +0.0270 [ +0.0193, +0.0348]  26/30   0.0000  guarded(hebr) raw WIN
+fixed-spd-drift            shaped(guarded) retuned         2000   +0.0355 [ +0.0267, +0.0442]  28/30   0.0000  guarded(hebr) raw WIN
+fixed-weak-.75             shaped(guarded) d4cfg           2000   +0.0215 [ +0.0157, +0.0274]  28/30   0.0000  guarded(hebr) raw WIN
+fixed-weak-.75             shaped(guarded) retuned         2000   +0.0313 [ +0.0237, +0.0388]  29/30   0.0000  guarded(hebr) raw WIN
+fixed-weak-.5              shaped(guarded) d4cfg           2000   +0.0187 [ +0.0128, +0.0247]  26/30   0.0001  guarded(hebr) raw WIN
+fixed-weak-.5              shaped(guarded) retuned         2000   +0.0197 [ +0.0130, +0.0265]  27/30   0.0003  guarded(hebr) raw WIN
+fixed-weak-.25             shaped(guarded) d4cfg           2000   +0.0136 [ +0.0086, +0.0185]  26/30   0.0006  guarded(hebr) raw WIN
+fixed-harsh                shaped(guarded) d4cfg           2000   +0.0157 [ +0.0092, +0.0222]  21/30   0.0039  guarded(hebr) raw WIN
+fixed-useless              shaped(guarded) d4cfg           2000   +0.0123 [ +0.0067, +0.0179]  22/30   0.0125  guarded(hebr) raw WIN
+random-rich                shaped(guarded) d4cfg           2000   +0.0504 [ +0.0324, +0.0684]  27/30   0.0005  guarded(hebr) raw WIN
+random-rich                shaped(guarded) retuned         2000   +0.0751 [ +0.0552, +0.0951]  28/30   0.0000  guarded(hebr) raw WIN
+random-heavy-tail          shaped(guarded) d4cfg           2000   +0.0503 [ +0.0320, +0.0686]  27/30   0.0006  guarded(hebr) raw WIN
+random-heavy-tail          shaped(guarded) retuned         2000   +0.0762 [ +0.0558, +0.0966]  28/30   0.0000  guarded(hebr) raw WIN
+random-load                shaped(guarded) d4cfg           2000   +0.0445 [ +0.0261, +0.0629]  27/30   0.0038  guarded(hebr) raw WIN
+random-load                shaped(guarded) retuned         2000   +0.0659 [ +0.0461, +0.0857]  27/30   0.0000  guarded(hebr) raw WIN
+random-spd-drift           shaped(guarded) d4cfg           2000   +0.0484 [ +0.0315, +0.0653]  27/30   0.0003  guarded(hebr) raw WIN
+random-spd-drift           shaped(guarded) retuned         2000   +0.0675 [ +0.0470, +0.0879]  28/30   0.0000  guarded(hebr) raw WIN
+random-weak-.75            shaped(guarded) d4cfg           2000   +0.0379 [ +0.0213, +0.0545]  26/30   0.0077  guarded(hebr) raw WIN
+random-weak-.75            shaped(guarded) retuned         2000   +0.0515 [ +0.0358, +0.0671]  28/30   0.0000  guarded(hebr) raw WIN
+random-weak-.5             shaped(guarded) d4cfg           2000   +0.0293 [ +0.0162, +0.0423]  25/30   0.0098  guarded(hebr) raw WIN
+random-weak-.5             shaped(guarded) retuned         2000   +0.0400 [ +0.0256, +0.0544]  26/30   0.0005  guarded(hebr) raw WIN
+random-harsh               shaped(guarded) d4cfg           2000   +0.0245 [ +0.0120, +0.0371]  23/30   0.0453  guarded(hebr) raw WIN
+-> Holm WINS 38, Holm LOSSES 12
+
+--- shaper vs raw guarded (same front) | H2000 diff vs reference (* Holm WIN, ! Holm LOSS) ---
+world                        shaped(guarded) d shaped(guarded) r
+fixed-rich                            +0.0296*          +0.0405*
+fixed-heavy-tail                      +0.0307*          +0.0465*
+fixed-load                            +0.0243*          +0.0306*
+fixed-spd-drift                       +0.0270*          +0.0355*
+fixed-weak-.75                        +0.0215*          +0.0313*
+fixed-weak-.5                         +0.0187*          +0.0197*
+fixed-weak-.25                        +0.0136*          +0.0099 
+fixed-harsh                           +0.0157*          +0.0072 
+fixed-useless                         +0.0123*          +0.0004 
+fixed-useless-harsh                   +0.0085           -0.0059 
+random-rich                           +0.0504*          +0.0751*
+random-heavy-tail                     +0.0503*          +0.0762*
+random-load                           +0.0445*          +0.0659*
+random-spd-drift                      +0.0484*          +0.0675*
+random-weak-.75                       +0.0379*          +0.0515*
+random-weak-.5                        +0.0293*          +0.0400*
+random-weak-.25                       +0.0246           +0.0233 
+random-harsh                          +0.0245*          +0.0247 
+random-useless                        +0.0182           +0.0083 
+random-useless-harsh                  +0.0124           -0.0027 
+
+wrote results/e2_shaper_confirm61-90.json in 12.8s

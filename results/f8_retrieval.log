@@ -1,0 +1,131 @@
+f8: held 31-60 (30 seeds), tune seeds 1-8, 21 worlds; corpus 2424 texts, 12 concepts, model sha 6fd5d72fe458
+
+--- embedding geometry (seed 1; mean cosine of sampled pairs) ---
+bge-q                  {"diff_topic":0.45996074169921064,"dist_concept":null,"dist_dist":null,"same_concept":0.7931216627749686,"sibling_concept":0.5717559863546946}
+bge-subj3              {"diff_topic":0.44131183324140744,"dist_concept":null,"dist_dist":null,"same_concept":0.8471382348248706,"sibling_concept":0.5735989735020791}
+bge-q-mild             {"diff_topic":0.45996074169921064,"dist_concept":null,"dist_dist":null,"same_concept":0.7931216627749686,"sibling_concept":0.5717559863546946}
+bge-q-mixed50          {"diff_topic":0.4644091891590341,"dist_concept":0.36155280167345083,"dist_dist":0.5201760028996221,"same_concept":0.8000000393135284,"sibling_concept":0.567559154334661}
+bge-ctl-irrel          {"diff_topic":0.45996074169921064,"dist_concept":null,"dist_dist":null,"same_concept":0.7931216627749686,"sibling_concept":0.5717559863546946}
+bge-ctl-unique         {"diff_topic":null,"dist_concept":null,"dist_dist":0.5220825915885693,"same_concept":null,"sibling_concept":null}
+bge-ctl-none           {"diff_topic":null,"dist_concept":null,"dist_dist":0.5220825915885693,"same_concept":null,"sibling_concept":null}
+mini-q                 {"diff_topic":0.11769450891310743,"dist_concept":null,"dist_dist":null,"same_concept":0.6503907374556693,"sibling_concept":0.27705528465277995}
+mini-subj3             {"diff_topic":0.020441108919147497,"dist_concept":null,"dist_dist":null,"same_concept":0.6965979267161625,"sibling_concept":0.2207021188735513}
+mini-q-mild            {"diff_topic":0.11769450891310743,"dist_concept":null,"dist_dist":null,"same_concept":0.6503907374556693,"sibling_concept":0.27705528465277995}
+mini-q-mixed50         {"diff_topic":0.12298726079602414,"dist_concept":0.018667127687332686,"dist_dist":0.25473715373089884,"same_concept":0.6553848165667955,"sibling_concept":0.273856140084495}
+mini-ctl-irrel         {"diff_topic":0.11769450891310743,"dist_concept":null,"dist_dist":null,"same_concept":0.6503907374556693,"sibling_concept":0.27705528465277995}
+mini-ctl-unique        {"diff_topic":null,"dist_concept":null,"dist_dist":0.25604129869781767,"same_concept":null,"sibling_concept":null}
+mini-ctl-none          {"diff_topic":null,"dist_concept":null,"dist_dist":0.25604129869781767,"same_concept":null,"sibling_concept":null}
+hash-q                 {"diff_topic":0.20626694720378813,"dist_concept":null,"dist_dist":null,"same_concept":0.3777292738237224,"sibling_concept":0.20996958853010167}
+hash-subj3             {"diff_topic":0.14210142093502612,"dist_concept":null,"dist_dist":null,"same_concept":0.4750080857857945,"sibling_concept":0.1522431026030867}
+hash-q-mild            {"diff_topic":0.20626694720378813,"dist_concept":null,"dist_dist":null,"same_concept":0.3777292738237224,"sibling_concept":0.20996958853010167}
+hash-q-mixed50         {"diff_topic":0.20072415357148735,"dist_concept":0.061240114813543585,"dist_dist":0.25184969671579427,"same_concept":0.3860000111909001,"sibling_concept":0.19621120818828022}
+hash-ctl-irrel         {"diff_topic":0.20626694720378813,"dist_concept":null,"dist_dist":null,"same_concept":0.3777292738237224,"sibling_concept":0.20996958853010167}
+hash-ctl-unique        {"diff_topic":null,"dist_concept":null,"dist_dist":0.2543460828242425,"same_concept":null,"sibling_concept":null}
+hash-ctl-none          {"diff_topic":null,"dist_concept":null,"dist_dist":0.2543460828242425,"same_concept":null,"sibling_concept":null}
+
+=== RETRIEVAL layer vs ground-truth concept (held seeds; no routing) ===
+nbr = neighbours>=sim_min with same concept (micro P/R over concept queries); anc = pairwise anchor clustering P/R over concept tasks; frag = distinct anchors/concepts; spur = distractor tasks with >=1 retained neighbour; contam = distractor tasks sharing an anchor with a concept task
+world                  k  sim   ctr |  nbrP  nbrR nbrF1 |  ancP  ancR ancF1 |  frag  spur contam
+bge-q                  5  0.7 false |  1.00  0.99  1.00 |  0.79  0.95  0.86 |  1.14   NaN    NaN
+bge-q                  5  0.8 false |  1.00  0.97  0.99 |  0.99  0.53  0.69 |  2.42   NaN    NaN
+bge-q                  8  0.6 false |  0.99  1.00  0.99 |  0.40  0.99  0.56 |  0.59   NaN    NaN
+bge-q                  8  0.6  true |  1.00  0.96  0.98 |  1.00  0.53  0.69 |  2.66   NaN    NaN
+bge-q                  8  0.7 false |  1.00  0.99  0.99 |  0.79  0.95  0.86 |  1.14   NaN    NaN
+bge-q                  8  0.7  true |  1.00  0.93  0.96 |  1.00  0.37  0.54 |  3.73   NaN    NaN
+bge-q                  8 0.75 false |  1.00  0.98  0.99 |  0.94  0.79  0.86 |  1.72   NaN    NaN
+bge-q                  8 0.75  true |  1.00  0.89  0.94 |  1.00  0.31  0.47 |  5.52   NaN    NaN
+bge-q                  8  0.8 false |  1.00  0.96  0.98 |  0.99  0.53  0.69 |  2.42   NaN    NaN
+bge-q                  8  0.8  true |  1.00  0.78  0.88 |  1.00  0.23  0.37 |  9.55   NaN    NaN
+bge-q                  8 0.85 false |  1.00  0.94  0.97 |  1.00  0.39  0.57 |  3.27   NaN    NaN
+bge-q                  8 0.85  true |  1.00  0.61  0.76 |  1.00  0.12  0.21 | 16.51   NaN    NaN
+bge-q                  8  0.9 false |  1.00  0.78  0.88 |  1.00  0.23  0.37 |  9.15   NaN    NaN
+bge-q                  8  0.9  true |  1.00  0.47  0.64 |  1.00  0.05  0.10 | 22.38   NaN    NaN
+bge-subj3              5  0.7 false |  1.00  1.00  1.00 |  0.80  0.98  0.88 |  0.97   NaN    NaN
+bge-subj3              5  0.8 false |  1.00  0.98  0.99 |  1.00  0.60  0.75 |  2.13   NaN    NaN
+bge-subj3              8  0.6 false |  0.99  1.00  1.00 |  0.54  0.99  0.70 |  0.69   NaN    NaN
+bge-subj3              8  0.6  true |  1.00  0.97  0.98 |  1.00  0.61  0.75 |  2.18   NaN    NaN
+bge-subj3              8  0.7 false |  1.00  1.00  1.00 |  0.80  0.99  0.88 |  0.97   NaN    NaN
+bge-subj3              8  0.7  true |  1.00  0.95  0.97 |  1.00  0.37  0.54 |  2.92   NaN    NaN
+bge-subj3              8 0.75 false |  1.00  0.99  1.00 |  1.00  0.92  0.96 |  1.29   NaN    NaN
+bge-subj3              8 0.75  true |  1.00  0.94  0.97 |  1.00  0.34  0.51 |  3.12   NaN    NaN
+bge-subj3              8  0.8 false |  1.00  0.97  0.98 |  1.00  0.60  0.75 |  2.13   NaN    NaN
+bge-subj3              8  0.8  true |  1.00  0.94  0.97 |  1.00  0.33  0.50 |  3.19   NaN    NaN
+bge-subj3              8 0.85 false |  1.00  0.95  0.97 |  1.00  0.37  0.54 |  2.83   NaN    NaN
+bge-subj3              8 0.85  true |  1.00  0.94  0.97 |  1.00  0.33  0.50 |  3.23   NaN    NaN
+bge-subj3              8  0.9 false |  1.00  0.94  0.97 |  1.00  0.33  0.50 |  3.00   NaN    NaN
+bge-subj3              8  0.9  true |  1.00  0.94  0.97 |  1.00  0.33  0.50 |  3.31   NaN    NaN
+bge-q-mixed50          5  0.7 false |  0.99  0.99  0.99 |  0.78  0.95  0.85 |  1.08  0.97   0.00
+bge-q-mixed50          5  0.8 false |  1.00  0.94  0.97 |  1.00  0.52  0.68 |  2.48  0.76   0.00
+bge-q-mixed50          8  0.6 false |  0.97  0.99  0.98 |  0.43  0.99  0.59 |  0.63  0.99   0.00
+bge-q-mixed50          8  0.6  true |  1.00  0.94  0.97 |  0.98  0.66  0.79 |  2.16  0.84   0.00
+bge-q-mixed50          8  0.7 false |  0.99  0.98  0.99 |  0.78  0.96  0.86 |  1.08  0.97   0.00
+bge-q-mixed50          8  0.7  true |  1.00  0.89  0.94 |  1.00  0.43  0.60 |  3.09  0.52   0.00
+bge-q-mixed50          8 0.75 false |  1.00  0.95  0.97 |  0.94  0.79  0.85 |  1.73  0.91   0.00
+bge-q-mixed50          8 0.75  true |  1.00  0.85  0.92 |  1.00  0.35  0.52 |  3.89  0.30   0.00
+bge-q-mixed50          8  0.8 false |  1.00  0.91  0.96 |  1.00  0.53  0.69 |  2.48  0.76   0.00
+bge-q-mixed50          8  0.8  true |  1.00  0.73  0.84 |  1.00  0.27  0.42 |  6.75  0.16   0.00
+bge-q-mixed50          8 0.85 false |  1.00  0.87  0.93 |  1.00  0.39  0.56 |  3.24  0.42   0.00
+bge-q-mixed50          8 0.85  true |  1.00  0.51  0.68 |  1.00  0.16  0.28 | 12.91  0.09   0.00
+bge-q-mixed50          8  0.9 false |  1.00  0.64  0.78 |  1.00  0.22  0.36 |  9.13  0.14   0.00
+bge-q-mixed50          8  0.9  true |  1.00  0.29  0.45 |  1.00  0.06  0.12 | 20.53  0.03   0.00
+mini-q                 5  0.7 false |  1.00  0.97  0.98 |  1.00  0.45  0.61 |  2.74   NaN    NaN
+mini-q                 5  0.8 false |  1.00  0.93  0.97 |  1.00  0.30  0.46 |  4.71   NaN    NaN
+mini-q                 8  0.5 false |  1.00  0.99  0.99 |  0.85  0.90  0.87 |  1.22   NaN    NaN
+mini-q                 8  0.5  true |  1.00  0.97  0.98 |  0.98  0.70  0.81 |  2.00   NaN    NaN
+mini-q                 8  0.6 false |  1.00  0.97  0.98 |  0.97  0.68  0.80 |  2.00   NaN    NaN
+mini-q                 8  0.6  true |  1.00  0.95  0.98 |  1.00  0.48  0.64 |  2.66   NaN    NaN
+mini-q                 8  0.7 false |  1.00  0.95  0.98 |  1.00  0.45  0.62 |  2.74   NaN    NaN
+mini-q                 8  0.7  true |  1.00  0.93  0.96 |  1.00  0.35  0.51 |  3.65   NaN    NaN
+mini-q                 8  0.8 false |  1.00  0.90  0.95 |  1.00  0.30  0.46 |  4.71   NaN    NaN
+mini-q                 8  0.8  true |  1.00  0.82  0.90 |  1.00  0.23  0.38 |  8.13   NaN    NaN
+mini-subj3             5  0.7 false |  1.00  0.97  0.98 |  1.00  0.37  0.54 |  2.83   NaN    NaN
+mini-subj3             5  0.8 false |  1.00  0.96  0.98 |  1.00  0.33  0.50 |  3.00   NaN    NaN
+mini-subj3             8  0.5 false |  1.00  1.00  1.00 |  1.00  0.96  0.98 |  1.14   NaN    NaN
+mini-subj3             8  0.5  true |  1.00  0.98  0.99 |  1.00  0.74  0.85 |  1.74   NaN    NaN
+mini-subj3             8  0.6 false |  1.00  0.96  0.98 |  1.00  0.48  0.65 |  2.48   NaN    NaN
+mini-subj3             8  0.6  true |  1.00  0.96  0.98 |  1.00  0.47  0.64 |  2.54   NaN    NaN
+mini-subj3             8  0.7 false |  1.00  0.95  0.97 |  1.00  0.37  0.54 |  2.83   NaN    NaN
+mini-subj3             8  0.7  true |  1.00  0.95  0.97 |  1.00  0.35  0.52 |  2.96   NaN    NaN
+mini-subj3             8  0.8 false |  1.00  0.94  0.97 |  1.00  0.33  0.50 |  3.00   NaN    NaN
+mini-subj3             8  0.8  true |  1.00  0.94  0.97 |  1.00  0.33  0.50 |  3.11   NaN    NaN
+mini-q-mixed50         5  0.7 false |  1.00  0.93  0.97 |  1.00  0.43  0.61 |  2.77  0.81   0.00
+mini-q-mixed50         5  0.8 false |  1.00  0.87  0.93 |  1.00  0.30  0.46 |  4.68  0.46   0.00
+mini-q-mixed50         8  0.5 false |  0.99  0.98  0.98 |  0.83  0.90  0.86 |  1.18  0.98   0.00
+mini-q-mixed50         8  0.5  true |  0.99  0.96  0.98 |  0.94  0.83  0.88 |  1.56  0.95   0.00
+mini-q-mixed50         8  0.6 false |  1.00  0.94  0.97 |  0.98  0.68  0.80 |  1.99  0.94   0.00
+mini-q-mixed50         8  0.6  true |  1.00  0.92  0.96 |  1.00  0.57  0.72 |  2.34  0.87   0.00
+mini-q-mixed50         8  0.7 false |  1.00  0.90  0.95 |  1.00  0.44  0.61 |  2.77  0.81   0.00
+mini-q-mixed50         8  0.7  true |  1.00  0.88  0.94 |  1.00  0.38  0.55 |  3.13  0.67   0.00
+mini-q-mixed50         8  0.8 false |  1.00  0.81  0.90 |  1.00  0.30  0.46 |  4.68  0.46   0.00
+mini-q-mixed50         8  0.8  true |  1.00  0.76  0.86 |  1.00  0.27  0.42 |  6.00  0.30   0.00
+hash-q                 5  0.7 false |  0.87  0.66  0.75 |  0.28  0.07  0.12 | 14.96   NaN    NaN
+hash-q                 5  0.8 false |  0.99  0.59  0.74 |  0.98  0.04  0.08 | 23.66   NaN    NaN
+hash-q                 8  0.5 false |  0.71  0.71  0.71 |  0.10  0.26  0.14 |  0.79   NaN    NaN
+hash-q                 8  0.5  true |  0.74  0.70  0.72 |  0.14  0.19  0.16 |  2.87   NaN    NaN
+hash-q                 8  0.6 false |  0.72  0.70  0.71 |  0.13  0.20  0.15 |  2.17   NaN    NaN
+hash-q                 8  0.6  true |  0.81  0.58  0.68 |  0.33  0.10  0.15 | 11.71   NaN    NaN
+hash-q                 8  0.7 false |  0.80  0.52  0.63 |  0.27  0.07  0.12 | 14.96   NaN    NaN
+hash-q                 8  0.7  true |  0.98  0.44  0.61 |  0.95  0.05  0.09 | 22.86   NaN    NaN
+hash-q                 8  0.8 false |  0.99  0.43  0.60 |  0.98  0.04  0.08 | 23.66   NaN    NaN
+hash-q                 8  0.8  true |  1.00  0.43  0.60 |  1.00  0.04  0.08 | 24.13   NaN    NaN
+hash-subj3             5  0.7 false |  1.00  0.96  0.98 |  1.00  0.33  0.50 |  3.00   NaN    NaN
+hash-subj3             5  0.8 false |  1.00  0.96  0.98 |  1.00  0.33  0.50 |  3.00   NaN    NaN
+hash-subj3             8  0.5 false |  1.00  0.94  0.97 |  1.00  0.33  0.50 |  3.00   NaN    NaN
+hash-subj3             8  0.5  true |  1.00  0.94  0.97 |  1.00  0.33  0.50 |  3.01   NaN    NaN
+hash-subj3             8  0.6 false |  1.00  0.94  0.97 |  1.00  0.33  0.50 |  3.00   NaN    NaN
+hash-subj3             8  0.6  true |  1.00  0.94  0.97 |  1.00  0.33  0.50 |  3.01   NaN    NaN
+hash-subj3             8  0.7 false |  1.00  0.94  0.97 |  1.00  0.33  0.50 |  3.00   NaN    NaN
+hash-subj3             8  0.7  true |  1.00  0.94  0.97 |  1.00  0.33  0.50 |  3.03   NaN    NaN
+hash-subj3             8  0.8 false |  1.00  0.94  0.97 |  1.00  0.33  0.50 |  3.00   NaN    NaN
+hash-subj3             8  0.8  true |  1.00  0.94  0.97 |  1.00  0.33  0.50 |  3.10   NaN    NaN
+hash-q-mixed50         5  0.7 false |  0.76  0.44  0.55 |  0.31  0.07  0.12 | 14.64  0.90   0.00
+hash-q-mixed50         5  0.8 false |  0.99  0.35  0.52 |  0.98  0.04  0.08 | 22.90  0.68   0.00
+hash-q-mixed50         8  0.5 false |  0.57  0.58  0.57 |  0.10  0.22  0.14 |  0.80  0.99   0.00
+hash-q-mixed50         8  0.5  true |  0.59  0.58  0.59 |  0.12  0.20  0.15 |  1.51  0.98   0.00
+hash-q-mixed50         8  0.6 false |  0.59  0.55  0.57 |  0.13  0.19  0.15 |  2.18  0.97   0.00
+hash-q-mixed50         8  0.6  true |  0.65  0.47  0.55 |  0.24  0.14  0.17 |  6.53  0.93   0.00
+hash-q-mixed50         8  0.7 false |  0.67  0.31  0.43 |  0.30  0.07  0.12 | 14.64  0.90   0.00
+hash-q-mixed50         8  0.7  true |  0.87  0.25  0.39 |  0.65  0.05  0.09 | 20.37  0.83   0.00
+hash-q-mixed50         8  0.8 false |  0.98  0.23  0.37 |  0.98  0.04  0.08 | 22.90  0.68   0.00
+hash-q-mixed50         8  0.8  true |  1.00  0.23  0.37 |  1.00  0.04  0.08 | 23.27  0.44   0.00
+wrote results/f8_retrieval.json
