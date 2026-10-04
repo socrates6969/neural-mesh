@@ -16,6 +16,15 @@
 //!   sum of hidden pair synergies over all pairs in the team). A few pairs have
 //!   strong positive synergy; every other pair carries a small coordination cost.
 //! * A node-failure window: one agent always fails for `fail_frac * T` tasks.
+//!
+//! Scenarios (`WorldConfig::scenario`): `Fixed` is the original hand-designed world
+//! (kept bit-for-bit so old numbers reproduce). `Random`, `NoSynergy` and `NoTraps`
+//! draw the hidden structure per seed from a SEPARATE rng stream (so the task
+//! stream for a seed is identical across scenarios): which types are traps, which
+//! agent is best per type, which 2-4 pairs are synergistic (size 0.1-0.3), which
+//! types drift and to whom, and the failure-window length. `NoSynergy` has no
+//! synergistic pair (every pair costs `PAIR_COST`, so teams only hurt); `NoTraps`
+//! has a keyword map that is correct before drift (only drift can fool it).
 
 use crate::router::{Rng, Task};
 use std::collections::HashMap;
@@ -69,6 +78,33 @@ pub const PAIR_COST: f64 = -0.06;
 pub const P_MIN: f64 = 0.02;
 pub const P_MAX: f64 = 0.97;
 
+/// Which hidden-structure family a world is drawn from.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Scenario {
+    /// The original hand-designed world (fixed traps/synergies/drift).
+    Fixed,
+    /// Per-seed random skills, 1-3 traps, 1-3 drift types, 2-4 synergistic pairs.
+    Random,
+    /// As `Random` but no synergistic pair at all.
+    NoSynergy,
+    /// As `Random` but no trap types (keyword map correct pre-drift).
+    NoTraps,
+}
+
+impl Scenario {
+    pub fn is_random(self) -> bool {
+        self != Scenario::Fixed
+    }
+    pub fn label(self) -> &'static str {
+        match self {
+            Scenario::Fixed => "fixed",
+            Scenario::Random => "random",
+            Scenario::NoSynergy => "no-synergy",
+            Scenario::NoTraps => "no-traps",
+        }
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct WorldConfig {
     pub n_tasks: usize,
@@ -82,11 +118,21 @@ pub struct WorldConfig {
     pub oracle_team_max: usize,
     /// expose `task_type` to routers (default false: routers only see noisy keywords)
     pub reveal_type: bool,
+    /// hidden-structure family (default `Fixed`)
+    pub scenario: Scenario,
 }
 
 impl Default for WorldConfig {
     fn default() -> Self {
-        WorldConfig { n_tasks: 2000, team_frac: 0.3, confound_prob: 0.25, fail_frac: 0.10, oracle_team_max: 3, reveal_type: false }
+        WorldConfig {
+            n_tasks: 2000,
+            team_frac: 0.3,
+            confound_prob: 0.25,
+            fail_frac: 0.10,
+            oracle_team_max: 3,
+            reveal_type: false,
+            scenario: Scenario::Fixed,
+        }
     }
 }
 
@@ -112,12 +158,139 @@ pub struct World {
     pub seed: u64,
     pub cfg: WorldConfig,
     tasks: Vec<SimTask>,
+    p_pre: [[f64; 6]; 8],
     p_post: [[f64; 6]; 8],
     synergy: [[f64; 6]; 6],
+    keyword_agent: [usize; 8],
+    /// trap types of THIS world (keyword map points at a clearly worse agent)
+    pub trap_types: Vec<usize>,
+    /// types whose best agent changes at `T/2` in THIS world
+    pub drift_types: Vec<usize>,
+    /// synergistic pairs (a, b, size) of THIS world
+    pub synergy_pairs: Vec<(usize, usize, f64)>,
     pub fail_agent: usize,
     /// failure window [fail_start, fail_end)
     pub fail_start: usize,
     pub fail_end: usize,
+}
+
+/// Hidden structure of one world (skills, keyword map, traps, drift, synergy).
+struct Hidden {
+    p_pre: [[f64; 6]; 8],
+    p_post: [[f64; 6]; 8],
+    keyword_agent: [usize; 8],
+    trap_types: Vec<usize>,
+    drift_types: Vec<usize>,
+    synergy_pairs: Vec<(usize, usize, f64)>,
+}
+
+fn uni(rng: &mut Rng, lo: f64, hi: f64) -> f64 {
+    lo + (hi - lo) * rng.f64()
+}
+
+fn shuffle<T>(rng: &mut Rng, v: &mut [T]) {
+    for i in (1..v.len()).rev() {
+        let j = rng.below(i + 1);
+        v.swap(i, j);
+    }
+}
+
+impl Hidden {
+    fn fixed() -> Self {
+        let mut p_post = P_PRE;
+        // feature: coder declines .85 -> .62, architect rises .55 -> .86
+        p_post[0][CODER] = 0.62;
+        p_post[0][ARCHITECT] = 0.86;
+        // code-review: reviewer declines .82 -> .60, security-auditor rises .60 -> .84
+        p_post[2][REVIEWER] = 0.60;
+        p_post[2][SECURITY] = 0.84;
+        Hidden {
+            p_pre: P_PRE,
+            p_post,
+            keyword_agent: KEYWORD_AGENT,
+            trap_types: TRAP_TYPES.to_vec(),
+            drift_types: DRIFT_TYPES.to_vec(),
+            synergy_pairs: SYNERGY.to_vec(),
+        }
+    }
+
+    fn wrng(seed: u64) -> Rng {
+        Rng::new(seed.wrapping_mul(0x2545_F491_4F6C_DD1D) ^ 0x5EED_BA5E_0F17_C0DE)
+    }
+
+    /// Failure-window length for randomised worlds: 5%-20% of the run.
+    fn random_fail_frac(seed: u64) -> f64 {
+        let mut r = Self::wrng(seed ^ 0xFA11);
+        uni(&mut r, 0.05, 0.20)
+    }
+
+    fn random(seed: u64, sc: Scenario) -> Self {
+        let mut r = Self::wrng(seed);
+        let nt = TYPES.len();
+        let na = AGENTS.len();
+        // trap types (1-3 unless NoTraps)
+        let n_traps = if sc == Scenario::NoTraps { 0 } else { 1 + r.below(3) };
+        let mut order: Vec<usize> = (0..nt).collect();
+        shuffle(&mut r, &mut order);
+        let trap_types: Vec<usize> = order[..n_traps].to_vec();
+        // drift types: 1-3 non-trap types
+        let n_drift = 1 + r.below(3);
+        let drift_types: Vec<usize> = order[n_traps..n_traps + n_drift].to_vec();
+
+        let mut p_pre = [[0.0; 6]; 8];
+        let mut keyword_agent = [0usize; 8];
+        for ty in 0..nt {
+            let trap = trap_types.contains(&ty);
+            let best = r.below(na);
+            let best_p = if trap { uni(&mut r, 0.80, 0.90) } else { uni(&mut r, 0.78, 0.90) };
+            for a in 0..na {
+                p_pre[ty][a] = if a == best {
+                    best_p
+                } else if trap {
+                    uni(&mut r, 0.15, 0.50)
+                } else {
+                    uni(&mut r, 0.15, 0.55)
+                };
+            }
+            keyword_agent[ty] = best;
+            if trap {
+                // the map points at a clearly worse agent (gap >= 0.3 by construction)
+                let mut w = r.below(na - 1);
+                if w >= best {
+                    w += 1;
+                }
+                p_pre[ty][w] = uni(&mut r, 0.30, 0.50);
+                keyword_agent[ty] = w;
+            }
+        }
+        let mut p_post = p_pre;
+        for &ty in &drift_types {
+            let old = (0..na).max_by(|&a, &b| p_pre[ty][a].partial_cmp(&p_pre[ty][b]).unwrap()).unwrap();
+            let mut new = r.below(na - 1);
+            if new >= old {
+                new += 1;
+            }
+            let old_post = uni(&mut r, 0.52, 0.65);
+            p_post[ty][old] = old_post;
+            p_post[ty][new] = (old_post + uni(&mut r, 0.20, 0.30)).min(0.95);
+        }
+        // synergy: 2-4 distinct pairs of size 0.1-0.3 (none for NoSynergy)
+        let mut synergy_pairs = vec![];
+        if sc != Scenario::NoSynergy {
+            let mut pairs: Vec<(usize, usize)> = vec![];
+            for a in 0..na {
+                for b in (a + 1)..na {
+                    pairs.push((a, b));
+                }
+            }
+            shuffle(&mut r, &mut pairs);
+            let n = 2 + r.below(3);
+            for &(a, b) in pairs.iter().take(n) {
+                synergy_pairs.push((a, b, uni(&mut r, 0.10, 0.30)));
+            }
+        }
+        Hidden { p_pre, p_post, keyword_agent, trap_types, drift_types, synergy_pairs }
+    }
 }
 
 impl World {
@@ -161,26 +334,35 @@ impl World {
             });
         }
 
-        let mut p_post = P_PRE;
-        // feature: coder declines .85 -> .62, architect rises .55 -> .86
-        p_post[0][CODER] = 0.62;
-        p_post[0][ARCHITECT] = 0.86;
-        // code-review: reviewer declines .82 -> .60, security-auditor rises .60 -> .84
-        p_post[2][REVIEWER] = 0.60;
-        p_post[2][SECURITY] = 0.84;
-
+        let hidden = if cfg.scenario.is_random() { Hidden::random(seed, cfg.scenario) } else { Hidden::fixed() };
+        let Hidden { p_pre, p_post, keyword_agent, trap_types, drift_types, synergy_pairs } = hidden;
         let mut synergy = [[PAIR_COST; 6]; 6];
-        for &(a, b, s) in SYNERGY.iter() {
+        for &(a, b, s) in synergy_pairs.iter() {
             synergy[a][b] = s;
             synergy[b][a] = s;
         }
 
         let fail_agent = rng.below(AGENTS.len());
-        let len = ((cfg.fail_frac * t as f64).round() as usize).max(1).min(t);
+        let fail_frac = if cfg.scenario.is_random() { Hidden::random_fail_frac(seed) } else { cfg.fail_frac };
+        let len = ((fail_frac * t as f64).round() as usize).max(1).min(t);
         let lo = (0.15 * t as f64) as usize;
         let hi = ((0.85 * t as f64) as usize).saturating_sub(len).max(lo);
         let fail_start = (lo + rng.below(hi - lo + 1)).min(t - len);
-        World { seed, cfg, tasks, p_post, synergy, fail_agent, fail_start, fail_end: fail_start + len }
+        World {
+            seed,
+            cfg,
+            tasks,
+            p_pre,
+            p_post,
+            synergy,
+            keyword_agent,
+            trap_types,
+            drift_types,
+            synergy_pairs,
+            fail_agent,
+            fail_start,
+            fail_end: fail_start + len,
+        }
     }
 
     pub fn n_agents(&self) -> usize {
@@ -216,6 +398,26 @@ impl World {
         m
     }
 
+    /// Keyword -> agent map for THIS world (equals `keyword_map()` for `Fixed`).
+    pub fn keyword_map_for(&self) -> HashMap<String, usize> {
+        let mut m = HashMap::new();
+        for (ty, kws) in KEYWORDS.iter().enumerate() {
+            for kw in kws {
+                m.insert(kw.to_string(), self.keyword_agent[ty]);
+            }
+        }
+        m
+    }
+
+    /// Raw pre-drift / post-drift skill tables (diagnostics, tests).
+    pub fn skill_tables(&self) -> (&[[f64; 6]; 8], &[[f64; 6]; 8]) {
+        (&self.p_pre, &self.p_post)
+    }
+
+    pub fn keyword_agent(&self, ty: usize) -> usize {
+        self.keyword_agent[ty]
+    }
+
     pub fn window(&self, t: usize) -> Window {
         let d = self.drift_at();
         if t < d {
@@ -237,7 +439,7 @@ impl World {
 
     /// Hidden single-agent skill at time `t` (ignores failures).
     pub fn skill(&self, t: usize, ty: usize, agent: usize) -> f64 {
-        if t < self.drift_at() { P_PRE[ty][agent] } else { self.p_post[ty][agent] }
+        if t < self.drift_at() { self.p_pre[ty][agent] } else { self.p_post[ty][agent] }
     }
 
     pub fn synergy(&self, a: usize, b: usize) -> f64 {
@@ -491,5 +693,140 @@ mod tests {
                 assert_eq!(w.outcome(t, &[CODER]), 1.0);
             }
         }
+    }
+
+    // ---- randomised scenarios ----
+
+    fn rworld(seed: u64, sc: Scenario) -> World {
+        World::new(seed, WorldConfig { scenario: sc, ..WorldConfig::default() })
+    }
+
+    #[test]
+    fn fixed_scenario_is_the_original_world() {
+        let w = world(3);
+        let (pre, post) = w.skill_tables();
+        assert_eq!(*pre, P_PRE);
+        assert_eq!(post[0][CODER], 0.62);
+        assert_eq!(w.trap_types, TRAP_TYPES.to_vec());
+        assert_eq!(w.drift_types, DRIFT_TYPES.to_vec());
+        assert_eq!(w.synergy_pairs.len(), 3);
+        assert_eq!(w.keyword_map_for(), World::keyword_map());
+    }
+
+    #[test]
+    fn random_worlds_deterministic_per_seed() {
+        for sc in [Scenario::Random, Scenario::NoSynergy, Scenario::NoTraps] {
+            let (a, b, c) = (rworld(9, sc), rworld(9, sc), rworld(10, sc));
+            assert_eq!(a.skill_tables(), b.skill_tables());
+            assert_eq!(a.trap_types, b.trap_types);
+            assert_eq!(a.drift_types, b.drift_types);
+            assert_eq!(a.synergy_pairs, b.synergy_pairs);
+            assert_eq!((a.fail_agent, a.fail_start, a.fail_end), (b.fail_agent, b.fail_start, b.fail_end));
+            for t in 0..a.len() {
+                assert_eq!(a.task(t).task, b.task(t).task);
+                assert_eq!(a.task(t).u, b.task(t).u);
+            }
+            assert_ne!(a.skill_tables(), c.skill_tables(), "different seeds give different worlds");
+        }
+    }
+
+    #[test]
+    fn random_scenarios_share_the_fixed_task_stream() {
+        let f = world(12);
+        let r = rworld(12, Scenario::Random);
+        for t in 0..f.len() {
+            assert_eq!(f.task(t).task, r.task(t).task);
+            assert_eq!(f.task(t).u, r.task(t).u);
+            assert_eq!(f.task(t).team_task, r.task(t).team_task);
+        }
+        assert_ne!(f.skill_tables(), r.skill_tables());
+    }
+
+    #[test]
+    fn random_worlds_have_valid_probabilities() {
+        for sc in [Scenario::Random, Scenario::NoSynergy, Scenario::NoTraps] {
+            for seed in 1..=40u64 {
+                let w = rworld(seed, sc);
+                let (pre, post) = w.skill_tables();
+                for ty in 0..8 {
+                    for a in 0..6 {
+                        for p in [pre[ty][a], post[ty][a]] {
+                            assert!((P_MIN..=P_MAX).contains(&p), "{sc:?} seed {seed} p={p}");
+                        }
+                    }
+                }
+                for &(a, b, s) in &w.synergy_pairs {
+                    assert!(a < b && b < 6 && (0.1..=0.3).contains(&s));
+                }
+                for t in (0..w.len()).step_by(37) {
+                    for team in [vec![0usize], vec![1, 2], vec![3, 4, 5], vec![w.fail_agent, 0]] {
+                        let p = w.success_prob(t, &team);
+                        assert!((0.0..=1.0).contains(&p));
+                    }
+                    let o = w.oracle_prob(t);
+                    assert!((0.0..=1.0).contains(&o));
+                    assert!(o >= w.success_prob(t, &[w.best_agent(t)]) - 1e-12);
+                }
+                assert!(w.fail_end <= w.len() && w.fail_end > w.fail_start);
+                let frac = (w.fail_end - w.fail_start) as f64 / w.len() as f64;
+                assert!((0.049..=0.201).contains(&frac), "fail frac {frac}");
+            }
+        }
+    }
+
+    #[test]
+    fn random_structure_matches_scenario_contract() {
+        let mut distinct_traps = std::collections::HashSet::new();
+        let mut distinct_best = std::collections::HashSet::new();
+        for seed in 1..=60u64 {
+            let r = rworld(seed, Scenario::Random);
+            assert!((1..=3).contains(&r.trap_types.len()));
+            assert!((2..=4).contains(&r.synergy_pairs.len()));
+            let mut ps: Vec<(usize, usize)> = r.synergy_pairs.iter().map(|p| (p.0, p.1)).collect();
+            ps.sort();
+            ps.dedup();
+            assert_eq!(ps.len(), r.synergy_pairs.len(), "pairs distinct");
+            distinct_traps.insert(r.trap_types.clone());
+            let (pre, post) = r.skill_tables();
+            for ty in 0..8 {
+                let best = (0..6).max_by(|&a, &b| pre[ty][a].partial_cmp(&pre[ty][b]).unwrap()).unwrap();
+                distinct_best.insert((ty, best));
+                if r.trap_types.contains(&ty) {
+                    let m = r.keyword_agent(ty);
+                    assert_ne!(m, best);
+                    assert!(pre[ty][best] - pre[ty][m] >= 0.3 - 1e-12, "trap gap");
+                } else {
+                    assert_eq!(r.keyword_agent(ty), best, "non-trap keyword map is correct pre-drift");
+                }
+            }
+            assert!(r.drift_types.iter().all(|d| !r.trap_types.contains(d)));
+            assert!((1..=3).contains(&r.drift_types.len()));
+            for &ty in &r.drift_types {
+                let old = (0..6).max_by(|&a, &b| pre[ty][a].partial_cmp(&pre[ty][b]).unwrap()).unwrap();
+                let new = (0..6).max_by(|&a, &b| post[ty][a].partial_cmp(&post[ty][b]).unwrap()).unwrap();
+                assert_ne!(old, new);
+                assert!(post[ty][old] > 0.5);
+                assert!(post[ty][new] - post[ty][old] >= 0.2 - 1e-12);
+            }
+            let ns = rworld(seed, Scenario::NoSynergy);
+            assert!(ns.synergy_pairs.is_empty());
+            assert!(!ns.trap_types.is_empty());
+            let nt = rworld(seed, Scenario::NoTraps);
+            assert!(nt.trap_types.is_empty());
+            assert!(!nt.synergy_pairs.is_empty());
+            assert_eq!(nt.keyword_map_for().len(), 32);
+        }
+        assert!(distinct_traps.len() > 10, "traps vary across seeds");
+        assert!(distinct_best.len() > 30, "best agents vary across seeds");
+    }
+
+    #[test]
+    fn no_synergy_world_teams_only_hurt() {
+        let w = rworld(5, Scenario::NoSynergy);
+        let t = (0..w.len()).find(|&t| w.task(t).team_task && !w.in_failure(t)).unwrap();
+        let solo = w.success_prob(t, &[CODER]);
+        assert!(w.success_prob(t, &[CODER, TESTER]) <= solo);
+        assert!(w.success_prob(t, &[CODER, TESTER, DOCS]) <= solo);
+        assert!((w.oracle_prob(t) - (0..6).map(|a| w.success_prob(t, &[a])).fold(0.0, f64::max)).abs() < 1e-12);
     }
 }
