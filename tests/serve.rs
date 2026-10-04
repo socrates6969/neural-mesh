@@ -247,3 +247,64 @@ fn one_shot_output_is_unchanged() {
     assert_eq!(r["error"], "no agents registered yet; pass --candidates x,y");
     assert!(!p.exists(), "failed route creates no state file");
 }
+
+#[test]
+fn serve_config_prior_parity_with_cli() {
+    let p1 = tmp_state("cfgprior-a");
+    let p2 = tmp_state("cfgprior-b");
+    let p2s = p2.to_str().unwrap();
+    let mut s = Srv::stdio(&p1, &[]);
+
+    // config round-trip: serve (JSON, prior_k alias) vs one-shot CLI
+    let got = s.req(r#"{"cmd":"config","eta":0.2,"temperature":0.1,"decay":0.05,"epsilon":0.03,"team":2,"prior_k":4}"#);
+    let want = cli(&["config", "--state", p2s, "--eta", "0.2", "--temperature", "0.1", "--decay", "0.05", "--epsilon", "0.03", "--team", "2", "--prior-k", "4"]);
+    assert_eq!(got, want);
+    assert_eq!(got["config"]["prior_k"], 4.0);
+    assert_eq!(s.req(r#"{"cmd":"config","id":"q"}"#)["config"], want["config"], "query-only config");
+    assert_eq!(s.req(r#"{"cmd":"config","eta":-1}"#)["ok"], false);
+    assert_eq!(s.req(r#"{"cmd":"config","bogus":1}"#)["ok"], false);
+
+    // route with prior: new fields identical to the CLI, followed at n=0
+    let got = s.req(r#"{"cmd":"route","features":"x","candidates":["a","b","c"],"prior":"c","team":1,"seed":3}"#);
+    let want = cli(&["route", "--state", p2s, "--features", "x", "--candidates", "a,b,c", "--prior", "c", "--team", "1", "--seed", "3"]);
+    assert_eq!(got, want);
+    assert_eq!(got["followed_prior"], true);
+    assert_eq!(got["prior_weight"], 1.0);
+
+    // evidence lowers the weight, identically on both sides
+    for _ in 0..3 {
+        let g = s.req(r#"{"cmd":"feedback","features":"x","agent":"a","reward":1}"#);
+        let w = cli(&["feedback", "--state", p2s, "--features", "x", "--agent", "a", "--reward", "1"]);
+        assert_eq!(g, w);
+    }
+    let got = s.req(r#"{"cmd":"route","features":"x","candidates":"a,b,c","prior":"ghost","seed":9}"#);
+    let want = cli(&["route", "--state", p2s, "--features", "x", "--candidates", "a,b,c", "--prior", "ghost", "--seed", "9"]);
+    assert_eq!(got, want);
+    assert_eq!(got["followed_prior"], false);
+    assert_eq!(got["prior_weight"], 0.571429, "k=4, n=3 -> 4/7");
+
+    // config flags riding on stats / route persist too
+    s.req(r#"{"cmd":"stats","decay":0.02}"#);
+    s.req(r#"{"cmd":"route","features":"x","candidates":"a,b","epsilon":0.07,"seed":1}"#);
+    cli(&["stats", "--state", p2s, "--decay", "0.02"]);
+    cli(&["route", "--state", p2s, "--features", "x", "--candidates", "a,b", "--epsilon", "0.07", "--seed", "1"]);
+    assert_eq!(s.req(r#"{"cmd":"config"}"#), cli(&["config", "--state", p2s]));
+    assert!(s.close().success());
+    assert_eq!(cli_stats(&p1), cli_stats(&p2), "persisted state equals the one-shot state");
+    assert_eq!(cli(&["config", "--state", p1.to_str().unwrap()]), cli(&["config", "--state", p2s]));
+}
+
+#[test]
+fn serve_config_survives_external_cli_change() {
+    // A config set by the server (journaled) must be replayed after a one-shot CLI write.
+    let p = tmp_state("cfgreplay");
+    let ps = p.to_str().unwrap();
+    let mut s = Srv::stdio(&p, &["--flush-every", NEVER, "--flush-ms", NEVER]);
+    s.req(r#"{"cmd":"config","eta":0.3}"#);
+    cli_feedback(&p, "alice", "1");
+    s.req(r#"{"cmd":"stats"}"#);
+    assert!(s.close().success());
+    let c = cli(&["config", "--state", ps]);
+    assert_eq!(c["config"]["eta"], 0.3);
+    assert_eq!(cli_stats(&p)["agents"].as_array().unwrap().len(), 1, "CLI write kept");
+}

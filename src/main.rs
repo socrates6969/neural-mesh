@@ -4,7 +4,12 @@
 //! neural-mesh route    --state <file> --features a,b,c [--candidates x,y] [--team k] [--type t] [--seed n]
 //! neural-mesh feedback --state <file> --features a,b,c --agent X [--team X,Y] --reward 0..1 [--type t]
 //! neural-mesh stats    --state <file>
+//! neural-mesh config   --state <file> [--eta x --temperature x --decay x --epsilon x --team k --prior-k x]
 //! ```
+//! `route` also takes `--prior <agent>` (the caller's own keyword pick; see `cmd_route`) and
+//! route/feedback/stats take `--eta --temperature --decay --epsilon --prior-k`, which set and
+//! persist the config before the command runs. (`--team` on route stays per-call; persist the
+//! default team size with `config --team`.)
 //! Output is always one JSON object on stdout. Errors print
 //! `{"ok":false,"error":"..."}` and exit with status 1 (usage) / 2 (state I/O).
 //! The state file is created if missing and written atomically (temp file +
@@ -36,7 +41,19 @@ const LOCK_TIMEOUT_MS: u64 = 2000;
 /// A lock file older than this is assumed to belong to a crashed process.
 const LOCK_STALE_MS: u64 = 10_000;
 
-const USAGE: &str = "usage:\n  neural-mesh route    --state <file> --features a,b,c [--candidates x,y] [--team k] [--type t] [--seed n]\n  neural-mesh feedback --state <file> --features a,b,c --agent X [--team X,Y] --reward 0..1 [--type t]\n  neural-mesh stats    --state <file>";
+/// Robust defaults for NEW state files (held-out evidence: the legacy 0.5/0.05/0.01/0.02 ranks 21/23).
+const DEFAULT_ETA: f64 = 0.01;
+const DEFAULT_TEMPERATURE: f64 = 0.002;
+const DEFAULT_DECAY: f64 = 0.01;
+const DEFAULT_EPSILON: f64 = 0.0;
+/// Pseudo-count of the warm prior: follow it with probability k/(k+n).
+const DEFAULT_PRIOR_K: f64 = 1.0;
+/// Salt so the prior's coin never shares a stream with the mesh's draws.
+const PRIOR_SALT: u64 = 0x5052_494F_525F_4B57;
+/// Option names shared by route/feedback/stats/config (team is config-only).
+const CONFIG_KEYS: [&str; 5] = ["eta", "temperature", "decay", "epsilon", "prior-k"];
+
+const USAGE: &str = "usage:\n  neural-mesh route    --state <file> --features a,b,c [--candidates x,y] [--team k] [--type t] [--seed n] [--prior agent]\n  neural-mesh feedback --state <file> --features a,b,c --agent X [--team X,Y] --reward 0..1 [--type t]\n  neural-mesh stats    --state <file>\n  neural-mesh config   --state <file> [--eta x --temperature x --decay x --epsilon x --team k --prior-k x]\n  (route/feedback/stats also accept --eta --temperature --decay --epsilon --prior-k)";
 
 #[derive(Debug, Serialize, Deserialize)]
 struct State {
@@ -50,6 +67,27 @@ struct State {
     /// Number of feedback calls so far (also used as task ids).
     feedbacks: u64,
     mesh: NeuralMesh<HebbianRouter>,
+    /// Pseudo-count k of the warm prior (`route --prior`).
+    #[serde(default = "default_prior_k")]
+    prior_k: f64,
+    /// Feedbacks recorded per feature (evidence n for the warm prior).
+    #[serde(default)]
+    feature_counts: BTreeMap<String, u64>,
+}
+
+fn default_prior_k() -> f64 {
+    DEFAULT_PRIOR_K
+}
+
+/// Hebbian config of a NEW state file.
+fn robust_hebbian() -> HebbianConfig {
+    HebbianConfig {
+        eta: DEFAULT_ETA,
+        temperature: DEFAULT_TEMPERATURE,
+        decay: DEFAULT_DECAY,
+        epsilon: DEFAULT_EPSILON,
+        ..HebbianConfig::default()
+    }
 }
 
 impl State {
@@ -60,7 +98,9 @@ impl State {
             seed: DEFAULT_SEED,
             calls: 0,
             feedbacks: 0,
-            mesh: NeuralMesh::new(0, HebbianRouter::new(0, HebbianConfig::default()), MeshConfig::default()),
+            mesh: NeuralMesh::new(0, HebbianRouter::new(0, robust_hebbian()), MeshConfig::default()),
+            prior_k: DEFAULT_PRIOR_K,
+            feature_counts: BTreeMap::new(),
         }
     }
 
@@ -282,10 +322,107 @@ fn r6(x: f64) -> f64 {
     (x * 1e6).round() / 1e6
 }
 
+/// Validated, not-yet-applied config changes.
+#[derive(Default)]
+struct ConfigPatch {
+    eta: Option<f64>,
+    temperature: Option<f64>,
+    decay: Option<f64>,
+    epsilon: Option<f64>,
+    team: Option<usize>,
+    prior_k: Option<f64>,
+}
+
+fn parse_num(o: &Opts, k: &str, lo: f64, hi: f64) -> Result<Option<f64>, CliError> {
+    let Some(s) = o.get(k) else { return Ok(None) };
+    s.trim()
+        .parse::<f64>()
+        .ok()
+        .filter(|v| v.is_finite() && (lo..=hi).contains(v))
+        .map(Some)
+        .ok_or_else(|| usage(format!("--{k} must be a number in [{lo}, {hi}]")))
+}
+
+impl ConfigPatch {
+    /// `with_team`: only the `config` command may set the persisted team size.
+    fn parse(o: &Opts, with_team: bool) -> Result<ConfigPatch, CliError> {
+        let team = match o.get("team").filter(|_| with_team) {
+            Some(t) => Some(t.trim().parse::<usize>().ok().filter(|&k| k >= 1).ok_or_else(|| usage("--team must be an integer >= 1"))?),
+            None => None,
+        };
+        Ok(ConfigPatch {
+            eta: parse_num(o, "eta", 0.0, 1.0)?,
+            temperature: parse_num(o, "temperature", 0.0, f64::MAX)?,
+            decay: parse_num(o, "decay", 0.0, 1.0)?,
+            epsilon: parse_num(o, "epsilon", 0.0, 1.0)?,
+            team,
+            prior_k: parse_num(o, "prior-k", 0.0, f64::MAX)?,
+        })
+    }
+
+    fn apply(&self, st: &mut State) {
+        let h = &mut st.mesh.leader_mut().cfg;
+        h.eta = self.eta.unwrap_or(h.eta);
+        h.temperature = self.temperature.unwrap_or(h.temperature);
+        h.decay = self.decay.unwrap_or(h.decay);
+        h.epsilon = self.epsilon.unwrap_or(h.epsilon);
+        st.mesh.cfg.team_size = self.team.unwrap_or(st.mesh.cfg.team_size);
+        st.prior_k = self.prior_k.unwrap_or(st.prior_k);
+    }
+}
+
+fn effective_config(st: &State) -> Value {
+    let h = &st.mesh.leader().cfg;
+    json!({
+        "eta": h.eta,
+        "temperature": h.temperature,
+        "decay": h.decay,
+        "epsilon": h.epsilon,
+        "team": st.mesh.cfg.team_size,
+        "prior_k": st.prior_k,
+    })
+}
+
+/// `config`: set (any given flags) and report the effective config.
+fn cmd_config(st: &mut State, o: &Opts) -> Result<Value, CliError> {
+    ConfigPatch::parse(o, true)?.apply(st);
+    Ok(json!({"ok": true, "config": effective_config(st)}))
+}
+
+/// True when `o` carries any config-changing flag.
+fn has_config_opts(o: &Opts, with_team: bool) -> bool {
+    CONFIG_KEYS.iter().any(|k| o.get(k).is_some()) || (with_team && o.get("team").is_some())
+}
+
+/// Warm-prior weight k/(k+n); n = mean per-feature feedback count of the task.
+fn prior_weight(st: &State, task: &Task) -> f64 {
+    let n = task.features.iter().map(|f| st.feature_counts.get(f).copied().unwrap_or(0) as f64).sum::<f64>()
+        / task.features.len().max(1) as f64;
+    let denom = st.prior_k + n;
+    if denom <= 0.0 { 0.0 } else { st.prior_k / denom }
+}
+
+/// Decide whether to follow the caller's prior after the mesh has routed.
+/// Returns (weight, followed index). Unknown / non-candidate / benched priors are ignored.
+fn follow_prior(st: &State, name: &str, task: &Task, cand_idx: &[usize], seed: u64) -> (f64, Option<usize>) {
+    let w = prior_weight(st, task);
+    let idx = st.index_of(name).filter(|i| cand_idx.contains(i) && !st.mesh.is_benched(*i));
+    let coin = Rng::new(seed ^ PRIOR_SALT).f64();
+    (w, idx.filter(|_| coin < w))
+}
+
 fn cmd_route(st: &mut State, o: &Opts) -> Result<Value, CliError> {
     // Validate everything before touching state (a failed call must not
     // register agents: the one-shot CLI never saves on error, and the
     // long-lived server keeps its state in memory).
+    let patch = ConfigPatch::parse(o, false)?;
+    let prior: Option<String> = match o.get("prior") {
+        Some(p) => Some(p.trim().to_string()).filter(|p| !p.is_empty() && !p.contains(',')),
+        None => None,
+    };
+    if o.get("prior").is_some() && prior.is_none() {
+        return Err(usage("--prior must be a single non-empty agent name"));
+    }
     let cand_names = match o.get("candidates") {
         Some(c) => Some(parse_names(c, "candidates")?),
         None => None,
@@ -306,26 +443,42 @@ fn cmd_route(st: &mut State, o: &Opts) -> Result<Value, CliError> {
         Some(names) => names.iter().map(|n| st.register(n)).collect(),
         None => (0..st.agents.len()).collect(),
     };
+    patch.apply(st);
     st.calls += 1;
     let mut rng = Rng::new(seed);
-    let team = st.mesh.route_k(&task, &cand_idx, &mut rng, k);
+    let mut team = st.mesh.route_k(&task, &cand_idx, &mut rng, k);
+    let prior_out = prior.map(|p| {
+        let (w, followed) = follow_prior(st, &p, &task, &cand_idx, seed);
+        if let Some(i) = followed {
+            team.retain(|&a| a != i);
+            team.insert(0, i);
+            team.truncate(k);
+        }
+        (w, followed.is_some())
+    });
     let all_scores = st.mesh.leader().scores(&task);
     let scores: serde_json::Map<String, Value> =
         cand_idx.iter().map(|&i| (st.agents[i].clone(), json!(r6(all_scores.get(i).copied().unwrap_or(0.0))))).collect();
     let health: serde_json::Map<String, Value> =
         cand_idx.iter().map(|&i| (st.agents[i].clone(), json!(r6(st.mesh.health(i))))).collect();
     let names: Vec<&str> = team.iter().map(|&i| st.agents[i].as_str()).collect();
-    Ok(json!({
+    let mut out = json!({
         "ok": true,
         "agent": names.first(),
         "team": names,
         "scores": scores,
         "health": health,
         "features": active_features(&task),
-    }))
+    });
+    if let Some((w, followed)) = prior_out {
+        out["prior_weight"] = json!(r6(w));
+        out["followed_prior"] = json!(followed);
+    }
+    Ok(out)
 }
 
 fn cmd_feedback(st: &mut State, o: &Opts) -> Result<Value, CliError> {
+    let patch = ConfigPatch::parse(o, false)?;
     let agent = o.req("agent")?.trim().to_string();
     if agent.is_empty() || agent.contains(',') {
         return Err(usage("--agent must be a single non-empty name"));
@@ -345,8 +498,12 @@ fn cmd_feedback(st: &mut State, o: &Opts) -> Result<Value, CliError> {
     names.insert(0, agent);
     let task = make_task(o, st.feedbacks)?;
     let team: Vec<usize> = names.iter().map(|n| st.register(n)).collect();
+    patch.apply(st);
     st.mesh.feedback(&task, &team, reward);
     st.feedbacks += 1;
+    for f in &task.features {
+        *st.feature_counts.entry(f.clone()).or_insert(0) += 1;
+    }
     let health: serde_json::Map<String, Value> =
         team.iter().map(|&i| (st.agents[i].clone(), json!(r6(st.mesh.health(i))))).collect();
     let mut edges = Vec::new();
@@ -408,13 +565,15 @@ fn cmd_stats(st: &State) -> Value {
 fn run(args: &[String]) -> Result<Value, CliError> {
     let Some(cmd) = args.first() else { return Err(usage("missing command")) };
     let rest = &args[1..];
-    let allowed: &[&str] = match cmd.as_str() {
-        "route" => &["state", "features", "candidates", "team", "type", "seed"],
+    let base: &[&str] = match cmd.as_str() {
+        "route" => &["state", "features", "candidates", "team", "type", "seed", "prior"],
         "feedback" => &["state", "features", "agent", "team", "reward", "type"],
         "stats" => &["state"],
+        "config" => &["state", "team"],
         other => return Err(usage(format!("unknown command '{other}'"))),
     };
-    let o = Opts::parse(rest, allowed)?;
+    let allowed: Vec<&str> = base.iter().chain(CONFIG_KEYS.iter()).copied().collect();
+    let o = Opts::parse(rest, &allowed)?;
     let path = PathBuf::from(o.req("state")?);
     let _lock = StateLock::acquire(&path)?;
     let existed = path.exists();
@@ -422,9 +581,17 @@ fn run(args: &[String]) -> Result<Value, CliError> {
     let out = match cmd.as_str() {
         "route" => cmd_route(&mut st, &o)?,
         "feedback" => cmd_feedback(&mut st, &o)?,
+        "config" => {
+            let v = cmd_config(&mut st, &o)?;
+            if existed && !has_config_opts(&o, true) {
+                return Ok(v);
+            }
+            v
+        }
         _ => {
+            ConfigPatch::parse(&o, false)?.apply(&mut st);
             let v = cmd_stats(&st);
-            if !existed {
+            if !existed || has_config_opts(&o, false) {
                 save_state(&path, &st)?;
             }
             return Ok(v);
@@ -608,5 +775,206 @@ mod tests {
         let v = call(&["route", "--state", &ps, "--features", "", "--candidates", "planner,coder"]).unwrap();
         assert_eq!(v["agent"], "planner", "{v}");
         let _ = fs::remove_dir_all(&dir);
+    }
+
+    // ---- robust defaults, config, warm prior ----------------------------------
+
+    fn opts(pairs: &[(&str, &str)]) -> Opts {
+        Opts(pairs.iter().map(|(k, v)| (k.to_string(), v.to_string())).collect())
+    }
+
+    fn cfg_of(v: &Value) -> &Value {
+        &v["config"]
+    }
+
+    #[test]
+    fn new_state_has_robust_defaults() {
+        let p = tmp("defaults");
+        let ps = p.to_str().unwrap();
+        let s = call(&["stats", "--state", ps]).unwrap();
+        assert_eq!(s["hebbian"]["eta"], 0.01);
+        assert_eq!(s["hebbian"]["temperature"], 0.002);
+        assert_eq!(s["hebbian"]["decay"], 0.01);
+        assert_eq!(s["hebbian"]["epsilon"], 0.0);
+        assert_eq!(s["mesh"]["team_size"], 1);
+        let c = call(&["config", "--state", ps]).unwrap();
+        assert_eq!(cfg_of(&c), &json!({"eta": 0.01, "temperature": 0.002, "decay": 0.01, "epsilon": 0.0, "team": 1, "prior_k": 1.0}));
+        let _ = fs::remove_file(&p);
+    }
+
+    #[test]
+    fn old_state_keeps_its_stored_config() {
+        let p = tmp("old");
+        let ps = p.to_str().unwrap();
+        call(&["feedback", "--state", ps, "--features", "x", "--agent", "a", "--reward", "1"]).unwrap();
+        // Rewrite as a pre-change file: legacy hebbian numbers, no prior_k / feature_counts.
+        let mut v: Value = serde_json::from_str(&fs::read_to_string(&p).unwrap()).unwrap();
+        let legacy = serde_json::to_value(HebbianConfig::default()).unwrap();
+        v["mesh"]["leader"]["cfg"] = legacy;
+        let o = v.as_object_mut().unwrap();
+        o.remove("prior_k");
+        o.remove("feature_counts");
+        fs::write(&p, v.to_string()).unwrap();
+        let c = call(&["config", "--state", ps]).unwrap();
+        assert_eq!(cfg_of(&c), &json!({"eta": 0.5, "temperature": 0.05, "decay": 0.01, "epsilon": 0.02, "team": 1, "prior_k": 1.0}));
+        call(&["route", "--state", ps, "--features", "x"]).unwrap();
+        let s = call(&["stats", "--state", ps]).unwrap();
+        assert_eq!(s["hebbian"]["eta"], 0.5);
+        assert_eq!(s["hebbian"]["temperature"], 0.05);
+        let _ = fs::remove_file(&p);
+    }
+
+    #[test]
+    fn config_subcommand_round_trips_and_validates() {
+        let p = tmp("cfg");
+        let ps = p.to_str().unwrap();
+        let c = call(&["config", "--state", ps, "--eta", "0.2", "--temperature=0.1", "--decay", "0.05", "--epsilon", "0.03", "--team", "3", "--prior-k", "4"]).unwrap();
+        let want = json!({"eta": 0.2, "temperature": 0.1, "decay": 0.05, "epsilon": 0.03, "team": 3, "prior_k": 4.0});
+        assert_eq!(cfg_of(&c), &want);
+        assert_eq!(cfg_of(&call(&["config", "--state", ps]).unwrap()), &want, "persisted");
+        let c = call(&["config", "--state", ps, "--eta", "0.3"]).unwrap();
+        assert_eq!(cfg_of(&c)["eta"], 0.3);
+        assert_eq!(cfg_of(&c)["team"], 3);
+        // flags on stats / feedback / route persist too; route --team stays per call
+        call(&["stats", "--state", ps, "--decay", "0.02"]).unwrap();
+        call(&["feedback", "--state", ps, "--features", "x", "--agent", "a", "--reward", "1", "--epsilon", "0.1"]).unwrap();
+        call(&["route", "--state", ps, "--features", "x", "--prior-k", "2", "--team", "1"]).unwrap();
+        let c = call(&["config", "--state", ps]).unwrap();
+        let c = cfg_of(&c);
+        assert_eq!((&c["decay"], &c["epsilon"], &c["prior_k"], &c["team"]), (&json!(0.02), &json!(0.1), &json!(2.0), &json!(3)));
+        for bad in [["--eta", "-1"], ["--eta", "2"], ["--temperature", "x"], ["--decay", "NaN"], ["--epsilon", "1.5"], ["--team", "0"], ["--prior-k", "-1"]] {
+            assert!(call(&["config", "--state", ps, bad[0], bad[1]]).is_err(), "{bad:?}");
+        }
+        assert!(call(&["config", "--state", ps, "--eta", "0.1", "--eta", "0.2"]).is_err());
+        assert_eq!(cfg_of(&call(&["config", "--state", ps]).unwrap())["eta"], 0.3, "failed calls change nothing");
+        let v = call(&["route", "--state", ps, "--features", "x", "--candidates", "a,b,c"]).unwrap();
+        assert_eq!(v["team"].as_array().unwrap().len(), 3, "persisted team size is the route default");
+        let _ = fs::remove_file(&p);
+    }
+
+    #[test]
+    fn prior_followed_at_zero_evidence_and_weight_decays() {
+        let mut st = State::new();
+        for seed in 0..20 {
+            let sd = seed.to_string();
+            let v = cmd_route(&mut st, &opts(&[("features", "f"), ("candidates", "a,b,c"), ("prior", "c"), ("seed", &sd)])).unwrap();
+            assert_eq!(v["prior_weight"], 1.0);
+            assert_eq!(v["followed_prior"], true);
+            assert_eq!(v["agent"], "c");
+        }
+        let mut last = 1.0;
+        for n in 1..=6 {
+            cmd_feedback(&mut st, &opts(&[("features", "f"), ("agent", "a"), ("reward", "1")])).unwrap();
+            let v = cmd_route(&mut st, &opts(&[("features", "f"), ("candidates", "a,b,c"), ("prior", "c")])).unwrap();
+            let w = v["prior_weight"].as_f64().unwrap();
+            assert!((w - 1.0 / (1.0 + n as f64)).abs() < 1e-5, "n={n} w={w}");
+            assert!(w < last);
+            last = w;
+        }
+        // n is the mean over the task's features: f has 6, g has 0 -> 3
+        let v = cmd_route(&mut st, &opts(&[("features", "f,g"), ("candidates", "a,b,c"), ("prior", "c")])).unwrap();
+        assert!((v["prior_weight"].as_f64().unwrap() - 0.25).abs() < 1e-5);
+        // prior_k scales it: k=3, n=6 -> 1/3
+        cmd_config(&mut st, &opts(&[("prior-k", "3")])).unwrap();
+        let v = cmd_route(&mut st, &opts(&[("features", "f"), ("candidates", "a,b,c"), ("prior", "c")])).unwrap();
+        assert!((v["prior_weight"].as_f64().unwrap() - 1.0 / 3.0).abs() < 1e-5);
+    }
+
+    #[test]
+    fn prior_is_deterministic_and_rate_matches_weight() {
+        let run = || {
+            let mut st = State::new();
+            for _ in 0..3 {
+                cmd_feedback(&mut st, &opts(&[("features", "f"), ("agent", "a"), ("reward", "1")])).unwrap();
+            }
+            (0..400)
+                .map(|i| {
+                    let sd = i.to_string();
+                    let v = cmd_route(&mut st, &opts(&[("features", "f"), ("candidates", "a,b"), ("prior", "b"), ("seed", &sd)])).unwrap();
+                    v["followed_prior"].as_bool().unwrap()
+                })
+                .collect::<Vec<_>>()
+        };
+        let (a, b) = (run(), run());
+        assert_eq!(a, b, "same seeds, same decisions");
+        let rate = a.iter().filter(|&&x| x).count() as f64 / a.len() as f64;
+        assert!((rate - 0.25).abs() < 0.07, "w = 1/(1+3) = 0.25, got {rate}");
+    }
+
+    #[test]
+    fn unknown_or_foreign_prior_is_ignored_safely() {
+        let mut st = State::new();
+        let v = cmd_route(&mut st, &opts(&[("features", "f"), ("candidates", "a,b"), ("prior", "ghost")])).unwrap();
+        assert_eq!(v["followed_prior"], false);
+        assert_eq!(v["prior_weight"], 1.0);
+        assert!(["a", "b"].contains(&v["agent"].as_str().unwrap()));
+        assert_eq!(st.agents, vec!["a", "b"], "unknown prior must not be registered");
+        // a known agent that is not among the candidates
+        st.register("z");
+        let v = cmd_route(&mut st, &opts(&[("features", "f"), ("candidates", "a,b"), ("prior", "z")])).unwrap();
+        assert_eq!(v["followed_prior"], false);
+        assert_ne!(v["agent"], "z");
+        for bad in ["", " ", "a,b"] {
+            assert!(cmd_route(&mut st, &opts(&[("features", "f"), ("candidates", "a,b"), ("prior", bad)])).is_err(), "{bad:?}");
+        }
+    }
+
+    #[test]
+    fn calls_without_new_flags_keep_their_shape() {
+        let mut st = State::new();
+        let v = cmd_route(&mut st, &opts(&[("features", "f"), ("candidates", "a,b")])).unwrap();
+        let mut keys: Vec<&String> = v.as_object().unwrap().keys().collect();
+        keys.sort();
+        assert_eq!(keys, ["agent", "features", "health", "ok", "scores", "team"]);
+        let f = cmd_feedback(&mut st, &opts(&[("features", "f"), ("agent", "a"), ("reward", "1")])).unwrap();
+        let mut keys: Vec<&String> = f.as_object().unwrap().keys().collect();
+        keys.sort();
+        assert_eq!(keys, ["agent", "edges", "health", "ok", "reward", "team"]);
+        // New defaults == passing them explicitly (so flags are a pure override).
+        let (mut a, mut b) = (State::new(), State::new());
+        cmd_config(&mut b, &opts(&[("eta", "0.01"), ("temperature", "0.002"), ("decay", "0.01"), ("epsilon", "0")])).unwrap();
+        for i in 0..30 {
+            let sd = i.to_string();
+            let r = if i % 3 == 0 { "0" } else { "1" };
+            for st in [&mut a, &mut b] {
+                cmd_feedback(st, &opts(&[("features", "f,g"), ("agent", if i % 2 == 0 { "x" } else { "y" }), ("reward", r)])).unwrap();
+            }
+            let ra = cmd_route(&mut a, &opts(&[("features", "f"), ("candidates", "x,y"), ("seed", &sd)])).unwrap();
+            let rb = cmd_route(&mut b, &opts(&[("features", "f"), ("candidates", "x,y"), ("seed", &sd)])).unwrap();
+            assert_eq!(ra.to_string(), rb.to_string());
+        }
+    }
+
+    /// Sanity run (not a benchmark): 200 synthetic tasks, the caller's prior is right on the
+    /// even features and wrong on the odd ones. Prints the curves with `--nocapture`.
+    #[test]
+    fn warm_prior_sanity_run() {
+        const AGENTS: [&str; 4] = ["a0", "a1", "a2", "a3"];
+        let mut st = State::new();
+        let mut rng = Rng::new(7);
+        let cands = AGENTS.join(",");
+        let mut rows: Vec<(bool, bool)> = Vec::new(); // (followed prior, chose best agent)
+        for i in 0..200u64 {
+            let f = rng.below(8);
+            let best = f % 4;
+            let prior = if f % 2 == 0 { best } else { (best + 1) % 4 };
+            let feat = format!("f{f}");
+            let sd = i.to_string();
+            let v = cmd_route(&mut st, &opts(&[("features", &feat), ("candidates", &cands), ("prior", AGENTS[prior]), ("seed", &sd)])).unwrap();
+            let agent = v["agent"].as_str().unwrap().to_string();
+            let ok = agent == AGENTS[best];
+            let reward = if rng.bernoulli(if ok { 0.9 } else { 0.1 }) { "1" } else { "0" };
+            cmd_feedback(&mut st, &opts(&[("features", &feat), ("agent", &agent), ("reward", reward)])).unwrap();
+            rows.push((v["followed_prior"].as_bool().unwrap(), ok));
+        }
+        let rate = |r: &[(bool, bool)], pick: fn(&(bool, bool)) -> bool| r.iter().filter(|x| pick(x)).count() as f64 / r.len() as f64;
+        let (head, mid, tail) = (&rows[..50], &rows[75..125], &rows[150..]);
+        for (name, w) in [("tasks 1-50", head), ("tasks 76-125", mid), ("tasks 151-200", tail)] {
+            println!("{name}: followed_prior {:.2}  accuracy {:.2}", rate(w, |x| x.0), rate(w, |x| x.1));
+        }
+        println!("keyword-only accuracy would be 0.50");
+        assert!(rate(tail, |x| x.0) < rate(head, |x| x.0) - 0.3, "follow rate must fall");
+        assert!(rate(tail, |x| x.1) > rate(head, |x| x.1), "accuracy must rise");
+        assert!(rate(tail, |x| x.1) > 0.6, "and beat the half-right keyword prior (0.5)");
     }
 }

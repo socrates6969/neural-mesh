@@ -182,6 +182,147 @@ impl<R: Router> Router for Warm<R> {
     }
 }
 
+/// Per-feature success/failure counts of the two arms of [`ArmWarm`].
+#[derive(Clone, Copy, Debug, Default)]
+struct ArmCounts {
+    kw_s: f64,
+    kw_f: f64,
+    in_s: f64,
+    in_f: f64,
+}
+
+/// Evidence-adaptive warm start (opt-in, new type; [`Warm`] is unchanged).
+///
+/// A two-arm Thompson meta-bandit decides, per task, between "follow the keyword
+/// map" and "ask the learned router". Each arm has a Beta posterior over the
+/// reward it earned on the task's features (counts pooled as the mean over the
+/// task's features, times `pool`). The keyword arm starts optimistic
+/// (`Beta(kw_mean*k, (1-kw_mean)*k)`), the learned arm neutral
+/// (`Beta(in_mean*k_in, ..)`), so the keyword map is trusted until its own
+/// outcomes show it losing to the learner, and is kept for good where it works.
+/// The inner router is trained on every outcome.
+pub struct ArmWarm<R: Router> {
+    pub inner: R,
+    pub prior: KeywordPrior,
+    /// Prior strength of the keyword arm (pseudo-trials).
+    pub k: f64,
+    /// Prior mean reward of the keyword arm.
+    pub kw_mean: f64,
+    /// Prior strength / mean of the learned arm.
+    pub k_in: f64,
+    pub in_mean: f64,
+    /// Multiplier on the pooled counts (>1 = more confident, hands over faster).
+    pub pool: f64,
+    /// Per-update discount of old counts of a feature (1 = none).
+    pub discount: f64,
+    counts: HashMap<String, ArmCounts>,
+    pending: Option<(u64, bool)>,
+}
+
+impl<R: Router> ArmWarm<R> {
+    pub fn new(inner: R, map: HashMap<String, usize>, n_agents: usize) -> Self {
+        ArmWarm {
+            inner,
+            prior: KeywordPrior::new(map, n_agents),
+            k: 4.0,
+            kw_mean: 0.8,
+            k_in: 2.0,
+            in_mean: 0.5,
+            pool: 1.0,
+            discount: 1.0,
+            counts: HashMap::new(),
+            pending: None,
+        }
+    }
+
+    pub fn with_params(mut self, k: f64, kw_mean: f64, k_in: f64, in_mean: f64, pool: f64, discount: f64) -> Self {
+        self.k = k.max(1e-6);
+        self.kw_mean = kw_mean.clamp(0.0, 1.0);
+        self.k_in = k_in.max(1e-6);
+        self.in_mean = in_mean.clamp(0.0, 1.0);
+        self.pool = pool.max(0.0);
+        self.discount = discount.clamp(0.0, 1.0);
+        self
+    }
+
+    fn pooled(&self, task: &Task) -> ArmCounts {
+        let mut a = ArmCounts::default();
+        let mut n = 0.0;
+        for f in &task.features {
+            if let Some(c) = self.counts.get(f) {
+                a.kw_s += c.kw_s;
+                a.kw_f += c.kw_f;
+                a.in_s += c.in_s;
+                a.in_f += c.in_f;
+            }
+            n += 1.0;
+        }
+        if n > 0.0 {
+            let m = self.pool / n;
+            a.kw_s *= m;
+            a.kw_f *= m;
+            a.in_s *= m;
+            a.in_f *= m;
+        }
+        a
+    }
+
+    /// Posterior mean rewards (keyword arm, learned arm) for `task`.
+    pub fn arm_means(&self, task: &Task) -> (f64, f64) {
+        let c = self.pooled(task);
+        (
+            (self.kw_mean * self.k + c.kw_s) / (self.k + c.kw_s + c.kw_f),
+            (self.in_mean * self.k_in + c.in_s) / (self.k_in + c.in_s + c.in_f),
+        )
+    }
+}
+
+impl<R: Router> Router for ArmWarm<R> {
+    fn name(&self) -> String {
+        format!("armwarm({},k={},m={})", self.inner.name(), self.k, self.kw_mean)
+    }
+
+    fn select(&mut self, task: &Task, candidates: &[usize], rng: &mut Rng) -> usize {
+        assert!(!candidates.is_empty(), "ArmWarm::select: no candidates");
+        let c = self.pooled(task);
+        let (ka, kb) = (self.kw_mean * self.k + c.kw_s, (1.0 - self.kw_mean) * self.k + c.kw_f);
+        let (ia, ib) = (self.in_mean * self.k_in + c.in_s, (1.0 - self.in_mean) * self.k_in + c.in_f);
+        let pk = crate::baselines::sample_beta(ka.max(1e-3), kb.max(1e-3), rng);
+        let pi = crate::baselines::sample_beta(ia.max(1e-3), ib.max(1e-3), rng);
+        let use_kw = pk >= pi;
+        self.pending = Some((task.id, use_kw));
+        if use_kw { self.prior.choose(task, candidates) } else { self.inner.select(task, candidates, rng) }
+    }
+
+    fn update(&mut self, task: &Task, agent: usize, reward: f64) {
+        let r = reward.clamp(0.0, 1.0);
+        let arm_kw = match self.pending.take() {
+            Some((id, a)) if id == task.id => a,
+            _ => {
+                let all: Vec<usize> = (0..self.prior.n_agents().max(agent + 1)).collect();
+                self.prior.choose(task, &all) == agent
+            }
+        };
+        for f in &task.features {
+            let c = self.counts.entry(f.clone()).or_default();
+            if self.discount < 1.0 {
+                c.kw_s *= self.discount;
+                c.kw_f *= self.discount;
+                c.in_s *= self.discount;
+                c.in_f *= self.discount;
+            }
+            if arm_kw {
+                c.kw_s += r;
+                c.kw_f += 1.0 - r;
+            } else {
+                c.in_s += r;
+                c.in_f += 1.0 - r;
+            }
+        }
+        self.inner.update(task, agent, reward);
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -251,6 +392,37 @@ mod tests {
         w.update(&task, 1, 0.0);
         w.update(&task, 1, 0.0);
         assert!((w.keyword_weight(&task) - 0.5).abs() < 1e-12); // k=2, fails=2
+    }
+
+    #[test]
+    fn armwarm_keeps_good_keyword_and_abandons_bad() {
+        use crate::hebbian::{HebbianConfig, HebbianRouter};
+        let heb = || HebbianRouter::new(3, HebbianConfig { eta: 0.05, temperature: 0.02, epsilon: 0.02, ..HebbianConfig::default() });
+        // keyword -> agent 1 for "sql". Case A: keyword agent is best.
+        let mut rng = Rng::new(5);
+        let mut w = ArmWarm::new(heb(), map(), 3);
+        let task = t(0, &["sql"]);
+        let p = [0.2, 0.9, 0.3];
+        let mut kw_picks = 0;
+        for i in 0..600 {
+            let a = w.select(&task, &[0, 1, 2], &mut rng);
+            if i >= 300 && a == 1 { kw_picks += 1; }
+            w.update(&task, a, if rng.bernoulli(p[a]) { 1.0 } else { 0.0 });
+        }
+        assert!(kw_picks > 250, "kept keyword {kw_picks}/300");
+        // Case B: keyword agent is bad, agent 2 is best.
+        let mut w = ArmWarm::new(heb(), map(), 3);
+        let p = [0.2, 0.15, 0.9];
+        let mut best = 0;
+        for i in 0..1500 {
+            let a = w.select(&task, &[0, 1, 2], &mut rng);
+            if i >= 1000 && a == 2 { best += 1; }
+            w.update(&task, a, if rng.bernoulli(p[a]) { 1.0 } else { 0.0 });
+        }
+        assert!(best > 350, "late best picks {best}/500");
+        // at zero evidence it is exactly the keyword router
+        let mut w = ArmWarm::new(heb(), map(), 3).with_params(1e6, 1.0, 1.0, 0.0, 1.0, 1.0);
+        assert_eq!(w.select(&task, &[0, 1, 2], &mut rng), 1);
     }
 
     #[test]

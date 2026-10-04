@@ -718,3 +718,264 @@ mod tests {
         assert_eq!(te.fragility(0.1), (3, 3));
     }
 }
+
+// ---------------------------------------------------------------------------
+// W2: sequential hand-off edges (next-agent prediction) with sparse storage.
+// ---------------------------------------------------------------------------
+
+/// Directed "previous agent -> next agent" edges for multi-step workflows.
+/// Each edge holds an EMA of the *residual* reward (reward minus the router's
+/// feature baseline) of steps run by `dst` right after `src`. Storage is sparse:
+/// at most `k` edges per source (`k == 0` = unbounded); when a row overflows the
+/// least informative edge (smallest |w|) is dropped and reverts to `optimism`.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SeqEdgesConfig {
+    pub eta: f64,
+    pub optimism: f64,
+    pub k: usize,
+    /// edge weight in the selection score (hebbian score is normalised to [-1, 0])
+    pub lambda: f64,
+    /// uniform exploration probability
+    pub epsilon: f64,
+}
+
+impl Default for SeqEdgesConfig {
+    fn default() -> Self {
+        SeqEdgesConfig { eta: 0.1, optimism: 0.1, k: 0, lambda: 1.0, epsilon: 0.0 }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SeqEdges {
+    pub cfg: SeqEdgesConfig,
+    /// rows[src] = list of (dst, weight, count)
+    rows: Vec<Vec<(u32, f32, u32)>>,
+}
+
+impl SeqEdges {
+    pub fn new(n_agents: usize, cfg: SeqEdgesConfig) -> Self {
+        SeqEdges { cfg, rows: vec![Vec::new(); n_agents] }
+    }
+
+    pub fn value(&self, src: usize, dst: usize) -> f64 {
+        self.rows
+            .get(src)
+            .and_then(|r| r.iter().find(|e| e.0 as usize == dst))
+            .map(|e| e.1 as f64)
+            .unwrap_or(self.cfg.optimism)
+    }
+
+    pub fn n_edges(&self) -> usize {
+        self.rows.iter().map(|r| r.len()).sum()
+    }
+
+    /// Approximate heap bytes of the sparse structure (entries + row headers).
+    pub fn bytes(&self) -> usize {
+        self.n_edges() * std::mem::size_of::<(u32, f32, u32)>() + self.rows.len() * std::mem::size_of::<Vec<(u32, f32, u32)>>()
+    }
+
+    /// Bytes a dense `n x n` f64 matrix would need.
+    pub fn dense_bytes(n: usize) -> usize {
+        n * n * std::mem::size_of::<f64>()
+    }
+
+    pub fn observe(&mut self, src: usize, dst: usize, residual: f64) {
+        if src >= self.rows.len() {
+            self.rows.resize(src + 1, Vec::new());
+        }
+        let eta = self.cfg.eta;
+        let opt = self.cfg.optimism;
+        let k = self.cfg.k;
+        let row = &mut self.rows[src];
+        if let Some(e) = row.iter_mut().find(|e| e.0 as usize == dst) {
+            e.2 = e.2.saturating_add(1);
+            let a = eta.max(1.0 / e.2 as f64);
+            e.1 += (a * (residual - e.1 as f64)) as f32;
+            return;
+        }
+        // first observation: blend the optimistic prior with the residual at rate eta*2 (count 1)
+        let w = (opt + (eta.max(0.5)) * (residual - opt)) as f32;
+        row.push((dst as u32, w, 1));
+        if k > 0 && row.len() > k {
+            let (mut worst, mut wv) = (0usize, f32::INFINITY);
+            for (i, e) in row.iter().enumerate() {
+                if e.1.abs() < wv {
+                    wv = e.1.abs();
+                    worst = i;
+                }
+            }
+            row.swap_remove(worst);
+        }
+    }
+}
+
+/// Hebbian leader + next-agent edges. Not a `Router` (it needs the previous agent).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SeqMesh {
+    pub leader: crate::hebbian::HebbianRouter,
+    pub edges: SeqEdges,
+}
+
+impl SeqMesh {
+    pub fn new(n_agents: usize, leader: crate::hebbian::HebbianConfig, cfg: SeqEdgesConfig) -> Self {
+        SeqMesh { leader: crate::hebbian::HebbianRouter::new(n_agents, leader), edges: SeqEdges::new(n_agents, cfg) }
+    }
+
+    /// Choose the agent for the next step; `prev` = agent that ran the previous step.
+    pub fn select(&mut self, task: &Task, candidates: &[usize], prev: Option<usize>, rng: &mut Rng) -> usize {
+        assert!(!candidates.is_empty());
+        let cfg = &self.edges.cfg;
+        if rng.f64() < cfg.epsilon {
+            return candidates[rng.below(candidates.len())];
+        }
+        let h = self.leader.scores(task);
+        let (mut hmax, mut hmin) = (f64::NEG_INFINITY, f64::INFINITY);
+        for &c in candidates {
+            hmax = hmax.max(h[c]);
+            hmin = hmin.min(h[c]);
+        }
+        let span = (hmax - hmin).max(1e-6);
+        let mut best = (f64::NEG_INFINITY, candidates[0]);
+        for &c in candidates {
+            let mut s = (h[c] - hmax) / span;
+            if let Some(p) = prev {
+                s += cfg.lambda * self.edges.value(p, c);
+            }
+            s += 1e-9 * rng.f64();
+            if s > best.0 {
+                best = (s, c);
+            }
+        }
+        best.1
+    }
+
+    pub fn update(&mut self, task: &Task, prev: Option<usize>, agent: usize, reward: f64) {
+        if let Some(p) = prev {
+            let feats = crate::hebbian::active_features(task);
+            let b = if feats.is_empty() {
+                0.5
+            } else {
+                feats.iter().map(|f| self.leader.baseline(f)).sum::<f64>() / feats.len() as f64
+            };
+            self.edges.observe(p, agent, reward - b);
+        }
+        self.leader.update(task, agent, reward);
+    }
+}
+
+#[cfg(test)]
+mod seq_tests {
+    use super::*;
+    use crate::hebbian::HebbianConfig;
+
+    #[test]
+    fn seq_edges_sparse_cap_and_learning() {
+        let mut e = SeqEdges::new(4, SeqEdgesConfig { k: 2, eta: 0.2, optimism: 0.1, ..SeqEdgesConfig::default() });
+        assert!((e.value(0, 1) - 0.1).abs() < 1e-12);
+        for _ in 0..20 {
+            e.observe(0, 1, 0.4);
+            e.observe(0, 2, -0.4);
+            e.observe(0, 3, 0.0);
+        }
+        assert!(e.n_edges() <= 2, "row capped at k");
+        assert!(e.value(0, 1) > 0.2);
+        assert!(e.bytes() < SeqEdges::dense_bytes(1000));
+    }
+
+    #[test]
+    fn seq_mesh_learns_a_handoff_preference() {
+        let t = |i: u64| Task { id: i, task_type: None, features: vec!["x".into()] };
+        let mut m = SeqMesh::new(3, HebbianConfig { epsilon: 0.0, ..HebbianConfig::default() }, SeqEdgesConfig { epsilon: 0.05, ..SeqEdgesConfig::default() });
+        let mut rng = Rng::new(2);
+        let mut env = Rng::new(3);
+        // agent 1 is great after agent 0, agent 2 is mediocre; skill otherwise equal
+        let p = |prev: usize, a: usize| if prev == 0 && a == 1 { 0.95 } else { 0.5 };
+        let mut hits = 0;
+        for i in 0..1500u64 {
+            let a = m.select(&t(i), &[0, 1, 2], Some(0), &mut rng);
+            let r = if env.bernoulli(p(0, a)) { 1.0 } else { 0.0 };
+            m.update(&t(i), Some(0), a, r);
+            if i >= 1000 && a == 1 {
+                hits += 1;
+            }
+        }
+        assert!(hits > 350, "learned to hand off to agent 1: {hits}/500");
+    }
+}
+
+/// Additive feature+hand-off value model (W2): q(a) = mean_f v[f][a] + g[prev][a], both
+/// tables fitted jointly by the delta rule on the prediction error `reward - q(a)`
+/// (so the hand-off edge `g` only learns what the features cannot explain).
+/// `eta_g == 0` turns the edges off (ablation). The previous agent is set with
+/// [`SeqAddRouter::set_prev`] before `select`/`update`.
+#[derive(Clone, Debug, PartialEq)]
+pub struct SeqAddConfig {
+    pub eta_f: f64,
+    pub eta_g: f64,
+    pub epsilon: f64,
+    pub init: f64,
+}
+
+#[derive(Clone, Debug)]
+pub struct SeqAddRouter {
+    pub cfg: SeqAddConfig,
+    n: usize,
+    v: HashMap<String, Vec<(f64, u32)>>,
+    /// rows 0..n = previous agent, row n = "start of workflow"
+    g: Vec<Vec<f64>>,
+    prev: Option<usize>,
+}
+
+impl SeqAddRouter {
+    pub fn new(n_agents: usize, cfg: SeqAddConfig) -> Self {
+        SeqAddRouter { cfg, n: n_agents, v: HashMap::new(), g: vec![vec![0.0; n_agents]; n_agents + 1], prev: None }
+    }
+    pub fn set_prev(&mut self, prev: Option<usize>) {
+        self.prev = prev;
+    }
+    fn q(&self, task: &Task, a: usize) -> f64 {
+        let feats = task_keys(task);
+        let mut s = 0.0;
+        for f in &feats {
+            s += self.v.get(f).map(|r| r[a].0).unwrap_or(self.cfg.init);
+        }
+        let base = if feats.is_empty() { self.cfg.init } else { s / feats.len() as f64 };
+        base + self.g[self.prev.unwrap_or(self.n)][a]
+    }
+}
+
+impl Router for SeqAddRouter {
+    fn name(&self) -> String {
+        "seq-add".into()
+    }
+    fn select(&mut self, task: &Task, candidates: &[usize], rng: &mut Rng) -> usize {
+        if rng.f64() < self.cfg.epsilon {
+            return candidates[rng.below(candidates.len())];
+        }
+        let mut best = (f64::NEG_INFINITY, candidates[0]);
+        for &c in candidates {
+            let s = self.q(task, c) + 1e-9 * rng.f64();
+            if s > best.0 {
+                best = (s, c);
+            }
+        }
+        best.1
+    }
+    fn update(&mut self, task: &Task, agent: usize, reward: f64) {
+        let e = reward - self.q(task, agent);
+        let feats = task_keys(task);
+        let share = 1.0;
+        let (n, init, eta_f) = (self.n, self.cfg.init, self.cfg.eta_f);
+        for f in feats {
+            let row = self.v.entry(f).or_insert_with(|| vec![(init, 0); n]);
+            let c = &mut row[agent];
+            c.1 = c.1.saturating_add(1);
+            let a = eta_f.max(1.0 / c.1 as f64);
+            c.0 += a * share * e;
+        }
+        if self.cfg.eta_g > 0.0 {
+            let r = self.prev.unwrap_or(self.n);
+            self.g[r][agent] += self.cfg.eta_g * e;
+        }
+    }
+}

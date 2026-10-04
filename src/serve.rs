@@ -6,7 +6,7 @@
 //! ```
 //!
 //! Protocol: one JSON object per line in, one JSON object per line out.
-//! `{"cmd":"route"|"feedback"|"stats", ...}` takes the same fields as the CLI
+//! `{"cmd":"route"|"feedback"|"stats"|"config", ...}` takes the same fields as the CLI
 //! flags (strings, numbers, or arrays of strings for comma lists) and answers
 //! with exactly the object the CLI would print. Extra commands: `flush`
 //! (persist now) and `shutdown` (persist, reply, exit). An optional `"id"` is
@@ -40,7 +40,7 @@ use std::time::{Duration, Instant, SystemTime};
 
 use serde_json::{Map, Value, json};
 
-use crate::{CliError, Opts, State, StateLock, cmd_feedback, cmd_route, cmd_stats, load_state, save_state, usage};
+use crate::{CONFIG_KEYS, CliError, Opts, State, StateLock, cmd_config, cmd_feedback, cmd_route, cmd_stats, has_config_opts, load_state, save_state, usage};
 
 const SERVE_USAGE: &str = "usage: neural-mesh serve --state <file> (--stdio | --port N) [--flush-every N] [--flush-ms T]";
 const DEFAULT_FLUSH_EVERY: usize = 64;
@@ -69,7 +69,11 @@ struct Server {
 fn replay(st: &mut State, journal: &Journal) {
     for (cmd, m) in journal {
         let o = Opts(m.clone());
-        let _ = if *cmd == "route" { cmd_route(st, &o) } else { cmd_feedback(st, &o) };
+        let _ = match *cmd {
+            "route" => cmd_route(st, &o),
+            "feedback" => cmd_feedback(st, &o),
+            _ => cmd_config(st, &o),
+        };
     }
 }
 
@@ -138,23 +142,41 @@ impl Server {
     }
 
     fn dispatch(&mut self, cmd: &str, req: &Map<String, Value>) -> Result<(Value, bool), CliError> {
-        let (name, allowed): (&'static str, &[&str]) = match cmd {
-            "route" => ("route", &["features", "candidates", "team", "type", "seed"]),
+        let (name, base): (&'static str, &[&str]) = match cmd {
+            "route" => ("route", &["features", "candidates", "team", "type", "seed", "prior"]),
             "feedback" => ("feedback", &["features", "agent", "team", "reward", "type"]),
             "stats" => ("stats", &[]),
+            "config" => ("config", &["team"]),
             "flush" | "shutdown" => return self.control(cmd),
             other => return Err(usage(format!("unknown command '{other}'"))),
         };
-        let map = to_opts(req, allowed)?;
+        let allowed: Vec<&str> = base.iter().chain(CONFIG_KEYS.iter()).copied().collect();
+        let map = to_opts(req, &allowed)?;
         self.refresh();
         let o = Opts(map);
         let out = match name {
             "route" => cmd_route(&mut self.st, &o)?,
             "feedback" => cmd_feedback(&mut self.st, &o)?,
-            _ => return Ok((cmd_stats(&self.st), false)),
+            "config" => {
+                let v = cmd_config(&mut self.st, &o)?;
+                if has_config_opts(&o, true) {
+                    self.record("config", o.0);
+                }
+                return Ok((v, false));
+            }
+            _ => return self.stats_with_config(o),
         };
         self.record(name, o.0);
         Ok((out, false))
+    }
+
+    /// `stats`, applying (and journaling as `config`) any config fields it carries.
+    fn stats_with_config(&mut self, o: Opts) -> Result<(Value, bool), CliError> {
+        if has_config_opts(&o, false) {
+            cmd_config(&mut self.st, &o)?;
+            self.record("config", o.0);
+        }
+        Ok((cmd_stats(&self.st), false))
     }
 
     fn control(&mut self, cmd: &str) -> Result<(Value, bool), CliError> {
@@ -197,11 +219,13 @@ fn to_opts(req: &Map<String, Value>, allowed: &[&str]) -> Result<BTreeMap<String
         if k == "cmd" || k == "id" {
             continue;
         }
-        if !allowed.contains(&k.as_str()) {
+        // JSON callers may write prior_k; the CLI flag is --prior-k.
+        let key = k.replace('_', "-");
+        if !allowed.contains(&key.as_str()) {
             return Err(usage(format!("unknown field '{k}'")));
         }
         if let Some(s) = scalar_or_list(v).map_err(|()| usage(format!("field '{k}' must be a string, number, or array of strings")))? {
-            m.insert(k.clone(), s);
+            m.insert(key, s);
         }
     }
     Ok(m)

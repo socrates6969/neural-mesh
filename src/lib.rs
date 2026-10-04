@@ -9,3 +9,4 @@ pub mod variants;
 pub mod memory;
 pub mod prior;
 pub mod casebased;
+pub mod sona;

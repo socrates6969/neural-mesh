@@ -44,6 +44,25 @@ use serde::{Deserialize, Serialize};
 
 use crate::router::{Rng, Router, Task};
 
+/// Opt-in faster bench/recover policy (see `NeuralMesh::with_fault`).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct FaultConfig {
+    /// Bench a node right away after this many consecutive failed outcomes
+    /// (reward < `fail_below`). 0 = off (health EMA only).
+    pub streak: u32,
+    pub fail_below: f64,
+    /// When a probation attempt fails the node's retry interval is multiplied by this
+    /// (>= 1; 1 = off), capped at `max_mult`; a success resets it to 1.
+    pub backoff: f64,
+    pub max_mult: f64,
+}
+
+impl Default for FaultConfig {
+    fn default() -> Self {
+        FaultConfig { streak: 0, fail_below: 0.5, backoff: 1.0, max_mult: 16.0 }
+    }
+}
+
 /// Default per-slot helper exploration probability.
 pub const DEFAULT_HELPER_EPSILON: f64 = 0.05;
 /// EMA rate of the per-leader team-reward baseline used by edge learning.
@@ -202,6 +221,15 @@ pub struct NeuralMesh<R: Router> {
     team_size_sum: u64,
     #[serde(default)]
     teams_routed: u64,
+    /// Opt-in fault policy. `None` = original behaviour.
+    #[serde(default)]
+    pub fault: Option<FaultConfig>,
+    #[serde(default)]
+    fail_streak: Vec<u32>,
+    #[serde(default)]
+    retry_mult: Vec<f64>,
+    #[serde(default)]
+    probation: Vec<bool>,
 }
 
 impl<R: Router> NeuralMesh<R> {
@@ -220,6 +248,10 @@ impl<R: Router> NeuralMesh<R> {
             gate: None,
             gate_state: GateState::default(),
             last_gated: false,
+            fault: None,
+            fail_streak: Vec::new(),
+            retry_mult: Vec::new(),
+            probation: Vec::new(),
             team_size_sum: 0,
             teams_routed: 0,
         };
@@ -233,6 +265,11 @@ impl<R: Router> NeuralMesh<R> {
 
     /// Grow internal tables to at least `n` agents.
     pub fn ensure_agents(&mut self, n: usize) {
+        // tables of the opt-in fault policy may be missing in old serialized states
+        let m = n.max(self.n_agents);
+        self.fail_streak.resize(m, 0);
+        self.retry_mult.resize(m, 1.0);
+        self.probation.resize(m, false);
         if n <= self.n_agents {
             return;
         }
@@ -242,6 +279,9 @@ impl<R: Router> NeuralMesh<R> {
         self.edges.resize(n, vec![0.0; n]);
         self.health.resize(n, 1.0);
         self.benched_since.resize(n, None);
+        self.fail_streak.resize(n, 0);
+        self.retry_mult.resize(n, 1.0);
+        self.probation.resize(n, false);
         self.edge_baseline.resize(n, INIT_EDGE_BASELINE);
         if let Some(t) = self.trust.as_mut() {
             t.ensure_agents(n);
@@ -252,6 +292,12 @@ impl<R: Router> NeuralMesh<R> {
     /// Switch the edge rule to asymmetric trust edges (see `variants::TrustEdges`).
     pub fn with_trust_edges(mut self, cfg: crate::variants::TrustEdgesConfig) -> Self {
         self.trust = Some(crate::variants::TrustEdges::new(self.n_agents, cfg));
+        self
+    }
+
+    /// Enable the faster bench/recover policy (opt-in; default behaviour unchanged).
+    pub fn with_fault(mut self, f: FaultConfig) -> Self {
+        self.fault = Some(f);
         self
     }
 
@@ -366,8 +412,9 @@ impl<R: Router> NeuralMesh<R> {
             }
             match self.benched_since[c] {
                 None => self.benched_since[c] = Some(now),
-                Some(since) if now.saturating_sub(since) >= self.cfg.retry_every => {
+                Some(since) if now.saturating_sub(since) >= (self.cfg.retry_every as f64 * self.retry_mult[c]).ceil() as u64 => {
                     // Probation: give it exactly the threshold and let it compete.
+                    self.probation[c] = true;
                     self.health[c] = thr;
                     self.benched_since[c] = None;
                     eligible.push(c);
@@ -465,6 +512,25 @@ impl<R: Router> NeuralMesh<R> {
         for &a in &members {
             self.health[a] += al * (reward - self.health[a]);
         }
+        if let Some(f) = self.fault.clone() {
+            for &a in &members {
+                let failed = reward < f.fail_below;
+                if self.probation[a] {
+                    self.probation[a] = false;
+                    self.retry_mult[a] =
+                        if failed { (self.retry_mult[a] * f.backoff.max(1.0)).min(f.max_mult.max(1.0)) } else { 1.0 };
+                }
+                if failed {
+                    self.fail_streak[a] += 1;
+                    if f.streak > 0 && self.fail_streak[a] >= f.streak {
+                        self.health[a] = 0.0;
+                        self.fail_streak[a] = 0;
+                    }
+                } else {
+                    self.fail_streak[a] = 0;
+                }
+            }
+        }
     }
 }
 
@@ -513,6 +579,66 @@ mod tests {
         check_equivalence(|| ThompsonRouter::new(4), cfg);
         // Default config in a healthy world (no node ever benched): still exact.
         check_equivalence(|| HebbianRouter::new(4, HebbianConfig::default()), MeshConfig::default());
+    }
+
+    #[test]
+    fn fault_policy_streak_benches_fast_and_default_is_unchanged() {
+        let t = task(0);
+        let mk = |fault: Option<FaultConfig>| {
+            let cfg = MeshConfig { team_size: 1, retry_every: 10, ..MeshConfig::default() };
+            let mut m = NeuralMesh::new(3, HebbianRouter::new(3, HebbianConfig::default()), cfg);
+            if let Some(f) = fault {
+                m = m.with_fault(f);
+            }
+            m
+        };
+        // Two failures: default health EMA does not bench, a streak-2 policy does.
+        let mut plain = mk(None);
+        let mut fast = mk(Some(FaultConfig { streak: 2, ..FaultConfig::default() }));
+        let mut rng = Rng::new(3);
+        for m in [&mut plain, &mut fast] {
+            m.feedback(&t, &[2], 0.0);
+            m.feedback(&t, &[2], 0.0);
+        }
+        let _ = plain.route(&t, &[0, 1, 2], &mut rng);
+        let _ = fast.route(&t, &[0, 1, 2], &mut rng);
+        assert!(!plain.is_benched(2));
+        assert!(fast.is_benched(2));
+        // An all-default FaultConfig behaves exactly like no policy.
+        let mut a = mk(None);
+        let mut b = mk(Some(FaultConfig::default()));
+        let (mut r1, mut r2) = (Rng::new(9), Rng::new(9));
+        for i in 0..200u64 {
+            let ti = task(i);
+            let ta = a.route(&ti, &[0, 1, 2], &mut r1);
+            let tb = b.route(&ti, &[0, 1, 2], &mut r2);
+            assert_eq!(ta, tb);
+            let r = if ta[0] == 2 { 0.0 } else { 0.8 };
+            a.feedback(&ti, &ta, r);
+            b.feedback(&ti, &tb, r);
+        }
+    }
+
+    #[test]
+    fn fault_backoff_lengthens_retry_after_failed_probation() {
+        let t = task(0);
+        let cfg = MeshConfig { team_size: 1, retry_every: 5, ..MeshConfig::default() };
+        let mut m = NeuralMesh::new(3, HebbianRouter::new(3, HebbianConfig::default()), cfg)
+            .with_fault(FaultConfig { streak: 2, backoff: 2.0, ..FaultConfig::default() });
+        let mut rng = Rng::new(1);
+        m.feedback(&t, &[2], 0.0);
+        m.feedback(&t, &[2], 0.0);
+        for _ in 0..5 {
+            let _ = m.route(&t, &[0, 1, 2], &mut rng);
+        }
+        let _ = m.route(&t, &[2, 0], &mut rng); // probation
+        m.feedback(&t, &[2], 0.0); // probation failed -> interval doubles to 10
+        let _ = m.route(&t, &[0, 1, 2], &mut rng); // benched again
+        assert!(m.is_benched(2));
+        for _ in 0..9 {
+            let _ = m.route(&t, &[0, 1, 2], &mut rng);
+            assert!(m.is_benched(2));
+        }
     }
 
     #[test]
