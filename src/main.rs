@@ -9,6 +9,11 @@
 //! `{"ok":false,"error":"..."}` and exit with status 1 (usage) / 2 (state I/O).
 //! The state file is created if missing and written atomically (temp file +
 //! rename). Agents are named strings; unknown names are auto-registered.
+//!
+//! Long-lived mode (see `serve.rs`): `neural-mesh serve --state <file> (--stdio | --port N)
+//! [--flush-every N] [--flush-ms T]` answers JSON-lines requests with the same responses.
+
+mod serve;
 
 use std::collections::BTreeMap;
 use std::fs;
@@ -205,7 +210,11 @@ impl StateLock {
         loop {
             match fs::OpenOptions::new().write(true).create_new(true).open(&lp) {
                 Ok(_) => return Ok(StateLock(lp)),
-                Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => {
+                // On Windows a lock file that another process just deleted stays
+                // "delete pending" briefly and create_new fails with PermissionDenied;
+                // treat that exactly like contention and retry.
+                Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists
+                    || e.kind() == std::io::ErrorKind::PermissionDenied => {
                     let stale = fs::metadata(&lp)
                         .and_then(|m| m.modified())
                         .ok()
@@ -244,9 +253,21 @@ fn save_state(path: &Path, st: &State) -> Result<(), CliError> {
         fs::create_dir_all(dir).map_err(|e| CliError::Io(format!("create dir {}: {e}", dir.display())))?;
     }
     fs::write(&tmp, js).map_err(|e| CliError::Io(format!("write {}: {e}", tmp.display())))?;
-    if let Err(e) = fs::rename(&tmp, path) {
-        let _ = fs::remove_file(&tmp);
-        return Err(CliError::Io(format!("rename to {}: {e}", path.display())));
+    // Windows can transiently refuse the rename (virus scanners, indexers, a
+    // reader that just closed the file); retry briefly before giving up.
+    let mut attempt = 0;
+    loop {
+        match fs::rename(&tmp, path) {
+            Ok(()) => break,
+            Err(e) if e.kind() == std::io::ErrorKind::PermissionDenied && attempt < 20 => {
+                attempt += 1;
+                std::thread::sleep(std::time::Duration::from_millis(2 * attempt));
+            }
+            Err(e) => {
+                let _ = fs::remove_file(&tmp);
+                return Err(CliError::Io(format!("rename to {}: {e}", path.display())));
+            }
+        }
     }
     Ok(())
 }
@@ -262,11 +283,14 @@ fn r6(x: f64) -> f64 {
 }
 
 fn cmd_route(st: &mut State, o: &Opts) -> Result<Value, CliError> {
-    let cand_idx: Vec<usize> = match o.get("candidates") {
-        Some(c) => parse_names(c, "candidates")?.iter().map(|n| st.register(n)).collect(),
-        None => (0..st.agents.len()).collect(),
+    // Validate everything before touching state (a failed call must not
+    // register agents: the one-shot CLI never saves on error, and the
+    // long-lived server keeps its state in memory).
+    let cand_names = match o.get("candidates") {
+        Some(c) => Some(parse_names(c, "candidates")?),
+        None => None,
     };
-    if cand_idx.is_empty() {
+    if cand_names.is_none() && st.agents.is_empty() {
         return Err(usage("no agents registered yet; pass --candidates x,y"));
     }
     let k = match o.get("team") {
@@ -277,6 +301,10 @@ fn cmd_route(st: &mut State, o: &Opts) -> Result<Value, CliError> {
     let seed = match o.get("seed") {
         Some(s) => s.trim().parse::<u64>().map_err(|_| usage("--seed must be a non-negative integer"))?,
         None => mix(st.seed, st.calls),
+    };
+    let cand_idx: Vec<usize> = match cand_names {
+        Some(names) => names.iter().map(|n| st.register(n)).collect(),
+        None => (0..st.agents.len()).collect(),
     };
     st.calls += 1;
     let mut rng = Rng::new(seed);
@@ -411,6 +439,9 @@ fn main() {
     if args.first().is_some_and(|a| matches!(a.as_str(), "-h" | "--help" | "help")) {
         println!("{}", json!({"ok": true, "usage": USAGE}));
         return;
+    }
+    if args.first().is_some_and(|a| a == "serve") {
+        std::process::exit(serve::main(&args[1..]));
     }
     std::panic::set_hook(Box::new(|_| {}));
     let res = std::panic::catch_unwind(|| run(&args));
