@@ -3,6 +3,12 @@
 //! * [`KeywordRouter`]: static keyword -> agent map, majority vote.
 //! * [`ThompsonRouter`]: Beta-Bernoulli Thompson sampling per
 //!   (context, agent), context = task type, else first feature.
+//!   NOTE: an independent audit showed this keying is a weak baseline.
+//! * [`PooledThompsonRouter`]: fair Thompson — Beta counts per (feature, agent)
+//!   pooled over all active features, with optional discounting.
+//! * [`EpsGreedyRouter`]: epsilon-greedy over per-(feature, agent) discounted
+//!   mean rewards, averaged over the task's features. Untuned reference that
+//!   any learned router must beat.
 
 use std::collections::{BTreeMap, HashMap};
 
@@ -238,5 +244,197 @@ mod tests {
         }
         assert!(best > 450, "thompson picked best {best}/500");
         assert!((r.mean("x", 1) - 0.8).abs() < 0.05);
+    }
+}
+
+
+fn task_keys(task: &Task) -> Vec<String> {
+    let mut k: Vec<String> = task.features.clone();
+    if let Some(t) = &task.task_type {
+        k.push(format!("type:{t}"));
+    }
+    if k.is_empty() {
+        k.push("no-keyword".into());
+    }
+    k
+}
+
+/// Thompson sampling with Beta counts kept per (feature, agent) and pooled over
+/// the task's active features: alpha = 1 + sum successes, beta = 1 + sum failures.
+/// `gamma` < 1 discounts old counts (for drift); 1.0 = no discounting.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PooledThompsonRouter {
+    pub gamma: f64,
+    n_agents: usize,
+    /// feature -> per-agent (successes, failures)
+    counts: BTreeMap<String, Vec<(f64, f64)>>,
+}
+
+impl PooledThompsonRouter {
+    pub fn new(n_agents: usize, gamma: f64) -> Self {
+        PooledThompsonRouter { gamma, n_agents, counts: BTreeMap::new() }
+    }
+    fn grow(&mut self, n: usize) {
+        if n > self.n_agents {
+            self.n_agents = n;
+            for v in self.counts.values_mut() {
+                v.resize(n, (0.0, 0.0));
+            }
+        }
+    }
+    /// Pooled posterior (alpha, beta) for `agent` on `task`.
+    pub fn posterior(&self, task: &Task, agent: usize) -> (f64, f64) {
+        let (mut s, mut f) = (0.0, 0.0);
+        for k in task_keys(task) {
+            if let Some((a, b)) = self.counts.get(&k).and_then(|v| v.get(agent)) {
+                s += a;
+                f += b;
+            }
+        }
+        (1.0 + s, 1.0 + f)
+    }
+}
+
+impl Router for PooledThompsonRouter {
+    fn name(&self) -> String {
+        "pooled-thompson".into()
+    }
+    fn select(&mut self, task: &Task, candidates: &[usize], rng: &mut Rng) -> usize {
+        assert!(!candidates.is_empty(), "PooledThompsonRouter::select: no candidates");
+        let mut best = candidates[0];
+        let mut best_v = f64::NEG_INFINITY;
+        for &c in candidates {
+            let (a, b) = self.posterior(task, c);
+            let v = sample_beta(a, b, rng);
+            if v > best_v {
+                best_v = v;
+                best = c;
+            }
+        }
+        best
+    }
+    fn update(&mut self, task: &Task, agent: usize, reward: f64) {
+        self.grow(agent + 1);
+        let r = reward.clamp(0.0, 1.0);
+        let n = self.n_agents;
+        let g = self.gamma;
+        for k in task_keys(task) {
+            let row = self.counts.entry(k).or_insert_with(|| vec![(0.0, 0.0); n]);
+            if g < 1.0 {
+                for c in row.iter_mut() {
+                    c.0 *= g;
+                    c.1 *= g;
+                }
+            }
+            row[agent].0 += r;
+            row[agent].1 += 1.0 - r;
+        }
+    }
+}
+
+/// Epsilon-greedy over discounted per-(feature, agent) mean rewards, averaged
+/// across the task's features. Untried cells score an optimistic 1.0.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct EpsGreedyRouter {
+    pub gamma: f64,
+    pub epsilon: f64,
+    n_agents: usize,
+    /// feature -> per-agent (discounted reward sum, discounted count)
+    stats: BTreeMap<String, Vec<(f64, f64)>>,
+}
+
+impl EpsGreedyRouter {
+    pub fn new(n_agents: usize, gamma: f64, epsilon: f64) -> Self {
+        EpsGreedyRouter { gamma, epsilon, n_agents, stats: BTreeMap::new() }
+    }
+    pub fn value(&self, task: &Task, agent: usize) -> f64 {
+        let keys = task_keys(task);
+        let mut tot = 0.0;
+        for k in &keys {
+            tot += match self.stats.get(k).and_then(|v| v.get(agent)) {
+                Some(&(s, n)) if n > 1e-9 => s / n,
+                _ => 1.0,
+            };
+        }
+        tot / keys.len() as f64
+    }
+}
+
+impl Router for EpsGreedyRouter {
+    fn name(&self) -> String {
+        "eps-greedy".into()
+    }
+    fn select(&mut self, task: &Task, candidates: &[usize], rng: &mut Rng) -> usize {
+        assert!(!candidates.is_empty(), "EpsGreedyRouter::select: no candidates");
+        if rng.bernoulli(self.epsilon) {
+            return candidates[rng.below(candidates.len())];
+        }
+        let mut best = candidates[0];
+        let mut best_v = f64::NEG_INFINITY;
+        for &c in candidates {
+            let v = self.value(task, c);
+            if v > best_v {
+                best_v = v;
+                best = c;
+            }
+        }
+        best
+    }
+    fn update(&mut self, task: &Task, agent: usize, reward: f64) {
+        if agent + 1 > self.n_agents {
+            self.n_agents = agent + 1;
+            for v in self.stats.values_mut() {
+                v.resize(self.n_agents, (0.0, 0.0));
+            }
+        }
+        let n = self.n_agents;
+        let g = self.gamma;
+        for k in task_keys(task) {
+            let row = self.stats.entry(k).or_insert_with(|| vec![(0.0, 0.0); n]);
+            let c = &mut row[agent];
+            c.0 = c.0 * g + reward.clamp(0.0, 1.0);
+            c.1 = c.1 * g + 1.0;
+        }
+    }
+}
+
+#[cfg(test)]
+mod fair_baseline_tests {
+    use super::*;
+
+    fn learns_best<R: Router>(mut r: R) -> f64 {
+        let mut rng = Rng::new(7);
+        let t = Task { id: 0, task_type: None, features: vec!["sql".into(), "db".into()] };
+        let mut hits = 0;
+        for i in 0..2000 {
+            let a = r.select(&t, &[0, 1, 2], &mut rng);
+            let p = [0.3, 0.85, 0.5][a];
+            r.update(&t, a, if rng.bernoulli(p) { 1.0 } else { 0.0 });
+            if i >= 1500 && a == 1 {
+                hits += 1;
+            }
+        }
+        hits as f64 / 500.0
+    }
+
+    #[test]
+    fn pooled_thompson_converges() {
+        assert!(learns_best(PooledThompsonRouter::new(3, 1.0)) > 0.85);
+        assert!(learns_best(PooledThompsonRouter::new(3, 0.99)) > 0.7);
+    }
+
+    #[test]
+    fn eps_greedy_converges() {
+        assert!(learns_best(EpsGreedyRouter::new(3, 0.99, 0.02)) > 0.85);
+    }
+
+    #[test]
+    fn pooled_thompson_pools_features() {
+        let mut r = PooledThompsonRouter::new(2, 1.0);
+        let t = Task { id: 0, task_type: None, features: vec!["a".into(), "b".into()] };
+        r.update(&t, 1, 1.0);
+        let only_a = Task { id: 1, task_type: None, features: vec!["a".into()] };
+        assert_eq!(r.posterior(&only_a, 1), (2.0, 1.0));
+        assert_eq!(r.posterior(&t, 1), (3.0, 1.0));
     }
 }
