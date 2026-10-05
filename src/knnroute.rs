@@ -48,8 +48,12 @@ impl KnnRouter {
     }
     /// all labels with their vote share (sum of top-k cosines per label / total), best first. Ties keep the label whose best neighbour is nearer.
     pub fn votes(&self, q: &[f32]) -> Vec<(String, f32)> {
+        self.votes_with_sim(q).0
+    }
+    /// like [`Self::votes`], plus the best (nearest-exemplar) cosine similarity of the query (0.0 when nothing could be scored)
+    pub fn votes_with_sim(&self, q: &[f32]) -> (Vec<(String, f32)>, f32) {
         if self.is_empty() || q.len() != self.dim {
-            return vec![];
+            return (vec![], 0.0);
         }
         let q = Self::unit(q);
         let mut sims: Vec<(f32, usize)> = (0..self.len()).map(|i| (dot8(&self.x[i * self.dim..(i + 1) * self.dim], &q), i)).collect();
@@ -65,7 +69,16 @@ impl KnnRouter {
         let tot: f32 = v.values().map(|x| x.0).sum();
         let mut out: Vec<(u32, f32, usize)> = v.into_iter().map(|(l, (s, r))| (l, s, r)).collect();
         out.sort_by(|a, b| b.1.total_cmp(&a.1).then(a.2.cmp(&b.2)));
-        out.into_iter().map(|(l, s, _)| (self.names[l as usize].clone(), if tot > 0.0 { s / tot } else { 0.0 })).collect()
+        let best = sims.first().map(|x| x.0).unwrap_or(0.0);
+        (out.into_iter().map(|(l, s, _)| (self.names[l as usize].clone(), if tot > 0.0 { s / tot } else { 0.0 })).collect(), best)
+    }
+    /// R80/R88 (opt-in safety knob): route only when the winning vote share >= `tau` AND the query is close enough to some exemplar (best cosine >= `smin`);
+    /// `None` = ABSTAIN, forward to the LLM. RD-LOG: tau .6 trades +14..42% forwarded tokens for 3.5-5x fewer wrong-tool answers (R80); smin .4 changes NOTHING on the
+    /// dev/blind/battery sets (in-distribution best cosine is >= .5) but removed all 9 + 7 false tool routes on 264 + 56 REAL out-of-distribution agent / human prompts (R88).
+    pub fn route_guarded(&self, q: &[f32], tau: f32, smin: f32) -> Option<(String, f32)> {
+        let (v, best) = self.votes_with_sim(q);
+        let (l, sh) = v.into_iter().next()?;
+        if sh >= tau && best >= smin { Some((l, sh)) } else { None }
     }
     /// best label and its vote share
     pub fn route(&self, q: &[f32]) -> Option<(String, f32)> {
@@ -91,5 +104,20 @@ mod tests {
         assert_eq!(v[0].0, "c".to_string().as_str());
         assert!((v.iter().map(|x| x.1).sum::<f32>() - 1.0).abs() < 1e-5);
         assert_eq!(r.len(), 5);
+    }
+
+    #[test]
+    fn guarded_route_abstains_on_low_share_or_far_queries() {
+        let mut r = KnnRouter::new(3, 3);
+        for (l, v) in [("a", [1.0, 0.1, 0.0]), ("a", [0.9, 0.0, 0.1]), ("b", [0.0, 1.0, 0.0]), ("b", [0.1, 0.9, 0.0]), ("c", [0.0, 0.0, 1.0])] {
+            r.add(l, &v);
+        }
+        assert_eq!(r.route_guarded(&[1.0, 0.05, 0.0], 0.6, 0.4).unwrap().0, "a");
+        // a query nearly orthogonal to every exemplar (best cosine < smin) is forwarded even though some label wins the vote
+        let far = [-1.0, -1.0, -1.0];
+        assert!(r.route(&far).is_some() && r.route_guarded(&far, 0.0, 0.4).is_none());
+        // a tie between two labels (vote share ~.5 < tau) is forwarded
+        assert!(r.route_guarded(&[1.0, 1.0, 0.0], 0.8, 0.0).is_none());
+        assert!(KnnRouter::new(3, 3).route_guarded(&[1.0, 0.0, 0.0], 0.0, 0.0).is_none());
     }
 }

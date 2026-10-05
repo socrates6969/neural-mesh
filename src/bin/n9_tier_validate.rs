@@ -6,7 +6,7 @@ struct Rng(u64);
 impl Rng { fn next(&mut self) -> f32 { self.0 ^= self.0 << 13; self.0 ^= self.0 >> 7; self.0 ^= self.0 << 17; ((self.0 >> 11) as f64 / (1u64 << 53) as f64 * 2.0 - 1.0) as f32 } }
 fn unit(mut v: Vec<f32>) -> Vec<f32> { let n = v.iter().map(|x| x * x).sum::<f32>().sqrt(); v.iter_mut().for_each(|x| *x /= n); v }
 fn main() {
-    let dim = 384; let ns: Vec<usize> = std::env::args().skip(1).map(|a| a.parse().unwrap()).collect();
+    let dim: usize = std::env::var("DIM").ok().and_then(|s| s.parse().ok()).unwrap_or(384); let ns: Vec<usize> = std::env::args().skip(1).map(|a| a.parse().unwrap()).collect();
     let mut r = Rng(0x9E3779B97F4A7C15);
     for &n in &ns {
         let qs: Vec<Vec<f32>> = (0..30).map(|_| unit((0..dim).map(|_| r.next()).collect())).collect();
