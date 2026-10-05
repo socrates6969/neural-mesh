@@ -2024,10 +2024,40 @@ pub struct Verifier {
     lookup: LookupTool,
     /// R39 opt-in: verify "identity" claims with [`Identity::check_strict`] (default false = integer grid only)
     strict_identity: bool,
+    /// R51 opt-in: a decimal claim ("3.33") is accepted for "calc"/"units" when it is the CORRECT ROUNDING (half away from zero) of the exact result at
+    /// the claim's own number of decimals; truncations and off-by-one-digit claims are still rejected. Default false = exact rational equality only.
+    rounded_claims: bool,
 }
 impl Verifier {
     pub fn new(lookup: LookupTool) -> Self {
-        Verifier { lookup, strict_identity: false }
+        Verifier { lookup, strict_identity: false, rounded_claims: false }
+    }
+    /// opt-in: accept correctly rounded decimal claims for calc/units (R51); default off
+    pub fn with_rounded_claims(mut self, on: bool) -> Self {
+        self.rounded_claims = on;
+        self
+    }
+    /// true iff `claim` is a plain decimal (`-?d+.d+`, 1..=12 decimals) equal to `want` rounded half away from zero at that many decimals
+    pub fn is_correct_rounding(want: Rat, claim: &str) -> bool {
+        let c = claim.trim();
+        let body = c.strip_prefix('-').unwrap_or(c);
+        let Some((ip, fp)) = body.split_once('.') else { return false };
+        if ip.is_empty() || fp.is_empty() || fp.len() > 12 || !ip.bytes().all(|b| b.is_ascii_digit()) || !fp.bytes().all(|b| b.is_ascii_digit()) {
+            return false;
+        }
+        let Ok(got) = Rat::parse(c) else { return false };
+        let mut scale: i128 = 1;
+        for _ in 0..fp.len() {
+            scale *= 10;
+        }
+        let neg = want.numer() < 0;
+        let mag = if neg { want.neg() } else { want };
+        let Ok(scaled) = mag.mul(Rat::int(scale)) else { return false };
+        let Ok(half) = Rat::new(1, 2) else { return false };
+        let Ok(shifted) = scaled.add(half) else { return false };
+        let r = shifted.floor();
+        let Ok(rounded) = Rat::new(if neg { -r.numer() } else { r.numer() }, scale) else { return false };
+        rounded == got
     }
     /// opt-in stricter identity verification (rational + large-magnitude probes); default off
     pub fn with_strict_identity(mut self, on: bool) -> Self {
@@ -2047,6 +2077,9 @@ impl Verifier {
                     Err(_) => return Verifier::verdict(false, "claim is not a number"),
                 };
                 if want != got {
+                    if self.rounded_claims && Verifier::is_correct_rounding(want, claim) {
+                        return Verifier::verdict(true, "");
+                    }
                     return Verifier::verdict(false, "exact recompute differs");
                 }
                 // independent f64 path (different arithmetic) must agree
@@ -2066,6 +2099,9 @@ impl Verifier {
                     Err(_) => return Verifier::verdict(false, "claim is not a number"),
                 };
                 if want != got {
+                    if self.rounded_claims && Verifier::is_correct_rounding(want, claim) {
+                        return Verifier::verdict(true, "");
+                    }
                     return Verifier::verdict(false, "exact recompute differs");
                 }
                 // reverse conversion of the claim must give back the original value
@@ -2200,14 +2236,18 @@ impl Registry {
     }
     /// calc, units, csp, identity, sandbox, lookup, verify  (indices 0..=6)
     pub fn with_defaults(lookup: LookupTool, cache_on: bool) -> Self {
+        Registry::with_verifier(lookup.clone(), cache_on, Verifier::new(lookup))
+    }
+    /// same tool set as [`Registry::with_defaults`] but with a caller-configured verifier (e.g. R39 `with_strict_identity(true)`, R51 `with_rounded_claims(true)`)
+    pub fn with_verifier(lookup: LookupTool, cache_on: bool, verifier: Verifier) -> Self {
         let mut r = Registry::new(cache_on);
         r.register(Box::new(Calc));
         r.register(Box::new(Units));
         r.register(Box::new(Csp));
         r.register(Box::new(Identity::default()));
         r.register(Box::new(Sandbox::default()));
-        r.register(Box::new(lookup.clone()));
-        r.register(Box::new(Verifier::new(lookup)));
+        r.register(Box::new(lookup));
+        r.register(Box::new(verifier));
         r
     }
     pub fn index(&self, name: &str) -> Option<usize> {
@@ -2546,6 +2586,24 @@ mod tests {
         }
         spec += "a+b+c+d+e+f+g+h==10000";
         assert!(matches!(Csp::solve_str(&spec), Err(ToolError::StepLimit)));
+    }
+
+    #[test]
+    fn rounded_claims_accept_correct_rounding_only() {
+        let v0 = Verifier::new(LookupTool::new());
+        let v1 = Verifier::new(LookupTool::new()).with_rounded_claims(true);
+        let acc = |v: &Verifier, t: &str, spec: &str, c: &str| v.verify(t, spec, c).unwrap().0 == "accept";
+        // 10/3 = 3.3333..., 2/3 = 0.6666..., -5/3 = -1.6666..., 1/8 = 0.125
+        assert!(!acc(&v0, "calc", "10/3", "3.33"));
+        assert!(acc(&v1, "calc", "10/3", "3.33") && acc(&v1, "calc", "10/3", "3.3333"));
+        assert!(!acc(&v1, "calc", "10/3", "3.34") && !acc(&v1, "calc", "10/3", "3.32"));
+        assert!(acc(&v1, "calc", "2/3", "0.67") && !acc(&v1, "calc", "2/3", "0.66"), "truncation is rejected");
+        assert!(acc(&v1, "calc", "0-5/3", "-1.67") && !acc(&v1, "calc", "0-5/3", "-1.66"));
+        assert!(acc(&v1, "calc", "1/8", "0.13") && !acc(&v1, "calc", "1/8", "0.12"), "half rounds away from zero");
+        assert!(acc(&v1, "calc", "1/8", "0.125") && acc(&v1, "calc", "1/8", "1/8"), "exact claims still accepted");
+        assert!(!acc(&v1, "calc", "10/3", "3") && !acc(&v1, "calc", "10/3", "3.") && !acc(&v1, "calc", "10/3", "abc"));
+        assert!(acc(&v1, "units", "conv 100 ft -> yd", "33.33") && !acc(&v1, "units", "conv 100 ft -> yd", "33.34"));
+        assert!(!acc(&v0, "units", "conv 100 ft -> yd", "33.33"));
     }
 
     #[test]
