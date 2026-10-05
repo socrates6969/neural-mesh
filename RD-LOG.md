@@ -43,3 +43,38 @@ Result: domain_r1 B +.142 (HELD) / +.154 (CONF), domain_mrr B +.096/+.103, domai
 Implementation: `hybrid::{AdaptiveAlpha, Bm25::lexical_coverage, HybridIndex::{fused_scores_adaptive, search_adaptive}}` (additive, defaults untouched). Parity test `tests/b1_adaptive_parity.rs` (Rust == python reference on 40 queries, scores within 5e-3, identical top-1). lib tests 333 pass.
 Caveat: domain docs/queries are my own synthetic text (single-sentence docs); real-text equivalence is the only external evidence; B's typos are synthetic transpositions.
 Verdict: **KEPT (opt-in)**.
+
+Gate convention from Round 3 on: loss counts only if Holm-significant AND |diff| > tol (tol = .002 absolute, "noise level"); TOST(+-.01) reported. Baseline for rounds 3-16 = lib default hybrid alpha .7 (results/b1_baseline.json) unless stated.
+
+## Round 3 — RRF(k=60) fusion instead of z-score fusion
+Hypothesis: rank fusion is more robust than z-score. Result: domain B -.16..-.18 (r1/mrr), real_mrr CONF -.017, all Holm p<1e-5. Verdict: **REJECTED** (reproduces earlier h13 finding that RRF < z-fusion).
+
+## Round 4 — corpus-mean centering of the dense channel
+Result: no axis moves (|d|<=.015, nothing Holm-significant; real_mrr +.001). Verdict: **REJECTED (no gain)**.
+
+## Round 5 — Rocchio pseudo-relevance feedback (beta .5, top-3) on hybrid
+Result: domain B r1 -.061/-.051, mrr -.041/-.036 (Holm p<1e-4); real -.004 (n.s.). Verdict: **REJECTED** (small stores: top-3 contain wrong docs often, PRF drifts).
+
+## Round 6 — soft domain-centroid prior (docs carry a domain tag/namespace; score += g*z(cos(q, centroid(domain(d)))))
+Method: g=.5 and g=1.0, hybrid .7. Result g=.5: domain_r1 B +.039/+.061, mrr B +.035/+.050, route B +.065/+.096 (Holm p<=.013); no loss; real axis unaffected by construction (no tags). g=1.0 similar.
+Verdict vs default: win. BUT see R7: dominated by R2, **not shipped** (no code added). Honest note: needs tagged docs; real-text equivalence is trivial (prior unused there).
+
+## Round 7 — domain prior ON TOP of adaptive alpha (new baseline = R2 adaptive)
+Result: g=.5: domain_mrr B CONF +.015 (Holm p=.033) but HELD +.002 n.s.; r1/route n.s.; g=1: nothing. No Holm gain in both splits. Verdict: **REJECTED** (adaptive alpha already captures what the prior gave).
+
+## Round 8 — HARD domain routing (restrict candidates to top-1 / top-2 centroid domains) on top of adaptive
+Result: top-1: domain r1 A -.093/-.099, B -.096/-.068 (Holm p<1e-4); top-2: A -.040/-.035 (p<3e-4). Verdict: **REJECTED loudly**: a hard domain classifier costs more recall (it errs on ~10% of queries) than the search-space shrink gains. Soft prior is the only safe form.
+
+## Round 9 — int8 per-vector quantisation of doc+query vectors (bytes/vec 1536 -> 388)
+Gate: all retrieval + semantic axes. Result: no Holm loss above tol (worst per-axis diff sem_classification -.0056 n.s.; real_mrr diff -.0001 Holm-significant but 1e-4). Already exists as `flatq` int8 tier in lib; this is a battery re-verification. Verdict: **KEPT (4x smaller, existing opt-in)**.
+## Round 10 — float16 vectors (768 B): zero losses, TOST p=2.7e-48 for +-.01. Verdict: **KEPT (2x, existing opt-in)**.
+## Round 11 — int4 per-vector (196 B): sentence_completion B CONF -.083 (Holm), analogies -.056. **REJECTED**.
+## Round 12 — binary sign vectors (48 B): Holm losses on 11 tests (vocab -.20, analogies -.13..-.16, sentence_completion -.19..-.24, domain_mrr B -.04). **REJECTED loudly** (fine as a first-pass filter only, never as sole scorer).
+## Round 13 — PCA to k dims (fit on the store's own vectors, f32): k=256/192 no Holm loss; k=128 real_mrr -.006 (Holm, > tol); k=64 real -.016/-.018 and domain -.01. k=192/256 KEPT only as a recipe component (see R14); k<=128 **REJECTED**.
+## Round 14 — PCA + int8: PCA192+int8 = 196 B/vec (7.8x smaller than f32): no Holm loss above tol, real_mrr within TOST; PCA256+int8 260 B same; PCA128+int8 132 B: real_mrr -.006 REJECTED.
+Verdict R14a: **KEPT as an offline recipe** (python `py/b1/eff.py::pca_q`). NOT ported to Rust (needs a projection matrix file + SVD fit; lib has int8/f16 but no projector). Caveat: PCA fit on store vectors; tiny stores (<~200 docs) have rank < 192 so "PCA192" is a full-rank rotation there.
+
+## Round 15 — unsupervised whitening of the embedding space for semantic skills
+Result (shrink 1e-4/1e-3/1e-2): massive losses (vocab -.11..-.17, classification -.26..-.08, analogies -.18); shrink .01 still vocab A -.11. Verdict: **REJECTED loudly**.
+## Round 16 — prompt-templated word embeddings ("the meaning of {}", "the word {}") for analogies
+TUNE: analogies .792 -> .831. Verify: analogies +.03..+.08 but Holm p>=.034 (HELD A p=.034 only) in a ~100-test family; no loss. Verdict: **REJECTED (not significant on both splits)**; underpowered axis (6 items/seed) — a larger analogy set would be needed to detect <=+.04.

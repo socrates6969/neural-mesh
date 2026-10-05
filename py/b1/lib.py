@@ -84,11 +84,12 @@ def cosm(a, B):
 
 def semantic_acc(D, items, E=None):
     """E: function text->vec (default MiniLM table). Returns {skill: accuracy}"""
-    E = E or D.v
+    Eall = E or D.v
     res = {}
     for it in items:
         sk = it["skill"]
         if sk not in ("vocab", "similarities", "classification", "verbal_analogies", "sentence_completion"): continue
+        E = Eall.get(sk, D.v) if isinstance(Eall, dict) else Eall
         opts = it["opts"]; O = np.stack([E(o) for o in opts])
         if sk == "vocab": s = cosm(E(it["target"]), O); p = int(np.argmax(s))
         elif sk == "similarities": s = cosm(E(it["pair"][0]) + E(it["pair"][1]), O); p = int(np.argmax(s))
@@ -127,7 +128,8 @@ def knowledge_axes(D, world, seed, arm="hybrid", alpha=0.7, make=None):
     dd = D.stores["domain"]; n = len(dd["docs"]); qs = r.sample(dd["qs"], 24)
     keep = set(r.sample(range(n), int(.7 * n))) | {q[0] for q in qs}; keep = sorted(keep)
     idx = {d: i for i, d in enumerate(keep)}
-    docs = [dd["docs"][d] for d in keep]; vecs = np.stack([D.v(d) for d in docs]); ret = make(docs, vecs, arm, alpha)
+    docs = [dd["docs"][d] for d in keep]; vecs = np.stack([D.v(d) for d in docs])
+    ret = make(docs, vecs, arm, alpha, tags=[dd["dom"][d] for d in keep]) if getattr(make, "wants_tags", False) else make(docs, vecs, arm, alpha)
     h1 = []; mrr = []; dh = []
     for gd, dom, q1, q2 in qs:
         q = q1 if world == "A" else typo(r, q2, 0.12); qv = D.v(q)
