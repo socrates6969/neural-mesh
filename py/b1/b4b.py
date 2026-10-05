@@ -4,7 +4,7 @@ zD,zB,cov,qt,fam,rel,split=pickle.load(open(f"{RES}/b4_real.pkl","rb"))
 dzD,dzB,dcov,drows=pickle.load(open(f"{RES}/b4_dom.pkl","rb"))
 AL=np.round(np.arange(0,1.0001,.05),2)
 def rr(sc,rl): 
-    b=min(int((sc>sc[d]).sum()) for d in rl); return 1.0/(1+b)
+    b=min(int((sc>=sc[d]).sum())-1 for d in rl); return 1.0/(1+b)
 def build(p):
     T={}  # key -> list of (feat dict, rr vector)
     for q in zD:

@@ -44,7 +44,7 @@ def rr_all(ret, qs):
     out = {}
     for q, tid in qs.items():
         rel = set(Q[q]["rel"]); sc = ret.scores(W.texts[tid], W.emb[tid])
-        best = min(int((sc > sc[d]).sum()) for d in rel)
+        best = min(int((sc >= sc[d]).sum()) - 1 for d in rel)
         out[q] = 1.0 / (1 + best)
     return out
 

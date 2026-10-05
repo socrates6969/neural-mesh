@@ -148,6 +148,10 @@ pub struct MergeReport {
     pub outcomes_added: usize,
     pub lessons_added: usize,
     pub docs_added: usize,
+    /// B24: corpus namespaces NOT merged because the two stores use different vector dimensions (reported instead of aborting the whole merge half-way)
+    pub ns_skipped: usize,
+    /// B24: docs whose id exists locally with DIFFERENT text (local kept, as before, but now counted instead of silent)
+    pub doc_conflicts: usize,
 }
 
 #[derive(Debug)]
@@ -652,6 +656,13 @@ impl MeshStore {
         }
         for ns in other.namespaces()? {
             let (docs, vecs, dim) = other.load_docs(&ns)?;
+            let (mdocs, _mv, mdim) = self.load_docs(&ns)?;
+            if !mdocs.is_empty() && mdim != dim {
+                rep.ns_skipped += 1;
+                continue;
+            }
+            let mine: std::collections::HashMap<&str, &str> = mdocs.iter().map(|d| (d.id.as_str(), d.text.as_str())).collect();
+            rep.doc_conflicts += docs.iter().filter(|d| mine.get(d.id.as_str()).map_or(false, |t| *t != d.text.as_str())).count();
             rep.docs_added += self.put_docs(&ns, dim, &docs, &vecs)?;
         }
         Ok(rep)
@@ -1223,6 +1234,31 @@ mod tests {
         let _ = fs::remove_dir_all(&p);
     }
 
+
+    #[test]
+    fn merge_skips_dim_mismatched_namespaces_and_counts_conflicts_instead_of_aborting() {
+        // B24: merge_from used to return Err(Corrupt) at the first namespace whose dim differs, leaving the merge half-done
+        // (outcomes already appended, later namespaces never visited). Now the namespace is skipped and reported.
+        let (pa, pb) = (tmp("mg_dim_a"), tmp("mg_dim_b"));
+        let (a, b) = (MeshStore::open(&pa).unwrap(), MeshStore::open(&pb).unwrap());
+        let d = |id: &str, t: &str| DocRec { id: id.into(), text: t.into(), tag: "t".into() };
+        a.put_docs("x", 4, &[d("1", "alpha"), d("2", "beta")], &[0.5; 8]).unwrap();
+        b.put_docs("a", 3, &[d("p", "p")], &[0.5; 3]).unwrap(); // sorts before "x"
+        b.put_docs("x", 8, &[d("3", "gamma")], &[0.5; 8]).unwrap(); // dim clash with a's "x"
+        b.put_docs("z", 4, &[d("q", "q"), d("q2", "q2")], &[0.5; 8]).unwrap(); // sorts after "x": used to be unreachable
+        let c = tmp("mg_dim_c");
+        let c = MeshStore::open(&c).unwrap();
+        c.put_docs("z", 4, &[d("q", "DIFFERENT")], &[0.5; 4]).unwrap();
+        let r = a.merge_from(&b).unwrap();
+        assert_eq!(r.ns_skipped, 1, "the dim-clashing namespace is skipped and reported");
+        assert_eq!(r.docs_added, 3, "a/p, z/q, z/q2 merged despite the clash in between");
+        assert_eq!(a.load_docs("x").unwrap().0.len(), 2, "x untouched");
+        let r2 = c.merge_from(&b).unwrap();
+        assert_eq!(r2.doc_conflicts, 1, "same id, different text is counted (local kept)");
+        assert_eq!(c.load_docs("z").unwrap().0.iter().find(|d| d.id == "q").unwrap().text, "DIFFERENT");
+        let _ = fs::remove_dir_all(&pa);
+        let _ = fs::remove_dir_all(&pb);
+    }
 
     #[test]
     fn two_waiters_judging_the_same_lock_stale_do_not_both_acquire() {

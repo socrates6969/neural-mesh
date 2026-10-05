@@ -20,7 +20,7 @@ def eval_store(mask, qlist):
         tid=None
         sc=.7*z(vecs@W.emb[RC.qid[q]])+.3*z(bm.score(RC.qt[q]))
         if not rel: out.append(None); continue
-        out.append(1.0/(1+min(int((sc>sc[d]).sum()) for d in rel)))
+        out.append(1.0/(1+min(int((sc>=sc[d]).sum())-1 for d in rel)))
     return out
 rng=np.random.RandomState(7)
 qs=list(rng.choice(qs,500,replace=False))

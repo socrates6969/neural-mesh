@@ -26,7 +26,7 @@ fn main() {
         Some("merge") if a.len() == 3 => {
             let (d, s) = (MeshStore::open(&a[1]).unwrap(), MeshStore::open(&a[2]).unwrap());
             let r = d.merge_from(&s).unwrap();
-            println!("{{\"outcomes_added\":{},\"lessons_added\":{},\"docs_added\":{}}}", r.outcomes_added, r.lessons_added, r.docs_added);
+            println!("{{\"outcomes_added\":{},\"lessons_added\":{},\"docs_added\":{},\"ns_skipped\":{},\"doc_conflicts\":{}}}", r.outcomes_added, r.lessons_added, r.docs_added, r.ns_skipped, r.doc_conflicts);
         }
         Some("sync") if a.len() >= 4 => {
             let s = MeshStore::open(&a[1]).unwrap();

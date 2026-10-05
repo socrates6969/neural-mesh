@@ -49,7 +49,7 @@ class RealComp:
                 den = sum(bm.idf[x] for x in seen) * (bm.k1 + 1)
                 self.cov[p][q] = float(raw.max() / den) if den > 0 else 0.0
     def rr(self, q, sc):
-        best = min(int((sc > sc[d]).sum()) for d in self.rel[q])
+        best = min(int((sc >= sc[d]).sum()) - 1 for d in self.rel[q])
         return 1.0 / (1 + best)
 
 
