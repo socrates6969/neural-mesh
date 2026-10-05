@@ -31,6 +31,18 @@ use crate::router::{Router, Task};
 pub const SCHEMA_VERSION: u32 = 1;
 const LOCK_TIMEOUT_MS: u64 = 3000;
 const LOCK_STALE_MS: u64 = 10_000;
+#[cfg(test)]
+static STALE_OVERRIDE_MS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+fn lock_stale_ms() -> u64 {
+    #[cfg(test)]
+    {
+        let o = STALE_OVERRIDE_MS.load(std::sync::atomic::Ordering::Relaxed);
+        if o > 0 {
+            return o;
+        }
+    }
+    LOCK_STALE_MS
+}
 
 fn now_ms() -> u64 {
     SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_millis() as u64).unwrap_or(0)
@@ -121,6 +133,13 @@ impl std::error::Error for StoreError {}
 type R<T> = Result<T, StoreError>;
 
 struct Guard(PathBuf);
+impl Guard {
+    /// B19: refresh the lock's mtime so a LONG operation (gc_docs is O(n^2 d)) is not mistaken for a crashed holder and its lock broken by another process.
+    fn heartbeat(&self) {
+        let _ = fs::write(&self.0, format!("{}
+", now_ms()));
+    }
+}
 impl Drop for Guard {
     fn drop(&mut self) {
         let _ = fs::remove_file(&self.0);
@@ -175,7 +194,7 @@ impl MeshStore {
                 }
                 Err(e) if e.kind() == io::ErrorKind::AlreadyExists || e.kind() == io::ErrorKind::PermissionDenied => {
                     if let Ok(m) = fs::metadata(&p).and_then(|m| m.modified()) {
-                        if m.elapsed().map(|d| d > Duration::from_millis(LOCK_STALE_MS)).unwrap_or(false) {
+                        if m.elapsed().map(|d| d > Duration::from_millis(lock_stale_ms())).unwrap_or(false) {
                             let _ = fs::remove_file(&p);
                             continue;
                         }
@@ -431,6 +450,9 @@ impl MeshStore {
         }
         let mut keep: Vec<usize> = vec![];
         for i in 0..n {
+            if i % 64 == 0 {
+                _g.heartbeat();
+            }
             let vi = &unit[i * dim..(i + 1) * dim];
             let dup = keep.iter().any(|&j| {
                 let vj = &unit[j * dim..(j + 1) * dim];
@@ -920,6 +942,56 @@ mod tests {
         let a = s.open_ann("ns").unwrap().unwrap();
         let top = a.search(&newv, 1, 64);
         assert_eq!(top[0].0, 29, "the freshly added doc must be found at its row (stale graph served: {top:?})");
+        let _ = fs::remove_dir_all(&p);
+    }
+
+
+    #[test]
+    fn long_gc_keeps_its_lock_alive_so_concurrent_puts_are_not_lost() {
+        use std::sync::atomic::Ordering;
+        STALE_OVERRIDE_MS.store(150, Ordering::Relaxed);
+        let p = tmp("gc_lock");
+        let s = MeshStore::open(&p).unwrap();
+        let dim = 256;
+        let n = 6000usize;
+        let mut st = 99u64;
+        let v: Vec<f32> = (0..n * dim)
+            .map(|_| {
+                st = st.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+                ((st >> 33) as f32 / (1u64 << 31) as f32) * 2.0 - 1.0
+            })
+            .collect();
+        let mut v = v;
+        let head: Vec<f32> = v[..50 * dim].to_vec();
+        v[(n - 50) * dim..].copy_from_slice(&head); // 50 exact duplicates so gc really rewrites the corpus
+        let docs: Vec<DocRec> = (0..n).map(|i| DocRec { id: format!("d{i}"), text: format!("t{i}"), tag: "x".into() }).collect();
+        s.put_docs("ns", dim, &docs, &v).unwrap();
+        let p2 = p.clone();
+        let t0 = Instant::now();
+        let gc = std::thread::spawn(move || MeshStore::open(&p2).unwrap().gc_docs("ns", 0.99999).unwrap());
+        std::thread::sleep(Duration::from_millis(60));
+        // a second writer arrives while gc runs (gc takes far longer than the 150 ms stale threshold used here)
+        let s2 = MeshStore::open(&p).unwrap();
+        let extra = vec![DocRec { id: "late".into(), text: "late".into(), tag: "x".into() }];
+        let mut added = 0;
+        for _ in 0..200 {
+            match s2.put_docs("ns", dim, &extra, &vec![0.5; dim]) {
+                Ok(k) => {
+                    added = k;
+                    break;
+                }
+                Err(StoreError::Locked(_)) => std::thread::sleep(Duration::from_millis(20)),
+                Err(e) => panic!("{e}"),
+            }
+        }
+        gc.join().unwrap();
+        STALE_OVERRIDE_MS.store(0, Ordering::Relaxed);
+        let gc_ms = t0.elapsed().as_millis();
+        let (d, vv, dm) = s.load_docs("ns").unwrap();
+        assert!(gc_ms > 300, "test premise: gc must outlast the stale threshold (took {gc_ms} ms)");
+        assert_eq!(added, 1);
+        assert!(d.iter().any(|x| x.id == "late"), "the doc added while gc ran must survive");
+        assert_eq!(vv.len(), d.len() * dm);
         let _ = fs::remove_dir_all(&p);
     }
 
