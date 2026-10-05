@@ -194,6 +194,27 @@ impl Bm25 {
             seen.push(t);
         }
     }
+    /// B1/R2 (opt-in): lexical coverage of the best document in [0,1]: max BM25 score divided by the maximum a document could score
+    /// (sum of idf of the distinct in-vocabulary query tokens times (k1+1)). 0 when no query token is in the vocabulary.
+    pub fn lexical_coverage(&self, q: &str, scores: &[f32]) -> f32 {
+        let mut seen: Vec<String> = Vec::new();
+        let mut den = 0.0f32;
+        for t in tokens(q) {
+            if seen.contains(&t) {
+                continue;
+            }
+            if let Some(term) = self.terms.get(&t) {
+                den += term.idf;
+            }
+            seen.push(t);
+        }
+        den *= self.k1 + 1.0;
+        if den <= 0.0 {
+            return 0.0;
+        }
+        let mx = scores.iter().copied().fold(0.0f32, f32::max);
+        (mx / den).clamp(0.0, 1.0)
+    }
     /// approximate payload size: postings (u32 doc + f32 tf) + term strings + idf (f32) + doc lengths (same formula as the h13 report)
     pub fn bytes(&self) -> usize {
         self.terms.iter().map(|(t, e)| t.len() + e.post.len() * 8 + 4).sum::<usize>() + self.dl.len() * 4
@@ -214,6 +235,23 @@ impl HybridConfig {
     fn alpha_f32(&self) -> f32 {
         let a = if self.alpha.is_nan() { 0.7 } else { self.alpha.clamp(0.0, 1.0) };
         a as f32
+    }
+}
+
+
+/// B1/R2 (opt-in, NOT used by any default path): query-adaptive fusion weight.
+/// alpha_q = hi - (hi - lo) * coverage^pow, where coverage = [`Bm25::lexical_coverage`]: strong lexical match -> trust BM25 more (alpha -> lo),
+/// weak/paraphrased query -> trust the dense score (alpha -> hi). Verified in py/b1 (RD-LOG R2): wins on paraphrase+typo domain queries,
+/// no Holm loss on the real-document fixtures.
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+pub struct AdaptiveAlpha {
+    pub lo: f64,
+    pub hi: f64,
+    pub pow: f64,
+}
+impl Default for AdaptiveAlpha {
+    fn default() -> Self {
+        AdaptiveAlpha { lo: 0.3, hi: 1.0, pow: 2.0 }
     }
 }
 
@@ -289,6 +327,27 @@ impl HybridIndex {
         out.clear();
         out.extend(zd.iter().zip(&zb).map(|(d, b)| a * d + (1.0 - a) * b));
         Ok(())
+    }
+    /// B1/R2 (opt-in): fused z-scores with the per-query adaptive alpha; returns the alpha actually used.
+    pub fn fused_scores_adaptive(&self, qtext: &str, qvec: &[f32], ad: &AdaptiveAlpha, out: &mut Vec<f32>) -> Result<f32, HybridError> {
+        let mut dense = Vec::new();
+        self.dense_scores(qvec, &mut dense)?;
+        let mut bm = Vec::new();
+        self.bm.score(qtext, &mut bm);
+        let cov = self.bm.lexical_coverage(qtext, &bm);
+        let a = (ad.hi - (ad.hi - ad.lo) * (cov as f64).powf(ad.pow)).clamp(0.0, 1.0) as f32;
+        let (mut zd, mut zb) = (Vec::new(), Vec::new());
+        zscore_into(&dense, &mut zd);
+        zscore_into(&bm, &mut zb);
+        out.clear();
+        out.extend(zd.iter().zip(&zb).map(|(d, b)| a * d + (1.0 - a) * b));
+        Ok(a)
+    }
+    /// B1/R2 (opt-in): top-k with the adaptive alpha
+    pub fn search_adaptive(&self, qtext: &str, qvec: &[f32], k: usize, ad: &AdaptiveAlpha) -> Result<Vec<(usize, f32)>, HybridError> {
+        let mut sc = Vec::new();
+        self.fused_scores_adaptive(qtext, qvec, ad, &mut sc)?;
+        Ok(top_n(&sc, k).into_iter().map(|d| (d, sc[d])).collect())
     }
     /// top-k (doc, fused score), best first, ties by lower doc index
     pub fn search(&self, qtext: &str, qvec: &[f32], k: usize) -> Result<Vec<(usize, f32)>, HybridError> {
