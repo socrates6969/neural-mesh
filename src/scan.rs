@@ -166,6 +166,18 @@ fn dot_i8(a: &[i8], b: &[i8]) -> i32 {
     s
 }
 
+/// R101: public int8 dot with runtime AVX2 dispatch (portable fallback)
+pub fn dot_i8_fast(a: &[i8], b: &[i8]) -> i32 {
+    #[cfg(target_arch = "x86_64")]
+    {
+        if has_avx2() {
+            // SAFETY: avx2 availability was just checked at runtime
+            return unsafe { dot_i8_avx2(a, b) };
+        }
+    }
+    dot_i8(a, b)
+}
+
 /// explicit AVX2: sign-extend 16 i8 -> 16 i16 and multiply-add pairs into 8 i32 lanes (vpmaddwd), 2 independent accumulators
 #[cfg(target_arch = "x86_64")]
 #[target_feature(enable = "avx2")]
