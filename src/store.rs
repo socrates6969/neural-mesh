@@ -172,6 +172,8 @@ pub struct SyncReport {
     pub files_read: usize,
     /// peer files that could not be read (locked, permission denied, not a regular file): skipped, the sync still completes (B29)
     pub files_skipped: usize,
+    /// B34: journal/lesson records whose id already exists (locally or in an earlier foreign file) with DIFFERENT content; first copy wins, now counted
+    pub conflicts: usize,
     pub bytes_written: usize,
 }
 
@@ -620,8 +622,9 @@ impl MeshStore {
         if let Some(n) = case_collision(&files, &[&own_j, &own_l]) {
             return Err(StoreError::Corrupt(format!("machine id '{machine}' collides case-insensitively with existing shared file '{n}'; pick a machine id that differs by more than case")));
         }
-        let mut seen: HashSet<String> = self.outcomes()?.into_iter().map(|o| o.id).collect();
-        let mut seen_l: HashSet<String> = self.lessons()?.into_iter().map(|l| l.id).collect();
+        // B34: id -> first copy seen (local, then foreign in sorted file order); later copies with different content are counted as conflicts
+        let mut seen_o: std::collections::HashMap<String, Outcome> = self.outcomes()?.into_iter().map(|o| (o.id.clone(), o)).collect();
+        let mut seen_lm: std::collections::HashMap<String, LessonRec> = self.lessons()?.into_iter().map(|l| (l.id.clone(), l)).collect();
         let (mut add_o, mut add_l): (Vec<Outcome>, Vec<LessonRec>) = (vec![], vec![]);
         let mut foreign: HashSet<String> = HashSet::new(); // ids present in OTHER machines' files (any world): we do not re-export those
         for p in &files {
@@ -639,7 +642,14 @@ impl MeshStore {
                 for l in lines {
                     if let Ok(o) = serde_json::from_str::<Outcome>(&l) {
                         foreign.insert(o.id.clone());
-                        if worlds.map_or(true, |ws| ws.iter().any(|w| *w == o.world)) && seen.insert(o.id.clone()) {
+                        if let Some(prev) = seen_o.get(&o.id) {
+                            if *prev != o {
+                                rep.conflicts += 1;
+                            }
+                            continue;
+                        }
+                        if worlds.map_or(true, |ws| ws.iter().any(|w| *w == o.world)) {
+                            seen_o.insert(o.id.clone(), o.clone());
                             add_o.push(o);
                         }
                     }
@@ -652,9 +662,14 @@ impl MeshStore {
                 rep.files_read += 1;
                 for l in lines {
                     if let Ok(x) = serde_json::from_str::<LessonRec>(&l) {
-                        if seen_l.insert(x.id.clone()) {
-                            add_l.push(x);
+                        if let Some(prev) = seen_lm.get(&x.id) {
+                            if *prev != x {
+                                rep.conflicts += 1;
+                            }
+                            continue;
                         }
+                        seen_lm.insert(x.id.clone(), x.clone());
+                        add_l.push(x);
                     }
                 }
             }
@@ -713,6 +728,20 @@ impl MeshStore {
                 rep.ns_skipped += 1;
                 continue;
             }
+            // B35: ids this store gc-dropped (tombstones, B30) are not resurrected by a merge either
+            let tomb: HashSet<String> = lossy_lines(&self.kdir(&ns).join("tombstones.jsonl")).map(|ls| ls.iter().filter_map(|l| serde_json::from_str::<String>(l).ok()).collect()).unwrap_or_default();
+            let (docs, vecs) = if tomb.is_empty() {
+                (docs, vecs)
+            } else {
+                let (mut kd, mut kv) = (Vec::new(), Vec::new());
+                for (i, d) in docs.into_iter().enumerate() {
+                    if !tomb.contains(&d.id) {
+                        kv.extend_from_slice(&vecs[i * dim..(i + 1) * dim]);
+                        kd.push(d);
+                    }
+                }
+                (kd, kv)
+            };
             let mine: std::collections::HashMap<&str, &str> = mdocs.iter().map(|d| (d.id.as_str(), d.text.as_str())).collect();
             rep.doc_conflicts += docs.iter().filter(|d| mine.get(d.id.as_str()).map_or(false, |t| *t != d.text.as_str())).count();
             rep.docs_added += self.put_docs(&ns, dim, &docs, &vecs)?;
@@ -1638,5 +1667,60 @@ mod hardening_b31_tests {
         assert_eq!(fs::read(&f).unwrap(), b"new contents");
         assert!(!t.exists());
         let _ = fs::remove_dir_all(&d);
+    }
+}
+
+#[cfg(test)]
+mod hardening_b34_tests {
+    use super::*;
+    fn tmp(name: &str) -> PathBuf {
+        let p = std::env::temp_dir().join(format!("nm_b34_{name}_{}", std::process::id()));
+        let _ = fs::remove_dir_all(&p);
+        p
+    }
+    fn oj(id: &str, reward: f64) -> String {
+        format!("{{\"id\":\"{id}\",\"session\":\"s\",\"seq\":0,\"ts\":0,\"world\":\"w\",\"features\":[],\"task_type\":null,\"agent\":\"x\",\"reward\":{reward}}}\n")
+    }
+    fn ls(id: &str, text: &str) -> String {
+        format!("{{\"id\":\"{id}\",\"session\":\"s\",\"ts\":0,\"world\":\"w\",\"agent\":null,\"tag\":\"t\",\"text\":\"{text}\"}}\n")
+    }
+    /// B34: journal/lesson ids that two foreign files (or local and foreign) disagree on were resolved silently; now counted (first copy still wins).
+    #[test]
+    fn journal_and_lesson_disagreements_are_counted() {
+        let (folder, p) = (tmp("f"), tmp("s"));
+        fs::create_dir_all(&folder).unwrap();
+        fs::write(folder.join("a.journal.jsonl"), oj("o:1", 1.0)).unwrap();
+        fs::write(folder.join("b.journal.jsonl"), oj("o:1", 0.0)).unwrap(); // foreign-vs-foreign disagreement
+        fs::write(folder.join("a.lessons.jsonl"), ls("l:1", "one")).unwrap();
+        fs::write(folder.join("b.lessons.jsonl"), ls("l:1", "TWO")).unwrap();
+        let s = MeshStore::open(&p).unwrap();
+        let r = s.sync_folder(&folder, "me", None, None).unwrap();
+        assert_eq!((r.imported, r.lessons_imported), (1, 1), "{r:?}");
+        assert_eq!(r.conflicts, 2, "{r:?}");
+        assert_eq!(s.outcomes().unwrap()[0].reward, 1.0, "first in sorted order wins");
+        // agreeing duplicates are not conflicts
+        fs::write(folder.join("b.journal.jsonl"), oj("o:1", 1.0)).unwrap();
+        fs::write(folder.join("b.lessons.jsonl"), ls("l:1", "one")).unwrap();
+        let r = s.sync_folder(&folder, "me", None, None).unwrap();
+        assert_eq!(r.conflicts, 0, "{r:?}");
+        let _ = fs::remove_dir_all(&folder);
+        let _ = fs::remove_dir_all(&p);
+    }
+    /// B35: `merge_from` re-imported docs this store had gc-dropped (tombstoned, B30).
+    #[test]
+    fn merge_from_does_not_resurrect_gc_dropped_docs() {
+        let (pa, pb) = (tmp("ma"), tmp("mb"));
+        let (a, b) = (MeshStore::open(&pa).unwrap(), MeshStore::open(&pb).unwrap());
+        let docs: Vec<DocRec> = ["x", "y", "z"].iter().map(|i| DocRec { id: i.to_string(), text: format!("t{i}"), tag: "t".into() }).collect();
+        let v = [1.0f32, 0., 0., 0., 1.0, 0., 0., 0., 0., 1.0, 0., 0.];
+        a.put_docs("kb", 4, &docs, &v).unwrap();
+        b.put_docs("kb", 4, &docs, &v).unwrap();
+        assert_eq!(a.gc_docs("kb", 0.99).unwrap(), (3, 2));
+        let r = a.merge_from(&b).unwrap();
+        let ids: Vec<String> = a.load_docs("kb").unwrap().0.into_iter().map(|d| d.id).collect();
+        assert_eq!(ids, vec!["x".to_string(), "z".to_string()], "{r:?}");
+        assert_eq!(r.docs_added, 0, "{r:?}");
+        let _ = fs::remove_dir_all(&pa);
+        let _ = fs::remove_dir_all(&pb);
     }
 }
