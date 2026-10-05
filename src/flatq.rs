@@ -549,6 +549,39 @@ pub fn suggest_tier(n: usize, dim: usize, latency_budget_ms: f64, ram_budget_byt
     Advice::NeedsAnnGraph
 }
 
+/// R70: p50 (us, single thread, d=384, random unit vectors, N = 1e4 / 1e5 / 1e6) measured on THIS crate's [`FlatIndex`] with
+/// `with_fast_kernels(true)` (`src/bin/n9_tier_validate.rs`). The H6 table above was produced by `h6_gate.rs`'s own kernels: for f32 it agrees
+/// with FlatIndex-FAST (466/5136/65836 vs 634/4445/50686 us), but for block-fp16 and int8+rerank FlatIndex is 2-4.5x SLOWER than the H6 rows
+/// (298/3699/43614 and 150/1588/18114 us), so [`suggest_tier`] is optimistic for advice that `build_suggested` then builds.
+const FLAT_FAST_P50: [(Advice, [f64; 3]); 3] = [
+    (Advice::F32, [634.0, 4445.0, 50686.0]),
+    (Advice::BlockFp16, [910.0, 7963.0, 82453.0]),
+    (Advice::Int8RerankRam, [781.0, 6837.0, 69653.0]),
+];
+
+/// Flat-scan advice calibrated to what [`FlatIndex`] (FAST kernels) actually delivers (opt-in; [`suggest_tier`] is unchanged).
+/// With the fast kernels exact f32 is both the fastest and the most accurate flat tier; compressing only buys RAM
+/// (block-fp16 = 816 B/vec at d=384, ~1.6x slower). The int8+rerank variant keeps an f32 copy in RAM, so it never wins here.
+/// Returns `None` when neither f32 nor block-fp16 meets the budgets (use an ANN graph, see [`flat_is_better_than_hnsw`]).
+/// Latency is the linear fit through the 3 measured sizes scaled by dim/384: only N in [1e4, 1e6] and d near 384 are measurements.
+pub fn suggest_flat_fast(n: usize, dim: usize, latency_budget_ms: f64, ram_budget_bytes: usize) -> Option<Advice> {
+    let nf = n as f64;
+    for (adv, p50) in FLAT_FAST_P50.iter().take(2) {
+        let c = Cand { adv: *adv, p50: *p50, recall: [1.0; 3] };
+        if (adv_ram_per_vec(*adv, dim) as f64) * nf <= ram_budget_bytes as f64 && modelled_p50_us(&c, nf, dim) <= latency_budget_ms * 1000.0 {
+            return Some(*adv);
+        }
+    }
+    None
+}
+
+/// R58: below this many vectors an exact FAST flat scan beats an HNSW graph (real corpus N=6,831 d=384: flat 364 us vs HNSW M16 413 us @ recall .981).
+/// Synthetic clustered data: N=50k flat 2.35 ms vs HNSW 0.35-0.70 ms (recall .97-1.0); N=200k flat 13.5 ms vs HNSW M24/efc100/efs100 0.53 ms @ .999.
+pub const FLAT_HNSW_CROSSOVER_N: usize = 15_000;
+pub fn flat_is_better_than_hnsw(n: usize) -> bool {
+    n < FLAT_HNSW_CROSSOVER_N
+}
+
 /// Build the index suggested by [`suggest_tier`] if it is implementable here (`None` for advice that needs external machinery).
 pub fn build_suggested(n: usize, dim: usize, latency_budget_ms: f64, ram_budget_bytes: usize, metric: Metric) -> Option<FlatIndex> {
     let (t, r) = suggest_tier(n, dim, latency_budget_ms, ram_budget_bytes).flat_config()?;
@@ -826,5 +859,18 @@ mod tests {
         let ix = build_suggested(1_000_000, 384, 20.0, 2000 * MB, Metric::Cosine).unwrap();
         assert_eq!((ix.tier(), ix.rerank_factor()), (Tier::Int8, 4));
         assert!(build_suggested(300_000, 384, 5.0, 2000 * MB, Metric::Cosine).is_none(), "tv4 is advice only");
+    }
+
+    #[test]
+    fn suggest_flat_fast_follows_measured_flatindex_grid() {
+        const MB: usize = 1_000_000;
+        // measured grid: f32 634 / 4445 / 50686 us
+        assert_eq!(suggest_flat_fast(10_000, 384, 1.0, 128 * MB), Some(Advice::F32));
+        assert_eq!(suggest_flat_fast(100_000, 384, 5.0, 2000 * MB), Some(Advice::F32));
+        // 100k vectors f32 = 154 MB: a 128 MB budget forces block-fp16 (82 MB) which needs ~8 ms
+        assert_eq!(suggest_flat_fast(100_000, 384, 20.0, 128 * MB), Some(Advice::BlockFp16));
+        assert_eq!(suggest_flat_fast(100_000, 384, 5.0, 128 * MB), None);
+        assert_eq!(suggest_flat_fast(1_000_000, 384, 20.0, 2000 * MB), None, "1e6 flat needs ~50 ms");
+        assert!(flat_is_better_than_hnsw(6_831) && !flat_is_better_than_hnsw(50_000));
     }
 }
