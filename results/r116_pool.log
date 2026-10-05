@@ -1,0 +1,29 @@
+int8 threads 2: embeddings bit-identical pool vs scope: true
+  int8 thr 2 bs=16: scope 2.635 | pool 2.230 ms/q | x1.18
+  int8 thr 2 bs=64: scope 2.758 | pool 2.611 ms/q | x1.06
+int8 threads 4: embeddings bit-identical pool vs scope: true
+  int8 thr 4 bs=16: scope 2.240 | pool 1.840 ms/q | x1.22
+  int8 thr 4 bs=64: scope 2.166 | pool 2.051 ms/q | x1.06
+int8 threads 8: embeddings bit-identical pool vs scope: true
+  int8 thr 8 bs=16: scope 2.152 | pool 1.685 ms/q | x1.28
+  int8 thr 8 bs=64: scope 2.104 | pool 2.009 ms/q | x1.05
+f32  threads 2: embeddings bit-identical pool vs scope: true
+  f32  thr 2 bs=16: scope 4.280 | pool 3.645 ms/q | x1.17
+  f32  thr 2 bs=64: scope 3.997 | pool 3.681 ms/q | x1.09
+f32  threads 4: embeddings bit-identical pool vs scope: true
+  f32  thr 4 bs=16: scope 2.869 | pool 2.514 ms/q | x1.14
+  f32  thr 4 bs=64: scope 2.650 | pool 2.681 ms/q | x0.99
+f32  threads 8: embeddings bit-identical pool vs scope: true
+  f32  thr 8 bs=16: scope 2.568 | pool 2.209 ms/q | x1.16
+  f32  thr 8 bs=64: scope 2.433 | pool 2.428 ms/q | x1.00
+--- pool with lower split threshold (small batches), int8 ---
+thr 2: low-threshold embeddings bit-identical: true
+  thr 2 bs=1: min48 3.296 | min8 2.706 ms/q | x1.22
+  thr 2 bs=2: min48 3.040 | min8 2.438 ms/q | x1.25
+  thr 2 bs=4: min48 2.234 | min8 2.230 ms/q | x1.00
+  thr 2 bs=8: min48 2.170 | min8 2.161 ms/q | x1.00
+thr 4: low-threshold embeddings bit-identical: true
+  thr 4 bs=1: min48 3.379 | min8 2.226 ms/q | x1.52
+  thr 4 bs=2: min48 3.135 | min8 2.115 ms/q | x1.48
+  thr 4 bs=4: min48 1.835 | min8 1.758 ms/q | x1.04
+  thr 4 bs=8: min48 1.739 | min8 1.827 ms/q | x0.95

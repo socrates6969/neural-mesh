@@ -11,6 +11,118 @@ const FF: usize = 1536;
 const L: usize = 6;
 const MAXLEN: usize = 128;
 
+/// R116: persistent worker pool (replaces the per-linear-layer `thread::scope` spawn+join, ~36 spawns per batch). `run(th, f)` runs `f(0..th)`; the caller executes index 0,
+/// workers 1..th, and `run` returns only after every index finished, so `f` may borrow from the caller's stack (the lifetime is erased inside, the join guarantees it).
+struct Pool {
+    shared: std::sync::Arc<PoolShared>,
+    workers: Vec<std::thread::JoinHandle<()>>,
+    dispatch: std::sync::Mutex<()>,
+}
+struct PoolShared {
+    m: std::sync::Mutex<PoolState>,
+    work: std::sync::Condvar,
+    done: std::sync::Condvar,
+}
+struct PoolState {
+    epoch: u64,
+    job: Option<JobPtr>,
+    th: usize,
+    remaining: usize,
+    panicked: bool,
+    shutdown: bool,
+}
+#[derive(Clone, Copy)]
+struct JobPtr(*const (dyn Fn(usize) + Sync));
+// SAFETY: the pointee is `Sync` and `Pool::run` does not return (and so does not free it) until all workers are done with it.
+unsafe impl Send for JobPtr {}
+impl Pool {
+    fn new(extra: usize) -> Pool {
+        let shared = std::sync::Arc::new(PoolShared {
+            m: std::sync::Mutex::new(PoolState { epoch: 0, job: None, th: 0, remaining: 0, panicked: false, shutdown: false }),
+            work: std::sync::Condvar::new(),
+            done: std::sync::Condvar::new(),
+        });
+        let workers = (0..extra)
+            .map(|w| {
+                let sh = shared.clone();
+                std::thread::spawn(move || {
+                    let id = w + 1;
+                    let mut seen = 0u64;
+                    loop {
+                        let (job, th) = {
+                            let mut g = sh.m.lock().unwrap();
+                            while !g.shutdown && g.epoch == seen {
+                                g = sh.work.wait(g).unwrap();
+                            }
+                            if g.shutdown {
+                                return;
+                            }
+                            seen = g.epoch;
+                            (g.job, g.th)
+                        };
+                        if id < th {
+                            let f = job.expect("job").0;
+                            // SAFETY: `run` keeps the closure alive until `remaining` reaches 0
+                            let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| unsafe { (*f)(id) }));
+                            let mut g = sh.m.lock().unwrap();
+                            if r.is_err() {
+                                g.panicked = true;
+                            }
+                            g.remaining -= 1;
+                            if g.remaining == 0 {
+                                sh.done.notify_all();
+                            }
+                        }
+                    }
+                })
+            })
+            .collect();
+        Pool { shared, workers, dispatch: std::sync::Mutex::new(()) }
+    }
+    fn run(&self, th: usize, f: &(dyn Fn(usize) + Sync)) {
+        let th = th.min(self.workers.len() + 1);
+        let _d = self.dispatch.lock().unwrap_or_else(|e| e.into_inner());
+        {
+            let mut g = self.shared.m.lock().unwrap();
+            // SAFETY: lifetime erased; we block below until every worker finished with `f`
+            let p: *const (dyn Fn(usize) + Sync + '_) = f;
+            g.job = Some(JobPtr(unsafe { std::mem::transmute::<*const (dyn Fn(usize) + Sync + '_), *const (dyn Fn(usize) + Sync + 'static)>(p) }));
+            g.th = th;
+            g.remaining = th - 1;
+            g.panicked = false;
+            g.epoch += 1;
+            self.shared.work.notify_all();
+        }
+        let mine = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| f(0)));
+        let mut g = self.shared.m.lock().unwrap();
+        while g.remaining > 0 {
+            g = self.shared.done.wait(g).unwrap();
+        }
+        g.job = None;
+        let bad = g.panicked;
+        drop(g);
+        if mine.is_err() || bad {
+            panic!("encoder pool task panicked");
+        }
+    }
+}
+impl Drop for Pool {
+    fn drop(&mut self) {
+        self.shared.m.lock().unwrap().shutdown = true;
+        self.shared.work.notify_all();
+        for h in self.workers.drain(..) {
+            let _ = h.join();
+        }
+    }
+}
+/// threading configuration handed to every linear layer
+struct Par {
+    threads: usize,
+    pool: Option<std::sync::Arc<Pool>>,
+    /// token threshold for splitting a layer over the pool (the scoped-spawn path keeps 48)
+    min_tokens: usize,
+}
+
 struct Lin {
     w: Vec<f32>,
     b: Vec<f32>,
@@ -39,7 +151,7 @@ pub struct Encoder {
     eln: (Vec<f32>, Vec<f32>),
     layers: Vec<Layer>,
     int8: bool,
-    threads: usize,
+    par: Par,
 }
 
 #[derive(Debug)]
@@ -440,32 +552,41 @@ impl Lin {
         }
     }
     /// y[t] = W x[t] + b for `t` tokens (x: t*inn, y: t*out); with `threads` > 1 and a batch of >= 48 tokens the OUTPUT ROWS are split over threads (each streams its own slice of the weights)
-    fn apply(&self, x: &[f32], t: usize, y: &mut Vec<f32>, int8: bool, threads: usize) {
+    fn apply(&self, x: &[f32], t: usize, y: &mut Vec<f32>, int8: bool, par: &Par) {
         let act = if int8 { Some(Act::new(x, t, self.inn)) } else { None };
-        self.apply_act(x, act.as_ref(), t, y, int8, threads);
+        self.apply_act(x, act.as_ref(), t, y, int8, par);
     }
     /// same as `apply` with the int8 activations already quantised (shared by Q, K, V)
-    fn apply_act(&self, x: &[f32], act: Option<&Act>, t: usize, y: &mut Vec<f32>, int8: bool, threads: usize) {
+    fn apply_act(&self, x: &[f32], act: Option<&Act>, t: usize, y: &mut Vec<f32>, int8: bool, par: &Par) {
         y.clear();
         y.resize(t * self.out, 0.0);
         let empty = Act { q: Vec::new(), u: Vec::new() };
         let xq = act.unwrap_or(&empty);
-        let th = if t >= 48 { threads.max(1).min(self.out / 64).max(1) } else { 1 };
+        let th = if t >= if par.pool.is_some() { par.min_tokens } else { 48 } { par.threads.max(1).min(self.out / 64).max(1) } else { 1 };
         if th == 1 {
             let loc = self.apply_range(x, t, xq, 0, self.out, int8);
             y.copy_from_slice(&loc);
             return;
         }
         let step = (self.out.div_ceil(th) + 1) & !1;
-        let parts: Vec<(usize, usize, Vec<f32>)> = std::thread::scope(|sc| {
-            let hs: Vec<_> = (0..th)
-                .map(|k| {
-                    let (lo, hi) = ((k * step).min(self.out), ((k + 1) * step).min(self.out));
-                    sc.spawn(move || (lo, hi, self.apply_range(x, t, xq, lo, hi, int8)))
-                })
-                .collect();
-            hs.into_iter().map(|h| h.join().expect("encoder thread")).collect()
-        });
+        let parts: Vec<(usize, usize, Vec<f32>)> = if let Some(pool) = &par.pool {
+            let slots: Vec<std::sync::Mutex<Option<(usize, usize, Vec<f32>)>>> = (0..th).map(|_| std::sync::Mutex::new(None)).collect();
+            pool.run(th, &|k: usize| {
+                let (lo, hi) = ((k * step).min(self.out), ((k + 1) * step).min(self.out));
+                *slots[k].lock().unwrap() = Some((lo, hi, self.apply_range(x, t, xq, lo, hi, int8)));
+            });
+            slots.into_iter().map(|m| m.into_inner().unwrap().expect("slot")).collect()
+        } else {
+            std::thread::scope(|sc| {
+                let hs: Vec<_> = (0..th)
+                    .map(|k| {
+                        let (lo, hi) = ((k * step).min(self.out), ((k + 1) * step).min(self.out));
+                        sc.spawn(move || (lo, hi, self.apply_range(x, t, xq, lo, hi, int8)))
+                    })
+                    .collect();
+                hs.into_iter().map(|h| h.join().expect("encoder thread")).collect()
+            })
+        };
         for (lo, hi, loc) in parts {
             let w = hi - lo;
             for tt in 0..t {
@@ -594,11 +715,22 @@ impl Encoder {
             let ln2 = (rd(&buf, &mut p, D), rd(&buf, &mut p, D));
             layers.push(Layer { q, k, v, o, ln1, f1, f2, ln2 });
         }
-        Ok(Encoder { vocab, word, pos, typ, eln, layers, int8: false, threads: 1 })
+        Ok(Encoder { vocab, word, pos, typ, eln, layers, int8: false, par: Par { threads: 1, pool: None, min_tokens: 48 } })
     }
     /// R105 (opt-in): split each linear layer's output rows over `threads` threads when a batch has >= 48 tokens
     pub fn with_threads(mut self, threads: usize) -> Encoder {
-        self.threads = threads;
+        self.par.threads = threads;
+        self.par.pool = None;
+        self
+    }
+    /// R116 (opt-in, needs `with_threads(n>1)` first): run the thread split on a persistent worker pool instead of spawning scoped threads in every linear layer
+    pub fn with_pool(mut self, on: bool) -> Encoder {
+        self.par.pool = if on && self.par.threads > 1 { Some(std::sync::Arc::new(Pool::new(self.par.threads - 1))) } else { None };
+        self
+    }
+    /// R116: with the pool, a layer is split over threads from this many tokens up (default 48, same as the scoped path)
+    pub fn with_pool_min_tokens(mut self, n: usize) -> Encoder {
+        self.par.min_tokens = n;
         self
     }
     /// opt-in int8 matmuls (per-row weights, per-token dynamic activations)
@@ -726,9 +858,9 @@ impl Encoder {
         let mut sc = vec![0f32; MAXLEN];
         for l in &self.layers {
             let act = if self.int8 { Some(Act::new(&x, t, D)) } else { None };
-            l.q.apply_act(&x, act.as_ref(), t, &mut q, self.int8, self.threads);
-            l.k.apply_act(&x, act.as_ref(), t, &mut k, self.int8, self.threads);
-            l.v.apply_act(&x, act.as_ref(), t, &mut v, self.int8, self.threads);
+            l.q.apply_act(&x, act.as_ref(), t, &mut q, self.int8, &self.par);
+            l.k.apply_act(&x, act.as_ref(), t, &mut k, self.int8, &self.par);
+            l.v.apply_act(&x, act.as_ref(), t, &mut v, self.int8, &self.par);
             let mut ctx = vec![0f32; t * D];
             for si in 0..seqs.len() {
                 let (a0, a1) = (starts[si], starts[si + 1]);
@@ -754,16 +886,16 @@ impl Encoder {
                     }
                 }
             }
-            l.o.apply(&ctx, t, &mut o, self.int8, self.threads);
+            l.o.apply(&ctx, t, &mut o, self.int8, &self.par);
             for i in 0..t {
                 for j in 0..D {
                     x[i * D + j] += o[i * D + j];
                 }
                 layer_norm(&mut x[i * D..(i + 1) * D], &l.ln1.0, &l.ln1.1);
             }
-            l.f1.apply(&x, t, &mut h1, self.int8, self.threads);
+            l.f1.apply(&x, t, &mut h1, self.int8, &self.par);
             gelu_all(&mut h1);
-            l.f2.apply(&h1, t, &mut h2, self.int8, self.threads);
+            l.f2.apply(&h1, t, &mut h2, self.int8, &self.par);
             for i in 0..t {
                 for j in 0..D {
                     x[i * D + j] += h2[i * D + j];
@@ -801,6 +933,33 @@ mod tests {
     fn cos(a: &[f32], b: &[f32]) -> f32 {
         let d: f32 = a.iter().zip(b).map(|(x, y)| x * y).sum();
         d / (a.iter().map(|x| x * x).sum::<f32>().sqrt() * b.iter().map(|x| x * x).sum::<f32>().sqrt())
+    }
+    #[test]
+    fn pool_runs_every_index_reuses_and_borrows() {
+        let pool = Pool::new(3);
+        for round in 0..200usize {
+            let data: Vec<usize> = (0..64).map(|i| i * round).collect(); // stack-owned borrow, freed each round
+            for th in [1usize, 2, 4, 9] {
+                let hits: Vec<std::sync::atomic::AtomicUsize> = (0..4).map(|_| std::sync::atomic::AtomicUsize::new(0)).collect();
+                let sum = std::sync::atomic::AtomicUsize::new(0);
+                pool.run(th, &|k| {
+                    hits[k].fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+                    sum.fetch_add(data[k], std::sync::atomic::Ordering::SeqCst);
+                });
+                let n = th.min(4); // clamped to workers + caller
+                for k in 0..4 { assert_eq!(hits[k].load(std::sync::atomic::Ordering::SeqCst), (k < n) as usize, "round {round} th {th} idx {k}"); }
+                assert_eq!(sum.load(std::sync::atomic::Ordering::SeqCst), (0..n).map(|k| data[k]).sum::<usize>());
+            }
+        }
+    }
+    #[test]
+    fn pool_propagates_panic_and_stays_usable() {
+        let pool = Pool::new(2);
+        let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| pool.run(3, &|k| if k == 2 { panic!("boom") })));
+        assert!(r.is_err());
+        let c = std::sync::atomic::AtomicUsize::new(0);
+        pool.run(3, &|_| { c.fetch_add(1, std::sync::atomic::Ordering::SeqCst); });
+        assert_eq!(c.load(std::sync::atomic::Ordering::SeqCst), 3);
     }
     #[test]
     fn dot_kernels_match_scalar() {
@@ -912,6 +1071,16 @@ mod tests {
         let many: Vec<&str> = (0..24).map(|i| refs[i % refs.len()]).collect();
         let bt = et.encode_batch(&many);
         for (i, v) in bt.iter().enumerate() { assert!(cos(v, &batch[i % refs.len()]) > 0.99999, "threaded batch {i}"); }
+        // R116: the persistent pool (also with a low split threshold) is bit-identical to the scoped-thread path, f32 and int8
+        for int8 in [false, true] {
+            let es = Encoder::load(&w, &t).unwrap().with_int8(int8).with_threads(4);
+            let ep = Encoder::load(&w, &t).unwrap().with_int8(int8).with_threads(4).with_pool(true);
+            let el = Encoder::load(&w, &t).unwrap().with_int8(int8).with_threads(4).with_pool(true).with_pool_min_tokens(4);
+            let r = es.encode_batch(&many);
+            assert_eq!(r, ep.encode_batch(&many), "pool == scope (int8={int8})");
+            assert_eq!(r, el.encode_batch(&many), "low-threshold pool == scope (int8={int8})");
+            assert_eq!(es.encode_batch(&many[..2]), el.encode_batch(&many[..2]));
+        }
         assert_eq!(e.encode("").len(), 384);
         assert!(e.encode("zzzzqqqq xxxjjj 12345 \u{4e2d}\u{6587}").iter().all(|x| x.is_finite()));
     }
