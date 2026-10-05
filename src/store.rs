@@ -20,7 +20,7 @@
 
 use std::collections::{BTreeMap, HashSet};
 use std::fs::{self, File, OpenOptions};
-use std::io::{self, BufRead, BufReader, Read, Write};
+use std::io::{self, Read, Write};
 use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
@@ -93,6 +93,36 @@ fn now_ms() -> u64 {
 
 /// B1: read a text file as lines, tolerating invalid UTF-8 (a crash / half-synced file can end inside a multi-byte character; `BufRead::lines` would
 /// return an error and make the WHOLE file unreadable). Invalid bytes become U+FFFD, so the torn line simply fails to parse and is skipped.
+/// B33: replace `dest` atomically AND durably: write a temp file, fsync it, rename over `dest`, then (unix) fsync the directory so the rename itself survives a
+/// power loss. Without the fsync a crash after the rename can leave a zero-length / torn replacement of the previous good file (the data blocks were never flushed).
+fn replace_durable(tmp: &Path, dest: &Path, data: &[u8]) -> io::Result<()> {
+    {
+        let mut f = File::create(tmp)?;
+        f.write_all(data)?;
+        f.sync_all()?;
+    }
+    fs::rename(tmp, dest)?;
+    #[cfg(unix)]
+    if let Some(parent) = dest.parent() {
+        if let Ok(d) = File::open(parent) {
+            let _ = d.sync_all();
+        }
+    }
+    Ok(())
+}
+
+/// B31: a file name in the shared folder that equals one of `own` ignoring case but not exactly: on a case-insensitive filesystem (Windows, macOS) it IS the same
+/// file, so replacing our shard would overwrite another machine's.
+fn case_collision(files: &[PathBuf], own: &[&str]) -> Option<String> {
+    for p in files {
+        let name = p.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
+        if own.iter().any(|o| *o != name && o.eq_ignore_ascii_case(&name)) {
+            return Some(name);
+        }
+    }
+    None
+}
+
 fn lossy_lines(p: &Path) -> io::Result<Vec<String>> {
     let mut raw = Vec::new();
     File::open(p)?.read_to_end(&mut raw)?;
@@ -402,8 +432,7 @@ impl MeshStore {
             buf.push_str(&serde_json::to_string(o).unwrap());
             buf.push('\n');
         }
-        fs::write(&tmp, buf)?;
-        fs::rename(&tmp, &p)?;
+        replace_durable(&tmp, &p, buf.as_bytes())?;
         Ok((before, kept.len()))
     }
 
@@ -538,10 +567,8 @@ impl MeshStore {
             let mut tf = OpenOptions::new().create(true).append(true).open(d.join("tombstones.jsonl"))?;
             tf.write_all(tb.as_bytes())?;
         }
-        fs::write(&vt, vb)?;
-        fs::write(&dt, db)?;
-        fs::rename(&vt, d.join("vecs.f32"))?;
-        fs::rename(&dt, d.join("docs.jsonl"))?;
+        replace_durable(&vt, &d.join("vecs.f32"), &vb)?;
+        replace_durable(&dt, &d.join("docs.jsonl"), db.as_bytes())?;
         Ok((n, keep.len()))
     }
     /// Load a namespace: (docs, row-major vectors, dim). Rows beyond the docs (torn write) are ignored.
@@ -589,6 +616,10 @@ impl MeshStore {
         let own_l = format!("{machine}.lessons.jsonl");
         let mut files: Vec<PathBuf> = fs::read_dir(folder)?.filter_map(|e| e.ok()).map(|e| e.path()).collect();
         files.sort();
+        // B31: refuse (before touching anything) when another machine's file differs from ours only by case
+        if let Some(n) = case_collision(&files, &[&own_j, &own_l]) {
+            return Err(StoreError::Corrupt(format!("machine id '{machine}' collides case-insensitively with existing shared file '{n}'; pick a machine id that differs by more than case")));
+        }
         let mut seen: HashSet<String> = self.outcomes()?.into_iter().map(|o| o.id).collect();
         let mut seen_l: HashSet<String> = self.lessons()?.into_iter().map(|l| l.id).collect();
         let (mut add_o, mut add_l): (Vec<Outcome>, Vec<LessonRec>) = (vec![], vec![]);
@@ -651,16 +682,14 @@ impl MeshStore {
         rep.exported = all.len();
         rep.bytes_written = buf.len();
         let tmp = folder.join(format!("{own_j}.tmp"));
-        fs::write(&tmp, buf)?;
-        fs::rename(&tmp, folder.join(&own_j))?;
+        replace_durable(&tmp, &folder.join(&own_j), buf.as_bytes())?;
         let mut lb = String::new();
         for l in self.lessons()? {
             lb.push_str(&serde_json::to_string(&l).unwrap());
             lb.push(nl);
         }
         let tmp = folder.join(format!("{own_l}.tmp"));
-        fs::write(&tmp, lb)?;
-        fs::rename(&tmp, folder.join(&own_l))?;
+        replace_durable(&tmp, &folder.join(&own_l), lb.as_bytes())?;
         Ok(rep)
     }
 
@@ -879,11 +908,14 @@ impl MeshStore {
         let local: BTreeMap<String, usize> = ldocs.iter().enumerate().map(|(i, d)| (d.id.clone(), i)).collect();
         let mut files: Vec<PathBuf> = fs::read_dir(folder)?.filter_map(|e| e.ok()).map(|e| e.path()).collect();
         files.sort();
+        if let Some(n) = case_collision(&files, &[&own]) {
+            return Err(StoreError::Corrupt(format!("machine id '{machine}' / namespace '{ns}' collide case-insensitively with existing shared file '{n}'; pick names that differ by more than case")));
+        }
         let mut foreign: HashSet<String> = HashSet::new();
         let mut new_docs: Vec<DocRec> = vec![];
         let mut new_vecs: Vec<f32> = vec![];
         let mut new_dim = ldim;
-        let mut taken: HashSet<String> = HashSet::new();
+        let mut taken: BTreeMap<String, String> = BTreeMap::new(); // id -> text of the first foreign line imported (B32: later disagreeing shards are counted)
         let tomb: HashSet<String> = lossy_lines(&self.kdir(ns).join("tombstones.jsonl")).map(|ls| ls.iter().filter_map(|l| serde_json::from_str::<String>(l).ok()).collect()).unwrap_or_default();
         for p in &files {
             let name = p.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
@@ -908,7 +940,10 @@ impl MeshStore {
                     }
                     continue;
                 }
-                if taken.contains(&x.id) {
+                if let Some(t) = taken.get(&x.id) {
+                    if *t != x.text {
+                        rep.conflicts += 1; // B32: two foreign shards disagree on this id's text; the first (sorted file order) wins, now visibly
+                    }
                     continue;
                 }
                 // B28: dim 0 would pin the namespace to dim 0 (docs without vectors, hidden by load_docs) or abort the whole import on a count mismatch
@@ -921,7 +956,7 @@ impl MeshStore {
                     continue;
                 };
                 new_dim = x.dim;
-                taken.insert(x.id.clone());
+                taken.insert(x.id.clone(), x.text.clone());
                 new_docs.push(DocRec { id: x.id, text: x.text, tag: x.tag });
                 new_vecs.extend(v);
             }
@@ -943,8 +978,7 @@ impl MeshStore {
         }
         rep.bytes_written = buf.len();
         let tmp = folder.join(format!("{own}.tmp"));
-        fs::write(&tmp, buf)?;
-        fs::rename(&tmp, folder.join(&own))?;
+        replace_durable(&tmp, &folder.join(&own), buf.as_bytes())?;
         Ok(rep)
     }
 }
@@ -1532,5 +1566,77 @@ mod tests {
         assert_eq!(r.imported, 1);
         let _ = fs::remove_dir_all(&p);
         let _ = fs::remove_dir_all(&folder);
+    }
+}
+
+#[cfg(test)]
+mod hardening_b31_tests {
+    use super::*;
+    fn tmp(name: &str) -> PathBuf {
+        let p = std::env::temp_dir().join(format!("nm_b31_{name}_{}", std::process::id()));
+        let _ = fs::remove_dir_all(&p);
+        p
+    }
+    fn doc(text: &str) -> Vec<DocRec> {
+        vec![DocRec { id: "same".into(), text: text.into(), tag: "x".into() }]
+    }
+    fn outcome(id: &str) -> Outcome {
+        Outcome { id: id.into(), session: "s".into(), seq: 1, ts: 1, world: "w".into(), features: vec!["f".into()], task_type: None, agent: "ag".into(), reward: 1.0 }
+    }
+
+    /// B31: machine ids differing only by case map to the same file on Windows / macOS and overwrote each other's shard. Now rejected up front, nothing touched.
+    #[test]
+    fn machine_ids_differing_only_by_case_are_rejected() {
+        let (folder, p1, p2) = (tmp("cf"), tmp("cs1"), tmp("cs2"));
+        let (a, b) = (MeshStore::open(&p1).unwrap(), MeshStore::open(&p2).unwrap());
+        a.append_outcomes(&[outcome("a:1")]).unwrap();
+        a.put_docs("kb", 4, &doc("alpha"), &[1.0, 0.0, 0.0, 0.0]).unwrap();
+        a.sync_folder(&folder, "Alice", None, None).unwrap();
+        a.sync_docs_folder(&folder, "Alice", "kb").unwrap();
+        let before = fs::read(folder.join("Alice.journal.jsonl")).unwrap();
+        b.append_outcomes(&[outcome("b:1")]).unwrap();
+        assert!(b.sync_folder(&folder, "alice", None, None).is_err(), "case-colliding journal machine id must be rejected");
+        assert!(b.sync_docs_folder(&folder, "alice", "kb").is_err(), "case-colliding docs machine id must be rejected");
+        assert_eq!(fs::read(folder.join("Alice.journal.jsonl")).unwrap(), before, "the other machine's shard is untouched");
+        // the legitimate owner keeps working, and a clearly different id is fine
+        a.sync_folder(&folder, "Alice", None, None).unwrap();
+        b.sync_folder(&folder, "bob", None, None).unwrap();
+        for q in [&folder, &p1, &p2] {
+            let _ = fs::remove_dir_all(q);
+        }
+    }
+
+    /// B32: two foreign shards disagreeing on an id's text were resolved silently by sorted-file order; now counted as a conflict (first still wins).
+    #[test]
+    fn foreign_shards_disagreeing_on_text_are_counted() {
+        let (folder, p1, p2, p3) = (tmp("df"), tmp("ds1"), tmp("ds2"), tmp("ds3"));
+        let (a, b, c) = (MeshStore::open(&p1).unwrap(), MeshStore::open(&p2).unwrap(), MeshStore::open(&p3).unwrap());
+        a.put_docs("kb", 4, &doc("version one"), &[1.0, 0.0, 0.0, 0.0]).unwrap();
+        b.put_docs("kb", 4, &doc("version TWO"), &[1.0, 0.0, 0.0, 0.0]).unwrap();
+        a.sync_docs_folder(&folder, "mA", "kb").unwrap();
+        // b exports its own conflicting copy by hand (b's own sync would import a's, see conflict and keep local, exporting nothing since foreign holds the id)
+        let line = fs::read_to_string(folder.join("mA.kb.docs.jsonl")).unwrap().replace("version one", "version TWO");
+        fs::write(folder.join("mB.kb.docs.jsonl"), line).unwrap();
+        let r = c.sync_docs_folder(&folder, "mC", "kb").unwrap();
+        assert_eq!(r.imported, 1, "{r:?}");
+        assert_eq!(r.conflicts, 1, "disagreement between mA and mB must be counted: {r:?}");
+        assert_eq!(c.load_docs("kb").unwrap().0[0].text, "version one", "first in sorted file order still wins");
+        let _ = b;
+        for q in [&folder, &p1, &p2, &p3] {
+            let _ = fs::remove_dir_all(q);
+        }
+    }
+
+    /// B33: durable replace leaves the right bytes and no temp file (the fsync itself is not observable from a test).
+    #[test]
+    fn replace_durable_writes_and_leaves_no_tmp() {
+        let d = tmp("dur");
+        fs::create_dir_all(&d).unwrap();
+        let (t, f) = (d.join("x.tmp"), d.join("x"));
+        fs::write(&f, b"old").unwrap();
+        replace_durable(&t, &f, b"new contents").unwrap();
+        assert_eq!(fs::read(&f).unwrap(), b"new contents");
+        assert!(!t.exists());
+        let _ = fs::remove_dir_all(&d);
     }
 }

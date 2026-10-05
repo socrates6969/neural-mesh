@@ -32,12 +32,12 @@ fn main() {
             let s = MeshStore::open(&a[1]).unwrap();
             let cap = a.get(4).and_then(|x| x.parse::<usize>().ok());
             let r = s.sync_folder(std::path::Path::new(&a[2]), &a[3], None, cap).unwrap();
-            println!("{}", serde_json::json!({"exported": r.exported, "imported": r.imported, "lessons_imported": r.lessons_imported, "files_read": r.files_read, "bytes_written": r.bytes_written}));
+            println!("{}", serde_json::json!({"exported": r.exported, "imported": r.imported, "lessons_imported": r.lessons_imported, "files_read": r.files_read, "files_skipped": r.files_skipped, "bytes_written": r.bytes_written}));
         }
         Some("sync-docs") if a.len() == 5 => {
             let s = MeshStore::open(&a[1]).unwrap();
             let r = s.sync_docs_folder(std::path::Path::new(&a[2]), &a[3], &a[4]).unwrap();
-            println!("{}", serde_json::json!({"exported": r.exported, "imported": r.imported, "conflicts": r.conflicts, "skipped": r.skipped, "files_read": r.files_read, "bytes_written": r.bytes_written}));
+            println!("{}", serde_json::json!({"exported": r.exported, "imported": r.imported, "conflicts": r.conflicts, "skipped": r.skipped, "files_read": r.files_read, "skipped_files": r.skipped_files, "bytes_written": r.bytes_written}));
         }
         Some("gc-docs") if a.len() == 4 => {
             let s = MeshStore::open(&a[1]).unwrap();
