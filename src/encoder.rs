@@ -37,6 +37,7 @@ pub struct Encoder {
     eln: (Vec<f32>, Vec<f32>),
     layers: Vec<Layer>,
     int8: bool,
+    threads: usize,
 }
 
 #[derive(Debug)]
@@ -317,25 +318,53 @@ impl Lin {
             self.qs.push(s);
         }
     }
-    /// y[t] = W x[t] + b for `t` tokens (x: t*inn, y: t*out); AVX2: 2 weight rows x 4 tokens per register block, remainder tokens / rows via the single-row kernels
-    fn apply(&self, x: &[f32], t: usize, y: &mut Vec<f32>, int8: bool) {
+    /// y[t] = W x[t] + b for `t` tokens (x: t*inn, y: t*out); with `threads` > 1 and a batch of >= 48 tokens the OUTPUT ROWS are split over threads (each streams its own slice of the weights)
+    fn apply(&self, x: &[f32], t: usize, y: &mut Vec<f32>, int8: bool, threads: usize) {
         y.clear();
         y.resize(t * self.out, 0.0);
-        let simd = avx_ok();
         let xq: Vec<(Vec<i8>, f32)> = if int8 { (0..t).map(|i| crate::scan::quantize_i8(&x[i * self.inn..(i + 1) * self.inn])).collect() } else { Vec::new() };
+        let th = if t >= 48 { threads.max(1).min(self.out / 64).max(1) } else { 1 };
+        if th == 1 {
+            let loc = self.apply_range(x, t, &xq, 0, self.out, int8);
+            y.copy_from_slice(&loc);
+            return;
+        }
+        let step = (self.out.div_ceil(th) + 1) & !1;
+        let parts: Vec<(usize, usize, Vec<f32>)> = std::thread::scope(|sc| {
+            let hs: Vec<_> = (0..th)
+                .map(|k| {
+                    let (lo, hi) = ((k * step).min(self.out), ((k + 1) * step).min(self.out));
+                    let xq = &xq;
+                    sc.spawn(move || (lo, hi, self.apply_range(x, t, xq, lo, hi, int8)))
+                })
+                .collect();
+            hs.into_iter().map(|h| h.join().expect("encoder thread")).collect()
+        });
+        for (lo, hi, loc) in parts {
+            let w = hi - lo;
+            for tt in 0..t {
+                y[tt * self.out + lo..tt * self.out + hi].copy_from_slice(&loc[tt * w..(tt + 1) * w]);
+            }
+        }
+    }
+    /// outputs `o_lo..o_hi` (o_lo even) for all tokens, layout [t][o_hi - o_lo]
+    fn apply_range(&self, x: &[f32], t: usize, xq: &[(Vec<i8>, f32)], o_lo: usize, o_hi: usize, int8: bool) -> Vec<f32> {
+        let w = o_hi - o_lo;
+        let mut y = vec![0f32; t * w];
+        let simd = avx_ok();
         let mut i = 0;
         #[cfg(target_arch = "x86_64")]
         if simd {
             while i + 4 <= t {
-                let mut o = 0;
-                while o + 2 <= self.out {
+                let mut o = o_lo;
+                while o + 2 <= o_hi {
                     if int8 {
                         let (r0, r1) = (&self.q[o * self.inn..(o + 1) * self.inn], &self.q[(o + 1) * self.inn..(o + 2) * self.inn]);
                         // SAFETY: avx2 checked
                         let d = unsafe { dot24_i8_avx2(r0, r1, [&xq[i].0, &xq[i + 1].0, &xq[i + 2].0, &xq[i + 3].0]) };
                         for r in 0..2 {
                             for j in 0..4 {
-                                y[(i + j) * self.out + o + r] = d[r][j] as f32 * self.qs[o + r] * xq[i + j].1 + self.b[o + r];
+                                y[(i + j) * w + o - o_lo + r] = d[r][j] as f32 * self.qs[o + r] * xq[i + j].1 + self.b[o + r];
                             }
                         }
                     } else {
@@ -345,7 +374,7 @@ impl Lin {
                         let d = unsafe { dot24_f32_avx2(r0, r1, [xs(0), xs(1), xs(2), xs(3)]) };
                         for r in 0..2 {
                             for j in 0..4 {
-                                y[(i + j) * self.out + o + r] = d[r][j] + self.b[o + r];
+                                y[(i + j) * w + o - o_lo + r] = d[r][j] + self.b[o + r];
                             }
                         }
                     }
@@ -355,14 +384,15 @@ impl Lin {
             }
         }
         for tt in i..t {
-            for o in 0..self.out {
-                y[tt * self.out + o] = if int8 {
+            for o in o_lo..o_hi {
+                y[tt * w + o - o_lo] = if int8 {
                     crate::scan::dot_i8_fast(&self.q[o * self.inn..(o + 1) * self.inn], &xq[tt].0) as f32 * self.qs[o] * xq[tt].1 + self.b[o]
                 } else {
                     dot_f32(&self.w[o * self.inn..(o + 1) * self.inn], &x[tt * self.inn..(tt + 1) * self.inn]) + self.b[o]
                 };
             }
         }
+        y
     }
 }
 
@@ -431,7 +461,12 @@ impl Encoder {
             let ln2 = (rd(&buf, &mut p, D), rd(&buf, &mut p, D));
             layers.push(Layer { q, k, v, o, ln1, f1, f2, ln2 });
         }
-        Ok(Encoder { vocab, word, pos, typ, eln, layers, int8: false })
+        Ok(Encoder { vocab, word, pos, typ, eln, layers, int8: false, threads: 1 })
+    }
+    /// R105 (opt-in): split each linear layer's output rows over `threads` threads when a batch has >= 48 tokens
+    pub fn with_threads(mut self, threads: usize) -> Encoder {
+        self.threads = threads;
+        self
     }
     /// opt-in int8 matmuls (per-row weights, per-token dynamic activations)
     pub fn with_int8(mut self, on: bool) -> Encoder {
@@ -527,56 +562,74 @@ impl Encoder {
     }
     /// L2-normalised 384-d mean-pooled embedding of `text`
     pub fn encode(&self, text: &str) -> Vec<f32> {
-        let ids = self.tokenize(text);
-        let t = ids.len();
+        self.encode_batch(&[text]).pop().unwrap()
+    }
+    /// R104: encode several texts in ONE pass: all tokens of all sequences go through each linear layer together (the weights are streamed once per layer for the whole batch),
+    /// attention stays per sequence. Same numbers as calling [`Encoder::encode`] per text (up to f32 summation order in the 4-token register blocks).
+    pub fn encode_batch(&self, texts: &[&str]) -> Vec<Vec<f32>> {
+        let seqs: Vec<Vec<u32>> = texts.iter().map(|t| self.tokenize(t)).collect();
+        let t: usize = seqs.iter().map(|s| s.len()).sum();
+        let mut starts = Vec::with_capacity(seqs.len() + 1);
+        let mut acc = 0usize;
+        for s in &seqs {
+            starts.push(acc);
+            acc += s.len();
+        }
+        starts.push(acc);
         let mut x = vec![0f32; t * D];
-        for (i, &id) in ids.iter().enumerate() {
-            let w = &self.word[id as usize * D..(id as usize + 1) * D];
-            let p = &self.pos[i * D..(i + 1) * D];
-            for j in 0..D {
-                x[i * D + j] = w[j] + p[j] + self.typ[j];
+        for (si, ids) in seqs.iter().enumerate() {
+            for (i, &id) in ids.iter().enumerate() {
+                let r = starts[si] + i;
+                let w = &self.word[id as usize * D..(id as usize + 1) * D];
+                let p = &self.pos[i * D..(i + 1) * D];
+                for j in 0..D {
+                    x[r * D + j] = w[j] + p[j] + self.typ[j];
+                }
+                layer_norm(&mut x[r * D..(r + 1) * D], &self.eln.0, &self.eln.1);
             }
-            layer_norm(&mut x[i * D..(i + 1) * D], &self.eln.0, &self.eln.1);
         }
         let (mut q, mut k, mut v, mut o, mut h1, mut h2) = (Vec::new(), Vec::new(), Vec::new(), Vec::new(), Vec::new(), Vec::new());
         let scale = 1.0 / (DH as f32).sqrt();
+        let mut sc = vec![0f32; MAXLEN];
         for l in &self.layers {
-            l.q.apply(&x, t, &mut q, self.int8);
-            l.k.apply(&x, t, &mut k, self.int8);
-            l.v.apply(&x, t, &mut v, self.int8);
+            l.q.apply(&x, t, &mut q, self.int8, self.threads);
+            l.k.apply(&x, t, &mut k, self.int8, self.threads);
+            l.v.apply(&x, t, &mut v, self.int8, self.threads);
             let mut ctx = vec![0f32; t * D];
-            let mut sc = vec![0f32; t];
-            for h in 0..H {
-                for i in 0..t {
-                    let qi = &q[i * D + h * DH..i * D + (h + 1) * DH];
-                    let mut mx = f32::NEG_INFINITY;
-                    for j in 0..t {
-                        sc[j] = dot_f32(qi, &k[j * D + h * DH..j * D + (h + 1) * DH]) * scale;
-                        mx = mx.max(sc[j]);
-                    }
-                    let mut z = 0.0;
-                    for s in sc.iter_mut() {
-                        *s = fast_exp(*s - mx);
-                        z += *s;
-                    }
-                    for j in 0..t {
-                        let a = sc[j] / z;
-                        for d in 0..DH {
-                            ctx[i * D + h * DH + d] += a * v[j * D + h * DH + d];
+            for si in 0..seqs.len() {
+                let (a0, a1) = (starts[si], starts[si + 1]);
+                for h in 0..H {
+                    for i in a0..a1 {
+                        let qi = &q[i * D + h * DH..i * D + (h + 1) * DH];
+                        let mut mx = f32::NEG_INFINITY;
+                        for j in a0..a1 {
+                            sc[j - a0] = dot_f32(qi, &k[j * D + h * DH..j * D + (h + 1) * DH]) * scale;
+                            mx = mx.max(sc[j - a0]);
+                        }
+                        let mut z = 0.0;
+                        for s in sc[..a1 - a0].iter_mut() {
+                            *s = fast_exp(*s - mx);
+                            z += *s;
+                        }
+                        for j in a0..a1 {
+                            let a = sc[j - a0] / z;
+                            for d in 0..DH {
+                                ctx[i * D + h * DH + d] += a * v[j * D + h * DH + d];
+                            }
                         }
                     }
                 }
             }
-            l.o.apply(&ctx, t, &mut o, self.int8);
+            l.o.apply(&ctx, t, &mut o, self.int8, self.threads);
             for i in 0..t {
                 for j in 0..D {
                     x[i * D + j] += o[i * D + j];
                 }
                 layer_norm(&mut x[i * D..(i + 1) * D], &l.ln1.0, &l.ln1.1);
             }
-            l.f1.apply(&x, t, &mut h1, self.int8);
+            l.f1.apply(&x, t, &mut h1, self.int8, self.threads);
             gelu_all(&mut h1);
-            l.f2.apply(&h1, t, &mut h2, self.int8);
+            l.f2.apply(&h1, t, &mut h2, self.int8, self.threads);
             for i in 0..t {
                 for j in 0..D {
                     x[i * D + j] += h2[i * D + j];
@@ -584,14 +637,19 @@ impl Encoder {
                 layer_norm(&mut x[i * D..(i + 1) * D], &l.ln2.0, &l.ln2.1);
             }
         }
-        let mut out = vec![0f32; D];
-        for i in 0..t {
-            for j in 0..D {
-                out[j] += x[i * D + j] / t as f32;
-            }
-        }
-        let n = out.iter().map(|z| z * z).sum::<f32>().sqrt().max(1e-12);
-        out.iter_mut().for_each(|z| *z /= n);
-        out
+        (0..seqs.len())
+            .map(|si| {
+                let (a0, a1) = (starts[si], starts[si + 1]);
+                let mut out = vec![0f32; D];
+                for i in a0..a1 {
+                    for j in 0..D {
+                        out[j] += x[i * D + j] / (a1 - a0) as f32;
+                    }
+                }
+                let n = out.iter().map(|z| z * z).sum::<f32>().sqrt().max(1e-12);
+                out.iter_mut().for_each(|z| *z /= n);
+                out
+            })
+            .collect()
     }
 }
