@@ -48,6 +48,175 @@ impl std::fmt::Display for EncoderError {
 }
 impl std::error::Error for EncoderError {}
 
+
+/// 4 tokens against one weight row at once (weight loaded once): f32
+#[cfg(target_arch = "x86_64")]
+#[target_feature(enable = "avx2,fma")]
+unsafe fn dot4_f32_avx2(w: &[f32], x: [&[f32]; 4]) -> [f32; 4] {
+    use std::arch::x86_64::*;
+    let n = w.len();
+    let mut acc = [_mm256_setzero_ps(); 4];
+    let mut acc2 = [_mm256_setzero_ps(); 4];
+    let mut i = 0;
+    while i + 16 <= n {
+        let wv = _mm256_loadu_ps(w.as_ptr().add(i));
+        let wv2 = _mm256_loadu_ps(w.as_ptr().add(i + 8));
+        for j in 0..4 {
+            acc[j] = _mm256_fmadd_ps(wv, _mm256_loadu_ps(x[j].as_ptr().add(i)), acc[j]);
+            acc2[j] = _mm256_fmadd_ps(wv2, _mm256_loadu_ps(x[j].as_ptr().add(i + 8)), acc2[j]);
+        }
+        i += 16;
+    }
+    for j in 0..4 {
+        acc[j] = _mm256_add_ps(acc[j], acc2[j]);
+    }
+    while i + 8 <= n {
+        let wv = _mm256_loadu_ps(w.as_ptr().add(i));
+        for j in 0..4 {
+            acc[j] = _mm256_fmadd_ps(wv, _mm256_loadu_ps(x[j].as_ptr().add(i)), acc[j]);
+        }
+        i += 8;
+    }
+    let mut out = [0f32; 4];
+    for j in 0..4 {
+        let mut t = [0f32; 8];
+        _mm256_storeu_ps(t.as_mut_ptr(), acc[j]);
+        out[j] = t.iter().sum();
+    }
+    while i < n {
+        for j in 0..4 {
+            out[j] += w[i] * x[j][i];
+        }
+        i += 1;
+    }
+    out
+}
+/// 4 tokens against one int8 weight row: i32 dots
+#[cfg(target_arch = "x86_64")]
+#[target_feature(enable = "avx2")]
+unsafe fn dot4_i8_avx2(w: &[i8], x: [&[i8]; 4]) -> [i32; 4] {
+    use std::arch::x86_64::*;
+    let n = w.len();
+    let mut acc = [_mm256_setzero_si256(); 4];
+    let mut acc2 = [_mm256_setzero_si256(); 4];
+    let mut i = 0;
+    while i + 32 <= n {
+        let wv = _mm256_cvtepi8_epi16(_mm_loadu_si128(w.as_ptr().add(i) as *const __m128i));
+        let wv2 = _mm256_cvtepi8_epi16(_mm_loadu_si128(w.as_ptr().add(i + 16) as *const __m128i));
+        for j in 0..4 {
+            let xv = _mm256_cvtepi8_epi16(_mm_loadu_si128(x[j].as_ptr().add(i) as *const __m128i));
+            let xv2 = _mm256_cvtepi8_epi16(_mm_loadu_si128(x[j].as_ptr().add(i + 16) as *const __m128i));
+            acc[j] = _mm256_add_epi32(acc[j], _mm256_madd_epi16(wv, xv));
+            acc2[j] = _mm256_add_epi32(acc2[j], _mm256_madd_epi16(wv2, xv2));
+        }
+        i += 32;
+    }
+    for j in 0..4 {
+        acc[j] = _mm256_add_epi32(acc[j], acc2[j]);
+    }
+    while i + 16 <= n {
+        let wv = _mm256_cvtepi8_epi16(_mm_loadu_si128(w.as_ptr().add(i) as *const __m128i));
+        for j in 0..4 {
+            let xv = _mm256_cvtepi8_epi16(_mm_loadu_si128(x[j].as_ptr().add(i) as *const __m128i));
+            acc[j] = _mm256_add_epi32(acc[j], _mm256_madd_epi16(wv, xv));
+        }
+        i += 16;
+    }
+    let mut out = [0i32; 4];
+    for j in 0..4 {
+        let mut t = [0i32; 8];
+        _mm256_storeu_si256(t.as_mut_ptr() as *mut __m256i, acc[j]);
+        out[j] = t.iter().sum();
+    }
+    while i < n {
+        for j in 0..4 {
+            out[j] += w[i] as i32 * x[j][i] as i32;
+        }
+        i += 1;
+    }
+    out
+}
+/// 2 weight rows x 4 tokens (8 accumulators; 6 loads per 8 FMAs): f32
+#[cfg(target_arch = "x86_64")]
+#[target_feature(enable = "avx2,fma")]
+unsafe fn dot24_f32_avx2(w0: &[f32], w1: &[f32], x: [&[f32]; 4]) -> [[f32; 4]; 2] {
+    use std::arch::x86_64::*;
+    let n = w0.len();
+    let mut a0 = [_mm256_setzero_ps(); 4];
+    let mut a1 = [_mm256_setzero_ps(); 4];
+    let mut i = 0;
+    while i + 8 <= n {
+        let v0 = _mm256_loadu_ps(w0.as_ptr().add(i));
+        let v1 = _mm256_loadu_ps(w1.as_ptr().add(i));
+        for j in 0..4 {
+            let xv = _mm256_loadu_ps(x[j].as_ptr().add(i));
+            a0[j] = _mm256_fmadd_ps(v0, xv, a0[j]);
+            a1[j] = _mm256_fmadd_ps(v1, xv, a1[j]);
+        }
+        i += 8;
+    }
+    let mut out = [[0f32; 4]; 2];
+    for j in 0..4 {
+        let mut t = [0f32; 8];
+        _mm256_storeu_ps(t.as_mut_ptr(), a0[j]);
+        out[0][j] = t.iter().sum();
+        _mm256_storeu_ps(t.as_mut_ptr(), a1[j]);
+        out[1][j] = t.iter().sum();
+    }
+    while i < n {
+        for j in 0..4 {
+            out[0][j] += w0[i] * x[j][i];
+            out[1][j] += w1[i] * x[j][i];
+        }
+        i += 1;
+    }
+    out
+}
+/// 2 int8 weight rows x 4 tokens
+#[cfg(target_arch = "x86_64")]
+#[target_feature(enable = "avx2")]
+unsafe fn dot24_i8_avx2(w0: &[i8], w1: &[i8], x: [&[i8]; 4]) -> [[i32; 4]; 2] {
+    use std::arch::x86_64::*;
+    let n = w0.len();
+    let mut a0 = [_mm256_setzero_si256(); 4];
+    let mut a1 = [_mm256_setzero_si256(); 4];
+    let mut i = 0;
+    while i + 16 <= n {
+        let v0 = _mm256_cvtepi8_epi16(_mm_loadu_si128(w0.as_ptr().add(i) as *const __m128i));
+        let v1 = _mm256_cvtepi8_epi16(_mm_loadu_si128(w1.as_ptr().add(i) as *const __m128i));
+        for j in 0..4 {
+            let xv = _mm256_cvtepi8_epi16(_mm_loadu_si128(x[j].as_ptr().add(i) as *const __m128i));
+            a0[j] = _mm256_add_epi32(a0[j], _mm256_madd_epi16(v0, xv));
+            a1[j] = _mm256_add_epi32(a1[j], _mm256_madd_epi16(v1, xv));
+        }
+        i += 16;
+    }
+    let mut out = [[0i32; 4]; 2];
+    for j in 0..4 {
+        let mut t = [0i32; 8];
+        _mm256_storeu_si256(t.as_mut_ptr() as *mut __m256i, a0[j]);
+        out[0][j] = t.iter().sum();
+        _mm256_storeu_si256(t.as_mut_ptr() as *mut __m256i, a1[j]);
+        out[1][j] = t.iter().sum();
+    }
+    while i < n {
+        for j in 0..4 {
+            out[0][j] += w0[i] as i32 * x[j][i] as i32;
+            out[1][j] += w1[i] as i32 * x[j][i] as i32;
+        }
+        i += 1;
+    }
+    out
+}
+fn avx_ok() -> bool {
+    #[cfg(target_arch = "x86_64")]
+    {
+        return std::is_x86_feature_detected!("avx2") && std::is_x86_feature_detected!("fma");
+    }
+    #[allow(unreachable_code)]
+    false
+}
+
 #[cfg(target_arch = "x86_64")]
 #[target_feature(enable = "avx2,fma")]
 unsafe fn dot_f32_avx2(a: &[f32], b: &[f32]) -> f32 {
@@ -81,16 +250,48 @@ fn dot_f32(a: &[f32], b: &[f32]) -> f32 {
     a.iter().zip(b).map(|(x, y)| x * y).sum()
 }
 
+/// branch-free exp (relative error ~2e-7 on [-80, 80]); lets the activation loops vectorise
+#[inline(always)]
+fn fast_exp(x: f32) -> f32 {
+    let x = x.clamp(-80.0, 80.0);
+    let n = (x * std::f32::consts::LOG2_E + 12582912.0) - 12582912.0;
+    let r = x - n * std::f32::consts::LN_2;
+    let p = 1.0 + r * (1.0 + r * (0.5 + r * (0.16666667 + r * (0.041666668 + r * (0.008333334 + r * 0.0013888889)))));
+    f32::from_bits(((n as i32 + 127) as u32) << 23) * p
+}
+
+#[inline(always)]
 fn erf(x: f32) -> f32 {
     // Abramowitz-Stegun 7.1.26 (max abs error 1.5e-7)
     let s = x.signum();
     let x = x.abs();
     let t = 1.0 / (1.0 + 0.3275911 * x);
-    let y = 1.0 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * (-x * x).exp();
+    let y = 1.0 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * fast_exp(-x * x);
     s * y
 }
+#[inline(always)]
 fn gelu(x: f32) -> f32 {
     0.5 * x * (1.0 + erf(x * std::f32::consts::FRAC_1_SQRT_2))
+}
+
+#[cfg(target_arch = "x86_64")]
+#[target_feature(enable = "avx2,fma")]
+unsafe fn gelu_all_avx2(v: &mut [f32]) {
+    for z in v.iter_mut() {
+        *z = gelu(*z);
+    }
+}
+fn gelu_all(v: &mut [f32]) {
+    #[cfg(target_arch = "x86_64")]
+    {
+        if avx_ok() {
+            // SAFETY: avx2+fma checked
+            return unsafe { gelu_all_avx2(v) };
+        }
+    }
+    for z in v.iter_mut() {
+        *z = gelu(*z);
+    }
 }
 
 fn layer_norm(x: &mut [f32], g: &[f32], b: &[f32]) {
@@ -116,24 +317,50 @@ impl Lin {
             self.qs.push(s);
         }
     }
-    /// y[t] = W x[t] + b for `t` tokens (x: t*inn, y: t*out)
+    /// y[t] = W x[t] + b for `t` tokens (x: t*inn, y: t*out); AVX2: 2 weight rows x 4 tokens per register block, remainder tokens / rows via the single-row kernels
     fn apply(&self, x: &[f32], t: usize, y: &mut Vec<f32>, int8: bool) {
         y.clear();
         y.resize(t * self.out, 0.0);
-        if int8 {
-            let xq: Vec<(Vec<i8>, f32)> = (0..t).map(|i| crate::scan::quantize_i8(&x[i * self.inn..(i + 1) * self.inn])).collect();
-            for o in 0..self.out {
-                let row = &self.q[o * self.inn..(o + 1) * self.inn];
-                for (i, (c, s)) in xq.iter().enumerate() {
-                    y[i * self.out + o] = crate::scan::dot_i8_fast(row, c) as f32 * self.qs[o] * s + self.b[o];
+        let simd = avx_ok();
+        let xq: Vec<(Vec<i8>, f32)> = if int8 { (0..t).map(|i| crate::scan::quantize_i8(&x[i * self.inn..(i + 1) * self.inn])).collect() } else { Vec::new() };
+        let mut i = 0;
+        #[cfg(target_arch = "x86_64")]
+        if simd {
+            while i + 4 <= t {
+                let mut o = 0;
+                while o + 2 <= self.out {
+                    if int8 {
+                        let (r0, r1) = (&self.q[o * self.inn..(o + 1) * self.inn], &self.q[(o + 1) * self.inn..(o + 2) * self.inn]);
+                        // SAFETY: avx2 checked
+                        let d = unsafe { dot24_i8_avx2(r0, r1, [&xq[i].0, &xq[i + 1].0, &xq[i + 2].0, &xq[i + 3].0]) };
+                        for r in 0..2 {
+                            for j in 0..4 {
+                                y[(i + j) * self.out + o + r] = d[r][j] as f32 * self.qs[o + r] * xq[i + j].1 + self.b[o + r];
+                            }
+                        }
+                    } else {
+                        let (r0, r1) = (&self.w[o * self.inn..(o + 1) * self.inn], &self.w[(o + 1) * self.inn..(o + 2) * self.inn]);
+                        let xs = |k: usize| &x[(i + k) * self.inn..(i + k + 1) * self.inn];
+                        // SAFETY: avx2+fma checked
+                        let d = unsafe { dot24_f32_avx2(r0, r1, [xs(0), xs(1), xs(2), xs(3)]) };
+                        for r in 0..2 {
+                            for j in 0..4 {
+                                y[(i + j) * self.out + o + r] = d[r][j] + self.b[o + r];
+                            }
+                        }
+                    }
+                    o += 2;
                 }
+                i += 4;
             }
-        } else {
+        }
+        for tt in i..t {
             for o in 0..self.out {
-                let row = &self.w[o * self.inn..(o + 1) * self.inn];
-                for i in 0..t {
-                    y[i * self.out + o] = dot_f32(row, &x[i * self.inn..(i + 1) * self.inn]) + self.b[o];
-                }
+                y[tt * self.out + o] = if int8 {
+                    crate::scan::dot_i8_fast(&self.q[o * self.inn..(o + 1) * self.inn], &xq[tt].0) as f32 * self.qs[o] * xq[tt].1 + self.b[o]
+                } else {
+                    dot_f32(&self.w[o * self.inn..(o + 1) * self.inn], &x[tt * self.inn..(tt + 1) * self.inn]) + self.b[o]
+                };
             }
         }
     }
@@ -329,7 +556,7 @@ impl Encoder {
                     }
                     let mut z = 0.0;
                     for s in sc.iter_mut() {
-                        *s = (*s - mx).exp();
+                        *s = fast_exp(*s - mx);
                         z += *s;
                     }
                     for j in 0..t {
@@ -348,7 +575,7 @@ impl Encoder {
                 layer_norm(&mut x[i * D..(i + 1) * D], &l.ln1.0, &l.ln1.1);
             }
             l.f1.apply(&x, t, &mut h1, self.int8);
-            h1.iter_mut().for_each(|z| *z = gelu(*z));
+            gelu_all(&mut h1);
             l.f2.apply(&h1, t, &mut h2, self.int8);
             for i in 0..t {
                 for j in 0..D {

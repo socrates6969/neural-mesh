@@ -37,6 +37,9 @@ fn main() {
     let e32 = npy(&a[4]);
     let e8 = npy(&a[5]);
     let enc = Encoder::load(a[1].as_ref(), a[2].as_ref()).unwrap();
+    let t0 = Instant::now();
+    let ntok: usize = texts.iter().map(|t| enc.tokenize(t).len()).sum();
+    println!("tokenize only: {:.3} ms/query, mean {:.1} tokens", t0.elapsed().as_secs_f64() * 1e3 / texts.len() as f64, ntok as f64 / texts.len() as f64);
     let (v, lat) = run(&enc, &texts);
     stats("rust f32 vs python fp32 ORT", &v, &e32);
     println!("  rust f32 latency p50 {:.3} ms p90 {:.3} ms (1 thread, {} queries)", lat[lat.len() / 2], lat[lat.len() * 9 / 10], texts.len());
