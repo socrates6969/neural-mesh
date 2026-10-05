@@ -56,3 +56,7 @@ turbovec = "1.0.0"
 # no_std WebAssembly crate: only builds for wasm32 targets
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 micro-hnsw-wasm = "2.3.0"
+
+# R4: vendored copy of hnsw_rs 0.3.4 with a one-line fix (reverse edges were written at the new point top level instead of the loop layer; ~1% of stored items were unfindable). See results/g17_board_entry.md.
+[patch.crates-io]
+hnsw_rs = { path = "vendor_g17/hnsw_rs_patched" }
