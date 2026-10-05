@@ -706,6 +706,241 @@ impl MeshStore {
     }
 }
 
+// ---------------------------------------------------------------------- shared-folder CORPUS sync (B15)
+const B64: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+fn b64_encode(b: &[u8]) -> String {
+    let mut s = String::with_capacity(b.len().div_ceil(3) * 4);
+    for c in b.chunks(3) {
+        let n = (c[0] as u32) << 16 | (*c.get(1).unwrap_or(&0) as u32) << 8 | *c.get(2).unwrap_or(&0) as u32;
+        s.push(B64[(n >> 18) as usize & 63] as char);
+        s.push(B64[(n >> 12) as usize & 63] as char);
+        s.push(if c.len() > 1 { B64[(n >> 6) as usize & 63] as char } else { '=' });
+        s.push(if c.len() > 2 { B64[n as usize & 63] as char } else { '=' });
+    }
+    s
+}
+fn b64_decode(s: &str) -> Option<Vec<u8>> {
+    let val = |c: u8| -> Option<u32> { B64.iter().position(|x| *x == c).map(|p| p as u32) };
+    let b = s.as_bytes();
+    if b.len() % 4 != 0 {
+        return None;
+    }
+    let mut out = Vec::with_capacity(b.len() / 4 * 3);
+    for c in b.chunks(4) {
+        let pad = c.iter().filter(|x| **x == b'=').count();
+        let n = val(c[0])? << 18 | val(c[1])? << 12 | if pad < 2 { val(c[2])? << 6 } else { 0 } | if pad < 1 { val(c[3])? } else { 0 };
+        out.push((n >> 16) as u8);
+        if pad < 2 {
+            out.push((n >> 8) as u8);
+        }
+        if pad < 1 {
+            out.push(n as u8);
+        }
+    }
+    Some(out)
+}
+/// per-vector symmetric int8: 4-byte little-endian f32 scale (max|x|/127) followed by `dim` i8 values (the R9 recipe: no Holm loss on any retrieval axis)
+fn q8_encode(v: &[f32]) -> Vec<u8> {
+    let m = v.iter().fold(0f32, |a, x| a.max(x.abs()));
+    let scale = if m > 0.0 { m / 127.0 } else { 1.0 };
+    let mut out = Vec::with_capacity(4 + v.len());
+    out.extend_from_slice(&scale.to_le_bytes());
+    out.extend(v.iter().map(|x| (x / scale).round().clamp(-127.0, 127.0) as i8 as u8));
+    out
+}
+fn q8_decode(b: &[u8], dim: usize) -> Option<Vec<f32>> {
+    if b.len() != 4 + dim {
+        return None;
+    }
+    let scale = f32::from_le_bytes([b[0], b[1], b[2], b[3]]);
+    Some(b[4..].iter().map(|x| (*x as i8) as f32 * scale).collect())
+}
+#[derive(Serialize, Deserialize)]
+struct DocShardLine {
+    id: String,
+    text: String,
+    tag: String,
+    dim: usize,
+    q: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct DocSyncReport {
+    pub exported: usize,
+    pub imported: usize,
+    /// same id present locally with DIFFERENT text: the local doc is kept, the foreign one is NOT imported (reported, never silently overwritten)
+    pub conflicts: usize,
+    /// foreign shards / lines skipped because of a vector dimension mismatch or an undecodable vector
+    pub skipped: usize,
+    pub files_read: usize,
+    pub bytes_written: usize,
+}
+
+impl MeshStore {
+    /// B15 (opt-in): serverless cross-machine sync of ONE corpus namespace through a shared folder, same ownership protocol as [`MeshStore::sync_folder`]: machine `m` owns
+    /// exactly one shard file `<m>.<ns>.docs.jsonl` (one JSON line per doc: id, text, tag, dim, base64 of the per-vector int8 code), replaced atomically (temp + rename); other machines'
+    /// shards are imported (union by doc id; torn lines / invalid UTF-8 tolerated) and only own-origin docs (not present in any foreign shard) are re-exported.
+    /// Vectors travel as int8 (388 B at dim 384 instead of 1,536 B f32); imported vectors are the dequantised values (R9: no retrieval loss on the battery). Same id with different text =
+    /// counted conflict, local kept. Machine ids and namespace names must be `[A-Za-z0-9_-]+`. Idempotent and order-independent. Synthetic / non-sensitive data only.
+    pub fn sync_docs_folder(&self, folder: &Path, machine: &str, ns: &str) -> R<DocSyncReport> {
+        let ok = |s: &str| !s.is_empty() && s.chars().all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_');
+        if !ok(machine) || !ok(ns) {
+            return Err(StoreError::Corrupt("machine id and namespace must be [A-Za-z0-9_-]+".into()));
+        }
+        fs::create_dir_all(folder)?;
+        let mut rep = DocSyncReport::default();
+        let own = format!("{machine}.{ns}.docs.jsonl");
+        let suffix = format!(".{ns}.docs.jsonl");
+        let (ldocs, lvecs, ldim) = self.load_docs(ns)?;
+        let local: BTreeMap<String, usize> = ldocs.iter().enumerate().map(|(i, d)| (d.id.clone(), i)).collect();
+        let mut files: Vec<PathBuf> = fs::read_dir(folder)?.filter_map(|e| e.ok()).map(|e| e.path()).collect();
+        files.sort();
+        let mut foreign: HashSet<String> = HashSet::new();
+        let mut new_docs: Vec<DocRec> = vec![];
+        let mut new_vecs: Vec<f32> = vec![];
+        let mut new_dim = ldim;
+        let mut taken: HashSet<String> = HashSet::new();
+        for p in &files {
+            let name = p.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
+            if name == own || !name.ends_with(&suffix) {
+                continue;
+            }
+            rep.files_read += 1;
+            for l in lossy_lines(p)? {
+                let Ok(x) = serde_json::from_str::<DocShardLine>(&l) else { continue };
+                foreign.insert(x.id.clone());
+                if let Some(&i) = local.get(&x.id) {
+                    if ldocs[i].text != x.text {
+                        rep.conflicts += 1;
+                    }
+                    continue;
+                }
+                if taken.contains(&x.id) {
+                    continue;
+                }
+                if new_dim != 0 && x.dim != new_dim {
+                    rep.skipped += 1;
+                    continue;
+                }
+                let Some(v) = b64_decode(&x.q).and_then(|b| q8_decode(&b, x.dim)) else {
+                    rep.skipped += 1;
+                    continue;
+                };
+                new_dim = x.dim;
+                taken.insert(x.id.clone());
+                new_docs.push(DocRec { id: x.id, text: x.text, tag: x.tag });
+                new_vecs.extend(v);
+            }
+        }
+        if !new_docs.is_empty() {
+            rep.imported = self.put_docs(ns, new_dim, &new_docs, &new_vecs)?;
+        }
+        // export own-origin docs (local docs that no foreign shard holds), atomically replacing OUR shard only
+        let (docs, vecs, dim) = self.load_docs(ns)?;
+        let mut buf = String::new();
+        for (i, d) in docs.iter().enumerate() {
+            if foreign.contains(&d.id) {
+                continue;
+            }
+            let line = DocShardLine { id: d.id.clone(), text: d.text.clone(), tag: d.tag.clone(), dim, q: b64_encode(&q8_encode(&vecs[i * dim..(i + 1) * dim])) };
+            buf.push_str(&serde_json::to_string(&line).unwrap());
+            buf.push('\n');
+            rep.exported += 1;
+        }
+        rep.bytes_written = buf.len();
+        let tmp = folder.join(format!("{own}.tmp"));
+        fs::write(&tmp, buf)?;
+        fs::rename(&tmp, folder.join(&own))?;
+        Ok(rep)
+    }
+}
+
+#[cfg(test)]
+mod docsync_tests {
+    use super::*;
+    fn tmp(name: &str) -> PathBuf {
+        let p = std::env::temp_dir().join(format!("nm_docsync_{name}_{}", std::process::id()));
+        let _ = fs::remove_dir_all(&p);
+        p
+    }
+    fn vecs(n: usize, dim: usize, seed: u64) -> Vec<f32> {
+        let mut s = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+        (0..n * dim)
+            .map(|_| {
+                s = s.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+                ((s >> 33) as f32 / (1u64 << 31) as f32) * 2.0 - 1.0
+            })
+            .collect()
+    }
+    fn docs(prefix: &str, n: usize) -> Vec<DocRec> {
+        (0..n).map(|i| DocRec { id: format!("{prefix}{i}"), text: format!("t\u{e9} {prefix}{i}"), tag: "x".into() }).collect()
+    }
+
+    #[test]
+    fn base64_and_int8_roundtrip() {
+        for n in 0..9usize {
+            let b: Vec<u8> = (0..n as u8).map(|x| x.wrapping_mul(37)).collect();
+            assert_eq!(b64_decode(&b64_encode(&b)).unwrap(), b);
+        }
+        let v = vecs(1, 64, 3);
+        let r = q8_decode(&q8_encode(&v), 64).unwrap();
+        let m = v.iter().fold(0f32, |a, x| a.max(x.abs()));
+        assert!(v.iter().zip(&r).all(|(a, b)| (a - b).abs() <= m / 127.0 * 0.5 + 1e-6), "int8 error bounded by half a step");
+        assert!(q8_decode(&[0u8; 5], 64).is_none());
+    }
+
+    #[test]
+    fn docs_sync_is_union_idempotent_torn_tolerant_and_reports_conflicts() {
+        let folder = tmp("f");
+        let dim = 16;
+        let (pa, pb, pc) = (tmp("a"), tmp("b"), tmp("c"));
+        let (a, b, c) = (MeshStore::open(&pa).unwrap(), MeshStore::open(&pb).unwrap(), MeshStore::open(&pc).unwrap());
+        a.put_docs("kb", dim, &docs("a", 5), &vecs(5, dim, 1)).unwrap();
+        b.put_docs("kb", dim, &docs("b", 4), &vecs(4, dim, 2)).unwrap();
+        // c holds a doc with the SAME id as a's but different text -> conflict, not overwritten
+        let mut cd = docs("c", 3);
+        cd.push(DocRec { id: "a0".into(), text: "different".into(), tag: "x".into() });
+        c.put_docs("kb", dim, &cd, &vecs(4, dim, 3)).unwrap();
+        let ra = a.sync_docs_folder(&folder, "mA", "kb").unwrap();
+        assert_eq!((ra.imported, ra.exported), (0, 5));
+        b.sync_docs_folder(&folder, "mB", "kb").unwrap();
+        let rc = c.sync_docs_folder(&folder, "mC", "kb").unwrap();
+        assert_eq!(rc.conflicts, 1);
+        // torn shard tail + non-UTF8 + junk tmp are tolerated
+        let mut f = OpenOptions::new().append(true).open(folder.join("mB.kb.docs.jsonl")).unwrap();
+        f.write_all(b"{\"id\":\"zz\",\"text\":\"caf\xc3").unwrap();
+        drop(f);
+        fs::write(folder.join("mZ.kb.docs.jsonl.tmp"), b"garbage").unwrap();
+        for _ in 0..2 {
+            for (s, m) in [(&a, "mA"), (&b, "mB"), (&c, "mC")] {
+                s.sync_docs_folder(&folder, m, "kb").unwrap();
+            }
+        }
+        for s in [&a, &b, &c] {
+            assert_eq!(s.load_docs("kb").unwrap().0.len(), 5 + 4 + 3 + 0, "union of 5 + 4 + 3 distinct ids (a0 of c is a conflict, not a new doc)");
+        }
+        // vectors survive within int8 error and stay aligned with their docs
+        let (da, va, _) = a.load_docs("kb").unwrap();
+        let (dbb, vbb, _) = b.load_docs("kb").unwrap();
+        let orig_a = vecs(5, dim, 1);
+        for (i, d) in da.iter().enumerate() {
+            if let Some(j) = dbb.iter().position(|x| x.id == d.id) {
+                let (x, y) = (&va[i * dim..(i + 1) * dim], &vbb[j * dim..(j + 1) * dim]);
+                assert!(x.iter().zip(y).all(|(p, q)| (p - q).abs() < 0.02), "doc {} vectors agree across machines", d.id);
+            }
+            if d.id == "a2" {
+                assert!(va[i * dim..(i + 1) * dim].iter().zip(&orig_a[2 * dim..3 * dim]).all(|(p, q)| (p - q).abs() < 0.02));
+            }
+        }
+        let again = a.sync_docs_folder(&folder, "mA", "kb").unwrap();
+        assert_eq!(again.imported, 0);
+        assert!(a.sync_docs_folder(&folder, "bad id", "kb").is_err());
+        for p in [&folder, &pa, &pb, &pc] {
+            let _ = fs::remove_dir_all(p);
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -4,6 +4,7 @@
 //!   meshstore put-corpus <root> <ns> <texts.json> <vecs.f32> <dim> [tag] [limit]   (texts.json = JSON array of strings; vecs row-major f32 LE)
 //!   meshstore lesson <root> <world> <tag> <text...>    append one lesson
 //!   meshstore sync   <root> <shared-folder> <machine-id> [cap-per-world]   shared-folder sync (R48; outcomes + lessons, union by id, atomic own-file export)
+//!   meshstore sync-docs <root> <shared-folder> <machine-id> <ns>   shared-folder CORPUS sync for one namespace (B15; int8 vectors, own shard replaced atomically)
 //!   meshstore gc-docs <root> <ns> <cos-threshold>      drop near-duplicate corpus docs (R47)
 //!   meshstore bench  <root> <ns>                       time load + flat/HNSW index build for a stored corpus
 //! The store must only ever hold synthetic routing outcomes, lessons and knowledge (never secrets / customer data).
@@ -32,6 +33,11 @@ fn main() {
             let cap = a.get(4).and_then(|x| x.parse::<usize>().ok());
             let r = s.sync_folder(std::path::Path::new(&a[2]), &a[3], None, cap).unwrap();
             println!("{}", serde_json::json!({"exported": r.exported, "imported": r.imported, "lessons_imported": r.lessons_imported, "files_read": r.files_read, "bytes_written": r.bytes_written}));
+        }
+        Some("sync-docs") if a.len() == 5 => {
+            let s = MeshStore::open(&a[1]).unwrap();
+            let r = s.sync_docs_folder(std::path::Path::new(&a[2]), &a[3], &a[4]).unwrap();
+            println!("{}", serde_json::json!({"exported": r.exported, "imported": r.imported, "conflicts": r.conflicts, "skipped": r.skipped, "files_read": r.files_read, "bytes_written": r.bytes_written}));
         }
         Some("gc-docs") if a.len() == 4 => {
             let s = MeshStore::open(&a[1]).unwrap();
