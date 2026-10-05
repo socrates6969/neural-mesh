@@ -269,6 +269,263 @@ impl ColdTv {
     }
 }
 
+/// Scalar-quantised cold storage kind (R4 / h4): a simple alternative to turbovec codes.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ColdKind {
+    /// turbovec low-bit codes (`Compression::bit_width`).
+    Turbovec,
+    /// IEEE half precision, 2 bytes per coordinate.
+    F16,
+    /// symmetric per-vector int8, 1 byte per coordinate + one f32 scale.
+    Int8,
+}
+
+pub fn f32_to_f16(x: f32) -> u16 {
+    let b = x.to_bits();
+    let sign = ((b >> 16) & 0x8000) as u16;
+    let exp = ((b >> 23) & 0xff) as i32;
+    let man = b & 0x7f_ffff;
+    if exp == 0xff {
+        return sign | 0x7c00 | if man != 0 { 0x200 } else { 0 };
+    }
+    let e = exp - 127 + 15;
+    if e >= 31 {
+        return sign | 0x7c00;
+    }
+    if e <= 0 {
+        if e < -10 {
+            return sign;
+        }
+        let m = man | 0x80_0000;
+        let shift = (14 - e) as u32;
+        let mut h = (m >> shift) as u16;
+        let rem = m & ((1u32 << shift) - 1);
+        let half = 1u32 << (shift - 1);
+        if rem > half || (rem == half && (h & 1) == 1) {
+            h += 1;
+        }
+        return sign | h;
+    }
+    let mut h = (((e as u32) << 10) | (man >> 13)) as u16;
+    let rem = man & 0x1fff;
+    if rem > 0x1000 || (rem == 0x1000 && (h & 1) == 1) {
+        h += 1;
+    }
+    sign | h
+}
+
+pub fn f16_to_f32(h: u16) -> f32 {
+    let sign = ((h & 0x8000) as u32) << 16;
+    let exp = ((h >> 10) & 0x1f) as u32;
+    let man = (h & 0x3ff) as u32;
+    if exp == 0 {
+        if man == 0 {
+            return f32::from_bits(sign);
+        }
+        let v = man as f32 * (1.0 / 16_777_216.0); // 2^-24
+        return if sign != 0 { -v } else { v };
+    }
+    if exp == 31 {
+        return f32::from_bits(sign | 0x7f80_0000 | (man << 13));
+    }
+    f32::from_bits(sign | ((exp + 112) << 23) | (man << 13))
+}
+
+#[inline]
+fn dot_i8(row: &[i8], q: &[f32]) -> f32 {
+    let mut acc = [0f32; 8];
+    let (rc, qc) = (row.chunks_exact(8), q.chunks_exact(8));
+    let (rr, qr) = (rc.remainder(), qc.remainder());
+    for (r, x) in rc.zip(qc) {
+        for i in 0..8 {
+            acc[i] += r[i] as f32 * x[i];
+        }
+    }
+    let mut s: f32 = acc.iter().sum();
+    for (r, x) in rr.iter().zip(qr) {
+        s += *r as f32 * x;
+    }
+    s
+}
+
+#[inline]
+fn dot_f16(row: &[u16], q: &[f32]) -> f32 {
+    let mut acc = [0f32; 8];
+    let (rc, qc) = (row.chunks_exact(8), q.chunks_exact(8));
+    let (rr, qr) = (rc.remainder(), qc.remainder());
+    for (r, x) in rc.zip(qc) {
+        for i in 0..8 {
+            acc[i] += f16_to_f32(r[i]) * x[i];
+        }
+    }
+    let mut s: f32 = acc.iter().sum();
+    for (r, x) in rr.iter().zip(qr) {
+        s += f16_to_f32(*r) * x;
+    }
+    s
+}
+
+/// Brute-force scalar-quantised cold store (f16 or int8). No f32 copy.
+pub struct ColdQ {
+    dim: usize,
+    kind: ColdKind,
+    ids: Vec<u64>,
+    pos: HashMap<u64, usize>,
+    h: Vec<u16>,
+    q: Vec<i8>,
+    scale: Vec<f32>,
+}
+
+impl ColdQ {
+    pub fn new(dim: usize, kind: ColdKind) -> Self {
+        assert!(kind != ColdKind::Turbovec);
+        Self { dim, kind, ids: Vec::new(), pos: HashMap::new(), h: Vec::new(), q: Vec::new(), scale: Vec::new() }
+    }
+    pub fn add_batch(&mut self, ids: &[u64], vs: &[f32]) {
+        for (id, v) in ids.iter().zip(vs.chunks_exact(self.dim)) {
+            if self.pos.contains_key(id) {
+                self.remove(*id);
+            }
+            let n = normalized(v);
+            self.pos.insert(*id, self.ids.len());
+            self.ids.push(*id);
+            match self.kind {
+                ColdKind::F16 => self.h.extend(n.iter().map(|&x| f32_to_f16(x))),
+                ColdKind::Int8 => {
+                    let mx = n.iter().fold(0.0f32, |a, &x| a.max(x.abs()));
+                    let sc = if mx > 0.0 { mx / 127.0 } else { 1.0 };
+                    self.scale.push(sc);
+                    self.q.extend(n.iter().map(|&x| (x / sc).round().clamp(-127.0, 127.0) as i8));
+                }
+                ColdKind::Turbovec => unreachable!(),
+            }
+        }
+    }
+    pub fn remove(&mut self, id: u64) -> bool {
+        let Some(i) = self.pos.remove(&id) else { return false };
+        let last = self.ids.len() - 1;
+        let d = self.dim;
+        if i != last {
+            self.ids[i] = self.ids[last];
+            self.pos.insert(self.ids[i], i);
+            match self.kind {
+                ColdKind::F16 => {
+                    let (a, b) = self.h.split_at_mut(last * d);
+                    a[i * d..(i + 1) * d].copy_from_slice(&b[..d]);
+                }
+                ColdKind::Int8 => {
+                    let (a, b) = self.q.split_at_mut(last * d);
+                    a[i * d..(i + 1) * d].copy_from_slice(&b[..d]);
+                    self.scale[i] = self.scale[last];
+                }
+                ColdKind::Turbovec => unreachable!(),
+            }
+        }
+        self.ids.pop();
+        match self.kind {
+            ColdKind::F16 => self.h.truncate(last * d),
+            ColdKind::Int8 => {
+                self.q.truncate(last * d);
+                self.scale.pop();
+            }
+            ColdKind::Turbovec => unreachable!(),
+        }
+        true
+    }
+    pub fn len(&self) -> usize {
+        self.ids.len()
+    }
+    pub fn is_empty(&self) -> bool {
+        self.ids.is_empty()
+    }
+    pub fn search(&self, q: &[f32], k: usize) -> Vec<(u64, f32)> {
+        if self.ids.is_empty() || k == 0 {
+            return Vec::new();
+        }
+        let qn = normalized(q);
+        let d = self.dim;
+        let mut top = Vec::with_capacity(k + 1);
+        match self.kind {
+            ColdKind::F16 => {
+                for (row, id) in self.h.chunks_exact(d).zip(&self.ids) {
+                    let s = dot_f16(row, &qn);
+                    push_topk(&mut top, k, *id, s);
+                }
+            }
+            ColdKind::Int8 => {
+                for ((row, id), sc) in self.q.chunks_exact(d).zip(&self.ids).zip(&self.scale) {
+                    let s = dot_i8(row, &qn);
+                    push_topk(&mut top, k, *id, s * sc);
+                }
+            }
+            ColdKind::Turbovec => unreachable!(),
+        }
+        top
+    }
+    pub fn bytes(&self) -> usize {
+        let payload = match self.kind {
+            ColdKind::F16 => self.dim * 2,
+            ColdKind::Int8 => self.dim + 4,
+            ColdKind::Turbovec => 0,
+        };
+        self.ids.len() * (payload + 8 + 24)
+    }
+}
+
+/// The compressed tier: turbovec codes or scalar-quantised (f16/int8) rows.
+pub enum ColdTier {
+    Tv(ColdTv),
+    Q(ColdQ),
+}
+
+impl ColdTier {
+    fn add_batch(&mut self, ids: &[u64], vs: &[f32]) {
+        match self {
+            ColdTier::Tv(c) => c.add_batch(ids, vs),
+            ColdTier::Q(c) => c.add_batch(ids, vs),
+        }
+    }
+    fn remove(&mut self, id: u64) -> bool {
+        match self {
+            ColdTier::Tv(c) => c.remove(id),
+            ColdTier::Q(c) => c.remove(id),
+        }
+    }
+    fn prepare(&self) {
+        if let ColdTier::Tv(c) = self {
+            c.prepare();
+        }
+    }
+    fn len(&self) -> usize {
+        match self {
+            ColdTier::Tv(c) => c.len(),
+            ColdTier::Q(c) => c.len(),
+        }
+    }
+    fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+    fn search(&self, q: &[f32], k: usize) -> Vec<(u64, f32)> {
+        match self {
+            ColdTier::Tv(c) => c.search(q, k),
+            ColdTier::Q(c) => c.search(q, k),
+        }
+    }
+    fn bytes(&self) -> usize {
+        match self {
+            ColdTier::Tv(c) => c.bytes(),
+            ColdTier::Q(c) => c.bytes(),
+        }
+    }
+    /// bytes that do not scale with the number of items (turbovec rotation matrix)
+    fn fixed_bytes(&self, dim: usize) -> usize {
+        match self {
+            ColdTier::Tv(_) => dim * dim * 4,
+            ColdTier::Q(_) => 0,
+        }
+    }
+}
+
 // ---------------------------------------------------------------------------
 // TieredMemory
 // ---------------------------------------------------------------------------
@@ -309,6 +566,28 @@ pub struct TieredConfig {
     pub init_value: f32,
     /// Run `consolidate` automatically every this many adds (0 = manual only).
     pub consolidate_every: usize,
+    /// Which items are forgotten first when over the byte budget (default `Value`).
+    pub policy: ForgetPolicy,
+    /// Compressed-tier representation (default turbovec; only used when `compression` is set).
+    pub cold_kind: ColdKind,
+    /// Importance-merge: when over budget, absorb near-duplicate hot items (same `meta`,
+    /// cosine >= this) into a surviving neighbour (weights and values add) before forgetting.
+    pub merge_sim: Option<f32>,
+    /// Max lowest-ranked hot items scanned per merge pass.
+    pub merge_scan: usize,
+    /// Enforce the byte budget on every `add` that exceeds it (not only at `consolidate`).
+    pub hard_budget: bool,
+}
+
+/// Eviction order under the byte budget.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ForgetPolicy {
+    /// lowest time-decayed usefulness value first (ties: oldest). Default.
+    Value,
+    /// oldest added first (ignores feedback).
+    Fifo,
+    /// least recently retrieved (or added) first.
+    Lru,
 }
 
 impl TieredConfig {
@@ -323,6 +602,11 @@ impl TieredConfig {
             value_halflife: 10_000.0,
             init_value: 0.2,
             consolidate_every: 128,
+            policy: ForgetPolicy::Value,
+            cold_kind: ColdKind::Turbovec,
+            merge_sim: None,
+            merge_scan: 128,
+            hard_budget: false,
         }
     }
 }
@@ -344,6 +628,8 @@ struct Entry {
     reward_sum: f32,
     value: f32,
     value_tick: u64,
+    weight: u32,
+    last_access: u64,
 }
 
 /// Usefulness snapshot of one item.
@@ -356,6 +642,8 @@ pub struct ItemStats {
     pub reward_sum: f32,
     /// Current time-decayed value.
     pub value: f32,
+    /// Number of original items this entry stands for (1 + absorbed by importance-merge).
+    pub weight: u32,
 }
 
 #[derive(Clone, Debug, Default)]
@@ -365,6 +653,7 @@ pub struct TieredStats {
     pub cold: usize,
     pub forgotten: u64,
     pub demoted: u64,
+    pub merged: u64,
     pub bytes: usize,
 }
 
@@ -372,13 +661,14 @@ pub struct TieredMemory {
     cfg: TieredConfig,
     short: VecDeque<(u64, Vec<f32>)>,
     hot: Box<dyn RemovableIndex>,
-    cold: Option<ColdTv>,
+    cold: Option<ColdTier>,
     entries: HashMap<u64, Entry>,
     tick: u64,
     since_consolidate: usize,
     meta_bytes: usize,
     forgotten: u64,
     demoted: u64,
+    merged: u64,
 }
 
 impl TieredMemory {
@@ -387,7 +677,10 @@ impl TieredMemory {
             LongKind::Flat => Box::new(FlatRm::new(cfg.dim)),
             LongKind::Hnsw(p) => Box::new(HnswRm::new(cfg.dim, p)),
         };
-        let cold = cfg.compression.map(|c| ColdTv::new(cfg.dim, c.bit_width));
+        let cold = cfg.compression.map(|c| match cfg.cold_kind {
+            ColdKind::Turbovec => ColdTier::Tv(ColdTv::new(cfg.dim, c.bit_width)),
+            k => ColdTier::Q(ColdQ::new(cfg.dim, k)),
+        });
         Self {
             cfg,
             short: VecDeque::new(),
@@ -399,6 +692,7 @@ impl TieredMemory {
             meta_bytes: 0,
             forgotten: 0,
             demoted: 0,
+            merged: 0,
         }
     }
 
@@ -428,7 +722,17 @@ impl TieredMemory {
             rewards: e.rewards,
             reward_sum: e.reward_sum,
             value: self.value_now(e),
+            weight: e.weight,
         })
+    }
+
+    /// Eviction rank (lower = forgotten first); ties are broken by `added` (oldest first).
+    fn rank(&self, e: &Entry) -> f64 {
+        match self.cfg.policy {
+            ForgetPolicy::Value => self.value_now(e) as f64,
+            ForgetPolicy::Fifo => 0.0,
+            ForgetPolicy::Lru => e.last_access as f64,
+        }
     }
 
     fn value_now(&self, e: &Entry) -> f32 {
@@ -454,6 +758,8 @@ impl TieredMemory {
                 reward_sum: 0.0,
                 value: self.cfg.init_value,
                 value_tick: self.tick,
+                weight: 1,
+                last_access: self.tick,
             },
         );
         self.meta_bytes += meta.len();
@@ -466,7 +772,9 @@ impl TieredMemory {
             }
         }
         self.since_consolidate += 1;
-        if self.cfg.consolidate_every > 0 && self.since_consolidate >= self.cfg.consolidate_every {
+        if self.cfg.hard_budget && self.cfg.forgetting && self.bytes() > self.cfg.byte_budget {
+            self.consolidate();
+        } else if self.cfg.consolidate_every > 0 && self.since_consolidate >= self.cfg.consolidate_every {
             self.consolidate();
         }
         true
@@ -502,9 +810,11 @@ impl TieredMemory {
     /// Merged top-`k`; also counts a retrieval for each returned item.
     pub fn search(&mut self, q: &[f32], k: usize) -> Vec<(u64, f32)> {
         let r = self.search_ro(q, k);
+        let tick = self.tick;
         for (id, _) in &r {
             if let Some(e) = self.entries.get_mut(id) {
                 e.retrievals = e.retrievals.saturating_add(1);
+                e.last_access = tick;
             }
         }
         r
@@ -549,6 +859,7 @@ impl TieredMemory {
             cold: self.cold.as_ref().map_or(0, |c| c.len()),
             forgotten: self.forgotten,
             demoted: self.demoted,
+            merged: self.merged,
             bytes: self.bytes(),
         }
     }
@@ -562,7 +873,57 @@ impl TieredMemory {
             self.demote();
         }
         if self.cfg.forgetting && self.cfg.byte_budget < usize::MAX {
+            if self.cfg.merge_sim.is_some() && self.bytes() > self.cfg.byte_budget {
+                self.merge_pass();
+            }
             self.enforce_budget();
+        }
+    }
+
+    /// Importance-merge: for the lowest-ranked hot items, absorb an item into its nearest hot
+    /// neighbour when both carry the same `meta` and cosine >= `merge_sim`. The survivor's vector
+    /// is unchanged; weights and values add, so no usefulness evidence is lost.
+    fn merge_pass(&mut self) {
+        let Some(thr) = self.cfg.merge_sim else { return };
+        let mut cand: Vec<(f64, u64, u64)> = self
+            .entries
+            .iter()
+            .filter(|(_, e)| e.tier == Tier::Hot)
+            .map(|(id, e)| (self.rank(e), e.added, *id))
+            .collect();
+        cand.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap_or(std::cmp::Ordering::Equal).then(a.1.cmp(&b.1)));
+        cand.truncate(self.cfg.merge_scan);
+        let mut any = false;
+        for (_, _, id) in cand {
+            if !self.entries.get(&id).is_some_and(|e| e.tier == Tier::Hot) {
+                continue;
+            }
+            let Some(v) = self.hot.vector(id) else { continue };
+            let meta = self.entries[&id].meta.clone();
+            let best = self.hot.search(&v, 6).into_iter().find(|&(oid, s)| {
+                oid != id && s >= thr && self.entries.get(&oid).is_some_and(|e| e.tier == Tier::Hot && e.meta == meta)
+            });
+            let Some((oid, _)) = best else { continue };
+            let (w, val) = {
+                let e = &self.entries[&id];
+                (e.weight, self.value_now(e))
+            };
+            let sv = self.value_now(&self.entries[&oid]);
+            let tick = self.tick;
+            if let Some(o) = self.entries.get_mut(&oid) {
+                o.weight = o.weight.saturating_add(w);
+                o.value = sv + val;
+                o.value_tick = tick;
+            }
+            self.hot.remove(id);
+            if let Some(e) = self.entries.remove(&id) {
+                self.meta_bytes -= e.meta.len();
+            }
+            self.merged += 1;
+            any = true;
+        }
+        if any {
+            self.hot.compact();
         }
     }
 
@@ -573,11 +934,11 @@ impl TieredMemory {
             return;
         }
         let need = self.hot.len() - c.hot_cap;
-        let mut cand: Vec<(f32, u64, u64)> = self
+        let mut cand: Vec<(f64, u64, u64)> = self
             .entries
             .iter()
             .filter(|(_, e)| e.tier == Tier::Hot)
-            .map(|(id, e)| (self.value_now(e), e.added, *id))
+            .map(|(id, e)| (self.rank(e), e.added, *id))
             .collect();
         cand.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap_or(std::cmp::Ordering::Equal).then(a.1.cmp(&b.1)));
         cand.truncate(need);
@@ -612,14 +973,14 @@ impl TieredMemory {
             let excess = b.saturating_sub(target) as f64;
             let hot_avg = if self.hot.len() > 0 { self.hot.bytes() as f64 / self.hot.len() as f64 } else { 0.0 };
             let cold_avg = match &self.cold {
-                Some(c) if !c.is_empty() => (c.bytes() - self.cfg.dim * self.cfg.dim * 4) as f64 / c.len() as f64,
+                Some(c) if !c.is_empty() => (c.bytes() - c.fixed_bytes(self.cfg.dim)) as f64 / c.len() as f64,
                 _ => 0.0,
             };
-            let mut cand: Vec<(f32, u64, u64, Tier)> = self
+            let mut cand: Vec<(f64, u64, u64, Tier)> = self
                 .entries
                 .iter()
                 .filter(|(_, e)| e.tier != Tier::Short)
-                .map(|(id, e)| (self.value_now(e), e.added, *id, e.tier))
+                .map(|(id, e)| (self.rank(e), e.added, *id, e.tier))
                 .collect();
             if cand.is_empty() {
                 return;
@@ -921,5 +1282,132 @@ mod tests {
             (m.search_ro(&q, 5), m.bytes(), m.stats().forgotten)
         };
         assert_eq!(run(), run());
+    }
+
+    // ---- R4 / h4 additions ----
+
+    #[test]
+    fn f16_roundtrip_error_is_small() {
+        let mut rng = Rng::new(21);
+        for _ in 0..2000 {
+            let x = rng.normal() * 0.3;
+            let y = f16_to_f32(f32_to_f16(x));
+            assert!((x - y).abs() <= x.abs() * 1.0e-3 + 1.0e-6, "{x} -> {y}");
+        }
+        assert_eq!(f16_to_f32(f32_to_f16(0.0)), 0.0);
+        assert_eq!(f16_to_f32(f32_to_f16(1.0)), 1.0);
+        assert_eq!(f16_to_f32(f32_to_f16(-2.5)), -2.5);
+    }
+
+    #[test]
+    fn scalar_cold_tiers_find_exact_queries() {
+        for kind in [ColdKind::F16, ColdKind::Int8] {
+            let mut c = ColdQ::new(DIM, kind);
+            let mut rng = Rng::new(22);
+            let vs: Vec<Vec<f32>> = (0..60).map(|_| rand_vec(&mut rng)).collect();
+            let ids: Vec<u64> = (0..60).collect();
+            let flat: Vec<f32> = vs.iter().flatten().copied().collect();
+            c.add_batch(&ids, &flat);
+            for i in [0usize, 17, 59] {
+                let r = c.search(&vs[i], 1);
+                assert_eq!(r[0].0, i as u64);
+                assert!(r[0].1 > 0.98, "{kind:?} score {}", r[0].1);
+            }
+            assert!(c.remove(17));
+            assert!(!c.remove(17));
+            assert_eq!(c.len(), 59);
+            assert_eq!(c.search(&vs[59], 1)[0].0, 59);
+            assert_eq!(c.search(&vs[3], 1)[0].0, 3);
+            let per = c.bytes() / c.len();
+            assert!(per < DIM * 2 + 40);
+        }
+    }
+
+    #[test]
+    fn scalar_cold_tier_in_tiered_memory_saves_bytes() {
+        let run = |kind: ColdKind| {
+            let mut c = cfg(8);
+            c.compression = Some(Compression { bit_width: 4, hot_cap: 20 });
+            c.cold_kind = kind;
+            c.consolidate_every = 16;
+            let mut m = TieredMemory::new(c);
+            let mut rng = Rng::new(23);
+            for i in 0..200u64 {
+                m.add(i, &rand_vec(&mut rng), "");
+            }
+            m.consolidate();
+            (m.stats().cold, m.bytes())
+        };
+        let (cold_i8, b_i8) = run(ColdKind::Int8);
+        let (cold_f16, b_f16) = run(ColdKind::F16);
+        assert!(cold_i8 > 100 && cold_f16 > 100);
+        assert!(b_i8 < b_f16, "int8 smaller than f16");
+    }
+
+    #[test]
+    fn fifo_and_lru_policies_order_eviction() {
+        let mk = |p: ForgetPolicy| {
+            let mut c = cfg(1);
+            c.forgetting = true;
+            c.policy = p;
+            c.hard_budget = true;
+            c.byte_budget = 6 * (DIM * 4 + 8 + 24 + ENTRY_OVERHEAD) + 6;
+            c.value_halflife = 1.0e9;
+            TieredMemory::new(c)
+        };
+        let mut rng = Rng::new(24);
+        let vs: Vec<Vec<f32>> = (0..12).map(|_| rand_vec(&mut rng)).collect();
+        // FIFO: oldest hot items go first, regardless of retrievals
+        let mut f = mk(ForgetPolicy::Fifo);
+        for (i, v) in vs.iter().enumerate() {
+            f.add(i as u64, v, "");
+            f.search(&vs[0], 1);
+            f.record_outcome(0, 1.0);
+        }
+        assert!(!f.contains(0), "FIFO forgets the oldest even if useful");
+        assert!(f.contains(11));
+        // LRU: keeps the recently retrieved item 0
+        let mut l = mk(ForgetPolicy::Lru);
+        for (i, v) in vs.iter().enumerate() {
+            l.add(i as u64, v, "");
+            l.search(&vs[0], 1);
+        }
+        assert!(l.contains(0), "LRU keeps the frequently retrieved item");
+        assert!(l.bytes() <= l.config().byte_budget);
+        // Value: keeps the rewarded item
+        let mut v = mk(ForgetPolicy::Value);
+        for (i, x) in vs.iter().enumerate() {
+            v.add(i as u64, x, "");
+            v.record_outcome(0, 1.0);
+        }
+        assert!(v.contains(0), "value policy keeps the rewarded item");
+        assert!(v.bytes() <= v.config().byte_budget, "hard budget holds after every add");
+    }
+
+    #[test]
+    fn importance_merge_absorbs_same_meta_near_duplicates() {
+        let mut c = cfg(1);
+        c.forgetting = true;
+        c.hard_budget = true;
+        c.merge_sim = Some(0.9);
+        c.byte_budget = 10 * (DIM * 4 + 8 + 24 + ENTRY_OVERHEAD + 2);
+        let mut m = TieredMemory::new(c);
+        let mut rng = Rng::new(25);
+        let base = rand_vec(&mut rng);
+        let other: Vec<f32> = rand_vec(&mut rng);
+        for i in 0..40u64 {
+            let mut v = base.clone();
+            for x in v.iter_mut() {
+                *x += 0.02 * rng.normal();
+            }
+            m.add(i, &v, "a|1");
+        }
+        m.add(100, &other, "b|1");
+        let st = m.stats();
+        assert!(st.merged > 0, "near-duplicates merged: {st:?}");
+        // total represented weight is preserved for survivors of the base cluster
+        let w: u32 = (0..40u64).filter_map(|i| m.item_stats(i)).map(|s| s.weight).sum();
+        assert!(w as usize + st.forgotten as usize >= 30, "weights {w} forgotten {}", st.forgotten);
+        assert!(m.bytes() <= m.config().byte_budget);
     }
 }
