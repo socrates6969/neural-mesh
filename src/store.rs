@@ -72,6 +72,15 @@ pub struct DocRec {
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]
+pub struct SyncReport {
+    pub exported: usize,
+    pub imported: usize,
+    pub lessons_imported: usize,
+    pub files_read: usize,
+    pub bytes_written: usize,
+}
+
+#[derive(Clone, Debug, Default, PartialEq)]
 pub struct MergeReport {
     pub outcomes_added: usize,
     pub lessons_added: usize,
@@ -330,6 +339,57 @@ impl MeshStore {
         }
         Ok(added)
     }
+    /// GC / compaction of a corpus namespace (R47): drop later documents whose L2-normalised vector has cosine > `threshold` to an EARLIER kept document
+    /// (first wins; `threshold >= 1.0` removes only exact-vector duplicates). Atomic (temp files + rename) under the lock; the persisted ANN stamp changes
+    /// because the row count changes, so `open_ann` rebuilds. O(n^2 d): intended for offline maintenance (6.8k docs ~ seconds). Returns (before, after).
+    /// Measured on the real 6,831-paragraph store (RD-LOG R47): .98 removes 1.1%, .95 removes 2.2%, retrieval TOST-equivalent (+-.01); saves little there.
+    pub fn gc_docs(&self, ns: &str, threshold: f32) -> R<(usize, usize)> {
+        let _g = self.lock()?;
+        let (docs, vecs, dim) = self.load_docs(ns)?;
+        let n = docs.len();
+        if n == 0 || dim == 0 {
+            return Ok((n, n));
+        }
+        let mut unit = vecs.clone();
+        for r in 0..n {
+            let row = &mut unit[r * dim..(r + 1) * dim];
+            let nn = row.iter().map(|x| x * x).sum::<f32>().sqrt();
+            if nn > 0.0 {
+                row.iter_mut().for_each(|x| *x /= nn);
+            }
+        }
+        let mut keep: Vec<usize> = vec![];
+        for i in 0..n {
+            let vi = &unit[i * dim..(i + 1) * dim];
+            let dup = keep.iter().any(|&j| {
+                let vj = &unit[j * dim..(j + 1) * dim];
+                let c: f32 = vi.iter().zip(vj).map(|(a, b)| a * b).sum();
+                c > threshold.min(1.0 - 1e-6)
+            });
+            if !dup {
+                keep.push(i);
+            }
+        }
+        if keep.len() == n {
+            return Ok((n, n));
+        }
+        let d = self.kdir(ns);
+        let (dt, vt) = (d.join("docs.jsonl.tmp"), d.join("vecs.f32.tmp"));
+        let mut db = String::new();
+        let mut vb: Vec<u8> = Vec::with_capacity(keep.len() * dim * 4);
+        for &i in &keep {
+            db.push_str(&serde_json::to_string(&docs[i]).unwrap());
+            db.push(char::from(10u8));
+            for x in &vecs[i * dim..(i + 1) * dim] {
+                vb.extend_from_slice(&x.to_le_bytes());
+            }
+        }
+        fs::write(&vt, vb)?;
+        fs::write(&dt, db)?;
+        fs::rename(&vt, d.join("vecs.f32"))?;
+        fs::rename(&dt, d.join("docs.jsonl"))?;
+        Ok((n, keep.len()))
+    }
     /// Load a namespace: (docs, row-major vectors, dim). Rows beyond the docs (torn write) are ignored.
     pub fn load_docs(&self, ns: &str) -> R<(Vec<DocRec>, Vec<f32>, usize)> {
         let d = self.kdir(ns);
@@ -357,6 +417,88 @@ impl MeshStore {
         }
         v.sort();
         Ok(v)
+    }
+
+    // ------------------------------------------------------------------ shared-folder sync (R48)
+    /// Serverless cross-machine sync through a shared folder (Dropbox / OneDrive / NFS style). Protocol: every machine OWNS exactly one file per kind in the
+    /// folder (`<machine>.journal.jsonl`, `<machine>.lessons.jsonl`) and only ever replaces its own file (temp + rename), so two machines never write the same
+    /// file and no cross-machine lock is needed. `sync_folder` first imports every OTHER machine's files (union by id; a torn trailing line is skipped;
+    /// `worlds = Some(..)` imports only outcomes of those namespaces), then re-exports the outcomes that no other machine's file already holds (own-origin data). Idempotent and
+    /// order-independent. Corpus namespaces are NOT synced (large; use `merge_from`). The shared folder must only hold synthetic / non-sensitive data.
+    pub fn sync_folder(&self, folder: &Path, machine: &str, worlds: Option<&[&str]>, cap_per_world: Option<usize>) -> R<SyncReport> {
+        if machine.is_empty() || !machine.chars().all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_') {
+            return Err(StoreError::Corrupt("machine id must be [A-Za-z0-9_-]+".into()));
+        }
+        fs::create_dir_all(folder)?;
+        let mut rep = SyncReport::default();
+        let own_j = format!("{machine}.journal.jsonl");
+        let own_l = format!("{machine}.lessons.jsonl");
+        let mut files: Vec<PathBuf> = fs::read_dir(folder)?.filter_map(|e| e.ok()).map(|e| e.path()).collect();
+        files.sort();
+        let mut seen: HashSet<String> = self.outcomes()?.into_iter().map(|o| o.id).collect();
+        let mut seen_l: HashSet<String> = self.lessons()?.into_iter().map(|l| l.id).collect();
+        let (mut add_o, mut add_l): (Vec<Outcome>, Vec<LessonRec>) = (vec![], vec![]);
+        let mut foreign: HashSet<String> = HashSet::new(); // ids present in OTHER machines' files (any world): we do not re-export those
+        for p in &files {
+            let name = p.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
+            if name == own_j || name == own_l || name.ends_with(".tmp") {
+                continue;
+            }
+            if name.ends_with(".journal.jsonl") {
+                rep.files_read += 1;
+                for l in BufReader::new(File::open(p)?).lines() {
+                    if let Ok(o) = serde_json::from_str::<Outcome>(&l?) {
+                        foreign.insert(o.id.clone());
+                        if worlds.map_or(true, |ws| ws.iter().any(|w| *w == o.world)) && seen.insert(o.id.clone()) {
+                            add_o.push(o);
+                        }
+                    }
+                }
+            } else if name.ends_with(".lessons.jsonl") {
+                rep.files_read += 1;
+                for l in BufReader::new(File::open(p)?).lines() {
+                    if let Ok(x) = serde_json::from_str::<LessonRec>(&l?) {
+                        if seen_l.insert(x.id.clone()) {
+                            add_l.push(x);
+                        }
+                    }
+                }
+            }
+        }
+        rep.imported = add_o.len();
+        rep.lessons_imported = add_l.len();
+        self.append_outcomes(&add_o)?;
+        for l in &add_l {
+            self.append_lesson(l)?;
+        }
+        // optional shared GC policy: every machine applies the same deterministic newest-K-per-world cap to the UNION, so all converge to the same set
+        // (older outcomes still sitting in other machines' files are re-imported and re-dropped on each sync; harmless, bounded)
+        if let Some(k) = cap_per_world {
+            self.compact_journal(k)?;
+        }
+        // export only outcomes that are NOT already in another machine's file (own-origin data): the folder then holds ~1x the union instead of Mx, and
+        // if another machine's file disappears the next sync re-exports what only we hold (self-healing). Atomically replaces only OUR files.
+        let nl = char::from(10u8);
+        let all: Vec<Outcome> = self.outcomes()?.into_iter().filter(|o| !foreign.contains(&o.id)).collect();
+        let mut buf = String::new();
+        for o in &all {
+            buf.push_str(&serde_json::to_string(o).unwrap());
+            buf.push(nl);
+        }
+        rep.exported = all.len();
+        rep.bytes_written = buf.len();
+        let tmp = folder.join(format!("{own_j}.tmp"));
+        fs::write(&tmp, buf)?;
+        fs::rename(&tmp, folder.join(&own_j))?;
+        let mut lb = String::new();
+        for l in self.lessons()? {
+            lb.push_str(&serde_json::to_string(&l).unwrap());
+            lb.push(nl);
+        }
+        let tmp = folder.join(format!("{own_l}.tmp"));
+        fs::write(&tmp, lb)?;
+        fs::rename(&tmp, folder.join(&own_l))?;
+        Ok(rep)
     }
 
     // ------------------------------------------------------------------ merge / stats
@@ -505,6 +647,69 @@ mod tests {
         assert_eq!(a.outcomes().unwrap().len(), 3);
         let _ = fs::remove_dir_all(&pa);
         let _ = fs::remove_dir_all(&pb);
+    }
+
+    #[test]
+    fn gc_docs_drops_near_duplicates_atomically() {
+        let p = tmp("gcdocs");
+        let s = MeshStore::open(&p).unwrap();
+        let mk = |i: &str| DocRec { id: i.into(), text: format!("doc {i}"), tag: "t".into() };
+        let docs = vec![mk("a"), mk("b"), mk("c"), mk("d")];
+        // a, c are near-identical (cos ~ 0.9999), b orthogonal, d exact copy of b
+        let v = vec![1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.01, 0.0, 0.0, 1.0, 0.0];
+        s.put_docs("ns", 3, &docs, &v[..12]).unwrap();
+        assert_eq!(s.gc_docs("ns", 1.0).unwrap(), (4, 3)); // exact-vector duplicates only: b/d is NOT exact here (d = 0,1,0 vs b = 0,1,0 -> equal)
+        let (d1, _, _) = s.load_docs("ns").unwrap();
+        assert_eq!(d1.iter().map(|x| x.id.as_str()).collect::<Vec<_>>(), vec!["a", "b", "c"]);
+        assert_eq!(s.gc_docs("ns", 0.99).unwrap(), (3, 2)); // c merged into a
+        let (d2, v2, dim) = s.load_docs("ns").unwrap();
+        assert_eq!((d2.len(), v2.len(), dim), (2, 6, 3));
+        assert_eq!(s.gc_docs("ns", 0.99).unwrap(), (2, 2)); // idempotent
+        assert!(!p.join("knowledge/ns/docs.jsonl.tmp").exists());
+        let _ = fs::remove_dir_all(&p);
+    }
+
+    #[test]
+    fn folder_sync_is_union_idempotent_and_torn_tolerant() {
+        let folder = tmp("fold");
+        let (pa, pb, pc) = (tmp("fa"), tmp("fb"), tmp("fc"));
+        let (a, b, c) = (MeshStore::open(&pa).unwrap(), MeshStore::open(&pb).unwrap(), MeshStore::open(&pc).unwrap());
+        a.append_outcomes(&[oc("a", 0, "x", 1.0), oc("a", 1, "x", 0.0)]).unwrap();
+        b.append_outcomes(&[oc("b", 0, "y", 1.0)]).unwrap();
+        c.append_outcomes(&[oc("c", 0, "z", 1.0), oc("c", 1, "z", 1.0), oc("c", 2, "z", 0.0)]).unwrap();
+        let ra = a.sync_folder(&folder, "mA", None, None).unwrap();
+        assert_eq!((ra.imported, ra.exported), (0, 2));
+        b.sync_folder(&folder, "mB", None, None).unwrap();
+        c.sync_folder(&folder, "mC", None, None).unwrap();
+        // simulate a half-written foreign file (torn last line) plus a leftover temp file
+        let mut f = OpenOptions::new().append(true).open(folder.join("mB.journal.jsonl")).unwrap();
+        f.write_all(b"{\"id\":\"torn").unwrap();
+        fs::write(folder.join("mZ.journal.jsonl.tmp"), b"garbage").unwrap();
+        for (s, m) in [(&a, "mA"), (&b, "mB")] {
+            s.sync_folder(&folder, m, None, None).unwrap();
+        }
+        a.sync_folder(&folder, "mA", None, None).unwrap();
+        for s in [&a, &b, &c] {
+            s.sync_folder(&folder, if std::ptr::eq(s, &a) { "mA" } else if std::ptr::eq(s, &b) { "mB" } else { "mC" }, None, None).unwrap();
+            assert_eq!(s.outcomes().unwrap().len(), 6, "every machine holds the union");
+        }
+        let again = a.sync_folder(&folder, "mA", None, None).unwrap();
+        assert_eq!(again.imported, 0); // idempotent
+        // namespace filter: a fourth machine importing only world "other" gets nothing
+        let pd = tmp("fd");
+        let d = MeshStore::open(&pd).unwrap();
+        assert_eq!(d.sync_folder(&folder, "mD", Some(&["other"]), None).unwrap().imported, 0);
+        assert!(d.sync_folder(&folder, "bad id", None, None).is_err());
+        // shared GC cap: newest 4 of the 6 in world "w" on every machine; converged sets are equal
+        let capped_a = a.sync_folder(&folder, "mA", None, Some(4)).unwrap();
+        assert_eq!(a.outcomes().unwrap().len(), 4);
+        assert!(capped_a.exported <= 4);
+        b.sync_folder(&folder, "mB", None, Some(4)).unwrap();
+        let ids = |s: &MeshStore| s.outcomes().unwrap().into_iter().map(|o| o.id).collect::<Vec<_>>();
+        assert_eq!(ids(&a), ids(&b));
+        for p in [&folder, &pa, &pb, &pc, &pd] {
+            let _ = fs::remove_dir_all(p);
+        }
     }
 
     #[test]

@@ -263,6 +263,9 @@ pub struct HybridIndex {
     ndoc: usize,
     dense: Vec<f32>,
     bm: Bm25,
+    /// R45 (opt-in, default false): multi-accumulator dense scan (summation order differs; ~1e-7 relative score differences)
+    #[serde(default)]
+    fast: bool,
 }
 
 impl HybridIndex {
@@ -271,7 +274,12 @@ impl HybridIndex {
         if dense.len() != expected {
             return Err(HybridError::DenseShape { expected, got: dense.len() });
         }
-        Ok(HybridIndex { cfg, dim, ndoc: docs.len(), dense, bm: Bm25::new(docs) })
+        Ok(HybridIndex { cfg, dim, ndoc: docs.len(), dense, bm: Bm25::new(docs), fast: false })
+    }
+    /// R45 (opt-in): scan the dense matrix with 8 independent accumulators (RD-LOG R45: ~4x faster dense scan; identical top-k on the real fixtures)
+    pub fn with_fast_kernels(mut self, on: bool) -> HybridIndex {
+        self.fast = on;
+        self
     }
     pub fn len(&self) -> usize {
         self.ndoc
@@ -306,6 +314,10 @@ impl HybridIndex {
         out.clear();
         for d in 0..self.ndoc {
             let v = &self.dense[d * self.dim..(d + 1) * self.dim];
+            if self.fast {
+                out.push(crate::flatq::dot8(q, v));
+                continue;
+            }
             let mut s = 0.0f32;
             for k in 0..self.dim {
                 s += q[k] * v[k];

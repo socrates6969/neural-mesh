@@ -3,6 +3,8 @@
 //!   meshstore merge  <dst-root> <src-root>            union src into dst (idempotent)
 //!   meshstore put-corpus <root> <ns> <texts.json> <vecs.f32> <dim> [tag] [limit]   (texts.json = JSON array of strings; vecs row-major f32 LE)
 //!   meshstore lesson <root> <world> <tag> <text...>    append one lesson
+//!   meshstore sync   <root> <shared-folder> <machine-id> [cap-per-world]   shared-folder sync (R48; outcomes + lessons, union by id, atomic own-file export)
+//!   meshstore gc-docs <root> <ns> <cos-threshold>      drop near-duplicate corpus docs (R47)
 //!   meshstore bench  <root> <ns>                       time load + flat/HNSW index build for a stored corpus
 //! The store must only ever hold synthetic routing outcomes, lessons and knowledge (never secrets / customer data).
 use neural_mesh::memory::{HnswIndex, HnswParams, MemoryIndex};
@@ -24,6 +26,17 @@ fn main() {
             let (d, s) = (MeshStore::open(&a[1]).unwrap(), MeshStore::open(&a[2]).unwrap());
             let r = d.merge_from(&s).unwrap();
             println!("{{\"outcomes_added\":{},\"lessons_added\":{},\"docs_added\":{}}}", r.outcomes_added, r.lessons_added, r.docs_added);
+        }
+        Some("sync") if a.len() >= 4 => {
+            let s = MeshStore::open(&a[1]).unwrap();
+            let cap = a.get(4).and_then(|x| x.parse::<usize>().ok());
+            let r = s.sync_folder(std::path::Path::new(&a[2]), &a[3], None, cap).unwrap();
+            println!("{}", serde_json::json!({"exported": r.exported, "imported": r.imported, "lessons_imported": r.lessons_imported, "files_read": r.files_read, "bytes_written": r.bytes_written}));
+        }
+        Some("gc-docs") if a.len() == 4 => {
+            let s = MeshStore::open(&a[1]).unwrap();
+            let (b, af) = s.gc_docs(&a[2], a[3].parse().unwrap()).unwrap();
+            println!("{}", serde_json::json!({"before": b, "after": af}));
         }
         Some("put-corpus") if a.len() >= 6 => {
             let s = MeshStore::open(&a[1]).unwrap();

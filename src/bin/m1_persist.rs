@@ -367,6 +367,58 @@ fn share_trial(seed: u64, wname: &str, rk: Rk, m: usize, per: usize) -> [f64; 6]
     [meanh(&exc, 100), meanh(&exc, 250), meanh(&exo, 100), meanh(&exo, 250), meanh(&exs, 100), meanh(&exs, 250)]
 }
 
+/// R48: like `share_trial` but the journals travel through a REAL shared folder (`MeshStore::sync_folder`, two rounds over all machines).
+/// Returns [cold100, own100, synced100, cold250, own250, synced250, equal_to_merge (1/0), outcomes_on_machine0, bytes_in_folder].
+fn sync_trial(seed: u64, wname: &str, rk: Rk, m: usize, per: usize) -> [f64; 9] {
+    let w2 = World::new_stream(seed, seed + 5000, cfg(wname, N2));
+    let folder = std::env::temp_dir().join(format!("nm_sync_{}_{seed}_{wname}_{}_{m}", std::process::id(), rk_name(rk)));
+    let _ = std::fs::remove_dir_all(&folder);
+    let merged = tmpstore(&format!("sy_merged_{seed}_{wname}_{}_{m}", rk_name(rk)));
+    let mut stores: Vec<MeshStore> = vec![];
+    for k in 0..m {
+        let wk = World::new_stream(seed, seed + 1000 + 17 * k as u64, cfg(wname, per));
+        let mut r = mk_router(rk, &wk);
+        let (_, js) = run(&wk, r.as_mut(), per, &format!("m{k}"), seed * 31 + 7 + k as u64, 0);
+        let s = tmpstore(&format!("sy_{seed}_{wname}_{}_{m}_{k}", rk_name(rk)));
+        s.append_outcomes(&js).unwrap();
+        merged.merge_from(&s).unwrap();
+        stores.push(s);
+    }
+    let own_only = MeshStore::open(stores[0].root()).unwrap();
+    let own_ids: Vec<String> = own_only.outcomes().unwrap().into_iter().map(|o| o.id).collect();
+    for _round in 0..2 {
+        for (k, s) in stores.iter().enumerate() {
+            s.sync_folder(&folder, &format!("machine{k}"), None, None).unwrap();
+        }
+    }
+    let synced: Vec<String> = stores[0].outcomes().unwrap().into_iter().map(|o| o.id).collect();
+    let mut want: Vec<String> = merged.outcomes().unwrap().into_iter().map(|o| o.id).collect();
+    let mut got = synced.clone();
+    want.sort();
+    got.sort();
+    let equal = (want == got) as u8 as f64;
+    let bytes: u64 = std::fs::read_dir(&folder).map(|d| d.filter_map(|e| e.ok()).filter_map(|e| e.metadata().ok()).map(|m| m.len()).sum()).unwrap_or(0);
+    // own-only = machine 0 BEFORE syncing: rebuild from its own stream ids (journal of machine 0 only)
+    let own = tmpstore(&format!("sy_own_{seed}_{wname}_{}_{m}", rk_name(rk)));
+    {
+        let all: Vec<Outcome> = stores[0].outcomes().unwrap().into_iter().filter(|o| own_ids.contains(&o.id)).collect();
+        own.append_outcomes(&all).unwrap();
+    }
+    let mut rc = mk_router(rk, &w2);
+    let (exc, _) = run(&w2, rc.as_mut(), N2, "c", seed * 31 + 2, 10_000);
+    let mut ro = mk_router(rk, &w2);
+    own.warm_replay(ro.as_mut(), &idx, None, None).unwrap();
+    let (exo, _) = run(&w2, ro.as_mut(), N2, "o", seed * 31 + 2, 10_000);
+    let mut rs = mk_router(rk, &w2);
+    stores[0].warm_replay(rs.as_mut(), &idx, None, None).unwrap();
+    let (exs, _) = run(&w2, rs.as_mut(), N2, "s", seed * 31 + 2, 10_000);
+    for s in stores.iter().chain([&merged, &own]) {
+        let _ = std::fs::remove_dir_all(s.root());
+    }
+    let _ = std::fs::remove_dir_all(&folder);
+    [meanh(&exc, 100), meanh(&exo, 100), meanh(&exs, 100), meanh(&exc, 250), meanh(&exo, 250), meanh(&exs, 250), equal, synced.len() as f64, bytes as f64]
+}
+
 fn main() {
     let a: Vec<String> = std::env::args().collect();
     let get = |k: &str, d: &str| a.iter().position(|x| x == k).map(|i| a[i + 1].clone()).unwrap_or(d.into());
@@ -424,6 +476,33 @@ fn main() {
             }
         }
         j.insert("share".into(), Value::Array(out));
+    }
+    if part == "sync" || part == "all" {
+        println!("--- SYNC through a real shared folder: M machines x 250 cold tasks, 2 sync rounds; machine 0 session-2 (random world)");
+        let mut out = vec![];
+        let mut ps_all = vec![];
+        let mut cells: Vec<(String, usize, Vec<f64>)> = vec![];
+        for rk in [Rk::Hebb, Rk::Rec] {
+            for m in [1usize, 2, 3, 4] {
+                let res: Vec<[f64; 9]> = seeds.par_iter().map(|&s| sync_trial(s, "random", rk, m, 250)).collect();
+                let mean = |i: usize| res.iter().map(|r| r[i]).sum::<f64>() / res.len() as f64;
+                let dsh: Vec<f64> = res.iter().map(|r| r[2] - r[1]).collect();
+                let pd = paired_diff(&dsh, &zero[..dsh.len()]);
+                ps_all.push(paired_t_pvalue(&dsh, &zero[..dsh.len()]));
+                cells.push((rk_name(rk).into(), m, dsh.clone()));
+                let all_equal = res.iter().all(|r| r[6] == 1.0);
+                println!(
+                    "  {:15} M={m}: cold {:.4} | own {:.4} | synced {:.4} synced-own {:+.4} [{:+.4},{:+.4}] W/L {}/{} | merge-equal on all seeds: {all_equal} | outcomes on machine0 {:.0} | folder bytes {:.0}",
+                    rk_name(rk), mean(0), mean(1), mean(2), pd.diff.mean, pd.diff.lo, pd.diff.hi, pd.wins, pd.losses, mean(7), mean(8)
+                );
+                out.push(json!({"router": rk_name(rk), "m": m, "cold100": mean(0), "own100": mean(1), "synced100": mean(2), "synced_minus_own100": pd.diff.mean, "lo": pd.diff.lo, "hi": pd.diff.hi, "wins": pd.wins, "losses": pd.losses, "equal_to_merge": all_equal, "outcomes": mean(7), "folder_bytes": mean(8), "cold250": mean(3), "own250": mean(4), "synced250": mean(5)}));
+            }
+        }
+        let adj = holm_adjust(&ps_all);
+        for ((rk, m, _), p) in cells.iter().zip(adj) {
+            println!("  Holm p (synced - own, H100) {rk} M={m}: {p:.3e}");
+        }
+        j.insert("sync".into(), Value::Array(out));
     }
     std::fs::write(out_path, serde_json::to_string_pretty(&Value::Object(j)).unwrap()).unwrap();
 }

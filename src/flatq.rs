@@ -98,12 +98,20 @@ pub struct FlatIndex {
     #[serde(skip)]
     map: HashMap<u64, usize>,
     live: usize,
+    /// R45 (opt-in, default false): 8-accumulator scan kernels (different float summation order, ~1e-7 relative score differences)
+    #[serde(default)]
+    fast: bool,
 }
 
 impl FlatIndex {
     pub fn new(dim: usize, tier: Tier, metric: Metric) -> Self {
         assert!(dim > 0, "dim must be positive");
-        FlatIndex { dim, tier, metric, rerank_factor: 0, ids: vec![], alive: vec![], f32s: vec![], i16s: vec![], scales: vec![], i8s: vec![], exact: vec![], map: HashMap::new(), live: 0 }
+        FlatIndex { dim, tier, metric, rerank_factor: 0, ids: vec![], alive: vec![], f32s: vec![], i16s: vec![], scales: vec![], i8s: vec![], exact: vec![], map: HashMap::new(), live: 0, fast: false }
+    }
+    /// R45 (opt-in): use the multi-accumulator scan kernels (see RD-LOG R45; scores differ from the scalar kernels by ~1e-7 relative).
+    pub fn with_fast_kernels(mut self, on: bool) -> Self {
+        self.fast = on;
+        self
     }
     /// Enable the exact rerank (`factor` >= 1; 0 disables). Must be set before adding vectors (it decides whether the f32 copy is kept).
     pub fn with_rerank(mut self, factor: usize) -> Self {
@@ -239,7 +247,7 @@ impl FlatIndex {
     }
 
     fn clone_config(&self) -> FlatIndex {
-        FlatIndex { dim: self.dim, tier: self.tier, metric: self.metric, rerank_factor: self.rerank_factor, ids: vec![], alive: vec![], f32s: vec![], i16s: vec![], scales: vec![], i8s: vec![], exact: vec![], map: HashMap::new(), live: 0 }
+        FlatIndex { dim: self.dim, tier: self.tier, metric: self.metric, rerank_factor: self.rerank_factor, ids: vec![], alive: vec![], f32s: vec![], i16s: vec![], scales: vec![], i8s: vec![], exact: vec![], map: HashMap::new(), live: 0, fast: self.fast }
     }
 
     /// Approximate (tier) score of slot `s` against the prepared query.
@@ -247,24 +255,41 @@ impl FlatIndex {
     fn score_slot(&self, s: usize, q: &[f32]) -> f32 {
         let d = self.dim;
         match self.tier {
-            Tier::F32 => dot(&self.f32s[s * d..(s + 1) * d], q),
+            Tier::F32 => {
+                if self.fast {
+                    dot8(&self.f32s[s * d..(s + 1) * d], q)
+                } else {
+                    dot(&self.f32s[s * d..(s + 1) * d], q)
+                }
+            }
             Tier::BlockFp16 => {
                 let nb = d.div_ceil(BLOCK);
                 let mut acc = 0f32;
                 for (b, (m, qb)) in self.i16s[s * d..(s + 1) * d].chunks(BLOCK).zip(q.chunks(BLOCK)).enumerate() {
-                    let mut p = 0f32;
-                    for (&mi, &qi) in m.iter().zip(qb) {
-                        p += mi as f32 * qi;
-                    }
+                    let p = if self.fast {
+                        dot_i16_8(m, qb)
+                    } else {
+                        let mut p = 0f32;
+                        for (&mi, &qi) in m.iter().zip(qb) {
+                            p += mi as f32 * qi;
+                        }
+                        p
+                    };
                     acc += p * self.scales[s * nb + b];
                 }
                 acc
             }
             Tier::Int8 => {
-                let mut p = 0f32;
-                for (&mi, &qi) in self.i8s[s * d..(s + 1) * d].iter().zip(q) {
-                    p += mi as f32 * qi;
-                }
+                let row = &self.i8s[s * d..(s + 1) * d];
+                let p = if self.fast {
+                    dot_i8_8(row, q)
+                } else {
+                    let mut p = 0f32;
+                    for (&mi, &qi) in row.iter().zip(q) {
+                        p += mi as f32 * qi;
+                    }
+                    p
+                };
                 p * self.scales[s]
             }
         }
@@ -325,6 +350,62 @@ impl FlatIndex {
 #[inline]
 fn dot(a: &[f32], b: &[f32]) -> f32 {
     a.iter().zip(b).map(|(x, y)| x * y).sum()
+}
+
+/// 8 independent accumulators (lets the compiler vectorise; the scalar `dot` is a single dependent add chain)
+#[inline]
+pub fn dot8(a: &[f32], b: &[f32]) -> f32 {
+    let n = a.len().min(b.len());
+    let (a, b) = (&a[..n], &b[..n]);
+    let (ca, cb) = (a.chunks_exact(8), b.chunks_exact(8));
+    let (ra, rb) = (ca.remainder(), cb.remainder());
+    let mut acc = [0f32; 8];
+    for (x, y) in ca.zip(cb) {
+        for i in 0..8 {
+            acc[i] += x[i] * y[i];
+        }
+    }
+    let mut s = (acc[0] + acc[4]) + (acc[1] + acc[5]) + (acc[2] + acc[6]) + (acc[3] + acc[7]);
+    for (x, y) in ra.iter().zip(rb) {
+        s += x * y;
+    }
+    s
+}
+#[inline]
+fn dot_i8_8(a: &[i8], b: &[f32]) -> f32 {
+    let n = a.len().min(b.len());
+    let (a, b) = (&a[..n], &b[..n]);
+    let (ca, cb) = (a.chunks_exact(8), b.chunks_exact(8));
+    let (ra, rb) = (ca.remainder(), cb.remainder());
+    let mut acc = [0f32; 8];
+    for (x, y) in ca.zip(cb) {
+        for i in 0..8 {
+            acc[i] += x[i] as f32 * y[i];
+        }
+    }
+    let mut s = (acc[0] + acc[4]) + (acc[1] + acc[5]) + (acc[2] + acc[6]) + (acc[3] + acc[7]);
+    for (x, y) in ra.iter().zip(rb) {
+        s += *x as f32 * y;
+    }
+    s
+}
+#[inline]
+fn dot_i16_8(a: &[i16], b: &[f32]) -> f32 {
+    let n = a.len().min(b.len());
+    let (a, b) = (&a[..n], &b[..n]);
+    let (ca, cb) = (a.chunks_exact(8), b.chunks_exact(8));
+    let (ra, rb) = (ca.remainder(), cb.remainder());
+    let mut acc = [0f32; 8];
+    for (x, y) in ca.zip(cb) {
+        for i in 0..8 {
+            acc[i] += x[i] as f32 * y[i];
+        }
+    }
+    let mut s = (acc[0] + acc[4]) + (acc[1] + acc[5]) + (acc[2] + acc[6]) + (acc[3] + acc[7]);
+    for (x, y) in ra.iter().zip(rb) {
+        s += *x as f32 * y;
+    }
+    s
 }
 
 /// k largest by (score desc, slot asc); deterministic.
@@ -476,6 +557,34 @@ pub fn build_suggested(n: usize, dim: usize, latency_budget_ms: f64, ram_budget_
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn fast_kernels_match_scalar_within_rounding() {
+        let dim = 77; // not a multiple of 8 on purpose
+        let mut seed = 12345u64;
+        let mut rnd = move || {
+            seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+            ((seed >> 33) as f32 / (1u64 << 31) as f32) - 0.5
+        };
+        for tier in [Tier::F32, Tier::BlockFp16, Tier::Int8] {
+            let mut a = FlatIndex::new(dim, tier, Metric::Cosine);
+            let mut b = FlatIndex::new(dim, tier, Metric::Cosine).with_fast_kernels(true);
+            for id in 0..200u64 {
+                let v: Vec<f32> = (0..dim).map(|_| rnd()).collect();
+                a.add(id, &v).unwrap();
+                b.add(id, &v).unwrap();
+            }
+            let q: Vec<f32> = (0..dim).map(|_| rnd()).collect();
+            let (ra, rb) = (a.search(&q, 10).unwrap(), b.search(&q, 10).unwrap());
+            for (x, y) in ra.iter().zip(&rb) {
+                assert!((x.1 - y.1).abs() < 1e-5, "{tier:?} {x:?} {y:?}");
+            }
+            assert_eq!(ra[0].0, rb[0].0);
+        }
+        let (u, v): (Vec<f32>, Vec<f32>) = ((0..50).map(|i| i as f32 * 0.1).collect(), (0..50).map(|i| 1.0 - i as f32 * 0.01).collect());
+        assert!((dot(&u, &v) - dot8(&u, &v)).abs() < 1e-3);
+        assert_eq!(dot8(&[], &[]), 0.0);
+    }
+
     use super::*;
     use crate::router::Rng;
 
