@@ -23,3 +23,4 @@ pub mod coupling;
 pub mod research;
 pub mod defaults;
 pub mod embedding;
+pub mod compact;
