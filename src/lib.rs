@@ -25,3 +25,6 @@ pub mod defaults;
 pub mod embedding;
 pub mod compact;
 pub mod tools;
+pub mod popguard;
+pub mod flatq;
+pub mod dedup;
