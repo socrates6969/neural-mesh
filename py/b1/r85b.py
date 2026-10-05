@@ -14,7 +14,7 @@ for tag in "AB":
         for mode, (arm, al) in {"hyb": ("hybrid", .7), "dense": ("dense", 1.0)}.items():
             r = Retriever(W.docs, dv, arm, al); rr, h5 = [], []
             for i, (qid, tid) in enumerate(zip(Q[tag]["q"], Q[tag]["tid"])):
-                rel = set(W.queries[qid]["rel"]); sc = r.scores(Q[tag]["text"][i], qv[i]); best = min(int((sc > sc[d]).sum()) for d in rel); rr.append(1.0 / (1 + best)); h5.append(float(best < 5))
+                rel = set(W.queries[qid]["rel"]); sc = r.scores(Q[tag]["text"][i], qv[i]); best = min(int((sc >= sc[d]).sum()) - 1 for d in rel); rr.append(1.0 / (1 + best)); h5.append(float(best < 5))
             res[(mode, v)] = (np.array(rr), np.array(h5))
     off += n
     for mode in ("hyb", "dense"):

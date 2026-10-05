@@ -2,7 +2,7 @@
 `n11_hybrid_q8` (results/r91_ranks.json, ranks searched to 1000). Item-disjoint halves (fixed permutation), per-query paired t, Holm over 16 tests, TOST +-.01 on MRR."""
 import json, math, os, random, numpy as np
 from scipy import stats
-RES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "results"); R = json.load(open(f"{RES}/r91_ranks.json"))
+RES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "results"); TP = os.environ.get("TP") == "1"; R = json.load(open(f"{RES}/r91_ranks{'_tp' if TP else ''}.json"))
 def rr(x): return 0.0 if x < 0 else 1.0 / (1 + x)
 def h5(x): return float(0 <= x < 5)
 def holm(ps):
@@ -11,7 +11,7 @@ def holm(ps):
     return out
 rows = []
 for tag in "AB":
-    a = np.array([rr(x) for x in R[tag]["rank_f32"]]); b = np.array([rr(x) for x in R[tag]["rank_i8"]]); ha = np.array([h5(x) for x in R[tag]["rank_f32"]]); hb = np.array([h5(x) for x in R[tag]["rank_i8"]])
+    a = np.array([rr(x) for x in R[tag]["rank_tp_f32" if TP else "rank_f32"]]); b = np.array([rr(x) for x in R[tag]["rank_tp_i8" if TP else "rank_i8"]]); ha = np.array([h5(x) for x in R[tag]["rank_tp_f32" if TP else "rank_f32"]]); hb = np.array([h5(x) for x in R[tag]["rank_tp_i8" if TP else "rank_i8"]])
     n = len(a); ids = list(range(n)); random.Random(91).shuffle(ids); halves = {"H1": ids[:n // 2], "H2": ids[n // 2:]}
     print(f"{tag}: MRR f32 {a.mean():.4f} int8 {b.mean():.4f}; hit@5 {ha.mean():.4f} {hb.mean():.4f}")
     for hn, hid in halves.items():
@@ -21,4 +21,4 @@ for tag in "AB":
             rows.append(dict(corpus=tag, half=hn, ax=ax, d=float(m), p=p, tost=tost, W=int((d > 0).sum()), L=int((d < 0).sum())))
 adj = holm([r["p"] for r in rows])
 for r, a_ in zip(rows, adj): r["ph"] = a_; print(f"  {r['corpus']}{r['half']} {r['ax']:5s} d={r['d']:+.4f} W/L {r['W']}/{r['L']} Holm p={r['ph']:.3g}  TOST(+-.01) p={r['tost']:.2g}")
-json.dump(rows, open(f"{RES}/r91.json", "w"), default=float)
+json.dump(rows, open(f"{RES}/r91{'_tp' if TP else ''}.json", "w"), default=float)

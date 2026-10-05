@@ -22,7 +22,7 @@ for tag in "AB":
     for name, (dv, qv) in arms.items():
         r = Retriever(W.docs, dv, "hybrid", .7); rr, h5 = [], []
         for i, (qid, tid) in enumerate(zip(Q[tag]["q"], Q[tag]["tid"])):
-            rel = set(W.queries[qid]["rel"]); sc = r.scores(Q[tag]["text"][i], qv[i]); best = min(int((sc > sc[d]).sum()) for d in rel); rr.append(1.0 / (1 + best)); h5.append(float(best < 5))
+            rel = set(W.queries[qid]["rel"]); sc = r.scores(Q[tag]["text"][i], qv[i]); best = min(int((sc >= sc[d]).sum()) - 1 for d in rel); rr.append(1.0 / (1 + best)); h5.append(float(best < 5))
         res[name] = (np.array(rr), np.array(h5))
     ids = list(range(n)); random.Random(93).shuffle(ids); halves = {"H1": ids[:n // 2], "H2": ids[n // 2:]}
     print(tag, "MRR " + " ".join(f"{k} {v[0].mean():.4f}" for k, v in res.items()), "| hit@5 " + " ".join(f"{k} {v[1].mean():.4f}" for k, v in res.items()))
@@ -36,4 +36,4 @@ adj = holm([r["p"] for r in rows])
 for r, a in zip(rows, adj): r["ph"] = a
 for arm in ("enc_i8", "dense_i8", "both"):
     print(f"{arm:9s} " + "  ".join(f"{r['corpus']}{r['half']}/{r['ax']} {r['d']:+.4f}{'*' if r['ph']<.05 else ''}{'' if r['ax']!='mrr' else f'(T{r['tost']:.0e})'}" for r in rows if r["arm"] == arm))
-json.dump(rows, open(f"{RES}/r93.json", "w"), default=float)
+json.dump(rows, open(f"{RES}/r93_tp.json", "w"), default=float)

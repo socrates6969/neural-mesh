@@ -25,7 +25,7 @@ for tag in "AB":
         for v in ["fp32"] + VARS:
             rr, h5 = [], []
             for i, (qid, tid) in enumerate(zip(Q[tag]["q"], Q[tag]["tid"])):
-                rel = set(W.queries[qid]["rel"]); sc = r.scores(Q[tag]["text"][i], Eq[v][i]); best = min(int((sc > sc[d]).sum()) for d in rel)
+                rel = set(W.queries[qid]["rel"]); sc = r.scores(Q[tag]["text"][i], Eq[v][i]); best = min(int((sc >= sc[d]).sum()) - 1 for d in rel)
                 rr.append(1.0 / (1 + best)); h5.append(float(best < 5))
             res[(mode, v)] = (np.array(rr), np.array(h5))
     ids = list(range(n)); random.Random(85).shuffle(ids); halves = {"H1": ids[:n // 2], "H2": ids[n // 2:]}

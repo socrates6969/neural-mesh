@@ -134,7 +134,7 @@ def knowledge_axes(D, world, seed, arm="hybrid", alpha=0.7, make=None):
     for gd, dom, q1, q2 in qs:
         q = q1 if world == "A" else typo(r, q2, 0.12); qv = D.v(q)
         sc = ret.scores(q, qv); top = int(np.argmax(sc)); gi = idx[gd]
-        h1.append(top == gi); mrr.append(1.0 / (1 + int((sc > sc[gi]).sum())))
+        h1.append(top == gi); mrr.append(1.0 / (1 + int((sc >= sc[gi]).sum()) - 1))
         dh.append(dd["dom"][keep[top]] == dom)
     out["domain_r1"], out["domain_mrr"], out["domain_route"] = float(np.mean(h1)), float(np.mean(mrr)), float(np.mean(dh))
     return out
@@ -232,6 +232,6 @@ class RealWorld:
         ret = self.retriever(arm, alpha, make); rr, h1 = [], []
         for row in v["rows"][:nq]:
             tid = row["t"][0][0]; rel = set(self.queries[row["q"]]["rel"])
-            sc = ret.scores(self.texts[tid], self.emb[tid]); best = min(int((sc > sc[d]).sum()) for d in rel)
+            sc = ret.scores(self.texts[tid], self.emb[tid]); best = min(int((sc >= sc[d]).sum()) - 1 for d in rel)
             rr.append(1.0 / (1 + best)); h1.append(best == 0)
         return {"real_mrr": float(np.mean(rr)), "real_h1": float(np.mean(h1))}
