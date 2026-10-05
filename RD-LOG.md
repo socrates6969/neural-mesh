@@ -78,3 +78,40 @@ Verdict R14a: **KEPT as an offline recipe** (python `py/b1/eff.py::pca_q`). NOT 
 Result (shrink 1e-4/1e-3/1e-2): massive losses (vocab -.11..-.17, classification -.26..-.08, analogies -.18); shrink .01 still vocab A -.11. Verdict: **REJECTED loudly**.
 ## Round 16 — prompt-templated word embeddings ("the meaning of {}", "the word {}") for analogies
 TUNE: analogies .792 -> .831. Verify: analogies +.03..+.08 but Holm p>=.034 (HELD A p=.034 only) in a ~100-test family; no loss. Verdict: **REJECTED (not significant on both splits)**; underpowered axis (6 items/seed) — a larger analogy set would be needed to detect <=+.04.
+
+## Rounds 17-21 — lexical-side tweaks on top of adaptive alpha (baseline = R2)
+R17 spell-correction (doc-vocab OSA-1): domain B -.001..-.007 n.s., real +.0015 n.s. (dense dominates when alpha->1) **REJECTED (no gain)**.
+R18 light suffix stemmer in BM25: real_mrr -.014/-.017 (Holm p<1e-4), real_h1 -.014 **REJECTED loudly** (stemming hurts code/doc text).
+R19 drop question words (what/how/why...) from lexical channel: all n.s. (domain B -.004..-.013) **REJECTED**.
+R20/R21 domain-keyword doc expansion for BM25 (top 6 / 12 terms per tagged domain): +.001..+.003 n.s. **REJECTED**.
+## Round 22 — BGE-base embeddings (instead of MiniLM) for the domain store, on top of adaptive alpha
+Result: domain_mrr B +.032 (HELD, Holm p=.013) / +.039 (CONF, p=.015); domain_r1 B +.035/+.058 (p=.38/.02 -> only CONF significant); route n.s.; general_info -.003 n.s.; no loss. Cost (earlier measurement f8): 5-8x encode latency, 2x vector memory, 436MB model. Verdict: **KEPT as an opt-in quality profile only for paraphrase-heavy domain stores** (existing real-embed/Table config; no code change); NOT recommended as default. Caveat: only domain_mrr is significant in both splits; the synthetic domain set is mine.
+
+
+# CROSS-SESSION / CROSS-MACHINE SHARED MEMORY TRACK (coordinator priority)
+Code: `src/store.rs` (MeshStore: append-only journal / lessons / knowledge corpus + persisted HNSW; merge = union by id), `src/bin/meshstore.rs` (admin CLI),
+`neural-mesh ... --store DIR --world NS` (opt-in; a NEW state file warm-starts from the journal; every `feedback` is appended), `src/sim.rs::World::new_stream`
+(same hidden structure, independent task stream; `new_stream(s,s,c) == new(s,c)`), experiment `src/bin/m1_persist.rs`.
+Durable store (stable path, outside scratchpad): C:\Users\mariu\experiments\mesh-memory\ (README.md documents the schema; synthetic content only).
+Protocol for R23-R28: session-1 journal (cold router, stream s+1000) -> session-2 (stream s+5000, same hidden structure, 2000 tasks); metric = mean EXPECTED success of the chosen agent over the first H=100/250/500 tasks; paired over seeds; 95% t-CI; Holm per (world x router x H) family. Pre-declared, nothing tuned (N1=500). Worlds: fixed (traps+drift), random, notraps, STALE (session-2 hidden structure differs = the persisted evidence is wrong). Routers: hebbian-robust and `recommended` (Guarded keyword front + hebbian).
+
+## Round 23 — warm start from a prior session's journal vs cold start
+Held-out 31-60 | confirm 61-90, warm - cold (H100 / H500), all Holm p < 2e-3 unless noted:
+* fixed: hebbian +.150 / +.053 | +.143 / +.049; recommended +.051 / +.027 | +.043 / +.022.
+* random: hebbian +.163 / +.053 | +.185 / +.062; recommended +.043 / +.024 | +.066 / +.026.
+* notraps: hebbian +.151 / +.047 | +.189 / +.065; **recommended -.021 / -.006 (Holm p 5e-4 / 3e-3), confirm -.018 / -.007 (p 3e-4 / 1e-3)** = a REAL LOSS (the keyword prior is already near-optimal there, .84; replay pulls the learner off it).
+* STALE (hidden structure changed between sessions): hebbian **-.105 / -.067 | -.105 / -.080**, recommended **-.035 / -.025 | -.032 / -.027** (all Holm p < 2e-4).
+Verdict: warm start is a large win when the persisted evidence describes the current world (up to +.19 in the first 100 tasks for the plain Hebbian router; +.04..+.07 for the guarded recommended router, whose keyword front already carries a prior) and a LOSS when it does not. **KEPT strictly OPT-IN** (flag/API only, defaults unchanged); mandatory namespace discipline; do NOT warm the recommended router in worlds whose keyword map is already accurate.
+## Round 24 — dose: how much journal helps (N1 = 100/250/1000/2000, random world, held-out)
+hebbian H100: +.102 / +.146 / +.143 / +.117; recommended: +.014 / +.034 / +.042 / +.028. Gain saturates by ~250-1000 outcomes and DECLINES at 2000 (session 1 then spans a mid-run drift, so the journal mixes pre- and post-drift evidence). More persisted data is not monotonically better.
+## Round 25 — mitigations of stale / over-trust (tune seeds 1-30 only; rejected there, not promoted)
+Replay only the newest K (100/250) and a staleness guard (cumulative surprise vs journal-predicted reward; reset to cold when D < -z*sqrt(n/4)). H100, stale world, hebbian: full -.101; recent100 -.073; guard(z2.33) -.080; guard(z1.64,n30) -.056; guard(z1,n20) -.051 (all still Holm-significant losses). The same guards cost fresh worlds (fixed hebbian H100 +.166 -> +.134 / +.087; random recommended with recent250 -.008). notraps/recommended loss unchanged (-.017..-.047). Verdict: **REJECTED**; the only effective protection is namespacing (a design rule, not a statistic).
+## Round 26 — SHARING: M machines x 250 cold tasks, journals merged (random world; session-2 H100; held-out | confirm)
+hebbian: own-only .733 | .750; shared minus own: M=2 +.048 | +.048, M=4 +.064 | +.051, M=8 +.060 | +.048 (shared vs cold +.18..+.21). The first extra machine gives most of the gain, the next two add ~+.015, and M=8 adds nothing more (slightly below M=4). recommended: M=2 +.011 | +.014, M=4 +.007 | +.006 (n.s.), M=8 **-.009 | -.009** (n.s.). So cross-machine sharing shows strongly DIMINISHING returns, not linear compounding, and ~none for the keyword-fronted router. Verdict: merge capability **KEPT (opt-in)**; the premise "more machines = better" is **rejected**; practical sweet spot 2-4 sources.
+## Round 27 — persisting the retrieval corpus + HNSW graph
+Corpus (6,831 real paragraphs, 384-d): load 7.7 ms; HNSW rebuild 4.8-7.5 s; graph dump 29 ms, reload 37 ms (14.9 MB), identical top-5. `MeshStore::open_ann` reloads when the stamp (n, dim) matches and rebuilds+dumps when the corpus grew (unit test). Reload ~170x faster than rebuild. **KEPT (opt-in)**. Caveat: hnsw_rs's loader borrows its IO object; one small allocation is leaked per open (process lifetime).
+## Round 28 — end-to-end check against the REAL durable store (journal of 2,500 synthetic sim:fixed outcomes, streams disjoint from test seeds)
+Held-out | confirm, warm - cold: hebbian H100 +.161 | +.142, H500 +.062 | +.049; recommended H100 +.050 | +.051, H500 +.026 | +.026 (Holm p < 1e-7 everywhere, 28-30/30 wins). Store format, replay and namespace filter verified outside the experiment's temp dirs. **KEPT**.
+## Round 29 — CLI integration
+`neural-mesh feedback|route|stats --store DIR --world NS` (opt-in): feedback lines are journaled under the store lock; a NEW state file replays the journal for NS (other namespaces ignored). Without --store behaviour is unchanged and no store is created (tests/store_cli.rs). Whole suite passes (339 lib + all integration tests; baseline 333). **KEPT (opt-in)**.
+Honest summary: persistence/sharing is a measured, large win for a router that starts cold in a world it has seen; a loss in a changed world (-.03..-.10) and for the keyword-fronted router where keywords are already accurate (-.02); cross-machine sharing saturates after ~2-4 sources. All evidence is on the simulator (synthetic outcomes); no real traffic. B1 battery axes untouched (no retrieval/semantic/tool code changed in this track).

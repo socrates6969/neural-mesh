@@ -560,15 +560,49 @@ fn cmd_stats(st: &State) -> Value {
     })
 }
 
+/// Replay the journal (namespace `world`) into a fresh state: agents are registered by name, outcomes train the leader router.
+fn warm_from_store(st: &mut State, sv: &neural_mesh::store::MeshStore, world: &str) -> Result<(), CliError> {
+    let os = sv.outcomes().map_err(|e| CliError::Io(e.to_string()))?;
+    for o in os.into_iter().filter(|o| o.world == world) {
+        let a = st.register(&o.agent);
+        let task = Task { id: st.feedbacks, task_type: o.task_type.clone(), features: o.features.clone() };
+        st.mesh.feedback(&task, &[a], o.reward.clamp(0.0, 1.0));
+        st.feedbacks += 1;
+        for f in &task.features {
+            *st.feature_counts.entry(f.clone()).or_insert(0) += 1;
+        }
+    }
+    Ok(())
+}
+
+/// Append the feedback just applied to the shared journal (one line, atomic under the store lock).
+fn append_to_store(st: &State, sv: &neural_mesh::store::MeshStore, o: &Opts, world: &str) -> Result<(), CliError> {
+    let task = make_task(o, st.feedbacks)?;
+    let ms = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_millis() as u64).unwrap_or(0);
+    let session = format!("cli-{}-{ms}", std::process::id());
+    let rec = neural_mesh::store::Outcome {
+        id: format!("{session}:{}", st.feedbacks),
+        session,
+        seq: st.feedbacks,
+        ts: ms,
+        world: world.to_string(),
+        features: task.features,
+        task_type: task.task_type,
+        agent: o.req("agent")?.trim().to_string(),
+        reward: o.req("reward")?.trim().parse::<f64>().unwrap_or(0.0),
+    };
+    sv.append_outcome(&rec).map_err(|e| CliError::Io(e.to_string()))
+}
+
 /// Library-level entry point (used by tests): runs one command and persists
 /// state when the command succeeds.
 fn run(args: &[String]) -> Result<Value, CliError> {
     let Some(cmd) = args.first() else { return Err(usage("missing command")) };
     let rest = &args[1..];
     let base: &[&str] = match cmd.as_str() {
-        "route" => &["state", "features", "candidates", "team", "type", "seed", "prior"],
-        "feedback" => &["state", "features", "agent", "team", "reward", "type"],
-        "stats" => &["state"],
+        "route" => &["state", "features", "candidates", "team", "type", "seed", "prior", "store", "world"],
+        "feedback" => &["state", "features", "agent", "team", "reward", "type", "store", "world"],
+        "stats" => &["state", "store", "world"],
         "config" => &["state", "team"],
         other => return Err(usage(format!("unknown command '{other}'"))),
     };
@@ -578,9 +612,24 @@ fn run(args: &[String]) -> Result<Value, CliError> {
     let _lock = StateLock::acquire(&path)?;
     let existed = path.exists();
     let mut st = load_state(&path)?;
+    // opt-in durable shared memory (src/store.rs): a NEW state file is warm-started from the journal
+    let store = match o.get("store") {
+        Some(dir) => Some(neural_mesh::store::MeshStore::open(dir).map_err(|e| CliError::Io(e.to_string()))?),
+        None => None,
+    };
+    let world = o.get("world").unwrap_or("default").to_string();
+    if let (Some(sv), false) = (&store, existed) {
+        warm_from_store(&mut st, sv, &world)?;
+    }
     let out = match cmd.as_str() {
         "route" => cmd_route(&mut st, &o)?,
-        "feedback" => cmd_feedback(&mut st, &o)?,
+        "feedback" => {
+            let v = cmd_feedback(&mut st, &o)?;
+            if let Some(sv) = &store {
+                append_to_store(&st, sv, &o, &world)?;
+            }
+            v
+        }
         "config" => {
             let v = cmd_config(&mut st, &o)?;
             if existed && !has_config_opts(&o, true) {

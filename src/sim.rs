@@ -295,7 +295,14 @@ impl Hidden {
 
 impl World {
     pub fn new(seed: u64, cfg: WorldConfig) -> Self {
-        let mut rng = Rng::new(seed.wrapping_mul(0x5851_F42D_4C95_7F2D) ^ 0xA5A5_0123);
+        Self::new_stream(seed, seed, cfg)
+    }
+
+    /// Same hidden structure (skills, keyword map, traps, drift, synergy) as `new(seed, ..)` but an independent TASK STREAM
+    /// (`stream` seeds the task/outcome draws and the failure window). `new_stream(s, s, c)` is bit-identical to `new(s, c)`.
+    /// Used by the persistence experiments (a later "session" in the same world).
+    pub fn new_stream(seed: u64, stream: u64, cfg: WorldConfig) -> Self {
+        let mut rng = Rng::new(stream.wrapping_mul(0x5851_F42D_4C95_7F2D) ^ 0xA5A5_0123);
         let t = cfg.n_tasks;
         let mut tasks = Vec::with_capacity(t);
         for id in 0..t {

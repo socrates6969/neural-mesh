@@ -30,3 +30,5 @@ pub mod flatq;
 pub mod dedup;
 pub mod hybrid;
 pub mod verifygate;
+pub mod fin;
+pub mod store;
