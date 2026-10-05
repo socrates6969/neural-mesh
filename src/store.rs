@@ -539,18 +539,22 @@ impl MeshStore {
             }
         }
         let mut keep: Vec<usize> = vec![];
+        let mut keeper_of: BTreeMap<usize, usize> = BTreeMap::new(); // dropped row -> the kept row that made it a duplicate (B38)
         for i in 0..n {
             if i % 64 == 0 {
                 _g.heartbeat();
             }
             let vi = &unit[i * dim..(i + 1) * dim];
-            let dup = keep.iter().any(|&j| {
+            let dup = keep.iter().copied().find(|&j| {
                 let vj = &unit[j * dim..(j + 1) * dim];
                 let c: f32 = vi.iter().zip(vj).map(|(a, b)| a * b).sum();
                 c > threshold.min(1.0 - 1e-6)
             });
-            if !dup {
-                keep.push(i);
+            match dup {
+                Some(j) => {
+                    keeper_of.insert(i, j);
+                }
+                None => keep.push(i),
             }
         }
         if keep.len() == n {
@@ -578,6 +582,14 @@ impl MeshStore {
             }
             let mut tf = OpenOptions::new().create(true).append(true).open(d.join("tombstones.jsonl"))?;
             tf.write_all(tb.as_bytes())?;
+            // B38: which kept doc each dropped one duplicated, so an opt-in deletion exchange can refuse to delete a doc whose keeper a peer does not have
+            let mut bb = String::new();
+            for (&i, &j) in &keeper_of {
+                bb.push_str(&serde_json::to_string(&DropLine { id: docs[i].id.clone(), by: docs[j].id.clone() }).unwrap());
+                bb.push('\n');
+            }
+            let mut bf = OpenOptions::new().create(true).append(true).open(d.join("dropped_by.jsonl"))?;
+            bf.write_all(bb.as_bytes())?;
         }
         replace_durable(&vt, &d.join("vecs.f32"), &vb)?;
         replace_durable(&dt, &d.join("docs.jsonl"), db.as_bytes())?;
@@ -917,8 +929,19 @@ struct DocShardLine {
     q: String,
 }
 
+/// B38: one gc deletion (`id` was dropped as a near-duplicate of the kept doc `by`).
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+struct DropLine {
+    id: String,
+    by: String,
+}
+
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct DocSyncReport {
+    /// B38 (opt-in propagation only): local docs deleted because a peer gc-dropped them AND their keeper doc is present here
+    pub deleted: usize,
+    /// B38: peer deletions NOT applied because no keeper doc is present locally (never delete the last copy of a duplicate class)
+    pub deletions_held_back: usize,
     pub exported: usize,
     pub imported: usize,
     /// same id present locally with DIFFERENT text: the local doc is kept, the foreign one is NOT imported (reported, never silently overwritten)
@@ -938,6 +961,15 @@ impl MeshStore {
     /// Vectors travel as int8 (388 B at dim 384 instead of 1,536 B f32); imported vectors are the dequantised values (R9: no retrieval loss on the battery). Same id with different text =
     /// counted conflict, local kept. Machine ids and namespace names must be `[A-Za-z0-9_-]+`. Idempotent and order-independent. Synthetic / non-sensitive data only.
     pub fn sync_docs_folder(&self, folder: &Path, machine: &str, ns: &str) -> R<DocSyncReport> {
+        self.sync_docs_folder_opts(folder, machine, ns, false)
+    }
+    /// B38 (opt-in): like [`MeshStore::sync_docs_folder`], and with `propagate_deletions` also exchanges gc deletions through the folder. Machine `m` additionally owns
+    /// `<m>.<ns>.tombstones.jsonl` (lines `{id, by}`: `id` was gc-dropped as a near-duplicate of the kept doc `by`; atomic replace, own shard only). On sync a peer's deletion is
+    /// applied locally ONLY IF the doc is present AND its keeper `by` (a different doc) is still present locally at that moment (ids processed in sorted order against the live set), so a
+    /// duplicate class can never be deleted entirely: two machines that gc'd the same pair in opposite orders each keep one representative. Applied deletions are recorded in the local
+    /// tombstones (so they are not re-imported and are re-exported, i.e. propagation is transitive). A doc re-added locally (present) is not exported as a tombstone, but peers that
+    /// already applied the deletion do not get it back: tombstones are permanent, re-add under a NEW id. Deleted docs are gone from retrieval; the corpus shrinks to the representatives.
+    pub fn sync_docs_folder_opts(&self, folder: &Path, machine: &str, ns: &str, propagate_deletions: bool) -> R<DocSyncReport> {
         let ok = |s: &str| !s.is_empty() && s.chars().all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_');
         if !ok(machine) || !ok(ns) {
             return Err(StoreError::Corrupt("machine id and namespace must be [A-Za-z0-9_-]+".into()));
@@ -950,7 +982,10 @@ impl MeshStore {
         let local: BTreeMap<String, usize> = ldocs.iter().enumerate().map(|(i, d)| (d.id.clone(), i)).collect();
         let mut files: Vec<PathBuf> = fs::read_dir(folder)?.filter_map(|e| e.ok()).map(|e| e.path()).collect();
         files.sort();
-        if let Some(n) = case_collision(&files, &[&own]) {
+        let own_tomb = format!("{machine}.{ns}.tombstones.jsonl");
+        let tomb_suffix = format!(".{ns}.tombstones.jsonl");
+        let own_names: Vec<&str> = if propagate_deletions { vec![own.as_str(), own_tomb.as_str()] } else { vec![own.as_str()] };
+        if let Some(n) = case_collision(&files, &own_names) {
             return Err(StoreError::Corrupt(format!("machine id '{machine}' / namespace '{ns}' collide case-insensitively with existing shared file '{n}'; pick names that differ by more than case")));
         }
         let mut foreign: HashSet<String> = HashSet::new();
@@ -1006,6 +1041,40 @@ impl MeshStore {
         if !new_docs.is_empty() {
             rep.imported = self.put_docs(ns, new_dim, &new_docs, &new_vecs)?;
         }
+        if propagate_deletions {
+            // peers' deletions, applied against the live local set in sorted-id order; a deletion needs a present keeper (see the doc comment)
+            let mut peer: BTreeMap<String, Vec<String>> = BTreeMap::new();
+            for p in &files {
+                let name = p.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
+                if name == own_tomb || !name.ends_with(&tomb_suffix) {
+                    continue;
+                }
+                let Ok(lines) = lossy_lines(p) else {
+                    rep.skipped_files += 1;
+                    continue;
+                };
+                for l in lines {
+                    if let Ok(x) = serde_json::from_str::<DropLine>(&l) {
+                        peer.entry(x.id).or_default().push(x.by);
+                    }
+                }
+            }
+            let mut present: HashSet<String> = self.load_docs(ns)?.0.into_iter().map(|d| d.id).collect();
+            let mut del: Vec<DropLine> = vec![];
+            for (id, keepers) in &peer {
+                if !present.contains(id) {
+                    continue;
+                }
+                match keepers.iter().find(|k| *k != id && present.contains(*k)) {
+                    Some(k) => {
+                        present.remove(id);
+                        del.push(DropLine { id: id.clone(), by: k.clone() });
+                    }
+                    None => rep.deletions_held_back += 1,
+                }
+            }
+            rep.deleted = self.remove_docs(ns, &del)?;
+        }
         // export own-origin docs (local docs that no foreign shard holds), atomically replacing OUR shard only
         let (docs, vecs, dim) = self.load_docs(ns)?;
         let mut buf = String::new();
@@ -1021,7 +1090,65 @@ impl MeshStore {
         rep.bytes_written = buf.len();
         let tmp = folder.join(format!("{own}.tmp"));
         replace_durable(&tmp, &folder.join(&own), buf.as_bytes())?;
+        if propagate_deletions {
+            let held: HashSet<&str> = docs.iter().map(|d| d.id.as_str()).collect();
+            let mut seen: HashSet<(String, String)> = HashSet::new();
+            let mut tb = String::new();
+            for x in self.read_dropped(ns) {
+                if held.contains(x.id.as_str()) || !seen.insert((x.id.clone(), x.by.clone())) {
+                    continue; // re-added locally, or a duplicate line
+                }
+                tb.push_str(&serde_json::to_string(&x).unwrap());
+                tb.push('\n');
+            }
+            replace_durable(&folder.join(format!("{own_tomb}.tmp")), &folder.join(&own_tomb), tb.as_bytes())?;
+        }
         Ok(rep)
+    }
+    fn read_dropped(&self, ns: &str) -> Vec<DropLine> {
+        lossy_lines(&self.kdir(ns).join("dropped_by.jsonl")).map(|ls| ls.iter().filter_map(|l| serde_json::from_str::<DropLine>(l).ok()).collect()).unwrap_or_default()
+    }
+    /// B38: delete docs (with their vectors) under the lock and record them in the local tombstones (+ keepers). Rewrites the namespace like `gc_docs`.
+    fn remove_docs(&self, ns: &str, del: &[DropLine]) -> R<usize> {
+        if del.is_empty() {
+            return Ok(0);
+        }
+        let _g = self.lock()?;
+        let (docs, vecs, dim) = self.load_docs(ns)?;
+        let gone: HashSet<&str> = del.iter().map(|x| x.id.as_str()).collect();
+        let d = self.kdir(ns);
+        let mut db = String::new();
+        let mut vb: Vec<u8> = vec![];
+        let (mut removed, mut rm) = (0usize, vec![]);
+        for (i, doc) in docs.iter().enumerate() {
+            if gone.contains(doc.id.as_str()) {
+                removed += 1;
+                rm.push(doc.id.as_str());
+                continue;
+            }
+            db.push_str(&serde_json::to_string(doc).unwrap());
+            db.push('\n');
+            for x in &vecs[i * dim..(i + 1) * dim] {
+                vb.extend_from_slice(&x.to_le_bytes());
+            }
+        }
+        if removed == 0 {
+            return Ok(0);
+        }
+        // tombstones first (a crash in between leaves an extra tombstone, never a resurrection)
+        let mut tb = String::new();
+        let mut bb = String::new();
+        for x in del.iter().filter(|x| rm.contains(&x.id.as_str())) {
+            tb.push_str(&serde_json::to_string(&x.id).unwrap());
+            tb.push('\n');
+            bb.push_str(&serde_json::to_string(x).unwrap());
+            bb.push('\n');
+        }
+        OpenOptions::new().create(true).append(true).open(d.join("tombstones.jsonl"))?.write_all(tb.as_bytes())?;
+        OpenOptions::new().create(true).append(true).open(d.join("dropped_by.jsonl"))?.write_all(bb.as_bytes())?;
+        replace_durable(&d.join("vecs.f32.tmp"), &d.join("vecs.f32"), &vb)?;
+        replace_durable(&d.join("docs.jsonl.tmp"), &d.join("docs.jsonl"), db.as_bytes())?;
+        Ok(removed)
     }
 }
 
@@ -1810,5 +1937,96 @@ mod hardening_b36_tests {
         let _ = fs::remove_dir_all(&folder);
         let _ = fs::remove_dir_all(&pa);
         let _ = fs::remove_dir_all(&pb);
+    }
+}
+
+#[cfg(test)]
+mod b38_tests {
+    use super::*;
+    fn tmp(name: &str) -> PathBuf {
+        let p = std::env::temp_dir().join(format!("nm_b38_{name}_{}", std::process::id()));
+        let _ = fs::remove_dir_all(&p);
+        p
+    }
+    fn d(i: &str) -> DocRec {
+        DocRec { id: i.into(), text: format!("t{i}"), tag: "t".into() }
+    }
+    fn ids(s: &MeshStore) -> Vec<String> {
+        let mut v: Vec<String> = s.load_docs("kb").unwrap().0.into_iter().map(|d| d.id).collect();
+        v.sort();
+        v
+    }
+    // x and y are exact duplicates; z is distinct
+    const V: [f32; 12] = [1.0, 0., 0., 0., 1.0, 0., 0., 0., 0., 1.0, 0., 0.];
+    /// B38: gc deletions stay local by default (documented B30 scope) and are exchanged only with the opt-in flag; the peer keeps the keeper.
+    #[test]
+    fn gc_deletions_propagate_only_when_opted_in() {
+        for propagate in [false, true] {
+            let (folder, pa, pb) = (tmp(&format!("f{propagate}")), tmp(&format!("a{propagate}")), tmp(&format!("b{propagate}")));
+            let (a, b) = (MeshStore::open(&pa).unwrap(), MeshStore::open(&pb).unwrap());
+            let docs = [d("x"), d("y"), d("z")];
+            a.put_docs("kb", 4, &docs, &V).unwrap();
+            b.put_docs("kb", 4, &docs, &V).unwrap();
+            assert_eq!(a.gc_docs("kb", 0.99).unwrap(), (3, 2)); // drops y (keeper x)
+            for _ in 0..2 {
+                a.sync_docs_folder_opts(&folder, "mA", "kb", propagate).unwrap();
+                b.sync_docs_folder_opts(&folder, "mB", "kb", propagate).unwrap();
+            }
+            if propagate {
+                assert_eq!(ids(&b), vec!["x", "z"], "peer applied the deletion");
+                assert_eq!(ids(&a), vec!["x", "z"], "and A did not get y back");
+                // the vector rows stay aligned with their docs
+                let (bd, bv, dim) = b.load_docs("kb").unwrap();
+                let zi = bd.iter().position(|x| x.id == "z").unwrap();
+                assert_eq!(&bv[zi * dim..(zi + 1) * dim], &V[8..12]);
+            } else {
+                assert_eq!(ids(&b), vec!["x", "y", "z"], "default: deletions stay local");
+                assert_eq!(ids(&a), vec!["x", "z"], "(and are not resurrected, B30)");
+            }
+        }
+    }
+    /// B38 safety: two machines gc'd the SAME duplicate pair in opposite orders (each dropped the other's keeper). Applying both deletions would delete the whole class.
+    /// The keeper rule must leave every machine with exactly one representative, and a third machine holding both ends with one too.
+    #[test]
+    fn opposite_order_gc_never_deletes_the_whole_duplicate_class() {
+        let (folder, pa, pb, pc) = (tmp("of"), tmp("oa"), tmp("ob"), tmp("oc"));
+        let (a, b, c) = (MeshStore::open(&pa).unwrap(), MeshStore::open(&pb).unwrap(), MeshStore::open(&pc).unwrap());
+        let v2 = [1.0f32, 0., 0., 0., 1.0, 0., 0., 0.];
+        a.put_docs("kb", 4, &[d("x"), d("y")], &v2).unwrap(); // keeps x, drops y
+        b.put_docs("kb", 4, &[d("y"), d("x")], &v2).unwrap(); // keeps y, drops x
+        c.put_docs("kb", 4, &[d("x"), d("y")], &v2).unwrap();
+        a.gc_docs("kb", 0.99).unwrap();
+        b.gc_docs("kb", 0.99).unwrap();
+        assert_eq!((ids(&a), ids(&b)), (vec!["x".to_string()], vec!["y".to_string()]));
+        for _ in 0..4 {
+            for (s, m) in [(&a, "mA"), (&b, "mB"), (&c, "mC")] {
+                s.sync_docs_folder_opts(&folder, m, "kb", true).unwrap();
+            }
+        }
+        for s in [&a, &b, &c] {
+            assert_eq!(ids(s).len(), 1, "exactly one representative per machine, never zero: {:?}", ids(s));
+        }
+    }
+    /// B38: propagation is transitive (C learns A's deletion through B's re-export) and a deletion whose keeper is absent is held back, not applied.
+    #[test]
+    fn deletions_are_transitive_and_held_back_without_a_keeper() {
+        let (folder, pa, pc) = (tmp("tf"), tmp("ta"), tmp("tc"));
+        let (a, c) = (MeshStore::open(&pa).unwrap(), MeshStore::open(&pc).unwrap());
+        a.put_docs("kb", 4, &[d("x"), d("y"), d("z")], &V).unwrap();
+        c.put_docs("kb", 4, &[d("y"), d("z")], &V[4..12]).unwrap(); // c has y but NOT its keeper x
+        a.gc_docs("kb", 0.99).unwrap();
+        a.sync_docs_folder_opts(&folder, "mA", "kb", true).unwrap();
+        let r = c.sync_docs_folder_opts(&folder, "mC", "kb", true).unwrap();
+        // c imported x from A's shard (A's own-origin docs), so the keeper is now present and y is deleted in the same sync
+        assert_eq!(ids(&c), vec!["x", "z"], "{r:?}");
+        // keeper truly absent: tombstone from a peer whose docs this store never sees
+        let pd = tmp("td");
+        let dd = MeshStore::open(&pd).unwrap();
+        dd.put_docs("kb", 4, &[d("y"), d("q")], &[0., 1.0, 0., 0., 0., 0., 1.0, 0.]).unwrap();
+        fs::write(folder.join("mX.kb.tombstones.jsonl"), "{\"id\":\"q\",\"by\":\"ghost\"}
+").unwrap();
+        let r = dd.sync_docs_folder_opts(&folder, "mD", "kb", true).unwrap();
+        assert!(ids(&dd).contains(&"q".to_string()), "no keeper present -> q must survive: {r:?}");
+        assert!(r.deletions_held_back >= 1, "{r:?}");
     }
 }
