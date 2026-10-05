@@ -457,6 +457,16 @@ impl MeshStore {
             return Err(StoreError::Corrupt("vector/doc count mismatch".into()));
         }
         let _g = self.lock()?;
+        // B36: a sibling namespace directory that differs only by case is the SAME directory on a case-insensitive filesystem (Windows/macOS): the two corpora
+        // would silently merge (or fail on a dim mismatch). Refuse, on every platform, so a store stays portable.
+        if let Ok(rd) = fs::read_dir(self.root.join("knowledge")) {
+            for e in rd.filter_map(|e| e.ok()) {
+                let n = e.file_name().to_string_lossy().to_string();
+                if n != ns && n.eq_ignore_ascii_case(ns) {
+                    return Err(StoreError::Corrupt(format!("namespace '{ns}' collides case-insensitively with existing namespace '{n}'; pick a name that differs by more than case")));
+                }
+            }
+        }
         let d = self.kdir(ns);
         fs::create_dir_all(&d)?;
         let meta = d.join("meta.json");
@@ -627,6 +637,8 @@ impl MeshStore {
         let mut seen_lm: std::collections::HashMap<String, LessonRec> = self.lessons()?.into_iter().map(|l| (l.id.clone(), l)).collect();
         let (mut add_o, mut add_l): (Vec<Outcome>, Vec<LessonRec>) = (vec![], vec![]);
         let mut foreign: HashSet<String> = HashSet::new(); // ids present in OTHER machines' files (any world): we do not re-export those
+        // B37: lessons held IDENTICALLY by another machine's file are not re-exported either (same rule as outcomes; a conflicting copy still is, so the conflict stays visible)
+        let mut foreign_l: std::collections::HashMap<String, LessonRec> = std::collections::HashMap::new();
         for p in &files {
             let name = p.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
             if name == own_j || name == own_l || name.ends_with(".tmp") {
@@ -662,6 +674,7 @@ impl MeshStore {
                 rep.files_read += 1;
                 for l in lines {
                     if let Ok(x) = serde_json::from_str::<LessonRec>(&l) {
+                        foreign_l.entry(x.id.clone()).or_insert_with(|| x.clone());
                         if let Some(prev) = seen_lm.get(&x.id) {
                             if *prev != x {
                                 rep.conflicts += 1;
@@ -699,7 +712,7 @@ impl MeshStore {
         let tmp = folder.join(format!("{own_j}.tmp"));
         replace_durable(&tmp, &folder.join(&own_j), buf.as_bytes())?;
         let mut lb = String::new();
-        for l in self.lessons()? {
+        for l in self.lessons()?.into_iter().filter(|l| foreign_l.get(&l.id) != Some(l)) {
             lb.push_str(&serde_json::to_string(&l).unwrap());
             lb.push(nl);
         }
@@ -1720,6 +1733,81 @@ mod hardening_b34_tests {
         let ids: Vec<String> = a.load_docs("kb").unwrap().0.into_iter().map(|d| d.id).collect();
         assert_eq!(ids, vec!["x".to_string(), "z".to_string()], "{r:?}");
         assert_eq!(r.docs_added, 0, "{r:?}");
+        let _ = fs::remove_dir_all(&pa);
+        let _ = fs::remove_dir_all(&pb);
+    }
+}
+
+#[cfg(test)]
+mod hardening_b36_tests {
+    use super::*;
+    fn tmp(name: &str) -> PathBuf {
+        let p = std::env::temp_dir().join(format!("nm_b36_{name}_{}", std::process::id()));
+        let _ = fs::remove_dir_all(&p);
+        p
+    }
+    fn lesson(id: &str, text: &str) -> LessonRec {
+        LessonRec { id: id.into(), session: "s".into(), ts: 0, world: "w".into(), agent: None, tag: "t".into(), text: text.into() }
+    }
+    /// B36: namespaces differing only by case share one directory on a case-insensitive filesystem; `put_docs` silently merged them (or failed on a dim mismatch).
+    #[test]
+    fn local_namespace_case_collision_is_rejected() {
+        let p = tmp("ns");
+        let s = MeshStore::open(&p).unwrap();
+        let d = |i: &str| vec![DocRec { id: i.into(), text: format!("t{i}"), tag: "t".into() }];
+        s.put_docs("Alpha", 2, &d("a"), &[1.0, 0.0]).unwrap();
+        assert!(s.put_docs("alpha", 2, &d("b"), &[0.0, 1.0]).is_err(), "case-colliding namespace must be refused");
+        // the same exact name still appends
+        assert_eq!(s.put_docs("Alpha", 2, &d("c"), &[0.0, 1.0]).unwrap(), 1);
+        assert_eq!(s.load_docs("Alpha").unwrap().0.len(), 2);
+        let _ = fs::remove_dir_all(&p);
+    }
+    /// B37 (efficiency): `sync_folder` re-exported every local lesson including peer-imported ones, so the folder held ~Mx the union of lessons. Now a lesson another
+    /// machine's file already holds identically is not re-exported. Convergence is unchanged: every store ends with the full union.
+    #[test]
+    fn lesson_export_is_deduplicated_and_converges() {
+        let (folder, m) = (tmp("lf"), 4usize);
+        let stores: Vec<MeshStore> = (0..m).map(|i| MeshStore::open(&tmp(&format!("ls{i}"))).unwrap()).collect();
+        for (i, s) in stores.iter().enumerate() {
+            for k in 0..5 {
+                s.append_lesson(&lesson(&format!("m{i}:{k}"), &format!("lesson number {k} written on machine {i} with some body text"))).unwrap();
+            }
+        }
+        for _round in 0..3 {
+            for (i, s) in stores.iter().enumerate() {
+                s.sync_folder(&folder, &format!("m{i}"), None, None).unwrap();
+            }
+        }
+        let mut total = 0u64;
+        let mut union_bytes = 0u64;
+        for l in stores[0].lessons().unwrap() {
+            union_bytes += serde_json::to_string(&l).unwrap().len() as u64 + 1;
+        }
+        for i in 0..m {
+            total += fs::metadata(folder.join(format!("m{i}.lessons.jsonl"))).unwrap().len();
+            let ids: HashSet<String> = stores[i].lessons().unwrap().into_iter().map(|l| l.id).collect();
+            assert_eq!(ids.len(), 5 * m, "store {i} must converge to the full union");
+        }
+        eprintln!("B37 lesson bytes in folder: {total} (union {union_bytes}, ratio {:.2})", total as f64 / union_bytes as f64);
+        assert_eq!(total, union_bytes, "each lesson must be exported by exactly one machine");
+        let _ = fs::remove_dir_all(&folder);
+        for i in 0..m {
+            let _ = fs::remove_dir_all(std::env::temp_dir().join(format!("nm_b36_ls{i}_{}", std::process::id())));
+        }
+    }
+    /// B37 safety: if the machine holding the only copy of a lesson vanishes from the folder, the next sync by another machine re-exports it (self-healing).
+    #[test]
+    fn lesson_dedup_self_heals_when_a_peer_file_disappears() {
+        let (folder, pa, pb) = (tmp("hf"), tmp("ha"), tmp("hb"));
+        let (a, b) = (MeshStore::open(&pa).unwrap(), MeshStore::open(&pb).unwrap());
+        a.append_lesson(&lesson("a:0", "only a")).unwrap();
+        a.sync_folder(&folder, "a", None, None).unwrap();
+        b.sync_folder(&folder, "b", None, None).unwrap();
+        assert_eq!(fs::metadata(folder.join("b.lessons.jsonl")).unwrap().len(), 0, "b imported it and does not re-export");
+        fs::remove_file(folder.join("a.lessons.jsonl")).unwrap();
+        b.sync_folder(&folder, "b", None, None).unwrap();
+        assert!(fs::metadata(folder.join("b.lessons.jsonl")).unwrap().len() > 0, "b must re-export the now-unheld lesson");
+        let _ = fs::remove_dir_all(&folder);
         let _ = fs::remove_dir_all(&pa);
         let _ = fs::remove_dir_all(&pb);
     }
