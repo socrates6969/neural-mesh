@@ -57,6 +57,24 @@ class BM25:
                 out[d] += self.idf[t] * tf * (self.k1 + 1) / (tf + self.k1 * (1 - self.b + self.b * self.dl[d] / self.avg))
         return out
 
+
+# R107: tie accounting. TP=1 -> an exact tie for the top score counts as a MISS (tie-pessimistic); always counts ties in TIE.
+import os as _os
+TP = _os.environ.get("TP") == "1"; TIE = {"n": 0, "ties": 0, "rank_n": 0, "rank_ties": 0}
+def rk(sc, gi):
+    TIE["rank_n"] += 1; TIE["rank_ties"] += int((sc == sc[gi]).sum() > 1)
+def amx(s):
+    s = np.asarray(s); c = int((s == s.max()).sum()); TIE["n"] += 1
+    if c > 1:
+        TIE["ties"] += 1
+        if TP: return -1
+    return int(np.argmax(s))
+def amn(s):
+    s = np.asarray(s); c = int((s == s.min()).sum()); TIE["n"] += 1
+    if c > 1:
+        TIE["ties"] += 1
+        if TP: return -1
+    return int(np.argmin(s))
 def z(x):
     s = x.std()
     return np.zeros_like(x) if s < 1e-9 else (x - x.mean()) / s
@@ -91,15 +109,15 @@ def semantic_acc(D, items, E=None):
         if sk not in ("vocab", "similarities", "classification", "verbal_analogies", "sentence_completion"): continue
         E = Eall.get(sk, D.v) if isinstance(Eall, dict) else Eall
         opts = it["opts"]; O = np.stack([E(o) for o in opts])
-        if sk == "vocab": s = cosm(E(it["target"]), O); p = int(np.argmax(s))
-        elif sk == "similarities": s = cosm(E(it["pair"][0]) + E(it["pair"][1]), O); p = int(np.argmax(s))
+        if sk == "vocab": s = cosm(E(it["target"]), O); p = amx(s)
+        elif sk == "similarities": s = cosm(E(it["pair"][0]) + E(it["pair"][1]), O); p = amx(s)
         elif sk == "classification":
             S = O @ O.T / (np.linalg.norm(O, axis=1)[:, None] * np.linalg.norm(O, axis=1)[None] + 1e-9)
-            p = int(np.argmin((S.sum(1) - 1) / (len(opts) - 1)))
+            p = amn((S.sum(1) - 1) / (len(opts) - 1))
         elif sk == "verbal_analogies":
-            a, b, c = [E(x) for x in it["abc"]]; s = cosm(b - a + c, O); p = int(np.argmax(s))
+            a, b, c = [E(x) for x in it["abc"]]; s = cosm(b - a + c, O); p = amx(s)
         else:
-            st = it["stem"]; F = np.stack([E(st.replace("___", o)) for o in opts]); s = cosm(E(st), F); p = int(np.argmax(s))
+            st = it["stem"]; F = np.stack([E(st.replace("___", o)) for o in opts]); s = cosm(E(st), F); p = amx(s)
         res.setdefault(sk, []).append(p == it["ans"])
     return {k: float(np.mean(v)) for k, v in res.items()}
 
@@ -115,14 +133,14 @@ def knowledge_axes(D, world, seed, arm="hybrid", alpha=0.7, make=None):
     for gi, q1, q2, ans in qs:
         q = q1 if world == "A" else typo(r, q2, 0.12)
         qv = D.v(q)  # the typo'd text is embedded too (fixed R1 artifact: earlier typos hit only BM25)
-        hit.append(int(np.argmax(ret.scores(q, qv))) == gi)
+        hit.append(amx(ret.scores(q, qv)) == gi)
     out["general_info"] = float(np.mean(hit))
     # comprehension
     ch = []
     for it in D.items[f"{world}{seed}"]:
         if it["skill"] != "comprehension": continue
         sv = np.stack([D.v(s) for s in it["sents"]]); rr = make(it["sents"], sv, arm, alpha)
-        ch.append(int(np.argmax(rr.scores(it["text"], D.v(it["text"])))) == it["gold"])
+        ch.append(amx(rr.scores(it["text"], D.v(it["text"]))) == it["gold"])
     out["comprehension"] = float(np.mean(ch))
     # domain
     dd = D.stores["domain"]; n = len(dd["docs"]); qs = r.sample(dd["qs"], 24)
@@ -133,9 +151,9 @@ def knowledge_axes(D, world, seed, arm="hybrid", alpha=0.7, make=None):
     h1 = []; mrr = []; dh = []
     for gd, dom, q1, q2 in qs:
         q = q1 if world == "A" else typo(r, q2, 0.12); qv = D.v(q)
-        sc = ret.scores(q, qv); top = int(np.argmax(sc)); gi = idx[gd]
-        h1.append(top == gi); mrr.append(1.0 / (1 + int((sc >= sc[gi]).sum()) - 1))
-        dh.append(dd["dom"][keep[top]] == dom)
+        sc = ret.scores(q, qv); top = amx(sc); gi = idx[gd]
+        h1.append(top == gi); rk(sc, gi); mrr.append(1.0 / (1 + int((sc >= sc[gi]).sum()) - 1))
+        dh.append(top >= 0 and dd["dom"][keep[top]] == dom)
     out["domain_r1"], out["domain_mrr"], out["domain_route"] = float(np.mean(h1)), float(np.mean(mrr)), float(np.mean(dh))
     return out
 
@@ -232,6 +250,6 @@ class RealWorld:
         ret = self.retriever(arm, alpha, make); rr, h1 = [], []
         for row in v["rows"][:nq]:
             tid = row["t"][0][0]; rel = set(self.queries[row["q"]]["rel"])
-            sc = ret.scores(self.texts[tid], self.emb[tid]); best = min(int((sc >= sc[d]).sum()) - 1 for d in rel)
+            sc = ret.scores(self.texts[tid], self.emb[tid]); [rk(sc, d) for d in rel]; best = min(int((sc >= sc[d]).sum()) - 1 for d in rel)
             rr.append(1.0 / (1 + best)); h1.append(best == 0)
         return {"real_mrr": float(np.mean(rr)), "real_h1": float(np.mean(h1))}
