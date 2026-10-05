@@ -653,3 +653,108 @@ impl Encoder {
             .collect()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    //! Kernel tests need no files. The encoder tests need the exported weight file (`py/b1/r101_tools/export_weights.py`, 90 MB, not in the repo):
+    //! set NM_ENCODER_WEIGHTS=<path>.f32 (tokenizer: NM_ENCODER_TOKENIZER or ~/.ruvector/models/all-MiniLM-L6-v2/tokenizer.json). Without it they print a SKIP line and pass.
+    //! Golden vectors (`testdata/encoder_golden.json`) are ORT fp32 embeddings of the same strings.
+    use super::*;
+    fn lcg(seed: &mut u64) -> f32 {
+        *seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+        ((*seed >> 40) as f32 / (1u64 << 24) as f32) * 2.0 - 1.0
+    }
+    fn cos(a: &[f32], b: &[f32]) -> f32 {
+        let d: f32 = a.iter().zip(b).map(|(x, y)| x * y).sum();
+        d / (a.iter().map(|x| x * x).sum::<f32>().sqrt() * b.iter().map(|x| x * x).sum::<f32>().sqrt())
+    }
+    #[test]
+    fn dot_kernels_match_scalar() {
+        let mut s = 7u64;
+        for n in [384usize, 1536] {
+            let w: Vec<f32> = (0..n).map(|_| lcg(&mut s)).collect();
+            let xs: Vec<Vec<f32>> = (0..4).map(|_| (0..n).map(|_| lcg(&mut s)).collect()).collect();
+            for x in &xs {
+                let want: f32 = w.iter().zip(x).map(|(a, b)| a * b).sum();
+                assert!((dot_f32(&w, x) - want).abs() < 1e-3, "dot_f32 n={n}");
+            }
+            if avx_ok() {
+                let got = unsafe { dot4_f32_avx2(&w, [&xs[0], &xs[1], &xs[2], &xs[3]]) };
+                for k in 0..4 {
+                    let want: f32 = w.iter().zip(&xs[k]).map(|(a, b)| a * b).sum();
+                    assert!((got[k] - want).abs() < 1e-3, "dot4_f32 n={n} k={k}");
+                }
+                let wi: Vec<i8> = w.iter().map(|v| (v * 127.0) as i8).collect();
+                let xi: Vec<Vec<i8>> = xs.iter().map(|x| x.iter().map(|v| (v * 127.0) as i8).collect()).collect();
+                let goti = unsafe { dot4_i8_avx2(&wi, [&xi[0], &xi[1], &xi[2], &xi[3]]) };
+                for k in 0..4 {
+                    let want: i32 = wi.iter().zip(&xi[k]).map(|(a, b)| *a as i32 * *b as i32).sum();
+                    assert_eq!(goti[k], want, "dot4_i8 is exact integer arithmetic (n={n}, k={k})");
+                }
+            }
+        }
+    }
+    #[test]
+    fn erf_gelu_accuracy() {
+        for (x, want) in [(0.0f32, 0.0f32), (0.5, 0.5204999), (1.0, 0.8427008), (-1.0, -0.8427008), (2.0, 0.9953223), (4.0, 1.0)] {
+            assert!((erf(x) - want).abs() < 2e-6, "erf({x}) = {} want {want}", erf(x));
+        }
+        assert!((gelu(1.0) - 0.8413447).abs() < 2e-6);
+        assert!(gelu(-6.0).abs() < 1e-6 && (gelu(6.0) - 6.0).abs() < 1e-5);
+        assert!(((fast_exp(1.0)) / std::f32::consts::E - 1.0).abs() < 1e-5);
+    }
+    fn files() -> Option<(std::path::PathBuf, std::path::PathBuf)> {
+        let w = std::path::PathBuf::from(std::env::var("NM_ENCODER_WEIGHTS").ok()?);
+        let t = match std::env::var("NM_ENCODER_TOKENIZER") {
+            Ok(p) => std::path::PathBuf::from(p),
+            Err(_) => {
+                let h = std::env::var("USERPROFILE").or_else(|_| std::env::var("HOME")).ok()?;
+                std::path::Path::new(&h).join(".ruvector/models/all-MiniLM-L6-v2/tokenizer.json")
+            }
+        };
+        if w.exists() && t.exists() { Some((w, t)) } else { None }
+    }
+    #[test]
+    fn load_rejects_wrong_weights_file() {
+        let p = std::env::temp_dir().join("nm_enc_bad_weights.f32");
+        std::fs::write(&p, [0u8; 64]).unwrap();
+        let e = Encoder::load(&p, &p).err().expect("must fail");
+        assert!(e.0.contains("expected"), "{}", e.0);
+        let _ = std::fs::remove_file(&p);
+    }
+    #[test]
+    fn encoder_matches_ort_golden_and_is_consistent() {
+        let Some((w, t)) = files() else { eprintln!("SKIP encoder test: set NM_ENCODER_WEIGHTS"); return };
+        let g: serde_json::Value = serde_json::from_slice(&std::fs::read(concat!(env!("CARGO_MANIFEST_DIR"), "/testdata/encoder_golden.json")).unwrap()).unwrap();
+        let texts: Vec<String> = g["texts"].as_array().unwrap().iter().map(|s| s.as_str().unwrap().to_string()).collect();
+        let gold: Vec<Vec<f32>> = g["vectors"].as_array().unwrap().iter().map(|v| v.as_array().unwrap().iter().map(|x| x.as_f64().unwrap() as f32).collect()).collect();
+        let e = Encoder::load(&w, &t).unwrap();
+        let e8 = Encoder::load(&w, &t).unwrap().with_int8(true);
+        let refs: Vec<&str> = texts.iter().map(|s| s.as_str()).collect();
+        let batch = e.encode_batch(&refs);
+        for (i, tx) in texts.iter().enumerate() {
+            let v = e.encode(tx);
+            assert_eq!(v.len(), 384);
+            let norm = v.iter().map(|x| x * x).sum::<f32>().sqrt();
+            assert!((norm - 1.0).abs() < 1e-4, "unit norm: {norm}");
+            // accent text: folding is approximate (no full NFD), so a looser bound there
+            let bound = if tx.contains('é') { 0.99 } else { 0.9999 };
+            assert!(cos(&v, &gold[i]) > bound, "text {i} cos to ORT = {}", cos(&v, &gold[i]));
+            assert!(cos(&v, &batch[i]) > 0.99999, "batch vs single, text {i}");
+            assert_eq!(v, e.encode(tx), "deterministic");
+            assert!(cos(&e8.encode(tx), &gold[i]) > 0.95, "int8 text {i}: {}", cos(&e8.encode(tx), &gold[i]));
+        }
+        // semantic sanity: related sentences closer than unrelated
+        let a = e.encode("how to parse json in rust");
+        let b = e.encode("deserialize JSON with serde in Rust");
+        let c = e.encode("recipe for chocolate cake with butter");
+        assert!(cos(&a, &b) > cos(&a, &c) + 0.2);
+        // threads and empty/unknown inputs do not change or break results
+        let et = Encoder::load(&w, &t).unwrap().with_threads(4);
+        let many: Vec<&str> = (0..24).map(|i| refs[i % refs.len()]).collect();
+        let bt = et.encode_batch(&many);
+        for (i, v) in bt.iter().enumerate() { assert!(cos(v, &batch[i % refs.len()]) > 0.99999, "threaded batch {i}"); }
+        assert_eq!(e.encode("").len(), 384);
+        assert!(e.encode("zzzzqqqq xxxjjj 12345 \u{4e2d}\u{6587}").iter().all(|x| x.is_finite()));
+    }
+}
