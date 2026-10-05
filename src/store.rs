@@ -186,7 +186,8 @@ impl MeshStore {
         let mut buf = String::new();
         for l in lines {
             buf.push_str(l);
-            buf.push('\n');
+            buf.push('
+');
         }
         f.write_all(buf.as_bytes())?;
         Ok(())
