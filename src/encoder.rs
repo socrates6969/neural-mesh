@@ -900,7 +900,7 @@ mod tests {
             assert!(cos(&v, &gold[i]) > bound, "text {i} cos to ORT = {}", cos(&v, &gold[i]));
             assert!(cos(&v, &batch[i]) > 0.99999, "batch vs single, text {i}");
             assert_eq!(v, e.encode(tx), "deterministic");
-            assert!(cos(&e8.encode(tx), &gold[i]) > 0.95, "int8 text {i}: {}", cos(&e8.encode(tx), &gold[i]));
+            assert!(cos(&e8.encode(tx), &gold[i]) > 0.98, "int8 text {i}: {}", cos(&e8.encode(tx), &gold[i]));
         }
         // semantic sanity: related sentences closer than unrelated
         let a = e.encode("how to parse json in rust");
