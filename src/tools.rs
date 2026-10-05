@@ -1134,6 +1134,63 @@ impl Identity {
         Ok("identical".into())
     }
 }
+impl Identity {
+    /// R39 (opt-in): `check` on the integer grid, then exact probes at rationals and large magnitudes. A pair that agrees on every integer of the grid
+    /// but not elsewhere (`floor(x) == x`, `min(x,40) == x`, ...) is reported "differs: ..." instead of "identical". Probe points where either side errors
+    /// (domain / overflow / step limit) are SKIPPED; a definedness mismatch (one side divides by zero) counts as a difference. Exact rational arithmetic
+    /// means a true identity never differs on a probe, so no true identity is rejected (except via skipped overflow).
+    pub fn check_strict(&self, spec: &str) -> R<String> {
+        let base = self.check(spec)?;
+        if base != "identical" {
+            return Ok(base);
+        }
+        let (l, r) = spec.split_once("==").ok_or(ToolError::Parse("'==' expected".into()))?;
+        let le = parse_expr(l)?;
+        let re = parse_expr(r)?;
+        let mut vars = Vec::new();
+        collect_vars(&le, &mut vars);
+        collect_vars(&re, &mut vars);
+        vars.sort();
+        let xs: [(i128, i128); 14] = [(1, 2), (-1, 2), (3, 2), (-3, 2), (1, 3), (7, 3), (-7, 3), (22, 7), (100, 1), (-100, 1), (1000, 1), (-1000, 1), (1, 1000), (1_000_000, 1)];
+        let ys: [(i128, i128); 8] = [(1, 2), (-1, 2), (3, 2), (-3, 2), (1, 3), (7, 3), (2, 1), (-5, 1)];
+        let mut pts: Vec<Vec<Rat>> = Vec::new();
+        match vars.len() {
+            0 => {}
+            1 => {
+                for (n, d) in xs {
+                    pts.push(vec![Rat::new(n, d)?]);
+                }
+            }
+            _ => {
+                for (n, d) in xs {
+                    for (n2, d2) in ys {
+                        pts.push(vec![Rat::new(n, d)?, Rat::new(n2, d2)?]);
+                    }
+                }
+            }
+        }
+        let mut budget = 5_000_000u64;
+        for g in pts {
+            let env: Vec<(String, Rat)> = vars.iter().cloned().zip(g.iter().copied()).collect();
+            let a = eval_expr(&le, &env, &mut budget);
+            let b = eval_expr(&re, &env, &mut budget);
+            let desc = || env.iter().map(|(n, v)| format!("{n}={v}")).collect::<Vec<_>>().join(",");
+            match (a, b) {
+                (Ok(a), Ok(b)) => {
+                    if a != b {
+                        return Ok(format!("differs: {} lhs={} rhs={}", desc(), a, b));
+                    }
+                }
+                (Err(ToolError::DivZero), Ok(_)) | (Ok(_), Err(ToolError::DivZero)) => return Ok(format!("differs: {} (definedness)", desc())),
+                _ => {} // both undefined / domain / overflow / step limit: skip this probe
+            }
+            if budget == 0 {
+                break;
+            }
+        }
+        Ok("identical".into())
+    }
+}
 impl Tool for Identity {
     fn name(&self) -> &str {
         "identity"
@@ -1965,10 +2022,17 @@ impl Tool for LookupTool {
 #[derive(Clone, Debug)]
 pub struct Verifier {
     lookup: LookupTool,
+    /// R39 opt-in: verify "identity" claims with [`Identity::check_strict`] (default false = integer grid only)
+    strict_identity: bool,
 }
 impl Verifier {
     pub fn new(lookup: LookupTool) -> Self {
-        Verifier { lookup }
+        Verifier { lookup, strict_identity: false }
+    }
+    /// opt-in stricter identity verification (rational + large-magnitude probes); default off
+    pub fn with_strict_identity(mut self, on: bool) -> Self {
+        self.strict_identity = on;
+        self
     }
     fn verdict(ok: bool, why: &str) -> R<(String, u32)> {
         Ok((if ok { "accept".to_string() } else { format!("reject: {why}") }, 1))
@@ -2030,14 +2094,16 @@ impl Verifier {
             "identity" => {
                 // larger, shifted grid than the solver's default
                 let big = Identity { lo: -12, hi: 13 };
-                let want = big.check(spec)?;
+                let strict = self.strict_identity;
+                let run = |id: &Identity| if strict { id.check_strict(spec) } else { id.check(spec) };
+                let want = run(&big)?;
                 let said_identical = claim == "identical";
                 if said_identical {
                     return Verifier::verdict(want == "identical", "found a differing point");
                 }
                 if let Some(rest) = claim.strip_prefix("differs") {
                     let _ = rest;
-                    return Verifier::verdict(want.starts_with("differs") || Identity::default().check(spec)?.starts_with("differs"), "no differing point exists on the grid");
+                    return Verifier::verdict(want.starts_with("differs") || run(&Identity::default())?.starts_with("differs"), "no differing point exists on the grid");
                 }
                 Verifier::verdict(false, "unrecognised claim")
             }
@@ -2480,6 +2546,27 @@ mod tests {
         }
         spec += "a+b+c+d+e+f+g+h==10000";
         assert!(matches!(Csp::solve_str(&spec), Err(ToolError::StepLimit)));
+    }
+
+    #[test]
+    fn identity_strict_rejects_near_misses() {
+        let id = Identity::default();
+        // agree on every integer of the grid but not at rationals / large magnitudes: default says identical, strict says differs
+        for spec in ["floor(x) == x", "ceil(x+3) == x+3", "min(x,40) == x"] {
+            assert_eq!(id.check(spec).unwrap(), "identical", "{spec}");
+            assert!(id.check_strict(spec).unwrap().starts_with("differs"), "{spec}");
+        }
+        // genuine identities stay identical (exact rationals never differ)
+        for spec in ["(x+1)^2 == x^2+2*x+1", "floor(x) == 0-ceil(0-x)", "max(x,y)+min(x,y) == x+y", "(x-y)*(x+y) == x^2-y^2"] {
+            assert_eq!(id.check_strict(spec).unwrap(), "identical", "{spec}");
+        }
+        // verifier: opt-in only
+        let v0 = Verifier::new(LookupTool::new());
+        let v1 = Verifier::new(LookupTool::new()).with_strict_identity(true);
+        assert_eq!(v0.verify("identity", "floor(x) == x", "identical").unwrap().0, "accept");
+        assert!(v1.verify("identity", "floor(x) == x", "identical").unwrap().0.starts_with("reject"));
+        assert_eq!(v1.verify("identity", "floor(x) == x", "differs").unwrap().0, "accept");
+        assert_eq!(v1.verify("identity", "(x+1)^2 == x^2+2*x+1", "identical").unwrap().0, "accept");
     }
 
     #[test]

@@ -349,6 +349,37 @@ impl HybridIndex {
         self.fused_scores_adaptive(qtext, qvec, ad, &mut sc)?;
         Ok(top_n(&sc, k).into_iter().map(|d| (d, sc[d])).collect())
     }
+    /// R40 (opt-in): MMR re-ranking of the top `pool` fused candidates. Greedy: pick the doc maximising
+    /// `lambda * z_fused(d) - (1 - lambda) * redundancy_scale * max_{j in selected} cos(d, j)`; the first pick is always the plain top-1.
+    /// `lambda = 1` reproduces [`HybridIndex::search`] exactly. Measured (R40, bridge queries): lambda .7-.8 raises top-5 domain coverage by +.02..+.035
+    /// with no relevance gain (both-gold@5 unchanged) and no Holm loss; lambda .5 loses any-gold@5 (-.046). Use for ideation lists only.
+    pub fn search_mmr(&self, qtext: &str, qvec: &[f32], k: usize, lambda: f32, pool: usize, redundancy_scale: f32) -> Result<Vec<(usize, f32)>, HybridError> {
+        let mut sc = Vec::new();
+        self.fused_scores(qtext, qvec, &mut sc)?;
+        let mut zs = Vec::new();
+        zscore_into(&sc, &mut zs);
+        let mut rest = top_n(&sc, pool.max(k));
+        let mut sel: Vec<usize> = Vec::new();
+        let dot = |a: usize, b: usize| -> f32 {
+            let (va, vb) = (&self.dense[a * self.dim..(a + 1) * self.dim], &self.dense[b * self.dim..(b + 1) * self.dim]);
+            va.iter().zip(vb).map(|(x, y)| x * y).sum()
+        };
+        while sel.len() < k && !rest.is_empty() {
+            let mut best = 0usize;
+            let mut bv = f32::NEG_INFINITY;
+            for (pos, &d) in rest.iter().enumerate() {
+                let red = sel.iter().map(|&j| dot(d, j)).fold(f32::NEG_INFINITY, f32::max);
+                let red = if sel.is_empty() { 0.0 } else { red * redundancy_scale };
+                let v = lambda * zs[d] - (1.0 - lambda) * red;
+                if v > bv {
+                    bv = v;
+                    best = pos;
+                }
+            }
+            sel.push(rest.remove(best));
+        }
+        Ok(sel.into_iter().map(|d| (d, sc[d])).collect())
+    }
     /// top-k (doc, fused score), best first, ties by lower doc index
     pub fn search(&self, qtext: &str, qvec: &[f32], k: usize) -> Result<Vec<(usize, f32)>, HybridError> {
         let mut sc = Vec::new();
@@ -544,6 +575,24 @@ mod tests {
         let dim = 32;
         let dense: Vec<f32> = d.iter().flat_map(|x| emb(x, dim)).collect();
         HybridIndex::new(&d, dense, dim, cfg).unwrap()
+    }
+
+    #[test]
+    fn mmr_lambda_one_is_plain_search_and_diversifies() {
+        let mut d = docs();
+        d.push("the quick brown fox jumps over the lazy dog".to_string()); // exact duplicate of doc 0
+        let dim = 32;
+        let dense: Vec<f32> = d.iter().flat_map(|x| emb(x, dim)).collect();
+        let ix = HybridIndex::new(&d, dense, dim, HybridConfig::default()).unwrap();
+        let q = "quick brown fox jumps over the lazy dog";
+        let qv = emb(q, dim);
+        let plain: Vec<usize> = ix.search(q, &qv, 3).unwrap().iter().map(|x| x.0).collect();
+        let m1: Vec<usize> = ix.search_mmr(q, &qv, 3, 1.0, 10, 4.0).unwrap().iter().map(|x| x.0).collect();
+        assert_eq!(plain, m1);
+        assert!(plain.contains(&0) && plain.contains(&5)); // plain top-k wastes two slots on the duplicate pair
+        let m = ix.search_mmr(q, &qv, 2, 0.5, 10, 4.0).unwrap();
+        assert_eq!(m.len(), 2);
+        assert!(!(m.iter().any(|x| x.0 == 0) && m.iter().any(|x| x.0 == 5)), "MMR must not return both copies: {m:?}");
     }
 
     #[test]

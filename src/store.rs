@@ -186,8 +186,7 @@ impl MeshStore {
         let mut buf = String::new();
         for l in lines {
             buf.push_str(l);
-            buf.push('
-');
+            buf.push('\n');
         }
         f.write_all(buf.as_bytes())?;
         Ok(())
@@ -275,8 +274,7 @@ impl MeshStore {
         let mut buf = String::new();
         for o in &kept {
             buf.push_str(&serde_json::to_string(o).unwrap());
-            buf.push('
-');
+            buf.push('\n');
         }
         fs::write(&tmp, buf)?;
         fs::rename(&tmp, &p)?;
