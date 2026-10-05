@@ -73,6 +73,10 @@ struct State {
     /// Feedbacks recorded per feature (evidence n for the warm prior).
     #[serde(default)]
     feature_counts: BTreeMap<String, u64>,
+    /// Ids of the shared-store outcomes this state has already learned from (replayed at creation, appended by `feedback --store`, or refreshed with
+    /// `--store-sync 1`). Only filled when `--store` is used. Lets a long-lived state pick up OTHER machines' outcomes without double counting its own.
+    #[serde(default)]
+    store_seen: std::collections::BTreeSet<String>,
 }
 
 fn default_prior_k() -> f64 {
@@ -101,6 +105,7 @@ impl State {
             mesh: NeuralMesh::new(0, HebbianRouter::new(0, robust_hebbian()), MeshConfig::default()),
             prior_k: DEFAULT_PRIOR_K,
             feature_counts: BTreeMap::new(),
+            store_seen: std::collections::BTreeSet::new(),
         }
     }
 
@@ -564,6 +569,7 @@ fn cmd_stats(st: &State) -> Value {
 fn warm_from_store(st: &mut State, sv: &neural_mesh::store::MeshStore, world: &str) -> Result<(), CliError> {
     let os = sv.outcomes().map_err(|e| CliError::Io(e.to_string()))?;
     for o in os.into_iter().filter(|o| o.world == world) {
+        st.store_seen.insert(o.id.clone());
         let a = st.register(&o.agent);
         let task = Task { id: st.feedbacks, task_type: o.task_type.clone(), features: o.features.clone() };
         st.mesh.feedback(&task, &[a], o.reward.clamp(0.0, 1.0));
@@ -575,8 +581,31 @@ fn warm_from_store(st: &mut State, sv: &neural_mesh::store::MeshStore, world: &s
     Ok(())
 }
 
+/// B21 (opt-in `--store-sync 1`): a long-lived state learns from journal outcomes of this world that it has NOT seen yet (typically other machines', delivered by
+/// `meshstore sync`), without re-applying its own. Refuses states created before `store_seen` existed (they could not tell own from foreign outcomes: double counting).
+fn refresh_from_store(st: &mut State, sv: &neural_mesh::store::MeshStore, world: &str) -> Result<usize, CliError> {
+    if st.store_seen.is_empty() && st.feedbacks > 0 {
+        return Err(CliError::Io("--store-sync: this state predates store tracking and cannot tell its own outcomes from foreign ones; delete it to re-warm from the store".into()));
+    }
+    let os = sv.outcomes().map_err(|e| CliError::Io(e.to_string()))?;
+    let mut n = 0;
+    let fresh: Vec<_> = os.into_iter().filter(|o| o.world == world && !st.store_seen.contains(&o.id)).collect();
+    for o in fresh {
+        st.store_seen.insert(o.id.clone());
+        let a = st.register(&o.agent);
+        let task = Task { id: st.feedbacks, task_type: o.task_type.clone(), features: o.features.clone() };
+        st.mesh.feedback(&task, &[a], o.reward.clamp(0.0, 1.0));
+        st.feedbacks += 1;
+        for f in &task.features {
+            *st.feature_counts.entry(f.clone()).or_insert(0) += 1;
+        }
+        n += 1;
+    }
+    Ok(n)
+}
+
 /// Append the feedback just applied to the shared journal (one line, atomic under the store lock).
-fn append_to_store(st: &State, sv: &neural_mesh::store::MeshStore, o: &Opts, world: &str) -> Result<(), CliError> {
+fn append_to_store(st: &mut State, sv: &neural_mesh::store::MeshStore, o: &Opts, world: &str) -> Result<(), CliError> {
     let task = make_task(o, st.feedbacks)?;
     let ms = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_millis() as u64).unwrap_or(0);
     let session = format!("cli-{}-{ms}", std::process::id());
@@ -591,7 +620,9 @@ fn append_to_store(st: &State, sv: &neural_mesh::store::MeshStore, o: &Opts, wor
         agent: o.req("agent")?.trim().to_string(),
         reward: o.req("reward")?.trim().parse::<f64>().unwrap_or(0.0),
     };
-    sv.append_outcome(&rec).map_err(|e| CliError::Io(e.to_string()))
+    sv.append_outcome(&rec).map_err(|e| CliError::Io(e.to_string()))?;
+    st.store_seen.insert(rec.id);
+    Ok(())
 }
 
 /// Library-level entry point (used by tests): runs one command and persists
@@ -600,8 +631,8 @@ fn run(args: &[String]) -> Result<Value, CliError> {
     let Some(cmd) = args.first() else { return Err(usage("missing command")) };
     let rest = &args[1..];
     let base: &[&str] = match cmd.as_str() {
-        "route" => &["state", "features", "candidates", "team", "type", "seed", "prior", "store", "world"],
-        "feedback" => &["state", "features", "agent", "team", "reward", "type", "store", "world"],
+        "route" => &["state", "features", "candidates", "team", "type", "seed", "prior", "store", "world", "store-sync"],
+        "feedback" => &["state", "features", "agent", "team", "reward", "type", "store", "world", "store-sync"],
         "stats" => &["state", "store", "world"],
         "config" => &["state", "team"],
         other => return Err(usage(format!("unknown command '{other}'"))),
@@ -620,13 +651,17 @@ fn run(args: &[String]) -> Result<Value, CliError> {
     let world = o.get("world").unwrap_or("default").to_string();
     if let (Some(sv), false) = (&store, existed) {
         warm_from_store(&mut st, sv, &world)?;
+    } else if let (Some(sv), true) = (&store, existed) {
+        if matches!(o.get("store-sync"), Some("1") | Some("true")) {
+            refresh_from_store(&mut st, sv, &world)?;
+        }
     }
     let out = match cmd.as_str() {
         "route" => cmd_route(&mut st, &o)?,
         "feedback" => {
             let v = cmd_feedback(&mut st, &o)?;
             if let Some(sv) = &store {
-                append_to_store(&st, sv, &o, &world)?;
+                append_to_store(&mut st, sv, &o, &world)?;
             }
             v
         }
