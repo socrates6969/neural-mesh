@@ -140,6 +140,8 @@ pub struct SyncReport {
     pub imported: usize,
     pub lessons_imported: usize,
     pub files_read: usize,
+    /// peer files that could not be read (locked, permission denied, not a regular file): skipped, the sync still completes (B29)
+    pub files_skipped: usize,
     pub bytes_written: usize,
 }
 
@@ -524,6 +526,18 @@ impl MeshStore {
                 vb.extend_from_slice(&x.to_le_bytes());
             }
         }
+        // B30: remember the ids this gc dropped so `sync_docs_folder` does not re-import them from a peer that still holds them (the dropped near-duplicates
+        // otherwise came back on the next sync). Written BEFORE the rewrite: a crash in between leaves a harmless extra tombstone, never a resurrection.
+        {
+            let kept: HashSet<usize> = keep.iter().copied().collect();
+            let mut tb = String::new();
+            for i in (0..n).filter(|i| !kept.contains(i)) {
+                tb.push_str(&serde_json::to_string(&docs[i].id).unwrap());
+                tb.push(char::from(10u8));
+            }
+            let mut tf = OpenOptions::new().create(true).append(true).open(d.join("tombstones.jsonl"))?;
+            tf.write_all(tb.as_bytes())?;
+        }
         fs::write(&vt, vb)?;
         fs::write(&dt, db)?;
         fs::rename(&vt, d.join("vecs.f32"))?;
@@ -585,8 +599,13 @@ impl MeshStore {
                 continue;
             }
             if name.ends_with(".journal.jsonl") {
+                // B29: unreadable peer file -> skipped and counted (see sync_docs_folder)
+                let Ok(lines) = lossy_lines(p) else {
+                    rep.files_skipped += 1;
+                    continue;
+                };
                 rep.files_read += 1;
-                for l in lossy_lines(p)? {
+                for l in lines {
                     if let Ok(o) = serde_json::from_str::<Outcome>(&l) {
                         foreign.insert(o.id.clone());
                         if worlds.map_or(true, |ws| ws.iter().any(|w| *w == o.world)) && seen.insert(o.id.clone()) {
@@ -595,8 +614,12 @@ impl MeshStore {
                     }
                 }
             } else if name.ends_with(".lessons.jsonl") {
+                let Ok(lines) = lossy_lines(p) else {
+                    rep.files_skipped += 1;
+                    continue;
+                };
                 rep.files_read += 1;
-                for l in lossy_lines(p)? {
+                for l in lines {
                     if let Ok(x) = serde_json::from_str::<LessonRec>(&l) {
                         if seen_l.insert(x.id.clone()) {
                             add_l.push(x);
@@ -807,7 +830,12 @@ fn q8_decode(b: &[u8], dim: usize) -> Option<Vec<f32>> {
         return None;
     }
     let scale = f32::from_le_bytes([b[0], b[1], b[2], b[3]]);
-    Some(b[4..].iter().map(|x| (*x as i8) as f32 * scale).collect())
+    let v: Vec<f32> = b[4..].iter().map(|x| (*x as i8) as f32 * scale).collect();
+    // B28: a corrupt shard must not import NaN / inf vectors (they poison every cosine); a non-finite scale or an overflowing product is undecodable
+    if !scale.is_finite() || v.iter().any(|x| !x.is_finite()) {
+        return None;
+    }
+    Some(v)
 }
 #[derive(Serialize, Deserialize)]
 struct DocShardLine {
@@ -827,6 +855,8 @@ pub struct DocSyncReport {
     /// foreign shards / lines skipped because of a vector dimension mismatch or an undecodable vector
     pub skipped: usize,
     pub files_read: usize,
+    /// peer shards that could not be read (B29)
+    pub skipped_files: usize,
     pub bytes_written: usize,
 }
 
@@ -854,15 +884,24 @@ impl MeshStore {
         let mut new_vecs: Vec<f32> = vec![];
         let mut new_dim = ldim;
         let mut taken: HashSet<String> = HashSet::new();
+        let tomb: HashSet<String> = lossy_lines(&self.kdir(ns).join("tombstones.jsonl")).map(|ls| ls.iter().filter_map(|l| serde_json::from_str::<String>(l).ok()).collect()).unwrap_or_default();
         for p in &files {
             let name = p.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
             if name == own || !name.ends_with(&suffix) {
                 continue;
             }
+            // B29: an unreadable peer shard (locked by a sync client, permission denied, not a regular file) is skipped and counted, not fatal
+            let Ok(lines) = lossy_lines(p) else {
+                rep.skipped_files += 1;
+                continue;
+            };
             rep.files_read += 1;
-            for l in lossy_lines(p)? {
+            for l in lines {
                 let Ok(x) = serde_json::from_str::<DocShardLine>(&l) else { continue };
                 foreign.insert(x.id.clone());
+                if tomb.contains(&x.id) {
+                    continue; // locally gc-dropped near-duplicate: not re-imported (B30)
+                }
                 if let Some(&i) = local.get(&x.id) {
                     if ldocs[i].text != x.text {
                         rep.conflicts += 1;
@@ -872,7 +911,8 @@ impl MeshStore {
                 if taken.contains(&x.id) {
                     continue;
                 }
-                if new_dim != 0 && x.dim != new_dim {
+                // B28: dim 0 would pin the namespace to dim 0 (docs without vectors, hidden by load_docs) or abort the whole import on a count mismatch
+                if x.dim == 0 || (new_dim != 0 && x.dim != new_dim) {
                     rep.skipped += 1;
                     continue;
                 }
@@ -992,6 +1032,110 @@ mod docsync_tests {
         for p in [&folder, &pa, &pb, &pc] {
             let _ = fs::remove_dir_all(p);
         }
+    }
+}
+
+#[cfg(test)]
+mod hostile_shard_tests {
+    use super::*;
+    fn tmp(name: &str) -> PathBuf {
+        let p = std::env::temp_dir().join(format!("nm_hostile_{name}_{}", std::process::id()));
+        let _ = fs::remove_dir_all(&p);
+        p
+    }
+    fn line(id: &str, dim: usize, q: &[u8]) -> String {
+        format!("{{\"id\":\"{id}\",\"text\":\"t {id}\",\"tag\":\"x\",\"dim\":{dim},\"q\":\"{}\"}}
+", b64_encode(q))
+    }
+    /// B28: a single corrupt/hostile shard line must not poison the corpus (dim 0 pinned the namespace to dim 0 and hid every doc; a NaN/inf scale
+    /// imported non-finite vectors that break every cosine).
+    #[test]
+    fn corrupt_shard_lines_cannot_poison_the_namespace() {
+        let (folder, p) = (tmp("f1"), tmp("s1"));
+        fs::create_dir_all(&folder).unwrap();
+        let st = MeshStore::open(&p).unwrap();
+        let dim = 8usize;
+        let mut good = q8_encode(&vec![0.5f32; dim]);
+        let mut nan = good.clone();
+        nan[..4].copy_from_slice(&f32::NAN.to_le_bytes());
+        let mut inf = good.clone();
+        inf[..4].copy_from_slice(&f32::INFINITY.to_le_bytes());
+        let mut big = good.clone();
+        big[..4].copy_from_slice(&f32::MAX.to_le_bytes());
+        let mut body = String::new();
+        body.push_str(&line("d0", 0, &[0, 0, 0, 0])); // dim 0
+        body.push_str(&line("nan", dim, &nan));
+        body.push_str(&line("inf", dim, &inf));
+        body.push_str(&line("big", dim, &big));
+        body.push_str(&line("ok", dim, &good));
+        good.clear();
+        fs::write(folder.join("evil.kb.docs.jsonl"), body).unwrap();
+        let r = st.sync_docs_folder(&folder, "me", "kb").unwrap();
+        assert_eq!(r.imported, 1, "only the well-formed line is imported: {r:?}");
+        assert_eq!(r.skipped, 4);
+        let (d, v, dm) = st.load_docs("kb").unwrap();
+        assert_eq!((d.len(), dm), (1, dim), "namespace keeps the real dimension and the good doc stays visible");
+        assert_eq!(d[0].id, "ok");
+        assert!(v.iter().all(|x| x.is_finite()));
+        for q in [&folder, &p] {
+            let _ = fs::remove_dir_all(q);
+        }
+    }
+
+    /// B29: an unreadable peer file (here a directory with a shard name, standing in for a locked / permission-denied file from a sync client) must not
+    /// abort the whole sync before anything is imported or exported.
+    #[test]
+    fn unreadable_peer_file_is_skipped_not_fatal() {
+        let (folder, p, p2) = (tmp("f2"), tmp("s2"), tmp("s3"));
+        fs::create_dir_all(folder.join("bad.kb.docs.jsonl")).unwrap();
+        fs::create_dir_all(folder.join("bad.journal.jsonl")).unwrap();
+        fs::create_dir_all(folder.join("bad.lessons.jsonl")).unwrap();
+        let (a, b) = (MeshStore::open(&p).unwrap(), MeshStore::open(&p2).unwrap());
+        let dim = 4usize;
+        let ds = vec![DocRec { id: "a1".into(), text: "alpha".into(), tag: "x".into() }];
+        a.put_docs("kb", dim, &ds, &[1.0, 0.0, 0.0, 0.0]).unwrap();
+        a.append_outcomes(&[Outcome { id: "s:1".into(), session: "s".into(), seq: 1, ts: 1, world: "w".into(), features: vec!["f".into()], task_type: None, agent: "ag".into(), reward: 1.0 }]).unwrap();
+        let r = a.sync_docs_folder(&folder, "mA", "kb").unwrap();
+        assert_eq!((r.exported, r.skipped_files), (1, 1), "{r:?}");
+        let rj = a.sync_folder(&folder, "mA", None, None).unwrap();
+        assert_eq!((rj.exported, rj.files_skipped), (1, 2), "{rj:?}");
+        // a second machine still converges through the folder despite the bad entries
+        b.sync_docs_folder(&folder, "mB", "kb").unwrap();
+        b.sync_folder(&folder, "mB", None, None).unwrap();
+        assert_eq!(b.load_docs("kb").unwrap().0.len(), 1);
+        assert_eq!(b.outcomes().unwrap().len(), 1);
+        for q in [&folder, &p, &p2] {
+            let _ = fs::remove_dir_all(q);
+        }
+    }
+}
+
+#[cfg(test)]
+mod gc_sync_tests {
+    use super::*;
+    /// B30: a doc dropped by `gc_docs` was re-imported by the next `sync_docs_folder` from any peer that still held it (gc and sync fought forever).
+    #[test]
+    fn gc_dropped_docs_are_not_resurrected_by_sync() {
+        let base = std::env::temp_dir().join(format!("nm_gcsync_{}", std::process::id()));
+        let _ = fs::remove_dir_all(&base);
+        let (folder, pa, pb) = (base.join("f"), base.join("a"), base.join("b"));
+        let (a, b) = (MeshStore::open(&pa).unwrap(), MeshStore::open(&pb).unwrap());
+        let dim = 4;
+        let docs: Vec<DocRec> = ["x", "y", "z"].iter().map(|i| DocRec { id: i.to_string(), text: format!("t{i}"), tag: "t".into() }).collect();
+        let v = [1.0f32, 0., 0., 0., 1.0, 0., 0., 0., 0., 1.0, 0., 0.]; // x == y, z distinct
+        a.put_docs("kb", dim, &docs, &v).unwrap();
+        a.sync_docs_folder(&folder, "mA", "kb").unwrap();
+        b.sync_docs_folder(&folder, "mB", "kb").unwrap();
+        assert_eq!(b.load_docs("kb").unwrap().0.len(), 3);
+        assert_eq!(a.gc_docs("kb", 0.99).unwrap(), (3, 2));
+        for _ in 0..3 {
+            a.sync_docs_folder(&folder, "mA", "kb").unwrap();
+            b.sync_docs_folder(&folder, "mB", "kb").unwrap();
+        }
+        let ids: Vec<String> = a.load_docs("kb").unwrap().0.into_iter().map(|d| d.id).collect();
+        assert_eq!(ids, vec!["x".to_string(), "z".to_string()], "the gc-dropped near-duplicate must stay dropped on A");
+        assert_eq!(b.load_docs("kb").unwrap().0.len(), 3, "B never gc'd: it keeps its copy (deletions are local, not propagated)");
+        let _ = fs::remove_dir_all(&base);
     }
 }
 
