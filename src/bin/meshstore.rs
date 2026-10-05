@@ -4,8 +4,11 @@
 //!   meshstore put-corpus <root> <ns> <texts.json> <vecs.f32> <dim> [tag] [limit]   (texts.json = JSON array of strings; vecs row-major f32 LE)
 //!   meshstore lesson <root> <world> <tag> <text...>    append one lesson
 //!   meshstore sync   <root> <shared-folder> <machine-id> [cap-per-world]   shared-folder sync (R48; outcomes + lessons, union by id, atomic own-file export)
-//!   meshstore sync-docs <root> <shared-folder> <machine-id> <ns>   shared-folder CORPUS sync for one namespace (B15; int8 vectors, own shard replaced atomically)
-//!   meshstore gc-docs <root> <ns> <cos-threshold>      drop near-duplicate corpus docs (R47)
+//!   meshstore sync-docs <root> <shared-folder> <machine-id> <ns> [--propagate-deletions] [--ttl-days N] [--deleters m1,m2]
+//!                                                      shared-folder CORPUS sync for one namespace (B15; int8 vectors, own shard replaced atomically).
+//!                                                      --propagate-deletions exchanges gc deletions (B38, keeper-safe); --ttl-days expires tombstones (B40);
+//!                                                      --deleters limits whose deletions are applied (B40; machine-id based, not cryptographic)
+//!   meshstore gc-docs <root> <ns> <cos-threshold> [--canonical]   drop near-duplicate corpus docs (R47); --canonical keeps the smallest doc id of each class so machines converge (B42)
 //!   meshstore bench  <root> <ns>                       time load + flat/HNSW index build for a stored corpus
 //! The store must only ever hold synthetic routing outcomes, lessons and knowledge (never secrets / customer data).
 use neural_mesh::memory::{HnswIndex, HnswParams, MemoryIndex};
@@ -38,28 +41,39 @@ fn main() {
             // flags: --propagate-deletions  --ttl-days N  --deleters m1,m2
             let s = MeshStore::open(&a[1]).unwrap();
             let mut o = neural_mesh::store::DocSyncOpts::default();
+            let usage = |m: &str| -> ! {
+                eprintln!("sync-docs: {m}
+usage: meshstore sync-docs <store> <folder> <machine> <ns> [--propagate-deletions] [--ttl-days N] [--deleters m1,m2]");
+                std::process::exit(2)
+            };
             let mut i = 5;
             while i < a.len() {
                 match a[i].as_str() {
                     "--propagate-deletions" => o.propagate_deletions = true,
                     "--ttl-days" => {
                         i += 1;
-                        o.tombstone_ttl_ms = Some((a[i].parse::<f64>().unwrap() * 86_400_000.0) as u64);
+                        match a.get(i).and_then(|x| x.parse::<f64>().ok()).filter(|d| *d >= 0.0) {
+                            Some(d) => o.tombstone_ttl_ms = Some((d * 86_400_000.0) as u64),
+                            None => usage("--ttl-days needs a non-negative number"),
+                        }
                     }
                     "--deleters" => {
                         i += 1;
-                        o.deleters = Some(a[i].split(',').map(|x| x.to_string()).collect());
+                        match a.get(i) {
+                            Some(v) => o.deleters = Some(v.split(',').map(|x| x.to_string()).collect()),
+                            None => usage("--deleters needs a comma list"),
+                        }
                     }
-                    other => panic!("unknown flag {other}"),
+                    other => usage(&format!("unknown flag {other}")),
                 }
                 i += 1;
             }
             let r = s.sync_docs_folder_with(std::path::Path::new(&a[2]), &a[3], &a[4], &o).unwrap();
             println!("{}", serde_json::json!({"deleted": r.deleted, "deletions_held_back": r.deletions_held_back, "deletions_unauthorized": r.deletions_unauthorized, "tombstones_expired": r.tombstones_expired, "exported": r.exported, "imported": r.imported, "conflicts": r.conflicts, "skipped": r.skipped, "files_read": r.files_read, "skipped_files": r.skipped_files, "bytes_written": r.bytes_written}));
         }
-        Some("gc-docs") if a.len() == 4 => {
+        Some("gc-docs") if a.len() == 4 || (a.len() == 5 && a[4] == "--canonical") => {
             let s = MeshStore::open(&a[1]).unwrap();
-            let (b, af) = s.gc_docs(&a[2], a[3].parse().unwrap()).unwrap();
+            let (b, af) = if a.len() == 5 { s.gc_docs_canonical(&a[2], a[3].parse().unwrap()) } else { s.gc_docs(&a[2], a[3].parse().unwrap()) }.unwrap();
             println!("{}", serde_json::json!({"before": b, "after": af}));
         }
         Some("put-corpus") if a.len() >= 6 => {

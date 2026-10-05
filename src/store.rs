@@ -453,6 +453,14 @@ impl MeshStore {
     }
     /// Append documents with their vectors (L2-normalised by the caller). Existing ids are skipped. Returns the number added.
     pub fn put_docs(&self, ns: &str, dim: usize, docs: &[DocRec], vecs: &[f32]) -> R<usize> {
+        self.put_docs_impl(ns, dim, docs, vecs, false)
+    }
+    /// B43: `put_docs`, but ids in the namespace's tombstones are skipped, decided UNDER the store lock (so a gc that tombstones an id between a sync's snapshot and its import
+    /// cannot be undone by that import). Used by `sync_docs_folder_with`; a plain `put_docs` of a tombstoned id still works (documented).
+    fn put_docs_untombstoned(&self, ns: &str, dim: usize, docs: &[DocRec], vecs: &[f32]) -> R<usize> {
+        self.put_docs_impl(ns, dim, docs, vecs, true)
+    }
+    fn put_docs_impl(&self, ns: &str, dim: usize, docs: &[DocRec], vecs: &[f32], skip_tombstoned: bool) -> R<usize> {
         if vecs.len() != docs.len() * dim {
             return Err(StoreError::Corrupt("vector/doc count mismatch".into()));
         }
@@ -503,9 +511,10 @@ impl MeshStore {
         }
         let mut dl = OpenOptions::new().create(true).append(true).open(d.join("docs.jsonl"))?;
         let mut vl = OpenOptions::new().create(true).append(true).open(d.join("vecs.f32"))?;
+        let tomb: HashSet<String> = if skip_tombstoned { lossy_lines(&d.join("tombstones.jsonl")).map(|ls| ls.iter().filter_map(|l| serde_json::from_str::<String>(l).ok()).collect()).unwrap_or_default() } else { HashSet::new() };
         let mut added = 0;
         for (i, doc) in docs.iter().enumerate() {
-            if have.contains(&doc.id) {
+            if have.contains(&doc.id) || tomb.contains(&doc.id) {
                 continue;
             }
             // vectors first: a crash between the two writes leaves an extra vector row, which load ignores
@@ -1089,7 +1098,7 @@ impl MeshStore {
             }
         }
         if !new_docs.is_empty() {
-            rep.imported = self.put_docs(ns, new_dim, &new_docs, &new_vecs)?;
+            rep.imported = self.put_docs_untombstoned(ns, new_dim, &new_docs, &new_vecs)?;
         }
         if propagate_deletions {
             // peers' deletions, applied against the live local set in sorted-id order; a deletion needs a present keeper (see the doc comment)
@@ -2222,7 +2231,19 @@ mod b41_tests {
     fn canonical_gc_makes_representatives_converge() {
         assert_eq!(run_fuzz(true), 0, "stores must hold identical id sets");
     }
+    /// B48: the same fuzz with tombstone expiry (TTL 2 days, clock advancing 0-2 days per op). Expiry may let a holder re-introduce a doc, but must never lose a class or misalign vectors,
+    /// and after the quiescent sync-gc-sync tail (clock frozen) canonical gc still converges.
+    #[test]
+    fn expiry_never_loses_a_class_and_canonical_gc_still_converges() {
+        assert_eq!(run_fuzz_ttl(true, Some(2)), 0);
+    }
     fn run_fuzz(canonical: bool) -> usize {
+        run_fuzz_ttl(canonical, None)
+    }
+    fn run_fuzz_ttl(canonical: bool, ttl_days: Option<u64>) -> usize {
+        let day = 86_400_000u64;
+        let t0 = now_ms();
+        let mut clock = 0u64;
         let diverged = std::sync::atomic::AtomicUsize::new(0);
         let dim = 4usize;
         let vec_of = |c: usize| -> Vec<f32> { (0..dim).map(|i| if i == c % dim { 1.0 } else { 0.0 }).collect() };
@@ -2234,11 +2255,11 @@ mod b41_tests {
                 st ^= st << 17;
                 (st % n as u64) as usize
             };
-            let folder = std::env::temp_dir().join(format!("nm_b41_f{seed}_{canonical}_{}", std::process::id()));
+            let folder = std::env::temp_dir().join(format!("nm_b41_f{seed}_{canonical}_{ttl_days:?}_{}", std::process::id()));
             let _ = fs::remove_dir_all(&folder);
             let stores: Vec<MeshStore> = (0..3)
                 .map(|m| {
-                    let p = std::env::temp_dir().join(format!("nm_b41_s{seed}_{m}_{canonical}_{}", std::process::id()));
+                    let p = std::env::temp_dir().join(format!("nm_b41_s{seed}_{m}_{canonical}_{ttl_days:?}_{}", std::process::id()));
                     let _ = fs::remove_dir_all(&p);
                     MeshStore::open(&p).unwrap()
                 })
@@ -2247,6 +2268,7 @@ mod b41_tests {
             let mut classes_put: HashSet<usize> = HashSet::new();
             for _ in 0..24 {
                 let m = rnd(3);
+                clock += rnd(3) as u64;
                 match rnd(4) {
                     0 | 1 => {
                         let c = rnd(4);
@@ -2259,7 +2281,7 @@ mod b41_tests {
                         let _ = if canonical { stores[m].gc_docs_canonical("kb", 0.99) } else { stores[m].gc_docs("kb", 0.99) };
                     }
                     _ => {
-                        stores[m].sync_docs_folder_opts(&folder, names[m], "kb", true).unwrap();
+                        stores[m].sync_docs_folder_with(&folder, names[m], "kb", &DocSyncOpts { propagate_deletions: true, tombstone_ttl_ms: ttl_days.map(|d| d * day), now_ms: Some(t0 + clock * day), ..Default::default() }).unwrap();
                     }
                 }
             }
@@ -2267,7 +2289,7 @@ mod b41_tests {
             for phase in 0..2 {
                 for _ in 0..4 {
                     for m in 0..3 {
-                        stores[m].sync_docs_folder_opts(&folder, names[m], "kb", true).unwrap();
+                        stores[m].sync_docs_folder_with(&folder, names[m], "kb", &DocSyncOpts { propagate_deletions: true, tombstone_ttl_ms: ttl_days.map(|d| d * day), now_ms: Some(t0 + clock * day), ..Default::default() }).unwrap();
                     }
                 }
                 if phase == 0 {
@@ -2310,5 +2332,138 @@ mod b41_tests {
             }
         }
         diverged.load(std::sync::atomic::Ordering::Relaxed)
+    }
+}
+
+#[cfg(test)]
+mod b43_tests {
+    use super::*;
+    /// B43: the tombstone check is made under the lock at write time. Simulates the race: the sync already decided to import `y`, then a gc tombstones it before the write.
+    #[test]
+    fn import_skips_ids_tombstoned_after_the_snapshot() {
+        let p = std::env::temp_dir().join(format!("nm_b43_{}", std::process::id()));
+        let _ = fs::remove_dir_all(&p);
+        let s = MeshStore::open(&p).unwrap();
+        let mk = |i: &str| DocRec { id: i.into(), text: format!("t{i}"), tag: "t".into() };
+        s.put_docs("kb", 2, &[mk("x")], &[1.0, 0.0]).unwrap();
+        // tombstone appears (a concurrent gc) after the importer's snapshot but before its write
+        fs::write(s.kdir("kb").join("tombstones.jsonl"), "\"y\"
+").unwrap();
+        let n = s.put_docs_untombstoned("kb", 2, &[mk("y"), mk("z")], &[1.0, 0.0, 0.0, 1.0]).unwrap();
+        assert_eq!(n, 1, "only z is imported");
+        let ids: Vec<String> = s.load_docs("kb").unwrap().0.into_iter().map(|d| d.id).collect();
+        assert_eq!(ids, vec!["x", "z"]);
+        // an explicit put_docs of a tombstoned id still works (documented)
+        assert_eq!(s.put_docs("kb", 2, &[mk("y")], &[1.0, 0.0]).unwrap(), 1);
+    }
+}
+
+#[cfg(test)]
+mod b44_tests {
+    use super::*;
+    /// B44 fuzz: 3 machines append outcomes (unique ids, 2 worlds, random ts) and sync with a SHARED newest-K-per-world cap at random times; after a quiescent tail every store holds
+    /// the identical outcome id set, equal to the newest-K-per-world of the union of everything ever appended (the documented 'all converge to the same set' claim).
+    #[test]
+    fn capped_sync_converges_to_newest_k_of_the_union() {
+        let k = 3usize;
+        for seed in 0..60u64 {
+            let mut st = seed.wrapping_mul(0x9E3779B97F4A7C15) | 1;
+            let mut rnd = |n: usize| -> usize {
+                st ^= st << 13;
+                st ^= st >> 7;
+                st ^= st << 17;
+                (st % n as u64) as usize
+            };
+            let folder = std::env::temp_dir().join(format!("nm_b44_f{seed}_{}", std::process::id()));
+            let _ = fs::remove_dir_all(&folder);
+            let stores: Vec<MeshStore> = (0..3)
+                .map(|m| {
+                    let p = std::env::temp_dir().join(format!("nm_b44_s{seed}_{m}_{}", std::process::id()));
+                    let _ = fs::remove_dir_all(&p);
+                    MeshStore::open(&p).unwrap()
+                })
+                .collect();
+            let names = ["mA", "mB", "mC"];
+            let mut all: Vec<Outcome> = vec![];
+            let mut seq = [0u64; 3];
+            let mut used_ts: HashSet<u64> = HashSet::new();
+            for _ in 0..30 {
+                let m = rnd(3);
+                if rnd(3) < 2 {
+                    let mut ts = rnd(1000) as u64;
+                    while !used_ts.insert(ts) {
+                        ts += 1000; // distinct timestamps: ties are broken by (session, seq) anyway, kept distinct to keep the oracle simple
+                    }
+                    seq[m] += 1;
+                    let o = Outcome { id: format!("{}:{}", names[m], seq[m]), session: names[m].into(), seq: seq[m], ts, world: format!("w{}", rnd(2)), features: vec![], task_type: None, agent: "a".into(), reward: 1.0 };
+                    stores[m].append_outcome(&o).unwrap();
+                    all.push(o);
+                } else {
+                    stores[m].sync_folder(&folder, names[m], None, Some(k)).unwrap();
+                }
+            }
+            for _ in 0..4 {
+                for m in 0..3 {
+                    stores[m].sync_folder(&folder, names[m], None, Some(k)).unwrap();
+                }
+            }
+            // oracle: newest K per world of the union
+            let mut want: Vec<String> = vec![];
+            for w in ["w0", "w1"] {
+                let mut v: Vec<&Outcome> = all.iter().filter(|o| o.world == w).collect();
+                v.sort_by_key(|o| o.ts);
+                want.extend(v.iter().rev().take(k).map(|o| o.id.clone()));
+            }
+            want.sort();
+            for (m, s) in stores.iter().enumerate() {
+                let mut got: Vec<String> = s.outcomes().unwrap().into_iter().map(|o| o.id).collect();
+                got.sort();
+                assert_eq!(got, want, "seed {seed}: store {m} differs from newest-K of the union");
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod b47_tests {
+    use super::*;
+    /// B47 stress: one thread repeatedly gc's (canonical) a store while another repeatedly syncs it against a folder whose peer shard holds the same duplicate docs.
+    /// Invariant: no id the store has tombstoned is ever present afterwards (a gc'd duplicate is never resurrected by a concurrent import), and the vectors stay aligned.
+    #[test]
+    fn concurrent_gc_and_sync_never_resurrect_a_tombstoned_doc() {
+        for round in 0..15u32 {
+            let p = std::env::temp_dir().join(format!("nm_b47_s{round}_{}", std::process::id()));
+            let q = std::env::temp_dir().join(format!("nm_b47_p{round}_{}", std::process::id()));
+            let folder = std::env::temp_dir().join(format!("nm_b47_f{round}_{}", std::process::id()));
+            for x in [&p, &q, &folder] {
+                let _ = fs::remove_dir_all(x);
+            }
+            let (a, peer) = (std::sync::Arc::new(MeshStore::open(&p).unwrap()), MeshStore::open(&q).unwrap());
+            let n = 12usize;
+            let docs: Vec<DocRec> = (0..n).map(|i| DocRec { id: format!("d{i:02}"), text: format!("t{i}"), tag: "t".into() }).collect();
+            // all docs are exact duplicates of each other (one class) so gc keeps d00 and tombstones the rest
+            let vecs: Vec<f32> = (0..n).flat_map(|_| [1.0f32, 0.0]).collect();
+            peer.put_docs("kb", 2, &docs, &vecs).unwrap();
+            peer.sync_docs_folder_opts(&folder, "mP", "kb", false).unwrap();
+            a.put_docs("kb", 2, &docs[..2], &vecs[..4]).unwrap();
+            let a2 = a.clone();
+            let f2 = folder.clone();
+            let t = std::thread::spawn(move || {
+                for _ in 0..40 {
+                    a2.sync_docs_folder_opts(&f2, "mA", "kb", false).unwrap();
+                }
+            });
+            for _ in 0..40 {
+                let _ = a.gc_docs_canonical("kb", 0.99);
+            }
+            t.join().unwrap();
+            let tomb: HashSet<String> = lossy_lines(&a.kdir("kb").join("tombstones.jsonl")).map(|ls| ls.iter().filter_map(|l| serde_json::from_str::<String>(l).ok()).collect()).unwrap_or_default();
+            let (docs, vecs, dim) = a.load_docs("kb").unwrap();
+            for (i, d) in docs.iter().enumerate() {
+                // a doc may be present AND tombstoned only if it was re-put explicitly, which this test never does
+                assert!(!tomb.contains(&d.id), "round {round}: tombstoned doc {} was resurrected", d.id);
+                assert_eq!(&vecs[i * dim..(i + 1) * dim], &[1.0, 0.0]);
+            }
+        }
     }
 }
