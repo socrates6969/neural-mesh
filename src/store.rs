@@ -251,6 +251,37 @@ impl MeshStore {
         Ok(n)
     }
 
+    /// GC / compaction (R35): rewrite the journal keeping, per `world`, only the newest `keep` outcomes (replay order), deduplicated.
+    /// Atomic (temp file + rename) under the lock. Returns (before, after). Lessons and corpus are never touched.
+    pub fn compact_journal(&self, keep: usize) -> R<(usize, usize)> {
+        let all = self.outcomes()?;
+        let before = all.len();
+        let mut by: BTreeMap<String, Vec<Outcome>> = BTreeMap::new();
+        for o in all {
+            by.entry(o.world.clone()).or_default().push(o);
+        }
+        let mut kept: Vec<Outcome> = vec![];
+        for (_, mut v) in by {
+            if v.len() > keep {
+                v.drain(..v.len() - keep);
+            }
+            kept.extend(v);
+        }
+        kept.sort_by(|a, b| (a.ts, &a.session, a.seq).cmp(&(b.ts, &b.session, b.seq)));
+        let _g = self.lock()?;
+        let p = self.root.join("router/journal.jsonl");
+        let tmp = self.root.join("router/journal.jsonl.tmp");
+        let mut buf = String::new();
+        for o in &kept {
+            buf.push_str(&serde_json::to_string(o).unwrap());
+            buf.push('
+');
+        }
+        fs::write(&tmp, buf)?;
+        fs::rename(&tmp, &p)?;
+        Ok((before, kept.len()))
+    }
+
     // ------------------------------------------------------------------ lessons
     pub fn append_lesson(&self, l: &LessonRec) -> R<()> {
         self.append_lines("lessons/lessons.jsonl", &[serde_json::to_string(l).unwrap()])
@@ -525,6 +556,22 @@ mod tests {
         let more = vec![DocRec { id: "new".into(), text: "t".into(), tag: "x".into() }];
         s.put_docs("ns", dim, &more, &vec![0.1; dim]).unwrap();
         assert!(s.open_ann("ns").unwrap().unwrap().rebuilt);
+        let _ = fs::remove_dir_all(&p);
+    }
+
+    #[test]
+    fn compaction_keeps_newest_per_world() {
+        let p = tmp("gc");
+        let s = MeshStore::open(&p).unwrap();
+        let mut os: Vec<Outcome> = (0..10).map(|i| oc("a", i, "x", 1.0)).collect();
+        let mut o2 = oc("b", 100, "y", 0.0);
+        o2.world = "other".into();
+        os.push(o2);
+        s.append_outcomes(&os).unwrap();
+        assert_eq!(s.compact_journal(3).unwrap(), (11, 4));
+        let v = s.outcomes().unwrap();
+        assert_eq!(v.iter().filter(|o| o.world == "w").map(|o| o.seq).collect::<Vec<_>>(), vec![7, 8, 9]);
+        assert_eq!(s.compact_journal(3).unwrap(), (4, 4));
         let _ = fs::remove_dir_all(&p);
     }
 }

@@ -379,11 +379,11 @@ fn main() {
         j.insert("real".into(), real_store(&get("--store", "C:/Users/mariu/experiments/mesh-memory"), &seeds, &zero));
     }
     if part == "mit" {
-        let modes = [Mode::Full, Mode::InnerOnly, Mode::Recent(100), Mode::Recent(250), Mode::Guard { z: 1.64, min_n: 30 }, Mode::Guard { z: 1.0, min_n: 20 }, Mode::Guard { z: 2.33, min_n: 40 }, Mode::GuardRecent { z: 1.64, min_n: 30, k: 250 }];
+        let modes = [Mode::Full, Mode::InnerOnly, Mode::Recent(100), Mode::Recent(250), Mode::Recent(500), Mode::Recent(1000), Mode::Guard { z: 1.64, min_n: 30 }, Mode::Guard { z: 1.0, min_n: 20 }, Mode::Guard { z: 2.33, min_n: 40 }, Mode::GuardRecent { z: 1.64, min_n: 30, k: 250 }];
         let mut rows = vec![];
         for w in ["fixed", "random", "notraps", "stale"] {
             for rk in [Rk::Hebb, Rk::Rec] {
-                let res: Vec<Vec<[f64; 3]>> = seeds.par_iter().map(|&s| mit_trial(s, w, rk, 500, &modes)).collect();
+                let res: Vec<Vec<[f64; 3]>> = seeds.par_iter().map(|&s| mit_trial(s, w, rk, std::env::var("M1_N1").ok().and_then(|x| x.parse().ok()).unwrap_or(500), &modes)).collect();
                 for (mi, m) in modes.iter().enumerate() {
                     for (hi, h) in HS.iter().enumerate() {
                         let c: Vec<f64> = res.iter().map(|r| r[0][hi]).collect();
