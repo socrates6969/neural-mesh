@@ -16,6 +16,8 @@ struct Lin {
     b: Vec<f32>,
     q: Vec<i8>,
     qs: Vec<f32>,
+    /// per-row sum of the int8 weights (VNNI path: dot(w, x) = dpbusd(x + 128, w) - 128 * sum(w))
+    sw: Vec<i32>,
     out: usize,
     inn: usize,
 }
@@ -173,6 +175,59 @@ unsafe fn dot24_f32_avx2(w0: &[f32], w1: &[f32], x: [&[f32]; 4]) -> [[f32; 4]; 2
     }
     out
 }
+
+/// R111: global A/B switch for the AVX512-VNNI int8 kernel (default on when the CPU has it; results are bit-identical either way - integer dot products).
+static VNNI_OFF: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+pub fn set_vnni(on: bool) {
+    VNNI_OFF.store(!on, std::sync::atomic::Ordering::Relaxed);
+}
+fn vnni_ok() -> bool {
+    #[cfg(target_arch = "x86_64")]
+    {
+        return !VNNI_OFF.load(std::sync::atomic::Ordering::Relaxed) && std::is_x86_feature_detected!("avx512f") && std::is_x86_feature_detected!("avx512bw") && std::is_x86_feature_detected!("avx512vnni");
+    }
+    #[allow(unreachable_code)]
+    false
+}
+/// 2 int8 weight rows x 4 tokens with AVX512-VNNI `vpdpbusd` (64 byte-MACs per instruction). The activations arrive as u8 = i8 + 128
+/// (unsigned operand of dpbusd), so the exact signed dot is `dpbusd(xu, w) - 128 * sum(w)` (`sw0`/`sw1` = the rows' weight sums).
+#[cfg(target_arch = "x86_64")]
+#[target_feature(enable = "avx512f,avx512bw,avx512vnni")]
+unsafe fn dot24_i8_vnni(w0: &[i8], w1: &[i8], sw0: i32, sw1: i32, x: [&[u8]; 4]) -> [[i32; 4]; 2] {
+    use std::arch::x86_64::*;
+    let n = w0.len();
+    let mut a0 = [_mm512_setzero_si512(); 4];
+    let mut a1 = [_mm512_setzero_si512(); 4];
+    let mut i = 0;
+    while i + 64 <= n {
+        let v0 = _mm512_loadu_si512(w0.as_ptr().add(i) as *const _);
+        let v1 = _mm512_loadu_si512(w1.as_ptr().add(i) as *const _);
+        for j in 0..4 {
+            let xv = _mm512_loadu_si512(x[j].as_ptr().add(i) as *const _);
+            a0[j] = _mm512_dpbusd_epi32(a0[j], xv, v0);
+            a1[j] = _mm512_dpbusd_epi32(a1[j], xv, v1);
+        }
+        i += 64;
+    }
+    let mut out = [[0i32; 4]; 2];
+    for j in 0..4 {
+        out[0][j] = _mm512_reduce_add_epi32(a0[j]);
+        out[1][j] = _mm512_reduce_add_epi32(a1[j]);
+    }
+    // scalar tail on the u8 form so the correction below stays uniform
+    while i < n {
+        for j in 0..4 {
+            out[0][j] += w0[i] as i32 * x[j][i] as i32;
+            out[1][j] += w1[i] as i32 * x[j][i] as i32;
+        }
+        i += 1;
+    }
+    for j in 0..4 {
+        out[0][j] -= 128 * sw0;
+        out[1][j] -= 128 * sw1;
+    }
+    out
+}
 /// 2 int8 weight rows x 4 tokens
 #[cfg(target_arch = "x86_64")]
 #[target_feature(enable = "avx2")]
@@ -307,13 +362,15 @@ fn layer_norm(x: &mut [f32], g: &[f32], b: &[f32]) {
 
 impl Lin {
     fn new(w: Vec<f32>, b: Vec<f32>, out: usize, inn: usize) -> Lin {
-        Lin { w, b, q: Vec::new(), qs: Vec::new(), out, inn }
+        Lin { w, b, q: Vec::new(), qs: Vec::new(), sw: Vec::new(), out, inn }
     }
     fn quantize(&mut self) {
         self.q.clear();
         self.qs.clear();
+        self.sw.clear();
         for o in 0..self.out {
             let (c, s) = crate::scan::quantize_i8(&self.w[o * self.inn..(o + 1) * self.inn]);
+            self.sw.push(c.iter().map(|&v| v as i32).sum());
             self.q.extend(c);
             self.qs.push(s);
         }
@@ -352,6 +409,8 @@ impl Lin {
         let w = o_hi - o_lo;
         let mut y = vec![0f32; t * w];
         let simd = avx_ok();
+        let use_vnni = int8 && simd && vnni_ok();
+        let xu: Vec<Vec<u8>> = if use_vnni { xq.iter().map(|(c, _)| c.iter().map(|&v| (v as u8) ^ 0x80).collect()).collect() } else { Vec::new() };
         let mut i = 0;
         #[cfg(target_arch = "x86_64")]
         if simd {
@@ -360,8 +419,13 @@ impl Lin {
                 while o + 2 <= o_hi {
                     if int8 {
                         let (r0, r1) = (&self.q[o * self.inn..(o + 1) * self.inn], &self.q[(o + 1) * self.inn..(o + 2) * self.inn]);
-                        // SAFETY: avx2 checked
-                        let d = unsafe { dot24_i8_avx2(r0, r1, [&xq[i].0, &xq[i + 1].0, &xq[i + 2].0, &xq[i + 3].0]) };
+                        let d = if use_vnni {
+                            // SAFETY: avx512f/bw/vnni checked
+                            unsafe { dot24_i8_vnni(r0, r1, self.sw[o], self.sw[o + 1], [&xu[i], &xu[i + 1], &xu[i + 2], &xu[i + 3]]) }
+                        } else {
+                            // SAFETY: avx2 checked
+                            unsafe { dot24_i8_avx2(r0, r1, [&xq[i].0, &xq[i + 1].0, &xq[i + 2].0, &xq[i + 3].0]) }
+                        };
                         for r in 0..2 {
                             for j in 0..4 {
                                 y[(i + j) * w + o - o_lo + r] = d[r][j] as f32 * self.qs[o + r] * xq[i + j].1 + self.b[o + r];
@@ -692,6 +756,30 @@ mod tests {
                     assert_eq!(goti[k], want, "dot4_i8 is exact integer arithmetic (n={n}, k={k})");
                 }
             }
+        }
+    }
+    #[test]
+    fn vnni_kernel_is_bit_exact_vs_avx2() {
+        if !(avx_ok() && vnni_ok()) { eprintln!("SKIP vnni test: no AVX512-VNNI"); return; }
+        let mut s = 99u64;
+        for n in [64usize, 200, 384, 1536] {
+            let rnd = |s: &mut u64| (lcg(s) * 127.0) as i8; // includes -127..127, never -128 (as scan::quantize_i8)
+            let w0: Vec<i8> = (0..n).map(|_| rnd(&mut s)).collect();
+            let w1: Vec<i8> = (0..n).map(|_| rnd(&mut s)).collect();
+            let xs: Vec<Vec<i8>> = (0..4).map(|_| (0..n).map(|_| rnd(&mut s)).collect()).collect();
+            let xu: Vec<Vec<u8>> = xs.iter().map(|x| x.iter().map(|&v| (v as u8) ^ 0x80).collect()).collect();
+            let (sw0, sw1): (i32, i32) = (w0.iter().map(|&v| v as i32).sum(), w1.iter().map(|&v| v as i32).sum());
+            let a = unsafe { dot24_i8_avx2(&w0, &w1, [&xs[0], &xs[1], &xs[2], &xs[3]]) };
+            let b = unsafe { dot24_i8_vnni(&w0, &w1, sw0, sw1, [&xu[0], &xu[1], &xu[2], &xu[3]]) };
+            assert_eq!(a, b, "n={n}");
+        }
+        // extreme values: all +127 weights x all +127 / -127 activations
+        let w = vec![127i8; 384];
+        for xv in [127i8, -127] {
+            let x = vec![xv; 384]; let xu: Vec<u8> = x.iter().map(|&v| (v as u8) ^ 0x80).collect();
+            let a = unsafe { dot24_i8_avx2(&w, &w, [&x, &x, &x, &x]) };
+            let b = unsafe { dot24_i8_vnni(&w, &w, 127 * 384, 127 * 384, [&xu, &xu, &xu, &xu]) };
+            assert_eq!(a, b);
         }
     }
     #[test]
