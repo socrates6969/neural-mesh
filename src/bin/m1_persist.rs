@@ -222,6 +222,7 @@ enum Mode {
     Recent(usize),
     Guard { z: f64, min_n: usize },
     GuardRecent { z: f64, min_n: usize, k: usize },
+    InnerOnly,
 }
 fn mode_name(m: Mode) -> String {
     match m {
@@ -229,9 +230,16 @@ fn mode_name(m: Mode) -> String {
         Mode::Recent(k) => format!("recent{k}"),
         Mode::Guard { z, min_n } => format!("guard(z{z},n{min_n})"),
         Mode::GuardRecent { z, min_n, k } => format!("guard(z{z},n{min_n})+recent{k}"),
+        Mode::InnerOnly => "inner-only".into(),
     }
 }
 fn build_warm(rk: Rk, w2: &World, st: &MeshStore, mode: Mode) -> Box<dyn Router + Send> {
+    if let (Mode::InnerOnly, Rk::Rec) = (mode, rk) {
+        // R34: replay only into the inner learner; the keyword gate keeps cold counts
+        let mut g = recommended_router(w2.keyword_map_for(), 6);
+        st.warm_replay(&mut g.inner, &idx, None, None).unwrap();
+        return Box::new(g);
+    }
     let mut rw = mk_router(rk, w2);
     let recent = match mode {
         Mode::Recent(k) => Some(k),
@@ -371,7 +379,7 @@ fn main() {
         j.insert("real".into(), real_store(&get("--store", "C:/Users/mariu/experiments/mesh-memory"), &seeds, &zero));
     }
     if part == "mit" {
-        let modes = [Mode::Full, Mode::Recent(100), Mode::Recent(250), Mode::Guard { z: 1.64, min_n: 30 }, Mode::Guard { z: 1.0, min_n: 20 }, Mode::Guard { z: 2.33, min_n: 40 }, Mode::GuardRecent { z: 1.64, min_n: 30, k: 250 }];
+        let modes = [Mode::Full, Mode::InnerOnly, Mode::Recent(100), Mode::Recent(250), Mode::Guard { z: 1.64, min_n: 30 }, Mode::Guard { z: 1.0, min_n: 20 }, Mode::Guard { z: 2.33, min_n: 40 }, Mode::GuardRecent { z: 1.64, min_n: 30, k: 250 }];
         let mut rows = vec![];
         for w in ["fixed", "random", "notraps", "stale"] {
             for rk in [Rk::Hebb, Rk::Rec] {
