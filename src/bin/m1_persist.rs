@@ -419,6 +419,50 @@ fn sync_trial(seed: u64, wname: &str, rk: Rk, m: usize, per: usize) -> [f64; 9] 
     [meanh(&exc, 100), meanh(&exo, 100), meanh(&exs, 100), meanh(&exc, 250), meanh(&exo, 250), meanh(&exs, 250), equal, synced.len() as f64, bytes as f64]
 }
 
+/// R56: DISCOUNTED foreign evidence. Machine 0 replays its own journal in full but only every `every`-th outcome of the other machines (every=1 = plain sharing).
+/// Returns [cold100, own100, shared_full100, disc2_100, disc4_100, disc8_100].
+fn disc_trial(seed: u64, wname: &str, rk: Rk, m: usize, per: usize) -> [f64; 7] {
+    let w2 = World::new_stream(seed, seed + 5000, cfg(wname, N2));
+    let mut js_all: Vec<Vec<Outcome>> = vec![];
+    for k in 0..m {
+        let wk = World::new_stream(seed, seed + 1000 + 17 * k as u64, cfg(wname, per));
+        let mut r = mk_router(rk, &wk);
+        let (_, js) = run(&wk, r.as_mut(), per, &format!("m{k}"), seed * 31 + 7 + k as u64, 0);
+        js_all.push(js);
+    }
+    let build = |every: usize, tag: &str| -> MeshStore {
+        let s = tmpstore(&format!("dc_{seed}_{wname}_{}_{m}_{tag}", rk_name(rk)));
+        s.append_outcomes(&js_all[0]).unwrap();
+        for k in 1..m {
+            let sub: Vec<Outcome> = js_all[k].iter().enumerate().filter(|(i, _)| i % every == 0).map(|(_, o)| o.clone()).collect();
+            s.append_outcomes(&sub).unwrap();
+        }
+        s
+    };
+    let mut rc = mk_router(rk, &w2);
+    let (exc, _) = run(&w2, rc.as_mut(), N2, "c", seed * 31 + 2, 10_000);
+    let mut out = [meanh(&exc, 100), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+    {
+        // the shipped API: union store, own = session m0, every 4th foreign outcome
+        let u = tmpstore(&format!("dc_api_{seed}_{wname}_{}_{m}", rk_name(rk)));
+        for js in &js_all { u.append_outcomes(js).unwrap(); }
+        let mut rw = mk_router(rk, &w2);
+        u.warm_replay_discounted(rw.as_mut(), &idx, None, &|o: &Outcome| o.session == "m0", 4).unwrap();
+        let (ex, _) = run(&w2, rw.as_mut(), N2, "w", seed * 31 + 2, 10_000);
+        out[6] = meanh(&ex, 100);
+        let _ = std::fs::remove_dir_all(u.root());
+    }
+    for (slot, every) in [(1usize, 1000_000usize), (2, 1), (3, 2), (4, 4), (5, 8)] {
+        let st = build(every, &format!("e{every}"));
+        let mut rw = mk_router(rk, &w2);
+        st.warm_replay(rw.as_mut(), &idx, None, None).unwrap();
+        let (ex, _) = run(&w2, rw.as_mut(), N2, "w", seed * 31 + 2, 10_000);
+        out[slot] = meanh(&ex, 100);
+        let _ = std::fs::remove_dir_all(st.root());
+    }
+    out
+}
+
 fn main() {
     let a: Vec<String> = std::env::args().collect();
     let get = |k: &str, d: &str| a.iter().position(|x| x == k).map(|i| a[i + 1].clone()).unwrap_or(d.into());
@@ -476,6 +520,30 @@ fn main() {
             }
         }
         j.insert("share".into(), Value::Array(out));
+    }
+    if part == "disc" {
+        println!("--- DISCOUNT: foreign outcomes replayed every k-th only (M machines x 250, random world), machine 0 session-2 H100");
+        let mut cells = vec![];
+        let mut out = vec![];
+        for rk in [Rk::Hebb, Rk::Rec] {
+            for m in [2usize, 4] {
+                let res: Vec<[f64; 7]> = seeds.par_iter().map(|&s| disc_trial(s, "random", rk, m, 250)).collect();
+                let mean = |i: usize| res.iter().map(|r| r[i]).sum::<f64>() / res.len() as f64;
+                println!("  {:15} M={m}: cold {:.4} own {:.4} full-share {:.4} | every2 {:.4} every4 {:.4} every8 {:.4}", rk_name(rk), mean(0), mean(1), mean(2), mean(3), mean(4), mean(5));
+                for (lab, i) in [("full", 2usize), ("every2", 3), ("every4", 4), ("every8", 5), ("api4", 6)] {
+                    let d: Vec<f64> = res.iter().map(|r| r[i] - r[1]).collect();
+                    let pd = paired_diff(&d, &zero[..d.len()]);
+                    let dd: Vec<f64> = res.iter().map(|r| r[i] - r[2]).collect();
+                    let pdd = paired_diff(&dd, &zero[..dd.len()]);
+                    cells.push((format!("{} M={m} {lab} - own", rk_name(rk)), paired_t_pvalue(&d, &zero[..d.len()])));
+                    if lab != "full" { cells.push((format!("{} M={m} {lab} - full", rk_name(rk)), paired_t_pvalue(&dd, &zero[..dd.len()]))); }
+                    out.push(json!({"router": rk_name(rk), "m": m, "arm": lab, "minus_own": pd.diff.mean, "minus_own_lo": pd.diff.lo, "minus_own_hi": pd.diff.hi, "minus_full": pdd.diff.mean, "minus_full_lo": pdd.diff.lo, "minus_full_hi": pdd.diff.hi}));
+                }
+            }
+        }
+        let adj = holm_adjust(&cells.iter().map(|c| c.1).collect::<Vec<_>>());
+        for ((n, _), p) in cells.iter().zip(adj) { println!("  Holm p {n}: {p:.3e}"); }
+        j.insert("disc".into(), Value::Array(out));
     }
     if part == "sync" || part == "all" {
         println!("--- SYNC through a real shared folder: M machines x 250 cold tasks, 2 sync rounds; machine 0 session-2 (random world)");

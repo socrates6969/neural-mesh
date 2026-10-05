@@ -260,6 +260,35 @@ impl MeshStore {
         Ok(n)
     }
 
+    /// R56 (opt-in): like [`MeshStore::warm_replay`] but FOREIGN outcomes (`is_own` false) are discounted: only every `foreign_every`-th foreign outcome (in replay order)
+    /// is replayed, own outcomes always. `foreign_every <= 1` = plain replay. Measured (R56, simulator, 4 machines x 250): the Guarded `recommended` router gains
+    /// +.008..+.019 H100 over full sharing at foreign_every = 4 (pre-registered fresh-seed confirmation +.0084 [+.0023,+.0146]); the plain Hebbian router does NOT
+    /// (every 4: -.006 n.s.; every 8: -.016 Holm-significant loss); at 2 machines there is no gain for either. Returns the number of replayed outcomes.
+    pub fn warm_replay_discounted<R2: Router + ?Sized>(&self, router: &mut R2, index_of: &dyn Fn(&str) -> Option<usize>, world: Option<&str>, is_own: &dyn Fn(&Outcome) -> bool, foreign_every: usize) -> R<usize> {
+        let mut os = self.outcomes()?;
+        if let Some(w) = world {
+            os.retain(|o| o.world == w);
+        }
+        let every = foreign_every.max(1);
+        let mut c = 0usize;
+        let mut n = 0;
+        for (i, o) in os.iter().enumerate() {
+            if !is_own(o) {
+                let keep = c % every == 0;
+                c += 1;
+                if !keep {
+                    continue;
+                }
+            }
+            if let Some(a) = index_of(&o.agent) {
+                let t = Task { id: i as u64, task_type: o.task_type.clone(), features: o.features.clone() };
+                router.update(&t, a, o.reward.clamp(0.0, 1.0));
+                n += 1;
+            }
+        }
+        Ok(n)
+    }
+
     /// GC / compaction (R35): rewrite the journal keeping, per `world`, only the newest `keep` outcomes (replay order), deduplicated.
     /// Atomic (temp file + rename) under the lock. Returns (before, after). Lessons and corpus are never touched.
     pub fn compact_journal(&self, keep: usize) -> R<(usize, usize)> {
@@ -632,6 +661,22 @@ mod tests {
         let sc = r.scores(&t);
         assert!(sc[0] > sc[1], "{sc:?}");
         assert_eq!(s.warm_replay(&mut HebbianRouter::new(2, HebbianConfig::default()), &idx, Some("other"), None).unwrap(), 0);
+        let _ = fs::remove_dir_all(&p);
+    }
+
+    #[test]
+    fn discounted_replay_keeps_own_and_every_kth_foreign() {
+        let p = tmp("disc");
+        let s = MeshStore::open(&p).unwrap();
+        let mut os: Vec<Outcome> = (0..10).map(|i| oc("own", i, "good", 1.0)).collect();
+        os.extend((0..20).map(|i| oc("other", 100 + i, "bad", 0.0)));
+        s.append_outcomes(&os).unwrap();
+        let idx = |n: &str| match n { "good" => Some(0), "bad" => Some(1), _ => None };
+        let own = |o: &Outcome| o.session == "own";
+        let mut r = HebbianRouter::new(2, HebbianConfig::default());
+        assert_eq!(s.warm_replay_discounted(&mut r, &idx, None, &own, 4).unwrap(), 10 + 5);
+        assert_eq!(s.warm_replay_discounted(&mut HebbianRouter::new(2, HebbianConfig::default()), &idx, None, &own, 1).unwrap(), 30);
+        assert_eq!(s.warm_replay_discounted(&mut HebbianRouter::new(2, HebbianConfig::default()), &idx, None, &own, 0).unwrap(), 30);
         let _ = fs::remove_dir_all(&p);
     }
 
