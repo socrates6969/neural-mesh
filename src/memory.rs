@@ -355,7 +355,7 @@ pub struct HnswIndex {
 
 impl HnswIndex {
     pub fn new(dim: usize, params: HnswParams) -> Self {
-        let hnsw = Hnsw::new(params.m, params.max_elements.max(1), 16, params.ef_construction, CosineDist);
+        let hnsw = Hnsw::new(params.m, params.max_elements.max(1), 16, params.ef_construction.max(3 * params.m) /* H8: efc <= 2M leaves up to 42% of items unreachable */, CosineDist);
         let ef = Arc::new(AtomicUsize::new(params.ef_search));
         Self { hnsw, dim, params, ef, n: 0 }
     }
@@ -403,7 +403,7 @@ impl HnswIndex {
     pub fn rebuild(&mut self) {
         let mut items: Vec<(usize, Vec<f32>)> = self.all_points().iter().map(|p| (p.get_origin_id(), p.get_v().to_vec())).collect();
         items.sort_by_key(|x| x.0);
-        let hnsw = Hnsw::new(self.params.m, self.params.max_elements.max(items.len()).max(1), 16, self.params.ef_construction, CosineDist);
+        let hnsw = Hnsw::new(self.params.m, self.params.max_elements.max(items.len()).max(1), 16, self.params.ef_construction.max(3 * self.params.m), CosineDist);
         for (id, v) in &items {
             hnsw.insert_slice((v.as_slice(), *id));
         }
@@ -1159,6 +1159,25 @@ mod tests {
     }
 
     /// audit()/rebuild() see EVERY point (hnsw_rs lists a point only in its top layer) and keep ids.
+    /// R57 / H8: with the raw crate, `ef_construction <= 2*M` on clustered data leaves up to ~44 % of the items un-findable (n6_hnsw_efc: efc 16 -> 700/3000
+    /// misses, efc 32 -> 1313/3000, efc >= 40 -> 0). `HnswIndex::new` / `rebuild` therefore raise efc to at least 3*M; this test pins that.
+    #[test]
+    fn hnsw_small_ef_construction_is_raised_and_loses_no_clustered_items() {
+        let (n, dim) = (1500usize, 32usize);
+        let mut rng = Rng::new(77);
+        let centers: Vec<Vec<f32>> = (0..30).map(|_| (0..dim).map(|_| rng.normal()).collect()).collect();
+        let data: Vec<f32> = (0..n).flat_map(|i| { let c = &centers[i % 30]; let v: Vec<f32> = (0..dim).map(|j| c[j] + 0.15 * rng.normal()).collect(); normalized(&v) }).collect();
+        let mut h = HnswIndex::new(dim, HnswParams { m: 16, ef_construction: 16, ef_search: 64, max_elements: n });
+        for (i, v) in data.chunks_exact(dim).enumerate() {
+            h.add(i as u64, v);
+        }
+        let miss = (0..n).filter(|&i| h.search(&data[i * dim..(i + 1) * dim], 1).first().map(|x| x.0) != Some(i as u64)).count();
+        assert!(miss <= n / 100, "{miss} of {n} items unfindable with efc=16 (raised to 48)");
+        h.rebuild();
+        let miss2 = (0..n).filter(|&i| h.search(&data[i * dim..(i + 1) * dim], 1).first().map(|x| x.0) != Some(i as u64)).count();
+        assert!(miss2 <= n / 100, "{miss2} after rebuild");
+    }
+
     #[test]
     fn hnsw_audit_and_rebuild_cover_all_points() {
         let (n, dim) = (900usize, 16usize);
