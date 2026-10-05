@@ -618,6 +618,14 @@ pub fn flat_is_better_than_hnsw(n: usize) -> bool {
     n < FLAT_HNSW_CROSSOVER_N
 }
 
+/// R92: with the R91 integer dot (`FlatIndex::new(d, Int8, m).with_int8_dot(true).with_rerank(4)`: exact top-10 at recall 1.0000, f32 copy kept for the rerank) the flat scan stays competitive with HNSW up to ~50k vectors.
+/// Measured p50 (single thread, d=384, clustered synthetic, `n12_int8_crossover`): N=20k 0.31 ms, 50k 0.73, 100k 1.44, 200k 2.13 (4 threads: 0.63 at 50k, 0.92 at 100k, 1.49 at 200k) vs f32 FAST 1.08 / 2.89 / 6.03 / 7.89 ms;
+/// HNSW (R58, recall >= .999 settings): 0.70 ms at 50k, 0.53 ms at 200k (M24) with a 26-145 s build. So HNSW starts to win on latency from ~50k-100k; below that flat int8+rerank is exact, build-free and as fast.
+pub const FLAT_INT8_HNSW_CROSSOVER_N: usize = 50_000;
+pub fn flat_int8_is_better_than_hnsw(n: usize) -> bool {
+    n < FLAT_INT8_HNSW_CROSSOVER_N
+}
+
 /// Build the index suggested by [`suggest_tier`] if it is implementable here (`None` for advice that needs external machinery).
 pub fn build_suggested(n: usize, dim: usize, latency_budget_ms: f64, ram_budget_bytes: usize, metric: Metric) -> Option<FlatIndex> {
     let (t, r) = suggest_tier(n, dim, latency_budget_ms, ram_budget_bytes).flat_config()?;
@@ -656,6 +664,12 @@ mod tests {
 
     use super::*;
     use crate::router::Rng;
+
+    #[test]
+    fn int8_crossover_is_above_the_f32_crossover() {
+        assert!(FLAT_INT8_HNSW_CROSSOVER_N > FLAT_HNSW_CROSSOVER_N);
+        assert!(flat_int8_is_better_than_hnsw(30_000) && !flat_is_better_than_hnsw(30_000) && !flat_int8_is_better_than_hnsw(200_000));
+    }
 
     #[test]
     fn scan_kernels_via_flatindex_f32_exact_int8_with_rerank_exact_and_tombstones_fall_back() {
