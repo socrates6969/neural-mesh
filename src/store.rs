@@ -44,6 +44,49 @@ fn lock_stale_ms() -> u64 {
     LOCK_STALE_MS
 }
 
+fn lock_is_stale(p: &Path) -> bool {
+    fs::metadata(p).and_then(|m| m.modified()).ok().and_then(|m| m.elapsed().ok()).map(|d| d > Duration::from_millis(lock_stale_ms())).unwrap_or(false)
+}
+
+/// B22: break a stale lock WITHOUT the check-then-remove race. Two waiters that both judged the same lock stale used to both call
+/// `remove_file`; the slower one deleted the FRESH lock the faster one had just created, so two processes held the lock. Breaking is now
+/// serialised by a `.break` guard (create_new) and the staleness is RE-CHECKED inside it, so only a lock that is still stale is removed.
+/// (A break guard left by a crashed breaker is itself reclaimed after the stale window. Residual: a holder releasing in the microseconds
+/// between the re-check and the remove; it needs the holder to have already missed a whole stale window.)
+fn break_stale_lock(p: &Path) {
+    let bp = p.with_extension("break");
+    match OpenOptions::new().write(true).create_new(true).open(&bp) {
+        Ok(_) => {
+            if lock_is_stale(p) {
+                let _ = fs::remove_file(p);
+            }
+            let _ = fs::remove_file(&bp);
+        }
+        Err(_) => {
+            if lock_is_stale(&bp) {
+                let _ = fs::remove_file(&bp);
+            }
+            std::thread::sleep(Duration::from_millis(2));
+        }
+    }
+}
+
+#[cfg(test)]
+type StaleHook = Box<dyn Fn(&Path) + Send>;
+#[cfg(test)]
+static STALE_HOOK: std::sync::Mutex<Option<(PathBuf, StaleHook)>> = std::sync::Mutex::new(None);
+#[cfg(test)]
+static STALE_SERIAL: std::sync::Mutex<()> = std::sync::Mutex::new(());
+#[cfg(test)]
+fn test_hook_after_stale_judged(p: &Path) {
+    let mut g = STALE_HOOK.lock().unwrap();
+    if g.as_ref().map(|(d, _)| d == p).unwrap_or(false) {
+        if let Some((_, f)) = g.take() {
+            f(p);
+        }
+    }
+}
+
 fn now_ms() -> u64 {
     SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_millis() as u64).unwrap_or(0)
 }
@@ -193,11 +236,11 @@ impl MeshStore {
                     return Ok(Guard(p));
                 }
                 Err(e) if e.kind() == io::ErrorKind::AlreadyExists || e.kind() == io::ErrorKind::PermissionDenied => {
-                    if let Ok(m) = fs::metadata(&p).and_then(|m| m.modified()) {
-                        if m.elapsed().map(|d| d > Duration::from_millis(lock_stale_ms())).unwrap_or(false) {
-                            let _ = fs::remove_file(&p);
-                            continue;
-                        }
+                    if lock_is_stale(&p) {
+                        #[cfg(test)]
+                        test_hook_after_stale_judged(&p);
+                        break_stale_lock(&p);
+                        continue;
                     }
                     if t0.elapsed() > Duration::from_millis(LOCK_TIMEOUT_MS) {
                         return Err(StoreError::Locked(p));
@@ -1182,7 +1225,34 @@ mod tests {
 
 
     #[test]
+    fn two_waiters_judging_the_same_lock_stale_do_not_both_acquire() {
+        let _serial = STALE_SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+        // B22: waiter B judges the lock stale; before B acts, waiter A breaks it and takes a FRESH lock. B must not delete A's live lock.
+        let p = tmp("two_waiters");
+        let s = MeshStore::open(&p).unwrap();
+        let lp = p.join(".lock");
+        fs::write(&lp, "dead holder\n").unwrap();
+        let f = OpenOptions::new().write(true).open(&lp).unwrap();
+        f.set_modified(SystemTime::now() - Duration::from_secs(60)).unwrap();
+        drop(f);
+        *STALE_HOOK.lock().unwrap() = Some((
+            lp.clone(),
+            Box::new(|lp: &Path| {
+                // waiter A wins the race: removes the stale lock and creates its own fresh one
+                let _ = fs::remove_file(lp);
+                fs::write(lp, "waiter A\n").unwrap();
+            }),
+        ));
+        let r = s.lock();
+        let still_a = fs::read_to_string(&lp).map(|t| t.starts_with("waiter A")).unwrap_or(false);
+        assert!(r.is_err(), "B acquired the lock while A's fresh lock was live (mutual exclusion broken)");
+        assert!(still_a, "A's live lock file must not have been deleted by B");
+        let _ = fs::remove_dir_all(&p);
+    }
+
+    #[test]
     fn long_gc_keeps_its_lock_alive_so_concurrent_puts_are_not_lost() {
+        let _serial = STALE_SERIAL.lock().unwrap_or_else(|e| e.into_inner());
         use std::sync::atomic::Ordering;
         STALE_OVERRIDE_MS.store(150, Ordering::Relaxed);
         let p = tmp("gc_lock");
