@@ -360,6 +360,70 @@ fn layer_norm(x: &mut [f32], g: &[f32], b: &[f32]) {
     }
 }
 
+/// R112: int8 activations of a [t][inn] block: per-token symmetric scale (127 / max|x|), AVX2 quantiser (the scalar `quantize_i8` with a division
+/// per element was ~60% of the int8 encoder's time), plus the u8 (= i8 + 128) copy the VNNI kernel needs. Built ONCE per input block and shared by Q/K/V.
+struct Act {
+    q: Vec<(Vec<i8>, f32)>,
+    u: Vec<Vec<u8>>,
+}
+#[cfg(target_arch = "x86_64")]
+#[target_feature(enable = "avx2")]
+unsafe fn quantize_row_avx2(x: &[f32]) -> (Vec<i8>, f32) {
+    use std::arch::x86_64::*;
+    let n = x.len();
+    let sign = _mm256_set1_ps(-0.0);
+    let mut mv = _mm256_setzero_ps();
+    let mut i = 0;
+    while i + 8 <= n {
+        mv = _mm256_max_ps(mv, _mm256_andnot_ps(sign, _mm256_loadu_ps(x.as_ptr().add(i))));
+        i += 8;
+    }
+    let mut t = [0f32; 8];
+    _mm256_storeu_ps(t.as_mut_ptr(), mv);
+    let mut m = t.iter().fold(0f32, |a, &b| a.max(b));
+    while i < n {
+        m = m.max(x[i].abs());
+        i += 1;
+    }
+    if m <= 0.0 {
+        return (vec![0; n], 0.0);
+    }
+    let (s, inv) = (m / 127.0, 127.0 / m);
+    let mut out = vec![0i8; n];
+    let (vinv, lo, hi) = (_mm256_set1_ps(inv), _mm256_set1_epi32(-127), _mm256_set1_epi32(127));
+    let fix = _mm256_setr_epi32(0, 4, 1, 5, 2, 6, 3, 7);
+    let cvt = |p: *const f32| _mm256_min_epi32(_mm256_max_epi32(_mm256_cvtps_epi32(_mm256_mul_ps(_mm256_loadu_ps(p), vinv)), lo), hi);
+    i = 0;
+    while i + 32 <= n {
+        let (a, b, c, d) = (cvt(x.as_ptr().add(i)), cvt(x.as_ptr().add(i + 8)), cvt(x.as_ptr().add(i + 16)), cvt(x.as_ptr().add(i + 24)));
+        let p = _mm256_packs_epi16(_mm256_packs_epi32(a, b), _mm256_packs_epi32(c, d));
+        _mm256_storeu_si256(out.as_mut_ptr().add(i) as *mut __m256i, _mm256_permutevar8x32_epi32(p, fix));
+        i += 32;
+    }
+    while i < n {
+        out[i] = (x[i] * inv).round().clamp(-127.0, 127.0) as i8;
+        i += 1;
+    }
+    (out, s)
+}
+fn quantize_row(x: &[f32]) -> (Vec<i8>, f32) {
+    #[cfg(target_arch = "x86_64")]
+    {
+        if avx_ok() {
+            // SAFETY: avx2 checked
+            return unsafe { quantize_row_avx2(x) };
+        }
+    }
+    crate::scan::quantize_i8(x)
+}
+impl Act {
+    fn new(x: &[f32], t: usize, inn: usize) -> Act {
+        let q: Vec<(Vec<i8>, f32)> = (0..t).map(|i| quantize_row(&x[i * inn..(i + 1) * inn])).collect();
+        let u = if avx_ok() && vnni_ok() { q.iter().map(|(c, _)| c.iter().map(|&v| (v as u8) ^ 0x80).collect()).collect() } else { Vec::new() };
+        Act { q, u }
+    }
+}
+
 impl Lin {
     fn new(w: Vec<f32>, b: Vec<f32>, out: usize, inn: usize) -> Lin {
         Lin { w, b, q: Vec::new(), qs: Vec::new(), sw: Vec::new(), out, inn }
@@ -377,12 +441,18 @@ impl Lin {
     }
     /// y[t] = W x[t] + b for `t` tokens (x: t*inn, y: t*out); with `threads` > 1 and a batch of >= 48 tokens the OUTPUT ROWS are split over threads (each streams its own slice of the weights)
     fn apply(&self, x: &[f32], t: usize, y: &mut Vec<f32>, int8: bool, threads: usize) {
+        let act = if int8 { Some(Act::new(x, t, self.inn)) } else { None };
+        self.apply_act(x, act.as_ref(), t, y, int8, threads);
+    }
+    /// same as `apply` with the int8 activations already quantised (shared by Q, K, V)
+    fn apply_act(&self, x: &[f32], act: Option<&Act>, t: usize, y: &mut Vec<f32>, int8: bool, threads: usize) {
         y.clear();
         y.resize(t * self.out, 0.0);
-        let xq: Vec<(Vec<i8>, f32)> = if int8 { (0..t).map(|i| crate::scan::quantize_i8(&x[i * self.inn..(i + 1) * self.inn])).collect() } else { Vec::new() };
+        let empty = Act { q: Vec::new(), u: Vec::new() };
+        let xq = act.unwrap_or(&empty);
         let th = if t >= 48 { threads.max(1).min(self.out / 64).max(1) } else { 1 };
         if th == 1 {
-            let loc = self.apply_range(x, t, &xq, 0, self.out, int8);
+            let loc = self.apply_range(x, t, xq, 0, self.out, int8);
             y.copy_from_slice(&loc);
             return;
         }
@@ -391,7 +461,6 @@ impl Lin {
             let hs: Vec<_> = (0..th)
                 .map(|k| {
                     let (lo, hi) = ((k * step).min(self.out), ((k + 1) * step).min(self.out));
-                    let xq = &xq;
                     sc.spawn(move || (lo, hi, self.apply_range(x, t, xq, lo, hi, int8)))
                 })
                 .collect();
@@ -405,12 +474,12 @@ impl Lin {
         }
     }
     /// outputs `o_lo..o_hi` (o_lo even) for all tokens, layout [t][o_hi - o_lo]
-    fn apply_range(&self, x: &[f32], t: usize, xq: &[(Vec<i8>, f32)], o_lo: usize, o_hi: usize, int8: bool) -> Vec<f32> {
+    fn apply_range(&self, x: &[f32], t: usize, act: &Act, o_lo: usize, o_hi: usize, int8: bool) -> Vec<f32> {
         let w = o_hi - o_lo;
         let mut y = vec![0f32; t * w];
         let simd = avx_ok();
         let use_vnni = int8 && simd && vnni_ok();
-        let xu: Vec<Vec<u8>> = if use_vnni { xq.iter().map(|(c, _)| c.iter().map(|&v| (v as u8) ^ 0x80).collect()).collect() } else { Vec::new() };
+        let (xq, xu) = (&act.q, &act.u);
         let mut i = 0;
         #[cfg(target_arch = "x86_64")]
         if simd {
@@ -656,9 +725,10 @@ impl Encoder {
         let scale = 1.0 / (DH as f32).sqrt();
         let mut sc = vec![0f32; MAXLEN];
         for l in &self.layers {
-            l.q.apply(&x, t, &mut q, self.int8, self.threads);
-            l.k.apply(&x, t, &mut k, self.int8, self.threads);
-            l.v.apply(&x, t, &mut v, self.int8, self.threads);
+            let act = if self.int8 { Some(Act::new(&x, t, D)) } else { None };
+            l.q.apply_act(&x, act.as_ref(), t, &mut q, self.int8, self.threads);
+            l.k.apply_act(&x, act.as_ref(), t, &mut k, self.int8, self.threads);
+            l.v.apply_act(&x, act.as_ref(), t, &mut v, self.int8, self.threads);
             let mut ctx = vec![0f32; t * D];
             for si in 0..seqs.len() {
                 let (a0, a1) = (starts[si], starts[si + 1]);
