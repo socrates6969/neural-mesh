@@ -36,6 +36,14 @@ fn now_ms() -> u64 {
     SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_millis() as u64).unwrap_or(0)
 }
 
+/// B1: read a text file as lines, tolerating invalid UTF-8 (a crash / half-synced file can end inside a multi-byte character; `BufRead::lines` would
+/// return an error and make the WHOLE file unreadable). Invalid bytes become U+FFFD, so the torn line simply fails to parse and is skipped.
+fn lossy_lines(p: &Path) -> io::Result<Vec<String>> {
+    let mut raw = Vec::new();
+    File::open(p)?.read_to_end(&mut raw)?;
+    Ok(raw.split(|b| *b == b'\n').map(|l| String::from_utf8_lossy(l).trim_end_matches('\r').to_string()).collect())
+}
+
 /// One routing outcome (the unit of shared learning).
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Outcome {
@@ -191,8 +199,20 @@ impl MeshStore {
         if let Some(d) = p.parent() {
             fs::create_dir_all(d)?;
         }
-        let mut f = OpenOptions::new().create(true).append(true).open(p)?;
         let mut buf = String::new();
+        // B1: a crash mid-append leaves a torn last line WITHOUT a newline; appending straight after it would glue the new record onto the
+        // fragment and lose it. Start on a fresh line when the file does not end with one.
+        if let Ok(mut rf) = File::open(&p) {
+            let len = rf.metadata().map(|m| m.len()).unwrap_or(0);
+            if len > 0 {
+                use std::io::{Seek, SeekFrom};
+                let mut last = [0u8; 1];
+                if rf.seek(SeekFrom::Start(len - 1)).is_ok() && rf.read_exact(&mut last).is_ok() && last[0] != b'\n' {
+                    buf.push('\n');
+                }
+            }
+        }
+        let mut f = OpenOptions::new().create(true).append(true).open(p)?;
         for l in lines {
             buf.push_str(l);
             buf.push('\n');
@@ -207,8 +227,7 @@ impl MeshStore {
             return Ok(vec![]);
         }
         let mut out = vec![];
-        for l in BufReader::new(File::open(p)?).lines() {
-            let l = l?;
+        for l in lossy_lines(&p)? {
             if l.trim().is_empty() {
                 continue;
             }
@@ -292,6 +311,8 @@ impl MeshStore {
     /// GC / compaction (R35): rewrite the journal keeping, per `world`, only the newest `keep` outcomes (replay order), deduplicated.
     /// Atomic (temp file + rename) under the lock. Returns (before, after). Lessons and corpus are never touched.
     pub fn compact_journal(&self, keep: usize) -> R<(usize, usize)> {
+        // B1: take the lock BEFORE reading, otherwise an outcome appended by another process between the read and the rename is silently lost.
+        let _g = self.lock()?;
         let all = self.outcomes()?;
         let before = all.len();
         let mut by: BTreeMap<String, Vec<Outcome>> = BTreeMap::new();
@@ -306,7 +327,6 @@ impl MeshStore {
             kept.extend(v);
         }
         kept.sort_by(|a, b| (a.ts, &a.session, a.seq).cmp(&(b.ts, &b.session, b.seq)));
-        let _g = self.lock()?;
         let p = self.root.join("router/journal.jsonl");
         let tmp = self.root.join("router/journal.jsonl.tmp");
         let mut buf = String::new();
@@ -349,7 +369,29 @@ impl MeshStore {
         } else {
             fs::write(&meta, serde_json::to_vec(&serde_json::json!({"dim": dim})).unwrap())?;
         }
-        let have: HashSet<String> = self.read_jsonl::<DocRec>(&format!("knowledge/{ns}/docs.jsonl"))?.into_iter().map(|x| x.id).collect();
+        let existing = self.read_jsonl::<DocRec>(&format!("knowledge/{ns}/docs.jsonl"))?;
+        let have: HashSet<String> = existing.iter().map(|x| x.id.clone()).collect();
+        // B1: a crash between the vector write and the doc write leaves an orphan vector row; drop it (and any torn partial row) so that row i
+        // of vecs.f32 stays aligned with doc i. Also a torn docs line is terminated first.
+        {
+            let vp = d.join("vecs.f32");
+            if vp.exists() {
+                let want = (existing.len() * dim * 4) as u64;
+                let f = OpenOptions::new().write(true).open(&vp)?;
+                if f.metadata()?.len() > want {
+                    f.set_len(want)?;
+                }
+            }
+            let dp = d.join("docs.jsonl");
+            if let Ok(mut rf) = File::open(&dp) {
+                use std::io::{Seek, SeekFrom};
+                let len = rf.metadata().map(|m| m.len()).unwrap_or(0);
+                let mut last = [0u8; 1];
+                if len > 0 && rf.seek(SeekFrom::Start(len - 1)).is_ok() && rf.read_exact(&mut last).is_ok() && last[0] != b'\n' {
+                    OpenOptions::new().append(true).open(&dp)?.write_all(b"\n")?;
+                }
+            }
+        }
         let mut dl = OpenOptions::new().create(true).append(true).open(d.join("docs.jsonl"))?;
         let mut vl = OpenOptions::new().create(true).append(true).open(d.join("vecs.f32"))?;
         let mut added = 0;
@@ -475,8 +517,8 @@ impl MeshStore {
             }
             if name.ends_with(".journal.jsonl") {
                 rep.files_read += 1;
-                for l in BufReader::new(File::open(p)?).lines() {
-                    if let Ok(o) = serde_json::from_str::<Outcome>(&l?) {
+                for l in lossy_lines(p)? {
+                    if let Ok(o) = serde_json::from_str::<Outcome>(&l) {
                         foreign.insert(o.id.clone());
                         if worlds.map_or(true, |ws| ws.iter().any(|w| *w == o.world)) && seen.insert(o.id.clone()) {
                             add_o.push(o);
@@ -485,8 +527,8 @@ impl MeshStore {
                 }
             } else if name.ends_with(".lessons.jsonl") {
                 rep.files_read += 1;
-                for l in BufReader::new(File::open(p)?).lines() {
-                    if let Ok(x) = serde_json::from_str::<LessonRec>(&l?) {
+                for l in lossy_lines(p)? {
+                    if let Ok(x) = serde_json::from_str::<LessonRec>(&l) {
                         if seen_l.insert(x.id.clone()) {
                             add_l.push(x);
                         }
@@ -822,5 +864,59 @@ mod tests {
         assert_eq!(v.iter().filter(|o| o.world == "w").map(|o| o.seq).collect::<Vec<_>>(), vec![7, 8, 9]);
         assert_eq!(s.compact_journal(3).unwrap(), (4, 4));
         let _ = fs::remove_dir_all(&p);
+    }
+
+    // ---- Team B (B1): durability / alignment regressions
+    #[test]
+    fn append_after_torn_tail_does_not_lose_the_new_record() {
+        let p = tmp("torn_then_append");
+        let s = MeshStore::open(&p).unwrap();
+        s.append_outcomes(&[oc("a", 0, "x", 1.0)]).unwrap();
+        let mut f = OpenOptions::new().append(true).open(p.join("router/journal.jsonl")).unwrap();
+        f.write_all(b"{\"id\":\"torn").unwrap(); // crash mid-append, no trailing newline
+        drop(f);
+        s.append_outcomes(&[oc("a", 1, "x", 1.0)]).unwrap();
+        let ids: Vec<String> = s.outcomes().unwrap().into_iter().map(|o| o.id).collect();
+        assert_eq!(ids, vec!["a:0".to_string(), "a:1".to_string()], "record appended after a torn tail must survive");
+        let _ = fs::remove_dir_all(&p);
+    }
+
+    #[test]
+    fn orphan_vector_row_does_not_misalign_later_docs() {
+        let p = tmp("orphan_vec");
+        let s = MeshStore::open(&p).unwrap();
+        let dim = 4;
+        let d0 = vec![DocRec { id: "d0".into(), text: "t0".into(), tag: "x".into() }];
+        s.put_docs("ns", dim, &d0, &[1.0, 0.0, 0.0, 0.0]).unwrap();
+        // crash between the vector write and the doc write: one extra vector row
+        let mut f = OpenOptions::new().append(true).open(p.join("knowledge/ns/vecs.f32")).unwrap();
+        for x in [9.0f32, 9.0, 9.0, 9.0] {
+            f.write_all(&x.to_le_bytes()).unwrap();
+        }
+        drop(f);
+        let d1 = vec![DocRec { id: "d1".into(), text: "t1".into(), tag: "x".into() }];
+        s.put_docs("ns", dim, &d1, &[0.0, 1.0, 0.0, 0.0]).unwrap();
+        let (docs, v, dm) = s.load_docs("ns").unwrap();
+        assert_eq!(docs.len(), 2);
+        assert_eq!(&v[dm..2 * dm], &[0.0, 1.0, 0.0, 0.0], "doc d1 must carry its own vector");
+        let _ = fs::remove_dir_all(&p);
+    }
+
+    #[test]
+    fn torn_multibyte_tail_does_not_make_journal_unreadable() {
+        let p = tmp("torn_utf8");
+        let s = MeshStore::open(&p).unwrap();
+        s.append_outcomes(&[oc("a", 0, "x", 1.0)]).unwrap();
+        let mut f = OpenOptions::new().append(true).open(p.join("router/journal.jsonl")).unwrap();
+        f.write_all(b"{\"id\":\"a:1\",\"session\":\"caf\xc3").unwrap(); // cut inside the 2-byte char
+        drop(f);
+        assert_eq!(s.outcomes().unwrap().len(), 1, "journal must stay readable");
+        let folder = tmp("torn_utf8_folder");
+        fs::create_dir_all(&folder).unwrap();
+        fs::write(folder.join("other.journal.jsonl"), b"{\"id\":\"o:0\",\"session\":\"o\",\"seq\":0,\"ts\":0,\"world\":\"w\",\"features\":[],\"task_type\":null,\"agent\":\"x\",\"reward\":1.0}\n{\"id\":\"o:1\",\"se\xe2\x82").unwrap();
+        let r = s.sync_folder(&folder, "me", None, None).unwrap();
+        assert_eq!(r.imported, 1);
+        let _ = fs::remove_dir_all(&p);
+        let _ = fs::remove_dir_all(&folder);
     }
 }
