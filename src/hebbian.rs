@@ -310,6 +310,46 @@ impl HebbianRouter {
         self.n_agents
     }
 
+    /// B14 (opt-in): federated merge of the LEARNED STATE of several routers (e.g. one per machine, each the owner of its own state file) without replaying any journal.
+    /// Per feature the weight rows are SUMMED and, if the row sum exceeds `row_cap`, rescaled to `row_cap` (the same rule `update` applies); baselines are averaged over
+    /// the routers that hold the feature; `updates` are added. The config is taken from `routers[0]`; opt-in meta state (drift detector / UCB counts) is NOT merged.
+    /// Not a union-by-id (merging an already-merged state double counts): recompute from the latest set of per-machine states each time.
+    /// Measured (RD-LOG-B B14, simulator, held-out+confirm): equivalent to replaying the union journal within +-.01 (95% CI) in 25 of 32 cells per split and within +-.003 for the
+    /// Guarded router's inner learner; worst cell -.016 (H100, plain Hebbian, 4 SPECIALISED machines, fixed world); state is constant-size (5.6 KB JSON incl. config, 32 features) vs 147 KB for the 1,000-outcome union journal (26x, growing with outcomes).
+    /// Panics if `routers` is empty or the routers disagree on the number of agents.
+    pub fn merge_sum(routers: &[&HebbianRouter]) -> HebbianRouter {
+        assert!(!routers.is_empty(), "merge_sum needs at least one router");
+        let n = routers[0].n_agents;
+        assert!(routers.iter().all(|r| r.n_agents == n), "merge_sum: routers disagree on n_agents");
+        let mut out = HebbianRouter::new(n, routers[0].cfg.clone());
+        let mut base_cnt: BTreeMap<String, f64> = BTreeMap::new();
+        for r in routers {
+            for (f, row) in &r.weights {
+                let e = out.weights.entry(f.clone()).or_insert_with(|| vec![0.0; n]);
+                for (a, w) in row.iter().enumerate() {
+                    e[a] += *w;
+                }
+            }
+            for (f, b) in &r.baselines {
+                *out.baselines.entry(f.clone()).or_insert(0.0) += *b;
+                *base_cnt.entry(f.clone()).or_insert(0.0) += 1.0;
+            }
+            out.updates += r.updates;
+        }
+        let cap = out.cfg.row_cap;
+        for row in out.weights.values_mut() {
+            let sum: f64 = row.iter().sum();
+            if cap > 0.0 && sum > cap {
+                let k = cap / sum;
+                row.iter_mut().for_each(|w| *w *= k);
+            }
+        }
+        for (f, b) in out.baselines.iter_mut() {
+            *b /= base_cnt[f];
+        }
+        out
+    }
+
     /// Grow to at least `n` agents (new agents get [`INIT_WEIGHT`] in every row).
     pub fn ensure_agents(&mut self, n: usize) {
         if n > self.n_agents {
@@ -1098,5 +1138,34 @@ mod tests {
         assert_eq!(back.n_rows(), r.n_rows());
         r.update(&t, 4, 1.0);
         assert_eq!(r.scores(&t).len(), 5);
+    }
+
+    #[test]
+    fn merge_sum_combines_disjoint_specialists_and_respects_row_cap() {
+        let mk = |feat: &str, agent: usize| {
+            let mut r = HebbianRouter::new(3, HebbianConfig { epsilon: 0.0, temperature: 0.0, ..HebbianConfig::default() });
+            let t = Task { id: 0, task_type: None, features: vec![feat.to_string()] };
+            for _ in 0..40 {
+                r.update(&t, agent, 1.0);
+                r.update(&t, (agent + 1) % 3, 0.0);
+            }
+            r
+        };
+        let (a, b) = (mk("sql", 0), mk("img", 2));
+        let m = HebbianRouter::merge_sum(&[&a, &b]);
+        let mut rng = Rng::new(1);
+        let ts = Task { id: 0, task_type: None, features: vec!["sql".into()] };
+        let ti = Task { id: 0, task_type: None, features: vec!["img".into()] };
+        let mut m2 = m.clone();
+        assert_eq!(m2.select(&ts, &[0, 1, 2], &mut rng), 0);
+        assert_eq!(m2.select(&ti, &[0, 1, 2], &mut rng), 2);
+        assert_eq!(m.updates, a.updates + b.updates);
+        // same feature in both: rows are summed then rescaled to row_cap
+        let m3 = HebbianRouter::merge_sum(&[&a, &a]);
+        for row in m3.weights.values() {
+            assert!(row.iter().sum::<f64>() <= m3.cfg.row_cap + 1e-12);
+        }
+        // a single router merges to itself
+        assert_eq!(HebbianRouter::merge_sum(&[&a]).weights, a.weights);
     }
 }
