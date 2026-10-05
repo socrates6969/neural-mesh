@@ -12,7 +12,7 @@ fn main() {
     let dim = 384; let n = emb.len() / dim;
     let ix = HybridIndex::new(&texts[..n], emb.clone(), dim, HybridConfig::default()).unwrap().with_int8_dense(true);
     let qs: Vec<String> = (0..300).map(|i| texts[(i * 23) % n].split_whitespace().take(12).collect::<Vec<_>>().join(" ")).collect();
-    for (name, enc) in [("f32 1thr", Encoder::load(a[1].as_ref(), a[2].as_ref()).unwrap()), ("f32 4thr", Encoder::load(a[1].as_ref(), a[2].as_ref()).unwrap().with_threads(4))] {
+    for (name, enc) in [("f32 1thr", Encoder::load(a[1].as_ref(), a[2].as_ref()).unwrap()), ("f32 4thr", Encoder::load(a[1].as_ref(), a[2].as_ref()).unwrap().with_threads(4)), ("int8 1thr (R111/R112 VNNI)", Encoder::load(a[1].as_ref(), a[2].as_ref()).unwrap().with_int8(true)), ("int8 4thr (VNNI)", Encoder::load(a[1].as_ref(), a[2].as_ref()).unwrap().with_int8(true).with_threads(4))] {
         for bs in [1usize, 16] {
             let (mut enc_ms, mut srch_ms, mut agree) = (vec![], vec![], 0usize);
             for c in qs.chunks(bs) {
