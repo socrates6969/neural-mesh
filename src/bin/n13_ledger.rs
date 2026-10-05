@@ -1,5 +1,5 @@
 //! R95: build a per-agent token ledger from recorded Claude Code transcripts (aggregates only; no content is kept or printed).
-//! usage: n13_ledger [root=~/.claude/projects]   -> table per agent label + results/r95_ledger.json
+//! usage: n13_ledger [root=~/.claude/projects]   -> table per agent label + results/r102_ledger.json
 use neural_mesh::ledger::{median_first_ctx, parse_transcript, Ledger, Pricing};
 use std::path::{Path, PathBuf};
 fn walk(p: &Path, out: &mut Vec<PathBuf>) {
@@ -25,7 +25,7 @@ fn main() {
     println!("{} files, {:.0} MB parsed in {:.1} s", files.len(), bytes as f64 / 1e6, t0.elapsed().as_secs_f64());
     let mut rows: Vec<_> = led.counted.iter().collect(); rows.sort_by(|a, b| units[b.0].partial_cmp(&units[a.0]).unwrap());
     println!("{:36} {:>5} {:>7} {:>10} {:>12} {:>10} {:>8}", "agent", "runs", "calls", "first_ctx", "tokens", "output", "units%");
-    for (k, a) in rows.iter().take(12) { println!("{:36} {:5} {:7} {:10} {:12} {:10} {:8.1}", k, a.runs, a.calls, median_first_ctx(a).unwrap_or(0), a.usage.total(), a.usage.output, 100.0 * units[*k] / tu); }
+    for (k, a) in rows.iter().take(60) { println!("{:36} {:5} {:7} {:10} {:12} {:10} {:8.1}", k, a.runs, a.calls, median_first_ctx(a).unwrap_or(0), a.usage.total(), a.usage.output, 100.0 * units[*k] / tu); }
     let t = led.total_counted(); println!("TOTAL counted tokens {} (input {} cache-write {} cache-read {} output {})", t.total(), t.input, t.cache_write, t.cache_read, t.output);
-    std::fs::write("results/r95_ledger.json", led.to_json()).unwrap();
+    std::fs::write("results/r102_ledger.json", led.to_json()).unwrap();
 }
