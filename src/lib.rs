@@ -28,3 +28,5 @@ pub mod tools;
 pub mod popguard;
 pub mod flatq;
 pub mod dedup;
+pub mod hybrid;
+pub mod verifygate;
