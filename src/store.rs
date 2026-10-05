@@ -524,6 +524,15 @@ impl MeshStore {
     /// because the row count changes, so `open_ann` rebuilds. O(n^2 d): intended for offline maintenance (6.8k docs ~ seconds). Returns (before, after).
     /// Measured on the real 6,831-paragraph store (RD-LOG R47): .98 removes 1.1%, .95 removes 2.2%, retrieval TOST-equivalent (+-.01); saves little there.
     pub fn gc_docs(&self, ns: &str, threshold: f32) -> R<(usize, usize)> {
+        self.gc_docs_impl(ns, threshold, false)
+    }
+    /// B42 (opt-in): like [`MeshStore::gc_docs`] but the "first wins" order is the doc ID order, not the row order, so the same set of docs always collapses to the same
+    /// representatives on every machine (row order depends on arrival order, which differs per machine; B41 measured 5/60 fuzz seeds ending with different representatives of
+    /// a class under row-order gc). Output keeps the original row order of the survivors. Survivors can differ from row-order gc.
+    pub fn gc_docs_canonical(&self, ns: &str, threshold: f32) -> R<(usize, usize)> {
+        self.gc_docs_impl(ns, threshold, true)
+    }
+    fn gc_docs_impl(&self, ns: &str, threshold: f32, canonical: bool) -> R<(usize, usize)> {
         let _g = self.lock()?;
         let (docs, vecs, dim) = self.load_docs(ns)?;
         let n = docs.len();
@@ -540,8 +549,12 @@ impl MeshStore {
         }
         let mut keep: Vec<usize> = vec![];
         let mut keeper_of: BTreeMap<usize, usize> = BTreeMap::new(); // dropped row -> the kept row that made it a duplicate (B38)
-        for i in 0..n {
-            if i % 64 == 0 {
+        let mut order: Vec<usize> = (0..n).collect();
+        if canonical {
+            order.sort_by(|&a, &b| docs[a].id.cmp(&docs[b].id).then(a.cmp(&b)));
+        }
+        for (step, &i) in order.iter().enumerate() {
+            if step % 64 == 0 {
                 _g.heartbeat();
             }
             let vi = &unit[i * dim..(i + 1) * dim];
@@ -560,6 +573,7 @@ impl MeshStore {
         if keep.len() == n {
             return Ok((n, n));
         }
+        keep.sort_unstable(); // survivors keep their original row order
         let d = self.kdir(ns);
         let (dt, vt) = (d.join("docs.jsonl.tmp"), d.join("vecs.f32.tmp"));
         let mut db = String::new();
@@ -585,7 +599,7 @@ impl MeshStore {
             // B38: which kept doc each dropped one duplicated, so an opt-in deletion exchange can refuse to delete a doc whose keeper a peer does not have
             let mut bb = String::new();
             for (&i, &j) in &keeper_of {
-                bb.push_str(&serde_json::to_string(&DropLine { id: docs[i].id.clone(), by: docs[j].id.clone() }).unwrap());
+                bb.push_str(&serde_json::to_string(&DropLine { id: docs[i].id.clone(), by: docs[j].id.clone(), ts: now_ms() }).unwrap());
                 bb.push('\n');
             }
             let mut bf = OpenOptions::new().create(true).append(true).open(d.join("dropped_by.jsonl"))?;
@@ -934,6 +948,26 @@ struct DocShardLine {
 struct DropLine {
     id: String,
     by: String,
+    /// B40: when the deletion originated (unix ms); 0 = unknown (legacy line, never expires). Carried unchanged through relays so transitive propagation cannot extend a tombstone's life.
+    #[serde(default, skip_serializing_if = "is_zero_u64")]
+    ts: u64,
+}
+fn is_zero_u64(x: &u64) -> bool {
+    *x == 0
+}
+
+/// B40: options for [`MeshStore::sync_docs_folder_with`].
+#[derive(Clone, Debug, Default)]
+pub struct DocSyncOpts {
+    /// exchange gc deletions (B38)
+    pub propagate_deletions: bool,
+    /// tombstones older than this (ms since their origin gc) are expired: dropped from the local tombstone files (the doc may then be re-imported from a peer that still holds it),
+    /// not exported, and ignored when read from peers. Must exceed the longest time a peer can stay offline. `None` = permanent (B38 behaviour).
+    pub tombstone_ttl_ms: Option<u64>,
+    /// authority: only tombstone files owned by these machine ids are applied; others are counted in `deletions_unauthorized`. `None` = every peer may delete.
+    pub deleters: Option<Vec<String>>,
+    /// test hook: pretend it is this unix-ms instant
+    pub now_ms: Option<u64>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -942,6 +976,10 @@ pub struct DocSyncReport {
     pub deleted: usize,
     /// B38: peer deletions NOT applied because no keeper doc is present locally (never delete the last copy of a duplicate class)
     pub deletions_held_back: usize,
+    /// B40: peer deletions ignored because the owning machine is not in `DocSyncOpts::deleters`
+    pub deletions_unauthorized: usize,
+    /// B40: tombstones (local + peer lines) dropped because they outlived `tombstone_ttl_ms`
+    pub tombstones_expired: usize,
     pub exported: usize,
     pub imported: usize,
     /// same id present locally with DIFFERENT text: the local doc is kept, the foreign one is NOT imported (reported, never silently overwritten)
@@ -970,12 +1008,24 @@ impl MeshStore {
     /// tombstones (so they are not re-imported and are re-exported, i.e. propagation is transitive). A doc re-added locally (present) is not exported as a tombstone, but peers that
     /// already applied the deletion do not get it back: tombstones are permanent, re-add under a NEW id. Deleted docs are gone from retrieval; the corpus shrinks to the representatives.
     pub fn sync_docs_folder_opts(&self, folder: &Path, machine: &str, ns: &str, propagate_deletions: bool) -> R<DocSyncReport> {
+        self.sync_docs_folder_with(folder, machine, ns, &DocSyncOpts { propagate_deletions, ..Default::default() })
+    }
+    /// B40: [`MeshStore::sync_docs_folder_opts`] plus tombstone EXPIRY and a who-may-delete AUTHORITY list (see [`DocSyncOpts`]). Expiry trade-off, stated plainly: after a tombstone
+    /// expires a peer that still holds the doc and has not gc'd it will re-introduce it, so the TTL must exceed the longest peer absence. Authority is by machine id as named in the shard
+    /// file (the shared folder has no cryptographic identity: this guards against accidents and unvetted peers, not against a malicious writer of the folder).
+    pub fn sync_docs_folder_with(&self, folder: &Path, machine: &str, ns: &str, o: &DocSyncOpts) -> R<DocSyncReport> {
+        let propagate_deletions = o.propagate_deletions;
+        let now = o.now_ms.unwrap_or_else(now_ms);
+        let expired = |t: u64| matches!(o.tombstone_ttl_ms, Some(ttl) if t > 0 && now.saturating_sub(t) > ttl);
         let ok = |s: &str| !s.is_empty() && s.chars().all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_');
         if !ok(machine) || !ok(ns) {
             return Err(StoreError::Corrupt("machine id and namespace must be [A-Za-z0-9_-]+".into()));
         }
         fs::create_dir_all(folder)?;
         let mut rep = DocSyncReport::default();
+        if o.tombstone_ttl_ms.is_some() {
+            rep.tombstones_expired += self.expire_local_tombstones(ns, &expired)?;
+        }
         let own = format!("{machine}.{ns}.docs.jsonl");
         let suffix = format!(".{ns}.docs.jsonl");
         let (ldocs, lvecs, ldim) = self.load_docs(ns)?;
@@ -1043,19 +1093,27 @@ impl MeshStore {
         }
         if propagate_deletions {
             // peers' deletions, applied against the live local set in sorted-id order; a deletion needs a present keeper (see the doc comment)
-            let mut peer: BTreeMap<String, Vec<String>> = BTreeMap::new();
+            let mut peer: BTreeMap<String, Vec<(String, u64)>> = BTreeMap::new();
             for p in &files {
                 let name = p.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
                 if name == own_tomb || !name.ends_with(&tomb_suffix) {
                     continue;
                 }
+                let owner = &name[..name.len() - tomb_suffix.len()];
+                let allowed = o.deleters.as_ref().map_or(true, |d| d.iter().any(|m| m == owner));
                 let Ok(lines) = lossy_lines(p) else {
                     rep.skipped_files += 1;
                     continue;
                 };
                 for l in lines {
                     if let Ok(x) = serde_json::from_str::<DropLine>(&l) {
-                        peer.entry(x.id).or_default().push(x.by);
+                        if !allowed {
+                            rep.deletions_unauthorized += 1;
+                        } else if expired(x.ts) {
+                            rep.tombstones_expired += 1;
+                        } else {
+                            peer.entry(x.id).or_default().push((x.by, x.ts));
+                        }
                     }
                 }
             }
@@ -1065,10 +1123,10 @@ impl MeshStore {
                 if !present.contains(id) {
                     continue;
                 }
-                match keepers.iter().find(|k| *k != id && present.contains(*k)) {
-                    Some(k) => {
+                match keepers.iter().find(|(k, _)| k != id && present.contains(k)) {
+                    Some((k, ts)) => {
                         present.remove(id);
-                        del.push(DropLine { id: id.clone(), by: k.clone() });
+                        del.push(DropLine { id: id.clone(), by: k.clone(), ts: *ts });
                     }
                     None => rep.deletions_held_back += 1,
                 }
@@ -1104,6 +1162,37 @@ impl MeshStore {
             replace_durable(&folder.join(format!("{own_tomb}.tmp")), &folder.join(&own_tomb), tb.as_bytes())?;
         }
         Ok(rep)
+    }
+    /// B40: drop expired tombstones (those with an origin timestamp past the TTL) from `tombstones.jsonl` and `dropped_by.jsonl`. Ids without a timestamped record never expire.
+    fn expire_local_tombstones(&self, ns: &str, expired: &dyn Fn(u64) -> bool) -> R<usize> {
+        let d = self.kdir(ns);
+        if !d.join("dropped_by.jsonl").exists() {
+            return Ok(0);
+        }
+        let _g = self.lock()?;
+        let all = self.read_dropped(ns);
+        let live: HashSet<&str> = all.iter().filter(|x| !expired(x.ts)).map(|x| x.id.as_str()).collect();
+        let dead: HashSet<&str> = all.iter().filter(|x| expired(x.ts) && !live.contains(x.id.as_str())).map(|x| x.id.as_str()).collect();
+        if dead.is_empty() {
+            return Ok(0);
+        }
+        let mut bb = String::new();
+        for x in all.iter().filter(|x| !dead.contains(x.id.as_str())) {
+            bb.push_str(&serde_json::to_string(x).unwrap());
+            bb.push('\n');
+        }
+        let mut tb = String::new();
+        for l in lossy_lines(&d.join("tombstones.jsonl")).unwrap_or_default() {
+            if let Ok(id) = serde_json::from_str::<String>(&l) {
+                if !dead.contains(id.as_str()) {
+                    tb.push_str(&serde_json::to_string(&id).unwrap());
+                    tb.push('\n');
+                }
+            }
+        }
+        replace_durable(&d.join("tombstones.jsonl.tmp"), &d.join("tombstones.jsonl"), tb.as_bytes())?;
+        replace_durable(&d.join("dropped_by.jsonl.tmp"), &d.join("dropped_by.jsonl"), bb.as_bytes())?;
+        Ok(dead.len())
     }
     fn read_dropped(&self, ns: &str) -> Vec<DropLine> {
         lossy_lines(&self.kdir(ns).join("dropped_by.jsonl")).map(|ls| ls.iter().filter_map(|l| serde_json::from_str::<DropLine>(l).ok()).collect()).unwrap_or_default()
@@ -2028,5 +2117,198 @@ mod b38_tests {
         let r = dd.sync_docs_folder_opts(&folder, "mD", "kb", true).unwrap();
         assert!(ids(&dd).contains(&"q".to_string()), "no keeper present -> q must survive: {r:?}");
         assert!(r.deletions_held_back >= 1, "{r:?}");
+    }
+}
+
+#[cfg(test)]
+mod b40_tests {
+    use super::*;
+    fn tmp(name: &str) -> PathBuf {
+        let p = std::env::temp_dir().join(format!("nm_b40_{name}_{}", std::process::id()));
+        let _ = fs::remove_dir_all(&p);
+        p
+    }
+    fn d(i: &str) -> DocRec {
+        DocRec { id: i.into(), text: format!("t{i}"), tag: "t".into() }
+    }
+    fn ids(s: &MeshStore) -> Vec<String> {
+        let mut v: Vec<String> = s.load_docs("kb").unwrap().0.into_iter().map(|d| d.id).collect();
+        v.sort();
+        v
+    }
+    const V: [f32; 12] = [1.0, 0., 0., 0., 1.0, 0., 0., 0., 0., 1.0, 0., 0.];
+    fn setup(tag: &str) -> (PathBuf, MeshStore, MeshStore) {
+        let (folder, pa, pb) = (tmp(&format!("f{tag}")), tmp(&format!("a{tag}")), tmp(&format!("b{tag}")));
+        let (a, b) = (MeshStore::open(&pa).unwrap(), MeshStore::open(&pb).unwrap());
+        let docs = [d("x"), d("y"), d("z")];
+        a.put_docs("kb", 4, &docs, &V).unwrap();
+        b.put_docs("kb", 4, &docs, &V).unwrap();
+        (folder, a, b)
+    }
+    /// B40 authority: a deletion from a machine outside `deleters` is not applied (counted); one from an authorised machine is.
+    #[test]
+    fn only_listed_deleters_may_delete() {
+        let (folder, a, b) = setup("auth");
+        a.gc_docs("kb", 0.99).unwrap(); // A drops y
+        let ob = DocSyncOpts { propagate_deletions: true, deleters: Some(vec!["mC".into()]), ..Default::default() };
+        a.sync_docs_folder_with(&folder, "mA", "kb", &DocSyncOpts { propagate_deletions: true, ..Default::default() }).unwrap();
+        let r = b.sync_docs_folder_with(&folder, "mB", "kb", &ob).unwrap();
+        assert_eq!((r.deleted, r.deletions_unauthorized), (0, 1));
+        assert_eq!(ids(&b), vec!["x", "y", "z"], "mA is not an authorised deleter for B");
+        let ok = DocSyncOpts { propagate_deletions: true, deleters: Some(vec!["mA".into()]), ..Default::default() };
+        let r = b.sync_docs_folder_with(&folder, "mB", "kb", &ok).unwrap();
+        assert_eq!((r.deleted, r.deletions_unauthorized), (1, 0));
+        assert_eq!(ids(&b), vec!["x", "z"]);
+    }
+    /// B40 expiry: an old tombstone is ignored when read from a peer, is dropped from our own files and is not exported; a young one still works.
+    /// After expiry a peer that still holds the doc brings it back (documented trade-off) - asserted so the behaviour is explicit, not accidental.
+    #[test]
+    fn tombstones_expire_and_stop_blocking_reimport() {
+        let (folder, a, b) = setup("exp");
+        a.gc_docs("kb", 0.99).unwrap(); // y dropped now
+        let t0 = now_ms();
+        let day = 86_400_000u64;
+        let at = |dt: u64| DocSyncOpts { propagate_deletions: true, tombstone_ttl_ms: Some(30 * day), now_ms: Some(t0 + dt), ..Default::default() };
+        // B holds y and no tombstones; A syncs inside the TTL: y stays blocked from re-import, export lists the tombstone
+        a.sync_docs_folder_with(&folder, "mA", "kb", &at(day)).unwrap();
+        assert!(fs::read_to_string(folder.join("mA.kb.tombstones.jsonl")).unwrap().contains("\"y\""));
+        // B syncs 31 days later: the peer tombstone is expired -> ignored, y is NOT deleted from B
+        let r = b.sync_docs_folder_with(&folder, "mB", "kb", &at(31 * day)).unwrap();
+        assert_eq!((r.deleted, r.tombstones_expired), (0, 1));
+        assert_eq!(ids(&b), vec!["x", "y", "z"]);
+        // A syncs 31 days later: own tombstone expires (files compacted, nothing exported) and y is re-imported from B
+        let r = a.sync_docs_folder_with(&folder, "mA", "kb", &at(31 * day)).unwrap();
+        assert_eq!(r.tombstones_expired, 1);
+        assert_eq!(r.imported, 1, "documented trade-off: after expiry a holder resurrects the doc");
+        assert_eq!(fs::read_to_string(a.kdir("kb").join("tombstones.jsonl")).unwrap().trim(), "");
+        assert!(!fs::read_to_string(folder.join("mA.kb.tombstones.jsonl")).unwrap().contains("\"y\""));
+    }
+    /// B40: legacy dropped_by lines (no ts) never expire, and a relay keeps the ORIGIN timestamp (transitive propagation must not extend a tombstone's life).
+    #[test]
+    fn legacy_lines_never_expire_and_relays_keep_origin_ts() {
+        let (folder, a, b) = setup("rel");
+        a.gc_docs("kb", 0.99).unwrap();
+        let ts_a = a.read_dropped("kb")[0].ts;
+        assert!(ts_a > 0);
+        let o = DocSyncOpts { propagate_deletions: true, ..Default::default() };
+        a.sync_docs_folder_with(&folder, "mA", "kb", &o).unwrap();
+        b.sync_docs_folder_with(&folder, "mB", "kb", &o).unwrap(); // B applies and relays
+        assert_eq!(b.read_dropped("kb")[0].ts, ts_a, "origin timestamp preserved through the relay");
+        // legacy line: strip the ts from A's local record; a tiny TTL far in the future must not expire it
+        let line = serde_json::to_string(&DropLine { id: "y".into(), by: "x".into(), ts: 0 }).unwrap();
+        assert!(!line.contains("ts"));
+        fs::write(a.kdir("kb").join("dropped_by.jsonl"), format!("{line}\n")).unwrap();
+        let far = DocSyncOpts { propagate_deletions: true, tombstone_ttl_ms: Some(1), now_ms: Some(now_ms() + 10 * 86_400_000), ..Default::default() };
+        a.sync_docs_folder_with(&folder, "mA", "kb", &far).unwrap();
+        assert!(fs::read_to_string(a.kdir("kb").join("tombstones.jsonl")).unwrap().contains("\"y\""), "local legacy tombstone kept");
+        assert_eq!(a.read_dropped("kb").len(), 1);
+        assert_eq!(ids(&a), vec!["x", "z"], "and y is not re-imported");
+    }
+}
+
+#[cfg(test)]
+mod b41_tests {
+    use super::*;
+    /// B41 randomized convergence/safety fuzz for the opt-in deletion exchange. 3 machines, 4 duplicate classes (members of a class share one vector), random per-machine
+    /// puts of random members in random order, random gc, random syncs (with propagation). After a quiescent tail of syncs: all stores hold the same id set, every class that
+    /// was ever put anywhere still has >= 1 member (no class is deleted entirely), and vector rows stay aligned with their docs.
+    #[test]
+    fn deletion_exchange_fuzz_never_loses_a_class_and_converges() {
+        let r = run_fuzz(false);
+        eprintln!("B41: seeds whose stores kept different representatives of some class (row-order gc): {r} / 60");
+    }
+    /// B42: with canonical (id-ordered) gc every seed converges to the IDENTICAL id set on every store (fails with row-order gc: B41 measured 5/60 diverging seeds).
+    #[test]
+    fn canonical_gc_makes_representatives_converge() {
+        assert_eq!(run_fuzz(true), 0, "stores must hold identical id sets");
+    }
+    fn run_fuzz(canonical: bool) -> usize {
+        let diverged = std::sync::atomic::AtomicUsize::new(0);
+        let dim = 4usize;
+        let vec_of = |c: usize| -> Vec<f32> { (0..dim).map(|i| if i == c % dim { 1.0 } else { 0.0 }).collect() };
+        for seed in 0..60u64 {
+            let mut st = seed.wrapping_mul(0x9E3779B97F4A7C15) | 1;
+            let mut rnd = |n: usize| -> usize {
+                st ^= st << 13;
+                st ^= st >> 7;
+                st ^= st << 17;
+                (st % n as u64) as usize
+            };
+            let folder = std::env::temp_dir().join(format!("nm_b41_f{seed}_{canonical}_{}", std::process::id()));
+            let _ = fs::remove_dir_all(&folder);
+            let stores: Vec<MeshStore> = (0..3)
+                .map(|m| {
+                    let p = std::env::temp_dir().join(format!("nm_b41_s{seed}_{m}_{canonical}_{}", std::process::id()));
+                    let _ = fs::remove_dir_all(&p);
+                    MeshStore::open(&p).unwrap()
+                })
+                .collect();
+            let names = ["mA", "mB", "mC"];
+            let mut classes_put: HashSet<usize> = HashSet::new();
+            for _ in 0..24 {
+                let m = rnd(3);
+                match rnd(4) {
+                    0 | 1 => {
+                        let c = rnd(4);
+                        let id = format!("c{c}_{}", rnd(3));
+                        classes_put.insert(c);
+                        let doc = DocRec { id: id.clone(), text: id, tag: "t".into() };
+                        stores[m].put_docs("kb", dim, &[doc], &vec_of(c)).unwrap();
+                    }
+                    2 => {
+                        let _ = if canonical { stores[m].gc_docs_canonical("kb", 0.99) } else { stores[m].gc_docs("kb", 0.99) };
+                    }
+                    _ => {
+                        stores[m].sync_docs_folder_opts(&folder, names[m], "kb", true).unwrap();
+                    }
+                }
+            }
+            // quiescent tail, the intended maintenance cycle: sync, gc everywhere, sync again
+            for phase in 0..2 {
+                for _ in 0..4 {
+                    for m in 0..3 {
+                        stores[m].sync_docs_folder_opts(&folder, names[m], "kb", true).unwrap();
+                    }
+                }
+                if phase == 0 {
+                    for m in 0..3 {
+                        let _ = if canonical { stores[m].gc_docs_canonical("kb", 0.99) } else { stores[m].gc_docs("kb", 0.99) };
+                    }
+                }
+            }
+            let sets: Vec<Vec<String>> = stores
+                .iter()
+                .map(|s| {
+                    let mut v: Vec<String> = s.load_docs("kb").map(|x| x.0.into_iter().map(|d| d.id).collect()).unwrap_or_default();
+                    v.sort();
+                    v
+                })
+                .collect();
+            for m in 0..3 {
+                if let Ok((docs, vecs, d)) = stores[m].load_docs("kb") {
+                    for (i, doc) in docs.iter().enumerate() {
+                        let c: usize = doc.id[1..2].parse().unwrap();
+                        assert_eq!(&vecs[i * d..(i + 1) * d], &vec_of(c)[..], "seed {seed}: vector misaligned for {}", doc.id);
+                    }
+                }
+            }
+            for c in &classes_put {
+                let tag = format!("c{c}_");
+                for (m, s) in sets.iter().enumerate() {
+                    assert!(s.iter().any(|i| i.starts_with(&tag)), "seed {seed}: store {m} lost the whole class {c}: {sets:?}");
+                }
+            }
+            // the SET OF CLASSES is identical everywhere; which representative of a class a machine keeps may differ (gc keeps the first by row order, B38 keeper rule), counted below
+            let cls = |s: &Vec<String>| -> Vec<String> {
+                let mut v: Vec<String> = s.iter().map(|i| i[..2].to_string()).collect();
+                v.dedup();
+                v
+            };
+            assert!(sets.iter().all(|s| cls(s) == cls(&sets[0])), "seed {seed}: class sets diverged: {sets:?}");
+            if sets.iter().any(|s| *s != sets[0]) {
+                diverged.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+            }
+        }
+        diverged.load(std::sync::atomic::Ordering::Relaxed)
     }
 }
