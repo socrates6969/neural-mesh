@@ -33,3 +33,4 @@ pub mod verifygate;
 pub mod fin;
 pub mod store;
 pub mod project;
+pub mod knnroute;

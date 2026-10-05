@@ -49,3 +49,27 @@ fn bm25_params_match_python_reference() {
         assert_eq!(neural_mesh::hybrid::top_n(&sc, 1)[0] as u64, q["top"].as_u64().unwrap());
     }
 }
+
+#[test]
+fn knn_router_matches_python_reference() {
+    let p = concat!(env!("CARGO_MANIFEST_DIR"), "/results/b1_knn_fixture.json");
+    let j: serde_json::Value = serde_json::from_slice(&std::fs::read(p).expect("run py/b1/mk_parity3.py")).unwrap();
+    let mut r = neural_mesh::knnroute::KnnRouter::new(j["dim"].as_u64().unwrap() as usize, j["k"].as_u64().unwrap() as usize);
+    for e in j["exemplars"].as_array().unwrap() {
+        let v: Vec<f32> = e["vec"].as_array().unwrap().iter().map(|x| x.as_f64().unwrap() as f32).collect();
+        assert!(r.add(e["label"].as_str().unwrap(), &v));
+    }
+    let mut n = 0;
+    for q in j["queries"].as_array().unwrap() {
+        let v: Vec<f32> = q["vec"].as_array().unwrap().iter().map(|x| x.as_f64().unwrap() as f32).collect();
+        let got = r.votes(&v);
+        let want = q["votes"].as_object().unwrap();
+        assert_eq!(got.len(), want.len(), "{}", q["text"]);
+        for (l, s) in &got {
+            let w = want[l].as_f64().unwrap();
+            assert!((*s as f64 - w).abs() < 2e-3, "{l}: {s} vs {w} for {}", q["text"]);
+        }
+        n += 1;
+    }
+    assert!(n >= 30);
+}
