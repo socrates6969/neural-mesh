@@ -251,6 +251,30 @@ unsafe fn scores_i8_avx2(rows: &[i8], scales: &[f32], dim: usize, q: &[i8], qs: 
     }
 }
 
+/// R99: [`scores_i8`] with the rows split over up to `threads` chunks (one thread below `PAR_MIN_ROWS` rows per thread); the result equals the serial one exactly (integer dots, same f32 multiply order per row)
+pub fn scores_i8_par(rows: &[i8], scales: &[f32], dim: usize, q: &[i8], qs: f32, out: &mut Vec<f32>, threads: usize) {
+    let n = rows.len() / dim;
+    let t = threads.max(1).min(n / PAR_MIN_ROWS).max(1);
+    if t == 1 {
+        return scores_i8(rows, scales, dim, q, qs, out);
+    }
+    out.clear();
+    out.resize(n, 0.0);
+    let step = n.div_ceil(t);
+    std::thread::scope(|sc| {
+        for (i, chunk) in out.chunks_mut(step).enumerate() {
+            let lo = i * step;
+            let r = &rows[lo * dim..(lo + chunk.len()) * dim];
+            let s = &scales[lo..lo + chunk.len()];
+            sc.spawn(move || {
+                let mut tmp = Vec::new();
+                scores_i8(r, s, dim, q, qs, &mut tmp);
+                chunk.copy_from_slice(&tmp);
+            });
+        }
+    });
+}
+
 /// as [`scan_i8`] over up to `threads` chunks (one thread below `PAR_MIN_ROWS` rows per thread); equals the serial result exactly (integer dots)
 pub fn scan_i8_par(rows: &[i8], scales: &[f32], dim: usize, q: &[i8], qs: f32, k: usize, threads: usize) -> Vec<(f32, usize)> {
     let n = rows.len() / dim;

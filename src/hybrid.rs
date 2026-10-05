@@ -76,6 +76,43 @@ fn zscore_into(v: &[f32], out: &mut Vec<f32>) {
     out.extend(v.iter().map(|x| (x - m) / sd));
 }
 
+/// R99: (min, max, mean, sd) with 8 independent accumulators (summation order differs from [`zscore`]; ~1e-7 relative)
+fn stats8(v: &[f32]) -> (f32, f32, f32, f32) {
+    let (mut lo, mut hi) = ([f32::INFINITY; 8], [f32::NEG_INFINITY; 8]);
+    let mut sm = [0.0f32; 8];
+    let ch = v.chunks_exact(8);
+    let rem = ch.remainder();
+    for c in ch {
+        for j in 0..8 {
+            lo[j] = lo[j].min(c[j]);
+            hi[j] = hi[j].max(c[j]);
+            sm[j] += c[j];
+        }
+    }
+    let (mut l, mut h) = (lo.iter().copied().fold(f32::INFINITY, f32::min), hi.iter().copied().fold(f32::NEG_INFINITY, f32::max));
+    let mut s = sm.iter().sum::<f32>();
+    for &x in rem {
+        l = l.min(x);
+        h = h.max(x);
+        s += x;
+    }
+    let n = v.len() as f32;
+    let m = s / n;
+    let mut vr = [0.0f32; 8];
+    let ch = v.chunks_exact(8);
+    let rem = ch.remainder();
+    for c in ch {
+        for j in 0..8 {
+            vr[j] += (c[j] - m) * (c[j] - m);
+        }
+    }
+    let mut var = vr.iter().sum::<f32>();
+    for &x in rem {
+        var += (x - m) * (x - m);
+    }
+    (l, h, m, (var / n).sqrt().max(1e-9))
+}
+
 /// indices of the top-n scores, best first, ties broken by the lower index; NaN scores sort last
 pub fn top_n(scores: &[f32], n: usize) -> Vec<usize> {
     use std::cmp::Ordering;
@@ -271,6 +308,9 @@ pub struct HybridIndex {
     q8: Vec<i8>,
     #[serde(default)]
     q8_scales: Vec<f32>,
+    /// R99 (opt-in, default 0 = serial): threads for the int8 dense scan (only effective above ~2 x 20k rows per call)
+    #[serde(default)]
+    threads: usize,
 }
 
 impl HybridIndex {
@@ -279,7 +319,7 @@ impl HybridIndex {
         if dense.len() != expected {
             return Err(HybridError::DenseShape { expected, got: dense.len() });
         }
-        Ok(HybridIndex { cfg, dim, ndoc: docs.len(), dense, bm: Bm25::new(docs), fast: false, q8: Vec::new(), q8_scales: Vec::new() })
+        Ok(HybridIndex { cfg, dim, ndoc: docs.len(), dense, bm: Bm25::new(docs), fast: false, q8: Vec::new(), q8_scales: Vec::new(), threads: 0 })
     }
     /// R54 (opt-in): like [`HybridIndex::new`] with BM25 parameters `k1` / `b` (default 1.2 / 0.75). R54 measured k1=.9, b=.5 as +.007..+.011 real_mrr
     /// (both splits, Holm) with no domain/general loss; k1=.6, b=.3 gives +.013..+.015 on real text but a small non-significant domain-axis drift.
@@ -288,7 +328,7 @@ impl HybridIndex {
         if dense.len() != expected {
             return Err(HybridError::DenseShape { expected, got: dense.len() });
         }
-        Ok(HybridIndex { cfg, dim, ndoc: docs.len(), dense, bm: Bm25::with_params(docs, k1, b), fast: false, q8: Vec::new(), q8_scales: Vec::new() })
+        Ok(HybridIndex { cfg, dim, ndoc: docs.len(), dense, bm: Bm25::with_params(docs, k1, b), fast: false, q8: Vec::new(), q8_scales: Vec::new(), threads: 0 })
     }
     /// R45 (opt-in): scan the dense matrix with 8 independent accumulators (RD-LOG R45: ~4x faster dense scan; identical top-k on the real fixtures)
     pub fn with_fast_kernels(mut self, on: bool) -> HybridIndex {
@@ -311,6 +351,11 @@ impl HybridIndex {
             self.q8 = Vec::new();
             self.q8_scales = Vec::new();
         }
+        self
+    }
+    /// R99 (opt-in): split the int8 dense scan over `threads` threads (0 / 1 = serial; identical scores; no effect on the f32 path)
+    pub fn with_threads(mut self, threads: usize) -> HybridIndex {
+        self.threads = threads;
         self
     }
     pub fn len(&self) -> usize {
@@ -345,7 +390,7 @@ impl HybridIndex {
         }
         if !self.q8.is_empty() {
             let (qc, qs) = crate::scan::quantize_i8(q);
-            crate::scan::scores_i8(&self.q8, &self.q8_scales, self.dim, &qc, qs, out);
+            crate::scan::scores_i8_par(&self.q8, &self.q8_scales, self.dim, &qc, qs, out, self.threads);
             return Ok(());
         }
         out.clear();
@@ -428,6 +473,29 @@ impl HybridIndex {
             sel.push(rest.remove(best));
         }
         Ok(sel.into_iter().map(|d| (d, sc[d])).collect())
+    }
+    /// R99 (opt-in): the same fused top-k as [`HybridIndex::search`] without the N-sized z-score vectors / (score, index) sort buffer: multi-accumulator mean / sd of the
+    /// dense and BM25 score vectors, then ONE pass that fuses on the fly into a bounded top-k. Summation order differs from `search` (~1e-7 relative score differences, so a
+    /// near-tie can swap); RD-LOG R99 measures the identical-top-10 rate on real corpora and the latency.
+    pub fn search_fast(&self, qtext: &str, qvec: &[f32], k: usize) -> Result<Vec<(usize, f32)>, HybridError> {
+        let mut dense = Vec::new();
+        self.dense_scores(qvec, &mut dense)?;
+        let mut bm = Vec::new();
+        self.bm.score(qtext, &mut bm);
+        if dense.is_empty() || k == 0 {
+            return Ok(Vec::new());
+        }
+        let a = self.cfg.alpha_f32();
+        let (dl, dh, dm, ds) = stats8(&dense);
+        let (bl, bh, bmn, bs) = stats8(&bm);
+        let (dflat, bflat) = (!(dh > dl), !(bh > bl));
+        let mut tk = crate::scan::TopK::new(k.min(dense.len()));
+        for i in 0..dense.len() {
+            let zd = if dflat { 0.0 } else { (dense[i] - dm) / ds };
+            let zb = if bflat { 0.0 } else { (bm[i] - bmn) / bs };
+            tk.push(a * zd + (1.0 - a) * zb, i);
+        }
+        Ok(tk.finish().into_iter().map(|(sc, d)| (d, sc)).collect())
     }
     /// top-k (doc, fused score), best first, ties by lower doc index
     pub fn search(&self, qtext: &str, qvec: &[f32], k: usize) -> Result<Vec<(usize, f32)>, HybridError> {
@@ -612,6 +680,49 @@ mod tests {
             assert!(a.iter().zip(&b).all(|(x, y)| (x.1 - y.1).abs() < 0.05));
         }
         assert_eq!(q8.with_int8_dense(false), f);
+    }
+
+    #[test]
+    fn threaded_int8_dense_scan_is_identical_to_serial() {
+        // 50k rows -> 2 chunks of >= 20k rows each at 2 threads (PAR_MIN_ROWS), 3 chunks at 3 threads
+        let (n, dim) = (50_000usize, 16usize);
+        let docs: Vec<String> = (0..n).map(|i| format!("w{} x{}", i % 97, i % 13)).collect();
+        let mut st = 12345u64;
+        let mut dense = Vec::with_capacity(n * dim);
+        for _ in 0..n {
+            let v: Vec<f32> = (0..dim)
+                .map(|_| {
+                    st = st.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+                    ((st >> 33) as f32 / 2147483648.0) - 0.5
+                })
+                .collect();
+            let nrm = v.iter().map(|x| x * x).sum::<f32>().sqrt();
+            dense.extend(v.iter().map(|x| x / nrm));
+        }
+        let base = HybridIndex::new(&docs, dense.clone(), dim, HybridConfig::default()).unwrap().with_int8_dense(true);
+        let q = dense[7 * dim..8 * dim].to_vec();
+        let mut serial = Vec::new();
+        base.dense_scores(&q, &mut serial).unwrap();
+        for t in [2usize, 3, 8] {
+            let mut par = Vec::new();
+            base.clone().with_threads(t).dense_scores(&q, &mut par).unwrap();
+            assert_eq!(serial, par, "threads={t}");
+        }
+        assert_eq!(base.search("w7 x7", &q, 5).unwrap(), base.clone().with_threads(4).search("w7 x7", &q, 5).unwrap());
+    }
+
+    #[test]
+    fn search_fast_matches_search_on_the_toy_store() {
+        let d = docs();
+        let dim = 64;
+        let dense: Vec<f32> = d.iter().flat_map(|t| emb(t, dim)).collect();
+        let ix = HybridIndex::new(&d, dense, dim, HybridConfig::default()).unwrap();
+        for q in ["fox and dog", "message database", "receive reply", "index tuning", "zzz unknown words"] {
+            let qv = emb(q, dim);
+            let (a, b) = (ix.search(q, &qv, 4).unwrap(), ix.search_fast(q, &qv, 4).unwrap());
+            assert_eq!(a.iter().map(|x| x.0).collect::<Vec<_>>(), b.iter().map(|x| x.0).collect::<Vec<_>>(), "query {q}");
+            assert!(a.iter().zip(&b).all(|(x, y)| (x.1 - y.1).abs() < 1e-4));
+        }
     }
 
     fn docs() -> Vec<String> {
