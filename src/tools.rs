@@ -2027,10 +2027,34 @@ pub struct Verifier {
     /// R51 opt-in: a decimal claim ("3.33") is accepted for "calc"/"units" when it is the CORRECT ROUNDING (half away from zero) of the exact result at
     /// the claim's own number of decimals; truncations and off-by-one-digit claims are still rejected. Default false = exact rational equality only.
     rounded_claims: bool,
+    /// R52 opt-in: lookup tables whose claims are compared after surface normalisation (case, surrounding whitespace / quotes / trailing period, inner
+    /// whitespace runs, leading article, digit-group commas). Tables NOT listed stay exact (case matters for symbols: Co vs CO).
+    norm_tables: Vec<String>,
 }
 impl Verifier {
     pub fn new(lookup: LookupTool) -> Self {
-        Verifier { lookup, strict_identity: false, rounded_claims: false }
+        Verifier { lookup, strict_identity: false, rounded_claims: false, norm_tables: Vec::new() }
+    }
+    /// opt-in (R52): compare `lookup` claims after [`Verifier::normalize_claim`] for the listed tables only
+    pub fn with_normalized_lookup(mut self, tables: &[&str]) -> Self {
+        self.norm_tables = tables.iter().map(|t| t.to_string()).collect();
+        self
+    }
+    /// surface normalisation used by `with_normalized_lookup`: lowercase, strip surrounding quotes/whitespace/trailing periods, collapse whitespace runs,
+    /// drop a leading article (the/a/an), remove commas that group digits ("1,000" -> "1000"). Never changes letters or digits otherwise.
+    pub fn normalize_claim(s: &str) -> String {
+        let t = s.trim().trim_matches(|c: char| c == '"' || c == '\'' || c == '`').trim().trim_end_matches('.').trim().to_lowercase();
+        let t = t.split_whitespace().collect::<Vec<_>>().join(" ");
+        let t = ["the ", "a ", "an "].iter().find_map(|a| t.strip_prefix(a)).map(|x| x.to_string()).unwrap_or(t);
+        let b: Vec<char> = t.chars().collect();
+        let mut out = String::with_capacity(t.len());
+        for (i, &c) in b.iter().enumerate() {
+            let group = c == ',' && i > 0 && i + 3 < b.len() + 0 && b[i - 1].is_ascii_digit() && b.get(i + 1..i + 4).map_or(false, |g| g.iter().all(|d| d.is_ascii_digit())) && b.get(i + 4).map_or(true, |d| !d.is_ascii_digit() || *d == ',');
+            if !group {
+                out.push(c);
+            }
+        }
+        out
     }
     /// opt-in: accept correctly rounded decimal claims for calc/units (R51); default off
     pub fn with_rounded_claims(mut self, on: bool) -> Self {
@@ -2149,7 +2173,9 @@ impl Verifier {
             }
             "lookup" => {
                 let want = self.lookup.call(spec)?;
-                Verifier::verdict(want == claim, "table value differs")
+                let table = spec.trim().split(['.', ':']).next().unwrap_or("").trim();
+                let ok = want == claim || (self.norm_tables.iter().any(|t| t == table) && Verifier::normalize_claim(&want) == Verifier::normalize_claim(claim));
+                Verifier::verdict(ok, "table value differs")
             }
             other => Err(ToolError::Unknown(format!("verifiable tool {other}"))),
         }
@@ -2586,6 +2612,28 @@ mod tests {
         }
         spec += "a+b+c+d+e+f+g+h==10000";
         assert!(matches!(Csp::solve_str(&spec), Err(ToolError::StepLimit)));
+    }
+
+    #[test]
+    fn normalized_lookup_is_per_table_and_never_fuzzy() {
+        let mut lk = LookupTool::new();
+        lk.insert("capital", "peru", "Lima");
+        lk.insert("capital", "netherlands", "The Hague");
+        lk.insert("element", "cobalt", "Co");
+        lk.insert("pop", "x", "1,234,567");
+        let v0 = Verifier::new(lk.clone());
+        let v1 = Verifier::new(lk.clone()).with_normalized_lookup(&["capital", "pop"]);
+        let all = Verifier::new(lk).with_normalized_lookup(&["capital", "pop", "element"]);
+        let acc = |v: &Verifier, spec: &str, c: &str| v.verify("lookup", spec, c).unwrap().0 == "accept";
+        assert!(!acc(&v0, "capital.peru", "lima"));
+        for c in ["lima", "  LIMA ", "Lima.", "\"Lima\"", "the lima", "li  ma"] {
+            assert_eq!(acc(&v1, "capital.peru", c), c != "li  ma", "{c}");
+        }
+        assert!(acc(&v1, "capital.netherlands", "hague") && acc(&v1, "capital.netherlands", "the hague"));
+        assert!(!acc(&v1, "capital.peru", "Lim") && !acc(&v1, "capital.peru", "Lima, Ohio") && !acc(&v1, "capital.peru", "Quito") && !acc(&v1, "capital.peru", "Liam"));
+        assert!(acc(&v1, "pop.x", "1234567") && acc(&v1, "pop.x", "1,234,567") && !acc(&v1, "pop.x", "1,234,568") && !acc(&v1, "pop.x", "12,34,567"));
+        assert!(acc(&v1, "element.cobalt", "Co") && !acc(&v1, "element.cobalt", "CO") && !acc(&v1, "element.cobalt", "co"), "symbols stay case-exact");
+        assert!(acc(&all, "element.cobalt", "CO"), "listing the table opts into case-folding (documented hazard)");
     }
 
     #[test]
