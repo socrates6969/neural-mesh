@@ -276,6 +276,15 @@ impl HybridIndex {
         }
         Ok(HybridIndex { cfg, dim, ndoc: docs.len(), dense, bm: Bm25::new(docs), fast: false })
     }
+    /// R54 (opt-in): like [`HybridIndex::new`] with BM25 parameters `k1` / `b` (default 1.2 / 0.75). R54 measured k1=.9, b=.5 as +.007..+.011 real_mrr
+    /// (both splits, Holm) with no domain/general loss; k1=.6, b=.3 gives +.013..+.015 on real text but a small non-significant domain-axis drift.
+    pub fn new_with_bm25(docs: &[String], dense: Vec<f32>, dim: usize, cfg: HybridConfig, k1: f32, b: f32) -> Result<HybridIndex, HybridError> {
+        let expected = docs.len() * dim;
+        if dense.len() != expected {
+            return Err(HybridError::DenseShape { expected, got: dense.len() });
+        }
+        Ok(HybridIndex { cfg, dim, ndoc: docs.len(), dense, bm: Bm25::with_params(docs, k1, b), fast: false })
+    }
     /// R45 (opt-in): scan the dense matrix with 8 independent accumulators (RD-LOG R45: ~4x faster dense scan; identical top-k on the real fixtures)
     pub fn with_fast_kernels(mut self, on: bool) -> HybridIndex {
         self.fast = on;
