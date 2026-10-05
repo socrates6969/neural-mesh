@@ -1,6 +1,6 @@
 //! Shared vector memory for the mesh.
 //!
-//! All agents query one [`SharedMemory`]; behind it sits any [`MemoryIndex`]
+//! All agents query one [`SharedMemory`]; behind it sits any [`MemoryInde//!   SIMD scan), optionally with exact`]
 //! backend:
 //!
 //! * [`FlatIndex`]     – exact brute-force f32 scan. Ground truth.
@@ -366,6 +366,63 @@ impl HnswIndex {
     pub fn ef_handle(&self) -> Arc<AtomicUsize> {
         self.ef.clone()
     }
+
+    /// Every stored point. NOTE: hnsw_rs keeps each point only in the layer list of its TOP level, so `get_layer_iterator(0)`
+    /// alone yields just the level-0 points (about 94 %); walk all layers.
+    fn all_points(&self) -> Vec<Arc<hnsw_rs::prelude::Point<'static, f32>>> {
+        let pi = self.hnsw.get_point_indexation();
+        (0..=self.hnsw.get_max_level_observed() as usize).flat_map(|l| pi.get_layer_iterator(l).collect::<Vec<_>>()).collect()
+    }
+
+    /// Sampled self-recall audit (H1): queries `sample` evenly spaced stored points with their own vector and
+    /// returns `(checked, lost)` where `lost` counts points that are not their own top-1 hit (distance > 1e-6).
+    /// Cost = `sample` searches (about 0.1-1 ms each). Healthy index: lost = 0 (with the vendored hnsw_rs fix). The
+    /// fixed crate still has a RARE build mode (about 0.5 % of builds at N=2000, d=32) in which 5-30 % of the points are
+    /// unreachable; a sample of 200 flags it with probability ~1 (see results/h1_hnsw_probe*.log).
+    pub fn audit(&self, sample: usize) -> (usize, usize) {
+        if self.n == 0 || sample == 0 {
+            return (0, 0);
+        }
+        let mut pts = self.all_points();
+        pts.sort_by_key(|p| p.get_origin_id());
+        let want = sample.min(pts.len());
+        let ef = self.ef.load(Ordering::Relaxed).max(1);
+        let (mut checked, mut lost) = (0usize, 0usize);
+        for j in 0..want {
+            let p = &pts[j * pts.len() / want];
+            checked += 1;
+            let ok = self.hnsw.search(p.get_v(), 1, ef).first().is_some_and(|nb| nb.d_id == p.get_origin_id() || nb.distance <= 1e-6);
+            if !ok {
+                lost += 1;
+            }
+        }
+        (checked, lost)
+    }
+
+    /// Rebuild the graph from the vectors it already holds (fresh random levels, sequential insert). The caller's ids are kept.
+    pub fn rebuild(&mut self) {
+        let mut items: Vec<(usize, Vec<f32>)> = self.all_points().iter().map(|p| (p.get_origin_id(), p.get_v().to_vec())).collect();
+        items.sort_by_key(|x| x.0);
+        let hnsw = Hnsw::new(self.params.m, self.params.max_elements.max(items.len()).max(1), 16, self.params.ef_construction, CosineDist);
+        for (id, v) in &items {
+            hnsw.insert_slice((v.as_slice(), *id));
+        }
+        self.hnsw = hnsw;
+    }
+
+    /// `audit(sample)`; if more than `max_lost` of the sample are lost, `rebuild()` and re-audit, at most `max_rebuilds`
+    /// times. Returns `(lost_in_first_audit, rebuilds_done)`. Opt-in: nothing calls this by default.
+    pub fn audit_and_repair(&mut self, sample: usize, max_lost: usize, max_rebuilds: usize) -> (usize, usize) {
+        let first = self.audit(sample).1;
+        let mut done = 0;
+        let mut lost = first;
+        while lost > max_lost && done < max_rebuilds {
+            self.rebuild();
+            done += 1;
+            lost = self.audit(sample).1;
+        }
+        (first, done)
+    }
 }
 
 impl MemoryIndex for HnswIndex {
@@ -407,6 +464,251 @@ impl MemoryIndex for HnswIndex {
     }
     fn name(&self) -> String {
         format!("hnsw-M{}-ef{}", self.params.m, self.ef.load(Ordering::Relaxed))
+    }
+}
+
+/// Integrity probe for the `hnsw_rs` reverse-edge bug (see `results/g17_board_entry.md`): builds one HNSW
+/// index of `n` seeded random unit vectors with the wrapper's default parameters and returns how many items
+/// are NOT their own top-1 hit (0 with the vendored fix; ~0.7 % of `n` with the unpatched registry crate,
+/// so `n = 2000` detects it with probability ~1). `[patch.crates-io]` only applies at the workspace root:
+/// a crate that depends on `neural-mesh` should call this once (about 0.2 s) or carry the same `[patch]`.
+pub fn hnsw_integrity_probe(n: usize, dim: usize, seed: u64) -> usize {
+    let mut rng = synth::Rng::new(seed);
+    let data: Vec<Vec<f32>> = (0..n).map(|_| normalized(&(0..dim).map(|_| rng.normal()).collect::<Vec<f32>>())).collect();
+    let mut h = HnswIndex::new(dim, HnswParams { max_elements: n, ..Default::default() });
+    for (i, v) in data.iter().enumerate() {
+        h.add(i as u64, v);
+    }
+    (0..n).filter(|&i| h.search(&data[i], 1).first().map(|x| x.0) != Some(i as u64)).count()
+}
+
+/// A boxed index is an index (lets wrappers such as [`CachedIndex`] sit on `Box<dyn MemoryIndex>`).
+impl<T: MemoryIndex + ?Sized> MemoryIndex for Box<T> {
+    fn add(&mut self, id: u64, v: &[f32]) {
+        (**self).add(id, v)
+    }
+    fn add_batch(&mut self, ids: &[u64], vs: &[f32]) {
+        (**self).add_batch(ids, vs)
+    }
+    fn search(&self, q: &[f32], k: usize) -> Vec<(u64, f32)> {
+        (**self).search(q, k)
+    }
+    fn len(&self) -> usize {
+        (**self).len()
+    }
+    fn bytes(&self) -> usize {
+        (**self).bytes()
+    }
+    fn name(&self) -> String {
+        (**self).name()
+    }
+}
+
+// ---------------------------------------------------------------------------
+// CachedIndex (opt-in query-result cache, H1)
+// ---------------------------------------------------------------------------
+
+/// Opt-in result cache in front of any [`MemoryIndex`]: repeated `search(q, k)` calls with the
+/// bit-identical query vector return the stored result list instead of re-scanning / re-walking
+/// the graph. Writes need `&mut self`, so a search can never race a write. The cache key is the query's
+/// f32 bit pattern plus `k` (hash first, then an exact slice comparison; a collision is a miss).
+/// Bounded FIFO (`cap` entries; `cap == 0` = pass-through). Results are what the inner index returned
+/// (bit-identical), so recall is unchanged by construction.
+///
+/// Invalidation (the part that must never be wrong):
+/// * DEFAULT (conservative): ANY write (`add`, `add_batch`, and for [`crate::tiered::RemovableIndex`] `remove` /
+///   `compact`) clears the whole cache before returning. Safe for every backend.
+/// * [`CachedIndex::selective`] (opt-in, for backends whose returned scores are EXACT cosines: `FlatIndex`, `HnswIndex`,
+///   `FlatRm`, `HnswRm`; NOT `TurbovecIndex`): an `add` only drops the entries whose top-k the new vector can enter
+///   (entry has fewer than `k` results, or `cos(q, v) >= k-th score - 1e-6`); a `remove` only drops entries that
+///   contain the removed id; `add_batch` of more vectors than cache entries and `compact` clear everything. A kept entry is
+///   exactly the exact-top-k the index would now return (for the approximate HNSW: an answer at least as good as a
+///   fresh search, though not necessarily the same list a fresh graph walk would give).
+///
+/// Caveat: if the inner index's *search behaviour* is retuned without a write (e.g. `HnswIndex::set_ef_search`
+/// through its shared handle) call [`CachedIndex::invalidate`] afterwards.
+pub struct CachedIndex<I: MemoryIndex> {
+    inner: I,
+    cap: usize,
+    selective: bool,
+    state: std::sync::Mutex<ResultCacheState>,
+    hits: std::sync::atomic::AtomicU64,
+    misses: std::sync::atomic::AtomicU64,
+    wgen: u64,
+    kept: u64,
+    dropped: u64,
+}
+
+struct CacheEntry {
+    q: Box<[f32]>,
+    /// L2-normalised query (only filled in selective mode)
+    qn: Box<[f32]>,
+    k: usize,
+    res: Arc<[(u64, f32)]>,
+}
+
+#[derive(Default)]
+struct ResultCacheState {
+    map: HashMap<u64, CacheEntry>,
+    order: std::collections::VecDeque<u64>,
+}
+
+#[inline]
+fn query_key(q: &[f32], k: usize) -> u64 {
+    let mut h: u64 = 0xcbf2_9ce4_8422_2325 ^ k as u64;
+    for x in q {
+        h ^= x.to_bits() as u64;
+        h = h.wrapping_mul(0x0000_0100_0000_01b3);
+    }
+    h
+}
+
+impl<I: MemoryIndex> CachedIndex<I> {
+    pub fn new(inner: I, cap: usize) -> Self {
+        Self { inner, cap, selective: false, state: Default::default(), hits: Default::default(), misses: Default::default(), wgen: 0, kept: 0, dropped: 0 }
+    }
+    /// Switch to selective invalidation (see the type docs; only for exact-score backends).
+    pub fn selective(mut self, on: bool) -> Self {
+        self.selective = on;
+        self
+    }
+    pub fn inner(&self) -> &I {
+        &self.inner
+    }
+    pub fn hits(&self) -> u64 {
+        self.hits.load(Ordering::Relaxed) as u64
+    }
+    pub fn misses(&self) -> u64 {
+        self.misses.load(Ordering::Relaxed) as u64
+    }
+    /// Number of writes seen so far.
+    pub fn generation(&self) -> u64 {
+        self.wgen
+    }
+    /// (entries kept, entries dropped) across all writes (selective mode bookkeeping).
+    pub fn kept_dropped(&self) -> (u64, u64) {
+        (self.kept, self.dropped)
+    }
+    pub fn cached_len(&self) -> usize {
+        self.state.lock().map(|s| s.map.len()).unwrap_or(0)
+    }
+    /// Drop every cached result (call after retuning the inner index without a write).
+    pub fn invalidate(&self) {
+        if let Ok(mut s) = self.state.lock() {
+            s.map.clear();
+            s.order.clear();
+        }
+    }
+    fn clear_all(&mut self) {
+        // exclusive access: nothing can race this clear
+        if let Ok(s) = self.state.get_mut() {
+            self.dropped += s.map.len() as u64;
+            s.map.clear();
+            s.order.clear();
+        }
+    }
+    /// Drop the entries for which `drop_it` is true (selective bookkeeping).
+    fn retain_entries(&mut self, drop_it: impl Fn(&CacheEntry) -> bool) {
+        if let Ok(s) = self.state.get_mut() {
+            let before = s.map.len();
+            s.map.retain(|_, e| !drop_it(e));
+            let after = s.map.len();
+            let ResultCacheState { map, order } = &mut *s;
+            order.retain(|h| map.contains_key(h));
+            self.dropped += (before - after) as u64;
+            self.kept += after as u64;
+        }
+    }
+    fn on_add(&mut self, vs: &[f32], dim: usize) {
+        self.wgen += 1;
+        if !self.selective || dim == 0 || vs.len() / dim > self.cap.max(1) {
+            return self.clear_all();
+        }
+        let vn: Vec<Vec<f32>> = vs.chunks_exact(dim).map(normalized).collect();
+        self.retain_entries(|e| {
+            e.res.len() < e.k || e.qn.len() != dim || {
+                let kth = e.res[e.res.len() - 1].1;
+                vn.iter().any(|v| dot(&e.qn, v) >= kth - 1e-6)
+            }
+        });
+    }
+    /// Cached top-`k` as a shared slice (no copy on a hit).
+    pub fn search_shared(&self, q: &[f32], k: usize) -> Arc<[(u64, f32)]> {
+        if self.cap == 0 {
+            self.misses.fetch_add(1, Ordering::Relaxed);
+            return Arc::from(self.inner.search(q, k));
+        }
+        let h = query_key(q, k);
+        if let Ok(st) = self.state.lock() {
+            if let Some(e) = st.map.get(&h) {
+                if e.k == k && e.q.len() == q.len() && e.q.iter().zip(q).all(|(a, b)| a.to_bits() == b.to_bits()) {
+                    self.hits.fetch_add(1, Ordering::Relaxed);
+                    return e.res.clone();
+                }
+            }
+        }
+        self.misses.fetch_add(1, Ordering::Relaxed);
+        let r: Arc<[(u64, f32)]> = Arc::from(self.inner.search(q, k));
+        let qn: Box<[f32]> = if self.selective { normalized(q).into() } else { Box::default() };
+        if let Ok(mut st) = self.state.lock() {
+            if st.map.insert(h, CacheEntry { q: q.into(), qn, k, res: r.clone() }).is_none() {
+                st.order.push_back(h);
+            }
+            while st.map.len() > self.cap {
+                match st.order.pop_front() {
+                    Some(old) => {
+                        st.map.remove(&old);
+                    }
+                    None => break,
+                }
+            }
+        }
+        r
+    }
+}
+
+impl<I: MemoryIndex> MemoryIndex for CachedIndex<I> {
+    fn add(&mut self, id: u64, v: &[f32]) {
+        self.on_add(v, v.len());
+        self.inner.add(id, v);
+    }
+    fn add_batch(&mut self, ids: &[u64], vs: &[f32]) {
+        let dim = if ids.is_empty() { 0 } else { vs.len() / ids.len() };
+        self.on_add(vs, dim);
+        self.inner.add_batch(ids, vs);
+    }
+    fn search(&self, q: &[f32], k: usize) -> Vec<(u64, f32)> {
+        self.search_shared(q, k).to_vec()
+    }
+    fn len(&self) -> usize {
+        self.inner.len()
+    }
+    fn bytes(&self) -> usize {
+        let c: usize = self.state.lock().map(|s| s.map.values().map(|e| (e.q.len() + e.qn.len()) * 4 + e.res.len() * 16 + 96).sum()).unwrap_or(0);
+        self.inner.bytes() + c
+    }
+    fn name(&self) -> String {
+        format!("cached{}[{}]", if self.selective { "-sel" } else { "" }, self.inner.name())
+    }
+}
+
+impl<I: crate::tiered::RemovableIndex> crate::tiered::RemovableIndex for CachedIndex<I> {
+    fn remove(&mut self, id: u64) -> bool {
+        self.wgen += 1;
+        if self.selective {
+            self.retain_entries(|e| e.res.iter().any(|r| r.0 == id));
+        } else {
+            self.clear_all();
+        }
+        self.inner.remove(id)
+    }
+    fn vector(&self, id: u64) -> Option<Vec<f32>> {
+        self.inner.vector(id)
+    }
+    fn compact(&mut self) {
+        self.wgen += 1;
+        self.clear_all();
+        self.inner.compact();
     }
 }
 
@@ -739,6 +1041,216 @@ mod tests {
             }
             w.join().unwrap();
             assert_eq!(mem.len(), n + 5);
+        }
+    }
+
+    /// R4/H1 regression for the hnsw_rs reverse-edge bug (vendor_g17/hnsw_rs_patched via
+    /// `[patch.crates-io]`). With the UNPATCHED registry crate about 0.7-1.2 % of stored items (all
+    /// level >= 1 points) are not even their own top-1 hit in EVERY build (0 clean builds of 2100, h1_hnsw_probe);
+    /// with the fixed crate 0 are lost in ~99.5 % of builds. The fixed crate still has a RARE second mode (about 0.5 %
+    /// of builds lose 5-30 % of the items, present with and without the fix, see results/h1_board_entry.md), so the test
+    /// allows at most 2 lossy builds out of 16 (P(>=3 | p=0.6 %) < 1e-4) and requires an exact 0 in all the others.
+    /// HNSW levels are OS-random (each build independent); checked for `add` and parallel `add_batch`, iid and clustered.
+    #[test]
+    fn hnsw_loses_no_items_n2000_d32_several_seeds() {
+        let (n, dim) = (2000usize, 32usize);
+        let ids: Vec<u64> = (0..n as u64).collect();
+        let miss = |h: &HnswIndex, data: &[f32]| -> usize {
+            h.set_ef_search(64);
+            (0..n).filter(|&i| h.search(&data[i * dim..(i + 1) * dim], 1).first().map(|x| x.0) != Some(i as u64)).count()
+        };
+        let (mut builds, mut lossy) = (0usize, vec![]);
+        for seed in 1..=4u64 {
+            let mut rng = Rng::new(seed * 1_000_003);
+            let iid: Vec<f32> = (0..n * dim).map(|_| rng.normal()).collect();
+            let mut cl = Clustered::new(dim, n / 50, 0.8, seed);
+            let clust = cl.sample(n);
+            for (name, data) in [("iid", &iid), ("clust", &clust)] {
+                let mut a = HnswIndex::new(dim, HnswParams { max_elements: n, ..Default::default() });
+                for (i, v) in data.chunks_exact(dim).enumerate() {
+                    a.add(i as u64, v);
+                }
+                let mut b = HnswIndex::new(dim, HnswParams { max_elements: n, ..Default::default() });
+                b.add_batch(&ids, data);
+                for (path, h) in [("add", &a), ("add_batch", &b)] {
+                    builds += 1;
+                    let m = miss(h, data);
+                    if m > 0 {
+                        lossy.push(format!("{path}/{name}/seed{seed}: {m} lost"));
+                    }
+                }
+            }
+        }
+        let probe = hnsw_integrity_probe(2000, 32, 99);
+        if probe > 0 {
+            lossy.push(format!("probe: {probe} lost"));
+        }
+        assert!(lossy.len() <= 2, "hnsw_rs reverse-edge fix not effective? {} of {} builds lost items: {:?}", lossy.len(), builds + 1, lossy);
+        // a bad build (rare second mode) must at least be detected by the sampled audit used for repair
+        let mut rng = Rng::new(5);
+        let data: Vec<f32> = (0..n * dim).map(|_| rng.normal()).collect();
+        let mut h = HnswIndex::new(dim, HnswParams { max_elements: n, ..Default::default() });
+        for (i, v) in data.chunks_exact(dim).enumerate() {
+            h.add(i as u64, v);
+        }
+        let full = miss(&h, &data);
+        let (_c, aud) = h.audit(200);
+        assert!(aud <= 200 * full / n + 12, "audit {aud} inconsistent with full lost {full}");
+    }
+
+    /// Selective invalidation on an EXACT backend: after every add / remove the cached answer is bit-identical to a
+    /// fresh uncached search (so entries that were kept are provably still the exact top-k), and it keeps entries
+    /// (hit rate under writes is higher than with clear-all).
+    #[test]
+    fn cached_index_selective_never_stale_and_keeps_entries() {
+        use crate::tiered::{FlatRm, RemovableIndex};
+        let dim = 16;
+        let mut rng = Rng::new(21);
+        let vecs: Vec<Vec<f32>> = (0..600).map(|_| (0..dim).map(|_| rng.normal()).collect()).collect();
+        let queries: Vec<Vec<f32>> = (0..10).map(|_| (0..dim).map(|_| rng.normal()).collect()).collect();
+        let mut sel = CachedIndex::new(FlatRm::new(dim), 64).selective(true);
+        let mut all = CachedIndex::new(FlatRm::new(dim), 64);
+        let mut plain = FlatRm::new(dim);
+        for i in 0..40usize {
+            sel.add(i as u64, &vecs[i]);
+            all.add(i as u64, &vecs[i]);
+            plain.add(i as u64, &vecs[i]);
+        }
+        let mut next = 40usize;
+        for step in 0..400usize {
+            match step % 6 {
+                0..=2 => {
+                    let v = if step % 12 == 0 { queries[step % 10].clone() } else { vecs[next].clone() }; // some adds land inside a cached top-k
+                    sel.add(next as u64, &v);
+                    all.add(next as u64, &v);
+                    plain.add(next as u64, &v);
+                    next += 1;
+                }
+                3 => {
+                    if let Some(&(id, _)) = plain.search(&queries[step % 10], 1).first() {
+                        assert!(sel.remove(id) && all.remove(id) && plain.remove(id));
+                    }
+                }
+                4 => {
+                    // remove an id that is probably not in anyone's top-k
+                    let id = (step as u64 * 7) % next as u64;
+                    let a = sel.remove(id);
+                    assert_eq!(a, all.remove(id));
+                    assert_eq!(a, plain.remove(id));
+                }
+                _ => {
+                    sel.compact();
+                    all.compact();
+                    plain.compact();
+                }
+            }
+            for q in &queries {
+                for k in [1usize, 5] {
+                    let want = plain.search(q, k);
+                    assert_eq!(sel.search(q, k), want, "selective cache stale (step {step})");
+                    assert_eq!(all.search(q, k), want);
+                    assert_eq!(sel.search(q, k), want);
+                }
+            }
+        }
+        let (kept, dropped) = sel.kept_dropped();
+        assert!(kept > 0 && dropped > 0, "selective mode should both keep and drop (kept {kept}, dropped {dropped})");
+        assert!(sel.hits() > all.hits(), "selective hits {} should exceed clear-all hits {}", sel.hits(), all.hits());
+    }
+
+    /// audit()/rebuild() see EVERY point (hnsw_rs lists a point only in its top layer) and keep ids.
+    #[test]
+    fn hnsw_audit_and_rebuild_cover_all_points() {
+        let (n, dim) = (900usize, 16usize);
+        let mut rng = Rng::new(77);
+        let data: Vec<f32> = (0..n * dim).map(|_| rng.normal()).collect();
+        let mut h = HnswIndex::new(dim, HnswParams { max_elements: n, ..Default::default() });
+        for (i, v) in data.chunks_exact(dim).enumerate() {
+            h.add(i as u64, v);
+        }
+        let mut ids: Vec<usize> = h.all_points().iter().map(|p| p.get_origin_id()).collect();
+        ids.sort();
+        assert_eq!(ids, (0..n).collect::<Vec<_>>(), "all_points must include the upper-layer points");
+        let (checked, lost) = h.audit(n);
+        assert_eq!(checked, n);
+        assert!(lost <= n / 20, "audit reports {lost} lost of {n}");
+        h.rebuild();
+        assert_eq!(h.len(), n);
+        let mut ids2: Vec<usize> = h.all_points().iter().map(|p| p.get_origin_id()).collect();
+        ids2.sort();
+        assert_eq!(ids2, ids, "rebuild dropped or duplicated points");
+        let (first, rb) = h.audit_and_repair(100, 3, 2);
+        assert!(first <= 3 && rb == 0, "healthy rebuilt graph flagged: first {first}, rebuilds {rb}");
+    }
+
+    /// CachedIndex: repeated queries hit, any write invalidates; the cached answer ALWAYS equals the
+    /// inner index's own answer (no stale results after add / remove / compact).
+    #[test]
+    fn cached_index_never_stale_after_writes() {
+        use crate::tiered::{FlatRm, RemovableIndex};
+        let dim = 16;
+        let mut rng = Rng::new(5);
+        let vecs: Vec<Vec<f32>> = (0..300).map(|_| (0..dim).map(|_| rng.normal()).collect()).collect();
+        let queries: Vec<Vec<f32>> = (0..12).map(|_| (0..dim).map(|_| rng.normal()).collect()).collect();
+        let mut c = CachedIndex::new(FlatRm::new(dim), 64);
+        let mut plain = FlatRm::new(dim);
+        let mut live: Vec<u64> = vec![];
+        let check = |c: &CachedIndex<FlatRm>, plain: &FlatRm| {
+            for q in &queries {
+                for k in [1usize, 5] {
+                    let got = c.search(q, k);
+                    assert_eq!(got, plain.search(q, k), "stale/incorrect result");
+                    assert_eq!(c.search(q, k), got); // second call = hit, same answer
+                }
+            }
+        };
+        for step in 0..300usize {
+            match step % 5 {
+                0 | 1 | 2 => {
+                    c.add(step as u64, &vecs[step]);
+                    plain.add(step as u64, &vecs[step]);
+                    live.push(step as u64);
+                }
+                3 => {
+                    // remove the item that is currently top-1 for query 0 (the most damaging staleness case)
+                    if let Some(&(id, _)) = c.search(&queries[0], 1).first() {
+                        assert!(c.remove(id));
+                        assert!(plain.remove(id));
+                        live.retain(|&x| x != id);
+                        assert!(c.search(&queries[0], 3).iter().all(|r| r.0 != id), "removed id returned from cache");
+                    }
+                }
+                _ => {
+                    c.compact();
+                    plain.compact();
+                }
+            }
+            check(&c, &plain);
+        }
+        assert!(c.hits() > c.misses() / 2, "expected many hits on repeated queries ({} hits / {} misses)", c.hits(), c.misses());
+        assert!(c.generation() >= 300);
+        // cap 0 = pass-through; bounded cache never exceeds cap
+        let mut p = CachedIndex::new(FlatIndex::new(dim), 0);
+        p.add(1, &vecs[0]);
+        assert_eq!(p.search(&vecs[0], 1)[0].0, 1);
+        assert_eq!((p.hits(), p.cached_len()), (0, 0));
+        let mut b = CachedIndex::new(FlatIndex::new(dim), 3);
+        b.add_batch(&(0..50u64).collect::<Vec<_>>(), &vecs[..50].concat());
+        for q in &vecs[..20] {
+            b.search(q, 2);
+        }
+        assert!(b.cached_len() <= 3);
+        // HNSW inner: cached == inner after every write
+        let mut h = CachedIndex::new(HnswIndex::new(dim, HnswParams { max_elements: 400, ..Default::default() }), 32);
+        for i in 0..200usize {
+            h.add(i as u64, &vecs[i]);
+            if i % 20 == 0 {
+                for q in &queries {
+                    let a = h.search(q, 5);
+                    assert_eq!(a, h.inner().search(q, 5));
+                    assert_eq!(h.search(q, 5), a);
+                }
+            }
         }
     }
 }

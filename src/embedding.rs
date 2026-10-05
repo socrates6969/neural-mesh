@@ -6,6 +6,7 @@
 //!   `.embed(text)` equals `hash_embed` of a task whose features are `text.split_whitespace()`.
 //! * [`CachedEmbedding`]: memoising wrapper (key = FNV-1a 64 of the text, bounded FIFO cache,
 //!   the stored text is compared so a hash collision is a miss, never a wrong vector).
+//! * [`MemoEmbedding`] / [`Embedded`]: opt-in compute-once memo (alloc-free exact key, `Arc<[f32]>` values, encoder-call counter).
 //! * [`TableEmbedding`]: in-memory `text -> vector` lookup loaded from a documented JSON fixture
 //!   (std + serde_json only). This is what a real backend uses OFFLINE: embeddings are
 //!   precomputed elsewhere and shipped as a file.
@@ -240,6 +241,210 @@ impl<E: Embedding> Embedding for CachedEmbedding<E> {
             key.push_str(t);
         }
         self.cached(&key, || self.inner.embed_task(task))
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Compute-once memo (opt-in; H1)
+
+/// An embedding computed ONCE and shared (`Arc<[f32]>`): clone it for free, hand it to every
+/// consumer of the same decision (knowledge retrieval, case router, lessons, result cache).
+pub type Embedded = Arc<[f32]>;
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+enum MemoKey {
+    Text(Box<str>),
+    Task(Box<[Box<str>]>, Option<Box<str>>),
+}
+
+/// FNV-1a over a text with a domain tag (no allocation).
+#[inline]
+fn fnv_text(text: &str) -> u64 {
+    let mut h = fnv1a(text);
+    h ^= 0x54;
+    h.wrapping_mul(0x0000_0100_0000_01b3)
+}
+
+/// FNV-1a over a task's features + type, feature boundaries and type marked by separators (no allocation).
+#[inline]
+fn fnv_task(task: &Task) -> u64 {
+    let mut h: u64 = 0xcbf2_9ce4_8422_2325 ^ 0x4b;
+    for f in &task.features {
+        for b in f.bytes() {
+            h ^= b as u64;
+            h = h.wrapping_mul(0x0000_0100_0000_01b3);
+        }
+        h ^= 0x1f;
+        h = h.wrapping_mul(0x0000_0100_0000_01b3);
+    }
+    if let Some(t) = &task.task_type {
+        h ^= 0x1e;
+        h = h.wrapping_mul(0x0000_0100_0000_01b3);
+        for b in t.bytes() {
+            h ^= b as u64;
+            h = h.wrapping_mul(0x0000_0100_0000_01b3);
+        }
+    }
+    h
+}
+
+fn task_key_eq(k: &MemoKey, task: &Task) -> bool {
+    match k {
+        MemoKey::Task(fs, ty) => {
+            fs.len() == task.features.len()
+                && fs.iter().zip(&task.features).all(|(a, b)| &**a == b.as_str())
+                && match (ty, &task.task_type) {
+                    (Some(a), Some(b)) => &**a == b.as_str(),
+                    (None, None) => true,
+                    _ => false,
+                }
+        }
+        _ => false,
+    }
+}
+
+#[derive(Default)]
+struct MemoState {
+    map: HashMap<u64, (MemoKey, Embedded)>,
+    order: VecDeque<u64>,
+}
+
+/// Compute-once embedding memo: wraps ANY [`Embedding`], is itself an [`Embedding`] (so it can be
+/// handed to `Knowledge::with_embedder` or a `CaseRouter` closure, see
+/// [`MemoEmbedding::task_embedder`]), and exposes the shared [`Embedded`] value so repeated
+/// consumers of the same text pay neither a second encoder call nor a vector copy.
+///
+/// Differences from [`CachedEmbedding`]: (1) the key is hashed from the borrowed text/features with
+/// no allocation and verified by an EXACT comparison (a hash collision is a miss, never a wrong
+/// vector); (2) values are `Arc<[f32]>` (the `Embedding` trait still returns `Vec<f32>`, so only the
+/// `*_shared` methods are copy-free); (3) it counts real encoder calls (`encoder_calls`).
+/// Returned vectors are bit-identical to the wrapped embedder's (the first call stores exactly what
+/// `inner` returned). Bounded FIFO; `cap == 0` disables memoisation (every call hits the encoder).
+/// A pure function of the text: it never goes stale and needs no invalidation (unlike a result cache).
+pub struct MemoEmbedding<E: Embedding> {
+    inner: E,
+    cap: usize,
+    name: String,
+    state: Mutex<MemoState>,
+    hits: AtomicU64,
+    calls: AtomicU64,
+}
+
+impl<E: Embedding> MemoEmbedding<E> {
+    pub fn new(inner: E, cap: usize) -> Self {
+        let name = format!("memo({})", inner.name());
+        MemoEmbedding { inner, cap, name, state: Mutex::new(MemoState::default()), hits: AtomicU64::new(0), calls: AtomicU64::new(0) }
+    }
+    pub fn inner(&self) -> &E {
+        &self.inner
+    }
+    /// Memo hits (encoder NOT called).
+    pub fn hits(&self) -> u64 {
+        self.hits.load(Ordering::Relaxed)
+    }
+    /// Number of times the wrapped encoder was actually called (= memo misses).
+    pub fn encoder_calls(&self) -> u64 {
+        self.calls.load(Ordering::Relaxed)
+    }
+    pub fn len(&self) -> usize {
+        self.state.lock().map(|s| s.map.len()).unwrap_or(0)
+    }
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+    /// Approximate resident bytes of the memo (vectors + keys + map overhead).
+    pub fn bytes(&self) -> usize {
+        let key_bytes = |k: &MemoKey| match k {
+            MemoKey::Text(t) => t.len() + 16,
+            MemoKey::Task(fs, ty) => fs.iter().map(|f| f.len() + 16).sum::<usize>() + ty.as_ref().map_or(0, |t| t.len() + 16) + 32,
+        };
+        self.state.lock().map(|s| s.map.values().map(|(k, v)| v.len() * 4 + 16 + 48 + key_bytes(k)).sum()).unwrap_or(0)
+    }
+    pub fn clear(&self) {
+        if let Ok(mut s) = self.state.lock() {
+            s.map.clear();
+            s.order.clear();
+        }
+    }
+
+    fn lookup(&self, h: u64, eq: impl Fn(&MemoKey) -> bool) -> Option<Embedded> {
+        if self.cap == 0 {
+            return None;
+        }
+        let st = self.state.lock().ok()?;
+        match st.map.get(&h) {
+            Some((k, v)) if eq(k) => Some(v.clone()),
+            _ => None,
+        }
+    }
+    fn store(&self, h: u64, key: MemoKey, v: &Embedded) {
+        if self.cap == 0 {
+            return;
+        }
+        if let Ok(mut st) = self.state.lock() {
+            if st.map.insert(h, (key, v.clone())).is_none() {
+                st.order.push_back(h);
+            }
+            while st.map.len() > self.cap {
+                match st.order.pop_front() {
+                    Some(old) => {
+                        st.map.remove(&old);
+                    }
+                    None => break,
+                }
+            }
+        }
+    }
+
+    /// Embedding of free text, computed at most once while resident.
+    pub fn embed_shared(&self, text: &str) -> Embedded {
+        let h = fnv_text(text);
+        if let Some(v) = self.lookup(h, |k| matches!(k, MemoKey::Text(t) if &**t == text)) {
+            self.hits.fetch_add(1, Ordering::Relaxed);
+            return v;
+        }
+        self.calls.fetch_add(1, Ordering::Relaxed);
+        let v: Embedded = Arc::from(self.inner.embed(text));
+        self.store(h, MemoKey::Text(text.into()), &v);
+        v
+    }
+
+    /// Embedding of a routed task, computed at most once while resident.
+    pub fn embed_task_shared(&self, task: &Task) -> Embedded {
+        let h = fnv_task(task);
+        if let Some(v) = self.lookup(h, |k| task_key_eq(k, task)) {
+            self.hits.fetch_add(1, Ordering::Relaxed);
+            return v;
+        }
+        self.calls.fetch_add(1, Ordering::Relaxed);
+        let v: Embedded = Arc::from(self.inner.embed_task(task));
+        let key = MemoKey::Task(task.features.iter().map(|f| f.as_str().into()).collect(), task.task_type.as_deref().map(Into::into));
+        self.store(h, key, &v);
+        v
+    }
+}
+
+impl<E: Embedding + 'static> MemoEmbedding<E> {
+    /// A `CaseRouter` embedder closure (`Task -> Option<Vec<f32>>`) backed by this memo, so the
+    /// router's `local_mass` / `posteriors` / `update` calls for one decision hit the encoder once.
+    pub fn task_embedder(self: &Arc<Self>) -> Arc<dyn Fn(&Task) -> Option<Vec<f32>> + Send + Sync> {
+        let me = self.clone();
+        Arc::new(move |t: &Task| Some(me.embed_task_shared(t).to_vec()))
+    }
+}
+
+impl<E: Embedding> Embedding for MemoEmbedding<E> {
+    fn dim(&self) -> usize {
+        self.inner.dim()
+    }
+    fn embed(&self, text: &str) -> Vec<f32> {
+        self.embed_shared(text).to_vec()
+    }
+    fn name(&self) -> &str {
+        &self.name
+    }
+    fn embed_task(&self, task: &Task) -> Vec<f32> {
+        self.embed_task_shared(task).to_vec()
     }
 }
 
@@ -674,6 +879,75 @@ mod tests {
         assert_eq!(h.embed("nope"), vec![0.0, 0.0]);
         let a: Arc<dyn Embedding> = Arc::new(HashEmbedding::new(4));
         assert_eq!(a.dim(), 4); // Arc<dyn> usable as Embedding
+    }
+
+    /// counts encoder calls so the memo's saving is observable
+    struct Counting(HashEmbedding, AtomicU64);
+    impl Embedding for Counting {
+        fn dim(&self) -> usize {
+            self.0.dim()
+        }
+        fn embed(&self, t: &str) -> Vec<f32> {
+            self.1.fetch_add(1, Ordering::Relaxed);
+            self.0.embed(t)
+        }
+        fn name(&self) -> &str {
+            "counting"
+        }
+        fn embed_task(&self, t: &Task) -> Vec<f32> {
+            self.1.fetch_add(1, Ordering::Relaxed);
+            self.0.embed_task(t)
+        }
+    }
+
+    #[test]
+    fn memo_is_bit_identical_computes_once_and_keys_are_exact() {
+        let m = MemoEmbedding::new(Counting(HashEmbedding::new(32), AtomicU64::new(0)), 8);
+        let plain = HashEmbedding::new(32);
+        // text path
+        let a = m.embed("alpha beta");
+        assert!(a.iter().zip(&plain.embed("alpha beta")).all(|(x, y)| x.to_bits() == y.to_bits()));
+        for _ in 0..5 {
+            assert_eq!(m.embed("alpha beta"), a);
+        }
+        assert_eq!(m.inner().1.load(Ordering::Relaxed), 1);
+        assert_eq!((m.encoder_calls(), m.hits()), (1, 5));
+        // shared value is the same allocation on a hit
+        let s1 = m.embed_shared("alpha beta");
+        let s2 = m.embed_shared("alpha beta");
+        assert!(Arc::ptr_eq(&s1, &s2));
+        // task path: feature boundaries and the type are part of the key
+        let t1 = task(&["ab", "c"], None);
+        let t2 = task(&["a", "bc"], None);
+        let t3 = task(&["ab", "c"], Some("x"));
+        for t in [&t1, &t2, &t3, &t1, &t2, &t3] {
+            let got = m.embed_task(t);
+            let want = plain.embed_task(t);
+            assert!(got.iter().zip(&want).all(|(x, y)| x.to_bits() == y.to_bits()));
+        }
+        assert_eq!(m.encoder_calls(), 1 + 3);
+        // text and task keys never alias (embed("a b") != embed_task of a differently-featured task is irrelevant; same text, two paths = two entries)
+        let _ = m.embed_task(&task(&["alpha", "beta"], None));
+        assert_eq!(m.encoder_calls(), 5);
+        // bounded (FIFO) and cap 0 = pass-through
+        let small = MemoEmbedding::new(HashEmbedding::new(8), 2);
+        small.embed("x");
+        small.embed("y");
+        small.embed("z");
+        assert_eq!(small.len(), 2);
+        let off = MemoEmbedding::new(Counting(HashEmbedding::new(8), AtomicU64::new(0)), 0);
+        off.embed("q");
+        off.embed("q");
+        assert_eq!((off.encoder_calls(), off.hits(), off.len()), (2, 0, 0));
+        // Arc<MemoEmbedding> is an Embedding (Knowledge::with_embedder takes Arc<dyn Embedding>) and the CaseRouter closure shares it
+        let shared = Arc::new(MemoEmbedding::new(Counting(HashEmbedding::new(16), AtomicU64::new(0)), 4));
+        let as_dyn: Arc<dyn Embedding> = shared.clone();
+        let f = shared.task_embedder();
+        let tk = task(&["k1", "k2"], None);
+        let v1 = as_dyn.embed_task(&tk);
+        assert_eq!(f(&tk).unwrap(), v1);
+        assert_eq!(f(&tk).unwrap(), v1);
+        assert_eq!(shared.encoder_calls(), 1);
     }
 
     #[cfg(not(feature = "real-embed"))]
