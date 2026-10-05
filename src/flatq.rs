@@ -101,16 +101,32 @@ pub struct FlatIndex {
     /// R45 (opt-in, default false): 8-accumulator scan kernels (different float summation order, ~1e-7 relative score differences)
     #[serde(default)]
     fast: bool,
+    /// R91 (opt-in): scan threads (0/1 = single thread); only used when `fast` / `qdot` select a scan.rs kernel, >= `scan::PAR_MIN_ROWS` rows per thread
+    #[serde(default)]
+    threads: usize,
+    /// R91 (opt-in, Int8 tier): int8 x int8-quantised-query integer dot (AVX2 when available): ~4.5-5x faster than the f32 scan, query quantisation adds a small score error (compare recall; use `with_rerank` to make top-k exact)
+    #[serde(default)]
+    qdot: bool,
 }
 
 impl FlatIndex {
     pub fn new(dim: usize, tier: Tier, metric: Metric) -> Self {
         assert!(dim > 0, "dim must be positive");
-        FlatIndex { dim, tier, metric, rerank_factor: 0, ids: vec![], alive: vec![], f32s: vec![], i16s: vec![], scales: vec![], i8s: vec![], exact: vec![], map: HashMap::new(), live: 0, fast: false }
+        FlatIndex { dim, tier, metric, rerank_factor: 0, ids: vec![], alive: vec![], f32s: vec![], i16s: vec![], scales: vec![], i8s: vec![], exact: vec![], map: HashMap::new(), live: 0, fast: false, threads: 0, qdot: false }
     }
     /// R45 (opt-in): use the multi-accumulator scan kernels (see RD-LOG R45; scores differ from the scalar kernels by ~1e-7 relative).
     pub fn with_fast_kernels(mut self, on: bool) -> Self {
         self.fast = on;
+        self
+    }
+    /// R91 (opt-in): scan with up to `n` threads (exact same result as one thread; only helps above ~2 x `scan::PAR_MIN_ROWS` rows; needs `fast` or `int8_dot`)
+    pub fn with_threads(mut self, n: usize) -> Self {
+        self.threads = n;
+        self
+    }
+    /// R91 (opt-in, Int8 tier only): integer int8 dot against an int8-quantised query (see RD-LOG R91 for recall / latency)
+    pub fn with_int8_dot(mut self, on: bool) -> Self {
+        self.qdot = on;
         self
     }
     /// Enable the exact rerank (`factor` >= 1; 0 disables). Must be set before adding vectors (it decides whether the f32 copy is kept).
@@ -247,7 +263,7 @@ impl FlatIndex {
     }
 
     fn clone_config(&self) -> FlatIndex {
-        FlatIndex { dim: self.dim, tier: self.tier, metric: self.metric, rerank_factor: self.rerank_factor, ids: vec![], alive: vec![], f32s: vec![], i16s: vec![], scales: vec![], i8s: vec![], exact: vec![], map: HashMap::new(), live: 0, fast: self.fast }
+        FlatIndex { dim: self.dim, tier: self.tier, metric: self.metric, rerank_factor: self.rerank_factor, ids: vec![], alive: vec![], f32s: vec![], i16s: vec![], scales: vec![], i8s: vec![], exact: vec![], map: HashMap::new(), live: 0, fast: self.fast, threads: self.threads, qdot: self.qdot }
     }
 
     /// Approximate (tier) score of slot `s` against the prepared query.
@@ -316,7 +332,11 @@ impl FlatIndex {
         if k == 0 || self.live == 0 {
             return Ok(vec![]);
         }
-        let mut cand: Vec<(f32, usize)> = (0..self.ids.len()).filter(|&s| self.alive[s]).map(|s| (self.score_slot(s, &q), s)).collect();
+        let m = if self.rerank_factor > 0 { (k * self.rerank_factor).max(k) } else { k };
+        let mut cand: Vec<(f32, usize)> = match self.fast_candidates(&q, m) {
+            Some(c) => c,
+            None => (0..self.ids.len()).filter(|&s| self.alive[s]).map(|s| (self.score_slot(s, &q), s)).collect(),
+        };
         if self.rerank_factor > 0 {
             let m = (k * self.rerank_factor).max(k);
             cand = top(cand, m);
@@ -326,6 +346,22 @@ impl FlatIndex {
             }
         }
         Ok(top(cand, k).into_iter().map(|(sc, s)| (self.ids[s], sc)).collect())
+    }
+
+    /// R91: scan.rs kernels (bounded top-m, optional threads) when enabled and no tombstones exist; `None` = use the generic path
+    fn fast_candidates(&self, q: &[f32], m: usize) -> Option<Vec<(f32, usize)>> {
+        if self.live != self.ids.len() {
+            return None;
+        }
+        let th = self.threads.max(1);
+        match self.tier {
+            Tier::F32 if self.fast => Some(crate::scan::scan_f32_par(&self.f32s, self.dim, q, m, th)),
+            Tier::Int8 if self.qdot => {
+                let (qc, qs) = crate::scan::quantize_i8(q);
+                Some(crate::scan::scan_i8_par(&self.i8s, &self.scales, self.dim, &qc, qs, m, th))
+            }
+            _ => None,
+        }
     }
 
     /// Exact brute-force over the f32 data when it is held (F32 tier or rerank copy), else `None`. For audits: measure the recall of a tier against exact.
@@ -620,6 +656,34 @@ mod tests {
 
     use super::*;
     use crate::router::Rng;
+
+    #[test]
+    fn scan_kernels_via_flatindex_f32_exact_int8_with_rerank_exact_and_tombstones_fall_back() {
+        let (n, dim) = (30_000usize, 24usize);
+        let mut r = Rng::new(77);
+        let rows: Vec<Vec<f32>> = (0..n).map(|_| (0..dim).map(|_| gauss(&mut r)).collect()).collect();
+        let q: Vec<f32> = (0..dim).map(|_| gauss(&mut r)).collect();
+        let mut base = FlatIndex::new(dim, Tier::F32, Metric::Cosine).with_fast_kernels(true);
+        let mut par = FlatIndex::new(dim, Tier::F32, Metric::Cosine).with_fast_kernels(true).with_threads(4);
+        let mut i8r = FlatIndex::new(dim, Tier::Int8, Metric::Cosine).with_rerank(4).with_int8_dot(true).with_threads(2);
+        for (id, v) in rows.iter().enumerate() {
+            base.add(id as u64, v).unwrap();
+            par.add(id as u64, v).unwrap();
+            i8r.add(id as u64, v).unwrap();
+        }
+        let want = base.search(&q, 10).unwrap();
+        assert_eq!(par.search(&q, 10).unwrap(), want, "threaded scan must equal the single-thread scan exactly");
+        let got = i8r.search(&q, 10).unwrap();
+        let overlap = got.iter().filter(|x| ids(&want).contains(&x.0)).count();
+        assert!(overlap >= 9, "int8 dot + exact rerank4 overlap {overlap}/10");
+        // a tombstone makes the generic path serve the query (the removed id must never be returned)
+        let victim = want[0].0;
+        assert!(par.remove(victim));
+        assert!(!ids(&par.search(&q, 10).unwrap()).contains(&victim));
+        // old JSON (without the new fields) still loads
+        let j = base.to_json().replace(",\"threads\":0", "").replace(",\"qdot\":false", "");
+        assert!(FlatIndex::from_json(&j).is_ok());
+    }
 
     fn gauss(r: &mut Rng) -> f32 {
         let (u1, u2) = (r.f64().max(1e-12), r.f64());

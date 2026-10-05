@@ -35,3 +35,4 @@ pub mod store;
 pub mod project;
 pub mod knnroute;
 pub mod ctxk;
+pub mod scan;

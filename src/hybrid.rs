@@ -266,6 +266,11 @@ pub struct HybridIndex {
     /// R45 (opt-in, default false): multi-accumulator dense scan (summation order differs; ~1e-7 relative score differences)
     #[serde(default)]
     fast: bool,
+    /// R91 (opt-in, default empty): int8 shadow copy of the dense matrix (per-vector scales); when present the dense scan is the AVX2 int8 dot against an int8-quantised query
+    #[serde(default)]
+    q8: Vec<i8>,
+    #[serde(default)]
+    q8_scales: Vec<f32>,
 }
 
 impl HybridIndex {
@@ -274,7 +279,7 @@ impl HybridIndex {
         if dense.len() != expected {
             return Err(HybridError::DenseShape { expected, got: dense.len() });
         }
-        Ok(HybridIndex { cfg, dim, ndoc: docs.len(), dense, bm: Bm25::new(docs), fast: false })
+        Ok(HybridIndex { cfg, dim, ndoc: docs.len(), dense, bm: Bm25::new(docs), fast: false, q8: Vec::new(), q8_scales: Vec::new() })
     }
     /// R54 (opt-in): like [`HybridIndex::new`] with BM25 parameters `k1` / `b` (default 1.2 / 0.75). R54 measured k1=.9, b=.5 as +.007..+.011 real_mrr
     /// (both splits, Holm) with no domain/general loss; k1=.6, b=.3 gives +.013..+.015 on real text but a small non-significant domain-axis drift.
@@ -283,11 +288,29 @@ impl HybridIndex {
         if dense.len() != expected {
             return Err(HybridError::DenseShape { expected, got: dense.len() });
         }
-        Ok(HybridIndex { cfg, dim, ndoc: docs.len(), dense, bm: Bm25::with_params(docs, k1, b), fast: false })
+        Ok(HybridIndex { cfg, dim, ndoc: docs.len(), dense, bm: Bm25::with_params(docs, k1, b), fast: false, q8: Vec::new(), q8_scales: Vec::new() })
     }
     /// R45 (opt-in): scan the dense matrix with 8 independent accumulators (RD-LOG R45: ~4x faster dense scan; identical top-k on the real fixtures)
     pub fn with_fast_kernels(mut self, on: bool) -> HybridIndex {
         self.fast = on;
+        self
+    }
+    /// R91 (opt-in): build / drop an int8 shadow copy of the dense matrix and scan it with the integer int8 dot (RD-LOG R91: ~5x faster dense scores at +25% memory;
+    /// retrieval quality is the R9 int8 result: per-vector int8 for docs AND query, no Holm loss; hybrid top-10 overlap with the f32 scan is reported in R91).
+    pub fn with_int8_dense(mut self, on: bool) -> HybridIndex {
+        if on {
+            let (mut rows, mut sc) = (Vec::with_capacity(self.dense.len()), Vec::with_capacity(self.ndoc));
+            for d in 0..self.ndoc {
+                let (c, s) = crate::scan::quantize_i8(&self.dense[d * self.dim..(d + 1) * self.dim]);
+                rows.extend(c);
+                sc.push(s);
+            }
+            self.q8 = rows;
+            self.q8_scales = sc;
+        } else {
+            self.q8 = Vec::new();
+            self.q8_scales = Vec::new();
+        }
         self
     }
     pub fn len(&self) -> usize {
@@ -319,6 +342,11 @@ impl HybridIndex {
     pub fn dense_scores(&self, q: &[f32], out: &mut Vec<f32>) -> Result<(), HybridError> {
         if q.len() != self.dim {
             return Err(HybridError::QueryDim { expected: self.dim, got: q.len() });
+        }
+        if !self.q8.is_empty() {
+            let (qc, qs) = crate::scan::quantize_i8(q);
+            crate::scan::scores_i8(&self.q8, &self.q8_scales, self.dim, &qc, qs, out);
+            return Ok(());
         }
         out.clear();
         for d in 0..self.ndoc {
@@ -568,6 +596,23 @@ impl SpellCorrector {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn int8_dense_shadow_keeps_the_ranking_on_small_stores_and_is_reversible() {
+        let d = docs();
+        let dim = 64;
+        let dense: Vec<f32> = d.iter().flat_map(|t| emb(t, dim)).collect();
+        let f = HybridIndex::new(&d, dense, dim, HybridConfig::default()).unwrap().with_fast_kernels(true);
+        let q8 = f.clone().with_int8_dense(true);
+        assert_ne!(f, q8);
+        for q in ["fox and dog", "message database", "receive reply", "index tuning"] {
+            let qv = emb(q, dim);
+            let (a, b) = (f.search(q, &qv, 3).unwrap(), q8.search(q, &qv, 3).unwrap());
+            assert_eq!(a.iter().map(|x| x.0).collect::<Vec<_>>(), b.iter().map(|x| x.0).collect::<Vec<_>>(), "query {q}");
+            assert!(a.iter().zip(&b).all(|(x, y)| (x.1 - y.1).abs() < 0.05));
+        }
+        assert_eq!(q8.with_int8_dense(false), f);
+    }
 
     fn docs() -> Vec<String> {
         ["the quick brown fox jumps over the lazy dog", "receive the message and receive the reply", "database index tuning for the query planner", "fox hunting and dog training basics", "message queue database replication"]
