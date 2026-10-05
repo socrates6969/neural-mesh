@@ -6,7 +6,7 @@ from scipy import stats
 d = sys.argv[1]; key = json.load(open(os.path.join(d, "sel_key.json"))); ARMS = ["full", "w15", "w8", "name"]; TOK = {"full": 23948, "w15": 18842, "w8": 14852, "name": 6962}
 ans = {}
 for a in ARMS:
-    p = os.path.join(d, f"ans_{a}.txt")
+    p = os.path.join(d, f"{os.environ.get('ANS','ans')}_{a}.txt")
     if not os.path.exists(p): print("missing", p); continue
     m = {}
     for line in open(p, encoding="utf-8", errors="ignore"):
