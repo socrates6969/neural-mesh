@@ -616,6 +616,26 @@ pub struct PersistedAnn {
     /// true when the graph was rebuilt from vectors, false when reloaded from the dump
     pub rebuilt: bool,
 }
+/// 64-bit content fingerprint of a corpus (doc ids in order + every vector bit); order- and content-sensitive, ~ns per vector element.
+fn corpus_fingerprint(docs: &[DocRec], vecs: &[f32]) -> String {
+    let mut h: u64 = 0xcbf2_9ce4_8422_2325;
+    let mut mix = |x: u64| {
+        h ^= x;
+        h = h.wrapping_mul(0x0000_0100_0000_01b3);
+        h ^= h >> 29;
+    };
+    for d in docs {
+        for b in d.id.bytes() {
+            mix(b as u64);
+        }
+        mix(0xff);
+    }
+    for v in vecs {
+        mix(v.to_bits() as u64);
+    }
+    mix(docs.len() as u64);
+    format!("{h:016x}")
+}
 impl PersistedAnn {
     /// top-k (doc index in `load_docs` order, cosine similarity)
     pub fn search(&self, q: &[f32], k: usize, ef: usize) -> Vec<(usize, f32)> {
@@ -635,9 +655,12 @@ impl MeshStore {
         }
         let dir = self.hnsw_dir(ns);
         let stamp = dir.join("stamp.json");
+        let fp = corpus_fingerprint(&docs, &vecs);
         if let Ok(b) = fs::read(&stamp) {
             if let Ok(v) = serde_json::from_slice::<serde_json::Value>(&b) {
-                if v["n"].as_u64() == Some(docs.len() as u64) && v["dim"].as_u64() == Some(dim as u64) {
+                // B18: (n, dim) alone is not enough - gc_docs followed by put_docs keeps n but changes the content, and the old graph would be served for the wrong vectors.
+                // The stamp therefore also carries a content fingerprint (ids + vector bits); stamps without one are treated as stale (one safe rebuild).
+                if v["n"].as_u64() == Some(docs.len() as u64) && v["dim"].as_u64() == Some(dim as u64) && v["fp"].as_str() == Some(fp.as_str()) {
                     if let Some(base) = v["base"].as_str() {
                         // the loader borrows from `HnswIo`: leak it so the graph is 'static (one small allocation per open)
                         let io: &'static mut HnswIo = Box::leak(Box::new(HnswIo::new(&dir, base)));
@@ -656,7 +679,7 @@ impl MeshStore {
         let _ = fs::remove_dir_all(&dir);
         fs::create_dir_all(&dir)?;
         let base = h.file_dump(&dir, "ix").map_err(|e| StoreError::Corrupt(format!("hnsw dump: {e}")))?;
-        fs::write(&stamp, serde_json::to_vec(&serde_json::json!({"n": docs.len(), "dim": dim, "base": base})).unwrap())?;
+        fs::write(&stamp, serde_json::to_vec(&serde_json::json!({"n": docs.len(), "dim": dim, "base": base, "fp": fp})).unwrap())?;
         Ok(Some(PersistedAnn { h, n: docs.len(), dim, rebuilt: true }))
     }
 }
@@ -863,6 +886,40 @@ mod tests {
         let v = s.outcomes().unwrap();
         assert_eq!(v.iter().filter(|o| o.world == "w").map(|o| o.seq).collect::<Vec<_>>(), vec![7, 8, 9]);
         assert_eq!(s.compact_journal(3).unwrap(), (4, 4));
+        let _ = fs::remove_dir_all(&p);
+    }
+
+
+    // ---- Team B (B18): the persisted ANN must not be reused when the corpus CONTENT changed but its row count did not
+    #[test]
+    fn persisted_ann_is_rebuilt_when_content_changes_with_same_row_count() {
+        let p = tmp("ann_stale");
+        let s = MeshStore::open(&p).unwrap();
+        let dim = 8;
+        let n = 30usize;
+        let mut st = 12345u64;
+        let mut v: Vec<f32> = (0..n * dim)
+            .map(|_| {
+                st = st.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+                ((st >> 33) as f32 / (1u64 << 31) as f32) * 2.0 - 1.0
+            })
+            .collect();
+        for r in 0..n {
+            let nn = v[r * dim..(r + 1) * dim].iter().map(|x| x * x).sum::<f32>().sqrt();
+            v[r * dim..(r + 1) * dim].iter_mut().for_each(|x| *x /= nn);
+        }
+        let dup: Vec<f32> = v[0..dim].to_vec(); // doc n-1 becomes an exact duplicate of doc 0
+        v[(n - 1) * dim..n * dim].copy_from_slice(&dup);
+        let docs: Vec<DocRec> = (0..n).map(|i| DocRec { id: format!("d{i}"), text: format!("t{i}"), tag: "x".into() }).collect();
+        s.put_docs("ns", dim, &docs, &v).unwrap();
+        assert!(s.open_ann("ns").unwrap().unwrap().rebuilt); // graph dumped for n = 30
+        assert_eq!(s.gc_docs("ns", 0.99999).unwrap(), (30, 29)); // the duplicate is dropped -> n = 29
+        let mut newv = vec![0.0f32; dim];
+        newv[3] = 1.0;
+        s.put_docs("ns", dim, &[DocRec { id: "fresh".into(), text: "fresh".into(), tag: "x".into() }], &newv).unwrap(); // n = 30 again, different content
+        let a = s.open_ann("ns").unwrap().unwrap();
+        let top = a.search(&newv, 1, 64);
+        assert_eq!(top[0].0, 29, "the freshly added doc must be found at its row (stale graph served: {top:?})");
         let _ = fs::remove_dir_all(&p);
     }
 
