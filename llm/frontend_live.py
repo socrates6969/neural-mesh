@@ -166,6 +166,18 @@ def _log(rec: dict, path: Path | None = None) -> None:
         pass
 
 
+def _scrub(rec: dict, texts: dict[str, str]) -> dict:
+    """privacy: an error message that echoes the prompt (or the local answer) must not put that text into the sha-only log"""
+    for k, v in rec.items():
+        if isinstance(v, str) and k not in ("prompt", "local_answer"):
+            for tag, t in texts.items():
+                for x in {t, (t or "").strip()}:
+                    if len(x) >= 4 and x in v:
+                        v = v.replace(x, tag)
+            rec[k] = v
+    return rec
+
+
 def ask(prompt: str, mode: str = "shadow", enabled: bool = False, forward_cmd: str | None = None, local_timeout: float = 20.0,
         log_text: bool = False, min_conf=None, min_sim=None, project: str | None = None, backend_factory=LiveBackend, decide=rust_decide,
         rows_loader=None, out=None, log_path: Path | None = None, forward=_forward) -> int:
@@ -176,7 +188,7 @@ def ask(prompt: str, mode: str = "shadow", enabled: bool = False, forward_cmd: s
         return forward(prompt, forward_cmd, out)
     t0 = time.monotonic()
     rec = {"ts": now_iso(), "sha256": sha(prompt), "mode": mode, "enabled": True}
-    payload, served_answer = prompt, None
+    payload, served_answer, local_answer = prompt, None, None
     try:
         from . import data
         rows = rows_loader() if rows_loader else data.read_jsonl(config.SFT)
@@ -185,6 +197,7 @@ def ask(prompt: str, mode: str = "shadow", enabled: bool = False, forward_cmd: s
         backend = backend_factory()
         s = compute_signals(prompt, project, rec["ts"], rows, backend, skip_local=busy, local_timeout=local_timeout, head_now=git_head())
         cfg = policy_cfg(min_conf, min_sim)
+        local_answer = s["answer"]
         d = decide(cfg, s["sig"], s["chunks"])
         ctx = assemble_context(d.get("context") or [], s["chunks"], int(cfg.get("ctx-budget", DEFAULT_CTX_BUDGET))) if d.get("ok") else ""
         rec.update(decision=d["decision"], reason=d.get("reason"), rust_ok=bool(d.get("ok")), rust_error=d.get("error"), tool=d.get("tool"),
@@ -216,7 +229,7 @@ def ask(prompt: str, mode: str = "shadow", enabled: bool = False, forward_cmd: s
             rec["forward_error"] = f"{type(e).__name__}: {e}"[:300]
             rc = 2
     rec["forward_rc"] = rc if served_answer is None else None
-    _log(rec, log_path)
+    _log(_scrub(rec, {"<prompt>": prompt, "<answer>": local_answer or ""}), log_path)
     return rc
 
 

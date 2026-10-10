@@ -102,6 +102,26 @@ class Ask(unittest.TestCase):
         self.assertEqual(fwd, [("p2", None)])
         self.assertFalse(recs[-1]["rust_ok"])
 
+    def test_log_holds_no_prompt_text_without_log_text(self):
+        """privacy: without --log-text frontend_live.jsonl carries the prompt's sha256 only, in every mode and on the error path"""
+        secret = "SECRET-PROMPT zebra-7731 my password is hunter2"
+        answer = "LOCAL-ANSWER quokka-4410"
+        cases = [dict(mode=m, decide=decide_as(d)) for m in ("shadow", "advisory", "cli") for d in ("local", "forward")]
+        cases.append(dict(mode="cli", decide=mock.Mock(side_effect=ValueError(f"cannot parse {secret!r}"))))   # message echoes the prompt
+        for kw in cases:
+            self.run_ask(secret, enabled=True, backend_factory=lambda: Stub(answer=answer), **kw)
+        raw = self.log.read_text(encoding="utf-8")
+        recs = [json.loads(x) for x in raw.splitlines()]
+        self.assertEqual(len(recs), len(cases))
+        for frag in ("SECRET-PROMPT", "zebra-7731", "hunter2", "quokka-4410"):
+            self.assertNotIn(frag, raw)
+        self.assertTrue(all(r["sha256"] == fl.sha(secret) and "prompt" not in r and "local_answer" not in r for r in recs))
+        self.assertEqual(recs[-1]["reason"], "error")
+        self.assertIn("<prompt>", recs[-1]["error"])
+        # --log-text is the only way text gets in
+        self.run_ask(secret, enabled=True, mode="cli", backend_factory=lambda: Stub(answer=answer), decide=decide_as("local"), log_text=True)
+        self.assertIn("zebra-7731", self.log.read_text(encoding="utf-8").splitlines()[-1])
+
     def test_shadow_logs_would_be_and_forwards_unchanged(self):
         rc, out, fwd, recs = self.run_ask("q", enabled=True, mode="shadow", backend_factory=Stub, decide=decide_as("local"))
         self.assertEqual(fwd, [("q", None)])
