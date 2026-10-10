@@ -17,7 +17,8 @@ diagnostic only. The full answer text is stored.
 
 results/<tag>/manifest_<split>.json pins git sha + dirty flag, battery/corpus/frontend/PREREG shas, models (+ Ollama digest), K,
 sandbox and the relevant env vars; resuming with a different pin exits 2. One writer per tag (O_EXCL lock file, exit 5).
-HELD/CONF runs are refused unless the front-end sha, front-end env, battery sha and K match bench/PREREG.json and the sandbox
+HELD/CONF runs are refused unless the front-end sha, front-end env, battery sha, K, the pins (Claude model, BENCH_THINK, local model,
+sandbox image) and the harness sha (sandbox.py) match bench/PREREG.json and the sandbox
 is docker. A complete run ends by calling analyze.py on the tag.
 
 Usage: python bench/run.py --split tune|held|conf --cond A,B,C,D --tag NAME [--k 3] [--workers 4] [--sandbox docker|job|auto]
@@ -343,6 +344,16 @@ def prereg_checks(split, header, conds, k, sbx_mode):
     if k != pre["K"]["claude"]: raise Abort(EXIT_PREREG, f"{split} refused: K={k} but PREREG K={pre['K']['claude']}")
     if not set(conds) <= set(pre["conds"]): raise Abort(EXIT_PREREG, f"{split} refused: conds {conds} not in PREREG {pre['conds']}")
     if sbx_mode != "docker": raise Abort(EXIT_PREREG, f"{split} refused: sandbox must be docker (job mode is not a security boundary)")
+    pins = pre.get("pins")
+    if not isinstance(pins, dict): raise Abort(EXIT_PREREG, f"{split} refused: PREREG has no machine-readable pins")
+    have = dict(sandbox_image=sandbox.IMAGE)
+    if any(c in CLAUDE_CONDS for c in conds): have.update(claude_model=CLAUDE_MODEL, claude_think=os.environ.get("BENCH_THINK", "2048"))
+    if any(c in LOCAL_CONDS for c in conds): have.update(local_model=LOCAL_MODEL)
+    diff = [f"{k}={v!r} (PREREG {pins.get(k)!r})" for k, v in have.items() if v != pins.get(k)]
+    if diff: raise Abort(EXIT_PREREG, f"{split} refused: differs from PREREG pins: " + ", ".join(diff))
+    if pre.get("sandbox_sha") and file_sha(HERE / "sandbox.py") != pre["sandbox_sha"]:
+        raise Abort(EXIT_PREREG, f"{split} refused: bench/sandbox.py (the scoring harness) changed after pre-registration")
+    if not pre.get("sandbox_sha"): raise Abort(EXIT_PREREG, f"{split} refused: PREREG does not pin the sandbox harness (sandbox_sha)")
     return pre_sha
 
 

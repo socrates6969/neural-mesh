@@ -75,3 +75,40 @@ def test_rescore_keeps_model_failure(code_run, monkeypatch):
     assert run.main(args, callers=_callers(calls, cls="MODEL"), sleep=NOSLEEP) == run.EXIT_OK and len(calls) == 1
     r = _rows(tmp_path)[-1]
     assert (r["status"], r["correct"], r["cls"], r["err"]) == ("model_fail", False, "MODEL", "stop_reason=max_tokens")
+# ---------------------------------------------------------------- PREREG pins for HELD/CONF
+def _prereg_env(monkeypatch):
+    pre, pre_sha = run.load_prereg()
+    monkeypatch.setenv("MESH_V2", "1"); monkeypatch.delenv("MESH_THRESH", raising=False); monkeypatch.delenv("MESH_FRONTEND", raising=False)
+    monkeypatch.delenv("BENCH_THINK", raising=False)
+    return pre, pre_sha
+
+
+DRY = ["--split", "held", "--cond", "A,B,C,D", "--tag", "prereg-pin-test", "--dry-run", "--sandbox", "docker"]
+
+
+def test_prereg_pins_models_think_image(monkeypatch):
+    pre, pre_sha = _prereg_env(monkeypatch)
+    assert pre["pins"] == dict(claude_model="haiku", claude_think="2048", local_model="qwen2.5-coder:7b", sandbox_image=run.sandbox.IMAGE)
+    assert run.file_sha(BENCH / "sandbox.py") == pre["sandbox_sha"], "bench/sandbox.py changed after pre-registration: update PREREG.json"
+    assert run.main(DRY) == run.EXIT_OK
+    monkeypatch.setattr(run, "CLAUDE_MODEL", "sonnet")
+    assert run.main(DRY) == run.EXIT_PREREG
+    monkeypatch.setattr(run, "CLAUDE_MODEL", "haiku")
+    monkeypatch.setenv("BENCH_THINK", "8000")
+    assert run.main(DRY) == run.EXIT_PREREG
+    monkeypatch.setenv("BENCH_THINK", "2048")
+    assert run.main(DRY) == run.EXIT_OK                                         # explicit default is the same experiment
+    monkeypatch.setattr(run, "LOCAL_MODEL", "qwen2.5-coder:14b")
+    assert run.main(DRY) == run.EXIT_PREREG
+    assert run.main(DRY[:3] + ["A,B"] + DRY[4:]) == run.EXIT_OK                 # the local model only matters when C/D run
+    monkeypatch.setattr(run, "LOCAL_MODEL", "qwen2.5-coder:7b")
+    monkeypatch.setattr(run.sandbox, "IMAGE", "python:3.12-slim@sha256:" + "0" * 64)
+    assert run.main(DRY) == run.EXIT_PREREG
+    monkeypatch.setattr(run.sandbox, "IMAGE", pre["sandbox_image"])
+    monkeypatch.setattr(run, "load_prereg", lambda: (dict(pre, sandbox_sha="0" * 64), pre_sha))
+    assert run.main(DRY) == run.EXIT_PREREG                                     # sandbox.py (the harness) changed
+    no_pins = {k: v for k, v in pre.items() if k != "pins"}
+    monkeypatch.setattr(run, "load_prereg", lambda: (no_pins, pre_sha))
+    assert run.main(DRY) == run.EXIT_PREREG
+    assert run.main(["--split", "tune", "--cond", "A", "--tag", "prereg-pin-test", "--dry-run", "--sandbox", "job"]) == run.EXIT_OK   # TUNE unaffected
+    assert not (run.RESULTS / "prereg-pin-test").exists()
