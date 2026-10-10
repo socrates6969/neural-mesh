@@ -16,7 +16,9 @@ Modes:
   docker  (the only mode allowed for HELD/CONF): `docker run -i` on a digest-pinned python:3.12-slim with --network none
           --read-only --tmpfs /tmp:size=16m --memory 256m --memory-swap 256m --cpus 1 --pids-limit 64 --cap-drop ALL
           --security-opt no-new-privileges --user 65534, interpreter `python -I -`, program piped on stdin. A host-side timeout
-          of 20 s ends the container with `docker kill`.
+          of 20 s ends the container with `docker kill`. INFRA vs MODEL is decided from the container's State as the daemon
+          reports it (docker inspect), not from the exit code or stderr, which the candidate controls: exit 125/126/127 from a
+          program that did start is the candidate's (scored wrong), so a split can always finish.
   job     (TUNE only; NOT a security boundary): a local `python -I -` child with an empty environment (plus SYSTEMROOT, which
           the Windows interpreter needs to start), a fresh temp cwd, a Windows Job Object (256 MB per process,
           KILL_ON_JOB_CLOSE, at most 8 active processes) and an audit hook that refuses file writes, sockets and process
@@ -34,7 +36,6 @@ MAX_OUT = 8 << 20                       # a result line longer than this is malf
 DOCKER_FLAGS = ["--network", "none", "--read-only", "--tmpfs", "/tmp:size=16m", "--memory", f"{MEM_MB}m", "--memory-swap", f"{MEM_MB}m",
                 "--cpus", "1", "--pids-limit", "64", "--cap-drop", "ALL", "--security-opt", "no-new-privileges", "--user", "65534",
                 "--workdir", "/tmp", "--log-driver", "none"]
-DOCKER_INFRA_RC = {125, 126, 127}      # docker run itself failed (daemon / image / exec), not the program
 
 # The program sent on stdin: the candidate and the test inputs, nothing else. %(payload)s is a Python string literal of the JSON
 # payload {code, fn, tests, audit}; %(nonce)s marks the one result line. The driver keeps its own references to json.dumps and
@@ -158,23 +159,61 @@ def ensure_image(timeout=600):
     return p.returncode == 0, (p.stdout + p.stderr)[-300:]
 
 
+NEVER_STARTED = "0001-01-01T00:00:00Z"
+
+
+def container_state(name):
+    """-> (State dict, None) from `docker inspect`, or (None, why) when the daemon cannot say (it is down, or the container
+    was never created)"""
+    try:
+        p = _exec(["docker", "inspect", "--type", "container", "--format", "{{json .State}}", name], timeout=30)
+    except Exception as e:
+        return None, "inspect: " + repr(e)[:150]
+    if p.returncode != 0: return None, "inspect: " + (p.stderr or p.stdout).strip()[:150]
+    try:
+        st = json.loads(p.stdout)
+        if not isinstance(st, dict): raise ValueError
+        return st, None
+    except Exception:
+        return None, "inspect: unreadable state " + p.stdout.strip()[:100]
+
+
+def program_ran(st):
+    """True iff docker really started the program: then its exit code and output belong to the candidate (a MODEL outcome),
+    whatever the code is - including 125/126/127, which docker itself also uses for its own failures"""
+    return bool(st) and not st.get("Error") and bool(st.get("StartedAt")) and not str(st.get("StartedAt")).startswith(NEVER_STARTED[:10])
+
+
 def _run_docker(prog, nonce, expected, timeout):
+    """No --rm: after the run the container's State (from the daemon, which the candidate cannot write) decides whether a
+    failure was docker's (INFRA: not created, never started, daemon gone) or the program's (MODEL). Removed in `finally`."""
     name = "bench-sbx-" + uuid.uuid4().hex[:12]
-    cmd = ["docker", "run", "--rm", "-i", "--name", name, *DOCKER_FLAGS, IMAGE, "python", "-I", "-"]
+    cmd = ["docker", "run", "-i", "--name", name, *DOCKER_FLAGS, IMAGE, "python", "-I", "-"]
     t0 = time.time()
     try:
-        p = _exec(cmd, input=prog, timeout=timeout)
-    except subprocess.TimeoutExpired:
-        try: _exec(["docker", "kill", name], timeout=30)
+        try:
+            p = _exec(cmd, input=prog, timeout=timeout)
+        except subprocess.TimeoutExpired:
+            try: _exec(["docker", "kill", name], timeout=30)
+            except Exception: pass
+            st, why = container_state(name)
+            if not program_ran(st):          # the daemon hung before the program started: not the candidate's time
+                return dict(status="infra", why=f"timeout, container never ran: {why or st.get('Error') or st.get('Status')}", secs=time.time() - t0)
+            return dict(status="timeout", why=f"host timeout {timeout}s", secs=time.time() - t0)
+        except Exception as e:
+            return dict(status="infra", why="spawn:" + repr(e)[:150], secs=0.0)
+        secs = time.time() - t0
+        st, why = container_state(name)
+        if st is None:
+            return dict(status="infra", why=f"docker rc={p.returncode}, no container state ({why}): {p.stderr.strip()[:150]}", secs=secs)
+        if not program_ran(st):
+            return dict(status="infra", why=f"docker rc={p.returncode}, container never started ({st.get('Status')}: {str(st.get('Error'))[:150]})", secs=secs)
+        r = verdict(p.stdout, nonce, expected, secs, p.returncode, p.stderr)       # e.g. os._exit(125), OOM-killed (137): no result -> fail
+        if st.get("OOMKilled") and r["status"] == "fail": r["why"] = "OOM-killed; " + str(r["why"])
+        return r
+    finally:
+        try: _exec(["docker", "rm", "-f", name], timeout=30)
         except Exception: pass
-        return dict(status="timeout", why=f"host timeout {timeout}s", secs=time.time() - t0)
-    except Exception as e:
-        return dict(status="infra", why="spawn:" + repr(e)[:150], secs=0.0)
-    secs = time.time() - t0
-    if parse_outputs(p.stdout, nonce, len(expected))[0] is None and (
-            p.returncode in DOCKER_INFRA_RC or "Error response from daemon" in p.stderr or "error during connect" in p.stderr):
-        return dict(status="infra", why=f"docker rc={p.returncode}: {p.stderr.strip()[:200]}", secs=secs)
-    return verdict(p.stdout, nonce, expected, secs, p.returncode, p.stderr)      # e.g. OOM-killed (137): no result -> fail
 
 
 # ------------------------------------------------------------------ job object (Windows) / rlimit (POSIX) fallback

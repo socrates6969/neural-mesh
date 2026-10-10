@@ -51,16 +51,20 @@ ATTACKS = {
 }
 
 
-def fake_docker(calls=None, state=None, run_rc=None):
-    """stand-in for the docker CLI: `docker run ...` runs the same program in a local `python -I -` child (no daemon needed)"""
+def fake_docker(calls=None, state=None, run_result=None, inspect_rc=0, timeout_on_run=False):
+    """stand-in for the docker CLI: `docker run ...` runs the same program in a local `python -I -` child (no daemon needed);
+    `docker inspect` reports `state` (default: the program started and exited)"""
     def _exec(cmd, input=None, timeout=None):
         if calls is not None: calls.append(cmd)
         if cmd[:2] == ["docker", "run"]:
-            assert "python" in cmd and cmd[-2:] == ["-I", "-"]
+            assert "python" in cmd and cmd[-2:] == ["-I", "-"] and "--rm" not in cmd
+            if timeout_on_run: raise subprocess.TimeoutExpired(cmd, timeout)
+            if run_result is not None: return subprocess.CompletedProcess(cmd, *run_result)
             p = subprocess.run([sys.executable, "-I", "-"], input=input, capture_output=True, text=True, encoding="utf8", errors="replace", timeout=timeout)
-            return subprocess.CompletedProcess(cmd, p.returncode if run_rc is None else run_rc, p.stdout, p.stderr)
+            return subprocess.CompletedProcess(cmd, p.returncode, p.stdout, p.stderr)
         if cmd[:2] == ["docker", "inspect"]:
-            st = state if state is not None else dict(Status="exited", StartedAt="2026-10-10T00:00:00Z", Error="", OOMKilled=False)
+            if inspect_rc: return subprocess.CompletedProcess(cmd, inspect_rc, "", "Error: No such container: " + cmd[-1])
+            st = state if state is not None else dict(Status="exited", StartedAt="2026-10-10T00:00:00.1Z", Error="", OOMKilled=False, ExitCode=0)
             return subprocess.CompletedProcess(cmd, 0, json.dumps(st), "")
         return subprocess.CompletedProcess(cmd, 0, "", "")
     return _exec
@@ -99,8 +103,8 @@ def test_honest_candidates(mode, monkeypatch):
 
 
 @pytest.mark.parametrize("mode", MODES)
-def test_exit_codes_are_model_failures_in_job_mode(mode, monkeypatch):
-    if mode != "job": pytest.skip("docker exit codes 125/126/127 are covered by the container-state tests")
+def test_candidate_exit_codes_are_model_failures(mode, monkeypatch):
+    """os._exit(125/126/127) from a program that did start is the candidate's: scored wrong, never INFRA (a split can finish)"""
     for rc in (1, 125, 126, 127):
         r = _run(mode, f"import os\nos._exit({rc})\ndef f(x): return 'nope'", monkeypatch)
         assert r["status"] == "fail", (rc, r)
@@ -146,3 +150,78 @@ def test_run_code_args():
         sandbox.run_code("", "f", [[1]], [], mode="job")
     with pytest.raises(ValueError):
         sandbox.run_code("", "f", [], [], mode="wasm")
+
+
+# ---------------------------------------------------------------- docker: INFRA vs MODEL from the container state
+STARTED = dict(Status="exited", StartedAt="2026-10-10T00:00:00.1Z", Error="", OOMKilled=False)
+
+
+def _docker(monkeypatch, code="def f(x): return 'nope'", **kw):
+    calls = []
+    monkeypatch.setattr(sandbox, "_exec", fake_docker(calls=calls, **kw))
+    return sandbox.run_code(code, "f", TESTS, EXPECTED, mode="docker", timeout=5), calls
+
+
+def test_docker_genuine_failures_are_infra(monkeypatch):
+    # the daemon refused to create the container: no container to inspect
+    r, calls = _docker(monkeypatch, run_result=(125, "", "docker: Error response from daemon: pull access denied"), inspect_rc=1)
+    assert r["status"] == "infra" and "no container state" in r["why"], r
+    assert calls[-1][:3] == ["docker", "rm", "-f"]                                     # always cleaned up
+    # created but never started (docker could not exec python): 127 is docker's, not the program's
+    never = dict(Status="created", StartedAt=sandbox.NEVER_STARTED, Error='exec: "python": executable file not found', OOMKilled=False)
+    r, _ = _docker(monkeypatch, run_result=(127, "", "docker: Error response from daemon: failed to create task"), state=never)
+    assert r["status"] == "infra" and "never started" in r["why"], r
+    r, _ = _docker(monkeypatch, run_result=(126, "", ""), state=dict(STARTED, Error="OCI runtime create failed"))
+    assert r["status"] == "infra"
+    def boom(cmd, input=None, timeout=None): raise OSError("docker.exe missing")
+    monkeypatch.setattr(sandbox, "_exec", boom)
+    assert sandbox.run_code("x", "f", TESTS, EXPECTED, mode="docker")["status"] == "infra"
+
+
+def test_docker_candidate_cannot_fake_infra(monkeypatch):
+    """the old rule (rc in {125,126,127} or 'Error response from daemon' on stderr) was the candidate's to trigger"""
+    spoof = ("import os, sys\nsys.stderr.write('docker: Error response from daemon: x\\n'); sys.stderr.flush()\n"
+             "os._exit(125)\ndef f(x): return 1")
+    r, _ = _docker(monkeypatch, code=spoof)
+    assert r["status"] == "fail" and "rc=125" in r["why"], r
+
+
+def test_docker_timeout_and_oom(monkeypatch):
+    r, calls = _docker(monkeypatch, timeout_on_run=True)
+    assert r["status"] == "timeout", r
+    assert ["docker", "kill"] == calls[1][:2] and calls[-1][:3] == ["docker", "rm", "-f"]
+    r, _ = _docker(monkeypatch, timeout_on_run=True, state=dict(STARTED, Status="created", StartedAt=sandbox.NEVER_STARTED))
+    assert r["status"] == "infra" and "never ran" in r["why"]                            # a hung daemon is not the candidate's time
+    r, _ = _docker(monkeypatch, timeout_on_run=True, inspect_rc=1)
+    assert r["status"] == "infra"
+    r, _ = _docker(monkeypatch, run_result=(137, "", ""), state=dict(STARTED, OOMKilled=True))
+    assert r["status"] == "fail" and r["why"].startswith("OOM-killed"), r
+
+
+def test_container_state_parsing(monkeypatch):
+    monkeypatch.setattr(sandbox, "_exec", lambda cmd, input=None, timeout=None: subprocess.CompletedProcess(cmd, 0, "not json", ""))
+    assert sandbox.container_state("x")[0] is None
+    monkeypatch.setattr(sandbox, "_exec", lambda cmd, input=None, timeout=None: subprocess.CompletedProcess(cmd, 0, "[1]", ""))
+    assert sandbox.container_state("x")[0] is None
+    def boom(cmd, input=None, timeout=None): raise subprocess.TimeoutExpired(cmd, 30)
+    monkeypatch.setattr(sandbox, "_exec", boom)
+    assert sandbox.container_state("x")[1].startswith("inspect:")
+    assert sandbox.program_ran(STARTED) and not sandbox.program_ran(None) and not sandbox.program_ran(dict(STARTED, StartedAt=""))
+
+
+def test_docker_available(monkeypatch):
+    replies = {}
+    monkeypatch.setattr(sandbox, "_exec", lambda cmd, input=None, timeout=None: subprocess.CompletedProcess(cmd, *replies.get(cmd[1], (0, "ok", ""))))
+    monkeypatch.setattr(sandbox.shutil, "which", lambda x: None)
+    assert sandbox.docker_available() == (False, "docker CLI not found")
+    monkeypatch.setattr(sandbox.shutil, "which", lambda x: "docker")
+    assert sandbox.docker_available() == (True, "ok")
+    replies["image"] = (1, "", "No such image")
+    assert sandbox.docker_available()[1].startswith("image ")
+    replies["info"] = (1, "", "error during connect")
+    assert sandbox.docker_available() == (False, "daemon: error during connect")
+    replies["pull"] = (0, "pulled", "")
+    assert sandbox.ensure_image() == (True, "pulled")
+    def boom(cmd, input=None, timeout=None): raise OSError("x")
+    monkeypatch.setattr(sandbox, "_exec", boom)
+    assert sandbox.docker_available()[0] is False
