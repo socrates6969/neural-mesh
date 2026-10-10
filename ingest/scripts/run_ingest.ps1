@@ -17,6 +17,13 @@ if ($Detach) {
     Push-Location $repo
     try {
         & python @argList *>> $log
-        if ($MirrorDb) { & python -m ingest mirror --db-path $MirrorDb *>> $log }
+        $ingestExit = $LASTEXITCODE
+        # The user approved mirroring into this specific external ruflo db (2026-10-10), hence --allow-external-db.
+        # Mirror failures are logged but never fail the run, so they cannot stop the nightly LLM chain.
+        if ($MirrorDb -and $ingestExit -eq 0) {
+            & python -m ingest mirror --db-path $MirrorDb --allow-external-db *>> $log
+            "mirror exit $LASTEXITCODE" *>> $log
+        }
+        exit $ingestExit
     } finally { Pop-Location }
 }
