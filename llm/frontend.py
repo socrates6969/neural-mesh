@@ -25,6 +25,32 @@ WRONG = 0.5          # judge score below this = a wrong local answer
 TARGET_WRONG = 0.10  # tuning rule: maximise saved tokens s.t. wrong rate of served answers <= 10% on TUNE
 
 
+# ------------------------------------------------------------------------------------------------------------------------------
+# Promotion ladder (llm/README.md 'Front-end'). CONFIG CONSTANTS ONLY: nothing reads them to change behaviour automatically, there is
+# no active canary. A rung is climbed by the owner, by hand, when the numbers below are met; every live path stays DEFAULT OFF.
+RUNGS = ("off", "shadow", "canary", "on")
+CANARY_FRACTION = 0.05          # hash-selected share of requests a canary rung may serve; every canary action is audited vs Claude
+ON_AUDIT_FRACTION = 0.10        # share of served requests still audited once a rung is "on"
+LADDER = {
+    "R1_local_answer": {"shadow_to_canary": {"shadow_rows": 300, "clusters": 30, "worlds": 2, "days": 14, "wrong_ucb95_held_conf": 0.10,
+                                             "saved_holm_sig": True, "tost_eps": 0.01},
+                        "canary_to_on": {"audited": 100, "wrong_ucb95": 0.05},
+                        "prereq": {"human_prompt_world": True, "lora_rows": 1000, "calibrated_conf": True, "judge_decoy_reject": 0.70}},
+    "R2_verified_cache": {"shadow_to_canary": {"verified_hits": 50, "hit_rate": 0.02, "stale_wrong_ucb95": 0.05},
+                          "canary_to_on": {"hits": 100, "stale_wrong_ucb95": 0.02}},
+    "R3_tool_autoexec": {"shadow_to_canary": {"routed_human_rows": 100, "wrong_ucb95": 0.02},
+                         "canary_to_on": {"routed_human_rows": 200, "wrong_ucb95": 0.01}},
+    "R4_local_draft_claude_edits": {"shadow_to_canary": {"paired_rows": 200, "tost_quality": True, "saved_holm_sig": True, "anchoring_ucb95": 0.05,
+                                                         "needs_owner_api_budget": True}},
+    "R5_per_skill_R1": {"shadow_to_canary": {"rows_per_split": 30, "clusters_per_split": 3, "holm_across_skills": True, "wrong_ucb95": 0.05}},
+}
+DEMOTION = {
+    "rolling_audited": 50,          # rolling window of audited actions; wrong UCB95 above the rung ceiling -> down one rung
+    "to_shadow_if": ("weekly judge decoy-reject < 0.70", "production model pointer changed", "stale neural-mesh binary", "a new world appears"),
+    "to_off_if": ("severity-1: destructive command", "bad tool execution", "override rate > 2x predicted"),
+}
+
+
 def norm(s: str) -> str:
     return re.sub(r"\s+", " ", s.strip().lower())
 

@@ -233,6 +233,19 @@ class ToolExemplars(unittest.TestCase):
         self.assertEqual((r.returncode, d["decision"], d["tool"]), (0, "tool", "calc"))
 
 
+class Ladder(unittest.TestCase):
+    def test_ladder_is_config_only(self):
+        self.assertEqual(frontend.RUNGS, ("off", "shadow", "canary", "on"))
+        r1 = frontend.LADDER["R1_local_answer"]
+        self.assertEqual((r1["shadow_to_canary"]["shadow_rows"], r1["shadow_to_canary"]["wrong_ucb95_held_conf"], r1["canary_to_on"]["wrong_ucb95"]), (300, 0.10, 0.05))
+        self.assertEqual(set(frontend.LADDER), {"R1_local_answer", "R2_verified_cache", "R3_tool_autoexec", "R4_local_draft_claude_edits", "R5_per_skill_R1"})
+        root = Path(frontend.__file__).parent
+        for mod in ("frontend_live.py", "frontend_eval.py", "hook.py", "__main__.py", "nightly.py"):
+            src = (root / mod).read_text(encoding="utf-8")
+            self.assertNotIn("LADDER", src, mod)          # no code path promotes or canaries automatically
+            self.assertNotIn("CANARY_FRACTION", src, mod)
+
+
 class Stats(unittest.TestCase):
     def test_holm_known_values(self):
         from llm.stats import holm
