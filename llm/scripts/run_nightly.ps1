@@ -49,6 +49,9 @@ try {
         if ($PSBoundParameters.ContainsKey('Log')) { $ingestArgs += @('-Log', "$Log.ingest") }   # tests: keep the real logs clean
         $irc = Invoke-Logged 'powershell' $ingestArgs $Log
         Write-Log "ingest exit $irc"
+        # 1b) scorecard (cross-session metrics; reads transcripts + outcomes.jsonl; never fails the round)
+        $src = Invoke-Logged $IngestPython @('-m', 'ingest', 'scorecard') $Log
+        Write-Log "scorecard exit $src"
         if ($irc -ne 0) {
             $worst = $irc
             Write-Log 'ingest failed; skipping the llm round'
