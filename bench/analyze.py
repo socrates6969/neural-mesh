@@ -16,7 +16,9 @@ bootstrap only (no verdict). Legacy rows (v1/v2, no status field) get the old de
 
 Writes results/<first tag>/summary.json and summary.txt (with a paste-ready RD-LOG line).
 Usage: python bench/analyze.py TAG [TAG ...] [--drop-incomplete] [--json OUT]
-Exit: 0 ok, 3 incomplete pairs, 4 invalid rows (duplicates / unknown items / battery mismatch)."""
+HELD/CONF manifests must carry the prereg_sha of the current bench/PREREG.json (the registration the run was checked
+against); a mismatch exits 2. A TUNE mismatch is only a warning line (TUNE is descriptive).
+Exit: 0 ok, 2 PREREG mismatch, 3 incomplete pairs, 4 invalid rows (duplicates / unknown items / battery mismatch)."""
 import argparse, collections, json, os, pathlib, random, sys
 
 HERE = pathlib.Path(__file__).resolve().parent
@@ -27,7 +29,7 @@ import gate  # noqa: E402
 from common import AXES, axis_of, battery_path, json_sha, load_prereg  # noqa: E402
 
 RESULTS = pathlib.Path(os.environ.get("BENCH_RESULTS") or HERE / "results")
-EXIT_OK, EXIT_INCOMPLETE, EXIT_INVALID = 0, 3, 4
+EXIT_OK, EXIT_PREREG, EXIT_INCOMPLETE, EXIT_INVALID = 0, 2, 3, 4
 WORLDS = {"A": ("claude", "A", "B"), "B": ("local", "C", "D")}       # gate world key -> (name, base cond, candidate cond)
 SLOT0 = {"held": HELD[0], "conf": CONF[0]}                          # 31 / 61
 TARGET = ["research_private"]
@@ -288,6 +290,18 @@ def analyse(v, tags, prereg, prereg_sha):
     return summary, lines
 
 
+def check_prereg(v, prereg_sha):
+    """HELD/CONF: the manifest's prereg_sha must be the current PREREG.json sha (exit 2); TUNE: a mismatch is a warning"""
+    warns = []
+    for split, S in v.items():
+        got = S["manifest"].get("prereg_sha")
+        if got == prereg_sha: continue
+        msg = f"{split}: manifest prereg_sha {str(got)[:12]} != current PREREG.json {str(prereg_sha)[:12]}"
+        if split in ("held", "conf"): raise Invalid(EXIT_PREREG, msg + " (the run was checked against a different registration)")
+        warns.append(msg)
+    return warns
+
+
 def rd_log_line(summary, tags):
     pre = (summary.get("prereg_sha") or "none")[:12]
     if "gate" not in summary:
@@ -319,7 +333,10 @@ def main(argv=None):
         else:
             v = validate([r for r in rows if "status" in r], manifests(a.tags), a.drop_incomplete)
             prereg, prereg_sha = load_prereg()
+            warns = check_prereg(v, prereg_sha)
             summary, lines = analyse(v, a.tags, prereg, prereg_sha)
+            summary["prereg_warnings"] = warns
+            lines = [f"warning: {w}" for w in warns] + lines
     except Invalid as e:
         print(f"analyze.py: {e}", file=sys.stderr); return e.code
     json.dump(summary, open(out_dir / "summary.json", "w", encoding="utf8"), indent=1, default=str)

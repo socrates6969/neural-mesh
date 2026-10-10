@@ -281,7 +281,8 @@ def _gate_fixture(tmp_path, monkeypatch, regress=False, n=6, K=2):
             cat, sub = ("research", ax.split("_")[1]) if ax.startswith("research") else (ax, "x")
             items += [dict(id=f"{split[0]}-{ax}{i}", split=split, cat=cat, sub=sub, prompt=f"{split}{ax}{i}", answer=1, kind="num", tol=0) for i in range(n)]
         p = tmp_path / f"battery_{split}.json"; p.write_text(json.dumps(dict(header={}, items=items)), encoding="utf8"); paths[split] = p
-        (res / "G" / f"manifest_{split}.json").write_text(json.dumps(dict(split=split, conds=["A", "B"], K=dict(claude=K, local=1), battery_sha=json_sha(items))))
+        (res / "G" / f"manifest_{split}.json").write_text(json.dumps(dict(split=split, conds=["A", "B"], K=dict(claude=K, local=1), battery_sha=json_sha(items),
+                                                                                 prereg_sha="f" * 64)))
         for it in items:
             ax = axis_of(it); i = int(it["id"][-1])
             for rep in range(K):
@@ -320,6 +321,17 @@ def test_gate_reuse(tmp_path, monkeypatch):
     write([r for r in rows if r["split"] == "held"])
     assert analyze.main(["G"]) == 0
     assert json.load(open(res / "G" / "summary.json"))["gate"]["verdict"].startswith("PARTIAL")
+
+
+def test_analyze_prereg_sha(tmp_path, monkeypatch):
+    """a HELD/CONF manifest checked against another PREREG.json is refused (exit 2); TUNE only warns"""
+    res, rows, write = _gate_fixture(tmp_path, monkeypatch)
+    assert analyze.main(["G"]) == 0 and json.load(open(res / "G" / "summary.json"))["prereg_warnings"] == []
+    monkeypatch.setattr(analyze, "load_prereg", lambda: (dict(tol=0.002, delta=0.01), "e" * 64))      # PREREG changed after the run
+    assert analyze.main(["G"]) == analyze.EXIT_PREREG == 2
+    v = {"tune": dict(manifest=dict(prereg_sha="f" * 64))}
+    assert analyze.check_prereg(v, "e" * 64) == ["tune: manifest prereg_sha ffffffffffff != current PREREG.json eeeeeeeeeeee"]
+    assert analyze.check_prereg(v, "f" * 64) == []
 
 
 # ====================================================================== PREREG
