@@ -15,7 +15,8 @@ Guard rails:
   namespace only (no ruflo tags / provenance);
 * the ingest lock (``data/lifelong/.ingest.lock``) is held for the whole job (busy -> exit 75), so items.jsonl / outcomes.jsonl
   are not appended while being read;
-* ``stats["exit"]``: 0 everything stored (or nothing to do), 3 partial, 4 nothing stored / npx missing, 5 refused, 75 busy.
+* ``stats["exit"]``: 0 everything stored (or nothing to do), 3 partial, 4 nothing stored / npx missing, 5 refused, 75 busy;
+  every non-dry run that reaches an import, and every refused / busy run, appends a row to ``mirror_runs.jsonl``.
 """
 from __future__ import annotations
 
@@ -149,6 +150,12 @@ def _exit_code(stats: dict) -> int:
     return EXIT_OK if stats["stored"] >= stats["todo"] else EXIT_PARTIAL
 
 
+def _log_run(cfg, stats: dict) -> None:
+    """one row per run in mirror_runs.jsonl, including refused (5) and busy (75) runs (exit code + reason in "error")."""
+    from datetime import datetime, timezone
+    append_jsonl(cfg.data / "mirror_runs.jsonl", [{"ts": datetime.now(timezone.utc).isoformat(), **stats}])
+
+
 def mirror(cfg, dry_run: bool = False, limit: int | None = None, db_path: str | None = None, allow_external: bool = False,
            wait_s: float = 0.0, repo: Path = REPO, runner=_run) -> dict:
     db = Path(db_path) if db_path else default_db(repo)
@@ -157,10 +164,12 @@ def mirror(cfg, dry_run: bool = False, limit: int | None = None, db_path: str | 
              "db_path": resolved, "cli_version": cli_package()}
     if not ok:
         stats.update(error=why, exit=EXIT_REFUSED)
+        _log_run(cfg, stats)
         return stats
     lock = ProcessLock(cfg.lock_file)
     if not lock.acquire(wait_s):
         stats.update(error="another ingest run holds the lock", exit=EXIT_BUSY)
+        _log_run(cfg, stats)
         return stats
     try:
         return _mirror_locked(cfg, stats, dry_run, limit, resolved, repo, runner)
@@ -207,5 +216,5 @@ def _mirror_locked(cfg, stats: dict, dry_run: bool, limit, db: str, repo: Path, 
             stats["error"] = "first 2 import chunks stored nothing; stopping (is the ruflo CLI reachable?)"
             break
     stats["exit"] = _exit_code(stats)
-    append_jsonl(cfg.data / "mirror_runs.jsonl", [stats])
+    _log_run(cfg, stats)
     return stats

@@ -231,6 +231,28 @@ class Locking(Base):
         self.assertEqual(st["exit"], 75)
         self.assertEqual(fake.calls, [])
 
+    def runs(self):
+        p = self.cfg.data / "mirror_runs.jsonl"
+        return [json.loads(x) for x in p.read_text(encoding="utf-8").splitlines() if x.strip()] if p.exists() else []
+
+    def test_refused_and_busy_runs_are_logged_with_exit_and_reason(self):
+        st, _ = self.run_mirror(db_path=str(self.outside / "memory.db"))
+        self.assertEqual(st["exit"], 5)
+        lk = ProcessLock(self.cfg.lock_file)
+        self.assertTrue(lk.acquire())
+        try:
+            st, _ = self.run_mirror()
+        finally:
+            lk.release()
+        self.assertEqual(st["exit"], 75)
+        rows = self.runs()
+        self.assertEqual([r["exit"] for r in rows], [5, 75])
+        self.assertIn("outside the repo", rows[0]["error"])
+        self.assertIn("lock", rows[1]["error"])
+        self.assertTrue(all(r.get("ts") for r in rows))
+        st, _ = self.run_mirror()   # a normal run still logs its row after them
+        self.assertEqual([r["exit"] for r in self.runs()], [5, 75, 0])
+
     def test_waits_on_the_ingest_lock(self):
         lk = ProcessLock(self.cfg.lock_file)
         self.assertTrue(lk.acquire())
