@@ -13,8 +13,9 @@
 * the grid (min-conf in [-1, -0.02], min-sim in [.3, .7]; no -99 / 0 sentinels) is tuned on TUNE only: max saved tokens s.t. wrong rate
   of served answers <= .10 and >= 10 local answers; no such point -> REJECTED.
 * HELD and CONF go through the Rust policy. Tests per (split, world), all in ONE Holm family: saved tokens > 0 (cluster bootstrap,
-  one-sided), quality loss < 0 (one-sided), TOST +-0.01 on the quality delta. KEEP iff saved tokens are Holm-significant in the SAME
-  world on HELD and CONF, no Holm-significant quality loss, Wilson 95% upper bound of the wrong rate <= .10 on HELD and CONF, and no
+  one-sided), quality loss < 0 (one-sided), TOST +-0.01 on the quality delta. Quality delta per row = judge score of the served
+  answer - judge score of Claude's own answer for that row (the forward baseline, fwd_score); 0 for a forwarded row. KEEP iff saved
+  tokens are Holm-significant in the SAME world on HELD and CONF, no Holm-significant quality loss, Wilson 95% upper bound of the wrong rate <= .10 on HELD and CONF, and no
   Rust call failed. ONLY a KEEP writes models/frontend_cfg.json (thresholds only; enabling stays an explicit --enabled).
 
 Every model touch goes through a Backend (RealBackend: Qwen tokenizer, MiniLM, Ollama local model, local judge); tests pass a stub."""
@@ -173,6 +174,15 @@ def tune(recs: list[dict]) -> tuple[dict | None, list[dict]]:
     return best, swept
 
 
+def fwd_score(r: dict) -> float:
+    """the forward baseline of a row: the judge's score of Claude's OWN answer (reference graded against itself), i.e. what the user
+    gets when the row is forwarded. q_delta = served score - this, so a judge that never gives 1.0 (ceiling bias) does not turn every
+    correct served answer into a 'quality loss' (with score - 1.0, TOST +-0.01 was reachable only if every served answer scored 1.0).
+    Missing baseline -> 1.0 (the ceiling: the conservative choice, any served shortfall counts in full)."""
+    f = r.get("score_fwd")
+    return float(f) if isinstance(f, (int, float)) else 1.0
+
+
 def confirm(recs: list[dict], cfg: dict, decide) -> list[dict]:
     out = []
     for r in recs:
@@ -181,7 +191,7 @@ def confirm(recs: list[dict], cfg: dict, decide) -> list[dict]:
         out.append({**r, "decision": d["decision"], "reason": d.get("reason"), "rust_ok": bool(d.get("ok")), "ctx_tokens": int(d.get("context_tokens") or 0),
                     "served": served, "wrong": served and r["score"] < WRONG,
                     "saved": (r["tok_in"] + r["tok_out"]) if served else -int(d.get("context_tokens") or 0),
-                    "q_delta": (r["score"] - 1.0) if served else 0.0})
+                    "q_delta": (r["score"] - fwd_score(r)) if served else 0.0})
     return out
 
 
@@ -267,13 +277,15 @@ def evaluate_v2(rows: list[dict], meta: dict, trained_ids, backend_factory, deci
     for k in ("tune", "held", "conf"):
         for r, row in zip(recs[k], sp[k]):
             r["score"] = r["score_used"] = backend.grade(row["instruction"], row["response"], r["answer"])
+            if k != "tune":   # forward baseline for q_delta (TUNE only uses the wrong rate)
+                r["score_fwd"] = backend.grade(row["instruction"], row["response"], row["response"])
         gates[k]["decoy_reject"], gates[k]["n_decoys"] = decoy_reject(sp[k], backend)
         ok = gates[k]["decoy_reject"] is not None and gates[k]["decoy_reject"] >= GATES["decoy_reject"]
         gates[k]["pass"] = gates[k]["pass"] and ok
         if not ok:
             gates[k]["failed"].append("decoy_reject")
     backend.close()
-    res["per_row"] = [{"split": k, **{f: r.get(f) for f in ("id", "unit", "source", "cache", "cache_why", "tool", "max_sim", "conf", "ntok", "tok_in", "tok_out", "score")}}
+    res["per_row"] = [{"split": k, **{f: r.get(f) for f in ("id", "unit", "source", "cache", "cache_why", "tool", "max_sim", "conf", "ntok", "tok_in", "tok_out", "score", "score_fwd")}}
                       for k in recs for r in recs[k]]
     if not all(g["pass"] for g in gates.values()):
         res.update(verdict="INSUFFICIENT", why=[f"{k}: {g['failed']}" for k, g in gates.items() if not g["pass"]])

@@ -154,6 +154,28 @@ class EvalV2(unittest.TestCase):
         self.assertEqual(res["verdict"], "REJECTED")
         self.assertFalse((self.out / "frontend_cfg.json").exists())
 
+    def test_q_delta_is_against_the_forward_baseline(self):
+        """a ceiling-biased judge (0.9 for a correct answer, also for Claude's own) must not make correct served answers a quality loss"""
+        base = {"tok_in": 3, "tok_out": 4, "chunks": [], "cache": False, "tool": None, "max_sim": 0.9, "conf": -0.01, "ntok": 3}
+        recs = [dict(base, id="a", score=0.9, score_fwd=0.9), dict(base, id="b", score=0.6, score_fwd=0.9),
+                dict(base, id="c", score=0.9)]                                    # no baseline -> 1.0 (conservative)
+        out = fe.confirm(recs, {"enabled": 1}, py_rust)
+        self.assertTrue(all(r["served"] for r in out))
+        self.assertEqual([round(r["q_delta"], 6) for r in out], [0.0, -0.3, -0.1])
+        fwd = fe.confirm(recs, {"enabled": 1}, lambda c, s, ch: {"ok": True, "decision": "forward", "context": [], "context_tokens": 0})
+        self.assertEqual([r["q_delta"] for r in fwd], [0.0, 0.0, 0.0])          # forwarding IS the baseline
+
+    def test_ceiling_biased_judge_can_still_keep(self):
+        rows = make_rows(12, 10)
+
+        class Ceiling(StubBackend):
+            def grade(self, instruction, reference, answer):
+                self.calls["grade"] += 1
+                return 0.9 if answer == reference else 0.0
+        res, _ = self.run_eval(rows, backend=Ceiling(rows))
+        self.assertEqual(res["verdict"], "KEEP", res.get("why"))
+        self.assertTrue(all(r["score_fwd"] == 0.9 for r in res["per_row"] if r["split"] != "tune"))
+
     def test_rolling_origin_bank(self):
         rows = make_rows(3, 4)
         be = StubBackend(rows)
