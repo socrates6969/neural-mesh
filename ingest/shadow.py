@@ -125,7 +125,7 @@ def format_report(s: dict) -> str:
     lines = [f"shadow log: {s['log']}  dispatches={s['dispatches_logged']}  in-domain(fr-*)={s['in_domain']}  mesh pick missing={s['mesh_pick_missing']}",
              f"in-domain  mesh {ci(m)}", f"in-domain  rule {ci(r)}",
              f"paired: mesh-only right {s['paired_in_domain']['mesh_only_right']}, rule-only right {s['paired_in_domain']['rule_only_right']}, "
-             f"McNemar exact p={s['paired_in_domain']['mcnemar_exact_p']}",
+             f"McNemar exact p={'<0.0001' if s['paired_in_domain']['mcnemar_exact_p'] < 0.0001 else s['paired_in_domain']['mcnemar_exact_p']}",
              f"last {s['rolling']['window']} in-domain  mesh {ci(s['rolling']['mesh'])}   rule {ci(s['rolling']['rule'])}",
              f"all dispatches (info only, biased to the mesh)  mesh {ci(s['all_dispatches_info_only']['mesh'])}   rule {ci(s['all_dispatches_info_only']['rule'])}",
              f"rule: {s['promotion_rule']}", f"VERDICT: {s['verdict']}" + (f" ({'; '.join(s['reasons'])})" if s["reasons"] else "")]

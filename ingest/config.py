@@ -24,6 +24,7 @@ class Config:
     mem_namespace: str = "lifelong"
     mem_max_active: int = 20000
     mesh_feedback: bool = True
+    mesh_feed_mode: str = field(default_factory=lambda: os.environ.get("INGEST_MESH_FEED", "label"))  # "label" (default, R117) | "reward" (legacy)
 
     # derived paths
     @property

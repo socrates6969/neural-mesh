@@ -3,7 +3,8 @@ and short, scrubbed excerpts when --show is given).
 
   python hooks/measure_recall.py prompts [--n 300]            -> how many real prompts are available
   python hooks/measure_recall.py fire    [--n 300] [--show 8]  -> gate pass rate, fire rate, mean added tokens (in-process, no logging)
-  python hooks/measure_recall.py latency [--n 50]              -> end-to-end subprocess wall time (python -S hooks/recall_hook.py), p50/p95
+  python hooks/measure_recall.py latency [--n 50] [--worst]    -> end-to-end subprocess wall time (python -S hooks/recall_hook.py), p50/p95
+  python hooks/measure_recall.py tost --tag hook1               -> keep/drop verdict on a bench run (TOST +-0.03 off the private items, gain on them)
 Tokens are estimated as chars/4 (labelled estimate). Prompts keep their own cwd (project) so the pool matches what the hook sees live.
 """
 import argparse
@@ -124,9 +125,44 @@ def cmd_latency(a):
     print(json.dumps({"n": len(ts), "fired": fired, "p50_ms": q(0.5), "p95_ms": q(0.95), "max_ms": round(ts[-1] * 1000), "mean_ms": round(sum(ts) / len(ts) * 1000)}))
 
 
+def cmd_tost(a):
+    """Keep/drop rule for the recall hook on a bench run (bench/results/<tag>/raw.jsonl, conditions A and B):
+    non-private items: TOST equivalence of paired accuracy B-A within +-margin (90% bootstrap CI inside the margin == TOST at alpha .05);
+    private-repo items: B-A must be a positive paired gain (95% CI lower bound > 0)."""
+    import random
+    raw = {}
+    for line in open(ROOT / "bench" / "results" / a.tag / "raw.jsonl", encoding="utf8"):
+        r = json.loads(line)
+        raw.setdefault(r["cond"], {})[r["id"]] = r
+
+    def boot(d, lo_q, hi_q, n=10000, seed=1):
+        rng = random.Random(seed)
+        ms = sorted(sum(d[rng.randrange(len(d))] for _ in range(len(d))) / len(d) for _ in range(n))
+        return sum(d) / len(d), ms[int(lo_q * n)], ms[min(n - 1, int(hi_q * n))]
+    out = {}
+    for name, pick in (("non_private", lambda r: not (r["cat"] == "research" and r["sub"] == "private")),
+                       ("private", lambda r: r["cat"] == "research" and r["sub"] == "private"),
+                       ("all", lambda r: True)):
+        ids = [i for i in raw["B"] if i in raw["A"] and pick(raw["B"][i])]
+        d = [float(raw["B"][i]["correct"]) - float(raw["A"][i]["correct"]) for i in ids]
+        tk = [raw["B"][i]["tokens"]["total"] - raw["A"][i]["tokens"]["total"] for i in ids if raw["B"][i].get("tokens") and raw["A"][i].get("tokens")]
+        m, lo90, hi90 = boot(d, 0.05, 0.95)
+        _, lo95, hi95 = boot(d, 0.025, 0.975)
+        out[name] = {"n": len(ids), "mean_diff": round(m, 4), "ci90": [round(lo90, 4), round(hi90, 4)], "ci95": [round(lo95, 4), round(hi95, 4)],
+                     "equivalent_within_margin": (lo90 > -a.margin and hi90 < a.margin), "margin": a.margin,
+                     "hook_fired": sum(1 for i in ids if raw["B"][i].get("retrieved")), "mean_token_diff": round(sum(tk) / len(tk), 1) if tk else None,
+                     "acc_A": round(sum(float(raw["A"][i]["correct"]) for i in ids) / len(ids), 4), "acc_B": round(sum(float(raw["B"][i]["correct"]) for i in ids) / len(ids), 4)}
+    helps_private = out["private"]["ci95"][0] > 0
+    out["verdict"] = {"non_private_equivalent": out["non_private"]["equivalent_within_margin"], "helps_private": helps_private,
+                      "KEEP": bool(out["non_private"]["equivalent_within_margin"] and helps_private)}
+    print(json.dumps(out, indent=1))
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["prompts", "fire", "latency"])
+    ap.add_argument("cmd", choices=["prompts", "fire", "latency", "tost"])
+    ap.add_argument("--tag", default="hook1")
+    ap.add_argument("--margin", type=float, default=0.03)
     ap.add_argument("--n", type=int, default=300)
     ap.add_argument("--show", type=int, default=0)
     ap.add_argument("--worst", action="store_true")
@@ -135,6 +171,8 @@ if __name__ == "__main__":
     if a.cmd == "prompts":
         ps = load_prompts(10**6)
         print(json.dumps({"available": len(ps), "span": [ps[0]["ts"][:10], ps[-1]["ts"][:10]]}))
+    elif a.cmd == "tost":
+        cmd_tost(a)
     elif a.cmd == "fire":
         cmd_fire(a)
     else:

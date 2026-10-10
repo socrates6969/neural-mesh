@@ -1,4 +1,4 @@
-"""CLI: python -m ingest run | status | recall "<query>"   (run from the neural-mesh repo root)."""
+"""CLI: python -m ingest run | status | recall "<query>" | shadow-report | rebuild-router   (run from the neural-mesh repo root)."""
 from __future__ import annotations
 
 import argparse
@@ -35,6 +35,12 @@ def main(argv=None) -> int:
                    help="ruflo memory.db to write (default: env NEURAL_MESH_RUFLO_DB, else <repo>/.swarm/memory.db); must resolve inside the repo")
     m.add_argument("--allow-external-db", action="store_true", help="allow a db that resolves outside the repo (UNC / network drives stay refused)")
     m.add_argument("--wait", type=float, default=0.0, help="seconds to wait for the ingest lock (default 0: exit 75 if busy)")
+    sr = sub.add_parser("shadow-report", help="router shadow mode: mesh vs fixed phase rule against the actual dispatch choice (Wilson CI, promotion verdict)")
+    sr.add_argument("--window", type=int, default=50, help="rolling window (in-domain dispatches)")
+    sr.add_argument("--json", action="store_true")
+    rb = sub.add_parser("rebuild-router", help="rebuild the router state by replaying outcomes with the label/env feed policy (backs up the old state)")
+    rb.add_argument("--dry-run", action="store_true", help="replay into a scratch state; leave the live one untouched")
+    rb.add_argument("--eval", action="store_true", help="also compute prequential accuracy (one extra `route` call per outcome)")
     a = p.parse_args(argv)
 
     cfg = Config()
@@ -64,6 +70,15 @@ def main(argv=None) -> int:
     if a.cmd == "recall":
         from .memory import MemoryStore
         print(json.dumps(MemoryStore(cfg).recall(a.query, a.k, a.session, log=not a.no_log), indent=1, ensure_ascii=False))
+        return 0
+    if a.cmd == "shadow-report":
+        from .shadow import format_report, report
+        rep = report(cfg, a.window)
+        print(json.dumps(rep, indent=1) if a.json else format_report(rep))
+        return 0
+    if a.cmd == "rebuild-router":
+        from .meshio import rebuild_router
+        print(json.dumps(rebuild_router(cfg, dry_run=a.dry_run, evaluate=a.eval), indent=1))
         return 0
     if a.cmd == "mirror":
         from .mirror import mirror
