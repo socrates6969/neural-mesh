@@ -1,24 +1,81 @@
-# Nightly local-LLM round, chained AFTER the ingestor: ingest (wait for any running ingest) -> train -> eval -> promote.
-# Each `python -m llm <cmd>` takes llm/models/nightly.lock (exit 75 if another llm run holds it; a lock older than 12 h is
-# treated as stale). A step that finds nothing to do exits 0, so the chain is safe to run every night.
-# Provided, NOT installed. Register with (one line, run once as the user):
-#   schtasks /Create /TN "neural-mesh-llm-nightly" /SC DAILY /ST 03:30 /RL LIMITED /F /TR "powershell -NoProfile -ExecutionPolicy Bypass -File C:\Users\mariu\neural-mesh\llm\scripts\run_nightly.ps1"
-param([int]$IngestWaitSeconds = 3600, [int]$JudgeBudget = 600, [string]$MirrorDb = '')
+# Nightly round, installed as the Windows scheduled task "neural-mesh-ingest-nightly" (daily 03:30):
+#   1) ingest catch-up (ingest\scripts\run_ingest.ps1 -NoMirror; waits for a SessionEnd ingest still running)
+#   2) python -m llm nightly: preflight abandoned-sweep -> train -> eval -> promote under ONE llm/models/nightly.lock
+#      (skips its llm stages itself on battery power; RunRecord -> llm/models/runs.jsonl)
+#   3) mirror: python -m ingest mirror (db: -MirrorDb, default <repo>\.swarm\memory.db; outside the repo = refused, exit 5)
+# A failed ingest skips the llm round but the mirror still runs. llm exit 75 (another llm run holds the lock) is logged as
+# "busy" and counts as 0. Exit code = the worst stage exit code (0 ok, 3 a stage failed, 4 mirror stored nothing, 5 mirror
+# refused); an unexpected PowerShell error writes FATAL to the log and exits 1. Logs rotate above 5 MB (.1 .. .3).
+#   -Python P        llm venv python (default llm\.venv\Scripts\python.exe)
+#   -IngestPython P  python for ingest/mirror (default `python` on PATH)
+#   -NoMirror        skip stage 3
+#   -Log P           log file (default llm\models\nightly.log)
+param([int]$IngestWaitSeconds = 3600, [int]$JudgeBudget = 600, [string]$MirrorDb = '', [string]$Python = '',
+      [string]$IngestPython = 'python', [switch]$NoMirror, [string]$Log = '')
 $ErrorActionPreference = 'Stop'
+$env:PYTHONIOENCODING = 'utf-8'
 $repo = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-$py = Join-Path $repo 'llm\.venv\Scripts\python.exe'
-$log = Join-Path $repo 'llm\models\nightly.log'
-New-Item -ItemType Directory -Force -Path (Split-Path $log) | Out-Null
-Push-Location $repo
-try {
-    "=== $(Get-Date -Format o) nightly start" | Out-File -Append -Encoding utf8 $log
-    # 1) the ingestor's own nightly catch-up (system python, stdlib); waits for a SessionEnd ingest still running
-    & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $repo 'ingest\scripts\run_ingest.ps1') -WaitSeconds $IngestWaitSeconds -JudgeBudget $JudgeBudget -MirrorDb $MirrorDb
-    if ($LASTEXITCODE -ne 0) { "ingest exit $LASTEXITCODE; skipping llm round" | Out-File -Append -Encoding utf8 $log; exit $LASTEXITCODE }
-    # 2) python -m llm train && python -m llm eval && python -m llm promote
-    foreach ($cmd in 'train', 'eval', 'promote') {
-        & $py -m llm $cmd *>> $log
-        if ($LASTEXITCODE -ne 0) { "llm $cmd exit $LASTEXITCODE; stopping" | Out-File -Append -Encoding utf8 $log; exit $LASTEXITCODE }
+if (-not $Log) { $Log = Join-Path $repo 'llm\models\nightly.log' }
+if (-not $Python) { $Python = Join-Path $repo 'llm\.venv\Scripts\python.exe' }
+
+function Invoke-Logged([string]$Exe, [string[]]$Arguments, [string]$LogFile) {
+    # native stderr must never become a terminating error (PS 5.1 + EAP Stop); every line goes to the log as text
+    $ErrorActionPreference = 'Continue'
+    & $Exe @Arguments 2>&1 | ForEach-Object { "$_" } | Out-File -Append -Encoding utf8 $LogFile
+    return $LASTEXITCODE
+}
+
+function Rotate-Log([string]$Path, [long]$MaxBytes = 5MB, [int]$Keep = 3) {
+    if (-not (Test-Path -LiteralPath $Path)) { return }
+    if ((Get-Item -LiteralPath $Path).Length -le $MaxBytes) { return }
+    for ($i = $Keep; $i -ge 1; $i--) {
+        $src = if ($i -eq 1) { $Path } else { "$Path.$($i - 1)" }
+        if (Test-Path -LiteralPath $src) { Move-Item -LiteralPath $src -Destination "$Path.$i" -Force }
     }
-    "=== $(Get-Date -Format o) nightly done" | Out-File -Append -Encoding utf8 $log
-} finally { Pop-Location }
+}
+
+function Write-Log([string]$Text) { "$(Get-Date -Format o) $Text" | Out-File -Append -Encoding utf8 $Log }
+
+try {
+    New-Item -ItemType Directory -Force -Path (Split-Path $Log) | Out-Null
+    Rotate-Log $Log
+    Push-Location $repo
+    try {
+        Write-Log '=== nightly start'
+        $worst = 0
+        # 1) ingest (its own log; -NoMirror: the mirror is stage 3 here)
+        $ingestArgs = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $repo 'ingest\scripts\run_ingest.ps1'),
+                        '-WaitSeconds', "$IngestWaitSeconds", '-JudgeBudget', "$JudgeBudget", '-Python', $IngestPython, '-NoMirror')
+        if ($PSBoundParameters.ContainsKey('Log')) { $ingestArgs += @('-Log', "$Log.ingest") }   # tests: keep the real logs clean
+        $irc = Invoke-Logged 'powershell' $ingestArgs $Log
+        Write-Log "ingest exit $irc"
+        if ($irc -ne 0) {
+            $worst = $irc
+            Write-Log 'ingest failed; skipping the llm round'
+        } else {
+            # 2) the llm round under one lock
+            $lrc = Invoke-Logged $Python @('-u', '-m', 'llm', 'nightly', '--judge-budget', "$JudgeBudget") $Log
+            if ($lrc -eq 75) { Write-Log 'llm busy (nightly.lock held by another llm run); skipped'; $lrc = 0 }
+            else { Write-Log "llm nightly exit $lrc" }
+            if ($lrc -gt $worst) { $worst = $lrc }
+        }
+        # 3) mirror
+        if (-not $NoMirror) {
+            $margs = @('-m', 'ingest', 'mirror', '--wait', "$IngestWaitSeconds")
+            if ($MirrorDb) { $margs += @('--db-path', $MirrorDb) }
+            $mrc = Invoke-Logged $IngestPython $margs $Log
+            switch ($mrc) {
+                0 { Write-Log 'mirror ok' }
+                5 { Write-Log 'mirror REFUSED (db outside the repo)' }
+                75 { Write-Log 'mirror skipped: ingest lock busy'; $mrc = 0 }
+                default { Write-Log "mirror exit $mrc" }
+            }
+            if ($mrc -gt $worst) { $worst = $mrc }
+        }
+        Write-Log "=== nightly done (exit $worst)"
+        exit $worst
+    } finally { Pop-Location }
+} catch {
+    try { "$(Get-Date -Format o) FATAL: $_" | Out-File -Append -Encoding utf8 $Log } catch { }
+    exit 1
+}
