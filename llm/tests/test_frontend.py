@@ -183,6 +183,56 @@ class Assemble(unittest.TestCase):
         self.assertIn("id=a___script ", frontend.assemble_context(['a"><script'], weird, 5))
 
 
+class ToolExemplars(unittest.TestCase):
+    class Enc:
+        def __init__(self):
+            self.seen = []
+
+        def encode(self, texts):
+            import numpy as np
+            self.seen += texts
+            return np.array([[1.0 if i == len(t) % 384 else 0.0 for i in range(384)] for t in texts], np.float32)
+
+    def test_route3_is_encoded_with_every_label(self):
+        r3 = frontend.load_route3()
+        self.assertTrue({"calc", "units", "csp"} <= set(r3))
+        enc = self.Enc()
+        with tempfile.TemporaryDirectory() as d:
+            out = Path(d) / "ex.jsonl"
+            n = frontend.build_tool_exemplars(encoder=enc, out=out, log=lambda *a: None)
+            lines = [json.loads(x) for x in out.read_text(encoding="utf-8").splitlines()]
+        self.assertEqual(n, sum(len(v) for v in r3.values()))
+        self.assertEqual(len(lines), n)
+        self.assertEqual({x["label"] for x in lines}, set(r3))
+        self.assertTrue(all(len(x["vec"]) == 384 for x in lines))
+        self.assertEqual([x["text"] for x in lines], enc.seen)
+
+    def test_wrong_dimension_is_refused_and_nothing_is_written(self):
+        import numpy as np
+
+        class Bad:
+            def encode(self, texts):
+                return np.zeros((len(texts), 10), np.float32)
+        with tempfile.TemporaryDirectory() as d:
+            out = Path(d) / "ex.jsonl"
+            with self.assertRaises(ValueError):
+                frontend.build_tool_exemplars(encoder=Bad(), out=out, route3={"calc": ["1+1"]}, log=lambda *a: None)
+            self.assertFalse(out.exists())
+
+    @unittest.skipUnless(frontend.binary_fresh(), "release binary missing or stale")
+    def test_rust_reads_the_exemplar_file(self):
+        enc = self.Enc()
+        with tempfile.TemporaryDirectory() as d:
+            out = Path(d) / "ex.jsonl"
+            frontend.build_tool_exemplars(encoder=enc, out=out, route3={"calc": ["aa", "aa "], "knowledge": ["bbbbbbbbbbbb"]}, log=lambda *a: None)
+            q = [0.0] * 384
+            q[2] = 1.0   # = the two calc exemplars (len 2 / 3 -> index 2 / 3); share 1/(1+...) on k=2
+            r = subprocess.run([str(frontend.BIN), "frontend", "--enabled", "1", "--tool-exemplars", str(out), "--query-vec", json.dumps(q), "--tool-k", "2"],
+                               capture_output=True, text=True, timeout=10)
+            d = json.loads(r.stdout)
+        self.assertEqual((r.returncode, d["decision"], d["tool"]), (0, "tool", "calc"))
+
+
 class Stats(unittest.TestCase):
     def test_holm_known_values(self):
         from llm.stats import holm

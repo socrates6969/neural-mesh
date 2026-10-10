@@ -1,4 +1,4 @@
-"""python -m llm {bench|train|eval|promote|status|frontend-eval|nightly|calibrate} [--synthetic] [--ver V] [--epochs N] [--judge-budget N]"""
+"""python -m llm {bench|train|eval|promote|status|frontend-eval|nightly|calibrate|tool-exemplars} [--synthetic] [--ver V] [--epochs N] [--judge-budget N]"""
 from __future__ import annotations
 
 import argparse
@@ -52,7 +52,7 @@ def status() -> dict:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="python -m llm")
-    ap.add_argument("cmd", choices=["bench", "train", "eval", "promote", "status", "frontend-eval", "nightly", "calibrate"])
+    ap.add_argument("cmd", choices=["bench", "train", "eval", "promote", "status", "frontend-eval", "nightly", "calibrate", "tool-exemplars"])
     ap.add_argument("--synthetic", action="store_true", help="use the LABELLED synthetic sample instead of data/lifelong/sft.jsonl")
     ap.add_argument("--ver")
     ap.add_argument("--epochs", type=int, default=2)
@@ -63,6 +63,9 @@ def main(argv=None) -> int:
     a = ap.parse_args(argv)
     if a.cmd == "status":
         print(json.dumps(status(), indent=1)); return 0
+    if a.cmd == "tool-exemplars":   # MiniLM only, no GPU / Ollama: no lock
+        from . import frontend
+        frontend.build_tool_exemplars(); return 0
     rc = 0
     with lock():
         if a.cmd == "bench":
@@ -80,7 +83,7 @@ def main(argv=None) -> int:
         elif a.cmd == "calibrate":
             from . import calibrate; calibrate.run(budget=a.judge_budget or 200)
         elif a.cmd == "frontend-eval":
-            from . import frontend; frontend.evaluate(synthetic=a.synthetic, n=a.n)
+            from . import frontend; frontend.evaluate(synthetic=a.synthetic)
         elif a.cmd == "nightly":   # preflight sweep -> train -> eval -> promote under ONE lock; RunRecord -> models/runs.jsonl
             from . import nightly
             rc = nightly.run(synthetic=a.synthetic, epochs=a.epochs, judge_budget=a.judge_budget)["exit"]
