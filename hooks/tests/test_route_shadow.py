@@ -65,6 +65,17 @@ class ShadowHook(unittest.TestCase):
         self.assertEqual(hashlib.sha256(state.read_bytes()).hexdigest(), before)
         self.assertNotIn("prompt", json.dumps(row))                # no prompt text in the log
 
+    def test_hybrid_pick_uses_the_project_state_and_is_null_for_an_unknown_project(self):
+        d = trained_data()
+        pl = payload()
+        pl["cwd"] = "C:/p"                                           # project "p" has its own state (fed by trained_data)
+        r, _ = run(d, pl)
+        self.assertEqual((r.returncode, r.stdout), (0, ""))
+        self.assertEqual(log_rows(d)[-1]["hybrid_pick"], "fr-tester")
+        self.assertIn("hybrid_ms", log_rows(d)[-1])
+        r, _ = run(d, payload(tid="toolu_2"))                       # cwd C:/x: no state for project "x"
+        self.assertIsNone(log_rows(d)[-1]["hybrid_pick"])
+
     def test_candidates_are_the_agents_seen_in_the_state(self):
         d = trained_data()
         run(d, payload(subagent="fr-reviewer", desc="Review the security diff", prompt="audit the diff"))

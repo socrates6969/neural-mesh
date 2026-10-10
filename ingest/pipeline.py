@@ -244,8 +244,8 @@ def _candidates(cfg, dispatches, turns, labels, sft_ids) -> list[Cand]:
     """Everything that could become an SFT row this run (same gates as before; the judge is not consulted here)."""
     out = []
     for d in dispatches:
-        if not d.settled or labels[d.id][0] != "success" or d.tainted or d.prompt_secret or d.report_secret or not d.report:
-            continue
+        if d.kind != "dispatch" or not d.settled or labels[d.id][0] != "success" or d.tainted or d.prompt_secret or d.report_secret or not d.report:
+            continue      # a SendMessage continuation is not a (request, answer) pair: its "report" is the agent's final report of the whole chain
         if len(d.report) < MIN_SFT_RESP or len(d.prompt) < MIN_SFT_USER or ("sft:" + sha16(d.prompt, d.report)) in sft_ids:
             continue
         out.append(Cand(d.id, _task_of(d), d.prompt, d.report, d.session, d.end_ts or d.ts or "", "agent_report"))
