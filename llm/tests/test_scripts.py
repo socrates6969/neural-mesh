@@ -92,6 +92,27 @@ class Scripts(unittest.TestCase):
         self.assertEqual(r.returncode, 1)
         self.assertIn("FATAL", self.text())
 
+    def test_ingest_detach_appends_to_the_log(self):
+        import time
+        self.log.parent.mkdir(parents=True)
+        self.log.write_text("earlier run line\n", encoding="utf-8")
+        for _ in range(2):   # two detached runs: both appended, nothing truncated
+            r = self.ps(INGEST, "-Python", str(self.stub), "-Detach", run=0)
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            deadline = time.monotonic() + 60
+            while time.monotonic() < deadline:
+                done = self.text().count("ingest run exit 0")
+                if done >= _ + 1:
+                    break
+                time.sleep(0.25)
+        time.sleep(0.5)
+        t = self.text()
+        self.assertIn("earlier run line", t, "-Detach must append, not truncate")
+        self.assertEqual(t.count("ingest run exit 0"), 2)
+        self.assertEqual(t.count("stub-out -m ingest run"), 2)
+        self.assertNotIn("mirror", t, "the detached run is ingest only")
+        self.assertNotIn("FATAL", t)
+
     def test_log_rotation(self):
         self.log.parent.mkdir(parents=True)
         self.log.write_bytes(b"x" * (5 * 2**20 + 10))

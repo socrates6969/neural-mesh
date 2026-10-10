@@ -1,6 +1,7 @@
 # Runs the lifelong ingestor from the neural-mesh repo root. Concurrency-safe: `python -m ingest run` holds an OS file lock
 # (data/lifelong/.ingest.lock, released automatically if the process dies); a second run either skips (-WaitSeconds 0) or waits.
-#   -Detach        start in the background and return at once (for the Claude Code SessionEnd hook, which must not block exit)
+#   -Detach        start in the background and return at once (for the Claude Code SessionEnd hook, which must not block exit);
+#                  the background run is ingest only (no mirror) and appends to the log like a foreground run
 #   -WaitSeconds N wait up to N seconds for a running ingest to finish (nightly catch-up)
 #   -JudgeBudget N max new local-LLM judge calls this run
 #   -Python P      python executable (default: `python` on PATH; stdlib + numpy)
@@ -38,8 +39,12 @@ try {
     Rotate-Log $Log
     $argList = @('-m', 'ingest', 'run', '--quiet', '--wait', "$WaitSeconds", '--judge-budget', "$JudgeBudget")
     if ($Detach) {
-        Start-Process -FilePath $Python -ArgumentList $argList -WorkingDirectory $repo -WindowStyle Hidden `
-            -RedirectStandardOutput $Log -RedirectStandardError ($Log + '.err') | Out-Null
+        # re-run this script in the foreground (ingest only, -NoMirror) in a hidden PowerShell: it APPENDS to the log via
+        # Invoke-Logged / Write-Log (Start-Process -RedirectStandardOutput would truncate ingest-runs.log on every SessionEnd)
+        $q = { param($v) '"' + ($v -replace '"', '\"') + '"' }
+        $self = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (& $q $PSCommandPath), '-NoMirror',
+                  '-WaitSeconds', "$WaitSeconds", '-JudgeBudget', "$JudgeBudget", '-Python', (& $q $Python), '-Log', (& $q $Log))
+        Start-Process -FilePath (Get-Process -Id $PID).Path -ArgumentList $self -WorkingDirectory $repo -WindowStyle Hidden | Out-Null
         exit 0
     }
     Push-Location $repo
