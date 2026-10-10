@@ -1,4 +1,4 @@
-"""CLI: python -m ingest run | status | recall "<query>" | shadow-report | rebuild-router   (run from the neural-mesh repo root)."""
+"""CLI: python -m ingest run | status | recall "<query>" | shadow-report | rebuild-router | scorecard   (run from the neural-mesh repo root)."""
 from __future__ import annotations
 
 import argparse
@@ -41,6 +41,10 @@ def main(argv=None) -> int:
     rb = sub.add_parser("rebuild-router", help="rebuild the router state by replaying outcomes with the label/env feed policy (backs up the old state)")
     rb.add_argument("--dry-run", action="store_true", help="replay into a scratch state; leave the live one untouched")
     rb.add_argument("--eval", action="store_true", help="also compute prequential accuracy (one extra `route` call per outcome)")
+    sc = sub.add_parser("scorecard", help="cross-session scorecard (tokens, wall time, searching, hooks, waste) with a baseline; writes data/lifelong/scorecard.jsonl and results/scorecard.{md,html}")
+    sc.add_argument("--results", default=None, help="output dir for scorecard.md / scorecard.html (default <repo>/results)")
+    sc.add_argument("--reset-baseline", action="store_true", help="move the baseline cutoff to now (normally written once, on the first run)")
+    sc.add_argument("--reps", type=int, default=1000, help="bootstrap replicates for the after-minus-baseline CIs")
     a = p.parse_args(argv)
 
     cfg = Config()
@@ -79,6 +83,11 @@ def main(argv=None) -> int:
     if a.cmd == "rebuild-router":
         from .meshio import rebuild_router
         print(json.dumps(rebuild_router(cfg, dry_run=a.dry_run, evaluate=a.eval), indent=1))
+        return 0
+    if a.cmd == "scorecard":
+        from .config import REPO
+        from .scorecard import run_scorecard
+        print(json.dumps(run_scorecard(cfg, Path(a.results) if a.results else REPO / "results", reset_baseline=a.reset_baseline, reps=a.reps), indent=1))
         return 0
     if a.cmd == "mirror":
         from .mirror import mirror
