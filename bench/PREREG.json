@@ -111,7 +111,17 @@
   "local": "qwen2.5-coder:7b (BENCH_LOCAL_MODEL default), temperature 0, seed 0"
  },
  "sandbox": "docker",
+ "sandbox_scoring": "host-side (bench/sandbox.py, B1 fix): only the candidate runs in the container, on the test inputs; the expected outputs never enter it. It prints its raw outputs once behind a random nonce; the host re-canonicalises and compares. Missing, duplicated or malformed output = wrong (model_fail-class, never infra). INFRA only when docker inspect shows the container was never created or never started; a started program owns its exit code (125/126/127 included).",
+ "sandbox_file": "bench/sandbox.py",
+ "sandbox_sha": "083ee4fb7acb0b4a44a2e9c91e432e71767ff19fb9e9ee1ff7c540fdb2774c3f",
  "sandbox_image": "python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1",
  "analysis": "python bench/analyze.py <tag> (HELD and CONF in the same tag)",
- "run_once": "HELD then CONF, each once; no re-runs to chase significance; infra_fail units are retried, model answers are never re-drawn"
+ "run_once": "HELD then CONF, each once; no re-runs to chase significance; infra_fail units are retried, model answers are never re-drawn",
+ "pins": {
+  "claude_model": "haiku",
+  "claude_think": "2048",
+  "local_model": "qwen2.5-coder:7b",
+  "sandbox_image": "python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1"
+ },
+ "pins_note": "machine-checked by run.py for HELD/CONF (exit 2 on mismatch): BENCH_CLAUDE_MODEL, BENCH_THINK (MAX_THINKING_TOKENS), BENCH_LOCAL_MODEL (when C/D run), sandbox.IMAGE, and sandbox_sha; analyze.py exits 2 when a HELD/CONF manifest prereg_sha differs from this file"
 }
