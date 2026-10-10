@@ -1,0 +1,117 @@
+{
+ "name": "bench battery: mesh retrieval front-end in front of Claude (and a local model)",
+ "registered": "2026-10-10",
+ "claim": "librarian claim: the mesh front-end (B = Claude haiku + front-end, D = local + front-end) answers questions about this repository's private facts (numeric constants in src/*.rs) that the bare model (A, C) cannot, without hurting general skills. research_private gains by construction (the answer lives in the retrieval corpus); the test is whether the front-end finds it on unseen items and costs nothing elsewhere.",
+ "target_axes": [
+  "research_private"
+ ],
+ "guard_axes": [
+  "math",
+  "physics",
+  "code",
+  "research_public"
+ ],
+ "worlds": {
+  "claude": [
+   "A",
+   "B"
+  ],
+  "local": [
+   "C",
+   "D"
+  ]
+ },
+ "conds": [
+  "A",
+  "B",
+  "C",
+  "D"
+ ],
+ "splits": {
+  "tune": {
+   "seed": 20261010,
+   "role": "today's 120 items, frozen; v1/v2 were designed on them -> tuning evidence only, descriptive bootstrap, no verdict"
+  },
+  "held": {
+   "seed": 20261011,
+   "seed_slots": "31+i (item i of an axis, battery order)"
+  },
+  "conf": {
+   "seed": 20261012,
+   "seed_slots": "61+i"
+  }
+ },
+ "n_per_axis_per_split": 30,
+ "n_actual": {
+  "held": {
+   "math": 30,
+   "physics": 30,
+   "code": 30,
+   "research_public": 30,
+   "research_private": 30
+  },
+  "conf": {
+   "math": 30,
+   "physics": 30,
+   "code": 30,
+   "research_public": 30,
+   "research_private": 30
+  }
+ },
+ "shortfall": {
+  "held": {},
+  "conf": {}
+ },
+ "battery": {
+  "tune": {
+   "file": "bench/battery_tune.json",
+   "items_sha": "f8e90b6d147c16d4e38c7c341cf19d4d4109e33d45176cf0b601dcf1821745c3",
+   "n_items": 120
+  },
+  "held": {
+   "file": "bench/battery_held.json",
+   "items_sha": "996a42a8b9dd4173ed8c8974ee92e091c2c5c275f4a4e7417cdf4e3859fa4c57",
+   "n_items": 150
+  },
+  "conf": {
+   "file": "bench/battery_conf.json",
+   "items_sha": "08a5ab9b3bd8521b6c7db37826c063c0111ee289bad9ba1982d99bb8788aa4cd",
+   "n_items": 150
+  }
+ },
+ "item_score": "mean correctness over K reps (strict ANSWER: parse / first fenced code block run in the docker sandbox; model_fail = 0; infra_fail never scored)",
+ "K": {
+  "claude": 3,
+  "local": 1,
+  "determinism_probe_items": 10
+ },
+ "test": "py/b1/gate.compare: paired t over items per (axis x world x split), Holm over the whole family (5 axes x 2 worlds x 2 splits = 20 when all four conds run)",
+ "keep_rule": "KEEP iff research_private gains Holm-significantly (p_holm < .05, mean > tol) in the same world in BOTH HELD and CONF and no axis has a Holm-significant loss beyond tol in HELD or CONF; else REJECT-regress / REJECT-nogain",
+ "alpha": 0.05,
+ "tol": 0.002,
+ "delta": 0.01,
+ "tost": "+-delta equivalence reported for every test (evidence only; at n=30 it is expected to be inconclusive)",
+ "cost_gated": false,
+ "cost_reported": [
+  "tokens",
+  "wall_s",
+  "cost_usd"
+ ],
+ "frontend_sha": "ddec8847f675667cc823870e10c6687ee48123b31c87f1e10e5e45901394b2ae",
+ "frontend_file": "bench/frontend.py",
+ "frontend_env": {
+  "MESH_V2": "1",
+  "MESH_THRESH": "",
+  "MESH_FRONTEND": ""
+ },
+ "corpus_at_registration": "e0b8511c2c044e31e529b6ae23406a40f98dfad8d395cba3413c5afabc92a348",
+ "corpus_note": "the retrieval corpus (DESIGN.md, RD-LOG.md, RD-LOG-B.md, src/*.rs) is live; its sha is pinned per run in the manifest (a change mid-run -> exit 2), a change between registration and run only warns; a changed or vanished private constant makes the battery stale (exit 2) and invalidates the registration",
+ "models": {
+  "claude": "haiku (BENCH_CLAUDE_MODEL default), MAX_THINKING_TOKENS=2048 (BENCH_THINK default)",
+  "local": "qwen2.5-coder:7b (BENCH_LOCAL_MODEL default), temperature 0, seed 0"
+ },
+ "sandbox": "docker",
+ "sandbox_image": "python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1",
+ "analysis": "python bench/analyze.py <tag> (HELD and CONF in the same tag)",
+ "run_once": "HELD then CONF, each once; no re-runs to chase significance; infra_fail units are retried, model answers are never re-drawn"
+}

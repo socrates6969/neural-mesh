@@ -320,3 +320,28 @@ def test_gate_reuse(tmp_path, monkeypatch):
     write([r for r in rows if r["split"] == "held"])
     assert analyze.main(["G"]) == 0
     assert json.load(open(res / "G" / "summary.json"))["gate"]["verdict"].startswith("PARTIAL")
+
+
+# ====================================================================== PREREG
+import frontend  # noqa: E402
+from common import load_prereg  # noqa: E402
+
+
+def test_prereg_frontend(monkeypatch):
+    pre, pre_sha = load_prereg()
+    assert pre is not None, "bench/PREREG.json missing"
+    assert frontend.frontend_sha() == pre["frontend_sha"], "bench/frontend.py changed after pre-registration: HELD/CONF results would not be the registered experiment"
+    for s in ("held", "conf"):
+        assert json.load(open(BENCH / f"battery_{s}.json", encoding="utf8"))["header"]["items_sha"] == pre["battery"][s]["items_sha"]
+    assert (pre["target_axes"], pre["tol"], pre["delta"], pre["K"]["claude"], pre["cost_gated"], pre["sandbox"]) == (["research_private"], 0.002, 0.01, 3, False, "docker")
+    monkeypatch.setenv("MESH_V2", "1"); monkeypatch.delenv("MESH_THRESH", raising=False); monkeypatch.delenv("MESH_FRONTEND", raising=False)
+    dry = ["--split", "held", "--cond", "A,B", "--tag", "prereg-test", "--dry-run"]
+    assert run.main(dry + ["--sandbox", "docker"]) == run.EXIT_OK                       # the registered setup is runnable (plan only)
+    assert run.main(dry + ["--sandbox", "job"]) == run.EXIT_PREREG                      # HELD/CONF need the docker sandbox
+    assert run.main(["--split", "held", "--cond", "A,B", "--tag", "prereg-test", "--k", "1", "--dry-run", "--sandbox", "docker"]) == run.EXIT_PREREG
+    monkeypatch.setattr(run, "load_prereg", lambda: (dict(pre, frontend_sha="0" * 64), pre_sha))
+    assert run.main(dry + ["--sandbox", "docker"]) == run.EXIT_PREREG                   # front-end differs from the registered one
+    monkeypatch.setattr(run, "load_prereg", lambda: (pre, pre_sha))
+    monkeypatch.setenv("MESH_V2", "0")
+    assert run.main(dry + ["--sandbox", "docker"]) == run.EXIT_PREREG                   # front-end variant (env) differs
+    assert not (run.RESULTS / "prereg-test").exists()                                   # dry runs write nothing
