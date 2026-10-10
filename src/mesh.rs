@@ -144,6 +144,8 @@ pub const DEFAULT_HELPER_EPSILON: f64 = 0.05;
 pub const EDGE_BASELINE_ALPHA: f64 = 0.1;
 /// Initial per-leader team-reward baseline.
 pub const INIT_EDGE_BASELINE: f64 = 0.5;
+/// EMA rate of the per-agent environment-failure score (`feedback_env`).
+pub const DISPATCH_RISK_ALPHA: f64 = 0.2;
 
 /// Learned-value gate for helper recruitment (sparse activation).
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -310,6 +312,10 @@ pub struct NeuralMesh<R: Router> {
     pub context_bench: Option<ContextBenchConfig>,
     #[serde(default)]
     ctx_health: ContextHealth,
+    /// Per-agent EMA of ENVIRONMENT failures (rate limit, turn limit, worktree block). Kept apart from skill weights and health:
+    /// see [`NeuralMesh::feedback_env`]. Empty/zero in old states.
+    #[serde(default)]
+    dispatch_risk: Vec<f64>,
 }
 
 impl<R: Router> NeuralMesh<R> {
@@ -336,6 +342,7 @@ impl<R: Router> NeuralMesh<R> {
             ctx_health: ContextHealth::default(),
             team_size_sum: 0,
             teams_routed: 0,
+            dispatch_risk: Vec::new(),
         };
         m.ensure_agents(n_agents);
         m
@@ -352,6 +359,7 @@ impl<R: Router> NeuralMesh<R> {
         self.fail_streak.resize(m, 0);
         self.retry_mult.resize(m, 1.0);
         self.probation.resize(m, false);
+        self.dispatch_risk.resize(m, 0.0);
         if n <= self.n_agents {
             return;
         }
@@ -579,6 +587,32 @@ impl<R: Router> NeuralMesh<R> {
                 self.benched_since[a] = Some(self.routes);
             }
         }
+    }
+
+    /// Opt-in failure-class feedback (item: env failures must not poison skill weights). An ENVIRONMENT failure
+    /// (rate limit, turn limit, worktree block) says nothing about the agent's skill: it touches NEITHER the leader's skill
+    /// weights NOR health/benching/edges. It only updates the agent's dispatch-risk EMA ([`Self::dispatch_risk`], alpha
+    /// [`DISPATCH_RISK_ALPHA`]); `failed = false` (an env-clean dispatch) decays it.
+    pub fn feedback_env(&mut self, agent: usize, failed: bool) {
+        self.ensure_agents(agent + 1);
+        let x = if failed { 1.0 } else { 0.0 };
+        self.dispatch_risk[agent] += DISPATCH_RISK_ALPHA * (x - self.dispatch_risk[agent]);
+    }
+
+    /// EMA of environment failures of `agent` (0 = never failed for environment reasons, 1 = always).
+    pub fn dispatch_risk(&self, agent: usize) -> f64 {
+        self.dispatch_risk.get(agent).copied().unwrap_or(0.0)
+    }
+
+    /// Opt-in supervised update: the correct agent `label` is known (even if it was not the one routed).
+    /// The label is credited with reward 1 (leader + health); a different `routed` agent gets a LEADER-ONLY reward 0 for this task
+    /// (its skill weights learn "wrong for this wording"; health/benching is untouched since it did not fail, it was just not the right agent).
+    pub fn feedback_label(&mut self, task: &Task, routed: Option<usize>, label: usize) {
+        if let Some(r) = routed.filter(|&r| r != label) {
+            self.ensure_agents(r + 1);
+            self.leader.update(task, r, 0.0);
+        }
+        self.feedback_opt(task, &[label], 1.0, true);
     }
 
     /// Like `feedback`, but `update_leader = false` updates health/edges only and leaves the

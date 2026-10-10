@@ -1,0 +1,365 @@
+//! R117 real-traffic replay lab (items 2, 3, 5 of the router-upgrade round). Data: the queen's 69-row replay of freight-recovery's REAL dispatch history
+//! (task text -> agent the leader actually chose; labels are the leader's choices, not ground truth; one distiller row is dropped, as in route-replay.mjs).
+//!
+//! Usage: i1_replay <dataset.jsonl> <minilm.f32> <tokenizer.json> [seeds=30]
+//!
+//! A. PREQUENTIAL (online) replay, same order for every method: route -> reveal label -> feedback.
+//!    old-label   : mesh.feedback(pick, 0|1) then, if wrong, mesh.feedback(label, 1)          (the two-call protocol of route-replay.mjs)
+//!    new-label   : mesh.feedback_label(task, Some(pick), label)                              (R117 `feedback --label`)
+//!    ducb-label  : NeuralMesh<DucbRouter> + feedback_label                                    (R117 discounted-UCB leader)
+//!    knn+hebbian : guarded MiniLM kNN prior (smin .4) over the labelled rows seen so far, Hebbian new-label when it abstains
+//! B. LEAVE-WORDING-OUT: rows are grouped by wording = their first two lowercase alphabetic tokens; for each group, train label-fed (chronological) on all
+//!    OTHER groups, then predict the held-out group without learning. Pooled accuracy; methods hebbian old/new label, ducb, knn (raw / guarded+hebbian), case.
+//! Stochastic methods are averaged over seeds per row; tests are paired over ROWS (n = rows), Holm over all tests of the lab.
+
+use std::collections::BTreeMap;
+use std::sync::Arc;
+
+use neural_mesh::casebased::{CaseConfig, CaseRouter, Embedder};
+use neural_mesh::ducb::{DucbConfig, DucbRouter};
+use neural_mesh::embroute::EmbedPrior;
+use neural_mesh::encoder::Encoder;
+use neural_mesh::hebbian::{HebbianConfig, HebbianRouter};
+use neural_mesh::mesh::{MeshConfig, NeuralMesh};
+use neural_mesh::router::{Rng, Router, Task};
+use neural_mesh::stats::{holm_adjust, paired_diff, paired_t_pvalue};
+
+const AGENTS: [&str; 8] =
+    ["fr-planner", "fr-builder", "fr-tester", "fr-reviewer", "fr-scriber", "fr-shipper", "fr-ci-diagnoser", "fr-security-reviewer"];
+const STOP: &str = "a an and are as at be been but by can do does done for from has have he her his i if in into is it its me my no not of on or our same so than that the their them then there these they this to up us was we were what when where which while who will with you your yours just only also any all after before now new get got one two per via vs here very more most other own each both should would could must may might never always please run step";
+
+fn features(text: &str) -> Vec<String> {
+    let low = text.to_lowercase();
+    let mut out: Vec<String> = Vec::new();
+    for t in low.split(|c: char| !c.is_ascii_alphanumeric()) {
+        if t.len() >= 2 && !t.chars().all(|c| c.is_ascii_digit()) && !STOP.split(' ').any(|s| s == t) && !out.iter().any(|o| o == t) {
+            out.push(t.to_string());
+        }
+    }
+    out.truncate(24);
+    out
+}
+
+fn rule(text: &str) -> &'static str {
+    const R: [(&str, &[&str]); 6] = [
+        ("fr-planner", &["plan", "planning", "spec", "requirements", "answers", "amend"]),
+        ("fr-builder", &["build", "fix", "implement", "add", "apply", "create", "wire"]),
+        ("fr-tester", &["test", "tests", "testing", "acceptance", "qa", "ci"]),
+        ("fr-reviewer", &["review", "audit", "verify"]),
+        ("fr-scriber", &["doc", "docs", "documentation", "readme", "architecture"]),
+        ("fr-shipper", &["ship", "push", "pr", "merge", "release", "submission", "submit"]),
+    ];
+    for tok in text.to_lowercase().split(|c: char| !c.is_ascii_alphanumeric()) {
+        for (a, kws) in R {
+            if kws.contains(&tok) {
+                return a;
+            }
+        }
+    }
+    "fr-builder"
+}
+
+struct Row {
+    text: String,
+    label: usize,
+    feats: Vec<String>,
+    group: String,
+    emb: Vec<f32>,
+    /// embedding of the first six words only (the role verb is usually up front; MiniLM on the full prompt is topic-dominated)
+    emb_head: Vec<f32>,
+}
+
+fn group_of(text: &str) -> String {
+    let toks: Vec<String> =
+        text.to_lowercase().split(|c: char| !c.is_ascii_alphabetic()).filter(|t| !t.is_empty()).take(2).map(String::from).collect();
+    toks.join(" ")
+}
+
+fn robust() -> HebbianConfig {
+    HebbianConfig { eta: 0.01, temperature: 0.002, decay: 0.01, epsilon: 0.0, ..HebbianConfig::default() }
+}
+
+fn task_of(r: &Row, id: usize) -> Task {
+    let f = if r.feats.is_empty() { vec!["no-keyword".to_string()] } else { r.feats.clone() };
+    Task { id: id as u64, task_type: None, features: f }
+}
+
+fn cands() -> Vec<usize> {
+    (0..AGENTS.len()).collect()
+}
+
+#[derive(Clone, Copy, PartialEq)]
+enum Leader {
+    Hebbian,
+    Ducb,
+}
+enum Mesh {
+    H(NeuralMesh<HebbianRouter>),
+    D(NeuralMesh<DucbRouter>),
+}
+impl Mesh {
+    fn new(l: Leader) -> Mesh {
+        let n = AGENTS.len();
+        match l {
+            Leader::Hebbian => Mesh::H(NeuralMesh::new(n, HebbianRouter::new(n, robust()), MeshConfig::default())),
+            Leader::Ducb => Mesh::D(NeuralMesh::new(n, DucbRouter::new(n, DucbConfig { gamma: 0.99, alpha: 0.1, ..DucbConfig::default() }), MeshConfig::default())),
+        }
+    }
+    fn route(&mut self, t: &Task, rng: &mut Rng) -> usize {
+        let c = cands();
+        match self {
+            Mesh::H(m) => m.route_k(t, &c, rng, 1)[0],
+            Mesh::D(m) => m.route_k(t, &c, rng, 1)[0],
+        }
+    }
+    fn fb(&mut self, t: &Task, a: usize, r: f64) {
+        match self {
+            Mesh::H(m) => m.feedback(t, &[a], r),
+            Mesh::D(m) => m.feedback(t, &[a], r),
+        }
+    }
+    fn fb_label(&mut self, t: &Task, pick: usize, label: usize) {
+        match self {
+            Mesh::H(m) => m.feedback_label(t, Some(pick), label),
+            Mesh::D(m) => m.feedback_label(t, Some(pick), label),
+        }
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, Debug)]
+enum Fb {
+    Reward,
+    Old,
+    New,
+}
+
+/// Mesh-only replay over `rows` (in order). Returns per-row correctness of the routed pick; learning per `fb`.
+fn mesh_replay(rows: &[&Row], ids: &[usize], leader: Leader, fb: Fb, seed: u64) -> (Mesh, Vec<f64>) {
+    let mut m = Mesh::new(leader);
+    let mut rng = Rng::new(seed.wrapping_mul(7919).wrapping_add(2));
+    let mut ok = vec![];
+    for (r, &id) in rows.iter().zip(ids) {
+        let t = task_of(r, id);
+        let pick = m.route(&t, &mut rng);
+        ok.push((pick == r.label) as u8 as f64);
+        let reward = if pick == r.label { 1.0 } else { 0.0 };
+        match fb {
+            Fb::Reward => m.fb(&t, pick, reward),
+            Fb::Old => {
+                m.fb(&t, pick, reward);
+                if pick != r.label {
+                    m.fb(&t, r.label, 1.0);
+                }
+            }
+            Fb::New => m.fb_label(&t, pick, r.label),
+        }
+    }
+    (m, ok)
+}
+
+/// kNN prior + Hebbian (new-label) prequential: the prior votes if it does not abstain, else the mesh decides. Both learn from the label.
+fn knn_prequential(rows: &[Row], guarded: bool, head: bool, seed: u64) -> Vec<f64> {
+    let mut m = Mesh::new(Leader::Hebbian);
+    let mut prior = EmbedPrior::with_smin(if guarded { 0.4 } else { -1.0 });
+    let mut rng = Rng::new(seed.wrapping_mul(7919).wrapping_add(2));
+    let mut ok = vec![];
+    for (i, r) in rows.iter().enumerate() {
+        let t = task_of(r, i);
+        let mesh_pick = m.route(&t, &mut rng);
+        let pick = match prior.pick(if head { &r.emb_head } else { &r.emb }, None) {
+            Some((name, _)) => AGENTS.iter().position(|a| *a == name).unwrap_or(mesh_pick),
+            None => mesh_pick,
+        };
+        ok.push((pick == r.label) as u8 as f64);
+        m.fb_label(&t, mesh_pick, r.label);
+        prior.add(AGENTS[r.label], if head { &r.emb_head } else { &r.emb });
+    }
+    ok
+}
+
+/// One leave-wording-out fold: train on `train` rows (chronological, label-fed), predict `test` rows without learning.
+fn logo_predict(rows: &[Row], train: &[usize], test: &[usize], method: &str, seed: u64) -> Vec<usize> {
+    let tr: Vec<&Row> = train.iter().map(|&i| &rows[i]).collect();
+    let mut rng = Rng::new(seed.wrapping_mul(104729).wrapping_add(11));
+    match method {
+        "hebbian-old" | "hebbian-new" | "ducb-new" | "knn-hybrid" | "knn-head-hybrid" => {
+            let (leader, fb) = match method {
+                "hebbian-old" => (Leader::Hebbian, Fb::Old),
+                "ducb-new" => (Leader::Ducb, Fb::New),
+                _ => (Leader::Hebbian, Fb::New),
+            };
+            let (mut m, _) = mesh_replay(&tr, train, leader, fb, seed);
+            let mut prior = EmbedPrior::default();
+            let head = method == "knn-head-hybrid";
+            if method == "knn-hybrid" || head {
+                for r in &tr {
+                    prior.add(AGENTS[r.label], if head { &r.emb_head } else { &r.emb });
+                }
+            }
+            test.iter()
+                .map(|&i| {
+                    let t = task_of(&rows[i], i);
+                    let mp = m.route(&t, &mut rng);
+                    if method == "knn-hybrid" || head {
+                        if let Some((name, _)) = prior.pick(if head { &rows[i].emb_head } else { &rows[i].emb }, None) {
+                            return AGENTS.iter().position(|a| *a == name).unwrap_or(mp);
+                        }
+                    }
+                    mp
+                })
+                .collect()
+        }
+        "knn-raw" | "knn-head-raw" => {
+            let head = method == "knn-head-raw";
+            let mut prior = EmbedPrior::with_smin(-1.0);
+            for r in &tr {
+                prior.add(AGENTS[r.label], if head { &r.emb_head } else { &r.emb });
+            }
+            // fallback when nothing is stored (cannot happen with >= 1 train row): builder
+            test.iter().map(|&i| prior.pick(if head { &rows[i].emb_head } else { &rows[i].emb }, None).and_then(|(n, _)| AGENTS.iter().position(|a| *a == n)).unwrap_or(1)).collect()
+        }
+        "case" => {
+            let embs: Arc<Vec<Vec<f32>>> = Arc::new(rows.iter().map(|r| r.emb.clone()).collect());
+            let e2 = embs.clone();
+            let embedder: Embedder = Arc::new(move |t: &Task| e2.get(t.id as usize).cloned());
+            let mut c = CaseRouter::new(AGENTS.len(), 384, CaseConfig::default(), embedder);
+            for &i in train {
+                c.update(&task_of(&rows[i], i), rows[i].label, 1.0);
+            }
+            test.iter()
+                .map(|&i| {
+                    let post = c.posteriors(&task_of(&rows[i], i), &cands());
+                    (0..AGENTS.len())
+                        .max_by(|&a, &b| (post[a].0 / (post[a].0 + post[a].1)).total_cmp(&(post[b].0 / (post[b].0 + post[b].1))))
+                        .unwrap()
+                })
+                .collect()
+        }
+        _ => unreachable!(),
+    }
+}
+
+struct TestRes {
+    name: String,
+    n: usize,
+    a: f64,
+    b: f64,
+    diff: f64,
+    lo: f64,
+    hi: f64,
+    p: f64,
+}
+
+fn rowtest(name: &str, a: &[f64], b: &[f64]) -> TestRes {
+    let d = paired_diff(a, b);
+    TestRes {
+        name: name.into(),
+        n: a.len(),
+        a: a.iter().sum::<f64>() / a.len() as f64,
+        b: b.iter().sum::<f64>() / b.len() as f64,
+        diff: d.diff.mean,
+        lo: d.diff.lo,
+        hi: d.diff.hi,
+        p: paired_t_pvalue(a, b),
+    }
+}
+
+fn avg_over_seeds(per_seed: &[Vec<f64>]) -> Vec<f64> {
+    let n = per_seed[0].len();
+    (0..n).map(|i| per_seed.iter().map(|s| s[i]).sum::<f64>() / per_seed.len() as f64).collect()
+}
+
+fn acc(v: &[f64]) -> f64 {
+    v.iter().sum::<f64>() / v.len() as f64
+}
+
+fn main() {
+    let a: Vec<String> = std::env::args().collect();
+    let seeds: u64 = a.get(4).and_then(|s| s.parse().ok()).unwrap_or(30);
+    let enc = Encoder::load(a[2].as_ref(), a[3].as_ref()).expect("encoder").with_int8(false);
+    let raw = std::fs::read_to_string(&a[1]).unwrap();
+    let mut rows: Vec<Row> = vec![];
+    for l in raw.lines().filter(|l| !l.trim().is_empty()) {
+        let v: serde_json::Value = serde_json::from_str(l).unwrap();
+        let text = v["task_text"].as_str().unwrap().to_string();
+        let Some(label) = AGENTS.iter().position(|x| Some(*x) == v["actual_agent"].as_str()) else { continue };
+        rows.push(Row { feats: features(&text), group: group_of(&text), emb: enc.encode(&text), emb_head: enc.encode(&text.split_whitespace().take(6).collect::<Vec<_>>().join(" ")), text, label });
+    }
+    let n = rows.len();
+    let mut groups: BTreeMap<String, Vec<usize>> = BTreeMap::new();
+    for (i, r) in rows.iter().enumerate() {
+        groups.entry(r.group.clone()).or_default().push(i);
+    }
+    println!("rows {n}, wording groups {} (first two alphabetic tokens), largest {}, singleton groups {}", groups.len(),
+        groups.values().map(|g| g.len()).max().unwrap(), groups.values().filter(|g| g.len() == 1).count());
+    let half = n / 2;
+    let ids: Vec<usize> = (0..n).collect();
+    let refs: Vec<&Row> = rows.iter().collect();
+    let sd: Vec<u64> = (1..=seeds).collect();
+
+    // ---- A. prequential ----
+    let pq = |leader, fb| -> Vec<f64> { avg_over_seeds(&sd.iter().map(|&s| mesh_replay(&refs, &ids, leader, fb, s).1).collect::<Vec<_>>()) };
+    let reward_only = pq(Leader::Hebbian, Fb::Reward);
+    let old = pq(Leader::Hebbian, Fb::Old);
+    let new = pq(Leader::Hebbian, Fb::New);
+    let ducb = pq(Leader::Ducb, Fb::New);
+    let knn_g = avg_over_seeds(&sd.iter().map(|&s| knn_prequential(&rows, true, false, s)).collect::<Vec<_>>());
+    let knn_r = avg_over_seeds(&sd.iter().map(|&s| knn_prequential(&rows, false, false, s)).collect::<Vec<_>>());
+    let knn_h = avg_over_seeds(&sd.iter().map(|&s| knn_prequential(&rows, true, true, s)).collect::<Vec<_>>());
+    let rule_ok: Vec<f64> = rows.iter().map(|r| (rule(&r.text) == AGENTS[r.label]) as u8 as f64).collect();
+    println!("\nA. PREQUENTIAL accuracy over {n} rows ({seeds} seeds; overall / last half):");
+    for (nm, v) in [("rule (written after reading data: optimistic)", &rule_ok), ("hebbian reward-only", &reward_only), ("hebbian old-label (2 calls)", &old),
+        ("hebbian new-label (feedback_label)", &new), ("ducb new-label", &ducb), ("knn-prior(guarded smin .4)+hebbian", &knn_g), ("knn-prior(no floor)+hebbian", &knn_r), ("knn-prior HEAD-6 words (guarded)+hebbian", &knn_h)] {
+        println!("  {:<48} {:.3} / {:.3}", nm, acc(v), acc(&v[half..]));
+    }
+
+    // ---- B. leave-wording-out ----
+    let methods = ["hebbian-old", "hebbian-new", "ducb-new", "knn-hybrid", "knn-raw", "case", "knn-head-hybrid", "knn-head-raw"];
+    let mut logo: BTreeMap<&str, Vec<f64>> = BTreeMap::new();
+    for m in methods {
+        let det = matches!(m, "knn-raw" | "case" | "knn-head-raw");
+        let nseeds = if det { 1 } else { seeds };
+        let mut per_seed: Vec<Vec<f64>> = vec![];
+        for s in 1..=nseeds {
+            let mut ok = vec![0.0; n];
+            for g in groups.values() {
+                let train: Vec<usize> = (0..n).filter(|i| !g.contains(i)).collect();
+                let pred = logo_predict(&rows, &train, g, m, s);
+                for (&i, p) in g.iter().zip(pred) {
+                    ok[i] = (p == rows[i].label) as u8 as f64;
+                }
+            }
+            per_seed.push(ok);
+        }
+        logo.insert(m, avg_over_seeds(&per_seed));
+    }
+    let rule_logo = rule_ok.clone();
+    println!("\nB. LEAVE-WORDING-OUT accuracy ({} folds, pooled over {n} rows):", groups.len());
+    println!("  {:<48} {:.3}", "rule (no learning)", acc(&rule_logo));
+    for m in methods {
+        println!("  {:<48} {:.3}", m, acc(&logo[m]));
+    }
+
+    // ---- tests (paired over rows), Holm over all ----
+    let mut tests = vec![
+        rowtest("A new-label vs old-label (prequential)", &new, &old),
+        rowtest("A ducb-label vs hebbian new-label (prequential)", &ducb, &new),
+        rowtest("A knn-prior+hebbian vs hebbian new-label (prequential)", &knn_g, &new),
+        rowtest("B hebbian-new vs hebbian-old (LOGO)", &logo["hebbian-new"], &logo["hebbian-old"]),
+        rowtest("B knn-hybrid vs hebbian-old (LOGO)", &logo["knn-hybrid"], &logo["hebbian-old"]),
+        rowtest("B knn-hybrid vs hebbian-new (LOGO)", &logo["knn-hybrid"], &logo["hebbian-new"]),
+        rowtest("B knn-raw vs hebbian-old (LOGO)", &logo["knn-raw"], &logo["hebbian-old"]),
+        rowtest("B case vs hebbian-old (LOGO)", &logo["case"], &logo["hebbian-old"]),
+        rowtest("B knn-head-hybrid vs hebbian-old (LOGO)", &logo["knn-head-hybrid"], &logo["hebbian-old"]),
+        rowtest("B knn-head-raw vs hebbian-old (LOGO)", &logo["knn-head-raw"], &logo["hebbian-old"]),
+        rowtest("A knn-prior HEAD-6+hebbian vs hebbian new-label (prequential)", &knn_h, &new),
+        rowtest("B ducb-new vs hebbian-new (LOGO)", &logo["ducb-new"], &logo["hebbian-new"]),
+    ];
+    let adj = holm_adjust(&tests.iter().map(|t| t.p).collect::<Vec<_>>());
+    println!("\nTESTS paired over rows (n = {n}); diff = first - second accuracy, 95% t-CI over rows; Holm over {} tests", tests.len());
+    for (t, h) in tests.iter_mut().zip(adj) {
+        println!("  {:<58} {:.3} vs {:.3}  {:+.3} [{:+.3},{:+.3}]  p {:.4}  p_holm {:.4} {}", t.name, t.a, t.b, t.diff, t.lo, t.hi, t.p, h,
+            if h <= 0.05 { if t.diff > 0.0 { "BEATS" } else { "WORSE" } } else { "n.s." });
+    }
+    let _ = tests.iter().map(|t| t.n).sum::<usize>();
+}

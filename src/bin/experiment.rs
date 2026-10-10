@@ -24,7 +24,9 @@
 //! Usage: cargo run --release --bin experiment [-- --tasks 2000 --out results/results.json]
 
 use neural_mesh::baselines::{sample_beta, EpsGreedyRouter, KeywordRouter, PooledThompsonRouter};
+use neural_mesh::defaults::{recommended_guard, recommended_inner};
 use neural_mesh::hebbian::{HebbianConfig, HebbianRouter};
+use neural_mesh::prior::Guarded;
 use neural_mesh::mesh::{GateConfig, MeshConfig, NeuralMesh};
 use neural_mesh::router::{Rng, Router, Task};
 use neural_mesh::sim::{Scenario, Window, World, WorldConfig};
@@ -41,6 +43,10 @@ use std::time::Instant;
 trait Policy {
     fn assign(&mut self, task: &Task, cands: &[usize], rng: &mut Rng) -> Vec<usize>;
     fn feedback(&mut self, task: &Task, team: &[usize], reward: f64);
+    /// Feedback for a task that failed for an ENVIRONMENT reason (skill-independent). Default = unshielded: an ordinary reward-0 outcome.
+    fn feedback_env(&mut self, task: &Task, team: &[usize]) {
+        self.feedback(task, team, 0.0);
+    }
 }
 
 struct Single<R: Router>(R);
@@ -60,6 +66,22 @@ impl<R: Router> Policy for Mesh<R> {
     }
     fn feedback(&mut self, task: &Task, team: &[usize], reward: f64) {
         self.0.feedback(task, team, reward);
+    }
+}
+
+/// R117 (opt-in failure class): environment failures go to the mesh's dispatch-risk score only (`NeuralMesh::feedback_env`); skill weights, health and
+/// benching are untouched. Environment-clean outcomes also decay the leader's risk.
+struct ShieldMesh<R: Router>(NeuralMesh<R>);
+impl<R: Router> Policy for ShieldMesh<R> {
+    fn assign(&mut self, task: &Task, cands: &[usize], rng: &mut Rng) -> Vec<usize> {
+        self.0.route(task, cands, rng)
+    }
+    fn feedback(&mut self, task: &Task, team: &[usize], reward: f64) {
+        self.0.feedback(task, team, reward);
+        self.0.feedback_env(team[0], false);
+    }
+    fn feedback_env(&mut self, _task: &Task, team: &[usize]) {
+        self.0.feedback_env(team[0], true);
     }
 }
 
@@ -155,6 +177,10 @@ enum Spec {
     Hebbian(HebbianConfig),
     /// NeuralMesh co-activation edges (ungated)
     Mesh(HebbianConfig, MeshConfig),
+    /// R117: `Mesh` + environment-failure shielding (`feedback_env`)
+    MeshShield(HebbianConfig, MeshConfig),
+    /// R117: the recommended Guarded(hebbian-robust) router (keyword gate in front)
+    Guarded,
     /// NeuralMesh + TrustEdges (ungated)
     MeshTrust(HebbianConfig, MeshConfig, TrustEdgesConfig),
     /// standalone TrustMesh policy
@@ -178,6 +204,11 @@ fn build(spec: &Spec, n: usize, kw: HashMap<String, usize>) -> Box<dyn Policy> {
         Spec::RStdp(c) => Box::new(Single(RStdpRouter::new(n, c.clone()))),
         Spec::Hebbian(c) => Box::new(Single(HebbianRouter::new(n, c.clone()))),
         Spec::Mesh(c, m) => Box::new(Mesh(NeuralMesh::new(n, HebbianRouter::new(n, c.clone()), m.clone()))),
+        Spec::MeshShield(c, m) => Box::new(ShieldMesh(NeuralMesh::new(n, HebbianRouter::new(n, c.clone()), m.clone()))),
+        Spec::Guarded => {
+            let g: Guarded<HebbianRouter> = Guarded::new(HebbianRouter::new(n, recommended_inner()), kw, n, recommended_guard());
+            Box::new(Single(g))
+        }
         Spec::MeshTrust(c, m, t) => Box::new(Mesh(
             NeuralMesh::new(n, HebbianRouter::new(n, c.clone()), m.clone()).with_trust_edges(t.clone()),
         )),
@@ -232,34 +263,57 @@ struct Mode {
 const HEADLINE: Mode = Mode { informative: false, cost: 0.0 };
 
 /// `delay`: feedback for task t is delivered after task t+delay was routed.
-fn run(spec: &Spec, seed: u64, wcfg: &WorldConfig, delay: usize, mode: Mode) -> RunMetrics {
+/// R117 environment-failure layer (skill-independent, per-agent heterogeneous). `env` = mean failure rate (0 = off, bit-identical to before).
+/// Agent `a` fails for environmental reasons with probability `env * M[a]` where `M` is a seeded permutation of a fixed multiplier set with mean 1.
+/// Drawn from its own rng stream, so the task stream, hidden structure and outcomes of the other scenarios are untouched.
+fn env_rates(seed: u64, env: f64, n: usize) -> Vec<f64> {
+    const MULT: [f64; 6] = [0.2, 0.5, 0.8, 1.2, 1.6, 1.7];
+    let mut r = Rng::new(seed.wrapping_mul(0x9E37_79B9_7F4A_7C15) ^ 0xE4F0_0D15);
+    let mut idx: Vec<usize> = (0..n).collect();
+    for i in (1..idx.len()).rev() {
+        idx.swap(i, r.below(i + 1));
+    }
+    idx.iter().map(|&i| env * MULT[i % MULT.len()]).collect()
+}
+
+fn run(spec: &Spec, seed: u64, wcfg: &WorldConfig, delay: usize, env: f64, mode: Mode) -> RunMetrics {
     let world = World::new(seed, wcfg.clone());
     let n = world.n_agents();
     let cands: Vec<usize> = (0..n).collect();
     let mut pol = build(spec, n, world.keyword_map_for());
     let mut rng = Rng::new(seed.wrapping_mul(1_000_003).wrapping_add(17));
+    let rates = env_rates(seed, env, n);
+    let mut env_rng = Rng::new(seed.wrapping_mul(0xD1B5_4A32_D192_ED03) ^ 0x0E17_F00D);
     let mut acc = [[0.0f64; 2]; 6];
     let (mut succ, mut regret, mut assigned, mut used_n) = (0.0, 0.0, 0.0, 0.0);
-    let mut pending: std::collections::VecDeque<(usize, Vec<usize>, f64)> = std::collections::VecDeque::new();
+    let mut pending: std::collections::VecDeque<(usize, Vec<usize>, f64, bool)> = std::collections::VecDeque::new();
     for t in 0..world.len() {
         let st = world.task(t);
         let team = pol.assign(&st.task, &cands, &mut rng);
         assert!(!team.is_empty(), "policy returned an empty team");
         let used: &[usize] = if st.team_task { &team } else { &team[..1] };
-        let r = world.outcome(t, used);
+        let mut r = world.outcome(t, used);
+        let env_failed = env > 0.0 && env_rng.f64() < rates[team[0]];
+        if env_failed {
+            r = 0.0;
+        }
         regret += world.oracle_prob(t) - world.success_prob(t, used);
         succ += r;
         assigned += team.len() as f64;
         used_n += used.len() as f64;
         let fb_team: &[usize] = if mode.informative { used } else { &team };
         let fb_r = (r - mode.cost * (fb_team.len() - 1) as f64).clamp(0.0, 1.0);
-        pending.push_back((t, fb_team.to_vec(), fb_r));
-        while let Some((t0, _, _)) = pending.front() {
+        pending.push_back((t, fb_team.to_vec(), fb_r, env_failed));
+        while let Some((t0, _, _, _)) = pending.front() {
             if t - *t0 < delay {
                 break;
             }
-            let (t0, tm, rr) = pending.pop_front().unwrap();
-            pol.feedback(&world.task(t0).task, &tm, rr);
+            let (t0, tm, rr, ef) = pending.pop_front().unwrap();
+            if ef {
+                pol.feedback_env(&world.task(t0).task, &tm);
+            } else {
+                pol.feedback(&world.task(t0).task, &tm, rr);
+            }
         }
         let w = match world.window(t) {
             Window::PreDrift => 0,
@@ -323,29 +377,31 @@ struct Scen {
     name: &'static str,
     wcfg: WorldConfig,
     delay: usize,
+    /// mean environment-failure rate (R117 layer); 0 for the six original scenarios
+    env: f64,
 }
 
 fn scenarios(n_tasks: usize) -> Vec<Scen> {
     let base = WorldConfig { n_tasks, ..WorldConfig::default() };
     let with = |sc: Scenario| WorldConfig { scenario: sc, ..base.clone() };
     vec![
-        Scen { name: "fixed", wcfg: with(Scenario::Fixed), delay: 0 },
-        Scen { name: "random", wcfg: with(Scenario::Random), delay: 0 },
-        Scen { name: "no-synergy", wcfg: with(Scenario::NoSynergy), delay: 0 },
-        Scen { name: "no-traps", wcfg: with(Scenario::NoTraps), delay: 0 },
-        Scen { name: "revealed", wcfg: WorldConfig { reveal_type: true, ..with(Scenario::Random) }, delay: 0 },
-        Scen { name: "delay25", wcfg: with(Scenario::Random), delay: 25 },
+        Scen { name: "fixed", wcfg: with(Scenario::Fixed), delay: 0, env: 0.0 },
+        Scen { name: "random", wcfg: with(Scenario::Random), delay: 0, env: 0.0 },
+        Scen { name: "no-synergy", wcfg: with(Scenario::NoSynergy), delay: 0, env: 0.0 },
+        Scen { name: "no-traps", wcfg: with(Scenario::NoTraps), delay: 0, env: 0.0 },
+        Scen { name: "revealed", wcfg: WorldConfig { reveal_type: true, ..with(Scenario::Random) }, delay: 0, env: 0.0 },
+        Scen { name: "delay25", wcfg: with(Scenario::Random), delay: 25, env: 0.0 },
     ]
 }
 /// indices (into `scenarios()`) of the randomised family used by the `tuned` criterion
 const RAND_FAMILY: [usize; 3] = [1, 2, 3];
 
 fn run_seeds(spec: &Spec, seeds: &[u64], sc: &Scen, mode: Mode) -> Vec<RunMetrics> {
-    seeds.iter().map(|&s| run(spec, s, &sc.wcfg, sc.delay, mode)).collect()
+    seeds.iter().map(|&s| run(spec, s, &sc.wcfg, sc.delay, sc.env, mode)).collect()
 }
 
 fn mean_success_seq(spec: &Spec, seeds: &[u64], sc: &Scen) -> f64 {
-    seeds.iter().map(|&s| run(spec, s, &sc.wcfg, sc.delay, HEADLINE).success).sum::<f64>() / seeds.len() as f64
+    seeds.iter().map(|&s| run(spec, s, &sc.wcfg, sc.delay, sc.env, HEADLINE).success).sum::<f64>() / seeds.len() as f64
 }
 
 // ---------------------------------------------------------------------------
@@ -774,7 +830,13 @@ fn main() {
     let out_path = get("--out").unwrap_or_else(|| "results/results.json".to_string());
     let scens = scenarios(n_tasks);
     let tune_seeds: Vec<u64> = (1..=8).collect();
-    let held_seeds: Vec<u64> = (31..=60).collect();
+    // `--held A-B` picks the evaluation seeds (default 31-60 = held-out; 61-90 = the confirm split). Tuning is always seeds 1-8, so a 61-90 run
+    // uses exactly the configs of the 31-60 run (frozen) and reproduces the committed 31-60 numbers when `--held` is absent.
+    let held_seeds: Vec<u64> = match get("--held").and_then(|h| h.split_once('-').map(|(a, b)| (a.parse::<u64>(), b.parse::<u64>()))) {
+        Some((Ok(a), Ok(b))) if a <= b => (a..=b).collect(),
+        _ => (31..=60).collect(),
+    };
+    let held_label = format!("{}-{}", held_seeds[0], held_seeds[held_seeds.len() - 1]);
     let t_start = Instant::now();
     println!("neural-mesh experiment v2: {} tasks/run, {} scenarios, {} threads", n_tasks, scens.len(), threads());
 
@@ -1121,6 +1183,76 @@ fn main() {
         cross.push(json!({"config": name, "mean_success": ms, "worst_gain_vs_best_baseline": wg, "mean_rank": mr, "worst_rank": wr, "mean_calls": calls}));
     }
 
+
+    // ---- 5. R117 EXTRA ROWS (additive: nothing above changes) ---------------------------------------------------------------------------------
+    // (a) `guarded-robust` = the recommended Guarded(hebbian-robust) router (Guarded row, item 4);
+    // (b) scenario `env18`: random world + ~18% skill-independent ENVIRONMENT failures (per-agent heterogeneous, mean .18) and the failure-class
+    //     shield `mesh-robust-shield` (env failures only update the dispatch-risk score) vs `mesh-robust` (env failure = ordinary reward 0).
+    let mut x_scens = scens.clone();
+    x_scens.push(Scen { name: "env18", wcfg: scens[1].wcfg.clone(), delay: 0, env: 0.18 });
+    let x_configs: Vec<(String, Spec)> = vec![
+        ("keyword".into(), Spec::Keyword),
+        ("pooled-ts-1.0".into(), Spec::PooledTs(1.0)),
+        ("pooled-ts-0.99".into(), Spec::PooledTs(0.99)),
+        ("eps-greedy".into(), Spec::EpsGreedy),
+        ("hebbian-robust".into(), Spec::Hebbian(h_r.clone())),
+        ("mesh-robust".into(), Spec::Mesh(h_r.clone(), m_r.clone())),
+        ("mesh-robust-shield".into(), Spec::MeshShield(h_r.clone(), m_r.clone())),
+        ("guarded-robust".into(), Spec::Guarded),
+    ];
+    println!("\n=== R117 extra rows ===");
+    for (n, sp) in &x_configs[6..] {
+        println!("  {:<20} {}", n, fmt_params(sp));
+    }
+    let extra = eval_all(&x_configs, &x_scens, &held_seeds, HEADLINE);
+    for (sn, ev) in &extra {
+        print_table(&format!("R117 EXTRA held-out seeds {held_label} | scenario: {sn} | uninformative feedback"), ev);
+    }
+    let mut xtests: Vec<Test> = vec![];
+    for (sn, ev) in &extra {
+        let (bb, _) = best_baseline(ev);
+        for (a, b, kind) in [
+            ("guarded-robust", "keyword", "guarded-vs-keyword"),
+            ("guarded-robust", "mesh-robust", "guarded-vs-mesh"),
+        ] {
+            xtests.push(make_test(sn, kind, find(ev, a), find(ev, b)));
+        }
+        if *sn == "env18" {
+            xtests.push(make_test(sn, "shield-vs-unshielded", find(ev, "mesh-robust-shield"), find(ev, "mesh-robust")));
+            xtests.push(make_test(sn, "shield-vs-baseline", find(ev, "mesh-robust-shield"), &bb));
+        }
+    }
+    apply_holm(&mut xtests);
+    // the shield is a no-op where no environment failure exists: it must equal mesh-robust EXACTLY in the six original scenarios
+    let mut shield_noop = true;
+    for (sn, ev) in extra.iter().filter(|(n, _)| n != "env18") {
+        let (a, b) = (find(ev, "mesh-robust-shield"), find(ev, "mesh-robust"));
+        let same = a.runs.iter().zip(&b.runs).all(|(x, y)| x.success == y.success);
+        shield_noop &= same;
+        if !same {
+            println!("  WARNING shield differs from mesh-robust in scenario {sn}");
+        }
+    }
+    println!("  shield == mesh-robust bit-identically in the six original scenarios (no regression possible): {shield_noop}");
+    println!("\n--- R117 tests (candidate - comparator, held-out {held_label}, success; Holm over {} tests; EQ = 95% CI inside +-0.01) ---", xtests.len());
+    for t in &xtests {
+        let eq = if t.lo > -0.01 && t.hi < 0.01 { "EQ" } else { "" };
+        println!(
+            "  {:<11} {:<20} {:<18} vs {:<14} {:+.4} [{:+.4},{:+.4}] {:>2}/{:<2} p_holm {:.4} {} {}",
+            t.scenario, t.kind, t.a, t.b, t.diff, t.lo, t.hi, t.wins, t.losses, t.p_holm, t.verdict, eq
+        );
+    }
+    println!("  (mean success per scenario, held {held_label}:)");
+    for (sn, ev) in &extra {
+        println!(
+            "  {:<11} {}",
+            sn,
+            x_configs.iter().map(|(n, _)| format!("{} {:.4}", n, mean_of(find(ev, n), |m| m.success))).collect::<Vec<_>>().join(" | ")
+        );
+    }
+    let extra_json = json!({"held": held_label, "tests": xtests, "shield_noop_in_original_scenarios": shield_noop,
+        "per_seed_success": extra.iter().map(|(sn, ev)| json!({"scenario": sn, "configs": ev.iter().map(|e| json!({"name": e.name, "success": field(&e.runs, |x| x.success)})).collect::<Vec<_>>()})).collect::<Vec<_>>()});
+
     // ---- JSON ---------------------------------------------------------------
     let tuned_json = |t: &Tuned| serde_json::to_value(t).unwrap();
     let scen_json: Vec<serde_json::Value> = headline
@@ -1168,6 +1300,7 @@ fn main() {
         "cost_runs": cost_json,
         "horizon_runs": hz_json,
         "cross_scenario": cross,
+        "r117_extra": extra_json,
         "elapsed_s": t_start.elapsed().as_secs_f64(),
     });
     if let Some(dir) = std::path::Path::new(&out_path).parent() {

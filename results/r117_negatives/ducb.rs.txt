@@ -1,0 +1,154 @@
+//! Discounted-UCB leader (opt-in). Idea (reimplemented, not copied): the hebbian-router `LinearBanditRouter` result (router-trainer.md,
+//! commit 8d90c1c, simulator): a near-greedy count-based confidence width TOGETHER WITH a per-step discount of EVERY arm's statistics beats
+//! Thompson/Hebbian; neither alone does.
+//!
+//! Per active feature row (task features + `type:<t>`), per agent: discounted successes `s` and pulls `n`. On `update(task, a, r)` every agent's
+//! `(s, n)` in each active row is multiplied by `gamma` (unpicked agents therefore LOSE evidence and regain uncertainty, which is what lets the
+//! router escape a stale best agent after drift), then the picked agent gets `s += r`, `n += 1`.
+//! Score of agent `a` on a task: pooled over the active rows, `m = (S + p_s) / (N + p_n)` (Beta-style prior `p_s/p_n`),
+//! `score = m + alpha * sqrt(m (1 - m) / (N + p_n + 1))`; argmax, ties broken uniformly at random (one rng draw per select).
+
+use std::collections::BTreeMap;
+
+use serde::{Deserialize, Serialize};
+
+use crate::hebbian::active_features;
+use crate::router::{Rng, Router, Task};
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct DucbConfig {
+    /// Per-update discount of every agent's statistics in the active rows (1 = none).
+    pub gamma: f64,
+    /// Width of the confidence bonus in standard deviations (tempered: ~0.1-1).
+    pub alpha: f64,
+    /// Prior pseudo-pulls (with mean `prior_mean`).
+    pub prior_n: f64,
+    pub prior_mean: f64,
+}
+
+impl Default for DucbConfig {
+    fn default() -> Self {
+        DucbConfig { gamma: 0.99, alpha: 0.3, prior_n: 2.0, prior_mean: 0.5 }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct DucbRouter {
+    pub cfg: DucbConfig,
+    n_agents: usize,
+    /// feature -> per-agent (discounted successes, discounted pulls)
+    rows: BTreeMap<String, Vec<(f64, f64)>>,
+}
+
+impl DucbRouter {
+    pub fn new(n_agents: usize, cfg: DucbConfig) -> Self {
+        DucbRouter { cfg, n_agents, rows: BTreeMap::new() }
+    }
+
+    pub fn ensure_agents(&mut self, n: usize) {
+        if n > self.n_agents {
+            for r in self.rows.values_mut() {
+                r.resize(n, (0.0, 0.0));
+            }
+            self.n_agents = n;
+        }
+    }
+
+    /// Score of every agent (index = agent) on `task`.
+    pub fn scores(&self, task: &Task) -> Vec<f64> {
+        let feats = active_features(task);
+        (0..self.n_agents)
+            .map(|a| {
+                let (mut s, mut n) = (0.0, 0.0);
+                for f in &feats {
+                    if let Some(&(rs, rn)) = self.rows.get(f).and_then(|r| r.get(a)) {
+                        s += rs;
+                        n += rn;
+                    }
+                }
+                let k = feats.len().max(1) as f64;
+                let (s, n) = (s / k, n / k);
+                let np = n + self.cfg.prior_n;
+                let m = ((s + self.cfg.prior_n * self.cfg.prior_mean) / np).clamp(0.0, 1.0);
+                m + self.cfg.alpha * (m * (1.0 - m) / (np + 1.0)).sqrt()
+            })
+            .collect()
+    }
+}
+
+impl Router for DucbRouter {
+    fn name(&self) -> String {
+        format!("ducb(g={},a={})", self.cfg.gamma, self.cfg.alpha)
+    }
+
+    fn select(&mut self, task: &Task, candidates: &[usize], rng: &mut Rng) -> usize {
+        assert!(!candidates.is_empty(), "DucbRouter::select: no candidates");
+        if let Some(&mx) = candidates.iter().max() {
+            self.ensure_agents(mx + 1);
+        }
+        let sc = self.scores(task);
+        let best = candidates.iter().map(|&c| sc[c]).fold(f64::NEG_INFINITY, f64::max);
+        let tied: Vec<usize> = candidates.iter().copied().filter(|&c| sc[c] >= best - 1e-12).collect();
+        tied[rng.below(tied.len())]
+    }
+
+    fn update(&mut self, task: &Task, agent: usize, reward: f64) {
+        if !reward.is_finite() {
+            return;
+        }
+        self.ensure_agents(agent + 1);
+        let r = reward.clamp(0.0, 1.0);
+        let n = self.n_agents;
+        for f in active_features(task) {
+            let row = self.rows.entry(f).or_insert_with(|| vec![(0.0, 0.0); n]);
+            for e in row.iter_mut() {
+                e.0 *= self.cfg.gamma;
+                e.1 *= self.cfg.gamma;
+            }
+            row[agent].0 += r;
+            row[agent].1 += 1.0;
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn t(f: &str) -> Task {
+        Task { id: 0, task_type: None, features: vec![f.into()] }
+    }
+
+    #[test]
+    fn learns_best_arm_and_recovers_after_drift() {
+        let mut r = DucbRouter::new(3, DucbConfig::default());
+        let mut rng = Rng::new(3);
+        let task = t("kw");
+        let mut env = Rng::new(9);
+        let mut phase = |r: &mut DucbRouter, best: usize, n: usize| {
+            let mut hit = 0;
+            for _ in 0..n {
+                let a = r.select(&task, &[0, 1, 2], &mut rng);
+                let p = if a == best { 0.9 } else { 0.3 };
+                r.update(&task, a, if env.bernoulli(p) { 1.0 } else { 0.0 });
+                hit += (a == best) as usize;
+            }
+            hit as f64 / n as f64
+        };
+        assert!(phase(&mut r, 1, 400) > 0.8);
+        // drift: arm 2 becomes best; discounting lets the router find it
+        phase(&mut r, 2, 300);
+        assert!(phase(&mut r, 2, 200) > 0.7);
+    }
+
+    #[test]
+    fn serde_roundtrip_and_ignores_nan() {
+        let mut r = DucbRouter::new(2, DucbConfig::default());
+        r.update(&t("a"), 1, 1.0);
+        r.update(&t("a"), 0, f64::NAN);
+        let s = serde_json::to_string(&r).unwrap();
+        let back: DucbRouter = serde_json::from_str(&s).unwrap();
+        assert_eq!(r, back);
+        assert!(back.scores(&t("a"))[1] > back.scores(&t("a"))[0]);
+    }
+}

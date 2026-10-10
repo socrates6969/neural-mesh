@@ -1,0 +1,112 @@
+//! Embedding prior for the router (opt-in leader mode). A small durable set of past outcomes `(agent, 384-d unit text embedding)`;
+//! a new task's embedding votes over its k nearest EXEMPLARS of agents that did well (kNN, cosine), through `KnnRouter::route_guarded` with the
+//! R88 similarity floor `smin = 0.4` (below it the prior ABSTAINS and the keyword/Hebbian leader decides) and a vote-share floor `tau`.
+//! One outcome therefore informs every differently-worded task near it, which per-keyword Hebbian rows cannot do.
+//! Embeddings come from the pure-Rust MiniLM `encoder::Encoder` (caller-supplied; this module is encoder-agnostic).
+
+use serde::{Deserialize, Serialize};
+
+use crate::knnroute::KnnRouter;
+
+/// Dimension of the all-MiniLM-L6-v2 space.
+pub const DIM: usize = 384;
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct EmbedPrior {
+    pub k: usize,
+    /// Minimum winning vote share.
+    pub tau: f32,
+    /// Minimum cosine of the nearest exemplar (R88 floor).
+    pub smin: f32,
+    /// Max exemplars kept per agent (oldest dropped first); 0 = unbounded.
+    pub cap_per_agent: usize,
+    exemplars: Vec<(String, Vec<f32>)>,
+}
+
+impl Default for EmbedPrior {
+    fn default() -> Self {
+        EmbedPrior { k: 5, tau: 0.0, smin: 0.4, cap_per_agent: 0, exemplars: Vec::new() }
+    }
+}
+
+impl EmbedPrior {
+    /// Prior with a custom similarity floor (`smin`; a negative floor never abstains on similarity).
+    pub fn with_smin(smin: f32) -> Self {
+        EmbedPrior { smin, ..Default::default() }
+    }
+
+    pub fn len(&self) -> usize {
+        self.exemplars.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.exemplars.is_empty()
+    }
+
+    /// Record that `agent` is right for the task whose embedding is `v`. Bad vectors are ignored; returns whether stored.
+    pub fn add(&mut self, agent: &str, v: &[f32]) -> bool {
+        if v.len() != DIM || v.iter().any(|x| !x.is_finite()) {
+            return false;
+        }
+        self.exemplars.push((agent.to_string(), v.to_vec()));
+        if self.cap_per_agent > 0 {
+            let n = self.exemplars.iter().filter(|(a, _)| a == agent).count();
+            if n > self.cap_per_agent
+                && let Some(i) = self.exemplars.iter().position(|(a, _)| a == agent)
+            {
+                self.exemplars.remove(i);
+            }
+        }
+        true
+    }
+
+    /// Guarded kNN vote restricted to `allowed` agents (None = any): `Some((agent, share))` or `None` = abstain.
+    pub fn pick(&self, q: &[f32], allowed: Option<&[String]>) -> Option<(String, f32)> {
+        let mut r = KnnRouter::new(DIM, self.k);
+        for (a, v) in &self.exemplars {
+            if allowed.is_none_or(|al| al.iter().any(|x| x == a)) {
+                r.add(a, v);
+            }
+        }
+        r.route_guarded(q, self.tau, self.smin)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn unit(i: usize, j: usize) -> Vec<f32> {
+        let mut v = vec![0.0f32; DIM];
+        v[i] = 1.0;
+        v[j] += 0.3;
+        v
+    }
+
+    #[test]
+    fn votes_abstains_far_and_respects_allowed() {
+        let mut p = EmbedPrior::default();
+        assert!(p.pick(&unit(0, 1), None).is_none());
+        for _ in 0..3 {
+            assert!(p.add("a", &unit(0, 2)));
+            assert!(p.add("b", &unit(5, 6)));
+        }
+        assert!(!p.add("a", &[1.0; 3]));
+        assert_eq!(p.pick(&unit(0, 1), None).unwrap().0, "a");
+        // orthogonal query: best cosine below smin -> abstain
+        assert!(p.pick(&unit(100, 101), None).is_none());
+        let only_b = ["b".to_string()];
+        assert!(p.pick(&unit(0, 1), Some(&only_b)).is_none());
+    }
+
+    #[test]
+    fn cap_drops_oldest_and_serde_roundtrips() {
+        let mut p = EmbedPrior { cap_per_agent: 2, ..Default::default() };
+        for i in 0..4 {
+            p.add("a", &unit(i, 10));
+        }
+        assert_eq!(p.len(), 2);
+        let back: EmbedPrior = serde_json::from_str(&serde_json::to_string(&p).unwrap()).unwrap();
+        assert_eq!(p, back);
+    }
+}

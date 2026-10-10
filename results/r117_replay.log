@@ -1,0 +1,36 @@
+rows 69, wording groups 46 (first two alphabetic tokens), largest 7, singleton groups 35
+
+A. PREQUENTIAL accuracy over 69 rows (30 seeds; overall / last half):
+  rule (written after reading data: optimistic)    0.913 / 0.914
+  hebbian reward-only                              0.338 / 0.381
+  hebbian old-label (2 calls)                      0.658 / 0.714
+  hebbian new-label (feedback_label)               0.658 / 0.714
+  ducb new-label                                   0.686 / 0.750
+  knn-prior(guarded smin .4)+hebbian               0.579 / 0.569
+  knn-prior(no floor)+hebbian                      0.539 / 0.514
+  knn-prior HEAD-6 words (guarded)+hebbian         0.608 / 0.597
+
+B. LEAVE-WORDING-OUT accuracy (46 folds, pooled over 69 rows):
+  rule (no learning)                               0.913
+  hebbian-old                                      0.627
+  hebbian-new                                      0.627
+  ducb-new                                         0.667
+  knn-hybrid                                       0.449
+  knn-raw                                          0.420
+  case                                             0.391
+  knn-head-hybrid                                  0.507
+  knn-head-raw                                     0.493
+
+TESTS paired over rows (n = 69); diff = first - second accuracy, 95% t-CI over rows; Holm over 12 tests
+  A new-label vs old-label (prequential)                     0.658 vs 0.658  +0.000 [+0.000,+0.000]  p 1.0000  p_holm 1.0000 n.s.
+  A ducb-label vs hebbian new-label (prequential)            0.686 vs 0.658  +0.028 [-0.011,+0.066]  p 0.1542  p_holm 0.6640 n.s.
+  A knn-prior+hebbian vs hebbian new-label (prequential)     0.579 vs 0.658  -0.079 [-0.182,+0.025]  p 0.1328  p_holm 0.6640 n.s.
+  B hebbian-new vs hebbian-old (LOGO)                        0.627 vs 0.627  +0.000 [+0.000,+0.000]  p 1.0000  p_holm 1.0000 n.s.
+  B knn-hybrid vs hebbian-old (LOGO)                         0.449 vs 0.627  -0.178 [-0.274,-0.082]  p 0.0004  p_holm 0.0045 WORSE
+  B knn-hybrid vs hebbian-new (LOGO)                         0.449 vs 0.627  -0.178 [-0.274,-0.082]  p 0.0004  p_holm 0.0045 WORSE
+  B knn-raw vs hebbian-old (LOGO)                            0.420 vs 0.627  -0.207 [-0.313,-0.101]  p 0.0002  p_holm 0.0025 WORSE
+  B case vs hebbian-old (LOGO)                               0.391 vs 0.627  -0.236 [-0.347,-0.124]  p 0.0001  p_holm 0.0009 WORSE
+  B knn-head-hybrid vs hebbian-old (LOGO)                    0.507 vs 0.627  -0.120 [-0.238,-0.002]  p 0.0462  p_holm 0.3237 n.s.
+  B knn-head-raw vs hebbian-old (LOGO)                       0.493 vs 0.627  -0.134 [-0.283,+0.015]  p 0.0768  p_holm 0.4609 n.s.
+  A knn-prior HEAD-6+hebbian vs hebbian new-label (prequential) 0.608 vs 0.658  -0.050 [-0.158,+0.058]  p 0.3614  p_holm 1.0000 n.s.
+  B ducb-new vs hebbian-new (LOGO)                           0.667 vs 0.627  +0.040 [+0.007,+0.073]  p 0.0178  p_holm 0.1425 n.s.
