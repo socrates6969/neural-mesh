@@ -38,3 +38,4 @@ pub mod ctxk;
 pub mod scan;
 pub mod ledger;
 pub mod encoder;
+pub mod frontend;

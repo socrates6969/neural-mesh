@@ -53,7 +53,7 @@ const PRIOR_SALT: u64 = 0x5052_494F_525F_4B57;
 /// Option names shared by route/feedback/stats/config (team is config-only).
 const CONFIG_KEYS: [&str; 5] = ["eta", "temperature", "decay", "epsilon", "prior-k"];
 
-const USAGE: &str = "usage:\n  neural-mesh route    --state <file> --features a,b,c [--candidates x,y] [--team k] [--type t] [--seed n] [--prior agent]\n  neural-mesh feedback --state <file> --features a,b,c --agent X [--team X,Y] --reward 0..1 [--type t]\n  neural-mesh stats    --state <file>\n  neural-mesh config   --state <file> [--eta x --temperature x --decay x --epsilon x --team k --prior-k x]\n  (route/feedback/stats also accept --eta --temperature --decay --epsilon --prior-k)";
+const USAGE: &str = "usage:\n  neural-mesh route    --state <file> --features a,b,c [--candidates x,y] [--team k] [--type t] [--seed n] [--prior agent]\n  neural-mesh feedback --state <file> --features a,b,c --agent X [--team X,Y] --reward 0..1 [--type t]\n  neural-mesh stats    --state <file>\n  neural-mesh config   --state <file> [--eta x --temperature x --decay x --epsilon x --team k --prior-k x]\n  neural-mesh frontend [--enabled 1] [--local-conf x --local-tokens n --max-sim x --cache-hit 1 --tool t --chunks JSON --min-conf x --min-sim x --ctx-budget n]  (opt-in, default off)\n  (route/feedback/stats also accept --eta --temperature --decay --epsilon --prior-k)";
 
 #[derive(Debug, Serialize, Deserialize)]
 struct State {
@@ -625,11 +625,96 @@ fn append_to_store(st: &mut State, sv: &neural_mesh::store::MeshStore, o: &Opts,
     Ok(())
 }
 
+const FRONTEND_KEYS: &[&str] = &["enabled", "min-conf", "max-local-tokens", "ctx-budget", "max-chunks", "min-chunk-score", "min-sim", "cache-hit", "tool", "local-conf", "local-tokens", "max-sim", "chunks"];
+
+/// `frontend` (opt-in, stateless, default OFF): local-vs-forward decision + trimmed context ids (src/frontend.rs). `--chunks` is a JSON
+/// array of {"id","score","tokens"}. Without `--enabled 1` it always answers "forward" (today's behaviour).
+fn cmd_frontend(o: &Opts) -> Result<Value, CliError> {
+    use neural_mesh::frontend::{Chunk, FrontendCfg, Signals, decide, trim_context};
+    fn num<T: std::str::FromStr>(o: &Opts, k: &str, d: T) -> Result<T, CliError> {
+        match o.get(k) {
+            Some(v) => v.trim().parse::<T>().map_err(|_| usage(format!("--{k} must be a number"))),
+            None => Ok(d),
+        }
+    }
+    let flag = |k: &str| matches!(o.get(k).map(str::trim), Some("1") | Some("true"));
+    let d = FrontendCfg::default();
+    let cfg = FrontendCfg {
+        enabled: flag("enabled"),
+        min_conf: num(o, "min-conf", d.min_conf)?,
+        max_local_tokens: num(o, "max-local-tokens", d.max_local_tokens)?,
+        ctx_budget: num(o, "ctx-budget", d.ctx_budget)?,
+        max_chunks: num(o, "max-chunks", d.max_chunks)?,
+        min_chunk_score: num(o, "min-chunk-score", d.min_chunk_score)?,
+        min_sim: num(o, "min-sim", d.min_sim)?,
+    };
+    let opt_f = |k: &str| -> Result<Option<f32>, CliError> { o.get(k).map(|v| v.trim().parse::<f32>().map_err(|_| usage(format!("--{k} must be a number")))).transpose() };
+    let sig = Signals {
+        cache_hit: flag("cache-hit"),
+        tool: o.get("tool").map(|t| t.trim().to_string()).filter(|t| !t.is_empty()),
+        local_conf: opt_f("local-conf")?,
+        local_tokens: num(o, "local-tokens", 0usize)?,
+        max_sim: opt_f("max-sim")?,
+    };
+    let chunks: Vec<Chunk> = match o.get("chunks") {
+        Some(js) => {
+            let v: Value = serde_json::from_str(js).map_err(|e| usage(format!("--chunks is not JSON: {e}")))?;
+            let arr = v.as_array().ok_or_else(|| usage("--chunks must be a JSON array"))?;
+            arr.iter()
+                .map(|c| {
+                    Some(Chunk { id: c.get("id")?.as_str()?.to_string(), score: c.get("score")?.as_f64()? as f32, tokens: c.get("tokens")?.as_u64()? as usize })
+                })
+                .collect::<Option<Vec<_>>>()
+                .ok_or_else(|| usage("each chunk needs id (string), score (number), tokens (integer)"))?
+        }
+        None => Vec::new(),
+    };
+    let dec = decide(&cfg, &sig);
+    let (ctx, used) = if dec.is_local() { (Vec::new(), 0) } else { trim_context(&chunks, cfg.ctx_budget, cfg.max_chunks, cfg.min_chunk_score) };
+    let tool = match &dec {
+        neural_mesh::frontend::Decision::Tool(t) => Some(t.clone()),
+        _ => None,
+    };
+    Ok(json!({"ok": true, "enabled": cfg.enabled, "decision": dec.name(), "tool": tool, "context": ctx, "context_tokens": used}))
+}
+
+/// Journal lines of a `feedback --label` update: (label, 1.0) and, if a different routed agent was given, (routed, 0.0).
+fn append_label_to_store(st: &mut State, sv: &neural_mesh::store::MeshStore, o: &Opts, world: &str) -> Result<(), CliError> {
+    let task = make_task(o, st.feedbacks.saturating_sub(1))?;
+    let ms = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_millis() as u64).unwrap_or(0);
+    let session = format!("cli-{}-{ms}", std::process::id());
+    let label = o.req("label")?.trim().to_string();
+    let mut lines = vec![(label.clone(), 1.0)];
+    if let Some(r) = o.get("agent").map(|a| a.trim().to_string()).filter(|r| *r != label) {
+        lines.push((r, 0.0));
+    }
+    for (k, (agent, reward)) in lines.into_iter().enumerate() {
+        let seq = st.feedbacks.saturating_sub(1) * 2 + k as u64;
+        let rec = neural_mesh::store::Outcome {
+            id: format!("{session}:{seq}"),
+            session: session.clone(),
+            seq,
+            ts: ms,
+            world: world.to_string(),
+            features: task.features.clone(),
+            task_type: task.task_type.clone(),
+            agent,
+            reward,
+        };
+        sv.append_outcome(&rec).map_err(|e| CliError::Io(e.to_string()))?;
+        st.store_seen.insert(rec.id);
+    }
+    Ok(())
+}
+
 /// Library-level entry point (used by tests): runs one command and persists
 /// state when the command succeeds.
 fn run(args: &[String]) -> Result<Value, CliError> {
     let Some(cmd) = args.first() else { return Err(usage("missing command")) };
     let rest = &args[1..];
+    if cmd == "frontend" {
+        return cmd_frontend(&Opts::parse(rest, FRONTEND_KEYS)?);
+    }
     let base: &[&str] = match cmd.as_str() {
         "route" => &["state", "features", "candidates", "team", "type", "seed", "prior", "store", "world", "store-sync"],
         "feedback" => &["state", "features", "agent", "team", "reward", "type", "store", "world", "store-sync"],
@@ -716,6 +801,21 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn frontend_cli_is_off_by_default_and_trims_context() {
+        let a = |v: &[&str]| v.iter().map(|x| x.to_string()).collect::<Vec<_>>();
+        let v = run(&a(&["frontend", "--local-conf", "0", "--local-tokens", "5", "--max-sim", "0.9"])).unwrap();
+        assert_eq!(v["decision"], "forward");
+        let v = run(&a(&["frontend", "--enabled", "1", "--local-conf", "0", "--local-tokens", "5", "--max-sim", "0.9"])).unwrap();
+        assert_eq!(v["decision"], "local");
+        let v = run(&a(&["frontend", "--enabled", "1", "--local-conf", "0", "--local-tokens", "5", "--max-sim", "0.1", "--ctx-budget", "500",
+            "--chunks", r#"[{"id":"x","score":0.9,"tokens":600},{"id":"y","score":0.5,"tokens":400}]"#])).unwrap();
+        assert_eq!((v["decision"].as_str(), v["context"][0].as_str(), v["context_tokens"].as_u64()), (Some("forward"), Some("y"), Some(400)));
+        assert!(run(&a(&["frontend", "--chunks", "[1]"])).is_err());
+        assert!(run(&a(&["frontend", "--local-conf", "abc"])).is_err());
+        assert!(run(&a(&["frontend", "--bogus", "1"])).is_err());
+    }
 
     fn tmp(name: &str) -> PathBuf {
         let p = std::env::temp_dir().join(format!("neural-mesh-test-{}-{name}.json", std::process::id()));
