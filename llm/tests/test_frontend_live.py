@@ -162,6 +162,23 @@ class Ask(unittest.TestCase):
             os.utime(p, (1, 1))
             self.assertFalse(REAL_BUSY(p))   # a stale (crashed) lock does not block
 
+    def test_overall_budget_exceeded_forwards_the_original_prompt(self):
+        import time as _t
+
+        class Slow(Stub):
+            def ask(self, prompt, timeout):
+                _t.sleep(3)
+                return super().ask(prompt, timeout)
+        t = _t.monotonic()
+        rc, out, fwd, recs = self.run_ask("q", enabled=True, mode="cli", backend_factory=Slow, decide=decide_as("local"), budget_s=0.3)
+        self.assertLess(_t.monotonic() - t, 2.0)
+        self.assertEqual((rc, out, fwd), (0, "", [("q", None)]))                  # no local answer served, no context added
+        self.assertEqual((recs[-1]["decision"], recs[-1]["reason"], recs[-1]["served"]), ("forward", "budget", "forward"))
+        self.assertEqual(fl.DEFAULT_BUDGET_S, 30.0)
+        # within budget the same call serves the local answer
+        rc, out, fwd, recs = self.run_ask("q", enabled=True, mode="cli", backend_factory=Stub, decide=decide_as("local"), budget_s=5)
+        self.assertEqual((out, fwd), ("local answer\n", []))
+
     def test_local_timeout_means_no_confidence(self):
         dec = decide_as("forward")
         self.run_ask("q", enabled=True, mode="cli", backend_factory=lambda: Stub(fail=True), decide=dec)

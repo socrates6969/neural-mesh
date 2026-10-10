@@ -8,7 +8,8 @@ S2 `python -m llm ask [--mode shadow|cli|advisory] [--enabled] [--prompt-file F 
       shadow   : forward the ORIGINAL prompt (no context); the decision is only logged (`would_be`)
       advisory : forward the prompt plus the assembled untrusted context; other decisions are logged as `would_be`
       cli      : serve a cache / local answer on stdout; tool and forward decisions forward with context (no tool executor)
-    ANY error -> forward the original prompt without context. --forward-cmd gets the payload on stdin and its exit code is returned.
+    ANY error, or more than --budget seconds (default 30) before a decision -> forward the original prompt without
+    context. --forward-cmd gets the payload on stdin and its exit code is returned.
     Log: models/frontend_live.jsonl, one line per call, prompt sha256 only (text only with --log-text).
 
 S1 `python -m llm shadow-drain` (offline batch, under the llm lock): every prompt the UserPromptSubmit shadow hook (llm/hook.py)
@@ -41,6 +42,7 @@ LOCK_FRESH_S = 12 * 3600          # same staleness rule as the llm lock (llm/__m
 JOIN_WAIT_S = 7 * 24 * 3600
 TOP_CHUNKS = 8
 DEFAULT_CTX_BUDGET = 800
+DEFAULT_BUDGET_S = 30.0           # overall `ask` budget (signals + local model + policy); exceeded -> forward the original prompt
 MODES = ("shadow", "cli", "advisory")
 
 
@@ -178,9 +180,30 @@ def _scrub(rec: dict, texts: dict[str, str]) -> dict:
     return rec
 
 
+def _run_with_budget(fn, budget_s: float):
+    """fn() in a daemon thread; (result, None) when it finishes within budget_s, else (None, 'budget'). An abandoned worker (e.g. a
+    slow Ollama call) is left to die with the process; its late result is never used."""
+    import threading
+    box: dict = {}
+
+    def work():
+        try:
+            box["ok"] = fn()
+        except BaseException as e:   # noqa: BLE001 - re-raised in the caller's thread
+            box["err"] = e
+    th = threading.Thread(target=work, name="ask-budget", daemon=True)
+    th.start()
+    th.join(max(0.0, budget_s))
+    if th.is_alive():
+        return None, "budget"
+    if "err" in box:
+        raise box["err"]
+    return box["ok"], None
+
+
 def ask(prompt: str, mode: str = "shadow", enabled: bool = False, forward_cmd: str | None = None, local_timeout: float = 20.0,
         log_text: bool = False, min_conf=None, min_sim=None, project: str | None = None, backend_factory=LiveBackend, decide=rust_decide,
-        rows_loader=None, out=None, log_path: Path | None = None, forward=_forward) -> int:
+        rows_loader=None, out=None, log_path: Path | None = None, forward=_forward, budget_s: float = DEFAULT_BUDGET_S) -> int:
     out = out or sys.stdout
     if mode not in MODES:
         raise ValueError(f"mode must be one of {MODES}")
@@ -189,32 +212,45 @@ def ask(prompt: str, mode: str = "shadow", enabled: bool = False, forward_cmd: s
     t0 = time.monotonic()
     rec = {"ts": now_iso(), "sha256": sha(prompt), "mode": mode, "enabled": True}
     payload, served_answer, local_answer = prompt, None, None
-    try:
+
+    def front_end() -> tuple[dict, str, str | None, str | None]:
+        """(log fields, payload, served answer, local answer); runs under the overall budget, touches nothing shared"""
         from . import data
+        w: dict = {}
         rows = rows_loader() if rows_loader else data.read_jsonl(config.SFT)
-        project = project or Path.cwd().name
+        proj = project or Path.cwd().name
         busy = nightly_busy()
         backend = backend_factory()
-        s = compute_signals(prompt, project, rec["ts"], rows, backend, skip_local=busy, local_timeout=local_timeout, head_now=git_head())
+        s = compute_signals(prompt, proj, rec["ts"], rows, backend, skip_local=busy, local_timeout=min(local_timeout, budget_s),
+                            head_now=git_head())
         cfg = policy_cfg(min_conf, min_sim)
-        local_answer = s["answer"]
         d = decide(cfg, s["sig"], s["chunks"])
         ctx = assemble_context(d.get("context") or [], s["chunks"], int(cfg.get("ctx-budget", DEFAULT_CTX_BUDGET))) if d.get("ok") else ""
-        rec.update(decision=d["decision"], reason=d.get("reason"), rust_ok=bool(d.get("ok")), rust_error=d.get("error"), tool=d.get("tool"),
-                   nightly_busy=busy, cache_why=s["cache_why"], local_error=s["local_error"], max_sim=s["sig"]["max-sim"], conf=s["sig"]["local-conf"],
-                   ntok=s["sig"]["local-tokens"], ctx_ids=d.get("context") or [], ctx_tokens=int(d.get("context_tokens") or 0) if ctx else 0)
+        w.update(decision=d["decision"], reason=d.get("reason"), rust_ok=bool(d.get("ok")), rust_error=d.get("error"), tool=d.get("tool"),
+                 nightly_busy=busy, cache_why=s["cache_why"], local_error=s["local_error"], max_sim=s["sig"]["max-sim"], conf=s["sig"]["local-conf"],
+                 ntok=s["sig"]["local-tokens"], ctx_ids=d.get("context") or [], ctx_tokens=int(d.get("context_tokens") or 0) if ctx else 0)
+        pay, ans = prompt, None
         if mode == "shadow":
             served = "forward"
         elif mode == "advisory":
-            served, payload = "forward", (ctx + "\n\n" + prompt) if ctx else prompt
+            served, pay = "forward", (ctx + "\n\n" + prompt) if ctx else prompt
         elif d["decision"] in ("cache", "local") and s["answer"]:
-            served, served_answer = d["decision"], s["answer"]
+            served, ans = d["decision"], s["answer"]
         else:
-            served, payload = "forward", (ctx + "\n\n" + prompt) if ctx else prompt
-        rec["served"] = served
-        rec["would_be"] = d["decision"]
+            served, pay = "forward", (ctx + "\n\n" + prompt) if ctx else prompt
+        w["served"] = served
+        w["would_be"] = d["decision"]
         if log_text:
-            rec["prompt"], rec["local_answer"] = prompt, s["answer"]
+            w["prompt"], w["local_answer"] = prompt, s["answer"]
+        return w, pay, ans, s["answer"]
+
+    try:
+        res, why = _run_with_budget(front_end, budget_s)
+        if why:   # over the overall budget: the original prompt, no context
+            rec.update(decision="forward", reason="budget", served="forward", budget_s=budget_s)
+        else:
+            w, payload, served_answer, local_answer = res
+            rec.update(w)
     except Exception as e:   # fail closed: the original prompt, no context
         payload, served_answer = prompt, None
         rec.update(decision="forward", reason="error", served="forward", error=f"{type(e).__name__}: {e}"[:300])
@@ -331,6 +367,7 @@ def cli_ask(argv: list[str]) -> int:
     ap.add_argument("--prompt-file")
     ap.add_argument("--forward-cmd", help="command that receives the (possibly context-augmented) prompt on stdin; its exit code is returned")
     ap.add_argument("--local-timeout", type=float, default=20.0)
+    ap.add_argument("--budget", type=float, default=DEFAULT_BUDGET_S, help="overall seconds before forwarding the original prompt (default 30)")
     ap.add_argument("--min-conf", type=float)
     ap.add_argument("--min-sim", type=float)
     ap.add_argument("--project")
@@ -346,4 +383,4 @@ def cli_ask(argv: list[str]) -> int:
     except (AttributeError, ValueError):
         pass
     return ask(prompt, mode=a.mode, enabled=a.enabled, forward_cmd=a.forward_cmd, local_timeout=a.local_timeout, log_text=a.log_text,
-               min_conf=a.min_conf, min_sim=a.min_sim, project=a.project)
+               min_conf=a.min_conf, min_sim=a.min_sim, project=a.project, budget_s=a.budget)
