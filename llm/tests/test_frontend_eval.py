@@ -163,6 +163,20 @@ class EvalV2(unittest.TestCase):
         later = [c["id"] for c in recs[5]["chunks"]]
         self.assertTrue(later and all(c < "r005" for c in later))
 
+    def test_bank_has_no_exact_ts_tie_and_no_same_event_duplicate(self):
+        rows = make_rows(3, 4)
+        r = rows[6]                                                              # s01, 10:00
+        tie = dict(rows[2], id="tie", session="sX", ts=r["ts"], response=r["response"])                       # other session, same instant
+        self.assertEqual((r["session"], r["ts"]), ("s01", "2026-10-02T10:00:00Z"))
+        dup = dict(r, id="dup", ts="2026-10-02T09:59:30Z")                      # the same exchange ingested twice, 30 s earlier
+        rep = dict(r, id="rep", ts="2026-10-02T07:30:00Z")                      # a genuine repeat 2.5 h earlier, same session
+        allr = sorted(rows + [tie, dup, rep], key=lambda x: (x["ts"], x["id"]))
+        rec = fe.signals([r], allr, StubBackend(allr), log=lambda *a: None)[0]
+        ids = [c["id"] for c in rec["chunks"]]
+        self.assertNotIn("tie", ids)
+        self.assertNotIn("dup", ids)
+        self.assertIn("rep", ids)                                                # earlier same-cluster repeats are legitimate history
+
 
 if __name__ == "__main__":
     unittest.main()

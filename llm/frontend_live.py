@@ -13,7 +13,9 @@ S2 `python -m llm ask [--mode shadow|cli|advisory] [--enabled] [--prompt-file F 
 
 S1 `python -m llm shadow-drain` (offline batch, under the llm lock): every prompt the UserPromptSubmit shadow hook (llm/hook.py)
     queued in models/frontend_shadow.jsonl -> signals, local answer, Rust decision, join to Claude's real answer from the ingestor's
-    sft rows (same session, same normalised text, not earlier than the prompt), judge -> models/frontend_shadow_drained.jsonl (no text).
+    sft rows (same session, same normalised text, not earlier than the prompt minus SAME_EVENT_S), judge ->
+    models/frontend_shadow_drained.jsonl (no text). The bank excludes the joined row and every same-session row within SAME_EVENT_S of
+    the prompt (shadow_bank), so the graded answer can never be a cache hit, a top chunk or the max_sim neighbour.
     Unjoined prompts stay pending for JOIN_WAIT_S, then are recorded as unjoined."""
 from __future__ import annotations
 
@@ -27,8 +29,8 @@ import time
 from pathlib import Path
 
 from . import config
-from .frontend import (TOOL_EXEMPLARS, WRONG, assemble_context, ask_local, chunk_text, git_head, local_model, norm, parse_ts, rust_decide,
-                       verified_cache_hit)
+from .frontend import (SAME_EVENT_S, TOOL_EXEMPLARS, WRONG, assemble_context, ask_local, chunk_text, git_head, local_model, norm, parse_ts,
+                       rust_decide, same_event, verified_cache_hit)
 
 LIVE_LOG = config.MODELS / "frontend_live.jsonl"
 CFG_FILE = config.MODELS / "frontend_cfg.json"
@@ -242,13 +244,22 @@ def _key(e: dict) -> str:
 
 def join_claude(e: dict, rows: list[dict]) -> dict | None:
     """Claude's real answer to a queued prompt: an ingested sft row of the same session whose normalised instruction equals the
-    normalised prompt and that is not earlier than the prompt (earliest such row wins)"""
+    normalised prompt and that is not earlier than the prompt minus SAME_EVENT_S (earliest such row wins)"""
     t, key = parse_ts(e.get("ts")), norm(e.get("prompt", ""))
     if t is None or not key:
         return None
     c = [r for r in rows if r.get("session") == e.get("session") and norm(r.get("instruction", "")) == key
-         and (rt := parse_ts(r.get("ts"))) is not None and rt >= t - 60]
+         and (rt := parse_ts(r.get("ts"))) is not None and rt >= t - SAME_EVENT_S]
     return min(c, key=lambda r: parse_ts(r["ts"])) if c else None
+
+
+def shadow_bank(e: dict, rows: list[dict], claude: dict | None) -> list[dict]:
+    """the bank a drained shadow prompt may see. The joined Claude row may be up to SAME_EVENT_S OLDER than the hook ts, so the strict
+    `ts < hook ts` rule alone could put the graded answer into the cache / max_sim / top chunks. Excluded: the joined row (by id) and
+    every row of the same session within SAME_EVENT_S of the hook ts (any of them may be a record of this very exchange)."""
+    t, sess = parse_ts(e.get("ts")), e.get("session")
+    cid = claude.get("id") if claude else None
+    return [r for r in rows if not (cid is not None and r.get("id") == cid) and not same_event(r, sess, t)]
 
 
 def shadow_drain(backend_factory=LiveBackend, decide=rust_decide, rows: list[dict] | None = None, now: float | None = None,
@@ -276,7 +287,8 @@ def shadow_drain(backend_factory=LiveBackend, decide=rust_decide, rows: list[dic
             stats["waiting"] += 1
             continue
         try:
-            s = compute_signals(e["prompt"], e.get("project"), e["ts"], rows, backend, skip_local=False, local_timeout=local_timeout)
+            s = compute_signals(e["prompt"], e.get("project"), e["ts"], shadow_bank(e, rows, claude), backend, skip_local=False,
+                                local_timeout=local_timeout)
             d = decide(cfg, s["sig"], s["chunks"])
             score = backend.grade(e["prompt"], claude["response"], s["answer"]) if (claude and s["answer"]) else None
             rec = {"ts": e["ts"], "sha256": e["sha256"], "session": e.get("session"), "project": e.get("project"), "would_be": d["decision"],

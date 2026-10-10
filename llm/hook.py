@@ -34,7 +34,10 @@ def enqueue(raw: str, path=None, now=None) -> bool:
         prompt = prompt[:MAX_PROMPT_CHARS]
         cwd = str(d.get("cwd") or "")
         project = [x for x in cwd.replace("\\", "/").rstrip("/").split("/") if x][-1:] or [""]
-        rec = {"ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(now)), "sha256": hashlib.sha256(prompt.encode("utf-8", "replace")).hexdigest(),
+        now = time.time() if now is None else float(now)
+        # millisecond ts (old whole-second lines stay readable: parse_ts accepts both)
+        ts = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime(now)) + ".%03dZ" % min(999, int((now % 1) * 1000))
+        rec = {"ts": ts, "sha256": hashlib.sha256(prompt.encode("utf-8", "replace")).hexdigest(),
                "session": d.get("session_id"), "project": project[0], "prompt": prompt}
         if path is None:
             from . import config

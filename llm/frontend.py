@@ -157,6 +157,20 @@ def parse_ts(ts) -> float | None:
     return (d if d.tzinfo else d.replace(tzinfo=timezone.utc)).timestamp()
 
 
+# Two records of the SAME event (a hook prompt and the ingested sft row of Claude's answer to it; or the same exchange ingested twice)
+# carry timestamps that differ by up to this much (clock source, whole-second truncation, ingest lag inside the transcript).
+SAME_EVENT_S = 60.0
+
+
+def same_event(r: dict, session, t: float | None, window_s: float = SAME_EVENT_S) -> bool:
+    """True when row r may be a record of the event at (session, t): same non-empty session and |ts - t| <= window_s. Such rows must
+    never be in the bank of the event they may duplicate (they can carry the graded answer itself)."""
+    if not session or t is None or r.get("session") != session:
+        return False
+    rt = parse_ts(r.get("ts"))
+    return rt is not None and abs(rt - t) <= window_s
+
+
 def git_head(repo: Path | None = None) -> str | None:
     try:
         r = subprocess.run(["git", "-C", str(repo or config.REPO), "rev-parse", "HEAD"], capture_output=True, text=True, timeout=5)

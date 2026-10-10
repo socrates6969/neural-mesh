@@ -4,7 +4,9 @@
   are dropped together with every row of their cluster (no paraphrase of a trained row is replayed).
 * the remaining units, ordered by their first ts, are cut into three CONTIGUOUS thirds: TUNE (thresholds), HELD and CONF (two
   independent confirmations). A unit never straddles two splits.
-* rolling origin: a replayed row only sees rows with ts < its own ts (cache bank, OOD similarity, retrieved context).
+* rolling origin: a replayed row only sees rows with ts < its own ts (cache bank, OOD similarity, retrieved context), minus rows of
+  the same session within SAME_EVENT_S (possible duplicate records of the same exchange). Earlier same-cluster rows outside that window
+  stay: a genuine earlier repeat is exactly what the live cache / retrieval sees.
 * worlds = the row `source` (agent_report, human prompt, ...): a claim must hold within one world on HELD and on CONF.
 * gates per split: n >= 30, sessions >= 3, clusters >= 3, judge hard-decoy reject >= .70, worlds >= 2. Any miss -> INSUFFICIENT (the
   structural gates are checked BEFORE any model call).
@@ -25,7 +27,7 @@ from pathlib import Path
 import numpy as np
 
 from . import config, data, stats
-from .frontend import (TARGET_WRONG, WRONG, _sim, binary_fresh, chunk_text, parse_ts, rec_signals, rust_decide,
+from .frontend import (SAME_EVENT_S, TARGET_WRONG, WRONG, _sim, binary_fresh, chunk_text, parse_ts, rec_signals, rust_decide,
                        verified_cache_hit)
 
 SCHEMA = 2
@@ -121,7 +123,10 @@ def signals(recs_rows: list[dict], all_rows: list[dict], backend, log=print) -> 
     out = []
     for n, r in enumerate(recs_rows):
         i, t = pos[r["id"]], parse_ts(r.get("ts"))
-        bank_idx = [j for j in range(len(all_rows)) if t is not None and ts[j] is not None and ts[j] < t]
+        # strictly earlier (an exact-ts tie is NOT in the bank) and never a record of this same event: a same-session row within
+        # SAME_EVENT_S may be the same exchange ingested twice and would carry the graded reference answer (cf. shadow_bank)
+        bank_idx = [j for j in range(len(all_rows)) if t is not None and ts[j] is not None and ts[j] < t
+                    and not (r.get("session") and all_rows[j].get("session") == r.get("session") and t - ts[j] <= SAME_EVENT_S)]
         bank = [all_rows[j] for j in bank_idx]
         hit, why = verified_cache_hit(r["instruction"], r.get("project"), r.get("ts"), bank)
         q = allv[i]
