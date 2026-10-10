@@ -13,6 +13,7 @@ would also avoid, but that is not attributed here)."""
 from __future__ import annotations
 
 import json
+import math
 import re
 import subprocess
 from pathlib import Path
@@ -30,15 +31,81 @@ def norm(s: str) -> str:
     return re.sub(r"\s+", " ", s.strip().lower())
 
 
-def rust_decide(cfg: dict, sig: dict, chunks: list[dict]) -> dict:
-    args = [str(BIN), "frontend"] + [x for k, v in cfg.items() for x in (f"--{k}", str(v))]
+RUST_TIMEOUT_S = 10.0
+RUST_SOURCES = ("src/frontend.rs", "src/main.rs")
+_run = subprocess.run   # tests replace this
+
+
+def binary_fresh(bin_path: Path | None = None) -> bool:
+    """True when the release binary exists and is not older than the Rust sources of the policy (a stale binary would silently
+    run an older policy)."""
+    b = Path(bin_path or BIN)
+    try:
+        t = b.stat().st_mtime
+        return all(t >= (config.REPO / s).stat().st_mtime for s in RUST_SOURCES)
+    except OSError:
+        return False
+
+
+def _fail(why: str) -> dict:
+    """the fail-closed answer: forward, with NO context (a broken policy must not inject anything)"""
+    return {"ok": False, "decision": "forward", "reason": "error", "tool": None, "context": [], "context_tokens": 0, "error": why}
+
+
+def rust_decide(cfg: dict, sig: dict, chunks: list[dict], bin_path: Path | None = None, timeout: float = RUST_TIMEOUT_S) -> dict:
+    """One `neural-mesh frontend` call. FAILS CLOSED: a missing/stale binary, a timeout, a non-zero exit, unparsable output or
+    ok != true all return a forward decision without context (`ok: False`, `error`)."""
+    b = Path(bin_path or BIN)
+    if not binary_fresh(b):
+        return _fail(f"stale or missing binary {b} (rebuild: cargo build --release)")
+    args = [str(b), "frontend"] + [x for k, v in cfg.items() for x in (f"--{k}", str(v))]
     for k, v in sig.items():
         if v is not None:
             args += [f"--{k}", str(v)]
     if chunks:
-        args += ["--chunks", json.dumps(chunks)]
-    r = subprocess.run(args, capture_output=True, text=True)
-    return json.loads(r.stdout)
+        args += ["--chunks", json.dumps([{k: c[k] for k in ("id", "score", "tokens")} for c in chunks])]
+    try:
+        r = _run(args, capture_output=True, text=True, timeout=timeout)
+    except (OSError, subprocess.SubprocessError) as e:
+        return _fail(f"{type(e).__name__}: {e}")
+    if r.returncode != 0:
+        return _fail(f"exit {r.returncode}: {(r.stdout or r.stderr or '')[:300]}")
+    try:
+        d = json.loads(r.stdout)
+    except (ValueError, TypeError):
+        return _fail(f"unparsable output: {(r.stdout or '')[:300]!r}")
+    if not isinstance(d, dict) or d.get("ok") is not True or d.get("decision") not in ("cache", "tool", "local", "forward"):
+        return _fail(f"bad answer: {str(d)[:300]}")
+    return d
+
+
+def py_decide(cfg: dict, sig: dict) -> tuple[str, str]:
+    """Python mirror of src/frontend.rs::decide_reason (same order, same fail-closed rules) for the tuning grid. Keys as on the CLI:
+    cfg {enabled, min-conf, min-sim, max-local-tokens}, sig {cache-hit, tool, local-conf, local-tokens, max-sim}."""
+    fin = lambda x: x is not None and isinstance(x, (int, float)) and math.isfinite(x)  # noqa: E731
+    if not cfg.get("enabled"):
+        return "forward", "disabled"
+    if sig.get("cache-hit"):
+        return "cache", "cache"
+    if (sig.get("tool") or "").strip():
+        return "tool", "tool"
+    min_sim, ms = float(cfg.get("min-sim", 0.5)), sig.get("max-sim")
+    if not (min_sim <= 0 or (fin(ms) and ms >= min_sim)):
+        return "forward", "ood"
+    conf, n = sig.get("local-conf"), int(sig.get("local-tokens") or 0)
+    if not fin(conf) or n <= 0:
+        return "forward", "no_conf"
+    mc = cfg.get("min-conf", -0.15)
+    if not fin(mc) or conf < mc:
+        return "forward", "low_conf"
+    if n > int(cfg.get("max-local-tokens", 400)):
+        return "forward", "too_long"
+    return "local", "local"
+
+
+def rec_signals(r: dict) -> dict:
+    """a replay record -> CLI signal keys"""
+    return {"cache-hit": int(bool(r.get("cache"))), "tool": r.get("tool"), "local-conf": r.get("conf"), "local-tokens": r.get("ntok"), "max-sim": r.get("max_sim")}
 
 
 def local_model() -> str:
@@ -57,21 +124,28 @@ def ensure_base_in_ollama(log=print) -> None:
         ollama_import(config.base_path(), f"{config.OLLAMA_NAME}:base", log=log)
 
 
-def ask_local(model: str, instruction: str, max_new: int = 400) -> tuple[str, float, int]:
-    r = judge._post("/api/chat", {"model": model, "stream": False, "logprobs": True,
-                                  "messages": [{"role": "user", "content": instruction[-12000:]}],
-                                  "options": {"temperature": 0, "seed": 0, "num_predict": max_new, "num_ctx": 8192}})
-    lps = [x["logprob"] for x in (r.get("logprobs") or [])]
-    return r.get("message", {}).get("content", "").strip(), (sum(lps) / len(lps) if lps else -99.0), int(r.get("eval_count", len(lps)))
+def ask_local(model: str, instruction: str, max_new: int = 400, timeout: float | None = None) -> tuple[str, float | None, int]:
+    """(answer, mean token log-prob or None, tokens). conf is None (-> the policy forwards, reason no_conf) when Ollama returns no
+    logprobs or any non-finite one: never a sentinel number that a threshold could accept."""
+    body = {"model": model, "stream": False, "logprobs": True, "messages": [{"role": "user", "content": instruction[-12000:]}],
+            "options": {"temperature": 0, "seed": 0, "num_predict": max_new, "num_ctx": 8192}}
+    r = judge._post("/api/chat", body, timeout=timeout or 600.0)
+    lps = [x.get("logprob") for x in (r.get("logprobs") or []) if isinstance(x, dict)]
+    ok = bool(lps) and all(isinstance(x, (int, float)) and math.isfinite(x) for x in lps)
+    return r.get("message", {}).get("content", "").strip(), (sum(lps) / len(lps) if ok else None), int(r.get("eval_count", len(lps)))
 
 
-def _sim(dec_rows, cfgs):
+def _sim(dec_rows, cfgs, max_local_tokens: int = 400):
+    """tuning-grid simulation through `py_decide` (the Rust mirror). cache / tool / local are counted SEPARATELY; `served` = all three."""
     out = []
     for c in cfgs:
-        loc = [r for r in dec_rows if r["cache"] or (r["max_sim"] >= c["min-sim"] and r["conf"] >= c["min-conf"] and 0 < r["ntok"] <= 400)]
-        wrong = sum(1 for r in loc if r["score_used"] < WRONG)
-        out.append({**c, "local": len(loc), "wrong": wrong, "wrong_rate": wrong / len(loc) if loc else 0.0,
-                    "saved_tokens": sum(r["tok_in"] + r["tok_out"] for r in loc), "total_tokens": sum(r["tok_in"] + r["tok_out"] for r in dec_rows)})
+        cfg = {"enabled": 1, "max-local-tokens": max_local_tokens, **c}
+        dec = [(r, py_decide(cfg, rec_signals(r))[0]) for r in dec_rows]
+        served = [r for r, d in dec if d != "forward"]
+        wrong = sum(1 for r in served if r["score_used"] < WRONG)
+        out.append({**c, **{k: sum(1 for _, d in dec if d == k) for k in ("cache", "tool", "local", "forward")},
+                    "served": len(served), "wrong": wrong, "wrong_rate": wrong / len(served) if served else 0.0,
+                    "saved_tokens": sum(r["tok_in"] + r["tok_out"] for r in served), "total_tokens": sum(r["tok_in"] + r["tok_out"] for r in dec_rows)})
     return out
 
 
@@ -98,7 +172,7 @@ def evaluate(synthetic: bool = False, n: int = 80, log=print) -> dict:
     sims = max_cos(held_v, bank_v)
     for i, r in enumerate(held):
         hit = cache.get(norm(r["instruction"]))
-        ans, conf, nt = (hit, 0.0, ntok(hit)) if hit else ask_local(model, r["instruction"])
+        ans, conf, nt = (hit, None, ntok(hit)) if hit else ask_local(model, r["instruction"])
         # retrieval context for a forward: top bank answers by cosine to the request
         sc = (resp_v @ held_v[i]) if len(resp_v) else np.zeros(0)
         top = np.argsort(-sc)[:8]
@@ -133,10 +207,11 @@ def evaluate(synthetic: bool = False, n: int = 80, log=print) -> dict:
     # the REPORT half goes through the real Rust policy (the hook), not the python simulation
     rep = []
     for r in test:
-        d = rust_decide(chosen, {"cache-hit": int(r["cache"]), "local-conf": r["conf"], "local-tokens": r["ntok"], "max-sim": r["max_sim"]}, r["chunks"])
+        d = rust_decide(chosen, rec_signals(r), r["chunks"])
         rep.append({**r, "decision": d["decision"], "ctx_tokens": d["context_tokens"]})
-    loc = [r for r in rep if r["decision"] != "forward"]
+    loc = [r for r in rep if r["decision"] != "forward"]   # served without Claude: cache + tool + local
     fwd = [r for r in rep if r["decision"] == "forward"]
+    by_dec = {k: sum(1 for r in rep if r["decision"] == k) for k in ("cache", "tool", "local", "forward")}
     tot = sum(r["tok_in"] + r["tok_out"] for r in rep)
     res = {
         "data_source": source, "local_model": model, "judge": config.JUDGE_MODEL, "n_replay": len(recs), "sessions": len(sessions),
@@ -145,7 +220,7 @@ def evaluate(synthetic: bool = False, n: int = 80, log=print) -> dict:
         "local_answer_quality_all": {"mean_score": float(np.mean([r["score"] for r in recs])) if recs else None,
                                      "wrong_rate_if_always_local": sum(r["score"] < WRONG for r in recs) / max(1, len(recs))},
         "tuned_on_earlier_half": {"n": len(tune), "rule": f"max saved tokens s.t. wrong-local <= {TARGET_WRONG}", "chosen": chosen, "tune_point": best if ok else None},
-        "report_on_later_half": {"n": len(rep), "local": len(loc), "forward": len(fwd), "local_share": len(loc) / max(1, len(rep)),
+        "report_on_later_half": {"n": len(rep), **by_dec, "served": len(loc), "local_share": len(loc) / max(1, len(rep)),
                                  "wrong_local": sum(r["score"] < WRONG for r in loc), "wrong_local_rate": (sum(r["score"] < WRONG for r in loc) / len(loc)) if loc else None,
                                  "tokens_total": tot, "tokens_saved": sum(r["tok_in"] + r["tok_out"] for r in loc),
                                  "saved_share": sum(r["tok_in"] + r["tok_out"] for r in loc) / max(1, tot),
@@ -157,5 +232,5 @@ def evaluate(synthetic: bool = False, n: int = 80, log=print) -> dict:
     out.write_text(json.dumps(res, indent=1), encoding="utf-8")
     rp = res["report_on_later_half"]
     log(f"decoy reject rate {decoy_reject}; always-local wrong rate {res['local_answer_quality_all']['wrong_rate_if_always_local']:.2f}; "
-        f"chosen {chosen}; later half: local {rp['local']}/{rp['n']}, wrong-local {rp['wrong_local']}, tokens saved {rp['tokens_saved']}/{rp['tokens_total']} ({rp['saved_share']:.1%})")
+        f"chosen {chosen}; later half: cache {rp['cache']} tool {rp['tool']} local {rp['local']} of {rp['n']}, wrong-local {rp['wrong_local']}, tokens saved {rp['tokens_saved']}/{rp['tokens_total']} ({rp['saved_share']:.1%})")
     return res
