@@ -6,6 +6,7 @@
 //! neural-mesh feedback --state <file> --features a,b,c --label X [--agent routed]          (supervised: the correct agent is known)
 //! neural-mesh stats    --state <file>
 //! neural-mesh config   --state <file> [--eta x --temperature x --decay x --epsilon x --team k --prior-k x]
+//! neural-mesh merge-state --into <A> --from <B> [--out <file>]   (fold state B into A; see `merge_states`)
 //! ```
 //! `route` also takes `--prior <agent>` (the caller's own keyword pick; see `cmd_route`) and
 //! route/feedback/stats take `--eta --temperature --decay --epsilon --prior-k`, which set and
@@ -54,7 +55,7 @@ const PRIOR_SALT: u64 = 0x5052_494F_525F_4B57;
 /// Option names shared by route/feedback/stats/config (team is config-only).
 const CONFIG_KEYS: [&str; 5] = ["eta", "temperature", "decay", "epsilon", "prior-k"];
 
-const USAGE: &str = "usage:\n  neural-mesh route    --state <file> --features a,b,c [--candidates x,y] [--team k] [--type t] [--seed n] [--prior agent]\n  neural-mesh feedback --state <file> --features a,b,c --agent X [--team X,Y] --reward 0..1 [--type t]\n  neural-mesh stats    --state <file>\n  neural-mesh config   --state <file> [--eta x --temperature x --decay x --epsilon x --team k --prior-k x]\n  neural-mesh frontend [--enabled 1] [--local-conf x --local-tokens n --max-sim x --cache-hit 1 --tool t --chunks JSON --min-conf x --min-sim x --ctx-budget n]  (opt-in, default off)\n  (route/feedback/stats also accept --eta --temperature --decay --epsilon --prior-k)";
+const USAGE: &str = "usage:\n  neural-mesh route    --state <file> --features a,b,c [--candidates x,y] [--team k] [--type t] [--seed n] [--prior agent]\n  neural-mesh feedback --state <file> --features a,b,c --agent X [--team X,Y] --reward 0..1 [--type t]\n  neural-mesh stats    --state <file>\n  neural-mesh config   --state <file> [--eta x --temperature x --decay x --epsilon x --team k --prior-k x]\n  neural-mesh merge-state --into A --from B [--out file]\n  neural-mesh frontend [--enabled 1] [--local-conf x --local-tokens n --max-sim x --cache-hit 1 --tool t --chunks JSON --min-conf x --min-sim x --ctx-budget n]  (opt-in, default off)\n  (route/feedback/stats also accept --eta --temperature --decay --epsilon --prior-k)";
 
 #[derive(Debug, Serialize, Deserialize)]
 struct State {
@@ -792,6 +793,202 @@ fn append_label_to_store(st: &mut State, sv: &neural_mesh::store::MeshStore, o: 
     Ok(())
 }
 
+/// `merge-state --into A --from B [--out O]`: fold router state B into A (written to O, default A, atomically, under both state locks).
+///
+/// Merge rule (documented, deterministic; A keeps its seed, prior_k, Hebbian and mesh config, route clock, gate/trust/context tables):
+/// * agents: A's roster in A's order, then B's agents A does not know (appended, as `register` would);
+/// * skill weight (feature f, agent i) and the per-feature baseline: mean of the two states weighted by each side's evidence for f
+///   (`feature_counts[f]`), counting a side only if it knows agent i (a side that never saw agent i has no evidence about it). No evidence
+///   on either side keeps the neutral init. Rows are then re-capped at `row_cap` like `update` does;
+/// * per-agent health / edge baseline / dispatch risk and pairwise edges: shared agents (pairs) get the mean weighted by the states' total
+///   feedback counts; one-sided agents keep their own side's value. fail streak and retry multiplier take the max, probation the OR;
+///   an agent benched in either state is benched from A's current route count;
+/// * counters: feedbacks, calls, updates, feature_counts and team statistics are summed; store_seen is the union.
+fn merge_states(a: State, b: State) -> Result<State, CliError> {
+    let ser = |e: serde_json::Error| CliError::Io(format!("merge: {e}"));
+    let (na, nb) = (a.feedbacks as f64, b.feedbacks as f64);
+    let len_a = a.agents.len();
+    let fc_a = a.feature_counts.clone();
+    let fc_b = b.feature_counts.clone();
+    let mut m = a;
+    for name in &b.agents {
+        m.register(name);
+    }
+    let n = m.agents.len();
+    // union index -> B index
+    let b_of: Vec<Option<usize>> = m.agents.iter().map(|nm| b.index_of(nm)).collect();
+    let a_knows = |u: usize| u < len_a;
+    let mut mv = serde_json::to_value(&m).map_err(ser)?;
+    let bv = serde_json::to_value(&b).map_err(ser)?;
+    let init_w = neural_mesh::hebbian::INIT_WEIGHT;
+    let num = |v: &Value| v.as_f64().unwrap_or(0.0);
+
+    // leader: weights + baselines
+    {
+        let la = &bv["mesh"]["leader"];
+        let lm = &mut mv["mesh"]["leader"];
+        let cap = lm["cfg"]["row_cap"].as_f64().unwrap_or(0.0);
+        let wa = lm["weights"].as_object().cloned().unwrap_or_default();
+        let wb = la["weights"].as_object().cloned().unwrap_or_default();
+        let mut feats: Vec<String> = wa.keys().chain(wb.keys()).cloned().collect();
+        feats.sort();
+        feats.dedup();
+        let mut out = serde_json::Map::new();
+        for f in &feats {
+            let (ka, kb) = (fc_a.get(f).copied().unwrap_or(0) as f64, fc_b.get(f).copied().unwrap_or(0) as f64);
+            let ra = wa.get(f).and_then(Value::as_array);
+            let rb = wb.get(f).and_then(Value::as_array);
+            let mut row = Vec::with_capacity(n);
+            for u in 0..n {
+                let mut sides: Vec<(f64, f64)> = Vec::new(); // (evidence, value)
+                if a_knows(u) {
+                    if let Some(r) = ra {
+                        sides.push((ka, r.get(u).map(num).unwrap_or(init_w)));
+                    }
+                }
+                if let (Some(bi), Some(r)) = (b_of[u], rb) {
+                    sides.push((kb, r.get(bi).map(num).unwrap_or(init_w)));
+                }
+                let den: f64 = sides.iter().map(|s| s.0).sum();
+                let w = if den > 0.0 {
+                    sides.iter().map(|s| s.0 * s.1).sum::<f64>() / den
+                } else if !sides.is_empty() {
+                    sides.iter().map(|s| s.1).sum::<f64>() / sides.len() as f64
+                } else {
+                    init_w
+                };
+                row.push(w);
+            }
+            let sum: f64 = row.iter().sum();
+            if cap > 0.0 && sum > cap {
+                let k = cap / sum;
+                row.iter_mut().for_each(|w| *w *= k);
+            }
+            out.insert(f.clone(), json!(row));
+        }
+        lm["weights"] = Value::Object(out);
+        let ba = lm["baselines"].as_object().cloned().unwrap_or_default();
+        let bb = la["baselines"].as_object().cloned().unwrap_or_default();
+        let mut bo = serde_json::Map::new();
+        for f in ba.keys().chain(bb.keys()) {
+            if bo.contains_key(f) {
+                continue;
+            }
+            let (ka, kb) = (fc_a.get(f).copied().unwrap_or(0) as f64, fc_b.get(f).copied().unwrap_or(0) as f64);
+            let sides: Vec<(f64, f64)> =
+                [(ka, ba.get(f)), (kb, bb.get(f))].into_iter().filter_map(|(k, v)| v.map(|v| (k, num(v)))).collect();
+            let den: f64 = sides.iter().map(|s| s.0).sum();
+            let v = if den > 0.0 {
+                sides.iter().map(|s| s.0 * s.1).sum::<f64>() / den
+            } else {
+                sides.iter().map(|s| s.1).sum::<f64>() / sides.len() as f64
+            };
+            bo.insert(f.clone(), json!(v));
+        }
+        lm["baselines"] = Value::Object(bo);
+        let upd = lm["updates"].as_u64().unwrap_or(0) + la["updates"].as_u64().unwrap_or(0);
+        lm["updates"] = json!(upd);
+    }
+
+    // mesh: per-agent tables and edges
+    {
+        let mb = &bv["mesh"];
+        let mm = &mut mv["mesh"];
+        let tot = if na + nb > 0.0 { na + nb } else { 2.0 };
+        let (wa_, wb_) = if na + nb > 0.0 { (na / tot, nb / tot) } else { (0.5, 0.5) };
+        let blend = |mm: &mut Value, key: &str, default_b: f64| {
+            for u in 0..n {
+                let Some(bi) = b_of[u] else { continue };
+                let xb = mb[key].get(bi).map(num).unwrap_or(default_b);
+                let x = if a_knows(u) { wa_ * num(&mm[key][u]) + wb_ * xb } else { xb };
+                mm[key][u] = json!(x);
+            }
+        };
+        blend(mm, "health", 1.0);
+        blend(mm, "edge_baseline", 0.5);
+        blend(mm, "dispatch_risk", 0.0);
+        let routes_a = mm["routes"].as_u64().unwrap_or(0);
+        for u in 0..n {
+            let Some(bi) = b_of[u] else { continue };
+            let sb = mb["fail_streak"].get(bi).and_then(Value::as_u64).unwrap_or(0);
+            let sa = if a_knows(u) { mm["fail_streak"][u].as_u64().unwrap_or(0) } else { 0 };
+            mm["fail_streak"][u] = json!(sa.max(sb));
+            let rb = mb["retry_mult"].get(bi).map(num).unwrap_or(1.0);
+            let ra = if a_knows(u) { num(&mm["retry_mult"][u]) } else { 1.0 };
+            mm["retry_mult"][u] = json!(ra.max(rb));
+            let pb = mb["probation"].get(bi).and_then(Value::as_bool).unwrap_or(false);
+            let pa = a_knows(u) && mm["probation"][u].as_bool().unwrap_or(false);
+            mm["probation"][u] = json!(pa || pb);
+            let bench_a = a_knows(u) && !mm["benched_since"][u].is_null();
+            let bench_b = mb["benched_since"].get(bi).is_some_and(|v| !v.is_null());
+            if !bench_a && bench_b {
+                mm["benched_since"][u] = json!(routes_a);
+            }
+        }
+        for u in 0..n {
+            for v in 0..n {
+                let (Some(bu), Some(bw)) = (b_of[u], b_of[v]) else { continue };
+                let xb = mb["edges"].get(bu).and_then(|r| r.get(bw)).map(num).unwrap_or(0.0);
+                let x = if a_knows(u) && a_knows(v) { wa_ * num(&mm["edges"][u][v]) + wb_ * xb } else { xb };
+                mm["edges"][u][v] = json!(x);
+            }
+        }
+        for k in ["team_size_sum", "teams_routed"] {
+            let s = mm[k].as_u64().unwrap_or(0) + mb[k].as_u64().unwrap_or(0);
+            mm[k] = json!(s);
+        }
+    }
+
+    // state-level counters
+    mv["feedbacks"] = json!(m.feedbacks + b.feedbacks);
+    mv["calls"] = json!(m.calls + b.calls);
+    let mut fc = fc_a;
+    for (f, c) in &b.feature_counts {
+        *fc.entry(f.clone()).or_insert(0) += c;
+    }
+    mv["feature_counts"] = json!(fc);
+    let mut seen = m.store_seen.clone();
+    seen.extend(b.store_seen.iter().cloned());
+    mv["store_seen"] = json!(seen);
+    let out: State = serde_json::from_value(mv).map_err(ser)?;
+    if out.mesh.n_agents() != out.agents.len() {
+        return Err(CliError::Io("merge produced an inconsistent agent table".into()));
+    }
+    Ok(out)
+}
+
+/// `merge-state --into A --from B [--out O]` (see [`merge_states`]). Both inputs must exist; A and B must differ.
+fn cmd_merge_state(o: &Opts) -> Result<Value, CliError> {
+    let into = PathBuf::from(o.req("into")?);
+    let from = PathBuf::from(o.req("from")?);
+    let out = o.get("out").map(PathBuf::from).unwrap_or_else(|| into.clone());
+    for p in [&into, &from] {
+        if !p.exists() {
+            return Err(usage(format!("state file {} does not exist", p.display())));
+        }
+    }
+    let canon = |p: &Path| fs::canonicalize(p).unwrap_or_else(|_| p.to_path_buf());
+    if canon(&into) == canon(&from) {
+        return Err(usage("--into and --from are the same file"));
+    }
+    let _la = StateLock::acquire(&into)?;
+    let _lb = StateLock::acquire(&from)?;
+    let _lo = if canon(&out) != canon(&into) && canon(&out) != canon(&from) { Some(StateLock::acquire(&out)?) } else { None };
+    let a = load_state(&into)?;
+    let b = load_state(&from)?;
+    let before = json!({"into": {"agents": a.agents.len(), "feedbacks": a.feedbacks}, "from": {"agents": b.agents.len(), "feedbacks": b.feedbacks}});
+    let shared: Vec<String> = b.agents.iter().filter(|x| a.index_of(x).is_some()).cloned().collect();
+    let merged = merge_states(a, b)?;
+    save_state(&out, &merged)?;
+    Ok(json!({
+        "ok": true,
+        "out": out.display().to_string(),
+        "before": before,
+        "after": {"agents": merged.agents.len(), "feedbacks": merged.feedbacks},
+        "shared_agents": shared,
+    }))
+}
+
 /// Library-level entry point (used by tests): runs one command and persists
 /// state when the command succeeds.
 fn run(args: &[String]) -> Result<Value, CliError> {
@@ -799,6 +996,9 @@ fn run(args: &[String]) -> Result<Value, CliError> {
     let rest = &args[1..];
     if cmd == "frontend" {
         return cmd_frontend(&Opts::parse(rest, FRONTEND_KEYS)?);
+    }
+    if cmd == "merge-state" {
+        return cmd_merge_state(&Opts::parse(rest, &["into", "from", "out"])?);
     }
     let base: &[&str] = match cmd.as_str() {
         "route" => &["state", "features", "candidates", "team", "type", "seed", "prior", "store", "world", "store-sync"],
@@ -1296,5 +1496,106 @@ mod tests {
         assert!(rate(tail, |x| x.0) < rate(head, |x| x.0) - 0.3, "follow rate must fall");
         assert!(rate(tail, |x| x.1) > rate(head, |x| x.1), "accuracy must rise");
         assert!(rate(tail, |x| x.1) > 0.6, "and beat the half-right keyword prior (0.5)");
+    }
+
+    fn weight_of(ps: &str, f: &str, agent: &str) -> f64 {
+        call(&["stats", "--state", ps]).unwrap()["weights"][f]["w"][agent].as_f64().unwrap()
+    }
+
+    #[test]
+    fn merge_state_unions_agents_and_weights_by_evidence() {
+        let (pa, pb, po) = (tmp("merge-a"), tmp("merge-b"), tmp("merge-o"));
+        let (a, b, o) = (pa.to_str().unwrap(), pb.to_str().unwrap(), po.to_str().unwrap());
+        // A: 3 feedbacks on feature x (agents a, shared); B: 1 feedback on x, 2 on y (agents shared, bonly)
+        for (ag, r) in [("a", "1"), ("shared", "1"), ("shared", "0")] {
+            call(&["feedback", "--state", a, "--features", "x", "--agent", ag, "--reward", r]).unwrap();
+        }
+        call(&["feedback", "--state", b, "--features", "x", "--agent", "shared", "--reward", "1"]).unwrap();
+        for _ in 0..2 {
+            call(&["feedback", "--state", b, "--features", "y", "--agent", "bonly", "--reward", "1"]).unwrap();
+        }
+        let (wa, wb) = (weight_of(a, "x", "shared"), weight_of(b, "x", "shared"));
+        let wy = weight_of(b, "y", "bonly");
+        let wa_a = weight_of(a, "x", "a");
+        let v = call(&["merge-state", "--into", a, "--from", b, "--out", o]).unwrap();
+        assert_eq!(v["after"]["agents"], 3);
+        assert_eq!(v["after"]["feedbacks"], 6);
+        assert_eq!(v["shared_agents"], json!(["shared"]));
+        let st = load_state(&po).unwrap();
+        assert_eq!(st.agents, vec!["a", "shared", "bonly"], "A's order first, then B's new agents");
+        assert_eq!(st.feature_counts["x"], 4);
+        assert_eq!(st.feature_counts["y"], 2);
+        // shared cell: evidence-weighted mean (A has 3 on x, B has 1) -- before the row cap, which these small rows do not hit
+        let want = (3.0 * wa + 1.0 * wb) / 4.0;
+        assert!((weight_of(o, "x", "shared") - want).abs() < 1e-5, "{} vs {want}", weight_of(o, "x", "shared"));
+        // one-sided cells keep their own side's value
+        assert!((weight_of(o, "y", "bonly") - wy).abs() < 1e-5);
+        assert!((weight_of(o, "x", "a") - wa_a).abs() < 1e-5);
+        // the inputs are untouched when --out is given; the merged state routes for both kinds of task
+        assert_eq!(load_state(&pa).unwrap().agents.len(), 2);
+        let r = call(&["route", "--state", o, "--features", "y"]).unwrap();
+        assert_eq!(r["agent"], "bonly");
+        assert!(call(&["route", "--state", o, "--features", "x,unknown"]).unwrap()["ok"].as_bool().unwrap());
+        // default --out is --into
+        call(&["merge-state", "--into", a, "--from", b]).unwrap();
+        assert_eq!(load_state(&pa).unwrap().agents.len(), 3);
+        for p in [&pa, &pb, &po] {
+            let _ = fs::remove_file(p);
+        }
+    }
+
+    #[test]
+    fn merge_state_rejects_bad_input() {
+        let (pa, pb) = (tmp("merge-bad-a"), tmp("merge-bad-b"));
+        let (a, b) = (pa.to_str().unwrap(), pb.to_str().unwrap());
+        call(&["feedback", "--state", a, "--features", "x", "--agent", "a", "--reward", "1"]).unwrap();
+        assert!(call(&["merge-state", "--into", a, "--from", b]).is_err(), "missing --from file");
+        assert!(call(&["merge-state", "--into", a, "--from", a]).is_err(), "same file");
+        assert!(call(&["merge-state", "--into", a]).is_err(), "missing --from");
+        assert!(call(&["merge-state", "--into", a, "--from", b, "--bogus", "1"]).is_err());
+        let _ = fs::remove_file(&pa);
+    }
+
+    #[test]
+    fn save_is_atomic_and_leaves_no_temp_files() {
+        let dir = std::env::temp_dir().join(format!("nm-atomic-{}", std::process::id()));
+        let _ = fs::remove_dir_all(&dir);
+        let p = dir.join("s.json");
+        let ps = p.to_str().unwrap().to_string();
+        call(&["feedback", "--state", &ps, "--features", "x", "--agent", "a", "--reward", "1"]).unwrap();
+        // a reader racing many writers must always see a complete, parseable file (temp + rename)
+        let stop = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let reader = {
+            let (p, stop) = (p.clone(), stop.clone());
+            std::thread::spawn(move || {
+                let mut reads = 0;
+                while !stop.load(std::sync::atomic::Ordering::Relaxed) {
+                    if let Ok(s) = fs::read_to_string(&p) {
+                        serde_json::from_str::<State>(&s).expect("torn state file observed");
+                        reads += 1;
+                    }
+                }
+                reads
+            })
+        };
+        let ws: Vec<_> = (0..8)
+            .map(|i| {
+                let ps = ps.clone();
+                std::thread::spawn(move || {
+                    for _ in 0..5 {
+                        call(&["feedback", "--state", &ps, "--features", "x", "--agent", &format!("w{i}"), "--reward", "1"]).unwrap();
+                    }
+                })
+            })
+            .collect();
+        for w in ws {
+            w.join().unwrap();
+        }
+        stop.store(true, std::sync::atomic::Ordering::Relaxed);
+        assert!(reader.join().unwrap() > 0);
+        assert_eq!(load_state(&p).unwrap().feedbacks, 41, "no lost updates");
+        let leftovers: Vec<_> = fs::read_dir(&dir).unwrap().filter_map(|e| e.ok()).map(|e| e.file_name()).filter(|n| n != "s.json").collect();
+        assert!(leftovers.is_empty(), "temp/lock files left behind: {leftovers:?}");
+        let _ = fs::remove_dir_all(&dir);
     }
 }
