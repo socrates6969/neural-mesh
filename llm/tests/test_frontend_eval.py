@@ -134,6 +134,7 @@ class EvalV2(unittest.TestCase):
         self.assertTrue(res["worlds_saved_both"])
         self.assertTrue(all("p_holm" in t for t in res["tests"]))
         self.assertEqual(len(res["tests"]), 2 * 2 * 3)   # (held, conf) x 2 worlds x (saved, loss, tost)
+        self.assertTrue(all(t["sig"] for t in res["tests"] if t["test"].startswith("tost_quality")))   # KEEP needs TOST everywhere
 
     def test_non_keep_never_writes_cfg(self):
         rows = make_rows(12, 10)
@@ -153,6 +154,19 @@ class EvalV2(unittest.TestCase):
                              decide=lambda c, s, ch: frontend._fail("boom"), out_dir=self.out, log=lambda *a: None, reps=200)
         self.assertEqual(res["verdict"], "REJECTED")
         self.assertFalse((self.out / "frontend_cfg.json").exists())
+
+    def test_keep_requires_tost_equivalence(self):
+        """no Holm-significant loss (mean delta 0) is not enough: a noisy +-0.3 quality delta is not equivalent within +-0.01"""
+        def split(sp, dq):
+            return [{"unit": f"{sp}{i}", "source": "w", "saved": 10, "q_delta": dq(i), "served": True, "wrong": False, "rust_ok": True}
+                    for i in range(40)]
+        ok = fe.verdict_tests({sp: split(sp, lambda i: 0.0) for sp in ("held", "conf")}, reps=400)
+        self.assertEqual(ok["verdict"], "KEEP", ok["why"])
+        noisy = fe.verdict_tests({sp: split(sp, lambda i: 0.3 if i % 2 else -0.3) for sp in ("held", "conf")}, reps=400)
+        self.assertFalse(any(t["sig"] for t in noisy["tests"] if t["test"] == "quality_loss_lt_0"))
+        self.assertTrue(noisy["worlds_saved_both"])
+        self.assertEqual(noisy["verdict"], "REJECTED")
+        self.assertTrue(any("TOST" in w for w in noisy["why"]), noisy["why"])
 
     def test_q_delta_is_against_the_forward_baseline(self):
         """a ceiling-biased judge (0.9 for a correct answer, also for Claude's own) must not make correct served answers a quality loss"""

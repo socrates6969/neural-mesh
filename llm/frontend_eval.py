@@ -15,8 +15,9 @@
 * HELD and CONF go through the Rust policy. Tests per (split, world), all in ONE Holm family: saved tokens > 0 (cluster bootstrap,
   one-sided), quality loss < 0 (one-sided), TOST +-0.01 on the quality delta. Quality delta per row = judge score of the served
   answer - judge score of Claude's own answer for that row (the forward baseline, fwd_score); 0 for a forwarded row. KEEP iff saved
-  tokens are Holm-significant in the SAME world on HELD and CONF, no Holm-significant quality loss, Wilson 95% upper bound of the wrong rate <= .10 on HELD and CONF, and no
-  Rust call failed. ONLY a KEEP writes models/frontend_cfg.json (thresholds only; enabling stays an explicit --enabled).
+  tokens are Holm-significant in the SAME world on HELD and CONF, no Holm-significant quality loss, Holm-significant TOST
+  equivalence (+-0.01) of the quality delta in EVERY (split, world), Wilson 95% upper bound of the wrong rate <= .10 on HELD and
+  CONF, and no Rust call failed. ONLY a KEEP writes models/frontend_cfg.json (thresholds only; enabling stays an explicit --enabled).
 
 Every model touch goes through a Backend (RealBackend: Qwen tokenizer, MiniLM, Ollama local model, local judge); tests pass a stub."""
 from __future__ import annotations
@@ -226,12 +227,15 @@ def verdict_tests(splits: dict[str, list[dict]], reps: int = REPS) -> dict:
     sig = lambda sp, w, name: any(t["sig"] for t in tests if (t["split"], t["world"], t["test"]) == (sp, w, name))  # noqa: E731
     worlds_saved = sorted(w for w in {r["source"] for sp in ("held", "conf") for r in splits[sp]} if sig("held", w, "saved_gt_0") and sig("conf", w, "saved_gt_0"))
     loss = [t for t in tests if t["test"] == "quality_loss_lt_0" and t["sig"]]
+    not_equiv = [t for t in tests if t["test"].startswith("tost_quality") and not t["sig"]]
     rust_err = sum(1 for sp in ("held", "conf") for r in splits[sp] if not r["rust_ok"])
     why = []
     if not worlds_saved:
         why.append("saved tokens not Holm-significant in one world on both HELD and CONF")
     if loss:
         why.append(f"Holm-significant quality loss in {[(t['split'], t['world']) for t in loss]}")
+    if not_equiv:   # Iron rule: "no significant loss" is not enough, the quality delta must be shown EQUIVALENT within +-TOST_EPS
+        why.append(f"quality delta not Holm-significantly equivalent within +-{TOST_EPS} (TOST) in {[(t['split'], t['world']) for t in not_equiv]}")
     for sp in ("held", "conf"):
         if wrong[sp]["ucb95"] > WRONG_UCB_MAX:
             why.append(f"{sp} wrong-rate 95% upper bound {wrong[sp]['ucb95']:.3f} > {WRONG_UCB_MAX}")
