@@ -81,7 +81,9 @@ def check_db(db_path, allow_external: bool = False, repo: Path = REPO) -> tuple[
     return True, resolved, "inside repo" if inside else "external db allowed by --allow-external-db"
 
 
-def build_batch(cfg) -> list[dict]:
+def build_batch(cfg, stats: dict | None = None) -> list[dict]:
+    """Active memories + outcomes, re-scrubbed. A record whose value still has a SECRET-class hit after scrub is dropped; the
+    number of such drops is written to ``stats["dropped_secret"]`` when ``stats`` is given (counts only, never content)."""
     out = []
     for it in iter_jsonl(cfg.memory_dir / "items.jsonl"):
         if it.get("status") != "active":
@@ -95,13 +97,17 @@ def build_batch(cfg) -> list[dict]:
                "source": "neural-mesh/ingest"}
         out.append({"key": f"lifelong/outcome/{sha16(r['id'])}", "tags": f"lifelong,outcome,{r.get('outcome')}", "value": val})
     clean = []
+    dropped = 0
     for b in out:
         s = json.dumps(b["value"], ensure_ascii=False)
         r = scrub(s)
         if r.secret:  # belt and braces: everything was scrubbed at ingest; if anything still looks secret, drop it
+            dropped += 1
             continue
         b["value_json"] = r.text
         clean.append(b)
+    if stats is not None:
+        stats["dropped_secret"] = dropped
     return clean
 
 
@@ -147,7 +153,7 @@ def mirror(cfg, dry_run: bool = False, limit: int | None = None, db_path: str | 
            wait_s: float = 0.0, repo: Path = REPO, runner=_run) -> dict:
     db = Path(db_path) if db_path else default_db(repo)
     ok, resolved, why = check_db(db, allow_external, repo)
-    stats = {"candidates": 0, "todo": 0, "stored": 0, "failed": 0, "dry_run": dry_run, "namespace": NAMESPACE,
+    stats = {"candidates": 0, "todo": 0, "stored": 0, "failed": 0, "dropped_secret": 0, "dry_run": dry_run, "namespace": NAMESPACE,
              "db_path": resolved, "cli_version": cli_package()}
     if not ok:
         stats.update(error=why, exit=EXIT_REFUSED)
@@ -163,7 +169,7 @@ def mirror(cfg, dry_run: bool = False, limit: int | None = None, db_path: str | 
 
 
 def _mirror_locked(cfg, stats: dict, dry_run: bool, limit, db: str, repo: Path, runner) -> dict:
-    batch = build_batch(cfg)
+    batch = build_batch(cfg, stats)
     done_path = cfg.state / "mirror_done.txt"
     done = set()
     if done_path.exists():

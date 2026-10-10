@@ -243,5 +243,66 @@ class Locking(Base):
         self.assertGreaterEqual(time.monotonic() - t0, 0.9)
 
 
+class DryRunSecretDrop(Base):
+    """AC-2: a record that still has a SECRET-class string after scrub never reaches the mirror batch. Runs the real CLI entry
+    point in-process (``python -m ingest mirror --dry-run``); nothing is called (dry run), the db is the repo default."""
+
+    # assembled at runtime so no literal key sits in the source; each matches a SECRET pattern in ingest/scrub.py
+    ANT = "sk-ant-" + "api03-" + "Zq7Xw2Lp9Rt4Vb8Nm3Kc6Hd1"                    # api_key (sk-ant-...)
+    AWS = "AKIA" + "QX7Z2LP9RT4VB8NM"                                         # api_key (AKIA + 16)
+    PEM_BODY = "MIIEpAIBAAKCAQEAzq7Xw2Lp9Rt4Vb8Nm3Kc6Hd1Fg5Js0"
+    PEM = "-----BEGIN RSA " + "PRIVATE KEY-----\n" + PEM_BODY + "\n-----END RSA " + "PRIVATE KEY-----"   # private_key
+
+    def setUp(self):
+        super().setUp()
+        bad_items = [{"id": "mem-s001", "status": "active", "tag": "fact", "project": "p", "text": f"use key {self.ANT} for the api"},
+                     {"id": "mem-s002", "status": "active", "tag": "fact", "project": "p", "text": f"deploy key:\n{self.PEM}"}]
+        with open(self.cfg.memory_dir / "items.jsonl", "a", encoding="utf-8") as f:
+            f.write("".join(json.dumps(x) + "\n" for x in bad_items))
+        with open(self.cfg.outcomes, "a", encoding="utf-8") as f:
+            f.write(json.dumps({"id": "o-s1", "agent": "a", "outcome": "success", "reward": 1.0,
+                                "task_text": f"export AWS_ACCESS_KEY_ID={self.AWS} and retry"}) + "\n")
+
+    def cli_dry_run(self):
+        import io
+        from contextlib import redirect_stdout
+        from ingest.__main__ import main
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            code = main(["--data", str(self.cfg.data), "mirror", "--dry-run"])
+        return code, json.loads(buf.getvalue())
+
+    def test_secret_records_dropped_counted_and_absent_from_batch_file(self):
+        from ingest.scrub import scrub
+        for s in (self.ANT, self.AWS, self.PEM):   # precondition: each really is SECRET-class for the scrubber
+            self.assertTrue(scrub(s).secret, "fixture must be classified secret by ingest/scrub.py")
+        code, st = self.cli_dry_run()
+        self.assertEqual(code, 0)
+        self.assertEqual(st["exit"], 0)
+        self.assertTrue(st["dry_run"])
+        self.assertEqual(st["dropped_secret"], 3, "the stats count every dropped secret record")
+        self.assertEqual(st["candidates"], 8, "the 5 memories + 3 outcomes without secrets are kept")
+        batch_file = self.cfg.data / "mirror_batch.jsonl"
+        text = batch_file.read_text(encoding="utf-8")
+        rows = [json.loads(x) for x in text.splitlines() if x.strip()]
+        keys = {r["key"] for r in rows}
+        self.assertNotIn("lifelong/mem/s001", keys)
+        self.assertNotIn("lifelong/mem/s002", keys)
+        self.assertNotIn(f"lifelong/outcome/{M.sha16('o-s1')}", keys)
+        for needle in (self.ANT, self.AWS, self.PEM_BODY, "sk-ant-", "AKIA", "PRIVATE KEY", "Zq7Xw2Lp9Rt4Vb8Nm3Kc6Hd1", "QX7Z2LP9RT4VB8NM"):
+            self.assertNotIn(needle, text, "no secret substring anywhere in the batch file")
+
+    def test_positive_control_normal_records_kept(self):
+        _, st = self.cli_dry_run()
+        rows = [json.loads(x) for x in (self.cfg.data / "mirror_batch.jsonl").read_text(encoding="utf-8").splitlines() if x.strip()]
+        keys = {r["key"] for r in rows}
+        self.assertEqual(len(rows), 8)
+        for i in range(5):
+            self.assertIn(f"lifelong/mem/{i:04d}", keys)
+        for i in range(3):
+            self.assertIn(f"lifelong/outcome/{M.sha16(f'o{i}')}", keys)
+        self.assertIn("memory number 0", "".join(r["value"] for r in rows))
+
+
 if __name__ == "__main__":
     unittest.main()
