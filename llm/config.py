@@ -18,6 +18,7 @@ STATE = MODELS / "state.json"                    # trained ids, production point
 BASE_CHOICE = MODELS / "base_choice.json"        # written by `python -m llm bench`
 JUDGE_CACHE = MODELS / "judge_cache.jsonl"       # our own cache (the ingestor owns data/lifelong/judge.jsonl)
 LOCK = MODELS / "nightly.lock"
+RUNS = MODELS / "runs.jsonl"                   # one RunRecord per `python -m llm nightly` (llm/nightly.py)
 
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
 JUDGE_MODEL = os.environ.get("MESH_LLM_JUDGE", "qwen2.5-coder:7b")

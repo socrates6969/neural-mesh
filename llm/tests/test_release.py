@@ -51,12 +51,13 @@ class Sandbox(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         root = Path(self.tmp.name)
-        self.saved = {k: getattr(config, k) for k in ("MODELS", "ADAPTERS", "MERGED", "STATE", "LOCK", "BASE_DIR")}
+        self.saved = {k: getattr(config, k) for k in ("MODELS", "ADAPTERS", "MERGED", "STATE", "LOCK", "BASE_DIR", "RUNS")}
         config.MODELS = root
         config.ADAPTERS = root / "adapters"
         config.MERGED = root / "merged"
         config.STATE = root / "state.json"
         config.LOCK = root / "nightly.lock"
+        config.RUNS = root / "runs.jsonl"
         config.BASE_DIR = root / "base"
         config.ADAPTERS.mkdir(parents=True)
 

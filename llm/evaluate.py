@@ -42,7 +42,9 @@ def _pick(rows: list[dict], n: int, salt: str) -> list[dict]:
 def latest_candidate(synthetic: bool) -> str | None:
     if not config.ADAPTERS.exists():
         return None
-    vs = sorted(p.name for p in config.ADAPTERS.iterdir() if (p / "meta.json").exists() and p.name.endswith("-syn") == synthetic)
+    gone = {h.get("ver") for h in config.load_state().get("history", []) if h.get("action") == "abandoned"}
+    vs = sorted(p.name for p in config.ADAPTERS.iterdir()
+                if (p / "meta.json").exists() and p.name.endswith("-syn") == synthetic and p.name not in gone)
     return vs[-1] if vs else None
 
 

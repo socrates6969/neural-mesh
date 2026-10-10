@@ -81,11 +81,9 @@ def main(argv=None) -> int:
             from . import calibrate; calibrate.run(budget=a.judge_budget or 200)
         elif a.cmd == "frontend-eval":
             from . import frontend; frontend.evaluate(synthetic=a.synthetic, n=a.n)
-        elif a.cmd == "nightly":   # train -> eval -> promote under ONE lock
-            from . import evaluate, promote, train
-            if train.run(synthetic=a.synthetic, epochs=a.epochs) is not None:
-                evaluate.run(synthetic=a.synthetic, judge_budget=a.judge_budget)
-                promote.run(synthetic=a.synthetic)
+        elif a.cmd == "nightly":   # preflight sweep -> train -> eval -> promote under ONE lock; RunRecord -> models/runs.jsonl
+            from . import nightly
+            rc = nightly.run(synthetic=a.synthetic, epochs=a.epochs, judge_budget=a.judge_budget)["exit"]
     return rc
 
 
