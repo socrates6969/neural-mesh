@@ -9,7 +9,8 @@ alternated, so load drift hits both equally.
 
 Every call is classified OK / MODEL / INFRA. INFRA (timeouts, transport and API errors, rate limits, sandbox failures) is
 retried up to --max-tries times with exponential backoff and full jitter; a unit still INFRA is written as status infra_fail,
-is never scored and is retried by the next (resumed) run. MODEL (truncated or empty completions, refusals) is status
+is never scored and is retried by the next (resumed) run. A sandbox outage while scoring a finished answer is INFRA too, but the
+row keeps the answer text (sandbox_infra=true) and the resumed run re-scores that text; the model is never called twice. MODEL (truncated or empty completions, refusals) is status
 model_fail and scores as wrong. Scoring parses strictly: the last non-empty line must be `ANSWER: <x>` (code: the first fenced
 block); the old lenient parse (any ANSWER:, else the last number; whole text as code) is kept as fallback_correct, a
 diagnostic only. The full answer text is stored.
@@ -203,16 +204,46 @@ def run_unit(item, cond, rep, split, sbx_mode, max_tries=5, probe=False, sleep=t
     if r["cls"] == "INFRA":
         row.update(status="infra_fail", correct=None, fallback_correct=None, parsed=None, completed=False)
         return row
-    sc = score(item, r["text"], mode=sbx_mode, max_tries=max_tries, sleep=sleep)
+    return finish_row(row, item, r["cls"], sbx_mode, max_tries, sleep)
+
+
+def finish_row(row, item, model_cls, sbx_mode, max_tries=5, sleep=time.sleep):
+    """score the stored answer text of a finished model call. A sandbox outage leaves the row infra_fail with sandbox_infra=True
+    and the text kept, so a resumed run re-scores that text (rescore_row) and never calls the model again."""
+    sc = score(item, row["text"], mode=sbx_mode, max_tries=max_tries, sleep=sleep)
     if sc["infra"]:
-        row.update(status="infra_fail", cls="INFRA", err="sandbox: " + str((sc.get("sbx") or {}).get("why")), correct=None, fallback_correct=None,
-                   parsed=sc["parsed"], completed=True)
+        row.setdefault("model_err", row.get("err"))
+        row.update(status="infra_fail", cls="INFRA", model_cls=model_cls, sandbox_infra=True, err="sandbox: " + str((sc.get("sbx") or {}).get("why")),
+                   correct=None, fallback_correct=None, parsed=sc["parsed"], completed=True)
         return row
-    if r["cls"] == "MODEL":
+    row.update(cls=model_cls, sandbox_infra=False)
+    if model_cls == "MODEL":
         row.update(status="model_fail", correct=False, fallback_correct=sc["fallback_correct"], parsed=sc["parsed"], answer=sc.get("answer"), sbx=sc.get("sbx"), completed=False)
     else:
-        row.update(status="ok", correct=sc["correct"], fallback_correct=sc["fallback_correct"], parsed=sc["parsed"], answer=sc.get("answer"), sbx=sc.get("sbx"), completed=True)
+        row.update(status="ok", err=None, correct=sc["correct"], fallback_correct=sc["fallback_correct"], parsed=sc["parsed"], answer=sc.get("answer"), sbx=sc.get("sbx"), completed=True)
     return row
+
+
+def rescore_row(old, item, sbx_mode, max_tries=5, sleep=time.sleep):
+    """a new row for a sandbox-infra unit: same answer text and model metadata, scored again; no model call"""
+    row = {k: v for k, v in old.items() if k not in ("status", "correct", "fallback_correct", "parsed", "answer", "sbx", "completed", "_tag")}
+    row.update(ts=time.time(), rescored=int(old.get("rescored", 0)) + 1)
+    if row.get("model_cls") == "MODEL": row["err"] = old.get("model_err")
+    return finish_row(row, item, old.get("model_cls") or "OK", sbx_mode, max_tries, sleep)
+
+
+def pending_rescore(path, split):
+    """{(id, cond, rep): last row} for units whose model answer is stored but whose sandbox scoring hit INFRA"""
+    last, final = {}, set()
+    if path.exists():
+        for l in open(path, encoding="utf8"):
+            if not l.strip(): continue
+            r = json.loads(l)
+            if r.get("split", "tune") != split: continue
+            key = (r["id"], r["cond"], r.get("rep", 0))
+            if r.get("status") in ("ok", "model_fail"): final.add(key)
+            last[key] = r
+    return {k: r for k, r in last.items() if k not in final and r.get("status") == "infra_fail" and r.get("sandbox_infra") and r.get("text")}
 
 
 # ------------------------------------------------------------------ planning, manifest, lock
@@ -374,10 +405,12 @@ def execute(a, callers=None, sleep=time.sleep):
     items = select(items, a)
     out = RESULTS / a.tag; raw = out / "raw.jsonl"
     done = done_units(raw, a.split)
-    packets = plan_units(items, a.conds, a.k, done)
+    by_id = {i["id"]: i for i in items}
+    rescore = {k: r for k, r in pending_rescore(raw, a.split).items() if k[0] in by_id and k[1] in a.conds}
+    packets = plan_units(items, a.conds, a.k, done | set(rescore))
     n_calls = sum(2 if p[0] == "pair" else 1 for p in packets)
     n_claude = sum(2 if p[0] == "pair" else int(p[2] in CLAUDE_CONDS) for p in packets)
-    print(f"plan: split={a.split} tag={a.tag} items={len(items)} conds={','.join(a.conds)} K={a.k} sandbox={sbx_mode} already-done={len(done)} "
+    print(f"plan: split={a.split} tag={a.tag} items={len(items)} conds={','.join(a.conds)} K={a.k} sandbox={sbx_mode} already-done={len(done)} sandbox-rescore={len(rescore)} "
           f"units-to-run={n_calls} (claude calls {n_claude}, est. ${n_claude * 0.0031:.2f} at the v2 mean of $0.0031/call before retries)", flush=True)
     if a.dry_run: return EXIT_OK
     if sbx_mode == "docker":
@@ -398,6 +431,10 @@ def execute(a, callers=None, sleep=time.sleep):
         claude_p = [p for p in packets if p[0] == "pair" or p[2] in CLAUDE_CONDS]
         local_p = [p for p in packets if p not in claude_p]
         with open(raw, "a", encoding="utf8") as fh:       # the main thread is the only writer
+            for (iid, c, rep), old in sorted(rescore.items()):   # sandbox INFRA earlier: re-score the stored answer, no model call
+                r = rescore_row(old, by_id[iid], sbx_mode, mt, sleep=sleep)
+                n_inf += r["status"] == "infra_fail"
+                fh.write(json.dumps(r) + "\n"); fh.flush()
             for group, w in ((claude_p, a.workers), (local_p, 1)):   # GPU: one local call at a time so latency is not contended
                 if not group: continue
                 with cf.ThreadPoolExecutor(w) as ex:
