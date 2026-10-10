@@ -1,10 +1,13 @@
-"""python -m llm {bench|train|eval|promote|status|frontend-eval|nightly|calibrate|tool-exemplars} [--synthetic] [--ver V] [--epochs N] [--judge-budget N]"""
+"""python -m llm {bench|train|eval|promote|status|frontend-eval|nightly|calibrate|tool-exemplars} [--synthetic] [--ver V] [--epochs N] [--judge-budget N]
+   python -m llm ask ...           front-end wrapper (S2, llm/frontend_live.py; pass-through unless --enabled; never takes the lock)
+"""
 from __future__ import annotations
+
+import os
+import sys
 
 import argparse
 import json
-import os
-import sys
 import time
 from contextlib import contextmanager
 
@@ -51,6 +54,10 @@ def status() -> dict:
 
 
 def main(argv=None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if argv[:1] == ["ask"]:          # dispatched BEFORE lock(): ask must never wait for or block the nightly
+        from .frontend_live import cli_ask
+        return cli_ask(argv[1:])
     ap = argparse.ArgumentParser(prog="python -m llm")
     ap.add_argument("cmd", choices=["bench", "train", "eval", "promote", "status", "frontend-eval", "nightly", "calibrate", "tool-exemplars"])
     ap.add_argument("--synthetic", action="store_true", help="use the LABELLED synthetic sample instead of data/lifelong/sft.jsonl")
