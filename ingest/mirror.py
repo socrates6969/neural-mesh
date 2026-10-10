@@ -34,7 +34,7 @@ from .scrub import scrub
 from .util import ProcessLock, append_jsonl, atomic_write_text, iter_jsonl, sha16
 
 NAMESPACE = "vector-patterns"
-CLI_VERSION = "3.56.3"   # the locally cached @claude-flow/cli (npm-cache/_npx), pinned 2026-10-10
+CLI_VERSION = "latest"   # user policy (2026-10-10): run tools via npx @latest; override with env NEURAL_MESH_RUFLO_CLI
 CHUNK = 200            # entries per `memory import` file
 EXIT_OK, EXIT_PARTIAL, EXIT_NONE, EXIT_REFUSED, EXIT_BUSY = 0, 3, 4, 5, 75
 

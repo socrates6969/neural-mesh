@@ -128,12 +128,13 @@ class DbLocation(Base):
 
 
 class CliPin(Base):
-    def test_cli_version_pinned(self):
-        self.assertEqual(M.CLI_VERSION, "3.56.3")
+    def test_cli_runs_via_npx_latest(self):
+        # User policy (2026-10-10): tools run through npx @latest, not pinned versions.
+        self.assertEqual(M.CLI_VERSION, "latest")
         _, fake = self.run_mirror()
         for cmd, _, _ in fake.calls:
-            self.assertIn("@claude-flow/cli@3.56.3", cmd)
-            self.assertFalse(any("@latest" in c for c in cmd))
+            self.assertIn("@claude-flow/cli@latest", cmd)
+            self.assertFalse(any("@3.56.3" in c for c in cmd))
 
     def test_env_overrides_pin(self):
         os.environ["NEURAL_MESH_RUFLO_CLI"] = "3.57.0"

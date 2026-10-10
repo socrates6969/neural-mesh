@@ -5,7 +5,7 @@
 // filtered out). It is the router-eval dataset built from freight-recovery's dispatch history (RD-LOG R117: "Real 69-row replay
 // of freight-recovery's dispatch history (router-eval/dataset.jsonl)"), source sha256 e3221eab..., reduced to the fields used
 // here (ts, run, task_text, actual_agent, outcome) and passed through ingest.scrub (scrub-v1). Its sha256 is logged in the result.
-// CLI: $RUFLO_CLI (path to @claude-flow/cli's bin/cli.js, run with node) or else the pinned `npx -y @claude-flow/cli@3.56.3`.
+// CLI: $RUFLO_CLI (path to @claude-flow/cli's bin/cli.js, run with node) or else `npx -y @claude-flow/cli@latest`.
 // The CLI runs with cwd = bench/work/rf (gitignored) so its .swarm/ / .claude-flow/ state never lands in the repo.
 // A CLI call that fails (spawn error, timeout/signal, non-zero exit, or `hooks route` output without an `Agent:` line) is an
 // ERROR, recorded in the result (route_errors, train_errors, errors[]) and excluded from the accuracy denominators; it is never
@@ -19,7 +19,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const DS = path.join(HERE, 'data', 'ruflo_dispatch.jsonl');
 const CWD = path.join(HERE, 'work', 'rf');
-const CLI_PKG = '@claude-flow/cli@3.56.3';
+const CLI_PKG = '@claude-flow/cli@latest'; // user policy (2026-10-10): npx @latest, no pins
 export const ROLES = ['fr-planner','fr-builder','fr-tester','fr-reviewer','fr-scriber','fr-shipper','fr-ci-diagnoser','fr-security-reviewer'];
 const TO_RUFLO = { 'fr-planner':'planner','fr-builder':'coder','fr-tester':'tester','fr-reviewer':'reviewer','fr-scriber':'documenter','fr-shipper':'cicd-engineer','fr-ci-diagnoser':'devops','fr-security-reviewer':'security-auditor' };
 export const FROM_RUFLO = { coder:'fr-builder','backend-dev':'fr-builder','frontend-dev':'fr-builder','performance-engineer':'fr-builder',tester:'fr-tester',reviewer:'fr-reviewer',architect:'fr-planner',planner:'fr-planner',researcher:'fr-planner','security-architect':'fr-security-reviewer','security-auditor':'fr-security-reviewer',devops:'fr-shipper','cicd-engineer':'fr-shipper','api-docs':'fr-scriber',documenter:'fr-scriber' };
