@@ -1,8 +1,8 @@
 """`python -m llm nightly`: one nightly round under ONE lock (llm/models/nightly.lock, taken by __main__; exit 75 if busy).
 
 Stages, each recorded as a StageResult {name, status ok|noop|skipped|failed, exit, reason, started, ended, detail}:
-  preflight  abandoned_sweep(): torn adapters (no meta.json) are removed; older unevaluated adapters are abandoned
-             ("superseded"); a pending candidate whose parent is not the current production is abandoned ("stale parent");
+  preflight  abandoned_sweep(): torn adapters (no meta.json) are removed; older undecided adapters (unevaluated, or evaluated
+             but never decided) are abandoned ("superseded") when a newer candidate exists; a pending candidate whose parent is not the current production is abandoned ("stale parent");
              one whose eval failed twice (state.eval_attempts) is abandoned ("eval failed twice"). trained_ids never change here.
   train      skipped when a pending (non-abandoned, undecided) candidate exists - that one is resumed instead; noop when there
              is nothing new to train on.
@@ -99,7 +99,9 @@ def abandoned_sweep(st: dict, synthetic: bool = False, log=print) -> dict:
         live.append(d)
     newest = live[-1].name if live else None
     for d in live:
-        if d.name != newest and not (d / "eval.json").exists():
+        # every older undecided candidate is superseded by the newest one - unevaluated, or evaluated but never decided (e.g.
+        # the round died between eval and promote): otherwise it would stay undecided forever
+        if d.name != newest:
             abandon(d.name, "superseded")
     live = [d for d in live if d.name not in {a["ver"] for a in out["abandoned"]}]
     for d in live:

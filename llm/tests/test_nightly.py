@@ -161,6 +161,21 @@ class AbandonedSweep(Sandbox):
         self.assertEqual(st["trained_ids"], ["x"], "trained_ids only change on promote")
         self.assertTrue((config.ADAPTERS / "v01").exists(), "abandoned adapters are kept on disk (versioned)")
 
+    def test_older_evaluated_but_undecided_superseded_by_newer(self):
+        self.adapter("v01")                      # evaluated, never promoted / rejected (round died before promote)
+        self.adapter("v02", evaluated=False)
+        st = {"history": []}
+        out = self.sweep(st)
+        self.assertEqual(out["abandoned"], [{"ver": "v01", "reason": "superseded"}])
+        self.assertEqual(out["pending"], "v02")
+        self.assertEqual(st["history"][-1]["action"], "abandoned")
+        self.assertEqual(self.sweep(st)["abandoned"], [], "decided now: not abandoned twice")
+
+    def test_lone_evaluated_undecided_candidate_stays_pending(self):
+        self.adapter("v01")
+        out = self.sweep({"history": []})
+        self.assertEqual((out["abandoned"], out["pending"]), ([], "v01"))
+
     def test_stale_parent(self):
         self.adapter("v01")
         self.adapter("v02", parent="v00", evaluated=False)
