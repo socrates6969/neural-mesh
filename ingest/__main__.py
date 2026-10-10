@@ -28,6 +28,11 @@ def main(argv=None) -> int:
     q.add_argument("--k", type=int, default=5)
     q.add_argument("--session", default=os.environ.get("CLAUDE_SESSION_ID"))
     q.add_argument("--no-log", action="store_true")
+    m = sub.add_parser("mirror", help="copy scrubbed memories/outcomes into ruflo's LOCAL memory (namespace vector-patterns)")
+    m.add_argument("--dry-run", action="store_true", help="write mirror_batch.jsonl only; call nothing")
+    m.add_argument("--limit", type=int, help="max new records this run")
+    m.add_argument("--db-path", default=os.environ.get("NEURAL_MESH_RUFLO_DB"),
+                   help="ruflo memory.db to write (default: env NEURAL_MESH_RUFLO_DB, else the CLI's cwd/.swarm/memory.db)")
     a = p.parse_args(argv)
 
     cfg = Config()
@@ -57,6 +62,10 @@ def main(argv=None) -> int:
     if a.cmd == "recall":
         from .memory import MemoryStore
         print(json.dumps(MemoryStore(cfg).recall(a.query, a.k, a.session, log=not a.no_log), indent=1, ensure_ascii=False))
+        return 0
+    if a.cmd == "mirror":
+        from .mirror import mirror
+        print(json.dumps(mirror(cfg, dry_run=a.dry_run, limit=a.limit, db_path=a.db_path), indent=1))
         return 0
     return 2
 

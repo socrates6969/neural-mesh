@@ -3,7 +3,8 @@
 #   -Detach        start in the background and return at once (for the Claude Code SessionEnd hook, which must not block exit)
 #   -WaitSeconds N wait up to N seconds for a running ingest to finish (nightly catch-up)
 #   -JudgeBudget N max new local-LLM judge calls this run
-param([switch]$Detach, [int]$WaitSeconds = 0, [int]$JudgeBudget = 300)
+#   -MirrorDb P    after a foreground run, mirror scrubbed memories/outcomes into this LOCAL ruflo memory.db
+param([switch]$Detach, [int]$WaitSeconds = 0, [int]$JudgeBudget = 300, [string]$MirrorDb = '')
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $log = Join-Path $repo 'data\lifelong\ingest-runs.log'
@@ -14,5 +15,8 @@ if ($Detach) {
         -RedirectStandardOutput $log -RedirectStandardError ($log + '.err') | Out-Null
 } else {
     Push-Location $repo
-    try { & python @argList *>> $log } finally { Pop-Location }
+    try {
+        & python @argList *>> $log
+        if ($MirrorDb) { & python -m ingest mirror --db-path $MirrorDb *>> $log }
+    } finally { Pop-Location }
 }
