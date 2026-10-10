@@ -2,12 +2,14 @@
 from __future__ import annotations
 
 import json
+import os
 import time
 from collections import Counter
 from datetime import datetime, timezone
 
 from . import extract as ex
 from .judge import RUBRIC_VERSION, Judge
+from .labeler import label_items
 from .memory import MemoryStore
 from .meshio import MeshFeedback
 from .reader import discover, load_all_states, update_file
@@ -67,6 +69,7 @@ def _run_locked(cfg) -> dict:
     dispatches = [d for s in sessions for d in ex.dispatch_items(s, now, settle_s)]
     turns = [t for s in sessions for t in ex.turn_items(s, now, settle_s)]
     dispatches.sort(key=lambda d: (d.ts or "", d.id))
+    v2_labels = label_items(dispatches) if os.environ.get("INGEST_LABELER", "v2") != "v1" else {}   # R122 structural labeler (labeler.py)
     turns.sort(key=lambda t: (t.ts or "", t.id))
 
     new_out, new_sft, mem_sources = [], [], []
@@ -78,7 +81,7 @@ def _run_locked(cfg) -> dict:
             continue
         task = (d.description + "\n" + d.prompt).strip()
         g = judge.grade(d.id, task, d.report) if d.report and not d.report_secret else None
-        outcome, sig = ex.classify(task, d.report, d.result_head, d.signals, d.later)
+        outcome, sig = v2_labels.get(d.id) or ex.classify(task, d.report, d.result_head, d.signals, d.later)
         js = g["score"] if g else None
         task_text = d.description + (" :: " + d.prompt[:400] if d.prompt else "")
         if d.prompt_secret:

@@ -122,6 +122,7 @@ class DispatchItem:
     later: dict
     tokens: dict | None
     settled: bool
+    chain: str = ""      # id of the dispatch this item belongs to (a SendMessage continuation shares its origin's chain)
 
 
 @dataclass
@@ -235,7 +236,7 @@ def dispatch_items(s: Session, now: float, settle_s: float) -> list[DispatchItem
             report=report, report_secret=rsec, tainted=bool(agent and agent.get("tainted_tools")),
             result_head=res.get("head") or "", signals=dict((agent or {}).get("signals") or {}),
             later={"no_report": not report, "redispatched": redis, "continued": len(cont), "result_error": bool(res.get("error"))},
-            tokens=_tokens(agent), settled=settled))
+            tokens=_tokens(agent), settled=settled, chain=f"out:{tid}"))
         # continuations: one item per SendMessage. Messages to a running agent are queued into its context (not separate user turns), so the
         # report of a continuation is the agent's final report when the agent kept working after the message; tokens stay on the origin.
         for t3, d3, _ in cont:
@@ -247,7 +248,7 @@ def dispatch_items(s: Session, now: float, settle_s: float) -> list[DispatchItem
                 description=(d.get("description") or ""), prompt=d3["prompt"]["t"], prompt_secret=bool(d3["prompt"]["s"]),
                 report=report if after else "", report_secret=rsec if after else False, tainted=bool(agent and agent.get("tainted_tools")),
                 result_head="", signals={}, later={"no_report": not (after and report), "redispatched": False, "continued": 0, "result_error": False},
-                tokens=None, settled=settled))
+                tokens=None, settled=settled, chain=f"out:{tid}"))
     return out
 
 
