@@ -40,6 +40,37 @@ class ShadowHook(unittest.TestCase):
         self.assertAlmostEqual(fl.parse_ts(q[0]["ts"]), 1760000000.456, places=3)
         self.assertEqual(fl.parse_ts(q[1]["ts"]), 1760000000.0)      # an old whole-second line
 
+    def test_line_is_capped_in_bytes(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "q.jsonl"
+            self.assertTrue(hook.enqueue(json.dumps({"prompt": "\U0001F600" * 30000, "session_id": "S"}), path=p, now=0))   # 4-byte chars
+            self.assertTrue(hook.enqueue(json.dumps({"prompt": "short", "session_id": "S"}), path=p, now=0))
+            raw = p.read_bytes().split(b"\n")[:-1]
+        self.assertTrue(all(len(x) + 1 <= hook.MAX_LINE_BYTES for x in raw))
+        big, small = json.loads(raw[0]), json.loads(raw[1])
+        self.assertTrue(big["truncated"] and set(big["prompt"]) == {"\U0001F600"})
+        self.assertEqual(big["sha256"], fl.sha("\U0001F600" * hook.MAX_PROMPT_CHARS))   # sha of the char-capped prompt, as before
+        self.assertNotIn("truncated", small)
+
+    def test_concurrent_sessions_never_tear_lines(self):
+        """6 processes x 40 large multi-byte lines into one queue: every line parses and is intact"""
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "q.jsonl"
+            code = ("import json, sys\nfrom llm import hook\nw = sys.argv[1]\n"
+                    "for i in range(40):\n"
+                    "    hook.enqueue(json.dumps({'prompt': (w + str(i) + ' éè ') * 1500, 'session_id': w}), path=sys.argv[2])\n")
+            procs = [subprocess.Popen([sys.executable, "-c", code, f"w{k}", str(p)], cwd=REPO) for k in range(6)]
+            for pr in procs:
+                self.assertEqual(pr.wait(timeout=120), 0)
+            lines = p.read_text(encoding="utf-8").splitlines()
+        self.assertEqual(len(lines), 240)
+        recs = [json.loads(x) for x in lines]
+        for r in recs:
+            unit = r["prompt"][:r["prompt"].index(" ") + 4]          # "w<k><i> " + two accented chars + " "
+            self.assertEqual(r["prompt"], unit * 1500)
+            self.assertTrue(unit.startswith(r["session"]))
+        self.assertEqual({r["session"] for r in recs}, {f"w{k}" for k in range(6)})
+
     def _run_hook(self, stdin: str, env_extra: dict):
         with tempfile.TemporaryDirectory() as d:
             env = {**os.environ, "MESH_LLM_MODELS": d, **env_extra}
