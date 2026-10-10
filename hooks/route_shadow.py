@@ -2,7 +2,7 @@
 """Claude Code PreToolUse hook (matcher "Task|Agent"): SHADOW-log what the mesh router and the fixed phase rule would have picked.
 
 It PRINTS NOTHING, NEVER BLOCKS (always exit 0, no JSON decision), and writes one row per dispatch to data/lifelong/route_shadow.jsonl:
-    {ts, session, tool_use_id, actual, mesh_pick, rule_pick, n_cand, mesh_ms}
+    {ts, session, tool_use_id, actual, mesh_pick, rule_pick, hybrid_pick, n_cand, mesh_ms, hybrid_ms}
 `python -m ingest shadow-report` turns the log into accuracy-vs-actual with Wilson CIs and the explicit promotion verdict (ingest/shadow.py).
 Disable with NEURAL_MESH_SHADOW=off (checked before any import).  Budget NEURAL_MESH_SHADOW_BUDGET_S (default 2.5 s) via a watchdog + os._exit.
 
@@ -54,6 +54,50 @@ def mesh_pick(cfg, feats, cands):
                 pass
 
 
+HYBRID_PRIOR_K = 500.0   # R122: with the declared roster as candidates, k >= 500 follows the phase rule almost always (router_eval: ties the rule in-domain)
+
+
+def roster_of(cwd):
+    """agent names declared by the project (<cwd>/.claude/agents/*.md stems), [] when there are none"""
+    try:
+        d = os.path.join(cwd, ".claude", "agents")
+        return sorted(os.path.splitext(f)[0] for f in os.listdir(d) if f.endswith(".md") and "," not in f)[:64]
+    except Exception:
+        return []
+
+
+def hybrid_pick(cfg, cwd, feats, rule, seed_key):
+    """R122 shadow-only: the PROJECT's own router state + its declared roster as candidates + the phase rule as warm prior (route --prior). None if the project has no state."""
+    try:
+        from ingest.extract import project_of
+        from ingest.meshio import project_state
+        import zlib
+        st = project_state(cfg, {"project": project_of(cwd, "")})
+        if not (cfg.mesh_exe.exists() and st.exists()):
+            return None
+        with open(st, encoding="utf-8") as f:
+            agents = [a for a in json.load(f).get("agents", []) if isinstance(a, str) and a and "," not in a]
+        cands = agents + [a for a in roster_of(cwd) if a not in agents]
+        if len(cands) < 2:
+            return None
+        fd, tmp = tempfile.mkstemp(prefix="route-shadow-h-", suffix=".json")
+        os.close(fd)
+        try:
+            shutil.copyfile(st, tmp)
+            cmd = [str(cfg.mesh_exe), "route", "--state", tmp, "--features", ",".join(feats) or "_none", "--candidates", ",".join(cands),
+                   "--prior", rule, "--prior-k", str(HYBRID_PRIOR_K), "--seed", str(zlib.crc32(str(seed_key).encode()))]
+            r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=ROUTE_TIMEOUT_S)
+            agent = json.loads(r.stdout).get("agent") if r.returncode == 0 else None
+            return agent if isinstance(agent, str) and agent else None
+        finally:
+            try:
+                os.unlink(tmp)
+            except OSError:
+                pass
+    except Exception:
+        return None
+
+
 def state_agents(cfg):
     try:
         with open(cfg.router_state, encoding="utf-8") as f:
@@ -74,8 +118,12 @@ def build_row(data, cfg):
     feats = [f for f in features(desc + " " + prompt[:400]) if "," not in f]
     cands = state_agents(cfg)
     pick, ms = mesh_pick(cfg, feats, cands)
+    rule = rule_pick(desc + " :: " + prompt[:400])
+    t_h = time.monotonic()
+    hyb = hybrid_pick(cfg, str(data.get("cwd") or ""), feats, rule, data.get("tool_use_id") or data.get("session_id") or "")
     return {"ts": time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime()) + "Z", "session": data.get("session_id"), "tool_use_id": data.get("tool_use_id"),
-            "actual": actual, "mesh_pick": pick, "rule_pick": rule_pick(desc + " :: " + prompt[:400]), "n_cand": len(cands), "mesh_ms": ms}
+            "actual": actual, "mesh_pick": pick, "rule_pick": rule, "hybrid_pick": hyb, "n_cand": len(cands), "mesh_ms": ms,
+            "hybrid_ms": round((time.monotonic() - t_h) * 1000)}
 
 
 def log_shadow(data, cfg=None):

@@ -24,6 +24,7 @@ class Config:
     mem_namespace: str = "lifelong"
     mem_max_active: int = 20000
     mesh_feedback: bool = True
+    mesh_project_states: bool = field(default_factory=lambda: os.environ.get("INGEST_MESH_PROJECT_STATES", "1") != "0")   # R122: also feed a per-project router state
     mesh_feed_mode: str = field(default_factory=lambda: os.environ.get("INGEST_MESH_FEED", "label"))  # "label" (default, R117) | "reward" (legacy)
 
     # derived paths

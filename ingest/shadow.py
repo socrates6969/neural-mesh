@@ -100,7 +100,12 @@ def summarize(rows: list[dict], window: int = 50) -> dict:
     elif not eligible:
         why.append(f"mesh Wilson lower bound {mesh['ci95'][0]} is not above the rule accuracy {rule['acc']}")
     last = dom[-window:]
+    hyb_rows = [r for r in dom if r.get("hybrid_pick")]
+    hb = sum(1 for r in hyb_rows if r.get("hybrid_pick") == r["actual"] and r.get("rule_pick") != r["actual"])
+    hc = sum(1 for r in hyb_rows if r.get("hybrid_pick") != r["actual"] and r.get("rule_pick") == r["actual"])
     return {
+        "in_domain_hybrid": _acc(hyb_rows, "hybrid_pick") if hyb_rows else None,       # R122: project state + roster + phase-rule prior (shadow only)
+        "paired_hybrid_vs_rule": {"hybrid_only_right": hb, "rule_only_right": hc, "mcnemar_exact_p": round(mcnemar_exact_p(hb, hc), 4)} if hyb_rows else None,
         "dispatches_logged": len(rows), "in_domain": len(dom), "mesh_pick_missing": sum(1 for r in rows if not r.get("mesh_pick")),
         "in_domain_mesh": mesh, "in_domain_rule": rule,
         "paired_in_domain": {"mesh_only_right": b, "rule_only_right": c, "mcnemar_exact_p": round(mcnemar_exact_p(b, c), 4)},
@@ -124,6 +129,8 @@ def format_report(s: dict) -> str:
     ci = lambda x: "-" if x["acc"] is None else f"{x['acc']:.3f} [{x['ci95'][0]:.3f},{x['ci95'][1]:.3f}] ({x['correct']}/{x['n']})"
     lines = [f"shadow log: {s['log']}  dispatches={s['dispatches_logged']}  in-domain(fr-*)={s['in_domain']}  mesh pick missing={s['mesh_pick_missing']}",
              f"in-domain  mesh {ci(m)}", f"in-domain  rule {ci(r)}",
+             (f"in-domain  hybrid {ci(s['in_domain_hybrid'])}  (project state + roster + phase-rule prior; paired vs rule {s['paired_hybrid_vs_rule']['hybrid_only_right']}:{s['paired_hybrid_vs_rule']['rule_only_right']})"
+              if s.get("in_domain_hybrid") else "in-domain  hybrid -  (no rows with hybrid_pick yet)"),
              f"paired: mesh-only right {s['paired_in_domain']['mesh_only_right']}, rule-only right {s['paired_in_domain']['rule_only_right']}, "
              f"McNemar exact p={'<0.0001' if s['paired_in_domain']['mcnemar_exact_p'] < 0.0001 else s['paired_in_domain']['mcnemar_exact_p']}",
              f"last {s['rolling']['window']} in-domain  mesh {ci(s['rolling']['mesh'])}   rule {ci(s['rolling']['rule'])}",

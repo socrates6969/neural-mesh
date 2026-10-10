@@ -6,11 +6,14 @@
 # A failed ingest skips the llm round but the mirror still runs. llm exit 75 (another llm run holds the lock) is logged as
 # "busy" and counts as 0. Exit code = the worst stage exit code (0 ok, 3 a stage failed, 4 mirror stored nothing, 5 mirror
 # refused); an unexpected PowerShell error writes FATAL to the log and exits 1. Logs rotate above 5 MB (.1 .. .3).
+#   -JudgeBudget N   LOCAL (Ollama, free, ~10 s/call) judge calls for the ingestor: SFT candidates round-robin over sessions, then a decoy call each
+#                    (ingest/schedule.py). 800 clears the first backlog of ~270 candidates + decoys in one night; later nights need a few dozen.
+#   -PairBudget N    PAID Claude Haiku pairwise-judge calls for the llm eval gate (default 120). Before R122 -JudgeBudget was passed to both, i.e. 600 paid calls.
 #   -Python P        llm venv python (default llm\.venv\Scripts\python.exe)
 #   -IngestPython P  python for ingest/mirror (default `python` on PATH)
 #   -NoMirror        skip stage 3
 #   -Log P           log file (default llm\models\nightly.log)
-param([int]$IngestWaitSeconds = 3600, [int]$JudgeBudget = 600, [string]$MirrorDb = '', [string]$Python = '',
+param([int]$IngestWaitSeconds = 3600, [int]$JudgeBudget = 800, [int]$PairBudget = 120, [string]$MirrorDb = '', [string]$Python = '',
       [string]$IngestPython = 'python', [switch]$NoMirror, [string]$Log = '')
 $ErrorActionPreference = 'Stop'
 $env:PYTHONIOENCODING = 'utf-8'
@@ -57,7 +60,7 @@ try {
             Write-Log 'ingest failed; skipping the llm round'
         } else {
             # 2) the llm round under one lock
-            $lrc = Invoke-Logged $Python @('-u', '-m', 'llm', 'nightly', '--judge-budget', "$JudgeBudget") $Log
+            $lrc = Invoke-Logged $Python @('-u', '-m', 'llm', 'nightly', '--judge-budget', "$PairBudget") $Log
             if ($lrc -eq 75) { Write-Log 'llm busy (nightly.lock held by another llm run); skipped'; $lrc = 0 }
             else { Write-Log "llm nightly exit $lrc" }
             if ($lrc -gt $worst) { $worst = $lrc }

@@ -211,10 +211,8 @@ def validate(cfg, hand_path: Path = HAND_LABELS) -> dict:
     items = build_items(cfg)
     new = label_items(items)
     by6 = {it.id[-6:]: it for it in items}
-    old = {}
-    from .util import iter_jsonl
-    for r in iter_jsonl(cfg.outcomes):
-        old[r["id"][-6:]] = r["outcome"]
+    from . import extract as ex       # v1 = the text-cue classifier, recomputed from the same states (outcomes.jsonl may already hold v2 labels)
+    old = {it.id[-6:]: ex.classify((it.description + chr(10) + it.prompt).strip(), it.report, it.result_head, it.signals, it.later)[0] for it in items}
     keys = [k for k in hand if k in by6]
     v1 = [(hand[k], old.get(k, "success")) for k in keys]
     v2 = [(hand[k], new[by6[k].id][0]) for k in keys]
@@ -225,7 +223,7 @@ def validate(cfg, hand_path: Path = HAND_LABELS) -> dict:
     return res
 
 
-def relabel(cfg, write: bool = False) -> dict:
+def relabel(cfg, write: bool = False, out: Path | None = None) -> dict:
     """Recompute every outcome's label (+reward, signals) from the saved per-file states. Rows keep id/ts/judge; the old file is backed up."""
     from . import extract as ex
     from .pipeline import _reward
@@ -244,6 +242,9 @@ def relabel(cfg, write: bool = False) -> dict:
         out_rows.append(r)
     res = {"rows": len(rows), "relabelled": sum(1 for r in rows if r["id"] in new), "changed": sum(changed.values()), "transitions": dict(changed),
            "counts_before": dict(Counter(r["outcome"] for r in rows)), "counts_after": dict(Counter(r["outcome"] for r in out_rows)), "written": False}
+    if out is not None:                      # a side copy for experiments; the live outcomes file is untouched
+        atomic_write_text(out, "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in out_rows))
+        res["out"] = str(out)
     if write:
         import shutil
         bak = cfg.outcomes.with_name("outcomes.v1.jsonl")
@@ -264,7 +265,8 @@ def main(argv=None) -> int:
         print(json.dumps(validate(cfg), indent=1))
         return 0
     if cmd == "relabel":
-        print(json.dumps(relabel(cfg, write="--write" in argv), indent=1))
+        o = Path(argv[argv.index("--out") + 1]) if "--out" in argv else None
+        print(json.dumps(relabel(cfg, write="--write" in argv, out=o), indent=1))
         return 0
     print("usage: python -m ingest.labeler validate | relabel [--write]", file=sys.stderr)
     return 2

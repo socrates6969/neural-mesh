@@ -13,6 +13,7 @@ from .labeler import label_items
 from .memory import MemoryStore
 from .meshio import MeshFeedback
 from .reader import discover, load_all_states, update_file
+from .schedule import Cand, grade_all
 from .scrub import SCRUB_VERSION
 from .util import ProcessLock, append_jsonl, atomic_write_text, iter_jsonl, read_json, sha16
 from .vectors import VectorStore, leader_clusters, vec_key
@@ -71,17 +72,39 @@ def _run_locked(cfg) -> dict:
     dispatches.sort(key=lambda d: (d.ts or "", d.id))
     v2_labels = label_items(dispatches) if os.environ.get("INGEST_LABELER", "v2") != "v1" else {}   # R122 structural labeler (labeler.py)
     turns.sort(key=lambda t: (t.ts or "", t.id))
+    labels = {d.id: v2_labels.get(d.id) or ex.classify(_task_of(d), d.report, d.result_head, d.signals, d.later) for d in dispatches}
+
+    # 2b. SFT admission (R122, schedule.py): the judge budget goes first to SFT candidates, spread over sessions and sources, with a decoy contrast;
+    #     candidates are looked at on EVERY run (not only when their outcome row is written), so a row skipped for lack of budget is retried
+    vs = VectorStore(cfg)
+    cands = _candidates(cfg, dispatches, turns, labels, sft_ids)
+    if cands and vs.available():
+        vs.ensure([c.instruction for c in cands] + [c.output for c in cands])
+    adm = grade_all(judge, cands, vs if vs.available() else None, cfg.sft_min_judge)
 
     new_out, new_sft, mem_sources = [], [], []
     drop = Counter()
 
     # 3. outcomes (judge first, so the reward can blend the grade)
     for d in dispatches:
-        if not d.settled or d.id in out_ids:
+        if not d.settled:
             continue
-        task = (d.description + "\n" + d.prompt).strip()
-        g = judge.grade(d.id, task, d.report) if d.report and not d.report_secret else None
-        outcome, sig = v2_labels.get(d.id) or ex.classify(task, d.report, d.result_head, d.signals, d.later)
+        is_new = d.id not in out_ids
+        task = _task_of(d)
+        outcome, sig = labels[d.id]
+        a = adm.get(d.id)
+        # sft: agent prompt -> final report, only good outcomes admitted by schedule.grade_all, never tainted / secret. Considered on every run
+        # (an outcome row written while the judge budget was exhausted must not lose its SFT chance for good).
+        if a is not None and a.accepted:
+            sid = "sft:" + sha16(d.prompt, d.report)
+            if sid not in sft_ids:
+                new_sft.append(_sft_row(sid, d.end_ts or d.ts, d.project, d.session, "agent_report", d.agent, d.model, d.prompt, d.report, outcome, a.grade, a))
+                sft_ids.add(sid)
+        elif a is not None and a.accepted is False and a.decoy_needed:
+            drop["sft_decoy_not_rejected"] += 1
+        if not is_new:
+            continue
+        g = (a.grade if a is not None else None) or (judge.grade(d.id, task, d.report) if d.report and not d.report_secret else None)
         js = g["score"] if g else None
         task_text = d.description + (" :: " + d.prompt[:400] if d.prompt else "")
         if d.prompt_secret:
@@ -91,16 +114,9 @@ def _run_locked(cfg) -> dict:
                "tokens": d.tokens, "outcome": outcome, "reward": _reward(outcome, js), "judge_score": js, "signals": sig}
         new_out.append(row)
         out_ids.add(d.id)
-        # sft: agent prompt -> final report, only good outcomes with a high grade, never tainted / secret
-        if outcome == "success" and js is not None and js >= cfg.sft_min_judge and not d.tainted and not d.prompt_secret \
-                and not d.report_secret and len(d.report) >= MIN_SFT_RESP and len(d.prompt) >= MIN_SFT_USER:
-            sid = "sft:" + sha16(d.prompt, d.report)
-            if sid not in sft_ids:
-                new_sft.append(_sft_row(sid, d.end_ts or d.ts, d.project, d.session, "agent_report", d.agent, d.model, d.prompt, d.report, outcome, g))
-                sft_ids.add(sid)
-        elif d.tainted:
+        if outcome == "success" and d.tainted:
             drop["sft_tainted"] += 1
-        elif d.report_secret or d.prompt_secret:
+        elif outcome == "success" and (d.report_secret or d.prompt_secret):
             drop["sft_secret"] += 1
         if outcome in ("success", "defect") and (js is None or js >= 0.5) and not d.tainted and not d.report_secret:
             mem_sources.append((d.report, d.project, d.session, d.id, d.end_ts or d.ts, js if js is not None else ex.OUTCOME_REWARD[outcome]))
@@ -123,15 +139,17 @@ def _run_locked(cfg) -> dict:
         if ex.negative_feedback(t.feedback):
             drop["turn_negative_feedback"] += 1
             continue
-        g = judge.grade(t.id, t.user, t.resp)
-        if g is None or g["score"] < cfg.sft_min_judge:
+        a = adm.get(t.id)
+        if a is None or not a.accepted:
+            if a is not None and a.accepted is False and a.decoy_needed:
+                drop["sft_decoy_not_rejected"] += 1
             continue
-        new_sft.append(_sft_row(sid, t.end_ts or t.ts, t.project, t.session, "user_turn", None, t.model, t.user, t.resp, None, g))
+        g = a.grade
+        new_sft.append(_sft_row(sid, t.end_ts or t.ts, t.project, t.session, "user_turn", None, t.model, t.user, t.resp, None, g, a))
         sft_ids.add(sid)
         mem_sources.append((t.resp, t.project, t.session, t.id, t.end_ts or t.ts, g["score"]))
 
     # 5. vectors (one MiniLM space, cached by content hash) + sft near-duplicate GC, then write (append-only, de-duplicated by id)
-    vs = VectorStore(cfg)
     vec_ok = vs.available()
     if vec_ok:
         old_sft = list(iter_jsonl(cfg.sft))
@@ -218,11 +236,37 @@ def _write_sft_meta(cfg, vs) -> None:
     atomic_write_text(cfg.data / "sft_meta.jsonl", "".join(lines))
 
 
-def _sft_row(sid, ts, project, session, source, agent, model, instruction, response, outcome, g) -> dict:
-    return {"id": sid, "ts": ts, "project": project, "session": session, "source": source, "agent": agent, "model": model,
-            "instruction": instruction, "response": response, "outcome": outcome, "judge_score": g["score"], "judge_model": g["model"],
-            "rubric_version": g["rubric_version"], "scrub_version": SCRUB_VERSION,
-            "chars": {"instruction": len(instruction), "response": len(response)}}
+def _task_of(d) -> str:
+    return (d.description + chr(10) + d.prompt).strip()
+
+
+def _candidates(cfg, dispatches, turns, labels, sft_ids) -> list[Cand]:
+    """Everything that could become an SFT row this run (same gates as before; the judge is not consulted here)."""
+    out = []
+    for d in dispatches:
+        if not d.settled or labels[d.id][0] != "success" or d.tainted or d.prompt_secret or d.report_secret or not d.report:
+            continue
+        if len(d.report) < MIN_SFT_RESP or len(d.prompt) < MIN_SFT_USER or ("sft:" + sha16(d.prompt, d.report)) in sft_ids:
+            continue
+        out.append(Cand(d.id, _task_of(d), d.prompt, d.report, d.session, d.end_ts or d.ts or "", "agent_report"))
+    for t in turns:
+        if not t.settled or t.tainted or t.user_secret or t.resp_secret or len(t.resp) < MIN_SFT_RESP or len(t.user) < MIN_SFT_USER:
+            continue
+        if ("sft:" + sha16(t.user, t.resp)) in sft_ids or ex.negative_feedback(t.feedback):
+            continue
+        out.append(Cand(t.id, t.user, t.user, t.resp, t.session, t.end_ts or t.ts or "", "user_turn"))
+    return out
+
+
+def _sft_row(sid, ts, project, session, source, agent, model, instruction, response, outcome, g, adm=None) -> dict:
+    row = {"id": sid, "ts": ts, "project": project, "session": session, "source": source, "agent": agent, "model": model,
+           "instruction": instruction, "response": response, "outcome": outcome, "judge_score": g["score"], "judge_model": g["model"],
+           "rubric_version": g["rubric_version"], "scrub_version": SCRUB_VERSION,
+           "chars": {"instruction": len(instruction), "response": len(response)}}
+    if adm is not None:     # decoy contrast (schedule.py): null decoy_score = no decoy could be built, admitted on the real grade alone
+        row["decoy_score"] = adm.decoy_score
+        row["decoy_margin"] = None if adm.decoy_score is None else round(g["score"] - adm.decoy_score, 4)
+    return row
 
 
 def status(cfg) -> dict:

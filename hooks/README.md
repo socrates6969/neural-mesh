@@ -3,7 +3,7 @@
 | File | Claude Code event | What it does |
 |---|---|---|
 | `recall_hook.py` | `UserPromptSubmit` (stdout is injected into the model context) | gate -> project-scoped `MemoryStore.recall` (k<=3) -> relevance floor -> scrubbed block of <=1500 chars, or nothing |
-| `route_shadow.py` | `PreToolUse`, matcher `Task\|Agent` | logs `{ts, session, tool_use_id, actual, mesh_pick, rule_pick, n_cand, mesh_ms}` to `data/lifelong/route_shadow.jsonl`; prints nothing, never blocks |
+| `route_shadow.py` | `PreToolUse`, matcher `Task\|Agent` | logs `{ts, session, tool_use_id, actual, mesh_pick, rule_pick, hybrid_pick, n_cand, mesh_ms, hybrid_ms}` to `data/lifelong/route_shadow.jsonl`; prints nothing, never blocks |
 | `settings-hooks-recall.json` | | the exact `hooks` entries for `~/.claude/settings.json` (merge by hand, the queen owns that file) |
 | `measure_recall.py` | | reproduces every number below (`prompts`, `fire`, `latency`, `tost`) |
 
@@ -56,3 +56,10 @@ Nightly feed (`ingest/meshio.py`): the actual agent is fed as `feedback --label 
 worktree block, API error on a re-dispatch) as `--agent X --reward 0 --failure-class env`; `INGEST_MESH_FEED=reward` restores the legacy feed; a binary
 that rejects the flags gets the legacy feed per event (`stats.fallback`), so no event is lost. `python -m ingest rebuild-router [--dry-run] [--eval]`
 replays all outcomes into a fresh state with this policy (the live state is backed up first). It was run as a dry run only, see the report.
+
+### R122: labels, per-project states and the shadow `hybrid_pick`
+* Outcome labels now come from `ingest/labeler.py` (structural: what the leader did NEXT, fix-task starts, interruption phrases): 53/53 vs the evaluator's hand labels in-sample (v1 text cues: 32/53).
+* The nightly also feeds one router state per project (`data/lifelong/mesh/projects/<project>.json`, same policy); `rebuild-router` rebuilds them too.
+* `hybrid_pick` (shadow only, nothing is printed): the project's own state, the project's declared roster (`<cwd>/.claude/agents/*.md`) as candidates and the phase rule as `--prior` with `--prior-k 500`.
+  `shadow-report` prints it next to mesh and rule. Offline prequential replay (`python -m ingest.router_eval`, results/round3_training.md): this ties the phase rule in-domain and beats the
+  project-scoped majority baseline overall; the global-state `mesh_pick` is worse than useless (an arm that was never tried wins the exploration bonus). The promotion rule is unchanged (n_in_domain >= 100 and Wilson lower bound > rule).

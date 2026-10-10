@@ -45,6 +45,12 @@ def world_of(outcome: dict) -> str:
     return "".join(c if c.isalnum() or c in "-_:" else "_" for c in (outcome.get("project") or "default"))[:64] or "default"
 
 
+def project_state(cfg, outcome: dict) -> Path:
+    """R122: one router state per project next to the global one (data/lifelong/mesh/projects/<world>.json). Routing inside a project with its own
+    state and its own candidate roster beat the global state on prequential replay (ingest/router_eval.py); the global state is unchanged."""
+    return cfg.router_state.parent / "projects" / (world_of(outcome).replace(":", "_") + ".json")
+
+
 class MeshFeedback:
     def __init__(self, cfg):
         self.cfg = cfg
@@ -52,7 +58,7 @@ class MeshFeedback:
         self.fed: set[str] = set()
         if self.fed_path.exists():
             self.fed = {x.strip() for x in self.fed_path.read_text(encoding="utf-8").splitlines() if x.strip()}
-        self.stats = {"fed": 0, "failed": 0, "skipped": 0, "label": 0, "env": 0, "reward": 0, "fallback": 0}
+        self.stats = {"fed": 0, "failed": 0, "skipped": 0, "label": 0, "env": 0, "reward": 0, "fallback": 0, "project_fed": 0}
 
     def available(self) -> bool:
         return self.cfg.mesh_exe.exists()
@@ -86,6 +92,12 @@ class MeshFeedback:
         self.stats["fed" if ok else "failed"] += 1
         if ok:
             self.stats[kind] += 1
+        if ok and self.cfg.mesh_project_states:       # same event, same policy, into the project's own state (no journal: --store omitted)
+            pst = project_state(self.cfg, outcome)
+            pst.parent.mkdir(parents=True, exist_ok=True)
+            pmode = "reward" if kind == "reward" else None
+            if self._run(self.command(outcome, state=pst, with_store=False, mode=pmode)):
+                self.stats["project_fed"] += 1
 
     @staticmethod
     def _run(cmd: list[str]) -> bool:
@@ -115,6 +127,8 @@ def rebuild_router(cfg, dry_run: bool = False, evaluate: bool = False) -> dict:
     live = cfg.router_state
     scratch = live.with_name("router_state.rebuild.tmp")
     scratch.unlink(missing_ok=True)
+    pscratch: dict[Path, Path] = {}      # live project state -> scratch state (R122)
+    done_p: set[Path] = set()
     seen: list[str] = []
     n = ok = 0
     ev = {"n": 0, "mesh": 0, "dom_n": 0, "dom_mesh": 0, "dom_rule": 0}
@@ -130,6 +144,14 @@ def rebuild_router(cfg, dry_run: bool = False, evaluate: bool = False) -> dict:
                 ev["dom_rule"] += rule_pick(r.get("task_text") or "") == agent
         n += 1
         ok += MeshFeedback._run(mf.command(r, state=scratch, with_store=False))
+        if cfg.mesh_project_states:
+            lp = project_state(cfg, r)
+            sp = pscratch.setdefault(lp, lp.with_name(lp.name + ".rebuild.tmp"))
+            if lp not in done_p:
+                sp.parent.mkdir(parents=True, exist_ok=True)
+                sp.unlink(missing_ok=True)
+                done_p.add(lp)
+            MeshFeedback._run(mf.command(r, state=sp, with_store=False))
         if agent not in seen:
             seen.append(agent)
     out = {"ok": True, "outcomes": n, "fed_ok": ok, "mode": cfg.mesh_feed_mode, "agents": len(seen), "dry_run": dry_run}
@@ -138,13 +160,21 @@ def rebuild_router(cfg, dry_run: bool = False, evaluate: bool = False) -> dict:
         if ev["dom_n"]:
             out["prequential"]["in_domain_fr_mesh"] = [ev["dom_mesh"], ev["dom_n"], round(ev["dom_mesh"] / ev["dom_n"], 4)]
             out["prequential"]["in_domain_fr_rule"] = [ev["dom_rule"], ev["dom_n"], round(ev["dom_rule"] / ev["dom_n"], 4)]
+    out["project_states"] = len(pscratch)
     if dry_run:
         scratch.unlink(missing_ok=True)
+        for sp in pscratch.values():
+            sp.unlink(missing_ok=True)
         return out
     if live.exists():
         shutil.copy2(live, live.with_name("router_state.json.pre-rebuild"))
     if scratch.exists():
         scratch.replace(live)
+    for lp, sp in pscratch.items():
+        if lp.exists():
+            shutil.copy2(lp, lp.with_name(lp.name + ".pre-rebuild"))
+        if sp.exists():
+            sp.replace(lp)
     return out
 
 
