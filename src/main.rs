@@ -2,7 +2,8 @@
 //!
 //! ```text
 //! neural-mesh route    --state <file> --features a,b,c [--candidates x,y] [--team k] [--type t] [--seed n]
-//! neural-mesh feedback --state <file> --features a,b,c --agent X [--team X,Y] --reward 0..1 [--type t]
+//! neural-mesh feedback --state <file> --features a,b,c --agent X [--team X,Y] --reward 0..1 [--type t] [--failure-class skill|spec|env]
+//! neural-mesh feedback --state <file> --features a,b,c --label X [--agent routed]          (supervised: the correct agent is known)
 //! neural-mesh stats    --state <file>
 //! neural-mesh config   --state <file> [--eta x --temperature x --decay x --epsilon x --team k --prior-k x]
 //! ```
@@ -466,6 +467,8 @@ fn cmd_route(st: &mut State, o: &Opts) -> Result<Value, CliError> {
         cand_idx.iter().map(|&i| (st.agents[i].clone(), json!(r6(all_scores.get(i).copied().unwrap_or(0.0))))).collect();
     let health: serde_json::Map<String, Value> =
         cand_idx.iter().map(|&i| (st.agents[i].clone(), json!(r6(st.mesh.health(i))))).collect();
+    let risk: serde_json::Map<String, Value> =
+        cand_idx.iter().map(|&i| (st.agents[i].clone(), json!(r6(st.mesh.dispatch_risk(i))))).collect();
     let names: Vec<&str> = team.iter().map(|&i| st.agents[i].as_str()).collect();
     let mut out = json!({
         "ok": true,
@@ -475,6 +478,10 @@ fn cmd_route(st: &mut State, o: &Opts) -> Result<Value, CliError> {
         "health": health,
         "features": active_features(&task),
     });
+    // only once an environment failure was ever reported (keeps the response shape of existing callers unchanged)
+    if cand_idx.iter().any(|&i| st.mesh.dispatch_risk(i) > 0.0) {
+        out["dispatch_risk"] = Value::Object(risk);
+    }
     if let Some((w, followed)) = prior_out {
         out["prior_weight"] = json!(r6(w));
         out["followed_prior"] = json!(followed);
@@ -482,8 +489,70 @@ fn cmd_route(st: &mut State, o: &Opts) -> Result<Value, CliError> {
     Ok(out)
 }
 
+/// Why a dispatch failed (`feedback --failure-class`, opt-in, R117). `Skill` (default) is the original behaviour. `Spec` (the task/spec was the
+/// problem) updates health/edges but NOT the skill weights (`feedback_opt(update_leader = false)`). `Env` (rate limit, turn limit, worktree block)
+/// touches neither skill weights nor health/benching: it only updates the agent's dispatch-risk score, which `route` reports.
+#[derive(Clone, Copy, PartialEq, Debug)]
+enum FailClass {
+    Skill,
+    Spec,
+    Env,
+}
+
+fn fail_class(o: &Opts) -> Result<FailClass, CliError> {
+    match o.get("failure-class").map(str::trim) {
+        None | Some("skill") => Ok(FailClass::Skill),
+        Some("spec") => Ok(FailClass::Spec),
+        Some("env") => Ok(FailClass::Env),
+        Some(x) => Err(usage(format!("--failure-class must be skill, spec or env (got '{x}')"))),
+    }
+}
+
+/// True when this feedback must NOT enter the durable journal (the journal replays rewards into the skill weights).
+fn skips_journal(o: &Opts) -> bool {
+    matches!(o.get("failure-class").map(str::trim), Some("spec") | Some("env"))
+}
+
+/// `feedback --label X [--agent routed]`: the correct agent is known (supervised update, R117). The label gets reward 1; a different routed agent
+/// gets a leader-only reward 0 for this wording (no health hit: it did not fail, it was just not the right agent).
+fn cmd_feedback_label(st: &mut State, o: &Opts, patch: ConfigPatch) -> Result<Value, CliError> {
+    if o.get("failure-class").is_some_and(|c| c.trim() != "skill") || o.get("team").is_some() || o.get("reward").is_some() {
+        return Err(usage("--label cannot be combined with --failure-class spec|env, --team or --reward"));
+    }
+    let label = o.req("label")?.trim().to_string();
+    if label.is_empty() || label.contains(',') {
+        return Err(usage("--label must be a single non-empty agent name"));
+    }
+    let routed = match o.get("agent") {
+        Some(a) if a.trim().is_empty() || a.contains(',') => return Err(usage("--agent must be a single non-empty name")),
+        Some(a) => Some(a.trim().to_string()),
+        None => None,
+    };
+    let task = make_task(o, st.feedbacks)?;
+    let li = st.register(&label);
+    let ri = routed.as_deref().map(|r| st.register(r));
+    patch.apply(st);
+    st.mesh.feedback_label(&task, ri, li);
+    st.feedbacks += 1;
+    for f in &task.features {
+        *st.feature_counts.entry(f.clone()).or_insert(0) += 1;
+    }
+    Ok(json!({
+        "ok": true,
+        "agent": label,
+        "label": label,
+        "routed": routed,
+        "correct": routed.as_deref().map(|r| r == label),
+        "health": {label.clone(): r6(st.mesh.health(li))},
+    }))
+}
+
 fn cmd_feedback(st: &mut State, o: &Opts) -> Result<Value, CliError> {
     let patch = ConfigPatch::parse(o, false)?;
+    let class = fail_class(o)?;
+    if o.get("label").is_some() {
+        return cmd_feedback_label(st, o, patch);
+    }
     let agent = o.req("agent")?.trim().to_string();
     if agent.is_empty() || agent.contains(',') {
         return Err(usage("--agent must be a single non-empty name"));
@@ -504,10 +573,16 @@ fn cmd_feedback(st: &mut State, o: &Opts) -> Result<Value, CliError> {
     let task = make_task(o, st.feedbacks)?;
     let team: Vec<usize> = names.iter().map(|n| st.register(n)).collect();
     patch.apply(st);
-    st.mesh.feedback(&task, &team, reward);
-    st.feedbacks += 1;
-    for f in &task.features {
-        *st.feature_counts.entry(f.clone()).or_insert(0) += 1;
+    match class {
+        FailClass::Skill => st.mesh.feedback(&task, &team, reward),
+        FailClass::Spec => st.mesh.feedback_opt(&task, &team, reward, false),
+        FailClass::Env => st.mesh.feedback_env(team[0], reward < 0.5),
+    }
+    if class == FailClass::Skill {
+        st.feedbacks += 1;
+        for f in &task.features {
+            *st.feature_counts.entry(f.clone()).or_insert(0) += 1;
+        }
     }
     let health: serde_json::Map<String, Value> =
         team.iter().map(|&i| (st.agents[i].clone(), json!(r6(st.mesh.health(i))))).collect();
@@ -517,14 +592,24 @@ fn cmd_feedback(st: &mut State, o: &Opts) -> Result<Value, CliError> {
             edges.push(json!({"a": st.agents[a], "b": st.agents[b], "w": r6(st.mesh.edge(a, b))}));
         }
     }
-    Ok(json!({
+    let mut out = json!({
         "ok": true,
         "agent": names[0],
         "team": names,
         "reward": reward,
         "health": health,
         "edges": edges,
-    }))
+    });
+    // extra fields only for the opt-in classes (keeps the response shape of existing callers unchanged)
+    match class {
+        FailClass::Skill => {}
+        FailClass::Spec => out["failure_class"] = json!("spec"),
+        FailClass::Env => {
+            out["failure_class"] = json!("env");
+            out["dispatch_risk"] = json!(r6(st.mesh.dispatch_risk(team[0])));
+        }
+    }
+    Ok(out)
 }
 
 fn cmd_stats(st: &State) -> Value {
@@ -717,7 +802,7 @@ fn run(args: &[String]) -> Result<Value, CliError> {
     }
     let base: &[&str] = match cmd.as_str() {
         "route" => &["state", "features", "candidates", "team", "type", "seed", "prior", "store", "world", "store-sync"],
-        "feedback" => &["state", "features", "agent", "team", "reward", "type", "store", "world", "store-sync"],
+        "feedback" => &["state", "features", "agent", "team", "reward", "type", "store", "world", "store-sync", "failure-class", "label"],
         "stats" => &["state", "store", "world"],
         "config" => &["state", "team"],
         other => return Err(usage(format!("unknown command '{other}'"))),
@@ -745,8 +830,12 @@ fn run(args: &[String]) -> Result<Value, CliError> {
         "route" => cmd_route(&mut st, &o)?,
         "feedback" => {
             let v = cmd_feedback(&mut st, &o)?;
-            if let Some(sv) = &store {
-                append_to_store(&mut st, sv, &o, &world)?;
+            if let Some(sv) = store.as_ref().filter(|_| !skips_journal(&o)) {
+                if o.get("label").is_some() {
+                    append_label_to_store(&mut st, sv, &o, &world)?;
+                } else {
+                    append_to_store(&mut st, sv, &o, &world)?;
+                }
             }
             v
         }
@@ -815,6 +904,53 @@ mod tests {
         assert!(run(&a(&["frontend", "--chunks", "[1]"])).is_err());
         assert!(run(&a(&["frontend", "--local-conf", "abc"])).is_err());
         assert!(run(&a(&["frontend", "--bogus", "1"])).is_err());
+    }
+
+    #[test]
+    fn env_failure_class_leaves_skill_weights_and_health_alone() {
+        let p = tmp("failclass");
+        let a = |v: &[&str]| v.iter().map(|x| x.to_string()).collect::<Vec<_>>();
+        let st = p.to_str().unwrap();
+        for _ in 0..3 {
+            run(&a(&["feedback", "--state", st, "--features", "x", "--agent", "a", "--reward", "1"])).unwrap();
+            run(&a(&["feedback", "--state", st, "--features", "x", "--agent", "b", "--reward", "0.5"])).unwrap();
+        }
+        let before = run(&a(&["stats", "--state", st])).unwrap();
+        for _ in 0..10 {
+            let v = run(&a(&["feedback", "--state", st, "--features", "x", "--agent", "a", "--reward", "0", "--failure-class", "env"])).unwrap();
+            assert_eq!(v["failure_class"], "env");
+        }
+        let after = run(&a(&["stats", "--state", st])).unwrap();
+        assert_eq!(before["weights"], after["weights"]);
+        assert_eq!(before["agents"], after["agents"]);
+        assert_eq!(before["feedbacks"], after["feedbacks"]);
+        let r = run(&a(&["route", "--state", st, "--features", "x"])).unwrap();
+        assert!(r["dispatch_risk"]["a"].as_f64().unwrap() > 0.8 && r["dispatch_risk"]["b"].as_f64().unwrap() == 0.0);
+        // spec class: health/edges move, skill weights do not
+        run(&a(&["feedback", "--state", st, "--features", "x", "--agent", "b", "--reward", "0", "--failure-class", "spec"])).unwrap();
+        let spec = run(&a(&["stats", "--state", st])).unwrap();
+        assert_eq!(before["weights"], spec["weights"]);
+        assert!(run(&a(&["feedback", "--state", st, "--features", "x", "--agent", "a", "--reward", "0", "--failure-class", "bogus"])).is_err());
+        let _ = fs::remove_file(&p);
+    }
+
+    #[test]
+    fn label_feedback_credits_the_label_and_penalises_the_wrong_pick_leader_only() {
+        let p = tmp("label");
+        let a = |v: &[&str]| v.iter().map(|x| x.to_string()).collect::<Vec<_>>();
+        let st = p.to_str().unwrap();
+        for _ in 0..20 {
+            let v = run(&a(&["feedback", "--state", st, "--features", "fix,round", "--agent", "wrong", "--label", "builder"])).unwrap();
+            assert_eq!(v["correct"], false);
+        }
+        let r = run(&a(&["route", "--state", st, "--features", "fix,round", "--candidates", "wrong,builder"])).unwrap();
+        assert_eq!(r["agent"], "builder");
+        let s = run(&a(&["stats", "--state", st])).unwrap();
+        let h = |n: &str| s["agents"].as_array().unwrap().iter().find(|x| x["name"] == n).unwrap()["health"].as_f64().unwrap();
+        assert!(h("wrong") >= 0.99, "the wrong pick did not fail, so its health is untouched");
+        assert!(run(&a(&["feedback", "--state", st, "--features", "x", "--label", "b", "--reward", "1"])).is_err());
+        assert!(run(&a(&["feedback", "--state", st, "--features", "x", "--label", "b", "--failure-class", "env"])).is_err());
+        let _ = fs::remove_file(&p);
     }
 
     fn tmp(name: &str) -> PathBuf {

@@ -253,7 +253,7 @@ fn parse_request(line: &str) -> Parsed {
     let id = obj.get("id").cloned();
     let (name, base): (&'static str, &[&str]) = match cmd {
         "route" => ("route", &["features", "candidates", "team", "type", "seed", "prior"]),
-        "feedback" => ("feedback", &["features", "agent", "team", "reward", "type"]),
+        "feedback" => ("feedback", &["features", "agent", "team", "reward", "type", "failure-class", "label"]),
         "stats" => ("stats", &[]),
         "config" => ("config", &["team"]),
         "flush" => return Parsed { id, plan: Plan::Control("flush") },
