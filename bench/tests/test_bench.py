@@ -178,3 +178,89 @@ def test_manifest_mismatch(offline_run, monkeypatch):
     monkeypatch.delenv("BENCH_THINK")
     assert run.main(args[:7] + ["2"] + args[8:], callers=_fake(), sleep=NOSLEEP) == run.EXIT_PREREG     # K changed
     assert run.main(args, callers=_fake(), sleep=NOSLEEP) == run.EXIT_OK
+
+
+# ====================================================================== battery.py
+import battery  # noqa: E402
+from common import axis_of, file_sha, json_sha  # noqa: E402
+
+
+def test_tune_identical():
+    """the TUNE build reproduces today's frozen bench/battery.json byte for byte (line endings normalised for autocrlf)"""
+    fresh = json.dumps(battery.tune_items(), indent=1).encode()
+    on_disk = (BENCH / "battery.json").read_bytes().replace(b"\r\n", b"\n")
+    assert fresh == on_disk
+    j = json.load(open(BENCH / "battery_tune.json", encoding="utf8"))
+    assert json_sha(j["items"]) == j["header"]["items_sha"] and len(j["items"]) == 120
+    assert [dict((k, v) for k, v in i.items() if k not in ("split", "expected", "src_file", "const", "leak")) for i in j["items"]] == json.loads(json.dumps(battery.tune_items()))
+
+
+def test_splits_disjoint():
+    splits = {s: json.load(open(BENCH / f"battery_{s}.json", encoding="utf8"))["items"] for s in ("tune", "held", "conf")}
+    assert battery.check_disjoint(splits) == []
+    for s in ("held", "conf"):
+        j = json.load(open(BENCH / f"battery_{s}.json", encoding="utf8"))
+        assert json_sha(j["items"]) == j["header"]["items_sha"]
+        counts = {}
+        for i in j["items"]: counts[axis_of(i)] = counts.get(axis_of(i), 0) + 1
+        assert counts == {a: 30 - j["header"]["shortfall"].get(a, 0) for a in ("math", "physics", "code", "research_public", "research_private")}
+        assert all(i["leak"] == ("by-construction" if i["sub"] == "private" else "checked") for i in j["items"])
+        assert all(len(i["tests"]) == len(i["expected"]) == 8 for i in j["items"] if i["kind"] == "code")   # 4 fixed + 4 rng inputs
+        assert not any("errno" in i["prompt"] for i in j["items"])
+    tune_consts = {(f"src/{f}.rs", n) for f, n in battery.TUNE_CONSTS}
+    for s in ("held", "conf"):
+        assert not tune_consts & {(i["src_file"], i["const"]) for i in splits[s] if i["sub"] == "private"}
+    planted = dict(splits, conf=splits["conf"] + [splits["held"][0]])
+    assert battery.check_disjoint(planted)                                      # an overlap is caught
+
+
+def _leaky_fp(needle_always=True, first_only=False):
+    seen = set()
+    def fp(prompt):
+        if first_only and prompt in seen: return prompt, {"retrieved": False}
+        seen.add(prompt)
+        return "Context retrieved from the project repository:\nANSWER_IN_CORPUS\n---\n" + prompt, {"retrieved": True, "top": 99.0}
+    return fp
+
+
+def test_leak_planted(monkeypatch):
+    item = dict(id="h-ma01", split="held", cat="math", sub="exact", prompt="What is 123456 + 0?" + battery.FMT, answer=123456, kind="num", tol=0)
+    ctx_with_answer = lambda p: ("[DESIGN.md:1]\nthe magic number is 123456\n\n---\n" + p, {"retrieved": True})
+    ctx_without = lambda p: ("[DESIGN.md:1]\nnothing to see\n\n---\n" + p, {"retrieved": True})
+    assert battery.leaks(item, ctx_with_answer) and not battery.leaks(item, ctx_without)
+    assert not battery.leaks(item, lambda p: (p, {"retrieved": False}))          # nothing attached, nothing leaked
+    calls = []
+    def make(split, axis, idx, attempt):
+        calls.append(attempt); return dict(item, prompt=f"{item['prompt']} [{axis}{idx}/{attempt}]")
+    flaky = lambda p: ctx_with_answer(p) if p.endswith(("/0]", "/0]" + battery.FMT)) or "/0]" in p else ctx_without(p)
+    items, rep = battery.build_split("held", flaky, pool=[], make=make)
+    assert rep["resampled"] and all("/0]" not in i["prompt"] for i in items)     # every first draw leaked -> resampled once
+    with pytest.raises(battery.BuildError):
+        battery.build_split("held", ctx_with_answer, pool=[], make=make)         # leaks on every draw -> give up
+    monkeypatch.setattr(battery, "leaks", lambda it, fp: True)
+    monkeypatch.setattr(battery, "write_split", lambda *a: pytest.fail("must not write a leaking battery"))
+    assert battery.main(["--split", "held"]) == 1                               # exit 1
+
+
+def test_stale_const(tmp_path, monkeypatch):
+    (tmp_path / "src").mkdir()
+    rs = tmp_path / "src" / "x.rs"
+    rs.write_text("pub const ALPHA: f64 = 0.25;\nconst BETA: usize = 1_000;\n", encoding="utf8")
+    monkeypatch.setattr(battery, "NM", tmp_path)
+    pool = battery.const_pool(tmp_path / "src", committed_only=False)
+    assert {(f, n, v) for f, n, v, _ in pool} == {("x.rs", "ALPHA", "0.25"), ("x.rs", "BETA", "1000")}
+    items = [dict(id="h-rv01", sub="private", src_file="src/x.rs", const="BETA", answer="1000", prompt="`const BETA`")]
+    header = dict(corpus_sha="not-the-current-corpus", frontend_sha=None)
+    probs = battery.check_items("held", header, items)
+    assert [p[0] for p in probs] == ["warn"]                                     # a corpus change only warns
+    rs.write_text("pub const ALPHA: f64 = 0.25;\nconst BETA: usize = 2_000;\n", encoding="utf8")
+    assert "stale" in [p[0] for p in battery.check_items("held", header, items)]
+    rs.write_text("pub const ALPHA: f64 = 0.25;\n", encoding="utf8")
+    assert "stale" in [p[0] for p in battery.check_items("held", header, items)]  # vanished
+    bp = tmp_path / "battery_held.json"
+    bp.write_text(json.dumps(dict(header=dict(header, items_sha=json_sha(items)), items=items)), encoding="utf8")
+    monkeypatch.setattr(battery, "battery_path", lambda s: bp)
+    assert battery.main(["--check", "--split", "held"]) == 2                    # exit 2
+    monkeypatch.setattr(run, "battery_path", lambda s: bp)
+    monkeypatch.setattr(battery, "battery_path", lambda s: bp)
+    assert run.main(["--split", "held", "--tag", "x", "--dry-run", "--sandbox", "docker"]) == run.EXIT_PREREG

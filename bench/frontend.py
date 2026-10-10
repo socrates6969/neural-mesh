@@ -106,11 +106,11 @@ def corpus_sha():
     import hashlib
     h = hashlib.sha256()
     for f in corpus_files():
-        h.update(f.relative_to(NM).as_posix().encode() + b"|" + f.read_bytes() + b"|")
+        h.update(f.relative_to(NM).as_posix().encode() + b"|" + f.read_bytes().replace(b"\r\n", b"\n") + b"|")
     return h.hexdigest()
 def frontend_sha():
     import hashlib
-    return hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest()
+    return hashlib.sha256(pathlib.Path(__file__).read_bytes().replace(b"\r\n", b"\n")).hexdigest()   # CRLF-independent (core.autocrlf)
 def frontend_env():
     """the env knobs that select the front-end variant (recorded in manifests, pinned in PREREG.json)"""
     return {k: os.environ.get(k, "") for k in ("MESH_V2", "MESH_THRESH", "MESH_FRONTEND")}
