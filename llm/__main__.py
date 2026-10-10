@@ -1,10 +1,15 @@
 """python -m llm {bench|train|eval|promote|status|frontend-eval|nightly|calibrate|tool-exemplars} [--synthetic] [--ver V] [--epochs N] [--judge-budget N]
    python -m llm ask ...           front-end wrapper (S2, llm/frontend_live.py; pass-through unless --enabled; never takes the lock)
-"""
+   python -m llm hook --shadow     UserPromptSubmit shadow hook (S1, llm/hook.py; prints nothing, exit 0)
+   python -m llm shadow-drain      offline drain of the shadow queue (S1, under the lock)"""
 from __future__ import annotations
 
 import os
 import sys
+
+if __name__ == "__main__" and sys.argv[1:2] == ["hook"]:   # S1 hook fast path: nothing else is imported, never returns
+    from .hook import cli as _hook_cli
+    _hook_cli(sys.argv[2:])
 
 import argparse
 import json
@@ -55,9 +60,17 @@ def status() -> dict:
 
 def main(argv=None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
+    if argv[:1] == ["hook"]:
+        from .hook import cli as hook_cli
+        hook_cli(argv[1:])
     if argv[:1] == ["ask"]:          # dispatched BEFORE lock(): ask must never wait for or block the nightly
         from .frontend_live import cli_ask
         return cli_ask(argv[1:])
+    if argv[:1] == ["shadow-drain"]:
+        from .frontend_live import shadow_drain
+        with lock():
+            shadow_drain()
+        return 0
     ap = argparse.ArgumentParser(prog="python -m llm")
     ap.add_argument("cmd", choices=["bench", "train", "eval", "promote", "status", "frontend-eval", "nightly", "calibrate", "tool-exemplars"])
     ap.add_argument("--synthetic", action="store_true", help="use the LABELLED synthetic sample instead of data/lifelong/sft.jsonl")
