@@ -7,7 +7,7 @@ from pathlib import Path
 
 import numpy as np
 
-from llm import frontend, frontend_eval as fe
+from llm import frontend, frontend_eval as fe, frontend_live as fl
 
 
 def make_rows(n_sessions=12, per=10, worlds=("agent_report", "human_prompt")):
@@ -154,6 +154,29 @@ class EvalV2(unittest.TestCase):
                              decide=lambda c, s, ch: frontend._fail("boom"), out_dir=self.out, log=lambda *a: None, reps=200)
         self.assertEqual(res["verdict"], "REJECTED")
         self.assertFalse((self.out / "frontend_cfg.json").exists())
+
+    def test_cfg_is_atomic_and_a_later_non_keep_supersedes_it(self):
+        rows = make_rows(12, 10)
+        res, _ = self.run_eval(rows)
+        self.assertEqual(res["verdict"], "KEEP", res.get("why"))
+        cfg = self.out / "frontend_cfg.json"
+        keep_text = cfg.read_text(encoding="utf-8")
+        self.assertEqual(sorted(p.name for p in self.out.iterdir()), ["frontend_cfg.json", "frontend_eval.json"])   # no .tmp left
+        self.assertEqual(fl.policy_cfg(cfg_file=cfg)["min-conf"], json.loads(keep_text)["min-conf"])
+        # a later REJECTED run retires the KEEP config
+        res, _ = self.run_eval(rows, backend=StubBackend(rows, wrong_ids={r["id"] for i, r in enumerate(rows) if i % 3 == 0}))
+        self.assertEqual(res["verdict"], "REJECTED")
+        self.assertFalse(cfg.exists())
+        self.assertEqual((self.out / "frontend_cfg.json.superseded").read_text(encoding="utf-8"), keep_text)
+        self.assertEqual(res["superseded_cfg"], "frontend_cfg.json.superseded")
+        self.assertEqual(fl.policy_cfg(cfg_file=cfg), {"enabled": 1})              # the live path is back on the Rust defaults
+        # KEEP again, then an INSUFFICIENT run (no model call) also retires it
+        self.run_eval(rows)
+        self.assertTrue(cfg.exists())
+        res, made = self.run_eval(make_rows(1, 120))
+        self.assertEqual((res["verdict"], made), ("INSUFFICIENT", []))
+        self.assertFalse(cfg.exists())
+        self.assertTrue((self.out / "frontend_cfg.json.superseded").exists())
 
     def test_keep_requires_tost_equivalence(self):
         """no Holm-significant loss (mean delta 0) is not enough: a noisy +-0.3 quality delta is not equivalent within +-0.01"""

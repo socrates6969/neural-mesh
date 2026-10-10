@@ -17,7 +17,8 @@
   answer - judge score of Claude's own answer for that row (the forward baseline, fwd_score); 0 for a forwarded row. KEEP iff saved
   tokens are Holm-significant in the SAME world on HELD and CONF, no Holm-significant quality loss, Holm-significant TOST
   equivalence (+-0.01) of the quality delta in EVERY (split, world), Wilson 95% upper bound of the wrong rate <= .10 on HELD and
-  CONF, and no Rust call failed. ONLY a KEEP writes models/frontend_cfg.json (thresholds only; enabling stays an explicit --enabled).
+  CONF, and no Rust call failed. ONLY a KEEP writes models/frontend_cfg.json (atomically; thresholds only; enabling stays an
+  explicit --enabled); a later REJECTED / INSUFFICIENT renames it to frontend_cfg.json.superseded.
 
 Every model touch goes through a Backend (RealBackend: Qwen tokenizer, MiniLM, Ollama local model, local judge); tests pass a stub."""
 from __future__ import annotations
@@ -245,11 +246,26 @@ def verdict_tests(splits: dict[str, list[dict]], reps: int = REPS) -> dict:
             "verdict": "KEEP" if not why else "REJECTED", "why": why}
 
 
+CFG_NAME = "frontend_cfg.json"
+SUPERSEDED = CFG_NAME + ".superseded"
+
+
+def _atomic_write(path: Path, text: str) -> None:
+    """temp file in the same directory + os.replace: a reader sees the old file or the complete new one, never a torn one"""
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_text(text, encoding="utf-8")
+    tmp.replace(path)
+
+
 def _write(res: dict, out_dir: Path) -> None:
+    """the eval report; a verdict other than KEEP also retires a KEEP config left by an earlier run (renamed to
+    frontend_cfg.json.superseded, which policy_cfg never reads), so stale thresholds cannot outlive the evidence that justified them"""
     out_dir.mkdir(parents=True, exist_ok=True)
-    tmp = out_dir / "frontend_eval.json.tmp"
-    tmp.write_text(json.dumps(res, indent=1), encoding="utf-8")
-    tmp.replace(out_dir / "frontend_eval.json")
+    cfg = out_dir / CFG_NAME
+    if res.get("verdict") != "KEEP" and cfg.exists():
+        cfg.replace(out_dir / SUPERSEDED)
+        res["superseded_cfg"] = SUPERSEDED
+    _atomic_write(out_dir / "frontend_eval.json", json.dumps(res, indent=1))
 
 
 def evaluate_v2(rows: list[dict], meta: dict, trained_ids, backend_factory, decide=rust_decide, out_dir: Path | None = None,
@@ -313,7 +329,7 @@ def evaluate_v2(rows: list[dict], meta: dict, trained_ids, backend_factory, deci
     if res["verdict"] == "KEEP":
         cfg_out = {"schema": 1, "verdict": "KEEP", "eval_ts": res["ts"], **{k: v for k, v in cfg.items() if k != "enabled"},
                    "note": "thresholds only; the front-end is still enabled ONLY by an explicit --enabled (promotion ladder in llm/README.md)"}
-        (out_dir / "frontend_cfg.json").write_text(json.dumps(cfg_out, indent=1), encoding="utf-8")
+        _atomic_write(out_dir / CFG_NAME, json.dumps(cfg_out, indent=1))
     _write(res, out_dir)
     log(f"front-end eval v2: {res['verdict']} {res['why']}")
     return res
