@@ -158,6 +158,10 @@ def run(synthetic: bool = False, ver: str | None = None, force: bool = False, ke
     tag = f"{config.OLLAMA_NAME}:{ver}"
     out = config.MERGED / ver
     prev = (st.get("production") or {}) if not synthetic else {}
+    # tags that must survive a failed (e.g. --force re-)promotion: the live production tags, and a tag that already existed in
+    # Ollama before this call (we only ever `ollama rm` a tag this call created)
+    live = {t for t in ((st.get("production") or {}).get("ollama"), (st.get("synthetic_production") or {}).get("ollama")) if t}
+    pre_existing = tag in ollama_ids()
     touched_latest = False
     try:
         merge(config.base_path(meta["base"]), config.ADAPTERS / ver, out, log=log)
@@ -172,10 +176,13 @@ def run(synthetic: bool = False, ver: str | None = None, force: bool = False, ke
             st["synthetic_trained_ids"] = sorted(set(st.get("synthetic_trained_ids", [])) | set(meta["new_ids"]))
     except Exception as e:  # noqa: BLE001 - any failure: undo the Ollama side, record it, keep production as it was
         log(f"PROMOTION FAILED {ver}: {e}; cleaning up")
-        try:
-            ollama("rm", tag)
-        except OSError:
-            pass
+        if tag in live or pre_existing:
+            log(f"keeping {tag}: " + ("it is the live production tag" if tag in live else "it existed before this call"))
+        else:
+            try:
+                ollama("rm", tag)
+            except OSError:
+                pass
         if touched_latest:
             restore_latest(prev.get("ollama"), log=log)
         rec.update(promoted=False, action="promote_failed", error=str(e)[-800:])

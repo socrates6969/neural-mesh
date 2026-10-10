@@ -161,6 +161,42 @@ class PromoteCleanup(Sandbox):
         self.assertEqual(rec["exit"], 3)
         self.assertIn("digest", rec["error"])
 
+    def _live_v1(self, fail):
+        self.adapter("v1", new_ids=["a"])
+        config.save_state({"trained_ids": ["a"], "production": {"ver": "v1", "ollama": "mesh-llm:v1"},
+                           "history": [{"ver": "v1", "promoted": True, "action": "promote", "synthetic": False}]})
+        return self.fake(models={"mesh-llm:v1": "id-live", "mesh-llm:latest": "id-live"}, fail=fail)
+
+    def test_failed_force_repromote_of_production_never_removes_the_live_tag(self):
+        for fail in ({"create"}, {"cp"}):
+            with self.subTest(fail=fail):
+                self.tearDown(); self.setUp()
+                ol = self._live_v1(fail)
+                rec = promote.run(ver="v1", force=True, log=lambda *_: None)
+                self.assertEqual((rec["exit"], rec["action"]), (3, "promote_failed"))
+                self.assertNotIn(("rm", "mesh-llm:v1"), ol.calls, "the live production tag is never rm'd")
+                self.assertIn("mesh-llm:v1", ol.models)
+                st = config.load_state()
+                self.assertEqual(st["production"]["ollama"], "mesh-llm:v1")
+
+    def test_failed_promotion_keeps_a_tag_that_existed_before_the_call(self):
+        self.adapter("v1")
+        self.adapter("v2", parent="v1")
+        config.save_state({"trained_ids": [], "production": {"ver": "v1", "ollama": "mesh-llm:v1"},
+                           "history": [{"ver": "v2", "promoted": False, "action": "reject", "synthetic": False}]})
+        ol = self.fake(models={"mesh-llm:v1": "id1", "mesh-llm:latest": "id1", "mesh-llm:v2": "id-old2"}, fail={"create"})
+        rec = promote.run(ver="v2", force=True, log=lambda *_: None)
+        self.assertEqual(rec["exit"], 3)
+        self.assertNotIn(("rm", "mesh-llm:v2"), ol.calls, "not created in this call -> not removed")
+
+    def test_failed_promotion_still_removes_a_tag_it_created(self):
+        self.adapter("v1")
+        ol = self.fake(fail={"cp"})
+        rec = promote.run(log=lambda *_: None)
+        self.assertEqual(rec["exit"], 3)
+        self.assertIn(("rm", "mesh-llm:v1"), ol.calls)
+        self.assertNotIn("mesh-llm:v1", ol.models)
+
     def test_failed_promotion_is_retried_once_then_decided(self):
         self.adapter("v1")
         self.fake(fail={"create"})
