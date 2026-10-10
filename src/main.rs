@@ -1128,6 +1128,9 @@ fn main() {
     if args.first().is_some_and(|a| a == "serve") {
         std::process::exit(serve::main(&args[1..]));
     }
+    if args.first().is_some_and(|a| a == "codemem") {
+        std::process::exit(neural_mesh::codemem::cli::run(&args[1..]));
+    }
     std::panic::set_hook(Box::new(|_| {}));
     let res = std::panic::catch_unwind(|| run(&args));
     let code = match res {

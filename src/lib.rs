@@ -39,3 +39,4 @@ pub mod scan;
 pub mod ledger;
 pub mod encoder;
 pub mod frontend;
+pub mod codemem;
