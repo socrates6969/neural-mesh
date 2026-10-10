@@ -428,6 +428,10 @@ def header_for(split, items, report):
                 frontend_env=FRONTEND_ENV, battery_py_sha=file_sha(__file__), battery_tune_py_sha=file_sha(ROOT / "battery_tune.py"), n_per_axis=N_PER_AXIS, **report)
 
 
+def write_legacy(tune):
+    json.dump(tune, open(ROOT / 'battery.json', 'w'), indent=1)
+
+
 def write_split(split, items, header):
     battery_path(split).write_text(json.dumps(dict(header=header, items=items), indent=1) + "\n", encoding="utf8", newline="\n")
 
@@ -488,29 +492,34 @@ def main(argv=None):
             fresh = json.dumps(tune_items(), indent=1)
             if (ROOT / "battery.json").read_text(encoding="utf8") != fresh: print("stale: battery.json differs from a fresh TUNE build"); rc = 2
         print("check:", "OK" if rc == 0 else "STALE"); return rc
-    built = {}
-    try:
+    built, reports = {}, {}
+    try:                     # build and check everything in memory first; nothing is written unless every check passes
         tune = tune_items()
-        if "tune" in splits:
-            json.dump(tune, open(ROOT / 'battery.json', 'w'), indent=1)       # legacy format, byte-identical to the frozen file
-            ti = tune_annotated(tune)
-            write_split("tune", ti, header_for("tune", ti, dict(counts=dict(Counter(axis_of(i) for i in ti)), legacy_battery_json_sha=file_sha(ROOT / "battery.json"))))
-            built["tune"] = ti
-        with _FrontendConfig(FRONTEND_ENV) as fp:
-            pool = const_pool()
-            taken = {i["prompt"] for i in tune}
-            if "held" in splits or "conf" in splits:      # always HELD then CONF (CONF avoids HELD prompts): same result whatever was asked
-                for s in ("held", "conf"):
-                    items, rep = build_split(s, fp, pool, taken)
-                    taken |= {i["prompt"] for i in items}; built[s] = items
-                    if s not in splits: continue
-                    write_split(s, items, header_for(s, items, rep))
-                    print(f"{s}: {len(items)} items {rep['counts']} shortfall={rep['shortfall'] or 'none'} resampled={rep['resampled'] or 'none'} "
-                          f"private pool={rep['private_pool_for_split']} private retrieved={rep['private_retrieved']}")
-        errs = check_disjoint(dict(built, tune=built.get("tune") or tune))
+        if "tune" in splits: built["tune"] = tune_annotated(tune)
+        if "held" in splits or "conf" in splits:
+            with _FrontendConfig(FRONTEND_ENV) as fp:
+                pool = const_pool()
+                taken = {i["prompt"] for i in tune}
+                for s in ("held", "conf"):      # always HELD then CONF (CONF avoids HELD prompts): same result whatever was asked
+                    items, rep = build_split(s, fp, pool, taken)      # leak check per item: BuildError before anything is written
+                    taken |= {i["prompt"] for i in items}; built[s] = items; reports[s] = rep
+        check = dict(built); check.setdefault("tune", tune)
+        for s in ("held", "conf"):             # splits not rebuilt now are checked as they are on disk
+            if s not in check and battery_path(s).exists(): check[s] = json.load(open(battery_path(s), encoding="utf8"))["items"]
+        errs = check_disjoint(check)
         if errs: raise BuildError("splits not disjoint: " + "; ".join(errs))
     except BuildError as e:
         print(f"battery.py: {e}", file=sys.stderr); return 1
+    if "tune" in splits:
+        write_legacy(tune)                     # legacy format, byte-identical to the frozen file
+        ti = built["tune"]
+        write_split("tune", ti, header_for("tune", ti, dict(counts=dict(Counter(axis_of(i) for i in ti)), legacy_battery_json_sha=file_sha(ROOT / "battery.json"))))
+    for s in ("held", "conf"):
+        if s not in splits: continue
+        items, rep = built[s], reports[s]
+        write_split(s, items, header_for(s, items, rep))
+        print(f"{s}: {len(items)} items {rep['counts']} shortfall={rep['shortfall'] or 'none'} resampled={rep['resampled'] or 'none'} "
+              f"private pool={rep['private_pool_for_split']} private retrieved={rep['private_retrieved']}")
     if "tune" in splits: print("tune:", Counter((i['cat'], i['sub']) for i in tune), len(tune))
     return 0
 
