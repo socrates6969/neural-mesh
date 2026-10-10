@@ -183,6 +183,50 @@ class Assemble(unittest.TestCase):
         self.assertIn("id=a___script ", frontend.assemble_context(['a"><script'], weird, 5))
 
 
+class Stats(unittest.TestCase):
+    def test_holm_known_values(self):
+        from llm.stats import holm
+        a = holm([0.01, 0.04, 0.03])
+        for x, y in zip(a, [0.03, 0.06, 0.06]):
+            self.assertAlmostEqual(x, y)
+        a = holm([0.001, 0.2, 0.01, 0.04])
+        for x, y in zip(a, [0.004, 0.2, 0.03, 0.08]):
+            self.assertAlmostEqual(x, y)
+        self.assertEqual(holm([0.6, 0.9]), [1.0, 1.0])
+        self.assertEqual(holm([]), [])
+
+    def test_cluster_bootstrap_p_sides(self):
+        from llm.stats import cluster_bootstrap_p
+        pos = [[1.0, 2.0], [1.5], [0.5, 1.0], [2.0]]
+        self.assertAlmostEqual(cluster_bootstrap_p(pos, "greater", reps=999), 1 / 1000)   # no resample mean <= 0
+        self.assertAlmostEqual(cluster_bootstrap_p(pos, "less", reps=999), 1.0)
+        self.assertAlmostEqual(cluster_bootstrap_p(pos, "two-sided", reps=999), 2 / 1000)
+        neg = [[-x for x in g] for g in pos]
+        self.assertAlmostEqual(cluster_bootstrap_p(neg, "less", reps=999), 1 / 1000)
+        self.assertEqual(cluster_bootstrap_p([[5.0, 6.0]], "greater"), 1.0)                # one cluster: never significant
+        mixed = [[1.0], [-1.0], [1.0], [-1.0]]
+        self.assertGreater(cluster_bootstrap_p(mixed, "two-sided"), 0.5)
+        with self.assertRaises(ValueError):
+            cluster_bootstrap_p(pos, "sideways")
+
+    def test_tost_known_values(self):
+        from llm.stats import tost_cluster
+        zero = [[0.0, 0.0], [0.0], [0.0, 0.0, 0.0]]
+        t = tost_cluster(zero, eps=0.01, reps=999)
+        self.assertAlmostEqual(t["p"], 1 / 1000)
+        self.assertTrue(t["equivalent"])
+        t = tost_cluster([[0.0], [-1.0], [0.0], [0.0]], eps=0.01, reps=999)      # a real loss: not equivalent
+        self.assertFalse(t["equivalent"])
+        self.assertAlmostEqual(tost_cluster([[0.5], [0.6], [0.7]], reps=999)["p"], 1.0)
+        self.assertFalse(tost_cluster([[0.0]])["equivalent"])                     # one cluster: never equivalent
+
+    def test_wilson_upper(self):
+        from llm.stats import wilson_upper
+        self.assertAlmostEqual(wilson_upper(0, 30), 0.1135, places=3)
+        self.assertAlmostEqual(wilson_upper(1, 10), 0.4042, places=3)
+        self.assertEqual(wilson_upper(0, 0), 1.0)
+
+
 @unittest.skipUnless(frontend.binary_fresh(), "release binary missing or stale (cargo build --release)")
 class PyMirrorsRust(unittest.TestCase):
     def test_py_decide_equals_rust_on_the_grid(self):
