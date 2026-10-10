@@ -19,7 +19,7 @@ from . import config, data, stats
 
 N_LOSS = 200      # max held-out examples for the loss test
 N_TASK = 40       # max held-out instructions for the judge battery
-MIN_N, MIN_SESSIONS = 30, 3
+MIN_N, MIN_SESSIONS = 30, 3   # MIN_SESSIONS counts bootstrap units (ingestor clusters, else sessions)
 
 
 def _pick(rows: list[dict], n: int, salt: str) -> list[dict]:
@@ -89,7 +89,9 @@ def run(synthetic: bool = False, ver: str | None = None, n_loss: int = N_LOSS, n
     enc = [M.encode(tok, r["instruction"], r["response"]) for r in loss_rows]
     m.set_adapter("cand"); lc = M.example_losses(m, enc)
     lp = with_prod(lambda: M.example_losses(m, enc))
-    per = [(r.get("session"), p[0] / max(1, p[1]) - c[0] / max(1, c[1])) for r, p, c in zip(loss_rows, lp, lc)]
+    smeta = data.load_meta() if not synthetic else {}
+    unit = lambda r: (smeta.get(r["id"]) or {}).get("cluster") or r.get("session")  # noqa: E731  bootstrap unit: paraphrase cluster, else session
+    per = [(unit(r), p[0] / max(1, p[1]) - c[0] / max(1, c[1])) for r, p, c in zip(loss_rows, lp, lc)]
     groups: dict = {}
     for s, d in per:
         groups.setdefault(s, []).append(d)
@@ -114,7 +116,7 @@ def run(synthetic: bool = False, ver: str | None = None, n_loss: int = N_LOSS, n
     judge.unload()
     tg: dict = {}
     for r, a, b in zip(task_rows, sc_c, sc_p):
-        tg.setdefault(r.get("session"), []).append(a - b)
+        tg.setdefault(unit(r), []).append(a - b)
     task_ci = stats.cluster_bootstrap_ci(list(tg.values()))
     log(f"battery (judge {config.JUDGE_MODEL}): production {sum(sc_p) / max(1, len(sc_p)):.3f} -> candidate {sum(sc_c) / max(1, len(sc_c)):.3f}; "
         f"diff {task_ci['mean']:+.3f} cluster-CI [{task_ci['lo']:+.3f}, {task_ci['hi']:+.3f}]")

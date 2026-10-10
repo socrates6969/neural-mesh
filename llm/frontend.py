@@ -121,12 +121,10 @@ def evaluate(synthetic: bool = False, n: int = 80, log=print) -> dict:
     decoy_reject = sum(1 for s in decoy if s < WRONG) / len(decoy) if decoy else None
     for r in recs:
         r["score_used"] = r["score"]
-    sessions = list({r["session"] for r in recs})
-    order = {s: min(h.get("ts") or "" for h in held if h.get("session") == s) for s in sessions}
-    sessions.sort(key=lambda s: order[s])
-    half = set(sessions[: max(1, len(sessions) // 2)])
-    tune = [r for r in recs if r["session"] in half]
-    test = [r for r in recs if r["session"] not in half]
+    # tune on the EARLIER half of the replay (by time), report on the LATER half (sessions can be few/one)
+    half = len(recs) // 2                       # recs follow `held`, which is sorted by ts
+    tune, test = recs[:half], recs[half:]
+    sessions = sorted({r["session"] for r in recs})
     grid = [{"min-conf": c, "min-sim": s} for c in (-0.02, -0.05, -0.1, -0.15, -0.2, -0.3, -0.5, -1.0, -99.0) for s in (0.0, 0.3, 0.4, 0.5, 0.6, 0.7)]
     tuned = _sim(tune, grid)
     ok = [g for g in tuned if g["wrong_rate"] <= TARGET_WRONG]
