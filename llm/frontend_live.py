@@ -9,7 +9,8 @@ S2 `python -m llm ask [--mode shadow|cli|advisory] [--enabled] [--prompt-file F 
       advisory : forward the prompt plus the assembled untrusted context; other decisions are logged as `would_be`
       cli      : serve a cache / local answer on stdout; tool and forward decisions forward with context (no tool executor)
     ANY error, or more than --budget seconds (default 30) before a decision -> forward the original prompt without
-    context. --forward-cmd gets the payload on stdin and its exit code is returned.
+    context. --forward-cmd gets the payload on stdin and its exit code is returned; a forward that cannot run at all, or an
+    unreadable --prompt-file, prints one line on stderr and exits 3 (no traceback).
     Log: models/frontend_live.jsonl, one line per call, prompt sha256 only (text only with --log-text).
 
 S1 `python -m llm shadow-drain` (offline batch, under the llm lock): every prompt the UserPromptSubmit shadow hook (llm/hook.py)
@@ -158,6 +159,18 @@ def _forward(payload: str, forward_cmd: str | None, out) -> int:
     return 0
 
 
+EXIT_FORWARD_FAILED = 3
+
+
+def _fail_exit(msg: str, err=None) -> int:
+    """a forward that could not run, or an unreadable prompt: one line on stderr and exit 3 (never a traceback)"""
+    try:
+        print(f"llm ask: {msg}"[:500], file=err or sys.stderr)
+    except (OSError, ValueError):
+        pass
+    return EXIT_FORWARD_FAILED
+
+
 def _log(rec: dict, path: Path | None = None) -> None:
     p = Path(path or LIVE_LOG)
     try:
@@ -208,7 +221,10 @@ def ask(prompt: str, mode: str = "shadow", enabled: bool = False, forward_cmd: s
     if mode not in MODES:
         raise ValueError(f"mode must be one of {MODES}")
     if not enabled:   # pure pass-through: no model, no policy, no log
-        return forward(prompt, forward_cmd, out)
+        try:
+            return forward(prompt, forward_cmd, out)
+        except Exception as e:
+            return _fail_exit(f"forward failed: {type(e).__name__}: {e}")
     t0 = time.monotonic()
     rec = {"ts": now_iso(), "sha256": sha(prompt), "mode": mode, "enabled": True}
     payload, served_answer, local_answer = prompt, None, None
@@ -263,7 +279,7 @@ def ask(prompt: str, mode: str = "shadow", enabled: bool = False, forward_cmd: s
             rc = forward(payload, forward_cmd, out)
         except Exception as e:
             rec["forward_error"] = f"{type(e).__name__}: {e}"[:300]
-            rc = 2
+            rc = _fail_exit(f"forward failed: {rec['forward_error']}")
     rec["forward_rc"] = rc if served_answer is None else None
     _log(_scrub(rec, {"<prompt>": prompt, "<answer>": local_answer or ""}), log_path)
     return rc
@@ -373,11 +389,14 @@ def cli_ask(argv: list[str]) -> int:
     ap.add_argument("--project")
     ap.add_argument("--log-text", action="store_true", help="also log prompt and local answer text (default: sha256 only)")
     a = ap.parse_args(argv)
-    if a.prompt_file:
-        prompt = Path(a.prompt_file).read_text(encoding="utf-8")
-    else:
-        sys.stdin.reconfigure(encoding="utf-8", errors="replace")
-        prompt = sys.stdin.read()
+    try:
+        if a.prompt_file:
+            prompt = Path(a.prompt_file).read_text(encoding="utf-8")
+        else:
+            sys.stdin.reconfigure(encoding="utf-8", errors="replace")
+            prompt = sys.stdin.read()
+    except (OSError, UnicodeDecodeError, ValueError) as e:
+        return _fail_exit(f"cannot read the prompt{' file ' + repr(a.prompt_file) if a.prompt_file else ''}: {type(e).__name__}: {e}")
     try:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     except (AttributeError, ValueError):

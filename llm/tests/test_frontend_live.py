@@ -193,6 +193,28 @@ class Ask(unittest.TestCase):
         self.assertEqual(rc, 7)
         self.assertEqual(got.read_text(encoding="utf-8"), "payload text")
 
+    def test_forward_error_and_unreadable_prompt_file_exit_3_without_traceback(self):
+        def broken(payload, cmd, o):
+            raise OSError("no shell")
+        for enabled in (False, True):
+            err = io.StringIO()
+            with mock.patch.object(sys, "stderr", err):
+                rc = fl.ask("p", enabled=enabled, mode="shadow", out=io.StringIO(), log_path=self.log, forward=broken,
+                            backend_factory=Stub, decide=decide_as("forward"), rows_loader=lambda: ROWS, project="p")
+            self.assertEqual(rc, 3)
+            self.assertIn("forward failed: OSError: no shell", err.getvalue())
+            self.assertNotIn("Traceback", err.getvalue())
+        self.assertEqual(json.loads(self.log.read_text(encoding="utf-8").splitlines()[-1])["forward_rc"], 3)
+        for bad in (str(Path(self.d.name) / "missing.txt"), self.d.name):            # missing file, a directory
+            err = io.StringIO()
+            with mock.patch.object(sys, "stderr", err):
+                self.assertEqual(fl.cli_ask(["--prompt-file", bad]), 3)
+            self.assertIn("cannot read the prompt file", err.getvalue())
+        p = Path(self.d.name) / "latin1.txt"
+        p.write_bytes(bytes([0x63, 0x61, 0x66, 0xE9]))                             # latin-1 "cafe" + e-acute: not UTF-8
+        with mock.patch.object(sys, "stderr", io.StringIO()):
+            self.assertEqual(fl.cli_ask(["--prompt-file", str(p)]), 3)
+
     def test_cfg_file_only_counts_when_keep(self):
         with tempfile.TemporaryDirectory() as d:
             p = Path(d) / "cfg.json"
