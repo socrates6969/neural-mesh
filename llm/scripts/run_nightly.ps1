@@ -78,6 +78,9 @@ try {
             }
             if ($mrc -gt $worst) { $worst = $mrc }
         }
+        # 4) codemem: refresh the BM25 code/doc index (incremental, ~0.4 s when nothing changed; never fails the round)
+        $cm = Join-Path $repo 'data\codemem\bin\codemem.exe'
+        if (Test-Path -LiteralPath $cm) { $crc = Invoke-Logged $cm @('update') $Log; Write-Log "codemem update exit $crc" }
         Write-Log "=== nightly done (exit $worst)"
         exit $worst
     } finally { Pop-Location }
