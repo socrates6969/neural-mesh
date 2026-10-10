@@ -8,6 +8,8 @@ use std::io::{Read, Seek, SeekFrom, Write};
 use std::path::Path;
 
 const MAGIC: &[u8; 8] = b"CMEMIDX1";
+/// bumped whenever tokenisation / chunking changes (an index of another version is rebuilt from scratch, never patched): 2 = `def:` tokens
+const VERSION: u32 = 2;
 const HDR: usize = 104;
 const FILE_REC: usize = 40;
 const CHUNK_REC: usize = 36;
@@ -169,7 +171,7 @@ pub fn encode(b: &Build, created: u64) -> Vec<u8> {
     }
     let mut out = Vec::with_capacity(o as usize);
     out.extend_from_slice(MAGIC);
-    for v in [1u32, b.split as u32] {
+    for v in [VERSION, b.split as u32] {
         out.extend_from_slice(&v.to_le_bytes());
     }
     for v in [K1, B] {
@@ -229,7 +231,7 @@ impl Index {
         let mut hdr = vec![0u8; HDR];
         file.read_exact(&mut hdr)?;
         let bad = |m: &str| std::io::Error::new(std::io::ErrorKind::InvalidData, m.to_string());
-        if &hdr[..8] != MAGIC || u32at(&hdr, 8) != 1 {
+        if &hdr[..8] != MAGIC || u32at(&hdr, 8) != VERSION {
             return Err(bad("not a codemem index"));
         }
         let mut offs = [0usize; 7];

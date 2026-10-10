@@ -32,7 +32,7 @@ pub struct Gate {
     pub reason: &'static str,
 }
 
-fn is_ident_like(w: &str) -> bool {
+pub fn is_ident_like(w: &str) -> bool {
     let w = w.trim_matches(|c: char| !(c.is_alphanumeric() || c == '_'));
     let has_us = w.contains('_') && w.len() > 3 && w.chars().any(|c| c.is_alphabetic()) && !w.starts_with('_') && !w.ends_with('_');
     let inner_cap = w.len() > 3 && w.chars().skip(1).any(|c| c.is_uppercase()) && w.chars().any(|c| c.is_lowercase()) && w.chars().all(|c| c.is_alphanumeric());

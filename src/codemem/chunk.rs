@@ -224,6 +224,27 @@ fn push_cut(out: &mut Vec<ChunkDraft>, lines: &[&str], a: usize, b: usize, title
     }
 }
 
+/// Name declared on this line (`pub const X: ..`, `fn f(`, `class C`, `export const y =`, `NAME = ...` in Python): the definition site of an identifier.
+pub fn def_name_of_line(line: &str) -> Option<String> {
+    let mut t = line.trim_start();
+    for w in ["pub(crate) ", "pub(super) ", "pub ", "export ", "default ", "declare ", "async ", "unsafe ", "static ", "extern \"C\" "] {
+        if let Some(r) = t.strip_prefix(w) {
+            t = r.trim_start();
+        }
+    }
+    for kw in ["const ", "fn ", "struct ", "enum ", "trait ", "type ", "mod ", "class ", "interface ", "def ", "function ", "let ", "var ", "static ", "union ", "macro_rules! "] {
+        if let Some(r) = t.strip_prefix(kw) {
+            let r = r.trim_start().strip_prefix("mut ").unwrap_or(r.trim_start());
+            let n = ident_after(r);
+            return (n.len() >= 2).then(|| n.to_ascii_lowercase());
+        }
+    }
+    let n = ident_after(t);
+    let rest = t[n.len()..].trim_start();
+    let upper = n.len() >= 3 && n.chars().all(|c| c.is_ascii_uppercase() || c.is_ascii_digit() || c == '_');
+    (upper && (rest.starts_with('=') && !rest.starts_with("==") || rest.starts_with(':'))).then(|| n.to_ascii_lowercase())
+}
+
 pub fn chunk_file(path: &str, text: &str) -> Vec<ChunkDraft> {
     let lang = lang_of(path);
     let lines: Vec<&str> = text.lines().collect();

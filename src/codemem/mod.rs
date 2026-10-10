@@ -157,6 +157,7 @@ fn index_new_file(nb: &mut Build, path: &str, bytes: &[u8], mtime: u64, hits: &m
         toks.extend(ptoks.iter().cloned());
         toks.extend(ttoks.iter().cloned());
         toks.extend(ttoks);
+        toks.extend(clean.lines().filter_map(chunk::def_name_of_line).map(|n| format!("def:{n}")));
         nb.push_chunk(c.l0, c.l1, &c.title, clean, &toks);
     }
 }
@@ -215,6 +216,9 @@ pub struct QuerySpec {
     pub path_hints: Vec<String>,
 }
 
+/// weight of the `def:<name>` term: the chunk that DECLARES an identifier named in the query outranks chunks that only use it
+pub const DEF_WEIGHT: f32 = 4.0;
+
 const EXTS: [&str; 16] = ["rs", "py", "ts", "tsx", "js", "jsx", "json", "md", "sql", "prisma", "tf", "toml", "yaml", "yml", "ps1", "sh"];
 
 fn is_path_word(w: &str) -> bool {
@@ -236,6 +240,7 @@ pub fn parse_query(raw: &str, split: bool) -> QuerySpec {
     for (i, part) in raw.split('`').enumerate() {
         if i % 2 == 1 {
             add(tok::tokens(part, split), 2.0);
+            add(part.split(|c: char| !(c.is_ascii_alphanumeric() || c == '_')).filter(|w| w.len() >= 2).map(|w| format!("def:{}", w.to_ascii_lowercase())).collect(), DEF_WEIGHT);
         } else {
             plain.push_str(part);
             plain.push(' ');
@@ -250,6 +255,8 @@ pub fn parse_query(raw: &str, split: bool) -> QuerySpec {
         }
     }
     add(tok::tokens(&plain, split), 1.0);
+    let idents = plain.split(|c: char| !(c.is_ascii_alphanumeric() || c == '_')).filter(|w| gate::is_ident_like(w));
+    add(idents.map(|w| format!("def:{}", w.to_ascii_lowercase())).collect(), DEF_WEIGHT);
     spec.terms = w.into_iter().collect();
     spec.terms.sort_by(|a, b| b.1.total_cmp(&a.1).then(a.0.cmp(&b.0)));
     spec.terms.truncate(48);
@@ -279,10 +286,6 @@ pub fn is_doc_path(p: &str) -> bool {
 
 pub const DOC_FACTOR: f32 = 0.65;
 
-fn doc_factor() -> f32 {
-    std::env::var("CODEMEM_DOCF").ok().and_then(|v| v.parse().ok()).unwrap_or(DOC_FACTOR)
-}
-
 /// BM25 over the chunk index; at most `per_file` hits per file; path hints multiply the score of chunks in matching files by 1.5.
 pub fn search(ix: &Index, q: &QuerySpec, k: usize, per_file: usize) -> Search {
     let mut acc = vec![0f32; ix.n_chunks];
@@ -303,7 +306,7 @@ pub fn search(ix: &Index, q: &QuerySpec, k: usize, per_file: usize) -> Search {
         cand.select_nth_unstable_by(keep, |a, b| b.1.total_cmp(&a.1));
         cand.truncate(keep);
     }
-    let docf = doc_factor();
+    let docf = DOC_FACTOR;
     if docf != 1.0 {
         for c in cand.iter_mut() {
             if is_doc_path(ix.file_path(ix.chunk(c.0).file)) {
@@ -365,7 +368,8 @@ pub fn pointer(ix: &mut Index, h: &Hit, q: &QuerySpec, line_chars: usize) -> Poi
         .map(|(i, l)| {
             let mut seen = HashSet::new();
             let n = tok::tokens(l, split).into_iter().filter(|t| want.contains(t.as_str()) && seen.insert(t.clone())).count();
-            (n, i, l)
+            let is_def = chunk::def_name_of_line(l).is_some_and(|d| want.contains(format!("def:{d}").as_str()));
+            (n + if is_def { 3 } else { 0 }, i, l)
         })
         .collect();
     scored.sort_by(|a, b| b.0.cmp(&a.0).then(a.1.cmp(&b.1)));

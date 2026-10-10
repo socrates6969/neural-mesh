@@ -63,3 +63,10 @@ replays all outcomes into a fresh state with this policy (the live state is back
 * `hybrid_pick` (shadow only, nothing is printed): the project's own state, the project's declared roster (`<cwd>/.claude/agents/*.md`) as candidates and the phase rule as `--prior` with `--prior-k 500`.
   `shadow-report` prints it next to mesh and rule. Offline prequential replay (`python -m ingest.router_eval`, results/round3_training.md): this ties the phase rule in-domain and beats the
   project-scoped majority baseline overall; the global-state `mesh_pick` is worse than useless (an arm that was never tried wins the exploration bonus). The promotion rule is unchanged (n_in_domain >= 100 and Wilson lower bound > rule).
+
+## 3. codemem hook (code/doc pointers, opt-in, NOT installed)
+
+`codemem hook` (Rust, `src/codemem/`, exe `data/codemem/bin/codemem.exe`, JSON in `settings-hooks-codemem.json`) is a UserPromptSubmit hook that injects at most 5 `file:line` pointers
+(~200 tokens) from a BM25 index of the user's repos when the prompt is a code question, else nothing; always exit 0; `NEURAL_MESH_CODEMEM=off`. Measured: hook p95 50 ms end to end; on 241 real prompts it
+fires 0.4% (directives again); in the agent-task A/B (haiku, read-only tools incl. Bash search, held n=31) -29% fresh tokens, -32% time, -57% tool calls, accuracy +0.03 (n.s.). Details, limits and the
+battery result (private 0.00 -> 1.00; public TOST +-.03 not met) in `bench/codemem/README.md`. Tests: `python -m unittest hooks.tests.test_codemem_hook`.
