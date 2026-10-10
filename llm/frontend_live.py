@@ -7,7 +7,8 @@ S2 `python -m llm ask [--mode shadow|cli|advisory] [--enabled] [--prompt-file F 
     models/tool_exemplars.jsonl exists) -> the Rust policy -> by mode:
       shadow   : forward the ORIGINAL prompt (no context); the decision is only logged (`would_be`)
       advisory : forward the prompt plus the assembled untrusted context; other decisions are logged as `would_be`
-      cli      : serve a cache / local answer on stdout; tool and forward decisions forward with context (no tool executor)
+      cli      : serve a cache / local answer on stdout; a forward decision forwards with context; a "tool" decision is forwarded
+                 BARE (the Rust policy attaches context only to Forward, and there is no tool executor)
     ANY error, or more than --budget seconds (default 30) before a decision -> forward the original prompt without
     context. --forward-cmd gets the payload on stdin and its exit code is returned; a forward that cannot run at all, or an
     unreadable --prompt-file, prints one line on stderr and exits 3 (no traceback).
@@ -252,7 +253,7 @@ def ask(prompt: str, mode: str = "shadow", enabled: bool = False, forward_cmd: s
             served, pay = "forward", (ctx + "\n\n" + prompt) if ctx else prompt
         elif d["decision"] in ("cache", "local") and s["answer"]:
             served, ans = d["decision"], s["answer"]
-        else:
+        else:   # forward: with the policy's context; "tool": forwarded BARE (the policy gives Tool no context; no tool executor)
             served, pay = "forward", (ctx + "\n\n" + prompt) if ctx else prompt
         w["served"] = served
         w["would_be"] = d["decision"]

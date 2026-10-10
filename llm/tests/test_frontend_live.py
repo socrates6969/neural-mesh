@@ -39,10 +39,12 @@ ROWS = [{"id": "sft:1", "ts": "2026-10-01T00:00:00Z", "project": "p", "session":
 
 
 def decide_as(decision, context=("sft:1",)):
+    """like the Rust policy (src/main.rs): context only for Forward; Tool, Local and Cache get none"""
     def f(cfg, sig, chunks):
         f.calls.append((cfg, sig, chunks))
-        return {"ok": True, "decision": decision, "reason": decision, "tool": None, "context": list(context) if decision == "forward" or decision == "tool" else [],
-                "context_tokens": 10}
+        fwd = decision == "forward"
+        return {"ok": True, "decision": decision, "reason": decision, "tool": "calc" if decision == "tool" else None,
+                "context": list(context) if fwd else [], "context_tokens": 10 if fwd else 0}
     f.calls = []
     return f
 
@@ -146,6 +148,11 @@ class Ask(unittest.TestCase):
         rc, out, fwd, recs = self.run_ask("q", enabled=True, mode="cli", backend_factory=Stub, decide=decide_as("forward"))
         self.assertEqual(out, "")
         self.assertIn("untrusted", fwd[0][0])
+
+    def test_cli_tool_decision_is_forwarded_bare(self):
+        rc, out, fwd, recs = self.run_ask("q", enabled=True, mode="cli", backend_factory=Stub, decide=decide_as("tool"))
+        self.assertEqual((out, fwd), ("", [("q", None)]))
+        self.assertEqual((recs[-1]["served"], recs[-1]["would_be"], recs[-1]["tool"], recs[-1]["ctx_ids"]), ("forward", "tool", "calc", []))
 
     def test_local_model_is_skipped_while_nightly_lock_is_fresh(self):
         st = Stub()
