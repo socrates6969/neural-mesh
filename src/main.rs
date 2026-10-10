@@ -55,7 +55,7 @@ const PRIOR_SALT: u64 = 0x5052_494F_525F_4B57;
 /// Option names shared by route/feedback/stats/config (team is config-only).
 const CONFIG_KEYS: [&str; 5] = ["eta", "temperature", "decay", "epsilon", "prior-k"];
 
-const USAGE: &str = "usage:\n  neural-mesh route    --state <file> --features a,b,c [--candidates x,y] [--team k] [--type t] [--seed n] [--prior agent]\n  neural-mesh feedback --state <file> --features a,b,c --agent X [--team X,Y] --reward 0..1 [--type t]\n  neural-mesh stats    --state <file>\n  neural-mesh config   --state <file> [--eta x --temperature x --decay x --epsilon x --team k --prior-k x]\n  neural-mesh merge-state --into A --from B [--out file]\n  neural-mesh frontend [--enabled 1] [--local-conf x --local-tokens n --max-sim x --cache-hit 1 --tool t --chunks JSON --min-conf x --min-sim x --ctx-budget n]  (opt-in, default off)\n  (route/feedback/stats also accept --eta --temperature --decay --epsilon --prior-k)";
+const USAGE: &str = "usage:\n  neural-mesh route    --state <file> --features a,b,c [--candidates x,y] [--team k] [--type t] [--seed n] [--prior agent]\n  neural-mesh feedback --state <file> --features a,b,c --agent X [--team X,Y] --reward 0..1 [--type t]\n  neural-mesh stats    --state <file>\n  neural-mesh config   --state <file> [--eta x --temperature x --decay x --epsilon x --team k --prior-k x]\n  neural-mesh merge-state --into A --from B [--out file]\n  neural-mesh frontend [--enabled 1] [--local-conf x --local-tokens n --max-sim x --cache-hit 1 --tool t --chunks JSON --min-conf x --min-sim x --ctx-budget n --max-local-tokens n --max-chunks n --min-chunk-score x]\n                       [--tool-exemplars FILE.jsonl --query-vec JSON|@FILE --tool-tau .6 --tool-smin .4 --tool-k 5 --tool-allow calc,units,csp]  (opt-in, default off; --tool and --query-vec are exclusive)\n  (route/feedback/stats also accept --eta --temperature --decay --epsilon --prior-k)";
 
 #[derive(Debug, Serialize, Deserialize)]
 struct State {
@@ -711,12 +711,69 @@ fn append_to_store(st: &mut State, sv: &neural_mesh::store::MeshStore, o: &Opts,
     Ok(())
 }
 
-const FRONTEND_KEYS: &[&str] = &["enabled", "min-conf", "max-local-tokens", "ctx-budget", "max-chunks", "min-chunk-score", "min-sim", "cache-hit", "tool", "local-conf", "local-tokens", "max-sim", "chunks"];
+const FRONTEND_KEYS: &[&str] = &[
+    "enabled", "min-conf", "max-local-tokens", "ctx-budget", "max-chunks", "min-chunk-score", "min-sim", "cache-hit", "tool", "local-conf", "local-tokens", "max-sim", "chunks",
+    "tool-exemplars", "query-vec", "tool-tau", "tool-smin", "tool-k", "tool-allow",
+];
+
+/// The `tool` signal of `frontend`: a [`neural_mesh::knnroute::KnnRouter`] over `--tool-exemplars` (JSONL `{"label","vec":[384 floats]}`,
+/// wrong-sized / non-finite exemplars are skipped) queried with `--query-vec` (a JSON array, or `@FILE` holding one) through
+/// [`neural_mesh::frontend::tool_signal`]. A missing file is an io error (exit 2); malformed JSON is a usage error (exit 1).
+fn frontend_tool(o: &Opts) -> Result<Option<String>, CliError> {
+    let (ex, qv) = (o.get("tool-exemplars"), o.get("query-vec"));
+    let (Some(ex), Some(qv)) = (ex, qv) else {
+        if ex.is_some() || qv.is_some() {
+            return Err(usage("--tool-exemplars and --query-vec must be given together"));
+        }
+        for k in ["tool-tau", "tool-smin", "tool-k", "tool-allow"] {
+            if o.get(k).is_some() {
+                return Err(usage(format!("--{k} needs --tool-exemplars and --query-vec")));
+            }
+        }
+        return Ok(None);
+    };
+    let f = |k: &str, d: f32| -> Result<f32, CliError> {
+        o.get(k).map_or(Ok(d), |v| v.trim().parse::<f32>().ok().filter(|x| x.is_finite()).ok_or_else(|| usage(format!("--{k} must be a number"))))
+    };
+    let (tau, smin) = (f("tool-tau", 0.6)?, f("tool-smin", 0.4)?);
+    let k: usize = match o.get("tool-k") {
+        Some(v) => v.trim().parse::<usize>().ok().filter(|k| *k >= 1).ok_or_else(|| usage("--tool-k must be an integer >= 1"))?,
+        None => 5,
+    };
+    let allow = split_list(o.get("tool-allow").unwrap_or("calc,units,csp"));
+    let qtext = match qv.strip_prefix('@') {
+        Some(p) => fs::read_to_string(p).map_err(|e| CliError::Io(format!("cannot read --query-vec file {p}: {e}")))?,
+        None => qv.to_string(),
+    };
+    let q: Vec<f32> = serde_json::from_str::<Vec<f64>>(qtext.trim())
+        .map_err(|e| usage(format!("--query-vec must be a JSON array of numbers: {e}")))?
+        .into_iter()
+        .map(|x| x as f32)
+        .collect();
+    let text = fs::read_to_string(ex).map_err(|e| CliError::Io(format!("cannot read --tool-exemplars {ex}: {e}")))?;
+    let mut router = neural_mesh::knnroute::KnnRouter::new(q.len().max(1), k);
+    let mut dim: Option<usize> = None;
+    for (i, line) in text.lines().enumerate().filter(|(_, l)| !l.trim().is_empty()) {
+        let v: Value = serde_json::from_str(line).map_err(|e| usage(format!("--tool-exemplars line {}: not JSON: {e}", i + 1)))?;
+        let (Some(label), Some(vec)) = (v.get("label").and_then(Value::as_str), v.get("vec").and_then(Value::as_array)) else {
+            return Err(usage(format!("--tool-exemplars line {}: needs label (string) and vec (array)", i + 1)));
+        };
+        let vec: Vec<f32> = vec.iter().map(|x| x.as_f64().map_or(f32::NAN, |x| x as f32)).collect();
+        // the exemplar dimension is fixed by the first line; a query of another size then makes the router abstain
+        if *dim.get_or_insert(vec.len()) == q.len() {
+            router.add(label, &vec);
+        }
+    }
+    Ok(neural_mesh::frontend::tool_signal(&router, &q, tau, smin, &allow))
+}
 
 /// `frontend` (opt-in, stateless, default OFF): local-vs-forward decision + trimmed context ids (src/frontend.rs). `--chunks` is a JSON
-/// array of {"id","score","tokens"}. Without `--enabled 1` it always answers "forward" (today's behaviour).
+/// array of {"id","score","tokens"}. Without `--enabled 1` it always answers "forward" (today's behaviour). Output schema 2 adds `reason`.
 fn cmd_frontend(o: &Opts) -> Result<Value, CliError> {
-    use neural_mesh::frontend::{Chunk, FrontendCfg, Signals, decide, trim_context};
+    use neural_mesh::frontend::{Chunk, FrontendCfg, Signals, decide_reason, trim_context};
+    if o.get("tool").is_some() && o.get("query-vec").is_some() {
+        return Err(usage("--tool and --query-vec are exclusive (give the tool route OR the vector it is computed from)"));
+    }
     fn num<T: std::str::FromStr>(o: &Opts, k: &str, d: T) -> Result<T, CliError> {
         match o.get(k) {
             Some(v) => v.trim().parse::<T>().map_err(|_| usage(format!("--{k} must be a number"))),
@@ -737,7 +794,10 @@ fn cmd_frontend(o: &Opts) -> Result<Value, CliError> {
     let opt_f = |k: &str| -> Result<Option<f32>, CliError> { o.get(k).map(|v| v.trim().parse::<f32>().map_err(|_| usage(format!("--{k} must be a number")))).transpose() };
     let sig = Signals {
         cache_hit: flag("cache-hit"),
-        tool: o.get("tool").map(|t| t.trim().to_string()).filter(|t| !t.is_empty()),
+        tool: match o.get("tool") {
+            Some(t) => Some(t.trim().to_string()).filter(|t| !t.is_empty()),
+            None => frontend_tool(o)?,
+        },
         local_conf: opt_f("local-conf")?,
         local_tokens: num(o, "local-tokens", 0usize)?,
         max_sim: opt_f("max-sim")?,
@@ -755,13 +815,13 @@ fn cmd_frontend(o: &Opts) -> Result<Value, CliError> {
         }
         None => Vec::new(),
     };
-    let dec = decide(&cfg, &sig);
+    let (dec, why) = decide_reason(&cfg, &sig);
     let (ctx, used) = if dec.is_local() { (Vec::new(), 0) } else { trim_context(&chunks, cfg.ctx_budget, cfg.max_chunks, cfg.min_chunk_score) };
     let tool = match &dec {
         neural_mesh::frontend::Decision::Tool(t) => Some(t.clone()),
         _ => None,
     };
-    Ok(json!({"ok": true, "enabled": cfg.enabled, "decision": dec.name(), "tool": tool, "context": ctx, "context_tokens": used}))
+    Ok(json!({"ok": true, "schema": 2, "enabled": cfg.enabled, "decision": dec.name(), "reason": why.name(), "tool": tool, "context": ctx, "context_tokens": used}))
 }
 
 /// Journal lines of a `feedback --label` update: (label, 1.0) and, if a different routed agent was given, (routed, 0.0).
@@ -1104,6 +1164,59 @@ mod tests {
         assert!(run(&a(&["frontend", "--chunks", "[1]"])).is_err());
         assert!(run(&a(&["frontend", "--local-conf", "abc"])).is_err());
         assert!(run(&a(&["frontend", "--bogus", "1"])).is_err());
+    }
+
+    #[test]
+    fn frontend_cli_schema2_reason_and_tool_flags() {
+        let a = |v: &[&str]| v.iter().map(|x| x.to_string()).collect::<Vec<_>>();
+        let v = run(&a(&["frontend"])).unwrap();
+        assert_eq!((v["schema"].as_u64(), v["reason"].as_str()), (Some(2), Some("disabled")));
+        let v = run(&a(&["frontend", "--enabled", "1", "--local-conf", "0", "--local-tokens", "5", "--max-sim", "0.1"])).unwrap();
+        assert_eq!((v["decision"].as_str(), v["reason"].as_str()), (Some("forward"), Some("ood")));
+        let dir = std::env::temp_dir().join(format!("nm-fe-tool-{}", std::process::id()));
+        fs::create_dir_all(&dir).unwrap();
+        let ex = dir.join("ex.jsonl");
+        fs::write(&ex, "{\"label\":\"calc\",\"vec\":[1.0,0.1,0.0]}\n{\"label\":\"calc\",\"vec\":[0.9,0.0,0.1]}\n{\"label\":\"units\",\"vec\":[0.0,1.0,0.0]}\n\n{\"label\":\"units\",\"vec\":[0.1,0.9,0.0]}\n{\"label\":\"sandbox\",\"vec\":[0.0,0.0,1.0]}\n").unwrap();
+        let ex_s = ex.to_str().unwrap();
+        let tool = |q: &str, extra: &[&str]| {
+            let mut v = vec!["frontend", "--enabled", "1", "--tool-exemplars", ex_s, "--query-vec", q, "--tool-k", "3"];
+            v.extend_from_slice(extra);
+            run(&a(&v))
+        };
+        let v = tool("[1.0,0.05,0.0]", &[]).unwrap();
+        assert_eq!((v["decision"].as_str(), v["tool"].as_str(), v["reason"].as_str()), (Some("tool"), Some("calc"), Some("tool")));
+        // a disallowed label (sandbox), a tie (low share), a far query, a wrong dimension, all abstain -> no tool
+        for (q, extra) in [("[0.0,0.05,1.0]", vec![]), ("[1.0,1.0,0.0]", vec!["--tool-tau", "0.8"]), ("[-1,-1,-1]", vec![]), ("[1.0,0.0]", vec![])] {
+            let v = tool(q, &extra).unwrap();
+            assert_eq!(v["tool"], Value::Null, "{q}");
+            assert_ne!(v["decision"].as_str(), Some("tool"));
+        }
+        assert_eq!(tool("[0.0,0.05,1.0]", &["--tool-allow", "sandbox"]).unwrap()["tool"].as_str(), Some("sandbox"));
+        // @FILE query vector
+        let qf = dir.join("q.json");
+        fs::write(&qf, "[0.02, 1.0, 0.0]").unwrap();
+        let at = format!("@{}", qf.display());
+        assert_eq!(tool(&at, &[]).unwrap()["tool"].as_str(), Some("units"));
+        // --tool together with --query-vec is a usage error (exit 1); a missing file is an io error (exit 2)
+        let e = run(&a(&["frontend", "--enabled", "1", "--tool", "calc", "--tool-exemplars", ex_s, "--query-vec", "[1,0,0]"])).unwrap_err();
+        assert_eq!(e.code(), 1);
+        assert_eq!(run(&a(&["frontend", "--enabled", "1", "--query-vec", "[1,0,0]"])).unwrap_err().code(), 1);
+        assert_eq!(run(&a(&["frontend", "--tool-tau", "0.5"])).unwrap_err().code(), 1);
+        assert_eq!(tool("[1,0", &[]).unwrap_err().code(), 1);
+        assert_eq!(tool("[1,0,0]", &["--tool-k", "0"]).unwrap_err().code(), 1);
+        let missing = dir.join("nope.jsonl");
+        let e = run(&a(&["frontend", "--enabled", "1", "--tool-exemplars", missing.to_str().unwrap(), "--query-vec", "[1,0,0]"])).unwrap_err();
+        assert_eq!(e.code(), 2);
+        let e = run(&a(&["frontend", "--enabled", "1", "--tool-exemplars", ex_s, "--query-vec", &format!("@{}", missing.display())])).unwrap_err();
+        assert_eq!(e.code(), 2);
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn usage_lists_every_frontend_key() {
+        for k in FRONTEND_KEYS {
+            assert!(USAGE.contains(&format!("--{k} ")) || USAGE.contains(&format!("--{k}]")), "USAGE misses --{k}");
+        }
     }
 
     #[test]
