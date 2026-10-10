@@ -1,12 +1,22 @@
-"""bench/sandbox.py - run model-written code against hidden tests, contained, and compare to PRECOMPUTED expected outputs.
+"""bench/sandbox.py - run model-written code on the hidden test inputs, contained, and score its outputs HERE, in the host process.
 
-The reference implementation is never executed here: battery.py computes `expected` (canonical JSON of ref(*args)) at build
-time, so the only untrusted code that runs is the candidate, and it runs in one of two modes:
+Trust boundary. The only untrusted code is the candidate. Inside the sandbox nothing but the candidate runs, on the test
+INPUTS; the precomputed `expected` outputs (battery.py: canonical JSON of ref(*args)) never enter the sandbox. The sandbox
+program prints the candidate's raw outputs once, as one JSON line behind a random per-run nonce; the host takes exactly that
+line, re-canonicalises every value and compares it with `expected`. Whatever the candidate does to the interpreter it shares
+with the small driver (import __main__, monkeypatch json/builtins, print fake result lines, os._exit, write twice) it can only
+make its own output missing, duplicated or malformed, and the host scores all of those as wrong (a MODEL failure, never
+INFRA). To pass it has to return the right values, which is the task.
 
-  docker  (the only mode allowed for HELD/CONF): `docker run --rm -i` on a digest-pinned python:3.12-slim with
-          --network none --read-only --tmpfs /tmp:size=16m --memory 256m --memory-swap 256m --cpus 1 --pids-limit 64
-          --cap-drop ALL --security-opt no-new-privileges --user 65534, interpreter `python -I -`, program piped on stdin.
-          A host-side timeout of 20 s ends the container with `docker kill`.
+Output protocol (one line on stdout): <nonce>{"out": [[tag, val], ...]} with one entry per test: tag "v" (val = the value as
+JSON text), "t" (val = type name of a result json cannot encode; always wrong) or "e" (val = exception type name; always
+wrong); or <nonce>{"err": "..."} when the code does not compile or does not define the function.
+
+Modes:
+  docker  (the only mode allowed for HELD/CONF): `docker run -i` on a digest-pinned python:3.12-slim with --network none
+          --read-only --tmpfs /tmp:size=16m --memory 256m --memory-swap 256m --cpus 1 --pids-limit 64 --cap-drop ALL
+          --security-opt no-new-privileges --user 65534, interpreter `python -I -`, program piped on stdin. A host-side timeout
+          of 20 s ends the container with `docker kill`.
   job     (TUNE only; NOT a security boundary): a local `python -I -` child with an empty environment (plus SYSTEMROOT, which
           the Windows interpreter needs to start), a fresh temp cwd, a Windows Job Object (256 MB per process,
           KILL_ON_JOB_CLOSE, at most 8 active processes) and an audit hook that refuses file writes, sockets and process
@@ -20,21 +30,28 @@ import json, os, secrets, shutil, subprocess, sys, tempfile, time, uuid
 IMAGE = "python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1"   # index digest, 2026-10-10
 TIMEOUT_S = 20
 MEM_MB = 256
+MAX_OUT = 8 << 20                       # a result line longer than this is malformed (scored wrong)
 DOCKER_FLAGS = ["--network", "none", "--read-only", "--tmpfs", "/tmp:size=16m", "--memory", f"{MEM_MB}m", "--memory-swap", f"{MEM_MB}m",
                 "--cpus", "1", "--pids-limit", "64", "--cap-drop", "ALL", "--security-opt", "no-new-privileges", "--user", "65534",
                 "--workdir", "/tmp", "--log-driver", "none"]
 DOCKER_INFRA_RC = {125, 126, 127}      # docker run itself failed (daemon / image / exec), not the program
 
-# The program sent on stdin. %(payload)s is a Python string literal of the JSON payload; %(nonce)s marks the result line so that
-# ordinary prints of the candidate cannot be mistaken for it.
+# The program sent on stdin: the candidate and the test inputs, nothing else. %(payload)s is a Python string literal of the JSON
+# payload {code, fn, tests, audit}; %(nonce)s marks the one result line. The driver keeps its own references to json.dumps and
+# os.write, but nothing here is a secret: the candidate may find and break all of it, and can only lose by doing so.
 HARNESS = r'''
-import json, os, sys
-_P = json.loads(%(payload)s)
-_WFLAGS = os.O_WRONLY | os.O_RDWR | os.O_CREAT | os.O_APPEND | os.O_TRUNC
+import json as _json, os as _os, sys as _sys
+_P = _json.loads(%(payload)s)
 _NONCE = %(nonce)r
+_dumps, _write, _exit = _json.dumps, _os.write, _os._exit
 def _emit(d):
-    sys.__stdout__.write("\n" + _NONCE + json.dumps(d) + "\n"); sys.__stdout__.flush()
+    try: _sys.stdout.flush()
+    except BaseException: pass
+    b = ("\n" + _NONCE + _dumps(d) + "\n").encode("utf8")
+    while b: b = b[_write(1, b):]
+    _exit(0)
 if _P.get("audit"):
+    _WFLAGS = _os.O_WRONLY | _os.O_RDWR | _os.O_CREAT | _os.O_APPEND | _os.O_TRUNC
     def _hook(ev, args, _deny=("socket.", "subprocess.Popen", "os.system", "os.exec", "os.posix_spawn", "os.spawn", "os.fork",
                                 "os.startfile", "ctypes.", "winreg.", "os.remove", "os.rename", "os.rmdir", "os.mkdir", "shutil.")):
         if ev == "open":
@@ -43,52 +60,93 @@ if _P.get("audit"):
                 raise PermissionError("sandbox: write refused")
         if ev.startswith(_deny):
             raise PermissionError("sandbox: " + ev + " refused")
-    sys.addaudithook(_hook)
-g = {"__name__": "candidate"}
+    _sys.addaudithook(_hook)
+_g = {"__name__": "candidate"}
 try:
-    exec(compile(_P["code"], "<candidate>", "exec"), g)
-except BaseException as e:
-    _emit({"ok": False, "why": "compile:" + repr(e)[:120]}); sys.exit(0)
-if not callable(g.get(_P["fn"])):
-    _emit({"ok": False, "why": "missing function " + _P["fn"]}); sys.exit(0)
-bad = 0
-for args, exp in zip(_P["tests"], _P["expected"]):
+    exec(compile(_P["code"], "<candidate>", "exec"), _g)
+except BaseException as _e:
+    _emit({"err": "compile:" + type(_e).__name__})
+_f = _g.get(_P["fn"])
+if not callable(_f):
+    _emit({"err": "missing function " + _P["fn"]})
+_out = []
+for _a in _P["tests"]:
     try:
-        got = json.dumps(g[_P["fn"]](*json.loads(json.dumps(args))), sort_keys=True, default=str)
-    except BaseException as e:
-        got = "EXC:" + repr(e)[:60]
-    if got != exp: bad += 1
-_emit({"ok": bad == 0, "bad": bad, "n": len(_P["tests"])})
+        _v = _f(*_json.loads(_dumps(_a)))
+    except BaseException as _e:
+        _out.append(["e", type(_e).__name__]); continue
+    try:
+        _out.append(["v", _dumps(_v, sort_keys=True)])
+    except BaseException:
+        _out.append(["t", type(_v).__name__])
+_emit({"out": _out})
 '''
 
 
 def canon(v):
-    """canonical form used for `expected` (and for the candidate's result inside the harness)"""
+    """canonical form used for `expected`; the host re-canonicalises every candidate value with it before comparing"""
     return json.dumps(v, sort_keys=True, default=str)
 
 
-def program(code, fn, tests, expected, audit=False):
-    nonce = "@@RESULT-" + secrets.token_hex(8) + "@@"
-    payload = json.dumps(dict(code=code, fn=fn, tests=tests, expected=expected, audit=audit))
+def program(code, fn, tests, audit=False):
+    """-> (program text, nonce). The expected outputs are deliberately not a parameter: they never leave the host."""
+    nonce = "@@RESULT-" + secrets.token_hex(16) + "@@"
+    payload = json.dumps(dict(code=code, fn=fn, tests=tests, audit=audit))
     return HARNESS % dict(payload=repr(payload), nonce=nonce), nonce
 
 
-def parse_result(out, nonce):
-    for line in reversed(out.splitlines()):
-        if line.startswith(nonce):
-            try: return json.loads(line[len(nonce):])
-            except Exception: return None
-    return None
+def parse_outputs(out, nonce, n):
+    """-> (outputs, why). outputs is a list of n [tag, val] pairs, or None when the result is missing, duplicated or malformed
+    (all scored as wrong). Only a line that STARTS with this run's nonce counts."""
+    hits = [l for l in (out or "").splitlines() if l.startswith(nonce)]
+    if not hits: return None, "no result line"
+    if len(hits) > 1: return None, f"{len(hits)} result lines"
+    body = hits[0][len(nonce):]
+    if len(body) > MAX_OUT: return None, "result line too long"
+    try: d = json.loads(body)
+    except Exception: return None, "malformed result line"
+    if not isinstance(d, dict) or len(d) != 1: return None, "malformed result object"
+    if "err" in d: return None, "candidate: " + str(d["err"])[:150]
+    o = d.get("out")
+    if not isinstance(o, list) or len(o) != n: return None, "malformed or wrong-length output list"
+    for e in o:
+        if not (isinstance(e, list) and len(e) == 2 and e[0] in ("v", "t", "e") and isinstance(e[1], str)): return None, "malformed output entry"
+    return o, None
+
+
+def score_outputs(outputs, expected):
+    """number of tests whose output is not exactly the expected canonical value (type names and exceptions are always wrong)"""
+    bad = 0
+    for (tag, val), exp in zip(outputs, expected):
+        if tag != "v": bad += 1; continue
+        try: got = canon(json.loads(val))
+        except Exception: bad += 1; continue
+        bad += got != exp
+    return bad
+
+
+def verdict(out, nonce, expected, secs, rc=None, err=""):
+    """host-side scoring of one finished sandbox run (a MODEL outcome: pass or fail, never infra)"""
+    outputs, why = parse_outputs(out, nonce, len(expected))
+    if outputs is None:
+        return dict(status="fail", bad=len(expected), n=len(expected), why=f"{why} (rc={rc}): {(err or '').strip()[-160:]}", secs=secs)
+    bad = score_outputs(outputs, expected)
+    return dict(status="pass" if bad == 0 else "fail", bad=bad, n=len(expected), why=None, secs=secs)
 
 
 # ------------------------------------------------------------------ docker
+def _exec(cmd, input=None, timeout=None):
+    """one docker CLI call -> CompletedProcess (raises subprocess.TimeoutExpired / OSError). The tests stub this."""
+    return subprocess.run(cmd, input=input, capture_output=True, text=True, encoding="utf8", errors="replace", timeout=timeout)
+
+
 def docker_available(timeout=20):
     """(ok, why): the daemon answers and the pinned image is present locally (pull it with ensure_image())."""
     if not shutil.which("docker"): return False, "docker CLI not found"
     try:
-        p = subprocess.run(["docker", "info", "--format", "{{.ServerVersion}}"], capture_output=True, text=True, timeout=timeout)
+        p = _exec(["docker", "info", "--format", "{{.ServerVersion}}"], timeout=timeout)
         if p.returncode != 0: return False, "daemon: " + (p.stderr or p.stdout).strip()[:200]
-        p = subprocess.run(["docker", "image", "inspect", IMAGE, "--format", "{{.Id}}"], capture_output=True, text=True, timeout=timeout)
+        p = _exec(["docker", "image", "inspect", IMAGE, "--format", "{{.Id}}"], timeout=timeout)
         if p.returncode != 0: return False, f"image {IMAGE} not present (run: docker pull {IMAGE})"
     except Exception as e:
         return False, repr(e)[:200]
@@ -96,32 +154,27 @@ def docker_available(timeout=20):
 
 
 def ensure_image(timeout=600):
-    p = subprocess.run(["docker", "pull", IMAGE], capture_output=True, text=True, timeout=timeout)
+    p = _exec(["docker", "pull", IMAGE], timeout=timeout)
     return p.returncode == 0, (p.stdout + p.stderr)[-300:]
 
 
-def _run_docker(prog, nonce, timeout):
+def _run_docker(prog, nonce, expected, timeout):
     name = "bench-sbx-" + uuid.uuid4().hex[:12]
     cmd = ["docker", "run", "--rm", "-i", "--name", name, *DOCKER_FLAGS, IMAGE, "python", "-I", "-"]
     t0 = time.time()
     try:
-        p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding="utf8", errors="replace")
+        p = _exec(cmd, input=prog, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        try: _exec(["docker", "kill", name], timeout=30)
+        except Exception: pass
+        return dict(status="timeout", why=f"host timeout {timeout}s", secs=time.time() - t0)
     except Exception as e:
         return dict(status="infra", why="spawn:" + repr(e)[:150], secs=0.0)
-    try:
-        out, err = p.communicate(prog, timeout=timeout)
-    except subprocess.TimeoutExpired:
-        subprocess.run(["docker", "kill", name], capture_output=True, timeout=30)
-        try: p.communicate(timeout=15)
-        except Exception: p.kill()
-        return dict(status="timeout", why=f"host timeout {timeout}s", secs=time.time() - t0)
     secs = time.time() - t0
-    res = parse_result(out, nonce)
-    if res is not None:
-        return dict(status="pass" if res.get("ok") else "fail", bad=res.get("bad"), n=res.get("n"), why=res.get("why"), secs=secs)
-    if p.returncode in DOCKER_INFRA_RC or "Error response from daemon" in err or "error during connect" in err:
-        return dict(status="infra", why=f"docker rc={p.returncode}: {err.strip()[:200]}", secs=secs)
-    return dict(status="fail", why=f"no result (rc={p.returncode}): {err.strip()[-160:]}", secs=secs)   # e.g. OOM-killed (137)
+    if parse_outputs(p.stdout, nonce, len(expected))[0] is None and (
+            p.returncode in DOCKER_INFRA_RC or "Error response from daemon" in p.stderr or "error during connect" in p.stderr):
+        return dict(status="infra", why=f"docker rc={p.returncode}: {p.stderr.strip()[:200]}", secs=secs)
+    return verdict(p.stdout, nonce, expected, secs, p.returncode, p.stderr)      # e.g. OOM-killed (137): no result -> fail
 
 
 # ------------------------------------------------------------------ job object (Windows) / rlimit (POSIX) fallback
@@ -155,7 +208,7 @@ def _job_object(mem_mb, max_procs):
     return k32, h
 
 
-def _run_job(prog, nonce, timeout):
+def _run_job(prog, nonce, expected, timeout):
     t0 = time.time()
     cwd = tempfile.mkdtemp(prefix="bench-job-")
     env = {"SYSTEMROOT": os.environ["SYSTEMROOT"]} if sys.platform == "win32" and "SYSTEMROOT" in os.environ else {}
@@ -193,10 +246,7 @@ def _run_job(prog, nonce, timeout):
             try: p.communicate(timeout=10)
             except Exception: pass
             return dict(status="timeout", why=f"host timeout {timeout}s", secs=time.time() - t0)
-        res = parse_result(out, nonce)
-        secs = time.time() - t0
-        if res is None: return dict(status="fail", why=f"no result (rc={p.returncode}): {err.strip()[-160:]}", secs=secs)
-        return dict(status="pass" if res.get("ok") else "fail", bad=res.get("bad"), n=res.get("n"), why=res.get("why"), secs=secs)
+        return verdict(out, nonce, expected, time.time() - t0, p.returncode, err)
     finally:
         if h is not None:
             import ctypes
@@ -205,11 +255,12 @@ def _run_job(prog, nonce, timeout):
 
 
 def run_code(code, fn, tests, expected, mode="docker", timeout=TIMEOUT_S):
-    """Run candidate `code` defining `fn` on `tests` (list of arg lists) and compare with `expected` (list of canon() strings)."""
+    """Run candidate `code` defining `fn` on `tests` (list of arg lists); compare its outputs with `expected` (list of canon()
+    strings) here on the host. `expected` is never sent into the sandbox."""
     if mode not in ("docker", "job"): raise ValueError(mode)
     if len(tests) != len(expected): raise ValueError("tests/expected length mismatch")
-    prog, nonce = program(code, fn, tests, expected, audit=(mode == "job"))
-    return _run_docker(prog, nonce, timeout) if mode == "docker" else _run_job(prog, nonce, timeout)
+    prog, nonce = program(code, fn, tests, audit=(mode == "job"))
+    return _run_docker(prog, nonce, expected, timeout) if mode == "docker" else _run_job(prog, nonce, expected, timeout)
 
 
 if __name__ == "__main__":
