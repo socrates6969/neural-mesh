@@ -31,8 +31,10 @@ def main(argv=None) -> int:
     m = sub.add_parser("mirror", help="copy scrubbed memories/outcomes into ruflo's LOCAL memory (namespace vector-patterns)")
     m.add_argument("--dry-run", action="store_true", help="write mirror_batch.jsonl only; call nothing")
     m.add_argument("--limit", type=int, help="max new records this run")
-    m.add_argument("--db-path", default=os.environ.get("NEURAL_MESH_RUFLO_DB"),
-                   help="ruflo memory.db to write (default: env NEURAL_MESH_RUFLO_DB, else the CLI's cwd/.swarm/memory.db)")
+    m.add_argument("--db-path", default=None,
+                   help="ruflo memory.db to write (default: env NEURAL_MESH_RUFLO_DB, else <repo>/.swarm/memory.db); must resolve inside the repo")
+    m.add_argument("--allow-external-db", action="store_true", help="allow a db that resolves outside the repo (UNC / network drives stay refused)")
+    m.add_argument("--wait", type=float, default=0.0, help="seconds to wait for the ingest lock (default 0: exit 75 if busy)")
     a = p.parse_args(argv)
 
     cfg = Config()
@@ -65,8 +67,9 @@ def main(argv=None) -> int:
         return 0
     if a.cmd == "mirror":
         from .mirror import mirror
-        print(json.dumps(mirror(cfg, dry_run=a.dry_run, limit=a.limit, db_path=a.db_path), indent=1))
-        return 0
+        stats = mirror(cfg, dry_run=a.dry_run, limit=a.limit, db_path=a.db_path, allow_external=a.allow_external_db, wait_s=a.wait)
+        print(json.dumps(stats, indent=1))
+        return int(stats.get("exit", 0))   # 0 all/noop, 3 partial, 4 none stored / npx missing, 5 refused, 75 busy
     return 2
 
 
