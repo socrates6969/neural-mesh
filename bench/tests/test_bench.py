@@ -264,3 +264,59 @@ def test_stale_const(tmp_path, monkeypatch):
     monkeypatch.setattr(run, "battery_path", lambda s: bp)
     monkeypatch.setattr(battery, "battery_path", lambda s: bp)
     assert run.main(["--split", "held", "--tag", "x", "--dry-run", "--sandbox", "docker"]) == run.EXIT_PREREG
+
+
+# ====================================================================== analyze.py
+import analyze  # noqa: E402
+import lib as b1lib  # noqa: E402  (py/b1/lib.py, put on sys.path by analyze)
+
+
+def _gate_fixture(tmp_path, monkeypatch, regress=False, n=6, K=2):
+    res = tmp_path / "results"; (res / "G").mkdir(parents=True)
+    paths = {}
+    rows = []
+    for split in ("held", "conf"):
+        items = []
+        for ax in ("math", "physics", "code", "research_public", "research_private"):
+            cat, sub = ("research", ax.split("_")[1]) if ax.startswith("research") else (ax, "x")
+            items += [dict(id=f"{split[0]}-{ax}{i}", split=split, cat=cat, sub=sub, prompt=f"{split}{ax}{i}", answer=1, kind="num", tol=0) for i in range(n)]
+        p = tmp_path / f"battery_{split}.json"; p.write_text(json.dumps(dict(header={}, items=items)), encoding="utf8"); paths[split] = p
+        (res / "G" / f"manifest_{split}.json").write_text(json.dumps(dict(split=split, conds=["A", "B"], K=dict(claude=K, local=1), battery_sha=json_sha(items))))
+        for it in items:
+            ax = axis_of(it); i = int(it["id"][-1])
+            for rep in range(K):
+                a = 0.0 if ax == "research_private" else float(i % 2 == 0)
+                b = 1.0 if ax == "research_private" else a
+                if regress and ax == "math": a, b = 1.0, 0.0                       # a consistent guard-axis loss
+                for cond, c in (("A", a), ("B", b)):
+                    rows.append(dict(split=split, id=it["id"], cat=it["cat"], sub=it["sub"], axis=ax, cond=cond, rep=rep, probe=False, status="ok",
+                                     correct=bool(c), fallback_correct=bool(c), parsed=True, tokens=dict(total=100 + 50 * (cond == "B")), wall_s=1.0, attempts=1, text=""))
+    monkeypatch.setattr(analyze, "RESULTS", res)
+    monkeypatch.setattr(analyze, "battery_path", lambda s: paths[s])
+    monkeypatch.setattr(analyze, "load_prereg", lambda: (dict(tol=0.002, delta=0.01), "f" * 64))
+    def write(rs):
+        (res / "G" / "raw.jsonl").write_text("".join(json.dumps(r) + "\n" for r in rs), encoding="utf8")
+    write(rows)
+    return res, rows, write
+
+
+def test_gate_reuse(tmp_path, monkeypatch):
+    assert analyze.holm is b1lib.holm and analyze.tost is b1lib.tost and analyze.gate.compare.__module__ == "gate"   # reused, not reimplemented
+    res, rows, write = _gate_fixture(tmp_path, monkeypatch)
+    assert analyze.main(["G"]) == 0
+    s = json.load(open(res / "G" / "summary.json"))
+    assert s["gate"]["verdict"] == "KEEP" and s["gate"]["holm_family"] == 10          # 5 axes x 1 world x 2 splits
+    assert "KEEP" in s["rd_log_line"] and "not gated" in s["rd_log_line"]
+    res, rows, write = _gate_fixture(tmp_path / "r", monkeypatch, regress=True)
+    assert analyze.main(["G"]) == 0
+    s = json.load(open(res / "G" / "summary.json"))
+    assert s["gate"]["verdict"] == "REJECT-regress" and any(l[0] == "math" for l in s["gate"]["losses"])
+    write([r for r in rows if not (r["id"] == "h-math0" and r["cond"] == "B" and r["rep"] == 1)])     # one half of a pair missing
+    assert analyze.main(["G"]) == 3
+    assert analyze.main(["G", "--drop-incomplete"]) == 0
+    assert json.load(open(res / "G" / "summary.json"))["splits"]["held"]["dropped"] == {"claude": ["h-math0"]}
+    write(rows + [rows[0]])                                                            # a duplicate final row
+    assert analyze.main(["G"]) == 4
+    write([r for r in rows if r["split"] == "held"])
+    assert analyze.main(["G"]) == 0
+    assert json.load(open(res / "G" / "summary.json"))["gate"]["verdict"].startswith("PARTIAL")
