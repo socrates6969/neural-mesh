@@ -10,6 +10,9 @@ Guard rails:
   repo (symlinks / junctions followed, case-insensitive on Windows) is refused (exit 5) unless ``allow_external``; UNC paths
   and mapped network drives are always refused;
 * the ruflo CLI is pinned (``CLI_VERSION``; env ``NEURAL_MESH_RUFLO_CLI`` overrides) instead of ``@latest``;
+* records go through ``memory import -i <temp file>`` in chunks of ``CHUNK`` (cwd = repo), never as ``--value`` on argv
+  (process list, ~32K command-line limit); the temp file is deleted in ``finally``. Limitation: import stores key/value/
+  namespace only (no ruflo tags / provenance);
 * the ingest lock (``data/lifelong/.ingest.lock``) is held for the whole job (busy -> exit 75), so items.jsonl / outcomes.jsonl
   are not appended while being read;
 * ``stats["exit"]``: 0 everything stored (or nothing to do), 3 partial, 4 nothing stored / npx missing, 5 refused, 75 busy.
@@ -18,9 +21,11 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 from .config import REPO
@@ -29,6 +34,7 @@ from .util import ProcessLock, append_jsonl, atomic_write_text, iter_jsonl, sha1
 
 NAMESPACE = "vector-patterns"
 CLI_VERSION = "3.56.3"   # the locally cached @claude-flow/cli (npm-cache/_npx), pinned 2026-10-10
+CHUNK = 200            # entries per `memory import` file
 EXIT_OK, EXIT_PARTIAL, EXIT_NONE, EXIT_REFUSED, EXIT_BUSY = 0, 3, 4, 5, 75
 
 
@@ -103,6 +109,32 @@ def _run(cmd: list[str], cwd: Path):
     return subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=180, cwd=str(cwd))
 
 
+_ENTRIES = re.compile(r"Entries:\s*(\d+)")
+
+
+def import_chunk(npx: str, chunk: list[dict], db: str, repo: Path, runner) -> int:
+    """`memory import` of one chunk from a temp JSON file (values never appear on argv / in the process list). Returns the number
+    of entries the CLI reports as imported (the CLI exits 0 even when some writes fail, so its "Entries: N" line is the truth).
+    The temp file is always deleted. NOTE: `memory import` keeps key/value/namespace only; ruflo tags/provenance are not set."""
+    doc = {"entries": [{"key": b["key"], "value": b["value_json"], "namespace": NAMESPACE} for b in chunk]}
+    fd, tmp = tempfile.mkstemp(prefix="mirror-chunk-", suffix=".json")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            json.dump(doc, f, ensure_ascii=False)
+        cmd = [npx, "-y", cli_package(), "memory", "import", "-i", tmp, "-n", NAMESPACE, "--path", db]
+        try:
+            r = runner(cmd, repo)
+        except (OSError, subprocess.SubprocessError):
+            return 0
+        m = _ENTRIES.search(r.stdout or "")
+        return min(len(chunk), int(m.group(1))) if r.returncode == 0 and m else 0
+    finally:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+
+
 def _exit_code(stats: dict) -> int:
     if stats["todo"] == 0:
         return EXIT_OK
@@ -152,23 +184,22 @@ def _mirror_locked(cfg, stats: dict, dry_run: bool, limit, db: str, repo: Path, 
     if not npx:
         stats.update(error="npx not found", exit=EXIT_NONE)
         return stats
-    for b in todo:
-        cmd = [npx, "-y", cli_package(), "memory", "store", "-k", b["key"], "--value", b["value_json"], "-n", NAMESPACE,
-               "--tags", b["tags"], "--provenance", "agent_output", "--path", db]
-        try:
-            ok = runner(cmd, repo).returncode == 0
-        except (OSError, subprocess.SubprocessError):
-            ok = False
-        if ok:
-            stats["stored"] += 1
-            done_path.parent.mkdir(parents=True, exist_ok=True)
+    done_path.parent.mkdir(parents=True, exist_ok=True)
+    stats["chunks"] = 0
+    dead = 0
+    for i in range(0, len(todo), CHUNK):
+        chunk = todo[i:i + CHUNK]
+        stats["chunks"] += 1
+        n = import_chunk(npx, chunk, db, repo, runner)
+        stats["stored"] += n
+        stats["failed"] += len(chunk) - n
+        if n == len(chunk):   # all-or-nothing bookkeeping: a partial chunk is re-imported (upsert) next run
             with open(done_path, "a", encoding="utf-8") as f:
-                f.write(f"{b['key']}\t{sha16(b['value_json'])}\n")
-        else:
-            stats["failed"] += 1
-            if stats["failed"] >= 5 and stats["stored"] == 0:
-                stats["error"] = "first 5 stores failed; stopping (is the ruflo CLI reachable?)"
-                break
+                f.writelines(f"{b['key']}\t{sha16(b['value_json'])}\n" for b in chunk)
+        dead = dead + 1 if n == 0 else 0
+        if dead >= 2 and stats["stored"] == 0:
+            stats["error"] = "first 2 import chunks stored nothing; stopping (is the ruflo CLI reachable?)"
+            break
     stats["exit"] = _exit_code(stats)
     append_jsonl(cfg.data / "mirror_runs.jsonl", [stats])
     return stats

@@ -17,15 +17,24 @@ from ingest.util import ProcessLock
 
 
 class Fake:
-    """stub for subprocess.run: records (cmd, cwd); ok(cmd) decides the return code."""
+    """stub for subprocess.run of `memory import -i <file>`: records (cmd, cwd, entries read from the chunk file) and answers like
+    the CLI ("Entries: N"); ok(entry) decides which entries are stored; boom=True raises instead."""
 
-    def __init__(self, ok=lambda cmd: True):
+    def __init__(self, ok=lambda entry: True, boom=False):
         self.calls = []
+        self.files = []
         self.ok = ok
+        self.boom = boom
 
     def __call__(self, cmd, cwd):
-        self.calls.append((list(cmd), str(cwd)))
-        return subprocess.CompletedProcess(cmd, 0 if self.ok(cmd) else 1, stdout="", stderr="")
+        f = cmd[cmd.index("-i") + 1]
+        self.files.append(f)
+        entries = json.loads(Path(f).read_text(encoding="utf-8"))["entries"]
+        self.calls.append((list(cmd), str(cwd), entries))
+        if self.boom:
+            raise subprocess.TimeoutExpired(cmd, 180)
+        n = sum(1 for e in entries if self.ok(e))
+        return subprocess.CompletedProcess(cmd, 0, stdout=f"[OK] Imported from {f}\n  - Entries: {n}\n  - Vectors: {n}\n", stderr="")
 
 
 class Base(unittest.TestCase):
@@ -122,7 +131,7 @@ class CliPin(Base):
     def test_cli_version_pinned(self):
         self.assertEqual(M.CLI_VERSION, "3.56.3")
         _, fake = self.run_mirror()
-        for cmd, _ in fake.calls:
+        for cmd, _, _ in fake.calls:
             self.assertIn("@claude-flow/cli@3.56.3", cmd)
             self.assertFalse(any("@latest" in c for c in cmd))
 
@@ -140,13 +149,13 @@ class ExitCodes(Base):
         self.assertEqual(fake.calls, [])
 
     def test_partial_is_3(self):
-        st, _ = self.run_mirror(Fake(ok=lambda cmd: "lifelong/outcome" not in " ".join(cmd)))
+        st, _ = self.run_mirror(Fake(ok=lambda e: "lifelong/outcome" not in e["key"]))
         self.assertEqual(st["exit"], 3)
         self.assertGreater(st["stored"], 0)
         self.assertGreater(st["failed"], 0)
 
     def test_none_stored_is_4(self):
-        st, _ = self.run_mirror(Fake(ok=lambda cmd: False))
+        st, _ = self.run_mirror(Fake(ok=lambda e: False))
         self.assertEqual((st["exit"], st["stored"]), (4, 0))
 
     def test_npx_missing_is_4(self):
@@ -159,6 +168,56 @@ class ExitCodes(Base):
         from ingest.__main__ import main
         with mock.patch.object(M, "mirror", lambda *a, **k: {"exit": 3}), mock.patch("builtins.print"):
             self.assertEqual(main(["mirror"]), 3)
+
+
+class ImportFile(Base):
+    def test_argv_never_contains_values(self):
+        st, fake = self.run_mirror()
+        self.assertEqual(st["exit"], 0)
+        batch = M.build_batch(self.cfg)
+        for cmd, _, entries in fake.calls:
+            self.assertIn("import", cmd)
+            self.assertNotIn("--value", cmd)
+            self.assertNotIn("store", cmd)
+            joined = " ".join(cmd)
+            for b in batch:
+                self.assertNotIn(b["value_json"], joined)
+                self.assertNotIn(b["key"], joined)
+            self.assertTrue(all(e["namespace"] == M.NAMESPACE for e in entries))
+        self.assertEqual(sorted(e["key"] for _, _, es in fake.calls for e in es), sorted(b["key"] for b in batch))
+
+    def test_chunk_file_deleted_after_success_and_on_error(self):
+        _, fake = self.run_mirror()
+        self.assertTrue(fake.files)
+        self.assertFalse(any(os.path.exists(f) for f in fake.files))
+        (self.cfg.state / "mirror_done.txt").unlink()
+        boom = Fake(boom=True)
+        st, _ = self.run_mirror(boom)
+        self.assertEqual(st["exit"], 4)
+        self.assertTrue(boom.files)
+        self.assertFalse(any(os.path.exists(f) for f in boom.files))
+
+    def test_chunks_of_200_and_partial_chunk_not_marked_done(self):
+        items = [{"id": f"mem-x{i:04d}", "status": "active", "tag": "fact", "text": f"bulk item {i}", "project": "p"} for i in range(450)]
+        with open(self.cfg.memory_dir / "items.jsonl", "a", encoding="utf-8") as f:
+            f.write("".join(json.dumps(x) + "\n" for x in items))
+        fake = Fake(ok=lambda e: e["key"] != "lifelong/mem/x0300")
+        st, _ = self.run_mirror(fake)
+        self.assertEqual([len(es) for _, _, es in fake.calls], [200, 200, 58])
+        self.assertEqual((st["chunks"], st["stored"], st["failed"], st["exit"]), (3, 457, 1, 3))
+        # the chunk with the failure is retried (upsert) next run; the others are done
+        fake2 = Fake()
+        st2, _ = self.run_mirror(fake2)
+        self.assertEqual(st2["todo"], 200)
+        self.assertEqual(st2["exit"], 0)
+
+    def test_cli_failure_exit_code_counts_as_nothing_stored(self):
+        class Bad(Fake):
+            def __call__(self, cmd, cwd):
+                super().__call__(cmd, cwd)
+                return subprocess.CompletedProcess(cmd, 1, stdout="", stderr="[ERROR] Import error")
+        st, _ = self.run_mirror(Bad())
+        self.assertEqual((st["stored"], st["exit"]), (0, 4))
 
 
 class Locking(Base):
