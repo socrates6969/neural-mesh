@@ -222,13 +222,18 @@ class MemoryStore:
         scored.sort(key=lambda x: (-x[0], x[2]["id"]))
         top = scored[:k]
         if log and top:
-            ts = datetime.now(timezone.utc).isoformat(timespec="seconds")
-            ids = [it["id"] for _, _, it in top]
-            append_jsonl(self.retr_path, [{"id": "retr:" + sha16(ts, session or "", *ids, query), "ts": ts, "session": session, "ids": ids,
-                                           "query_hash": sha16(query)}])
-            # retrieval counts are derived from this log on the next run (recall never rewrites the ledger: no race with a run)
+            self.log_retrieval([it["id"] for _, _, it in top], query, session)
         return [{"id": it["id"], "tag": it["tag"], "text": it["text"], "value": it.get("value"), "cos": round(c, 4), "score": round(s, 4)}
                 for s, c, it in top]
+
+    def log_retrieval(self, ids: list[str], query: str, session: str | None) -> None:
+        """Append one retrieval event (credited by the next run through the session's outcomes). Used by `recall` and by the
+        recall hook, which logs only the memories it actually injected. Never rewrites the ledger: no race with a run."""
+        if not ids:
+            return
+        ts = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        append_jsonl(self.retr_path, [{"id": "retr:" + sha16(ts, session or "", *ids, query), "ts": ts, "session": session, "ids": ids,
+                                       "query_hash": sha16(query)}])
 
     # ---------------------------------------------------------------- persistence / export
     def save(self) -> None:

@@ -38,3 +38,12 @@ def cluster_bootstrap_ci(groups: list[list[float]], reps: int = 4000, seed: int 
         means.append(sum(xs) / len(xs))
     means.sort()
     return {"n": len(flat), "clusters": len(groups), "mean": sum(flat) / len(flat), "lo": means[int(0.025 * reps)], "hi": means[int(0.975 * reps) - 1]}
+
+
+def sign_test_p(wins: int, losses: int) -> float:
+    """one-sided exact sign test: P(X >= wins) for X ~ Binomial(wins + losses, 0.5). Ties are dropped by the caller.
+    No decisive pairs -> 1.0 (never significant)."""
+    n = wins + losses
+    if n == 0:
+        return 1.0
+    return min(1.0, sum(math.comb(n, k) for k in range(wins, n + 1)) / 2 ** n)

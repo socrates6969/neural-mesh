@@ -51,16 +51,27 @@ class Split(unittest.TestCase):
 
 class Gate(unittest.TestCase):
     ci = staticmethod(lambda n, m, lo, hi: {"n": n, "mean": m, "lo": lo, "hi": hi})
+    pair = staticmethod(lambda n, lo: {"n_judged": n, "winrate_ci": {"n": n, "mean": lo + .1, "lo": lo, "hi": lo + .2}})
+    det_ok = {"regressed": []}
 
-    def test_promotes_only_on_significant_win_without_regression(self):
-        g = evaluate.gate
-        self.assertTrue(g(self.ci(50, .1, .02, .2), self.ci(30, 0, -.1, .1), 5)[0])
-        self.assertFalse(g(self.ci(50, .1, -.01, .2), self.ci(30, 0, -.1, .1), 5)[0])          # loss CI touches 0
-        self.assertFalse(g(self.ci(50, .1, .02, .2), self.ci(30, -.2, -.3, -.1), 5)[0])        # significant battery loss
-        self.assertFalse(g(self.ci(50, .1, .02, .2), self.ci(30, -.08, -.3, .1), 5)[0])        # mean regression
-        self.assertFalse(g(self.ci(20, .1, .02, .2), self.ci(30, 0, -.1, .1), 5)[0])           # too few examples
-        self.assertFalse(g(self.ci(50, .1, .02, .2), self.ci(30, 0, -.1, .1), 2)[0])           # too few sessions
-        self.assertFalse(g(self.ci(50, .1, .02, .2), self.ci(30, 0, -.1, .1), 5, 0.5)[0])      # judge fails decoys
+    def test_promotes_only_on_significant_pairwise_win_without_regression(self):
+        g, ci, pair = evaluate.gate, self.ci, self.pair
+        self.assertTrue(g(ci(50, .1, .02, .2), pair(40, .55), self.det_ok, 5)[0])
+        self.assertFalse(g(ci(50, .1, .02, .2), pair(40, .50), self.det_ok, 5)[0])                 # lower bound must be > 0.5
+        self.assertFalse(g(ci(50, .1, .02, .2), pair(39, .60), self.det_ok, 5)[0])                 # < 40 judged items
+        self.assertFalse(g(ci(50, .1, .02, .2), pair(60, .60), {"regressed": ["code"]}, 5)[0])     # deterministic regression
+        self.assertFalse(g(ci(50, -.2, -.3, -.1), pair(60, .60), self.det_ok, 5)[0])               # loss significantly worse
+        self.assertFalse(g(ci(50, .1, .02, .2), pair(60, .60), self.det_ok, 2)[0])                 # too few clusters
+        self.assertFalse(g(ci(50, .1, .02, .2), pair(60, .60), self.det_ok, 5, (False, "x"))[0])   # judge not calibrated: closed
+
+    def test_deterministic_regression_rule(self):
+        items = [{"cat": "math"}] * 20 + [{"cat": "code"}] * 20
+        same = [True] * 40
+        self.assertEqual(evaluate.det_regressions(items, same, same)["regressed"], [])
+        worse = [True] * 15 + [False] * 5 + [True] * 20          # math: 5 net losses of 20 = -0.25
+        self.assertEqual(evaluate.det_regressions(items, worse, same)["regressed"], ["math", "pooled"])
+        better = same[:]; cand = [False] + [True] * 39             # one lost item of 20 = -0.05, sign p .5: tolerated
+        self.assertEqual(evaluate.det_regressions(items, cand, better)["regressed"], [])
 
     def test_stats(self):
         c = stats.paired_ci([1.0, 1.1, 0.9, 1.0])
@@ -69,6 +80,11 @@ class Gate(unittest.TestCase):
         b = stats.cluster_bootstrap_ci([[1.0, 1.2], [0.8], [1.1, 0.9, 1.0]], reps=500)
         self.assertTrue(b["lo"] > 0 and b["clusters"] == 3)
         self.assertEqual(stats.cluster_bootstrap_ci([[1.0, 2.0]])["lo"], float("-inf"))  # one session: never significant
+
+    def test_sign_test(self):
+        self.assertAlmostEqual(stats.sign_test_p(10, 0), 1 / 1024)
+        self.assertAlmostEqual(stats.sign_test_p(5, 5), 0.623046875)
+        self.assertEqual(stats.sign_test_p(0, 0), 1.0)
 
 
 class Judge(unittest.TestCase):

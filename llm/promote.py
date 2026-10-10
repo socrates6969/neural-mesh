@@ -84,7 +84,8 @@ def run(synthetic: bool = False, ver: str | None = None, force: bool = False, ke
     ev = json.loads(ev_path.read_text(encoding="utf-8"))
     meta = json.loads((config.ADAPTERS / ver / "meta.json").read_text(encoding="utf-8"))
     rec = {"ver": ver, "ts": datetime.now(timezone.utc).isoformat(), "synthetic": synthetic, "gate": ev["gate"],
-           "loss_diff": ev["loss"]["diff_cluster_ci"], "battery_diff": ev["battery"]["diff_cluster_ci"]}
+           "loss_diff": ev["loss"]["diff_cluster_ci"],
+           "pairwise_winrate": (ev.get("pairwise") or {}).get("winrate_ci"), "battery_diff": (ev.get("battery") or {}).get("diff_cluster_ci")}
     if not ev["gate"]["promote"] and not force:
         rec["promoted"] = False
         st.setdefault("history", []).append(rec); config.save_state(st)

@@ -82,7 +82,24 @@ def retrieve_v2(q):
 def query_of(prompt):
     # drop the answer-format boilerplate so it cannot match anything
     return re.sub(r"\n\nGive the final answer.*|\nReturn ONLY the code.*", "", prompt, flags=re.S)
+HOOK_FE = os.environ.get("MESH_FRONTEND", "") == "hook"     # B = the real UserPromptSubmit hook (hooks/recall_hook.py), run as a subprocess
+_hook_data = None
+def hook_frontend(prompt):
+    """The exact hook: same script, same gate + recall + floor + scrub, fed the hook JSON with cwd = this repo (the prompts are about it).
+    Reads a FROZEN copy of the memory ledger (so a nightly ingest cannot change the corpus mid-run) and never writes retrieval events."""
+    global _hook_data
+    if _hook_data is None:
+        import shutil, tempfile
+        _hook_data = tempfile.mkdtemp(prefix="bench-hook-"); (pathlib.Path(_hook_data) / "memory").mkdir()
+        shutil.copy(NM / "data" / "lifelong" / "memory" / "items.jsonl", pathlib.Path(_hook_data) / "memory" / "items.jsonl")
+    env = dict(os.environ, INGEST_DATA=_hook_data)
+    r = subprocess.run([sys.executable, "-S", str(NM / "hooks" / "recall_hook.py")], input=json.dumps(dict(prompt=prompt, cwd=str(NM), session_id="bench", hook_event_name="UserPromptSubmit")),
+                       capture_output=True, text=True, encoding="utf8", errors="replace", env=env, timeout=15)
+    out = r.stdout.strip()
+    if not out: return prompt, {"retrieved": False, "hook": True}
+    return f"{out}" + chr(10)*2 + "---" + chr(10) + prompt, {"retrieved": True, "hook": True, "hook_chars": len(out)}
 def frontend_prompt(prompt):
+    if HOOK_FE: return hook_frontend(prompt)
     if V2: hits, structured = retrieve_v2(query_of(prompt))
     else: hits, structured = retrieve(query_of(prompt)), False
     top = hits[0][0]

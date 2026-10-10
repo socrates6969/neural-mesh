@@ -1,4 +1,4 @@
-"""python -m llm {bench|train|eval|promote|status|frontend-eval|nightly} [--synthetic] [--ver V] [--epochs N]"""
+"""python -m llm {bench|train|eval|promote|status|frontend-eval|nightly|calibrate} [--synthetic] [--ver V] [--epochs N] [--judge-budget N]"""
 from __future__ import annotations
 
 import argparse
@@ -52,11 +52,12 @@ def status() -> dict:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="python -m llm")
-    ap.add_argument("cmd", choices=["bench", "train", "eval", "promote", "status", "frontend-eval", "nightly"])
+    ap.add_argument("cmd", choices=["bench", "train", "eval", "promote", "status", "frontend-eval", "nightly", "calibrate"])
     ap.add_argument("--synthetic", action="store_true", help="use the LABELLED synthetic sample instead of data/lifelong/sft.jsonl")
     ap.add_argument("--ver")
     ap.add_argument("--epochs", type=int, default=2)
     ap.add_argument("--n", type=int, default=80)
+    ap.add_argument("--judge-budget", type=int, default=None, help="hard cap on Haiku judge calls today (eval default 120, calibrate default 200)")
     a = ap.parse_args(argv)
     if a.cmd == "status":
         print(json.dumps(status(), indent=1)); return 0
@@ -66,15 +67,17 @@ def main(argv=None) -> int:
         elif a.cmd == "train":
             from . import train; train.run(synthetic=a.synthetic, epochs=a.epochs)
         elif a.cmd == "eval":
-            from . import evaluate; evaluate.run(synthetic=a.synthetic, ver=a.ver)
+            from . import evaluate; evaluate.run(synthetic=a.synthetic, ver=a.ver, judge_budget=a.judge_budget)
         elif a.cmd == "promote":
             from . import promote; promote.run(synthetic=a.synthetic, ver=a.ver)
+        elif a.cmd == "calibrate":
+            from . import calibrate; calibrate.run(budget=a.judge_budget or 200)
         elif a.cmd == "frontend-eval":
             from . import frontend; frontend.evaluate(synthetic=a.synthetic, n=a.n)
         elif a.cmd == "nightly":   # train -> eval -> promote under ONE lock
             from . import evaluate, promote, train
             if train.run(synthetic=a.synthetic, epochs=a.epochs) is not None:
-                evaluate.run(synthetic=a.synthetic)
+                evaluate.run(synthetic=a.synthetic, judge_budget=a.judge_budget)
                 promote.run(synthetic=a.synthetic)
     return 0
 

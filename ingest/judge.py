@@ -12,6 +12,7 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
+from . import structural
 from .scrub import scrub_text
 from .util import append_jsonl, iter_jsonl, sha16
 
@@ -77,7 +78,7 @@ class Judge:
         for r in iter_jsonl(cache_path):
             if r.get("id"):
                 self.cache[r["id"]] = r
-        self.stats = {"called": 0, "cached": 0, "failed": 0, "skipped_budget": 0, "unavailable": 0}
+        self.stats = {"called": 0, "cached": 0, "failed": 0, "skipped_budget": 0, "unavailable": 0, "prefiltered": 0}
         self._available: bool | None = None
 
     def key(self, prompt: str) -> str:
@@ -98,6 +99,11 @@ class Judge:
 
     def grade(self, target: str, task: str, output: str) -> dict | None:
         """Return the cached or fresh grade {score, reason, ...}, or None (no budget / model unavailable / failure)."""
+        bad = structural.check(output)
+        if bad:   # $0 structural pre-check: obvious junk (empty / refusal / truncated / looping) never reaches the model
+            self.stats["prefiltered"] += 1
+            return {"id": "structural:" + bad, "target": target, "score": 0.0, "reason": "structural:" + bad, "model": "structural",
+                    "rubric_version": RUBRIC_VERSION, "ts": datetime.now(timezone.utc).isoformat(timespec="seconds")}
         prompt = build_prompt(task, output)
         k = self.key(prompt)
         if k in self.cache:
