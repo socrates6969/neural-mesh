@@ -345,3 +345,10 @@ def test_prereg_frontend(monkeypatch):
     monkeypatch.setenv("MESH_V2", "0")
     assert run.main(dry + ["--sandbox", "docker"]) == run.EXIT_PREREG                   # front-end variant (env) differs
     assert not (run.RESULTS / "prereg-test").exists()                                   # dry runs write nothing
+
+
+def test_no_mirror_script():
+    """the ruflo mirror lives in ingest/mirror.py (repo-local db guard); the bench duplicate with its hard-coded path is gone"""
+    assert not (BENCH / "mirror_ruflo.py").exists()
+    assert (BENCH.parent / "ingest" / "mirror.py").exists()
+    assert "mirror_ruflo" not in (BENCH / "RULE.md").read_text(encoding="utf8").replace("bench/mirror_ruflo.py is gone", "")

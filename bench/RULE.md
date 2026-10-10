@@ -8,7 +8,7 @@ MAX_THINKING_TOKENS=2048, local = Ollama qwen2.5-coder:7b (base, not fine-tuned)
 | Volatile / repo-specific facts (constants, paths, config values, decisions, who-owns-what) | mesh store (credited) + retrieval at answer time. NOT SFT. | Private repo constants, n=15: Claude alone 0.00, local alone 0.13, Claude+retrieval 1.00, local+retrieval 1.00 (paired B-A +1.00 [1.00,1.00]). Weights go stale the day a constant changes; retrieval does not. |
 | Stable skills and conventions (answer format, tool-call shapes, house style, how a role reports) | SFT rows, only if judge_score >= 0.7 and the promotion gate passes | Not measured here (needs the nightly adapter). The base 7B local model already completes 100% of format-constrained prompts but parses 94% of answers. |
 | Exact computation (math, physics, unit work) | deterministic tools (neural-mesh tools.rs), not memory and not SFT | Local 7B: math 0.50, physics 0.17 vs Claude 0.87 / 1.00. Memory cannot fix arithmetic. |
-| Routing outcomes (which agent did what, pass/fail, fix rounds) | router state via feedback + ruflo trajectories; summaries mirrored to ruflo "vector-patterns" | 69 real dispatches: label-fed mesh 67%, reward-only 33%; ruflo `hooks route` 19.0% -> 14.3% on 21 held-out rows after post-task/model-outcome/--train (no gain). |
+| Routing outcomes (which agent did what, pass/fail, fix rounds) | router state via feedback + ruflo trajectories; summaries mirrored to ruflo "vector-patterns" by `python -m ingest mirror` (ingest/mirror.py: repo-local db guard, pinned CLI; bench/mirror_ruflo.py is gone) | 69 real dispatches: label-fed mesh 67%, reward-only 33%; ruflo `hooks route` 19.0% -> 14.3% on 21 held-out rows after post-task/model-outcome/--train vs majority class 42.9% (exact binomial p=.999; descriptive, not gated; data: bench/data/ruflo_dispatch.jsonl). |
 | General world knowledge | neither: leave to Claude | Public stdlib facts: Claude 0.73, local 0.60, Claude+retrieval 0.80 (all CIs include 0). |
 
 Rule of thumb: if the answer can change without the model changing, retrieve it; if it is a behaviour that should hold regardless, train it;
@@ -17,3 +17,17 @@ if it is computable, compute it. Every row written to SFT must also exist in the
 Caveats: private-fact items were constructed so that the answer lives in the retrieval corpus (a best case for retrieval); the v2 front-end
 (backticked identifiers and src/ paths -> restricted BM25) was written AFTER v1 retrieval scored 0/15 on them, so v2 is not a blind result.
 Outside that category retrieval changed accuracy by -0.009 [-0.048,+0.019] (n=105).
+
+Status of this evidence (iron rules): the 120 items above are the TUNE split. v1 and v2 were designed on them, so every number
+in the table is TUNE-only, descriptive evidence. The confirmatory test is pre-registered in bench/PREREG.json and not yet run:
+HELD (seed 20261011) and CONF (seed 20261012), 30 fresh template-built items per axis, target axis research_private (the
+"librarian" claim), guard axes math/physics/code/research_public, verdict by py/b1/gate.compare (Holm over axis x world x
+split, tol .002, TOST +-.01), tokens/latency reported but not gated.
+
+How to run (bench/):
+  python battery.py --check                      # exit 2 if a private constant changed (battery stale)
+  python -m pytest tests -q                      # offline tests, no model calls
+  python run.py --split tune --cond A,B --tag t1 --limit 2      # TUNE smoke (job sandbox allowed, NOT a security boundary)
+  MESH_V2=1 python run.py --split held --cond A,B,C,D --tag prereg1   # needs Docker; then the same with --split conf
+  python analyze.py prereg1                      # verdict needs HELD and CONF in the tag; summary.txt has the RD-LOG line
+run.py exits: 0 ok, 1 usage, 2 manifest/stale/prereg, 3 incomplete (re-run to retry infra_fail units), 4 sandbox unavailable, 5 locked.
