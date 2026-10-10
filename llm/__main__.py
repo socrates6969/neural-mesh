@@ -58,6 +58,7 @@ def main(argv=None) -> int:
     ap.add_argument("--epochs", type=int, default=2)
     ap.add_argument("--n", type=int, default=80)
     ap.add_argument("--judge-budget", type=int, default=None, help="hard cap on Haiku judge calls today (eval default 120, calibrate default 200)")
+    ap.add_argument("--to", metavar="VER", help="promote: roll production back to an earlier promoted version")
     ap.add_argument("--keep-merged", action="store_true", help="promote: keep models/merged/<ver> (default: removed, also on failure)")
     a = ap.parse_args(argv)
     if a.cmd == "status":
@@ -72,7 +73,10 @@ def main(argv=None) -> int:
             from . import evaluate; evaluate.run(synthetic=a.synthetic, ver=a.ver, judge_budget=a.judge_budget)
         elif a.cmd == "promote":
             from . import promote
-            rc = promote.run(synthetic=a.synthetic, ver=a.ver, keep_merged=a.keep_merged).get("exit", 0)
+            if a.to:
+                rc = promote.rollback(a.to, keep_merged=a.keep_merged).get("exit", 0)
+            else:
+                rc = promote.run(synthetic=a.synthetic, ver=a.ver, keep_merged=a.keep_merged).get("exit", 0)
         elif a.cmd == "calibrate":
             from . import calibrate; calibrate.run(budget=a.judge_budget or 200)
         elif a.cmd == "frontend-eval":

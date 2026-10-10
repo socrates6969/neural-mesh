@@ -189,3 +189,52 @@ def run(synthetic: bool = False, ver: str | None = None, force: bool = False, ke
     st.setdefault("history", []).append(rec); config.save_state(st)
     log(f"PROMOTED {ver} -> {tag}" + ("" if synthetic else f" (alias {config.OLLAMA_NAME}:latest)"))
     return {**rec, "exit": 0}
+
+
+def rollback(to: str, keep_merged: bool = False, log=print) -> dict:
+    """`python -m llm promote --to VER`: make an earlier promoted, non-synthetic version production again.
+    exit 4 if VER was never promoted (or is synthetic / its adapter is gone); re-imports the Ollama tag from the adapter if it
+    is missing; points mesh-llm:latest at it (digest verified); trained_ids := union of meta.new_ids along VER's parent chain
+    (so the next train round re-learns the rows the abandoned lineage had consumed); history action rollback. exit 3 on failure."""
+    st = config.load_state()
+    ok = any(h.get("ver") == to and h.get("promoted") and not h.get("synthetic") and h.get("action", "promote") == "promote"
+             for h in st.get("history", []))
+    meta_p = config.ADAPTERS / to / "meta.json"
+    if not ok or to.endswith("-syn") or not meta_p.exists():
+        log(f"cannot roll back to {to}: not a promoted, non-synthetic version with its adapter on disk")
+        return {"ver": to, "promoted": False, "reason": "not a promoted non-synthetic version", "exit": 4}
+    meta = json.loads(meta_p.read_text(encoding="utf-8"))
+    tag = f"{config.OLLAMA_NAME}:{to}"
+    prev = st.get("production") or {}
+    out = config.MERGED / to
+    ts = datetime.now(timezone.utc).isoformat()
+    reimported = False
+    try:
+        if tag not in ollama_ids():
+            log(f"{tag} missing in Ollama; re-importing from the adapter")
+            reimported = True
+            merge(config.base_path(meta["base"]), config.ADAPTERS / to, out, log=log)
+            ollama_import(out, tag, log=log)
+        point_latest(tag, log=log)
+    except Exception as e:  # noqa: BLE001
+        log(f"ROLLBACK FAILED {to}: {e}; restoring")
+        if reimported:
+            try:
+                ollama("rm", tag)
+            except OSError:
+                pass
+        restore_latest(prev.get("ollama"), log=log)
+        rec = {"ver": to, "ts": ts, "synthetic": False, "promoted": False, "action": "rollback_failed", "error": str(e)[-800:]}
+        st.setdefault("history", []).append(rec); config.save_state(st)
+        return {**rec, "exit": 3}
+    finally:
+        if not keep_merged:
+            shutil.rmtree(out, ignore_errors=True)
+    st["production"] = {"ver": to, "ollama": tag, "base": meta["base"], "since": ts, "prev_ver": prev.get("ver"),
+                        "rolled_back_from": prev.get("ver")}
+    st["trained_ids"] = lineage_ids(to)
+    rec = {"ver": to, "ts": ts, "synthetic": False, "promoted": True, "action": "rollback", "from": prev.get("ver"),
+           "reimported": reimported, "trained_ids": len(st["trained_ids"])}
+    st.setdefault("history", []).append(rec); config.save_state(st)
+    log(f"ROLLED BACK production {prev.get('ver')} -> {to} ({tag}); trained_ids reset to its lineage ({len(st['trained_ids'])})")
+    return {**rec, "exit": 0}

@@ -175,6 +175,60 @@ class PromoteCleanup(Sandbox):
             self.assertEqual(main(["promote"]), 3)
 
 
+class Rollback(Sandbox):
+    def setUp(self):
+        super().setUp()
+        self.adapter("v1", new_ids=["a"])
+        self.adapter("v2", parent="v1", new_ids=["b"])
+        self.adapter("v3", parent="v2", new_ids=["c", "d"])
+        self.adapter("v9-syn", new_ids=["s"])
+        h = lambda v, **kw: {"ver": v, "promoted": True, "action": "promote", "synthetic": False, **kw}  # noqa: E731
+        config.save_state({"trained_ids": ["a", "b", "c", "d"], "production": {"ver": "v3", "ollama": "mesh-llm:v3"},
+                           "history": [h("v1"), h("v2"), h("v3"), {"ver": "v9-syn", "promoted": True, "synthetic": True},
+                                       {"ver": "v4", "promoted": False, "action": "reject"}]})
+
+    def test_rollback_resets_lineage_ids_and_latest(self):
+        ol = self.fake(models={"mesh-llm:v2": "id2", "mesh-llm:v3": "id3", "mesh-llm:latest": "id3"})
+        rec = promote.rollback("v2", log=lambda *_: None)
+        self.assertEqual((rec["exit"], rec["action"], rec["reimported"]), (0, "rollback", False))
+        self.assertEqual(ol.models["mesh-llm:latest"], "id2")
+        st = config.load_state()
+        self.assertEqual(st["production"]["ver"], "v2")
+        self.assertEqual(st["production"]["rolled_back_from"], "v3")
+        self.assertEqual(st["trained_ids"], ["a", "b"], "union of new_ids along v2 -> v1")
+        self.assertEqual(st["history"][-1]["action"], "rollback")
+
+    def test_missing_tag_is_reimported(self):
+        ol = self.fake(models={"mesh-llm:v3": "id3", "mesh-llm:latest": "id3"})
+        rec = promote.rollback("v1", log=lambda *_: None)
+        self.assertEqual((rec["exit"], rec["reimported"]), (0, True))
+        self.assertIn("mesh-llm:v1", ol.models)
+        self.assertEqual(ol.models["mesh-llm:latest"], ol.models["mesh-llm:v1"])
+        self.assertFalse((config.MERGED / "v1").exists())
+        self.assertEqual(config.load_state()["trained_ids"], ["a"])
+
+    def test_unknown_unpromoted_or_synthetic_version_exits_4(self):
+        ol = self.fake(models={"mesh-llm:latest": "id3"})
+        for v in ("nope", "v4", "v9-syn"):
+            self.assertEqual(promote.rollback(v, log=lambda *_: None)["exit"], 4, v)
+        self.assertEqual(ol.models["mesh-llm:latest"], "id3")
+        self.assertEqual(config.load_state()["production"]["ver"], "v3")
+
+    def test_cli_rollback_exit_codes(self):
+        from llm.__main__ import main
+        self.fake(models={"mesh-llm:v2": "id2", "mesh-llm:latest": "id3"})
+        with mock.patch("builtins.print"):
+            self.assertEqual(main(["promote", "--to", "nope"]), 4)
+            self.assertEqual(main(["promote", "--to", "v2"]), 0)
+
+    def test_failed_rollback_restores_latest(self):
+        ol = self.fake(models={"mesh-llm:v2": "id2", "mesh-llm:v3": "id3", "mesh-llm:latest": "id3"}, fail={"cp"})
+        rec = promote.rollback("v2", log=lambda *_: None)
+        self.assertEqual(rec["exit"], 3)
+        self.assertIn(("cp", "mesh-llm:v3", "mesh-llm:latest"), ol.calls)
+        self.assertEqual(config.load_state()["production"]["ver"], "v3")
+
+
 class GateConstants(unittest.TestCase):
     def test_gate_constants_unchanged(self):
         self.assertEqual((evaluate.N_LOSS, evaluate.N_TASK, evaluate.MIN_PAIR_ITEMS, evaluate.N_DET, evaluate.DET_MAX_NEW), (200, 60, 40, 20, 768))
