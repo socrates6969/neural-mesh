@@ -72,11 +72,12 @@ def main(argv=None) -> int:
             shadow_drain()
         return 0
     ap = argparse.ArgumentParser(prog="python -m llm")
-    ap.add_argument("cmd", choices=["bench", "train", "eval", "promote", "status", "frontend-eval", "nightly", "calibrate", "tool-exemplars", "anchors"])
+    ap.add_argument("cmd", choices=["bench", "train", "eval", "promote", "status", "frontend-eval", "nightly", "calibrate", "tool-exemplars", "anchors", "learning-curve"])
     ap.add_argument("--synthetic", action="store_true", help="use the LABELLED synthetic sample instead of data/lifelong/sft.jsonl")
     ap.add_argument("--ver")
     ap.add_argument("--epochs", type=int, default=2)
     ap.add_argument("--n", type=int, default=80)
+    ap.add_argument("--battery", action="store_true", help="learning-curve: also score the deterministic battery (slow)")
     ap.add_argument("--anchor-ratio", type=float, default=None, help="train: anchor rows per new row (default config.ANCHOR_RATIO; 0 disables)")
     ap.add_argument("--judge-budget", type=int, default=None, help="hard cap on Haiku judge calls today (eval default 120, calibrate default 200)")
     ap.add_argument("--to", metavar="VER", help="promote: roll production back to an earlier promoted version")
@@ -94,6 +95,8 @@ def main(argv=None) -> int:
         elif a.cmd == "train":
             from . import config as C, train
             train.run(synthetic=a.synthetic, epochs=a.epochs, anchor_ratio=C.ANCHOR_RATIO if a.anchor_ratio is None else a.anchor_ratio)
+        elif a.cmd == "learning-curve":
+            from . import learning_curve; learning_curve.run(battery=a.battery)
         elif a.cmd == "anchors":
             from . import anchors; anchors.build(n=a.n if a.n != 80 else 320)
         elif a.cmd == "eval":
