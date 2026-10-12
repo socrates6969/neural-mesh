@@ -49,6 +49,8 @@ class Build(unittest.TestCase):
             calls = []
             A.build(n=4, gen=lambda p: calls.append(p) or "ANSWER: 0", cands=cands[:1], log=lambda *_: None)
             self.assertEqual(calls, [])                                # already kept: not regenerated
+            A.build(n=4, gen=lambda p: calls.append(p) or "ANSWER: 0", cands=cands[1:2], log=lambda *_: None)
+            self.assertEqual(calls, [])                                # already rejected: not regenerated either
 
     def test_leaking_candidate_is_never_generated(self):
         cands = [{"source": "gsm8k", "q": "one two three four five six seven eight nine", "gold": "1"}]

@@ -112,6 +112,8 @@ def build(n: int = 320, per_source: float = 0.5, log=print, gen=generate, cands=
         for line in p.read_text(encoding="utf-8").splitlines():
             if line.strip():
                 r = json.loads(line); have[r["id"]] = r
+    rej_p = p.with_name("anchors_rejected.txt")          # ids whose base answer was wrong: never regenerated on resume
+    rejected = set(rej_p.read_text(encoding="utf-8").split()) if rej_p.exists() else set()
     bank = battery_shingles()
     quota = {"gsm8k": int(round(n * per_source)), "mmlu": n - int(round(n * per_source))}
     kept = {s: sum(1 for r in have.values() if r["source"] == s) for s in quota}
@@ -124,7 +126,7 @@ def build(n: int = 320, per_source: float = 0.5, log=print, gen=generate, cands=
             continue
         instr = c["q"] + FORMAT
         rid = "anc-" + hashlib.sha256(instr.encode()).hexdigest()[:16]
-        if rid in have:
+        if rid in have or rid in rejected:
             continue
         if leaks(c["q"], bank):
             stats["leak"] += 1
@@ -133,6 +135,10 @@ def build(n: int = 320, per_source: float = 0.5, log=print, gen=generate, cands=
         resp = gen(instr)
         if not correct(s, final_answer(resp), c["gold"]):
             stats["wrong"] += 1
+            rejected.add(rid)
+            p.parent.mkdir(parents=True, exist_ok=True)
+            with open(rej_p, "a", encoding="utf-8") as f:
+                f.write(rid + "\n")
             continue
         have[rid] = {"id": rid, "instruction": instr, "response": resp.strip(), "source": s, "license": LICENSES[s], "gold": c["gold"]}
         p.parent.mkdir(parents=True, exist_ok=True)
