@@ -27,6 +27,7 @@ OLLAMA_NAME = "mesh-llm"
 DEFAULT_BASE = "Qwen2.5-Coder-1.5B-Instruct"
 HELDOUT_FRAC = 0.2          # latest sessions (by their last ts) held out, never trained on
 REPLAY_RATIO = 1.0          # replay rows per new row (sampled from older trained rows)
+ANCHOR_RATIO = 1.0          # self-distillation anchor rows per new row (llm/anchors.py; 0 disables)
 MAX_LEN = 1024              # tokens per training example (prompt + response, truncated from the left of the prompt)
 SEED = 1234
 

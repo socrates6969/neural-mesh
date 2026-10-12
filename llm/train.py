@@ -12,7 +12,8 @@ from . import config, data
 MAX_NEW_PER_ROUND = 1500   # oldest-first cap so one nightly round stays bounded (~1-2 h on the 3B)
 
 
-def run(synthetic: bool = False, epochs: int = 2, max_new: int = MAX_NEW_PER_ROUND, log=print) -> dict | None:
+def run(synthetic: bool = False, epochs: int = 2, max_new: int = MAX_NEW_PER_ROUND, anchor_ratio: float = config.ANCHOR_RATIO,
+        log=print) -> dict | None:
     rows, source = data.load_rows(synthetic)
     train_rows, held = data.split(rows, data.load_meta() if not synthetic else None)
     st = config.load_state()
@@ -21,7 +22,10 @@ def run(synthetic: bool = False, epochs: int = 2, max_new: int = MAX_NEW_PER_ROU
     new, replay = data.select_for_round(train_rows, lineage, weights={k: v.get('replay_weight', 1.0) for k, v in meta.items()} or None)
     new.sort(key=lambda r: r.get("ts") or "")
     new = new[:max_new]
-    log(f"data: {source}; rows {len(rows)} (train {len(train_rows)}, held-out {len(held)} in later sessions); new {len(new)}, replay {len(replay)}")
+    from . import anchors as A
+    anc = [] if synthetic else A.sample(int(round(len(new) * anchor_ratio)), seed=config.SEED + len(lineage))
+    log(f"data: {source}; rows {len(rows)} (train {len(train_rows)}, held-out {len(held)} in later sessions); new {len(new)}, replay {len(replay)}, "
+        f"anchors {len(anc)} (ratio {anchor_ratio}, pool {len(A.load())})")
     if not new:
         log("nothing new to train on; no adapter written")
         return None
@@ -33,7 +37,7 @@ def run(synthetic: bool = False, epochs: int = 2, max_new: int = MAX_NEW_PER_ROU
     ver = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S") + ("-syn" if synthetic else "")
     out = config.ADAPTERS / ver
     tok = M.tokenizer(base)
-    enc = [M.encode(tok, r["instruction"], r["response"]) for r in new + replay]
+    enc = [M.encode(tok, r["instruction"], r["response"]) for r in new + replay + anc]
     log(f"base {base.name}; parent adapter {parent or '(fresh LoRA)'}; {len(enc)} examples, mean {sum(len(e[0]) for e in enc) / len(enc):.0f} tokens")
     t0 = time.time()
     m = M.load_4bit(base, adapter=(config.ADAPTERS / parent) if parent else None, trainable=True)
@@ -42,6 +46,7 @@ def run(synthetic: bool = False, epochs: int = 2, max_new: int = MAX_NEW_PER_ROU
     m.save_pretrained(out)
     meta = {"ver": ver, "base": base.name, "parent": parent, "data_source": source, "synthetic": synthetic,
             "n_new": len(new), "n_replay": len(replay), "new_ids": [r["id"] for r in new], "replay_ids": [r["id"] for r in replay],
+            "n_anchor": len(anc), "anchor_ratio": anchor_ratio, "anchor_ids": [r["id"] for r in anc],
             "heldout_sessions": sorted({r.get("session") for r in held}), "epochs": epochs, "train": stats,
             "wall_s": round(time.time() - t0, 1), "created": datetime.now(timezone.utc).isoformat()}
     (out / "meta.json").write_text(json.dumps(meta, indent=1), encoding="utf-8")
