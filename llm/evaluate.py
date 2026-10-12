@@ -66,6 +66,18 @@ def det_items(n_per_cat: int) -> list[dict]:
     return out
 
 
+def det_correct(bench, item: dict, text: str) -> bool:
+    """bench/run.py score() returns a dict (correct, fallback_correct, parsed, answer, sbx, infra); `bool(dict)` is always
+    True, which made every battery answer count as correct. Use the strict `correct` flag. An infra failure (sandbox down)
+    is neither right nor wrong: fail the eval closed instead of letting it skew the regression check."""
+    if not text.strip():
+        return False
+    r = bench.score(item, text)
+    if r.get("infra"):
+        raise RuntimeError(f"battery scoring infra failure on {item['id']} (sandbox unavailable); eval aborted")
+    return bool(r["correct"])
+
+
 def with_expected(item: dict) -> dict:
     """code items need precomputed `expected` outputs since the host-side sandbox scoring (bench sandbox B1); the legacy
     battery.json has none. Compute them exactly as bench/battery.py tune_annotated does: run the trusted in-repo reference
@@ -237,8 +249,8 @@ def run(synthetic: bool = False, ver: str | None = None, n_loss: int = N_LOSS, n
     gc.collect()
     torch.cuda.empty_cache()
     bench = _bench_module()
-    ok_c = [bool(bench.score(it, t)) if t.strip() else False for it, t in zip(items, ans["det_cand"])]
-    ok_p = [bool(bench.score(it, t)) if t.strip() else False for it, t in zip(items, ans["det_prod"])]
+    ok_c = [det_correct(bench, it, t) for it, t in zip(items, ans["det_cand"])]
+    ok_p = [det_correct(bench, it, t) for it, t in zip(items, ans["det_prod"])]
     det = det_regressions(items, ok_c, ok_p)
     log("deterministic battery (cand vs prod correct/n): " + "; ".join(f"{c} {d['cand']}/{d['n']} vs {d['prod']}/{d['n']}" for c, d in det["categories"].items())
         + f"; pooled diff {det['pooled_diff']:+.3f}; regressed: {det['regressed'] or 'none'}")

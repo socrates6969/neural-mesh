@@ -22,5 +22,30 @@ class DetItemsExpected(unittest.TestCase):
                 self.assertNotIn("expected", it)
 
 
+class DetCorrect(unittest.TestCase):
+    """score() returns a dict; the battery must use its `correct` flag, not the truthiness of the dict."""
+    class Bench:
+        def __init__(self, result): self.result = result
+        def score(self, item, text): return self.result
+
+    def test_wrong_answer_counts_as_wrong(self):
+        self.assertFalse(evaluate.det_correct(self.Bench({"correct": False, "infra": False}), {"id": "m1"}, "42"))
+
+    def test_right_answer_counts_as_right(self):
+        self.assertTrue(evaluate.det_correct(self.Bench({"correct": True, "infra": False}), {"id": "m1"}, "42"))
+
+    def test_empty_answer_is_wrong_without_scoring(self):
+        self.assertFalse(evaluate.det_correct(self.Bench(None), {"id": "m1"}, "  "))
+
+    def test_infra_failure_fails_closed(self):
+        with self.assertRaises(RuntimeError):
+            evaluate.det_correct(self.Bench({"correct": False, "infra": True}), {"id": "c1"}, "def f(): pass")
+
+    def test_real_scorer_rejects_a_wrong_math_answer(self):
+        bench = evaluate._bench_module()
+        item = next(i for i in evaluate.det_items(1000) if i["kind"] != "code")
+        self.assertFalse(evaluate.det_correct(bench, item, "The answer is: definitely-not-the-answer-zzz"))
+
+
 if __name__ == "__main__":
     unittest.main()
