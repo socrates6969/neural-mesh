@@ -62,8 +62,34 @@ def det_items(n_per_cat: int) -> list[dict]:
     for it in json.loads((config.REPO / "bench" / "battery.json").read_text(encoding="utf-8")):
         seen[it["cat"]] = seen.get(it["cat"], 0) + 1
         if seen[it["cat"]] <= n_per_cat:
-            out.append(it)
+            out.append(with_expected(it))
     return out
+
+
+def with_expected(item: dict) -> dict:
+    """code items need precomputed `expected` outputs since the host-side sandbox scoring (bench sandbox B1); the legacy
+    battery.json has none. Compute them exactly as bench/battery.py tune_annotated does: run the trusted in-repo reference
+    on each test, canonicalise with sandbox.canon, "EXC" when the reference raises. Non-code items and items that already
+    carry `expected` are returned unchanged."""
+    if item.get("kind") != "code" or "expected" in item:
+        return item
+    canon = _sandbox_module().canon
+    g: dict = {}
+    exec(item["ref"], g)  # noqa: S102 - reference solution shipped in bench/battery.json (repo-controlled, not model output)
+    exp = []
+    for t in item["tests"]:
+        try:
+            exp.append(canon(g[item["fn"]](*json.loads(json.dumps(t)))))
+        except Exception:
+            exp.append("EXC")
+    return dict(item, expected=exp)
+
+
+def _sandbox_module():
+    spec = importlib.util.spec_from_file_location("bench_sandbox", config.REPO / "bench" / "sandbox.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
 
 
 def det_regressions(items: list[dict], ok_cand: list[bool], ok_prod: list[bool]) -> dict:
