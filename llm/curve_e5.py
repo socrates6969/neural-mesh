@@ -157,17 +157,25 @@ def mde_observed(n: int, b: int, c: int, power: float = 0.8, alpha: float = 0.05
     return (m / n) * (2 * hi - 1)
 
 
+def mcnemar_worse_p(adapter_only: int, base_only: int) -> float:
+    """one-sided exact McNemar for 'adapter worse than BASE': P(X >= base_only), X ~ Binomial(adapter_only + base_only, .5)."""
+    n = adapter_only + base_only
+    if n == 0:
+        return 1.0
+    return sum(math.comb(n, i) for i in range(base_only, n + 1)) / 2 ** n
+
+
 def guard_g(per: dict) -> dict:
-    """Guard G (queen, pre-registered): per battery category, the adapter's drop vs BASE must not exceed the MDE for that category's
-    observed discordance. MDE undefined (too few discordant pairs) -> pass on that rule. Separately flagged (not a failure): a drop of
-    >= 3 items, the size of the 10-11 math/physics collapse that an MDE at n=20 may not resolve."""
+    """Guard G (queen, binding, pre-registered): an adapter FAILS if in any battery category (a) it loses >= 3 items net vs BASE, or
+    (b) the one-sided exact McNemar for 'worse than BASE' gives p < 0.10. The MDE is reported as context only."""
     out = {}
     for key, x in per.items():
         n, a_only, b_only = x["n"], x["adapter_only"], x["base_only"]
-        drop = (b_only - a_only) / n if n else 0.0
+        net = b_only - a_only
+        p = mcnemar_worse_p(a_only, b_only)
         mde = mde_observed(n, a_only, b_only)
-        out[key] = {"drop_items": b_only - a_only, "drop": round(drop, 4), "mde": None if mde is None else round(mde, 4),
-                    "fail": mde is not None and drop > mde, "flag_3_items": (b_only - a_only) >= 3}
+        out[key] = {"net_loss_items": net, "p_worse": round(p, 4), "mde_context": None if mde is None else round(mde, 4),
+                    "fail": net >= 3 or p < 0.10}
     return out
 
 
