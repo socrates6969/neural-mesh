@@ -1,4 +1,4 @@
-"""`python -m llm eval`: candidate adapter vs the current production model on held-out LATER sessions.
+﻿"""`python -m llm eval`: candidate adapter vs the current production model on held-out LATER sessions.
 
 Evidence, in the order the gate reads it:
 (1) PAIRWISE judge (Claude Haiku via `claude -p`, llm/pairjudge.py): for each held-out request the candidate's and the
@@ -271,7 +271,70 @@ def run(synthetic: bool = False, ver: str | None = None, n_loss: int = N_LOSS, n
            "loss": {"nll_production": nll_p, "nll_candidate": nll_c, "ppl_production": math.exp(nll_p), "ppl_candidate": math.exp(nll_c),
                     "diff_cluster_ci": loss_ci, "diff_paired_t": loss_t},
            "pairwise": pair, "deterministic": det, "judge_trusted": {"ok": calibrated[0], "why": calibrated[1]},
-           "gate": {"promote": ok, "reason": why}, "evaluated": datetime.now(timezone.utc).isoformat()}
+           "gate": {"promote": ok, "reason": why}, "quality": quality_report(det, pair), "evaluated": datetime.now(timezone.utc).isoformat()}
     (cand / "eval.json").write_text(json.dumps(res, indent=1, default=lambda x: None if isinstance(x, float) and math.isinf(x) else x), encoding="utf-8")
+    log(describe_quality(res["quality"]))
     log(f"gate: {'PROMOTE' if ok else 'KEEP PRODUCTION'} - {why}")
     return res
+
+# ---- E2: baseline-aware, powered reporting (does not change the gate decision) ---------------------------------------------------------
+PLANNING_DISCORDANCE = 0.30   # assumed share of discordant items when planning an MDE for a comparison that has none yet (a labelled assumption)
+
+
+def _cat_row(d: dict) -> dict:
+    n, b, c = d["n"], d["cand_only"], d["prod_only"]
+    return {"n": n, "recall_cand": d["cand"] / n, "recall_prod": d["prod"] / n, "cand_only": b, "prod_only": c,
+            "mcnemar_p_two_sided": stats.mcnemar_exact_p(b, c), "sign_p_cand_better": stats.sign_test_p(b, c),
+            "mde_at_observed": stats.mde_observed(n, b, c), "mde_planning": stats.mde_paired(n, PLANNING_DISCORDANCE)}
+
+
+def quality_report(det: dict, pair: dict, target_win_share: float = 0.6) -> dict:
+    """What the stored counts can and cannot support. det = det_regressions(...) output, pair = pairwise_block(...) output.
+    Baselines: NO-OP (candidate answers == production answers: every pair a tie, win rate .5, accuracy difference 0 by construction) and
+    EMPTY ANSWER (0 correct). Balanced accuracy = macro mean of the per-category recalls (one vote per category, whatever its size)."""
+    cats = {k: _cat_row(d) for k, d in det["categories"].items()}
+    nn = sum(d["n"] for d in det["categories"].values())
+    b = sum(d["cand_only"] for d in det["categories"].values())
+    c = sum(d["prod_only"] for d in det["categories"].values())
+    kc, kp = sum(d["cand"] for d in det["categories"].values()), sum(d["prod"] for d in det["categories"].values())
+    bal_c = sum(r["recall_cand"] for r in cats.values()) / len(cats) if cats else None
+    bal_p = sum(r["recall_prod"] for r in cats.values()) / len(cats) if cats else None
+    pooled = {"n": nn, "acc_cand": kc / nn if nn else None, "acc_prod": kp / nn if nn else None, "cand_only": b, "prod_only": c,
+              "balanced_acc_cand": bal_c, "balanced_acc_prod": bal_p, "mcnemar_p_two_sided": stats.mcnemar_exact_p(b, c),
+              "mde_at_observed": stats.mde_observed(nn, b, c) if nn else None, "mde_planning": stats.mde_paired(nn, PLANNING_DISCORDANCE) if nn else None}
+    w, l, t = pair.get("wins") or 0, pair.get("losses") or 0, pair.get("ties") or 0
+    m = w + l
+    need = stats.required_decisive(target_win_share)
+    pw = {"wins": w, "losses": l, "ties": t, "judged": pair.get("n_judged", 0), "items": pair.get("n_items", 0), "decisive": m,
+          "win_share_among_decisive": w / m if m else None, "mcnemar_p_two_sided": stats.mcnemar_exact_p(w, l),
+          "sign_p_cand_better": stats.sign_test_p(w, l), "noop_win_rate": 0.5, "mde_win_share": stats.mde_sign_test(m),
+          "target_win_share": target_win_share, "decisive_needed_for_target": need, "powered_for_target": m >= need if need else False}
+    pc = pooled["mde_at_observed"]
+    pooled_under = pc is None or pc["min_diff"] is None or pc["min_diff"] > 0.10
+    return {"categories": cats, "pooled": pooled, "pairwise": pw, "baselines": {"noop_acc_diff": 0.0, "empty_answer_acc": 0.0},
+            "underpowered": {"battery_for_10pt": pooled_under, "pairwise_for_target": not pw["powered_for_target"]}}
+
+
+def describe_quality(q: dict) -> str:
+    p, pw = q["pooled"], q["pairwise"]
+    f = lambda x: "n/a" if x is None else f"{x:.3f}"   # noqa: E731
+    mde = (p["mde_at_observed"] or {}).get("min_diff")
+    return (f"quality: battery pooled {f(p['acc_cand'])} vs {f(p['acc_prod'])}, balanced {f(p['balanced_acc_cand'])} vs {f(p['balanced_acc_prod'])}, "
+            f"McNemar p {p['mcnemar_p_two_sided']:.3f}, MDE(80% power) {f(mde)} acc points (underpowered for 10 pts: {q['underpowered']['battery_for_10pt']}); "
+            f"pairwise decisive {pw['decisive']} (W {pw['wins']}/L {pw['losses']}/T {pw['ties']}), MDE win share {f(pw['mde_win_share'])}, "
+            f"{pw['decisive_needed_for_target']} decisive pairs needed for a {pw['target_win_share']:.0%} win share")
+
+
+def rescore(path) -> dict:
+    """re-score a stored eval.json from its stored counts (read-only)."""
+    from pathlib import Path
+    e = json.loads(Path(path).read_text(encoding="utf-8"))
+    q = quality_report(e["deterministic"], e["pairwise"])
+    return {"ver": e.get("ver"), "stored_gate": e.get("gate"), "stored_regressed": e["deterministic"].get("regressed"), "quality": q}
+
+
+if __name__ == "__main__":
+    import sys
+    r = rescore(sys.argv[1])
+    print(json.dumps(r, indent=1))
+    print(describe_quality(r["quality"]))
