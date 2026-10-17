@@ -1,0 +1,1204 @@
+selftest OK: SonaB(all mechanisms off) is bit-identical to prior::Guarded<HebbianRouter> (5 worlds x 3 seeds x 2 modes)
+g20_sona_b: 2000 tasks/run, 9 worlds, tune seeds 1-8, held-out 31-60
+
+######## tuning (NORMAL feedback) ########
+[tune 1-8] rt (guarded-hebr retuned, no new mechanism): 72 configs, best obj -0.00796
+    BCfg { tau: 0.55, z: 0.5, kw_a: 2.0, kw_b: 1.0, discount: 1.0, challenge: true, inner: Heb, heb_eta: 0.01, heb_epsilon: 0.0, heb_temperature: 0.002, delayed_mult: 1, fail_reward: 0.0, hier_lambda: 0.0, xp_eps: 0.0, xp_budget: 0, xp_plaus: true, ts_scale: 1.0, ts_opt: 0.0, time_tau: 0.0, protect: 0.0, protect_v: 0.7, det_delta: 0.15, det_lambda: 0.0, det_keep: 0.3, det_ban: 0 }
+[tune 1-8] exploration (pattern prior + annealed uncertainty-directed budget): 36 configs, best obj -0.01934
+    BCfg { tau: 0.55, z: 0.5, kw_a: 2.0, kw_b: 1.0, discount: 1.0, challenge: true, inner: Heb, heb_eta: 0.01, heb_epsilon: 0.0, heb_temperature: 0.002, delayed_mult: 1, fail_reward: 0.0, hier_lambda: 0.0, xp_eps: 0.03, xp_budget: 2, xp_plaus: true, ts_scale: 1.0, ts_opt: 0.0, time_tau: 0.0, protect: 0.0, protect_v: 0.7, det_delta: 0.15, det_lambda: 0.0, det_keep: 0.3, det_ban: 0 }
+[tune 1-8] Thompson over pattern posteriors (inner): 36 configs, best obj -0.01252
+    BCfg { tau: 0.45, z: 0.5, kw_a: 2.0, kw_b: 1.0, discount: 1.0, challenge: true, inner: Ts, heb_eta: 0.01, heb_epsilon: 0.0, heb_temperature: 0.002, delayed_mult: 1, fail_reward: 0.0, hier_lambda: 3.0, xp_eps: 0.0, xp_budget: 0, xp_plaus: true, ts_scale: 2.0, ts_opt: 1.0, time_tau: 0.0, protect: 0.0, protect_v: 0.7, det_delta: 0.15, det_lambda: 0.0, det_keep: 0.3, det_ban: 0 }
+[tune 1-8] forgetting: lazy time decay: 12 configs, best obj -0.00732
+    BCfg { tau: 0.55, z: 0.5, kw_a: 2.0, kw_b: 1.0, discount: 1.0, challenge: true, inner: Heb, heb_eta: 0.01, heb_epsilon: 0.0, heb_temperature: 0.002, delayed_mult: 1, fail_reward: 0.0, hier_lambda: 0.0, xp_eps: 0.0, xp_budget: 0, xp_plaus: true, ts_scale: 1.0, ts_opt: 0.0, time_tau: 1000.0, protect: 0.0, protect_v: 0.7, det_delta: 0.15, det_lambda: 0.0, det_keep: 0.3, det_ban: 0 }
+[tune 1-8] forgetting: EWC-like protection: 18 configs, best obj -0.00755
+    BCfg { tau: 0.55, z: 0.5, kw_a: 2.0, kw_b: 1.0, discount: 0.97, challenge: true, inner: Heb, heb_eta: 0.01, heb_epsilon: 0.0, heb_temperature: 0.002, delayed_mult: 1, fail_reward: 0.0, hier_lambda: 0.0, xp_eps: 0.0, xp_budget: 0, xp_plaus: true, ts_scale: 1.0, ts_opt: 0.0, time_tau: 0.0, protect: 0.5, protect_v: 0.75, det_delta: 0.15, det_lambda: 0.0, det_keep: 0.3, det_ban: 0 }
+[tune 1-8] forgetting: CUSUM drift reset: 96 configs, best obj -0.00096
+    BCfg { tau: 0.55, z: 0.5, kw_a: 2.0, kw_b: 1.0, discount: 1.0, challenge: true, inner: Heb, heb_eta: 0.01, heb_epsilon: 0.0, heb_temperature: 0.002, delayed_mult: 1, fail_reward: 0.0, hier_lambda: 0.0, xp_eps: 0.0, xp_budget: 0, xp_plaus: true, ts_scale: 1.0, ts_opt: 0.0, time_tau: 0.0, protect: 0.0, protect_v: 0.7, det_delta: 0.25, det_lambda: 1.5, det_keep: 0.2, det_ban: 200 }
+[tune 1-8] full-combo ranking (top 4 of 32):
+      -0.00096  detect+
+      -0.00096  protect+detect+
+      -0.00342  tdecay+detect+
+      -0.00342  tdecay+protect+detect+
+[tune 1-8] objectives: {"tdecay": -0.007317688576850527, "ts": -0.01252372397315563, "expl": -0.019337758753207333, "rt": -0.007957754128460092, "protect": -0.0075499048045566276, "detect": -0.0009614722616502597, "full": -0.0009614722616502597}
+
+######## tuning (WEAK feedback + reuse signal) ########
+[tune 1-8] rt (guarded-hebr retuned, no new mechanism): 216 configs, best obj +0.01387
+    BCfg { tau: 0.55, z: 1.0, kw_a: 4.0, kw_b: 1.0, discount: 1.0, challenge: true, inner: Heb, heb_eta: 0.01, heb_epsilon: 0.0, heb_temperature: 0.002, delayed_mult: 3, fail_reward: 0.0, hier_lambda: 0.0, xp_eps: 0.0, xp_budget: 0, xp_plaus: true, ts_scale: 1.0, ts_opt: 0.0, time_tau: 0.0, protect: 0.0, protect_v: 0.7, det_delta: 0.15, det_lambda: 0.0, det_keep: 0.3, det_ban: 0 }
+[tune 1-8] exploration (pattern prior + annealed uncertainty-directed budget): 36 configs, best obj +0.00104
+    BCfg { tau: 0.55, z: 1.0, kw_a: 4.0, kw_b: 1.0, discount: 1.0, challenge: true, inner: Heb, heb_eta: 0.01, heb_epsilon: 0.0, heb_temperature: 0.002, delayed_mult: 3, fail_reward: 0.0, hier_lambda: 0.0, xp_eps: 0.03, xp_budget: 2, xp_plaus: true, ts_scale: 1.0, ts_opt: 0.0, time_tau: 0.0, protect: 0.0, protect_v: 0.7, det_delta: 0.15, det_lambda: 0.0, det_keep: 0.3, det_ban: 0 }
+[tune 1-8] Thompson over pattern posteriors (inner): 36 configs, best obj +0.01313
+    BCfg { tau: 0.55, z: 1.0, kw_a: 4.0, kw_b: 1.0, discount: 1.0, challenge: true, inner: Ts, heb_eta: 0.01, heb_epsilon: 0.0, heb_temperature: 0.002, delayed_mult: 3, fail_reward: 0.0, hier_lambda: 0.0, xp_eps: 0.0, xp_budget: 0, xp_plaus: true, ts_scale: 2.0, ts_opt: 1.0, time_tau: 0.0, protect: 0.0, protect_v: 0.7, det_delta: 0.15, det_lambda: 0.0, det_keep: 0.3, det_ban: 0 }
+[tune 1-8] forgetting: lazy time decay: 12 configs, best obj +0.01395
+    BCfg { tau: 0.55, z: 1.0, kw_a: 4.0, kw_b: 1.0, discount: 1.0, challenge: true, inner: Heb, heb_eta: 0.01, heb_epsilon: 0.0, heb_temperature: 0.002, delayed_mult: 3, fail_reward: 0.0, hier_lambda: 0.0, xp_eps: 0.0, xp_budget: 0, xp_plaus: true, ts_scale: 1.0, ts_opt: 0.0, time_tau: 3000.0, protect: 0.0, protect_v: 0.7, det_delta: 0.15, det_lambda: 0.0, det_keep: 0.3, det_ban: 0 }
+[tune 1-8] forgetting: EWC-like protection: 18 configs, best obj +0.01116
+    BCfg { tau: 0.55, z: 1.0, kw_a: 4.0, kw_b: 1.0, discount: 0.97, challenge: true, inner: Heb, heb_eta: 0.01, heb_epsilon: 0.0, heb_temperature: 0.002, delayed_mult: 3, fail_reward: 0.0, hier_lambda: 0.0, xp_eps: 0.0, xp_budget: 0, xp_plaus: true, ts_scale: 1.0, ts_opt: 0.0, time_tau: 0.0, protect: 0.95, protect_v: 0.6, det_delta: 0.15, det_lambda: 0.0, det_keep: 0.3, det_ban: 0 }
+[tune 1-8] forgetting: CUSUM drift reset: 96 configs, best obj +0.01417
+    BCfg { tau: 0.55, z: 1.0, kw_a: 4.0, kw_b: 1.0, discount: 1.0, challenge: true, inner: Heb, heb_eta: 0.01, heb_epsilon: 0.0, heb_temperature: 0.002, delayed_mult: 3, fail_reward: 0.0, hier_lambda: 0.0, xp_eps: 0.0, xp_budget: 0, xp_plaus: true, ts_scale: 1.0, ts_opt: 0.0, time_tau: 0.0, protect: 0.0, protect_v: 0.7, det_delta: 0.1, det_lambda: 5.0, det_keep: 0.5, det_ban: 0 }
+[tune 1-8] full-combo ranking (top 4 of 32):
+      +0.01417  detect+
+      +0.01417  protect+detect+
+      +0.01395  tdecay+
+      +0.01387  (rt only)
+[tune 1-8] objectives: {"tdecay": 0.013949631231480533, "expl": 0.0010447526040322803, "detect": 0.014167312376704029, "full": 0.014167312376704029, "ts": 0.013132057962851421, "rt": 0.01387087631829922, "protect": 0.011161319002662195}
+wrote frozen tuning results/g19b_r2_tuned.json
+
+=== [NORMAL] world traps(main) (stat) | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword                                       0.6671  0.6557  0.6558  0.6545  0.6541
+eps-greedy                                    0.4971  0.5723  0.6493  0.7061  0.7431
+pooled-ts                                     0.4744  0.5409  0.6105  0.6745  0.7227
+hebbian-robust                                0.5636  0.6467  0.7064  0.7508  0.7725
+warm(hebr)                                    0.6506  0.6921  0.7318  0.7623  0.7783
+guarded-safe(x1)                              0.6871  0.7160  0.7477  0.7706  0.7839
+rt(guarded-hebr retuned)                      0.6886  0.7188  0.7511  0.7754  0.7908
+expl                                          0.6797  0.7093  0.7469  0.7718  0.7885
+ts                                            0.6897  0.7166  0.7489  0.7736  0.7899
+tdecay                                        0.6884  0.7180  0.7486  0.7731  0.7898
+protect                                       0.6871  0.7153  0.7464  0.7692  0.7847
+detect                                        0.6885  0.7186  0.7516  0.7733  0.7847
+full                                          0.6885  0.7186  0.7516  0.7733  0.7847
+(oracle: best agent per task)                 0.8500  0.8500  0.8500  0.8500  0.8500
+
+=== [NORMAL] world correct-keywords (stat) | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword                                       0.8212  0.8184  0.8191  0.8173  0.8168
+eps-greedy                                    0.5072  0.5903  0.6624  0.7147  0.7468
+pooled-ts                                     0.4826  0.5489  0.6113  0.6739  0.7213
+hebbian-robust                                0.5574  0.6414  0.7016  0.7477  0.7718
+warm(hebr)                                    0.7427  0.7582  0.7769  0.7894  0.7898
+guarded-safe(x1)                              0.8191  0.8172  0.8181  0.8165  0.8163
+rt(guarded-hebr retuned)                      0.8191  0.8161  0.8165  0.8147  0.8139
+expl                                          0.8059  0.8027  0.8055  0.8062  0.8084
+ts                                            0.8088  0.8093  0.8122  0.8126  0.8131
+tdecay                                        0.8191  0.8167  0.8174  0.8161  0.8157
+protect                                       0.8191  0.8169  0.8178  0.8165  0.8162
+detect                                        0.8191  0.8152  0.8138  0.8107  0.8058
+full                                          0.8191  0.8152  0.8138  0.8107  0.8058
+(oracle: best agent per task)                 0.8500  0.8500  0.8500  0.8500  0.8500
+
+=== [NORMAL] world many-topics(16) (stat) | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword                                       0.7259  0.7213  0.7190  0.7178  0.7170
+eps-greedy                                    0.4718  0.5137  0.5791  0.6575  0.7140
+pooled-ts                                     0.4542  0.4928  0.5450  0.6099  0.6726
+hebbian-robust                                0.4891  0.5598  0.6284  0.6925  0.7438
+warm(hebr)                                    0.6783  0.6823  0.7131  0.7470  0.7713
+guarded-safe(x1)                              0.7265  0.7347  0.7525  0.7721  0.7853
+rt(guarded-hebr retuned)                      0.7274  0.7352  0.7555  0.7766  0.7912
+expl                                          0.7162  0.7261  0.7475  0.7681  0.7835
+ts                                            0.7222  0.7326  0.7525  0.7727  0.7888
+tdecay                                        0.7267  0.7344  0.7529  0.7733  0.7878
+protect                                       0.7265  0.7347  0.7529  0.7731  0.7875
+detect                                        0.7271  0.7344  0.7545  0.7749  0.7879
+full                                          0.7271  0.7344  0.7545  0.7749  0.7879
+(oracle: best agent per task)                 0.8500  0.8500  0.8500  0.8500  0.8500
+
+=== [NORMAL] world drift-abrupt (drift) | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword                                       0.6671  0.6557  0.6558  0.6311  0.5571
+eps-greedy                                    0.4971  0.5723  0.6493  0.6724  0.6716
+pooled-ts                                     0.4744  0.5409  0.6105  0.6426  0.6450
+hebbian-robust                                0.5636  0.6467  0.7064  0.7244  0.7417
+warm(hebr)                                    0.6506  0.6921  0.7318  0.7341  0.7421
+guarded-safe(x1)                              0.6871  0.7160  0.7477  0.7362  0.7113
+rt(guarded-hebr retuned)                      0.6886  0.7188  0.7511  0.7388  0.6866
+expl                                          0.6797  0.7093  0.7469  0.7344  0.6843
+ts                                            0.6897  0.7166  0.7489  0.7354  0.6770
+tdecay                                        0.6884  0.7180  0.7486  0.7365  0.7001
+protect                                       0.6871  0.7153  0.7464  0.7351  0.7013
+detect                                        0.6885  0.7186  0.7516  0.7452  0.7379
+full                                          0.6885  0.7186  0.7516  0.7452  0.7379
+(oracle: best agent per task)                 0.8500  0.8500  0.8500  0.8500  0.8500
+
+=== [NORMAL] world drift-gradual (drift) | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword                                       0.6671  0.6557  0.6558  0.6334  0.5681
+eps-greedy                                    0.4971  0.5723  0.6493  0.6738  0.6618
+pooled-ts                                     0.4744  0.5409  0.6105  0.6417  0.6319
+hebbian-robust                                0.5636  0.6467  0.7064  0.7136  0.7080
+warm(hebr)                                    0.6506  0.6921  0.7318  0.7246  0.7132
+guarded-safe(x1)                              0.6871  0.7160  0.7477  0.7355  0.6968
+rt(guarded-hebr retuned)                      0.6886  0.7188  0.7511  0.7408  0.6816
+expl                                          0.6797  0.7093  0.7469  0.7374  0.6788
+ts                                            0.6897  0.7166  0.7489  0.7393  0.6755
+tdecay                                        0.6884  0.7180  0.7486  0.7384  0.6906
+protect                                       0.6871  0.7153  0.7464  0.7350  0.6942
+detect                                        0.6885  0.7186  0.7516  0.7352  0.7099
+full                                          0.6885  0.7186  0.7516  0.7352  0.7099
+(oracle: best agent per task)                 0.8500  0.8500  0.8500  0.8114  0.8110
+
+=== [NORMAL] world drift-recurrent (drift) | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword                                       0.6671  0.6557  0.6558  0.5708  0.5692
+eps-greedy                                    0.4971  0.5723  0.6493  0.6181  0.6387
+pooled-ts                                     0.4744  0.5409  0.6105  0.5987  0.6161
+hebbian-robust                                0.5636  0.6467  0.7064  0.6882  0.6769
+warm(hebr)                                    0.6506  0.6921  0.7318  0.6976  0.6831
+guarded-safe(x1)                              0.6871  0.7160  0.7477  0.6723  0.6712
+rt(guarded-hebr retuned)                      0.6886  0.7188  0.7511  0.6636  0.6668
+expl                                          0.6797  0.7093  0.7469  0.6602  0.6647
+ts                                            0.6897  0.7166  0.7489  0.6588  0.6624
+tdecay                                        0.6884  0.7180  0.7486  0.6660  0.6649
+protect                                       0.6871  0.7153  0.7464  0.6711  0.6699
+detect                                        0.6885  0.7186  0.7516  0.7043  0.6879
+full                                          0.6885  0.7186  0.7516  0.7043  0.6879
+(oracle: best agent per task)                 0.8500  0.8500  0.8500  0.8500  0.8500
+
+=== [NORMAL] world sim-fixed (sim) | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword                                       0.7377  0.7406  0.7379  0.7248  0.7026
+eps-greedy                                    0.5685  0.6305  0.6868  0.7180  0.7381
+pooled-ts                                     0.5278  0.6021  0.6584  0.6996  0.7224
+hebbian-robust                                0.5934  0.6703  0.7217  0.7408  0.7445
+warm(hebr)                                    0.7025  0.7370  0.7626  0.7691  0.7673
+guarded-safe(x1)                              0.7385  0.7518  0.7655  0.7684  0.7583
+rt(guarded-hebr retuned)                      0.7390  0.7545  0.7712  0.7766  0.7662
+expl                                          0.7334  0.7461  0.7631  0.7700  0.7617
+ts                                            0.7406  0.7532  0.7679  0.7733  0.7641
+tdecay                                        0.7387  0.7544  0.7705  0.7753  0.7648
+protect                                       0.7385  0.7516  0.7664  0.7705  0.7604
+detect                                        0.7390  0.7554  0.7738  0.7795  0.7697
+full                                          0.7390  0.7554  0.7738  0.7795  0.7697
+(oracle: best agent per task)                 0.8345  0.8347  0.8337  0.8279  0.8314
+
+=== [NORMAL] world sim-random (sim) | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword                                       0.7476  0.7454  0.7409  0.7201  0.6968
+eps-greedy                                    0.5307  0.6213  0.6898  0.7224  0.7438
+pooled-ts                                     0.5314  0.6062  0.6663  0.7034  0.7250
+hebbian-robust                                0.5679  0.6510  0.7142  0.7458  0.7584
+warm(hebr)                                    0.7163  0.7537  0.7797  0.7796  0.7757
+guarded-safe(x1)                              0.7532  0.7668  0.7805  0.7771  0.7678
+rt(guarded-hebr retuned)                      0.7531  0.7721  0.7881  0.7831  0.7706
+expl                                          0.7467  0.7656  0.7831  0.7787  0.7700
+ts                                            0.7563  0.7780  0.7912  0.7817  0.7713
+tdecay                                        0.7531  0.7730  0.7905  0.7864  0.7754
+protect                                       0.7532  0.7673  0.7823  0.7783  0.7680
+detect                                        0.7529  0.7723  0.7877  0.7865  0.7799
+full                                          0.7529  0.7723  0.7877  0.7865  0.7799
+(oracle: best agent per task)                 0.8442  0.8445  0.8422  0.8323  0.8364
+
+=== [NORMAL] world sim-notraps (sim) | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword                                       0.8447  0.8442  0.8406  0.8164  0.7927
+eps-greedy                                    0.5377  0.6279  0.6943  0.7243  0.7363
+pooled-ts                                     0.5356  0.6124  0.6727  0.7080  0.7253
+hebbian-robust                                0.6085  0.6739  0.7235  0.7435  0.7523
+warm(hebr)                                    0.7704  0.7903  0.8021  0.7905  0.7787
+guarded-safe(x1)                              0.8434  0.8428  0.8393  0.8162  0.7908
+rt(guarded-hebr retuned)                      0.8434  0.8425  0.8380  0.8117  0.7837
+expl                                          0.8306  0.8299  0.8277  0.8050  0.7806
+ts                                            0.8359  0.8346  0.8326  0.8100  0.7847
+tdecay                                        0.8434  0.8424  0.8385  0.8130  0.7875
+protect                                       0.8434  0.8428  0.8391  0.8151  0.7896
+detect                                        0.8432  0.8411  0.8364  0.8146  0.7932
+full                                          0.8432  0.8411  0.8364  0.8146  0.7932
+(oracle: best agent per task)                 0.8447  0.8442  0.8425  0.8322  0.8354
+
+### NORMAL: candidates vs best-of-7 fair baselines (incl. retuned guarded)  (Holm over 270 tests)
+--> Holm wins 0, losses 50 of 270
+
+  -- world-level summary: NORMAL: candidates vs best-of-7 fair baselines (incl. retuned guarded)
+  candidate              world              class       H500     H1000     H2000    H2000p   Holm WIN Hs / LOSS Hs
+  expl                   traps(main)        stat     -0.0042   -0.0036   -0.0023    1.0000   [] / []
+  expl                   correct-keywords   stat     -0.0136   -0.0111   -0.0084    0.0000   [] / [100, 250, 500, 1000, 2000]
+  expl                   many-topics(16)    stat     -0.0081   -0.0085   -0.0077    0.0016   [] / [100, 250, 500, 1000, 2000]
+  expl                   drift-abrupt       drift    -0.0042   -0.0044   -0.0578    0.0000   [] / [2000]
+  expl                   drift-gradual      drift    -0.0042   -0.0033   -0.0344    0.0000   [] / [2000]
+  expl                   drift-recurrent    drift    -0.0042   -0.0374   -0.0184    0.0012   [] / [1000, 2000]
+  expl                   sim-fixed          sim      -0.0081   -0.0066   -0.0056    1.0000   [] / []
+  expl                   sim-random         sim      -0.0050   -0.0044   -0.0057    1.0000   [] / []
+  expl                   sim-notraps        sim      -0.0129   -0.0115   -0.0122    0.0000   [] / [100, 250, 500, 1000, 2000]
+  ==> expl: Holm-WIN worlds 0 [] | Holm-LOSS worlds 6 ["correct-keywords", "many-topics(16)", "drift-abrupt", "drift-gradual", "drift-recurrent", "sim-notraps"]
+  ts                     traps(main)        stat     -0.0022   -0.0018   -0.0009    1.0000   [] / []
+  ts                     correct-keywords   stat     -0.0069   -0.0046   -0.0037    0.0000   [] / [100, 250, 500, 1000, 2000]
+  ts                     many-topics(16)    stat     -0.0030   -0.0039   -0.0025    1.0000   [] / []
+  ts                     drift-abrupt       drift    -0.0022   -0.0034   -0.0651    0.0000   [] / [2000]
+  ts                     drift-gradual      drift    -0.0022   -0.0014   -0.0377    0.0000   [] / [2000]
+  ts                     drift-recurrent    drift    -0.0022   -0.0388   -0.0206    0.0004   [] / [1000, 2000]
+  ts                     sim-fixed          sim      -0.0033   -0.0033   -0.0031    1.0000   [] / []
+  ts                     sim-random         sim      +0.0031   -0.0014   -0.0044    1.0000   [] / []
+  ts                     sim-notraps        sim      -0.0079   -0.0064   -0.0080    0.0000   [] / [250, 500, 1000, 2000]
+  ==> ts: Holm-WIN worlds 0 [] | Holm-LOSS worlds 5 ["correct-keywords", "drift-abrupt", "drift-gradual", "drift-recurrent", "sim-notraps"]
+  tdecay                 traps(main)        stat     -0.0024   -0.0023   -0.0009    1.0000   [] / []
+  tdecay                 correct-keywords   stat     -0.0016   -0.0011   -0.0011    0.5032   [] / []
+  tdecay                 many-topics(16)    stat     -0.0026   -0.0033   -0.0034    0.7458   [] / []
+  tdecay                 drift-abrupt       drift    -0.0024   -0.0023   -0.0420    0.0000   [] / [2000]
+  tdecay                 drift-gradual      drift    -0.0024   -0.0024   -0.0226    0.0003   [] / [2000]
+  tdecay                 drift-recurrent    drift    -0.0024   -0.0316   -0.0181    0.0049   [] / [1000, 2000]
+  tdecay                 sim-fixed          sim      -0.0006   -0.0013   -0.0025    1.0000   [] / []
+  tdecay                 sim-random         sim      +0.0024   +0.0033   -0.0003    1.0000   [] / []
+  tdecay                 sim-notraps        sim      -0.0021   -0.0034   -0.0053    0.0003   [] / [2000]
+  ==> tdecay: Holm-WIN worlds 0 [] | Holm-LOSS worlds 4 ["drift-abrupt", "drift-gradual", "drift-recurrent", "sim-notraps"]
+  protect                traps(main)        stat     -0.0047   -0.0062   -0.0061    0.5304   [] / []
+  protect                correct-keywords   stat     -0.0013   -0.0008   -0.0006    1.0000   [] / []
+  protect                many-topics(16)    stat     -0.0026   -0.0035   -0.0038    0.2438   [] / []
+  protect                drift-abrupt       drift    -0.0047   -0.0037   -0.0407    0.0000   [] / [2000]
+  protect                drift-gradual      drift    -0.0047   -0.0058   -0.0190    0.0005   [] / [2000]
+  protect                drift-recurrent    drift    -0.0047   -0.0265   -0.0132    0.1866   [] / [1000]
+  protect                sim-fixed          sim      -0.0047   -0.0061   -0.0069    1.0000   [] / []
+  protect                sim-random         sim      -0.0058   -0.0049   -0.0077    1.0000   [] / []
+  protect                sim-notraps        sim      -0.0014   -0.0013   -0.0031    0.0860   [] / []
+  ==> protect: Holm-WIN worlds 0 [] | Holm-LOSS worlds 3 ["drift-abrupt", "drift-gradual", "drift-recurrent"]
+  detect                 traps(main)        stat     +0.0005   -0.0021   -0.0061    0.3736   [] / []
+  detect                 correct-keywords   stat     -0.0053   -0.0066   -0.0109    0.0000   [] / [500, 1000, 2000]
+  detect                 many-topics(16)    stat     -0.0010   -0.0017   -0.0034    0.0009   [] / [2000]
+  detect                 drift-abrupt       drift    +0.0005   +0.0064   -0.0041    1.0000   [] / []
+  detect                 drift-gradual      drift    +0.0005   -0.0055   -0.0033    1.0000   [] / []
+  detect                 drift-recurrent    drift    +0.0005   +0.0068   +0.0049    1.0000   [] / []
+  detect                 sim-fixed          sim      +0.0026   +0.0029   +0.0025    1.0000   [] / []
+  detect                 sim-random         sim      -0.0003   +0.0033   +0.0042    1.0000   [] / []
+  detect                 sim-notraps        sim      -0.0041   -0.0018   +0.0004    1.0000   [] / [500]
+  ==> detect: Holm-WIN worlds 0 [] | Holm-LOSS worlds 3 ["correct-keywords", "many-topics(16)", "sim-notraps"]
+  full                   traps(main)        stat     +0.0005   -0.0021   -0.0061    0.3736   [] / []
+  full                   correct-keywords   stat     -0.0053   -0.0066   -0.0109    0.0000   [] / [500, 1000, 2000]
+  full                   many-topics(16)    stat     -0.0010   -0.0017   -0.0034    0.0009   [] / [2000]
+  full                   drift-abrupt       drift    +0.0005   +0.0064   -0.0041    1.0000   [] / []
+  full                   drift-gradual      drift    +0.0005   -0.0055   -0.0033    1.0000   [] / []
+  full                   drift-recurrent    drift    +0.0005   +0.0068   +0.0049    1.0000   [] / []
+  full                   sim-fixed          sim      +0.0026   +0.0029   +0.0025    1.0000   [] / []
+  full                   sim-random         sim      -0.0003   +0.0033   +0.0042    1.0000   [] / []
+  full                   sim-notraps        sim      -0.0041   -0.0018   +0.0004    1.0000   [] / [500]
+  ==> full: Holm-WIN worlds 0 [] | Holm-LOSS worlds 3 ["correct-keywords", "many-topics(16)", "sim-notraps"]
+
+### NORMAL: candidates vs best-of-6 spec set  (Holm over 270 tests)
+--> Holm wins 0, losses 45 of 270
+
+  -- world-level summary: NORMAL: candidates vs best-of-6 spec set
+  candidate              world              class       H500     H1000     H2000    H2000p   Holm WIN Hs / LOSS Hs
+  expl                   traps(main)        stat     -0.0008   +0.0011   +0.0045    1.0000   [] / []
+  expl                   correct-keywords   stat     -0.0136   -0.0111   -0.0084    0.0000   [] / [100, 250, 500, 1000, 2000]
+  expl                   many-topics(16)    stat     -0.0051   -0.0041   -0.0018    1.0000   [] / [100, 250]
+  expl                   drift-abrupt       drift    -0.0008   -0.0017   -0.0578    0.0000   [] / [2000]
+  expl                   drift-gradual      drift    -0.0008   +0.0019   -0.0344    0.0000   [] / [2000]
+  expl                   drift-recurrent    drift    -0.0008   -0.0374   -0.0184    0.0012   [] / [1000, 2000]
+  expl                   sim-fixed          sim      -0.0023   +0.0009   -0.0056    1.0000   [] / []
+  expl                   sim-random         sim      +0.0026   -0.0009   -0.0057    1.0000   [] / []
+  expl                   sim-notraps        sim      -0.0129   -0.0115   -0.0122    0.0000   [] / [100, 250, 500, 1000, 2000]
+  ==> expl: Holm-WIN worlds 0 [] | Holm-LOSS worlds 6 ["correct-keywords", "many-topics(16)", "drift-abrupt", "drift-gradual", "drift-recurrent", "sim-notraps"]
+  ts                     traps(main)        stat     +0.0012   +0.0030   +0.0060    1.0000   [] / []
+  ts                     correct-keywords   stat     -0.0069   -0.0046   -0.0037    0.0000   [] / [100, 250, 500, 1000, 2000]
+  ts                     many-topics(16)    stat     -0.0000   +0.0006   +0.0034    1.0000   [] / []
+  ts                     drift-abrupt       drift    +0.0012   -0.0008   -0.0651    0.0000   [] / [2000]
+  ts                     drift-gradual      drift    +0.0012   +0.0038   -0.0377    0.0000   [] / [2000]
+  ts                     drift-recurrent    drift    +0.0012   -0.0388   -0.0206    0.0004   [] / [1000, 2000]
+  ts                     sim-fixed          sim      +0.0024   +0.0042   -0.0031    1.0000   [] / []
+  ts                     sim-random         sim      +0.0107   +0.0021   -0.0044    1.0000   [] / []
+  ts                     sim-notraps        sim      -0.0079   -0.0064   -0.0080    0.0000   [] / [250, 500, 1000, 2000]
+  ==> ts: Holm-WIN worlds 0 [] | Holm-LOSS worlds 5 ["correct-keywords", "drift-abrupt", "drift-gradual", "drift-recurrent", "sim-notraps"]
+  tdecay                 traps(main)        stat     +0.0010   +0.0024   +0.0059    1.0000   [] / []
+  tdecay                 correct-keywords   stat     -0.0016   -0.0011   -0.0011    0.5251   [] / []
+  tdecay                 many-topics(16)    stat     +0.0004   +0.0012   +0.0025    0.7945   [] / []
+  tdecay                 drift-abrupt       drift    +0.0010   +0.0003   -0.0420    0.0000   [] / [2000]
+  tdecay                 drift-gradual      drift    +0.0010   +0.0029   -0.0226    0.0003   [] / [2000]
+  tdecay                 drift-recurrent    drift    +0.0010   -0.0316   -0.0181    0.0050   [] / [1000, 2000]
+  tdecay                 sim-fixed          sim      +0.0051   +0.0062   -0.0025    1.0000   [] / []
+  tdecay                 sim-random         sim      +0.0100   +0.0068   -0.0003    1.0000   [] / []
+  tdecay                 sim-notraps        sim      -0.0021   -0.0034   -0.0053    0.0003   [] / [2000]
+  ==> tdecay: Holm-WIN worlds 0 [] | Holm-LOSS worlds 4 ["drift-abrupt", "drift-gradual", "drift-recurrent", "sim-notraps"]
+  protect                traps(main)        stat     -0.0013   -0.0014   +0.0007    1.0000   [] / []
+  protect                correct-keywords   stat     -0.0013   -0.0008   -0.0006    1.0000   [] / []
+  protect                many-topics(16)    stat     +0.0004   +0.0010   +0.0022    0.7407   [] / []
+  protect                drift-abrupt       drift    -0.0013   -0.0011   -0.0407    0.0000   [] / [2000]
+  protect                drift-gradual      drift    -0.0013   -0.0005   -0.0190    0.0005   [] / [2000]
+  protect                drift-recurrent    drift    -0.0013   -0.0265   -0.0132    0.1944   [] / [1000]
+  protect                sim-fixed          sim      +0.0010   +0.0014   -0.0069    1.0000   [] / []
+  protect                sim-random         sim      +0.0018   -0.0014   -0.0077    1.0000   [] / []
+  protect                sim-notraps        sim      -0.0014   -0.0013   -0.0031    0.0896   [] / []
+  ==> protect: Holm-WIN worlds 0 [] | Holm-LOSS worlds 3 ["drift-abrupt", "drift-gradual", "drift-recurrent"]
+  detect                 traps(main)        stat     +0.0039   +0.0026   +0.0008    1.0000   [] / []
+  detect                 correct-keywords   stat     -0.0053   -0.0066   -0.0109    0.0000   [] / [500, 1000, 2000]
+  detect                 many-topics(16)    stat     +0.0020   +0.0028   +0.0026    1.0000   [] / []
+  detect                 drift-abrupt       drift    +0.0039   +0.0090   -0.0041    1.0000   [] / []
+  detect                 drift-gradual      drift    +0.0039   -0.0003   -0.0033    1.0000   [] / []
+  detect                 drift-recurrent    drift    +0.0039   +0.0068   +0.0049    1.0000   [] / []
+  detect                 sim-fixed          sim      +0.0083   +0.0104   +0.0025    1.0000   [] / []
+  detect                 sim-random         sim      +0.0073   +0.0068   +0.0042    1.0000   [] / []
+  detect                 sim-notraps        sim      -0.0041   -0.0018   +0.0004    1.0000   [] / [500]
+  ==> detect: Holm-WIN worlds 0 [] | Holm-LOSS worlds 2 ["correct-keywords", "sim-notraps"]
+  full                   traps(main)        stat     +0.0039   +0.0026   +0.0008    1.0000   [] / []
+  full                   correct-keywords   stat     -0.0053   -0.0066   -0.0109    0.0000   [] / [500, 1000, 2000]
+  full                   many-topics(16)    stat     +0.0020   +0.0028   +0.0026    1.0000   [] / []
+  full                   drift-abrupt       drift    +0.0039   +0.0090   -0.0041    1.0000   [] / []
+  full                   drift-gradual      drift    +0.0039   -0.0003   -0.0033    1.0000   [] / []
+  full                   drift-recurrent    drift    +0.0039   +0.0068   +0.0049    1.0000   [] / []
+  full                   sim-fixed          sim      +0.0083   +0.0104   +0.0025    1.0000   [] / []
+  full                   sim-random         sim      +0.0073   +0.0068   +0.0042    1.0000   [] / []
+  full                   sim-notraps        sim      -0.0041   -0.0018   +0.0004    1.0000   [] / [500]
+  ==> full: Holm-WIN worlds 0 [] | Holm-LOSS worlds 2 ["correct-keywords", "sim-notraps"]
+
+### NORMAL: candidates vs best of {guarded-safe, warm(hebr)}  (Holm over 270 tests)
+--> Holm wins 0, losses 44 of 270
+
+  -- world-level summary: NORMAL: candidates vs best of {guarded-safe, warm(hebr)}
+  candidate              world              class       H500     H1000     H2000    H2000p   Holm WIN Hs / LOSS Hs
+  expl                   traps(main)        stat     -0.0008   +0.0011   +0.0045    1.0000   [] / []
+  expl                   correct-keywords   stat     -0.0127   -0.0104   -0.0079    0.0000   [] / [100, 250, 500, 1000, 2000]
+  expl                   many-topics(16)    stat     -0.0051   -0.0041   -0.0018    1.0000   [] / [100, 250]
+  expl                   drift-abrupt       drift    -0.0008   -0.0017   -0.0578    0.0000   [] / [2000]
+  expl                   drift-gradual      drift    -0.0008   +0.0019   -0.0344    0.0000   [] / [2000]
+  expl                   drift-recurrent    drift    -0.0008   -0.0374   -0.0184    0.0012   [] / [1000, 2000]
+  expl                   sim-fixed          sim      -0.0023   +0.0009   -0.0056    1.0000   [] / []
+  expl                   sim-random         sim      +0.0026   -0.0009   -0.0057    1.0000   [] / []
+  expl                   sim-notraps        sim      -0.0116   -0.0112   -0.0102    0.0000   [] / [100, 250, 500, 1000, 2000]
+  ==> expl: Holm-WIN worlds 0 [] | Holm-LOSS worlds 6 ["correct-keywords", "many-topics(16)", "drift-abrupt", "drift-gradual", "drift-recurrent", "sim-notraps"]
+  ts                     traps(main)        stat     +0.0012   +0.0030   +0.0060    1.0000   [] / []
+  ts                     correct-keywords   stat     -0.0060   -0.0039   -0.0032    0.0000   [] / [100, 250, 500, 1000, 2000]
+  ts                     many-topics(16)    stat     -0.0000   +0.0006   +0.0034    1.0000   [] / []
+  ts                     drift-abrupt       drift    +0.0012   -0.0008   -0.0651    0.0000   [] / [2000]
+  ts                     drift-gradual      drift    +0.0012   +0.0038   -0.0377    0.0000   [] / [2000]
+  ts                     drift-recurrent    drift    +0.0012   -0.0388   -0.0206    0.0004   [] / [1000, 2000]
+  ts                     sim-fixed          sim      +0.0024   +0.0042   -0.0031    1.0000   [] / []
+  ts                     sim-random         sim      +0.0107   +0.0021   -0.0044    1.0000   [] / []
+  ts                     sim-notraps        sim      -0.0067   -0.0062   -0.0061    0.0000   [] / [250, 500, 1000, 2000]
+  ==> ts: Holm-WIN worlds 0 [] | Holm-LOSS worlds 5 ["correct-keywords", "drift-abrupt", "drift-gradual", "drift-recurrent", "sim-notraps"]
+  tdecay                 traps(main)        stat     +0.0010   +0.0024   +0.0059    1.0000   [] / []
+  tdecay                 correct-keywords   stat     -0.0007   -0.0004   -0.0006    0.9735   [] / []
+  tdecay                 many-topics(16)    stat     +0.0004   +0.0012   +0.0025    0.8020   [] / []
+  tdecay                 drift-abrupt       drift    +0.0010   +0.0003   -0.0420    0.0000   [] / [2000]
+  tdecay                 drift-gradual      drift    +0.0010   +0.0029   -0.0226    0.0003   [] / [2000]
+  tdecay                 drift-recurrent    drift    +0.0010   -0.0316   -0.0181    0.0050   [] / [1000, 2000]
+  tdecay                 sim-fixed          sim      +0.0051   +0.0062   -0.0025    1.0000   [] / []
+  tdecay                 sim-random         sim      +0.0100   +0.0068   -0.0003    1.0000   [] / []
+  tdecay                 sim-notraps        sim      -0.0008   -0.0032   -0.0033    0.0660   [] / []
+  ==> tdecay: Holm-WIN worlds 0 [] | Holm-LOSS worlds 3 ["drift-abrupt", "drift-gradual", "drift-recurrent"]
+  protect                traps(main)        stat     -0.0013   -0.0014   +0.0007    1.0000   [] / []
+  protect                correct-keywords   stat     -0.0003   -0.0000   -0.0001    1.0000   [] / []
+  protect                many-topics(16)    stat     +0.0004   +0.0010   +0.0022    0.7477   [] / []
+  protect                drift-abrupt       drift    -0.0013   -0.0011   -0.0407    0.0000   [] / [2000]
+  protect                drift-gradual      drift    -0.0013   -0.0005   -0.0190    0.0005   [] / [2000]
+  protect                drift-recurrent    drift    -0.0013   -0.0265   -0.0132    0.1927   [] / [1000]
+  protect                sim-fixed          sim      +0.0010   +0.0014   -0.0069    1.0000   [] / []
+  protect                sim-random         sim      +0.0018   -0.0014   -0.0077    1.0000   [] / []
+  protect                sim-notraps        sim      -0.0002   -0.0011   -0.0012    1.0000   [] / []
+  ==> protect: Holm-WIN worlds 0 [] | Holm-LOSS worlds 3 ["drift-abrupt", "drift-gradual", "drift-recurrent"]
+  detect                 traps(main)        stat     +0.0039   +0.0026   +0.0008    1.0000   [] / []
+  detect                 correct-keywords   stat     -0.0044   -0.0059   -0.0104    0.0000   [] / [250, 500, 1000, 2000]
+  detect                 many-topics(16)    stat     +0.0020   +0.0028   +0.0026    1.0000   [] / []
+  detect                 drift-abrupt       drift    +0.0039   +0.0090   -0.0041    1.0000   [] / []
+  detect                 drift-gradual      drift    +0.0039   -0.0003   -0.0033    1.0000   [] / []
+  detect                 drift-recurrent    drift    +0.0039   +0.0068   +0.0049    1.0000   [] / []
+  detect                 sim-fixed          sim      +0.0083   +0.0104   +0.0025    1.0000   [] / []
+  detect                 sim-random         sim      +0.0073   +0.0068   +0.0042    1.0000   [] / []
+  detect                 sim-notraps        sim      -0.0029   -0.0016   +0.0024    1.0000   [] / []
+  ==> detect: Holm-WIN worlds 0 [] | Holm-LOSS worlds 1 ["correct-keywords"]
+  full                   traps(main)        stat     +0.0039   +0.0026   +0.0008    1.0000   [] / []
+  full                   correct-keywords   stat     -0.0044   -0.0059   -0.0104    0.0000   [] / [250, 500, 1000, 2000]
+  full                   many-topics(16)    stat     +0.0020   +0.0028   +0.0026    1.0000   [] / []
+  full                   drift-abrupt       drift    +0.0039   +0.0090   -0.0041    1.0000   [] / []
+  full                   drift-gradual      drift    +0.0039   -0.0003   -0.0033    1.0000   [] / []
+  full                   drift-recurrent    drift    +0.0039   +0.0068   +0.0049    1.0000   [] / []
+  full                   sim-fixed          sim      +0.0083   +0.0104   +0.0025    1.0000   [] / []
+  full                   sim-random         sim      +0.0073   +0.0068   +0.0042    1.0000   [] / []
+  full                   sim-notraps        sim      -0.0029   -0.0016   +0.0024    1.0000   [] / []
+  ==> full: Holm-WIN worlds 0 [] | Holm-LOSS worlds 1 ["correct-keywords"]
+
+### NORMAL: candidates - rt (SAME signal, mechanism OFF = ablation)  (Holm over 270 tests)
+world              candidate                      H      diff               95% CI  wins   Holm p  baseline
+traps(main)        expl                         500   -0.0042 [ -0.0125, +0.0041]    10   1.0000  rt(guarded-hebr retuned)
+traps(main)        expl                        2000   -0.0023 [ -0.0077, +0.0030]    10   1.0000  rt(guarded-hebr retuned)
+traps(main)        ts                           500   -0.0022 [ -0.0089, +0.0045]    12   1.0000  rt(guarded-hebr retuned)
+traps(main)        ts                          2000   -0.0009 [ -0.0049, +0.0030]    13   1.0000  rt(guarded-hebr retuned)
+traps(main)        tdecay                       500   -0.0024 [ -0.0050, +0.0001]    10   1.0000  rt(guarded-hebr retuned)
+traps(main)        tdecay                      2000   -0.0009 [ -0.0035, +0.0017]    11   1.0000  rt(guarded-hebr retuned)
+traps(main)        protect                      500   -0.0047 [ -0.0086, -0.0008]     9   1.0000  rt(guarded-hebr retuned)
+traps(main)        protect                     2000   -0.0061 [ -0.0100, -0.0023]     7   0.5304  rt(guarded-hebr retuned)
+traps(main)        detect                       500   +0.0005 [ -0.0045, +0.0055]     9   1.0000  rt(guarded-hebr retuned)
+traps(main)        detect                      2000   -0.0061 [ -0.0097, -0.0025]     2   0.3771  rt(guarded-hebr retuned)
+traps(main)        full                         500   +0.0005 [ -0.0045, +0.0055]     9   1.0000  rt(guarded-hebr retuned)
+traps(main)        full                        2000   -0.0061 [ -0.0097, -0.0025]     2   0.3771  rt(guarded-hebr retuned)
+correct-keywords   expl                         100   -0.0132 [ -0.0159, -0.0105]     0   0.0000  rt(guarded-hebr retuned) LOSS
+correct-keywords   expl                         250   -0.0133 [ -0.0153, -0.0114]     0   0.0000  rt(guarded-hebr retuned) LOSS
+correct-keywords   expl                         500   -0.0110 [ -0.0122, -0.0098]     0   0.0000  rt(guarded-hebr retuned) LOSS
+correct-keywords   expl                        1000   -0.0086 [ -0.0093, -0.0079]     0   0.0000  rt(guarded-hebr retuned) LOSS
+correct-keywords   expl                        2000   -0.0056 [ -0.0061, -0.0050]     0   0.0000  rt(guarded-hebr retuned) LOSS
+correct-keywords   ts                           100   -0.0103 [ -0.0150, -0.0056]     5   0.0244  rt(guarded-hebr retuned) LOSS
+correct-keywords   ts                           250   -0.0067 [ -0.0090, -0.0045]     3   0.0002  rt(guarded-hebr retuned) LOSS
+correct-keywords   ts                           500   -0.0043 [ -0.0057, -0.0029]     6   0.0002  rt(guarded-hebr retuned) LOSS
+correct-keywords   ts                          1000   -0.0021 [ -0.0027, -0.0014]     4   0.0001  rt(guarded-hebr retuned) LOSS
+correct-keywords   ts                          2000   -0.0008 [ -0.0013, -0.0003]    10   0.4829  rt(guarded-hebr retuned)
+correct-keywords   tdecay                       500   +0.0009 [ +0.0005, +0.0014]    19   0.0370  rt(guarded-hebr retuned) WIN
+correct-keywords   tdecay                      1000   +0.0014 [ +0.0009, +0.0019]    24   0.0016  rt(guarded-hebr retuned) WIN
+correct-keywords   tdecay                      2000   +0.0017 [ +0.0012, +0.0023]    27   0.0000  rt(guarded-hebr retuned) WIN
+correct-keywords   protect                      500   +0.0013 [ +0.0008, +0.0018]    22   0.0052  rt(guarded-hebr retuned) WIN
+correct-keywords   protect                     1000   +0.0018 [ +0.0011, +0.0024]    26   0.0017  rt(guarded-hebr retuned) WIN
+correct-keywords   protect                     2000   +0.0023 [ +0.0017, +0.0028]    29   0.0000  rt(guarded-hebr retuned) WIN
+correct-keywords   detect                       500   -0.0027 [ -0.0042, -0.0013]     4   0.1284  rt(guarded-hebr retuned)
+correct-keywords   detect                      1000   -0.0041 [ -0.0056, -0.0025]     4   0.0024  rt(guarded-hebr retuned) LOSS
+correct-keywords   detect                      2000   -0.0081 [ -0.0095, -0.0066]     0   0.0000  rt(guarded-hebr retuned) LOSS
+correct-keywords   full                         500   -0.0027 [ -0.0042, -0.0013]     4   0.1284  rt(guarded-hebr retuned)
+correct-keywords   full                        1000   -0.0041 [ -0.0056, -0.0025]     4   0.0024  rt(guarded-hebr retuned) LOSS
+correct-keywords   full                        2000   -0.0081 [ -0.0095, -0.0066]     0   0.0000  rt(guarded-hebr retuned) LOSS
+many-topics(16)    expl                         100   -0.0111 [ -0.0140, -0.0083]     3   0.0000  rt(guarded-hebr retuned) LOSS
+many-topics(16)    expl                         250   -0.0091 [ -0.0124, -0.0058]     4   0.0010  rt(guarded-hebr retuned) LOSS
+many-topics(16)    expl                         500   -0.0081 [ -0.0118, -0.0043]     6   0.0308  rt(guarded-hebr retuned) LOSS
+many-topics(16)    expl                        1000   -0.0085 [ -0.0119, -0.0052]     7   0.0037  rt(guarded-hebr retuned) LOSS
+many-topics(16)    expl                        2000   -0.0077 [ -0.0106, -0.0048]     3   0.0017  rt(guarded-hebr retuned) LOSS
+many-topics(16)    ts                           500   -0.0030 [ -0.0073, +0.0013]    12   1.0000  rt(guarded-hebr retuned)
+many-topics(16)    ts                          2000   -0.0025 [ -0.0060, +0.0010]    12   1.0000  rt(guarded-hebr retuned)
+many-topics(16)    tdecay                       500   -0.0026 [ -0.0042, -0.0011]     9   0.3771  rt(guarded-hebr retuned)
+many-topics(16)    tdecay                      2000   -0.0034 [ -0.0057, -0.0012]     7   0.7384  rt(guarded-hebr retuned)
+many-topics(16)    protect                      500   -0.0026 [ -0.0042, -0.0010]     6   0.5888  rt(guarded-hebr retuned)
+many-topics(16)    protect                     2000   -0.0038 [ -0.0059, -0.0016]     5   0.2484  rt(guarded-hebr retuned)
+many-topics(16)    detect                       500   -0.0010 [ -0.0024, +0.0004]     5   1.0000  rt(guarded-hebr retuned)
+many-topics(16)    detect                      2000   -0.0034 [ -0.0046, -0.0021]     5   0.0009  rt(guarded-hebr retuned) LOSS
+many-topics(16)    full                         500   -0.0010 [ -0.0024, +0.0004]     5   1.0000  rt(guarded-hebr retuned)
+many-topics(16)    full                        2000   -0.0034 [ -0.0046, -0.0021]     5   0.0009  rt(guarded-hebr retuned) LOSS
+drift-abrupt       expl                         500   -0.0042 [ -0.0125, +0.0041]    10   1.0000  rt(guarded-hebr retuned)
+drift-abrupt       expl                        2000   -0.0024 [ -0.0083, +0.0035]     9   1.0000  rt(guarded-hebr retuned)
+drift-abrupt       ts                           500   -0.0022 [ -0.0089, +0.0045]    12   1.0000  rt(guarded-hebr retuned)
+drift-abrupt       ts                          2000   -0.0096 [ -0.0165, -0.0027]     7   1.0000  rt(guarded-hebr retuned)
+drift-abrupt       tdecay                       500   -0.0024 [ -0.0050, +0.0001]    10   1.0000  rt(guarded-hebr retuned)
+drift-abrupt       tdecay                      2000   +0.0135 [ +0.0057, +0.0212]    23   0.2839  rt(guarded-hebr retuned)
+drift-abrupt       protect                      500   -0.0047 [ -0.0086, -0.0008]     9   1.0000  rt(guarded-hebr retuned)
+drift-abrupt       protect                     2000   +0.0147 [ +0.0056, +0.0238]    25   0.5066  rt(guarded-hebr retuned)
+drift-abrupt       detect                       500   +0.0005 [ -0.0045, +0.0055]     9   1.0000  rt(guarded-hebr retuned)
+drift-abrupt       detect                      2000   +0.0513 [ +0.0386, +0.0640]    28   0.0000  rt(guarded-hebr retuned) WIN
+drift-abrupt       full                         500   +0.0005 [ -0.0045, +0.0055]     9   1.0000  rt(guarded-hebr retuned)
+drift-abrupt       full                        2000   +0.0513 [ +0.0386, +0.0640]    28   0.0000  rt(guarded-hebr retuned) WIN
+drift-gradual      expl                         500   -0.0042 [ -0.0125, +0.0041]    10   1.0000  rt(guarded-hebr retuned)
+drift-gradual      expl                        2000   -0.0028 [ -0.0077, +0.0020]     8   1.0000  rt(guarded-hebr retuned)
+drift-gradual      ts                           500   -0.0022 [ -0.0089, +0.0045]    12   1.0000  rt(guarded-hebr retuned)
+drift-gradual      ts                          2000   -0.0061 [ -0.0117, -0.0005]     7   1.0000  rt(guarded-hebr retuned)
+drift-gradual      tdecay                       500   -0.0024 [ -0.0050, +0.0001]    10   1.0000  rt(guarded-hebr retuned)
+drift-gradual      tdecay                      2000   +0.0090 [ +0.0037, +0.0143]    26   0.3661  rt(guarded-hebr retuned)
+drift-gradual      protect                      500   -0.0047 [ -0.0086, -0.0008]     9   1.0000  rt(guarded-hebr retuned)
+drift-gradual      protect                     2000   +0.0126 [ +0.0057, +0.0195]    25   0.1762  rt(guarded-hebr retuned)
+drift-gradual      detect                       500   +0.0005 [ -0.0045, +0.0055]     9   1.0000  rt(guarded-hebr retuned)
+drift-gradual      detect                      2000   +0.0283 [ +0.0197, +0.0369]    29   0.0001  rt(guarded-hebr retuned) WIN
+drift-gradual      full                         500   +0.0005 [ -0.0045, +0.0055]     9   1.0000  rt(guarded-hebr retuned)
+drift-gradual      full                        2000   +0.0283 [ +0.0197, +0.0369]    29   0.0001  rt(guarded-hebr retuned) WIN
+drift-recurrent    expl                         500   -0.0042 [ -0.0125, +0.0041]    10   1.0000  rt(guarded-hebr retuned)
+drift-recurrent    expl                        2000   -0.0021 [ -0.0065, +0.0024]    11   1.0000  rt(guarded-hebr retuned)
+drift-recurrent    ts                           500   -0.0022 [ -0.0089, +0.0045]    12   1.0000  rt(guarded-hebr retuned)
+drift-recurrent    ts                          2000   -0.0043 [ -0.0089, +0.0003]    11   1.0000  rt(guarded-hebr retuned)
+drift-recurrent    tdecay                       500   -0.0024 [ -0.0050, +0.0001]    10   1.0000  rt(guarded-hebr retuned)
+drift-recurrent    tdecay                      2000   -0.0018 [ -0.0053, +0.0016]    11   1.0000  rt(guarded-hebr retuned)
+drift-recurrent    protect                      500   -0.0047 [ -0.0086, -0.0008]     9   1.0000  rt(guarded-hebr retuned)
+drift-recurrent    protect                     2000   +0.0031 [ -0.0011, +0.0073]    20   1.0000  rt(guarded-hebr retuned)
+drift-recurrent    detect                       500   +0.0005 [ -0.0045, +0.0055]     9   1.0000  rt(guarded-hebr retuned)
+drift-recurrent    detect                      1000   +0.0407 [ +0.0325, +0.0489]    29   0.0000  rt(guarded-hebr retuned) WIN
+drift-recurrent    detect                      2000   +0.0212 [ +0.0141, +0.0283]    26   0.0003  rt(guarded-hebr retuned) WIN
+drift-recurrent    full                         500   +0.0005 [ -0.0045, +0.0055]     9   1.0000  rt(guarded-hebr retuned)
+drift-recurrent    full                        1000   +0.0407 [ +0.0325, +0.0489]    29   0.0000  rt(guarded-hebr retuned) WIN
+drift-recurrent    full                        2000   +0.0212 [ +0.0141, +0.0283]    26   0.0003  rt(guarded-hebr retuned) WIN
+sim-fixed          expl                         500   -0.0081 [ -0.0148, -0.0013]     8   1.0000  rt(guarded-hebr retuned)
+sim-fixed          expl                        2000   -0.0045 [ -0.0082, -0.0008]    11   1.0000  rt(guarded-hebr retuned)
+sim-fixed          ts                           500   -0.0033 [ -0.0099, +0.0034]     8   1.0000  rt(guarded-hebr retuned)
+sim-fixed          ts                          2000   -0.0021 [ -0.0041, +0.0000]     8   1.0000  rt(guarded-hebr retuned)
+sim-fixed          tdecay                       500   -0.0006 [ -0.0025, +0.0012]    12   1.0000  rt(guarded-hebr retuned)
+sim-fixed          tdecay                      2000   -0.0014 [ -0.0036, +0.0009]    15   1.0000  rt(guarded-hebr retuned)
+sim-fixed          protect                      500   -0.0047 [ -0.0089, -0.0006]    10   1.0000  rt(guarded-hebr retuned)
+sim-fixed          protect                     2000   -0.0058 [ -0.0092, -0.0024]     7   0.3551  rt(guarded-hebr retuned)
+sim-fixed          detect                       500   +0.0026 [ -0.0027, +0.0079]    14   1.0000  rt(guarded-hebr retuned)
+sim-fixed          detect                      2000   +0.0035 [ -0.0007, +0.0078]    17   1.0000  rt(guarded-hebr retuned)
+sim-fixed          full                         500   +0.0026 [ -0.0027, +0.0079]    14   1.0000  rt(guarded-hebr retuned)
+sim-fixed          full                        2000   +0.0035 [ -0.0007, +0.0078]    17   1.0000  rt(guarded-hebr retuned)
+sim-random         expl                         500   -0.0050 [ -0.0141, +0.0041]    10   1.0000  rt(guarded-hebr retuned)
+sim-random         expl                        2000   -0.0006 [ -0.0052, +0.0040]    10   1.0000  rt(guarded-hebr retuned)
+sim-random         ts                           500   +0.0031 [ -0.0079, +0.0142]    15   1.0000  rt(guarded-hebr retuned)
+sim-random         ts                          2000   +0.0006 [ -0.0055, +0.0067]    20   1.0000  rt(guarded-hebr retuned)
+sim-random         tdecay                       500   +0.0024 [ -0.0023, +0.0071]    15   1.0000  rt(guarded-hebr retuned)
+sim-random         tdecay                      2000   +0.0048 [ -0.0015, +0.0111]    25   1.0000  rt(guarded-hebr retuned)
+sim-random         protect                      500   -0.0058 [ -0.0108, -0.0008]    15   1.0000  rt(guarded-hebr retuned)
+sim-random         protect                     2000   -0.0026 [ -0.0076, +0.0023]    13   1.0000  rt(guarded-hebr retuned)
+sim-random         detect                       500   -0.0003 [ -0.0033, +0.0026]     9   1.0000  rt(guarded-hebr retuned)
+sim-random         detect                      2000   +0.0093 [ +0.0043, +0.0142]    23   0.1432  rt(guarded-hebr retuned)
+sim-random         full                         500   -0.0003 [ -0.0033, +0.0026]     9   1.0000  rt(guarded-hebr retuned)
+sim-random         full                        2000   +0.0093 [ +0.0043, +0.0142]    23   0.1432  rt(guarded-hebr retuned)
+sim-notraps        expl                         100   -0.0128 [ -0.0155, -0.0100]     0   0.0000  rt(guarded-hebr retuned) LOSS
+sim-notraps        expl                         250   -0.0125 [ -0.0141, -0.0109]     0   0.0000  rt(guarded-hebr retuned) LOSS
+sim-notraps        expl                         500   -0.0103 [ -0.0110, -0.0096]     0   0.0000  rt(guarded-hebr retuned) LOSS
+sim-notraps        expl                        1000   -0.0067 [ -0.0075, -0.0060]     0   0.0000  rt(guarded-hebr retuned) LOSS
+sim-notraps        expl                        2000   -0.0032 [ -0.0052, -0.0011]     3   0.6901  rt(guarded-hebr retuned)
+sim-notraps        ts                           500   -0.0054 [ -0.0082, -0.0026]     1   0.1125  rt(guarded-hebr retuned)
+sim-notraps        ts                          2000   +0.0009 [ -0.0015, +0.0034]    12   1.0000  rt(guarded-hebr retuned)
+sim-notraps        tdecay                       500   +0.0004 [ -0.0002, +0.0011]    14   1.0000  rt(guarded-hebr retuned)
+sim-notraps        tdecay                      2000   +0.0037 [ +0.0013, +0.0062]    25   0.8083  rt(guarded-hebr retuned)
+sim-notraps        protect                      500   +0.0011 [ +0.0004, +0.0017]    18   0.3840  rt(guarded-hebr retuned)
+sim-notraps        protect                     1000   +0.0034 [ +0.0023, +0.0046]    29   0.0003  rt(guarded-hebr retuned) WIN
+sim-notraps        protect                     2000   +0.0059 [ +0.0027, +0.0091]    27   0.1533  rt(guarded-hebr retuned)
+sim-notraps        detect                       500   -0.0016 [ -0.0030, -0.0002]     5   1.0000  rt(guarded-hebr retuned)
+sim-notraps        detect                      2000   +0.0094 [ +0.0048, +0.0140]    22   0.0523  rt(guarded-hebr retuned)
+sim-notraps        full                         500   -0.0016 [ -0.0030, -0.0002]     5   1.0000  rt(guarded-hebr retuned)
+sim-notraps        full                        2000   +0.0094 [ +0.0048, +0.0140]    22   0.0523  rt(guarded-hebr retuned)
+--> Holm wins 15, losses 24 of 270
+
+  -- world-level summary: NORMAL: candidates - rt (SAME signal, mechanism OFF = ablation)
+  candidate              world              class       H500     H1000     H2000    H2000p   Holm WIN Hs / LOSS Hs
+  expl                   traps(main)        stat     -0.0042   -0.0036   -0.0023    1.0000   [] / []
+  expl                   correct-keywords   stat     -0.0110   -0.0086   -0.0056    0.0000   [] / [100, 250, 500, 1000, 2000]
+  expl                   many-topics(16)    stat     -0.0081   -0.0085   -0.0077    0.0017   [] / [100, 250, 500, 1000, 2000]
+  expl                   drift-abrupt       drift    -0.0042   -0.0044   -0.0024    1.0000   [] / []
+  expl                   drift-gradual      drift    -0.0042   -0.0033   -0.0028    1.0000   [] / []
+  expl                   drift-recurrent    drift    -0.0042   -0.0035   -0.0021    1.0000   [] / []
+  expl                   sim-fixed          sim      -0.0081   -0.0066   -0.0045    1.0000   [] / []
+  expl                   sim-random         sim      -0.0050   -0.0044   -0.0006    1.0000   [] / []
+  expl                   sim-notraps        sim      -0.0103   -0.0067   -0.0032    0.6901   [] / [100, 250, 500, 1000]
+  ==> expl: Holm-WIN worlds 0 [] | Holm-LOSS worlds 3 ["correct-keywords", "many-topics(16)", "sim-notraps"]
+  ts                     traps(main)        stat     -0.0022   -0.0018   -0.0009    1.0000   [] / []
+  ts                     correct-keywords   stat     -0.0043   -0.0021   -0.0008    0.4829   [] / [100, 250, 500, 1000]
+  ts                     many-topics(16)    stat     -0.0030   -0.0039   -0.0025    1.0000   [] / []
+  ts                     drift-abrupt       drift    -0.0022   -0.0034   -0.0096    1.0000   [] / []
+  ts                     drift-gradual      drift    -0.0022   -0.0014   -0.0061    1.0000   [] / []
+  ts                     drift-recurrent    drift    -0.0022   -0.0049   -0.0043    1.0000   [] / []
+  ts                     sim-fixed          sim      -0.0033   -0.0033   -0.0021    1.0000   [] / []
+  ts                     sim-random         sim      +0.0031   -0.0014   +0.0006    1.0000   [] / []
+  ts                     sim-notraps        sim      -0.0054   -0.0017   +0.0009    1.0000   [] / []
+  ==> ts: Holm-WIN worlds 0 [] | Holm-LOSS worlds 1 ["correct-keywords"]
+  tdecay                 traps(main)        stat     -0.0024   -0.0023   -0.0009    1.0000   [] / []
+  tdecay                 correct-keywords   stat     +0.0009   +0.0014   +0.0017    0.0000   [500, 1000, 2000] / []
+  tdecay                 many-topics(16)    stat     -0.0026   -0.0033   -0.0034    0.7384   [] / []
+  tdecay                 drift-abrupt       drift    -0.0024   -0.0023   +0.0135    0.2839   [] / []
+  tdecay                 drift-gradual      drift    -0.0024   -0.0024   +0.0090    0.3661   [] / []
+  tdecay                 drift-recurrent    drift    -0.0024   +0.0024   -0.0018    1.0000   [] / []
+  tdecay                 sim-fixed          sim      -0.0006   -0.0013   -0.0014    1.0000   [] / []
+  tdecay                 sim-random         sim      +0.0024   +0.0033   +0.0048    1.0000   [] / []
+  tdecay                 sim-notraps        sim      +0.0004   +0.0013   +0.0037    0.8083   [] / []
+  ==> tdecay: Holm-WIN worlds 1 ["correct-keywords"] | Holm-LOSS worlds 0 []
+  protect                traps(main)        stat     -0.0047   -0.0062   -0.0061    0.5304   [] / []
+  protect                correct-keywords   stat     +0.0013   +0.0018   +0.0023    0.0000   [500, 1000, 2000] / []
+  protect                many-topics(16)    stat     -0.0026   -0.0035   -0.0038    0.2484   [] / []
+  protect                drift-abrupt       drift    -0.0047   -0.0037   +0.0147    0.5066   [] / []
+  protect                drift-gradual      drift    -0.0047   -0.0058   +0.0126    0.1762   [] / []
+  protect                drift-recurrent    drift    -0.0047   +0.0075   +0.0031    1.0000   [] / []
+  protect                sim-fixed          sim      -0.0047   -0.0061   -0.0058    0.3551   [] / []
+  protect                sim-random         sim      -0.0058   -0.0049   -0.0026    1.0000   [] / []
+  protect                sim-notraps        sim      +0.0011   +0.0034   +0.0059    0.1533   [1000] / []
+  ==> protect: Holm-WIN worlds 2 ["correct-keywords", "sim-notraps"] | Holm-LOSS worlds 0 []
+  detect                 traps(main)        stat     +0.0005   -0.0021   -0.0061    0.3771   [] / []
+  detect                 correct-keywords   stat     -0.0027   -0.0041   -0.0081    0.0000   [] / [1000, 2000]
+  detect                 many-topics(16)    stat     -0.0010   -0.0017   -0.0034    0.0009   [] / [2000]
+  detect                 drift-abrupt       drift    +0.0005   +0.0064   +0.0513    0.0000   [2000] / []
+  detect                 drift-gradual      drift    +0.0005   -0.0055   +0.0283    0.0001   [2000] / []
+  detect                 drift-recurrent    drift    +0.0005   +0.0407   +0.0212    0.0003   [1000, 2000] / []
+  detect                 sim-fixed          sim      +0.0026   +0.0029   +0.0035    1.0000   [] / []
+  detect                 sim-random         sim      -0.0003   +0.0033   +0.0093    0.1432   [] / []
+  detect                 sim-notraps        sim      -0.0016   +0.0029   +0.0094    0.0523   [] / []
+  ==> detect: Holm-WIN worlds 3 ["drift-abrupt", "drift-gradual", "drift-recurrent"] | Holm-LOSS worlds 2 ["correct-keywords", "many-topics(16)"]
+  full                   traps(main)        stat     +0.0005   -0.0021   -0.0061    0.3771   [] / []
+  full                   correct-keywords   stat     -0.0027   -0.0041   -0.0081    0.0000   [] / [1000, 2000]
+  full                   many-topics(16)    stat     -0.0010   -0.0017   -0.0034    0.0009   [] / [2000]
+  full                   drift-abrupt       drift    +0.0005   +0.0064   +0.0513    0.0000   [2000] / []
+  full                   drift-gradual      drift    +0.0005   -0.0055   +0.0283    0.0001   [2000] / []
+  full                   drift-recurrent    drift    +0.0005   +0.0407   +0.0212    0.0003   [1000, 2000] / []
+  full                   sim-fixed          sim      +0.0026   +0.0029   +0.0035    1.0000   [] / []
+  full                   sim-random         sim      -0.0003   +0.0033   +0.0093    0.1432   [] / []
+  full                   sim-notraps        sim      -0.0016   +0.0029   +0.0094    0.0523   [] / []
+  ==> full: Holm-WIN worlds 3 ["drift-abrupt", "drift-gradual", "drift-recurrent"] | Holm-LOSS worlds 2 ["correct-keywords", "many-topics(16)"]
+
+=== [WEAK] world traps(main) (stat) | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword [raw]                                 0.6671  0.6557  0.6558  0.6545  0.6541
+eps-greedy [raw]                              0.4085  0.4147  0.4263  0.4338  0.4418
+pooled-ts [raw]                               0.4106  0.4135  0.4199  0.4272  0.4441
+hebbian-robust [raw]                          0.4295  0.4298  0.4324  0.4344  0.4385
+warm(hebr) [raw]                              0.6422  0.6385  0.6421  0.6425  0.6385
+guarded-safe(x1) [raw]                        0.6686  0.6572  0.6594  0.6589  0.6594
+guarded-safe(x1) [reuse]                      0.6664  0.6631  0.6773  0.6999  0.7282
+warm(hebr) [reuse]                            0.6307  0.6112  0.6238  0.6549  0.6993
+rt [reuse]                                    0.6669  0.6627  0.6771  0.6958  0.7198
+expl                                          0.6582  0.6537  0.6677  0.6902  0.7193
+ts                                            0.6661  0.6613  0.6731  0.6912  0.7213
+tdecay                                        0.6667  0.6620  0.6764  0.6966  0.7206
+protect                                       0.6667  0.6618  0.6726  0.6890  0.7116
+detect                                        0.6669  0.6627  0.6762  0.6948  0.7205
+full                                          0.6669  0.6627  0.6762  0.6948  0.7205
+(oracle: best agent per task)                 0.8500  0.8500  0.8500  0.8500  0.8500
+
+=== [WEAK] world correct-keywords (stat) | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword [raw]                                 0.8212  0.8184  0.8191  0.8173  0.8168
+eps-greedy [raw]                              0.4149  0.4211  0.4315  0.4416  0.4483
+pooled-ts [raw]                               0.4125  0.4149  0.4212  0.4279  0.4429
+hebbian-robust [raw]                          0.4021  0.4020  0.4040  0.4070  0.4126
+warm(hebr) [raw]                              0.7744  0.7788  0.7810  0.7801  0.7679
+guarded-safe(x1) [raw]                        0.8207  0.8184  0.8192  0.8175  0.8168
+guarded-safe(x1) [reuse]                      0.8187  0.8131  0.8122  0.8101  0.8116
+warm(hebr) [reuse]                            0.7637  0.7117  0.7048  0.7151  0.7336
+rt [reuse]                                    0.8196  0.8149  0.8129  0.8081  0.8042
+expl                                          0.8068  0.8024  0.8018  0.7996  0.7987
+ts                                            0.8188  0.8142  0.8122  0.8073  0.8035
+tdecay                                        0.8196  0.8152  0.8132  0.8095  0.8079
+protect                                       0.8197  0.8157  0.8150  0.8120  0.8095
+detect                                        0.8196  0.8149  0.8128  0.8090  0.8068
+full                                          0.8196  0.8149  0.8128  0.8090  0.8068
+(oracle: best agent per task)                 0.8500  0.8500  0.8500  0.8500  0.8500
+
+=== [WEAK] world many-topics(16) (stat) | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword [raw]                                 0.7259  0.7213  0.7190  0.7178  0.7170
+eps-greedy [raw]                              0.4198  0.4216  0.4232  0.4327  0.4472
+pooled-ts [raw]                               0.4126  0.4120  0.4161  0.4184  0.4298
+hebbian-robust [raw]                          0.4149  0.4175  0.4200  0.4201  0.4222
+warm(hebr) [raw]                              0.6999  0.6963  0.6963  0.6992  0.7014
+guarded-safe(x1) [raw]                        0.7260  0.7215  0.7195  0.7194  0.7198
+guarded-safe(x1) [reuse]                      0.7240  0.7194  0.7180  0.7263  0.7452
+warm(hebr) [reuse]                            0.6950  0.6595  0.6451  0.6528  0.6768
+rt [reuse]                                    0.7251  0.7195  0.7184  0.7271  0.7435
+expl                                          0.7135  0.7084  0.7100  0.7192  0.7360
+ts                                            0.7252  0.7190  0.7177  0.7246  0.7387
+tdecay                                        0.7251  0.7196  0.7184  0.7262  0.7416
+protect                                       0.7251  0.7199  0.7190  0.7264  0.7381
+detect                                        0.7251  0.7195  0.7184  0.7268  0.7431
+full                                          0.7251  0.7195  0.7184  0.7268  0.7431
+(oracle: best agent per task)                 0.8500  0.8500  0.8500  0.8500  0.8500
+
+=== [WEAK] world drift-abrupt (drift) | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword [raw]                                 0.6671  0.6557  0.6558  0.6311  0.5571
+eps-greedy [raw]                              0.4085  0.4147  0.4263  0.4290  0.4369
+pooled-ts [raw]                               0.4106  0.4135  0.4199  0.4275  0.4396
+hebbian-robust [raw]                          0.4295  0.4298  0.4324  0.4314  0.4349
+warm(hebr) [raw]                              0.6422  0.6385  0.6421  0.6198  0.5555
+guarded-safe(x1) [raw]                        0.6686  0.6572  0.6594  0.6349  0.5600
+guarded-safe(x1) [reuse]                      0.6664  0.6631  0.6773  0.6678  0.6276
+warm(hebr) [reuse]                            0.6307  0.6112  0.6238  0.6281  0.6280
+rt [reuse]                                    0.6669  0.6627  0.6771  0.6653  0.6167
+expl                                          0.6582  0.6537  0.6677  0.6587  0.6114
+ts                                            0.6661  0.6613  0.6731  0.6610  0.6180
+tdecay                                        0.6667  0.6620  0.6764  0.6663  0.6186
+protect                                       0.6667  0.6618  0.6726  0.6600  0.6094
+detect                                        0.6669  0.6627  0.6762  0.6636  0.6184
+full                                          0.6669  0.6627  0.6762  0.6636  0.6184
+(oracle: best agent per task)                 0.8500  0.8500  0.8500  0.8500  0.8500
+
+=== [WEAK] world drift-gradual (drift) | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword [raw]                                 0.6671  0.6557  0.6558  0.6334  0.5681
+eps-greedy [raw]                              0.4085  0.4147  0.4263  0.4296  0.4374
+pooled-ts [raw]                               0.4106  0.4135  0.4199  0.4271  0.4389
+hebbian-robust [raw]                          0.4295  0.4298  0.4324  0.4329  0.4357
+warm(hebr) [raw]                              0.6422  0.6385  0.6421  0.6218  0.5638
+guarded-safe(x1) [raw]                        0.6686  0.6572  0.6594  0.6373  0.5710
+guarded-safe(x1) [reuse]                      0.6664  0.6631  0.6773  0.6699  0.6295
+warm(hebr) [reuse]                            0.6307  0.6112  0.6238  0.6280  0.6206
+rt [reuse]                                    0.6669  0.6627  0.6771  0.6678  0.6164
+expl                                          0.6582  0.6537  0.6677  0.6615  0.6151
+ts                                            0.6661  0.6613  0.6731  0.6632  0.6182
+tdecay                                        0.6667  0.6620  0.6764  0.6686  0.6199
+protect                                       0.6667  0.6618  0.6726  0.6616  0.6119
+detect                                        0.6669  0.6627  0.6762  0.6662  0.6182
+full                                          0.6669  0.6627  0.6762  0.6662  0.6182
+(oracle: best agent per task)                 0.8500  0.8500  0.8500  0.8114  0.8110
+
+=== [WEAK] world drift-recurrent (drift) | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword [raw]                                 0.6671  0.6557  0.6558  0.5708  0.5692
+eps-greedy [raw]                              0.4085  0.4147  0.4263  0.4242  0.4330
+pooled-ts [raw]                               0.4106  0.4135  0.4199  0.4303  0.4396
+hebbian-robust [raw]                          0.4295  0.4298  0.4324  0.4296  0.4345
+warm(hebr) [raw]                              0.6422  0.6385  0.6421  0.5627  0.5614
+guarded-safe(x1) [raw]                        0.6686  0.6572  0.6594  0.5730  0.5717
+guarded-safe(x1) [reuse]                      0.6664  0.6631  0.6773  0.6085  0.6142
+warm(hebr) [reuse]                            0.6307  0.6112  0.6238  0.5896  0.5976
+rt [reuse]                                    0.6669  0.6627  0.6771  0.6038  0.6107
+expl                                          0.6582  0.6537  0.6677  0.5984  0.6069
+ts                                            0.6661  0.6613  0.6731  0.6004  0.6110
+tdecay                                        0.6667  0.6620  0.6764  0.6052  0.6112
+protect                                       0.6667  0.6618  0.6726  0.5989  0.6048
+detect                                        0.6669  0.6627  0.6762  0.6029  0.6069
+full                                          0.6669  0.6627  0.6762  0.6029  0.6069
+(oracle: best agent per task)                 0.8500  0.8500  0.8500  0.8500  0.8500
+
+=== [WEAK] world sim-fixed (sim) | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword [raw]                                 0.7377  0.7406  0.7379  0.7248  0.7026
+eps-greedy [raw]                              0.5238  0.5238  0.5273  0.5183  0.5079
+pooled-ts [raw]                               0.4564  0.4653  0.4683  0.4724  0.4883
+hebbian-robust [raw]                          0.4695  0.4705  0.4704  0.4723  0.4772
+warm(hebr) [raw]                              0.7142  0.7161  0.7134  0.7030  0.6631
+guarded-safe(x1) [raw]                        0.7377  0.7406  0.7381  0.7211  0.6867
+guarded-safe(x1) [reuse]                      0.7371  0.7365  0.7377  0.7368  0.7211
+warm(hebr) [reuse]                            0.7026  0.6870  0.6913  0.6984  0.7006
+rt [reuse]                                    0.7377  0.7382  0.7405  0.7396  0.7337
+expl                                          0.7301  0.7319  0.7324  0.7340  0.7249
+ts                                            0.7381  0.7370  0.7363  0.7337  0.7259
+tdecay                                        0.7375  0.7392  0.7426  0.7411  0.7298
+protect                                       0.7376  0.7393  0.7407  0.7359  0.7217
+detect                                        0.7377  0.7385  0.7415  0.7406  0.7303
+full                                          0.7377  0.7385  0.7415  0.7406  0.7303
+(oracle: best agent per task)                 0.8345  0.8347  0.8337  0.8279  0.8314
+
+=== [WEAK] world sim-random (sim) | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword [raw]                                 0.7476  0.7454  0.7409  0.7201  0.6968
+eps-greedy [raw]                              0.4269  0.4417  0.4491  0.4588  0.4797
+pooled-ts [raw]                               0.4458  0.4455  0.4515  0.4567  0.4738
+hebbian-robust [raw]                          0.4501  0.4536  0.4522  0.4477  0.4586
+warm(hebr) [raw]                              0.7131  0.7129  0.7089  0.6930  0.6536
+guarded-safe(x1) [raw]                        0.7476  0.7454  0.7412  0.7202  0.6828
+guarded-safe(x1) [reuse]                      0.7468  0.7439  0.7452  0.7437  0.7329
+warm(hebr) [reuse]                            0.7033  0.6893  0.6883  0.6963  0.7037
+rt [reuse]                                    0.7471  0.7459  0.7482  0.7410  0.7305
+expl                                          0.7395  0.7364  0.7388  0.7307  0.7252
+ts                                            0.7467  0.7445  0.7473  0.7402  0.7354
+tdecay                                        0.7470  0.7454  0.7459  0.7393  0.7317
+protect                                       0.7473  0.7448  0.7454  0.7351  0.7248
+detect                                        0.7471  0.7461  0.7491  0.7435  0.7328
+full                                          0.7471  0.7461  0.7491  0.7435  0.7328
+(oracle: best agent per task)                 0.8442  0.8445  0.8422  0.8323  0.8364
+
+=== [WEAK] world sim-notraps (sim) | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword [raw]                                 0.8447  0.8442  0.8406  0.8164  0.7927
+eps-greedy [raw]                              0.4368  0.4471  0.4595  0.4651  0.4807
+pooled-ts [raw]                               0.4558  0.4591  0.4634  0.4639  0.4790
+hebbian-robust [raw]                          0.4632  0.4597  0.4587  0.4616  0.4625
+warm(hebr) [raw]                              0.7946  0.7925  0.7889  0.7697  0.7213
+guarded-safe(x1) [raw]                        0.8447  0.8442  0.8406  0.8157  0.7688
+guarded-safe(x1) [reuse]                      0.8429  0.8376  0.8330  0.8124  0.7816
+warm(hebr) [reuse]                            0.7863  0.7561  0.7465  0.7402  0.7186
+rt [reuse]                                    0.8436  0.8401  0.8345  0.8100  0.7838
+expl                                          0.8316  0.8287  0.8253  0.8029  0.7800
+ts                                            0.8436  0.8400  0.8345  0.8099  0.7848
+tdecay                                        0.8438  0.8406  0.8355  0.8115  0.7847
+protect                                       0.8438  0.8417  0.8379  0.8139  0.7882
+detect                                        0.8436  0.8402  0.8346  0.8099  0.7814
+full                                          0.8436  0.8402  0.8346  0.8099  0.7814
+(oracle: best agent per task)                 0.8447  0.8442  0.8425  0.8322  0.8354
+
+### WEAK: candidates vs STRICT pool: raw baselines + guarded-safe/warm/rt fed the SAME reuse signal  (Holm over 270 tests)
+--> Holm wins 0, losses 53 of 270
+
+  -- world-level summary: WEAK: candidates vs STRICT pool: raw baselines + guarded-safe/warm/rt fed the SAME reuse signal
+  candidate              world              class       H500     H1000     H2000    H2000p   Holm WIN Hs / LOSS Hs
+  expl                   traps(main)        stat     -0.0096   -0.0097   -0.0089    1.0000   [] / [100, 250]
+  expl                   correct-keywords   stat     -0.0174   -0.0179   -0.0180    0.0000   [] / [100, 250, 500, 1000, 2000]
+  expl                   many-topics(16)    stat     -0.0095   -0.0079   -0.0092    0.0069   [] / [100, 250, 500, 1000, 2000]
+  expl                   drift-abrupt       drift    -0.0096   -0.0091   -0.0166    0.6519   [] / [100, 250]
+  expl                   drift-gradual      drift    -0.0096   -0.0084   -0.0144    0.1696   [] / [100, 250]
+  expl                   drift-recurrent    drift    -0.0096   -0.0102   -0.0072    1.0000   [] / [100, 250]
+  expl                   sim-fixed          sim      -0.0081   -0.0055   -0.0088    0.6566   [] / [100, 250]
+  expl                   sim-random         sim      -0.0094   -0.0131   -0.0077    1.0000   [] / [100, 250]
+  expl                   sim-notraps        sim      -0.0153   -0.0135   -0.0127    0.0000   [] / [100, 250, 500, 1000, 2000]
+  ==> expl: Holm-WIN worlds 0 [] | Holm-LOSS worlds 9 ["traps(main)", "correct-keywords", "many-topics(16)", "drift-abrupt", "drift-gradual", "drift-recurrent", "sim-fixed", "sim-random", "sim-notraps"]
+  ts                     traps(main)        stat     -0.0042   -0.0086   -0.0070    1.0000   [] / []
+  ts                     correct-keywords   stat     -0.0070   -0.0102   -0.0133    0.0000   [] / [500, 1000, 2000]
+  ts                     many-topics(16)    stat     -0.0018   -0.0026   -0.0065    0.4194   [] / []
+  ts                     drift-abrupt       drift    -0.0042   -0.0068   -0.0100    1.0000   [] / []
+  ts                     drift-gradual      drift    -0.0042   -0.0067   -0.0113    0.7513   [] / []
+  ts                     drift-recurrent    drift    -0.0042   -0.0082   -0.0032    1.0000   [] / []
+  ts                     sim-fixed          sim      -0.0042   -0.0059   -0.0078    1.0000   [] / []
+  ts                     sim-random         sim      -0.0010   -0.0035   +0.0025    1.0000   [] / []
+  ts                     sim-notraps        sim      -0.0061   -0.0065   -0.0079    0.0050   [] / [1000, 2000]
+  ==> ts: Holm-WIN worlds 0 [] | Holm-LOSS worlds 2 ["correct-keywords", "sim-notraps"]
+  tdecay                 traps(main)        stat     -0.0009   -0.0033   -0.0076    1.0000   [] / []
+  tdecay                 correct-keywords   stat     -0.0060   -0.0079   -0.0088    0.0000   [] / [500, 1000, 2000]
+  tdecay                 many-topics(16)    stat     -0.0011   -0.0009   -0.0036    1.0000   [] / []
+  tdecay                 drift-abrupt       drift    -0.0009   -0.0015   -0.0093    1.0000   [] / []
+  tdecay                 drift-gradual      drift    -0.0009   -0.0014   -0.0096    0.1827   [] / []
+  tdecay                 drift-recurrent    drift    -0.0009   -0.0033   -0.0030    1.0000   [] / []
+  tdecay                 sim-fixed          sim      +0.0022   +0.0015   -0.0039    1.0000   [] / []
+  tdecay                 sim-random         sim      -0.0023   -0.0045   -0.0013    1.0000   [] / []
+  tdecay                 sim-notraps        sim      -0.0052   -0.0049   -0.0080    0.0137   [] / [1000, 2000]
+  ==> tdecay: Holm-WIN worlds 0 [] | Holm-LOSS worlds 2 ["correct-keywords", "sim-notraps"]
+  protect                traps(main)        stat     -0.0047   -0.0109   -0.0166    0.0511   [] / []
+  protect                correct-keywords   stat     -0.0042   -0.0055   -0.0072    0.0000   [] / [1000, 2000]
+  protect                many-topics(16)    stat     -0.0005   -0.0007   -0.0071    0.0341   [] / [2000]
+  protect                drift-abrupt       drift    -0.0047   -0.0078   -0.0185    1.0000   [] / []
+  protect                drift-gradual      drift    -0.0047   -0.0083   -0.0176    0.0020   [] / [2000]
+  protect                drift-recurrent    drift    -0.0047   -0.0097   -0.0094    0.8679   [] / []
+  protect                sim-fixed          sim      +0.0003   -0.0037   -0.0120    0.0378   [] / [2000]
+  protect                sim-random         sim      -0.0028   -0.0086   -0.0082    1.0000   [] / []
+  protect                sim-notraps        sim      -0.0027   -0.0025   -0.0045    0.0016   [] / [2000]
+  ==> protect: Holm-WIN worlds 0 [] | Holm-LOSS worlds 5 ["correct-keywords", "many-topics(16)", "drift-gradual", "sim-fixed", "sim-notraps"]
+  detect                 traps(main)        stat     -0.0011   -0.0051   -0.0078    1.0000   [] / []
+  detect                 correct-keywords   stat     -0.0063   -0.0085   -0.0100    0.0000   [] / [500, 1000, 2000]
+  detect                 many-topics(16)    stat     -0.0010   -0.0003   -0.0021    1.0000   [] / []
+  detect                 drift-abrupt       drift    -0.0011   -0.0042   -0.0096    1.0000   [] / []
+  detect                 drift-gradual      drift    -0.0011   -0.0037   -0.0113    0.1696   [] / []
+  detect                 drift-recurrent    drift    -0.0011   -0.0056   -0.0073    1.0000   [] / []
+  detect                 sim-fixed          sim      +0.0010   +0.0010   -0.0034    1.0000   [] / []
+  detect                 sim-random         sim      +0.0009   -0.0002   -0.0001    1.0000   [] / []
+  detect                 sim-notraps        sim      -0.0061   -0.0065   -0.0113    0.0012   [] / [1000, 2000]
+  ==> detect: Holm-WIN worlds 0 [] | Holm-LOSS worlds 2 ["correct-keywords", "sim-notraps"]
+  full                   traps(main)        stat     -0.0011   -0.0051   -0.0078    1.0000   [] / []
+  full                   correct-keywords   stat     -0.0063   -0.0085   -0.0100    0.0000   [] / [500, 1000, 2000]
+  full                   many-topics(16)    stat     -0.0010   -0.0003   -0.0021    1.0000   [] / []
+  full                   drift-abrupt       drift    -0.0011   -0.0042   -0.0096    1.0000   [] / []
+  full                   drift-gradual      drift    -0.0011   -0.0037   -0.0113    0.1696   [] / []
+  full                   drift-recurrent    drift    -0.0011   -0.0056   -0.0073    1.0000   [] / []
+  full                   sim-fixed          sim      +0.0010   +0.0010   -0.0034    1.0000   [] / []
+  full                   sim-random         sim      +0.0009   -0.0002   -0.0001    1.0000   [] / []
+  full                   sim-notraps        sim      -0.0061   -0.0065   -0.0113    0.0012   [] / [1000, 2000]
+  ==> full: Holm-WIN worlds 0 [] | Holm-LOSS worlds 2 ["correct-keywords", "sim-notraps"]
+
+### WEAK: candidates vs best of {guarded-safe, warm(hebr)} fed the reuse signal  (Holm over 270 tests)
+--> Holm wins 0, losses 28 of 270
+
+  -- world-level summary: WEAK: candidates vs best of {guarded-safe, warm(hebr)} fed the reuse signal
+  candidate              world              class       H500     H1000     H2000    H2000p   Holm WIN Hs / LOSS Hs
+  expl                   traps(main)        stat     -0.0096   -0.0097   -0.0089    1.0000   [] / [100, 250]
+  expl                   correct-keywords   stat     -0.0104   -0.0105   -0.0129    0.0000   [] / [100, 250, 500, 1000, 2000]
+  expl                   many-topics(16)    stat     -0.0081   -0.0071   -0.0092    0.0076   [] / [100, 250, 500, 1000, 2000]
+  expl                   drift-abrupt       drift    -0.0096   -0.0091   -0.0166    0.7711   [] / [100, 250]
+  expl                   drift-gradual      drift    -0.0096   -0.0084   -0.0144    0.1882   [] / [100, 250]
+  expl                   drift-recurrent    drift    -0.0096   -0.0102   -0.0072    1.0000   [] / [100, 250]
+  expl                   sim-fixed          sim      -0.0053   -0.0027   +0.0037    1.0000   [] / [100]
+  expl                   sim-random         sim      -0.0064   -0.0131   -0.0077    1.0000   [] / [100]
+  expl                   sim-notraps        sim      -0.0076   -0.0095   -0.0015    1.0000   [] / [100, 250, 1000]
+  ==> expl: Holm-WIN worlds 0 [] | Holm-LOSS worlds 9 ["traps(main)", "correct-keywords", "many-topics(16)", "drift-abrupt", "drift-gradual", "drift-recurrent", "sim-fixed", "sim-random", "sim-notraps"]
+  ts                     traps(main)        stat     -0.0042   -0.0086   -0.0070    1.0000   [] / []
+  ts                     correct-keywords   stat     -0.0000   -0.0029   -0.0082    0.0000   [] / [2000]
+  ts                     many-topics(16)    stat     -0.0003   -0.0017   -0.0065    0.4868   [] / []
+  ts                     drift-abrupt       drift    -0.0042   -0.0068   -0.0100    1.0000   [] / []
+  ts                     drift-gradual      drift    -0.0042   -0.0067   -0.0113    0.8779   [] / []
+  ts                     drift-recurrent    drift    -0.0042   -0.0082   -0.0032    1.0000   [] / []
+  ts                     sim-fixed          sim      -0.0015   -0.0031   +0.0048    1.0000   [] / []
+  ts                     sim-random         sim      +0.0020   -0.0035   +0.0025    1.0000   [] / []
+  ts                     sim-notraps        sim      +0.0016   -0.0025   +0.0033    1.0000   [] / []
+  ==> ts: Holm-WIN worlds 0 [] | Holm-LOSS worlds 1 ["correct-keywords"]
+  tdecay                 traps(main)        stat     -0.0009   -0.0033   -0.0076    1.0000   [] / []
+  tdecay                 correct-keywords   stat     +0.0010   -0.0006   -0.0037    0.0532   [] / []
+  tdecay                 many-topics(16)    stat     +0.0004   -0.0000   -0.0036    1.0000   [] / []
+  tdecay                 drift-abrupt       drift    -0.0009   -0.0015   -0.0093    1.0000   [] / []
+  tdecay                 drift-gradual      drift    -0.0009   -0.0014   -0.0096    0.2041   [] / []
+  tdecay                 drift-recurrent    drift    -0.0009   -0.0033   -0.0030    1.0000   [] / []
+  tdecay                 sim-fixed          sim      +0.0049   +0.0043   +0.0087    1.0000   [] / []
+  tdecay                 sim-random         sim      +0.0007   -0.0045   -0.0013    1.0000   [] / []
+  tdecay                 sim-notraps        sim      +0.0025   -0.0009   +0.0032    1.0000   [] / []
+  ==> tdecay: Holm-WIN worlds 0 [] | Holm-LOSS worlds 0 []
+  protect                traps(main)        stat     -0.0047   -0.0109   -0.0166    0.0568   [] / []
+  protect                correct-keywords   stat     +0.0027   +0.0018   -0.0021    1.0000   [] / []
+  protect                many-topics(16)    stat     +0.0010   +0.0001   -0.0071    0.0377   [] / [2000]
+  protect                drift-abrupt       drift    -0.0047   -0.0078   -0.0185    1.0000   [] / []
+  protect                drift-gradual      drift    -0.0047   -0.0083   -0.0176    0.0021   [] / [2000]
+  protect                drift-recurrent    drift    -0.0047   -0.0097   -0.0094    1.0000   [] / []
+  protect                sim-fixed          sim      +0.0030   -0.0009   +0.0006    1.0000   [] / []
+  protect                sim-random         sim      +0.0002   -0.0086   -0.0082    1.0000   [] / []
+  protect                sim-notraps        sim      +0.0050   +0.0015   +0.0066    0.9141   [] / []
+  ==> protect: Holm-WIN worlds 0 [] | Holm-LOSS worlds 2 ["many-topics(16)", "drift-gradual"]
+  detect                 traps(main)        stat     -0.0011   -0.0051   -0.0078    1.0000   [] / []
+  detect                 correct-keywords   stat     +0.0006   -0.0011   -0.0048    0.0015   [] / [2000]
+  detect                 many-topics(16)    stat     +0.0004   +0.0005   -0.0021    1.0000   [] / []
+  detect                 drift-abrupt       drift    -0.0011   -0.0042   -0.0096    1.0000   [] / []
+  detect                 drift-gradual      drift    -0.0011   -0.0037   -0.0113    0.1882   [] / []
+  detect                 drift-recurrent    drift    -0.0011   -0.0056   -0.0073    1.0000   [] / []
+  detect                 sim-fixed          sim      +0.0037   +0.0038   +0.0092    0.8683   [] / []
+  detect                 sim-random         sim      +0.0038   -0.0002   -0.0001    1.0000   [] / []
+  detect                 sim-notraps        sim      +0.0016   -0.0025   -0.0001    1.0000   [] / []
+  ==> detect: Holm-WIN worlds 0 [] | Holm-LOSS worlds 1 ["correct-keywords"]
+  full                   traps(main)        stat     -0.0011   -0.0051   -0.0078    1.0000   [] / []
+  full                   correct-keywords   stat     +0.0006   -0.0011   -0.0048    0.0015   [] / [2000]
+  full                   many-topics(16)    stat     +0.0004   +0.0005   -0.0021    1.0000   [] / []
+  full                   drift-abrupt       drift    -0.0011   -0.0042   -0.0096    1.0000   [] / []
+  full                   drift-gradual      drift    -0.0011   -0.0037   -0.0113    0.1882   [] / []
+  full                   drift-recurrent    drift    -0.0011   -0.0056   -0.0073    1.0000   [] / []
+  full                   sim-fixed          sim      +0.0037   +0.0038   +0.0092    0.8683   [] / []
+  full                   sim-random         sim      +0.0038   -0.0002   -0.0001    1.0000   [] / []
+  full                   sim-notraps        sim      +0.0016   -0.0025   -0.0001    1.0000   [] / []
+  ==> full: Holm-WIN worlds 0 [] | Holm-LOSS worlds 1 ["correct-keywords"]
+
+### WEAK: candidates vs raw-fed baselines only (x3 convention)  (Holm over 270 tests)
+--> Holm wins 90, losses 44 of 270
+
+  -- world-level summary: WEAK: candidates vs raw-fed baselines only (x3 convention)
+  candidate              world              class       H500     H1000     H2000    H2000p   Holm WIN Hs / LOSS Hs
+  expl                   traps(main)        stat     +0.0083   +0.0313   +0.0599    0.0000   [1000, 2000] / [100]
+  expl                   correct-keywords   stat     -0.0174   -0.0179   -0.0180    0.0000   [] / [100, 250, 500, 1000, 2000]
+  expl                   many-topics(16)    stat     -0.0095   -0.0002   +0.0162    0.0045   [2000] / [100, 250, 500]
+  expl                   drift-abrupt       drift    +0.0083   +0.0239   +0.0514    0.0000   [1000, 2000] / [100]
+  expl                   drift-gradual      drift    +0.0083   +0.0242   +0.0440    0.0000   [1000, 2000] / [100]
+  expl                   drift-recurrent    drift    +0.0083   +0.0254   +0.0353    0.0000   [1000, 2000] / [100]
+  expl                   sim-fixed          sim      -0.0056   +0.0092   +0.0223    0.0003   [2000] / [100, 250]
+  expl                   sim-random         sim      -0.0024   +0.0105   +0.0284    0.0024   [2000] / [100, 250]
+  expl                   sim-notraps        sim      -0.0153   -0.0135   -0.0127    0.0000   [] / [100, 250, 500, 1000, 2000]
+  ==> expl: Holm-WIN worlds 7 ["traps(main)", "many-topics(16)", "drift-abrupt", "drift-gradual", "drift-recurrent", "sim-fixed", "sim-random"] | Holm-LOSS worlds 9 ["traps(main)", "correct-keywords", "many-topics(16)", "drift-abrupt", "drift-gradual", "drift-recurrent", "sim-fixed", "sim-random", "sim-notraps"]
+  ts                     traps(main)        stat     +0.0137   +0.0323   +0.0619    0.0000   [1000, 2000] / []
+  ts                     correct-keywords   stat     -0.0070   -0.0102   -0.0133    0.0000   [] / [500, 1000, 2000]
+  ts                     many-topics(16)    stat     -0.0018   +0.0052   +0.0189    0.0001   [2000] / []
+  ts                     drift-abrupt       drift    +0.0137   +0.0261   +0.0579    0.0000   [1000, 2000] / []
+  ts                     drift-gradual      drift    +0.0137   +0.0259   +0.0472    0.0000   [1000, 2000] / []
+  ts                     drift-recurrent    drift    +0.0137   +0.0274   +0.0393    0.0000   [1000, 2000] / []
+  ts                     sim-fixed          sim      -0.0018   +0.0089   +0.0233    0.0000   [1000, 2000] / []
+  ts                     sim-random         sim      +0.0060   +0.0200   +0.0386    0.0000   [1000, 2000] / []
+  ts                     sim-notraps        sim      -0.0061   -0.0065   -0.0079    0.0036   [] / [1000, 2000]
+  ==> ts: Holm-WIN worlds 7 ["traps(main)", "many-topics(16)", "drift-abrupt", "drift-gradual", "drift-recurrent", "sim-fixed", "sim-random"] | Holm-LOSS worlds 2 ["correct-keywords", "sim-notraps"]
+  tdecay                 traps(main)        stat     +0.0170   +0.0377   +0.0613    0.0000   [500, 1000, 2000] / []
+  tdecay                 correct-keywords   stat     -0.0060   -0.0079   -0.0088    0.0000   [] / [500, 1000, 2000]
+  tdecay                 many-topics(16)    stat     -0.0011   +0.0069   +0.0218    0.0000   [2000] / []
+  tdecay                 drift-abrupt       drift    +0.0170   +0.0314   +0.0586    0.0000   [500, 1000, 2000] / []
+  tdecay                 drift-gradual      drift    +0.0170   +0.0313   +0.0489    0.0000   [500, 1000, 2000] / []
+  tdecay                 drift-recurrent    drift    +0.0170   +0.0322   +0.0395    0.0000   [500, 1000, 2000] / []
+  tdecay                 sim-fixed          sim      +0.0046   +0.0163   +0.0272    0.0000   [1000, 2000] / []
+  tdecay                 sim-random         sim      +0.0047   +0.0191   +0.0348    0.0004   [1000, 2000] / []
+  tdecay                 sim-notraps        sim      -0.0052   -0.0049   -0.0080    0.0098   [] / [1000, 2000]
+  ==> tdecay: Holm-WIN worlds 7 ["traps(main)", "many-topics(16)", "drift-abrupt", "drift-gradual", "drift-recurrent", "sim-fixed", "sim-random"] | Holm-LOSS worlds 2 ["correct-keywords", "sim-notraps"]
+  protect                traps(main)        stat     +0.0132   +0.0301   +0.0522    0.0000   [500, 1000, 2000] / []
+  protect                correct-keywords   stat     -0.0042   -0.0055   -0.0072    0.0000   [] / [1000, 2000]
+  protect                many-topics(16)    stat     -0.0005   +0.0070   +0.0183    0.0001   [2000] / []
+  protect                drift-abrupt       drift    +0.0132   +0.0251   +0.0494    0.0000   [500, 1000, 2000] / []
+  protect                drift-gradual      drift    +0.0132   +0.0243   +0.0409    0.0000   [500, 1000, 2000] / []
+  protect                drift-recurrent    drift    +0.0132   +0.0259   +0.0331    0.0000   [500, 1000, 2000] / []
+  protect                sim-fixed          sim      +0.0027   +0.0111   +0.0191    0.0032   [2000] / []
+  protect                sim-random         sim      +0.0042   +0.0150   +0.0279    0.0005   [2000] / []
+  protect                sim-notraps        sim      -0.0027   -0.0025   -0.0045    0.0012   [] / [2000]
+  ==> protect: Holm-WIN worlds 7 ["traps(main)", "many-topics(16)", "drift-abrupt", "drift-gradual", "drift-recurrent", "sim-fixed", "sim-random"] | Holm-LOSS worlds 2 ["correct-keywords", "sim-notraps"]
+  detect                 traps(main)        stat     +0.0168   +0.0359   +0.0611    0.0000   [500, 1000, 2000] / []
+  detect                 correct-keywords   stat     -0.0063   -0.0085   -0.0100    0.0000   [] / [500, 1000, 2000]
+  detect                 many-topics(16)    stat     -0.0010   +0.0075   +0.0233    0.0000   [2000] / []
+  detect                 drift-abrupt       drift    +0.0168   +0.0288   +0.0583    0.0000   [500, 1000, 2000] / []
+  detect                 drift-gradual      drift    +0.0168   +0.0289   +0.0472    0.0000   [500, 1000, 2000] / []
+  detect                 drift-recurrent    drift    +0.0168   +0.0300   +0.0352    0.0000   [500, 1000, 2000] / []
+  detect                 sim-fixed          sim      +0.0034   +0.0158   +0.0277    0.0000   [1000, 2000] / []
+  detect                 sim-random         sim      +0.0079   +0.0233   +0.0360    0.0005   [1000, 2000] / []
+  detect                 sim-notraps        sim      -0.0061   -0.0065   -0.0113    0.0009   [] / [1000, 2000]
+  ==> detect: Holm-WIN worlds 7 ["traps(main)", "many-topics(16)", "drift-abrupt", "drift-gradual", "drift-recurrent", "sim-fixed", "sim-random"] | Holm-LOSS worlds 2 ["correct-keywords", "sim-notraps"]
+  full                   traps(main)        stat     +0.0168   +0.0359   +0.0611    0.0000   [500, 1000, 2000] / []
+  full                   correct-keywords   stat     -0.0063   -0.0085   -0.0100    0.0000   [] / [500, 1000, 2000]
+  full                   many-topics(16)    stat     -0.0010   +0.0075   +0.0233    0.0000   [2000] / []
+  full                   drift-abrupt       drift    +0.0168   +0.0288   +0.0583    0.0000   [500, 1000, 2000] / []
+  full                   drift-gradual      drift    +0.0168   +0.0289   +0.0472    0.0000   [500, 1000, 2000] / []
+  full                   drift-recurrent    drift    +0.0168   +0.0300   +0.0352    0.0000   [500, 1000, 2000] / []
+  full                   sim-fixed          sim      +0.0034   +0.0158   +0.0277    0.0000   [1000, 2000] / []
+  full                   sim-random         sim      +0.0079   +0.0233   +0.0360    0.0005   [1000, 2000] / []
+  full                   sim-notraps        sim      -0.0061   -0.0065   -0.0113    0.0009   [] / [1000, 2000]
+  ==> full: Holm-WIN worlds 7 ["traps(main)", "many-topics(16)", "drift-abrupt", "drift-gradual", "drift-recurrent", "sim-fixed", "sim-random"] | Holm-LOSS worlds 2 ["correct-keywords", "sim-notraps"]
+
+### WEAK: candidates - rt[reuse] (SAME signal, mechanism OFF = ablation)  (Holm over 270 tests)
+world              candidate                      H      diff               95% CI  wins   Holm p  baseline
+traps(main)        expl                         100   -0.0087 [ -0.0118, -0.0056]     3   0.0007  rt [reuse] LOSS
+traps(main)        expl                         250   -0.0090 [ -0.0129, -0.0052]     6   0.0113  rt [reuse] LOSS
+traps(main)        expl                         500   -0.0095 [ -0.0140, -0.0050]     3   0.0389  rt [reuse] LOSS
+traps(main)        expl                        2000   -0.0005 [ -0.0077, +0.0066]    18   1.0000  rt [reuse]
+traps(main)        ts                           500   -0.0040 [ -0.0089, +0.0008]    14   1.0000  rt [reuse]
+traps(main)        ts                          2000   +0.0014 [ -0.0050, +0.0078]    18   1.0000  rt [reuse]
+traps(main)        tdecay                       500   -0.0008 [ -0.0028, +0.0013]     9   1.0000  rt [reuse]
+traps(main)        tdecay                      2000   +0.0008 [ -0.0049, +0.0065]    14   1.0000  rt [reuse]
+traps(main)        protect                      500   -0.0045 [ -0.0096, +0.0006]    10   1.0000  rt [reuse]
+traps(main)        protect                     2000   -0.0082 [ -0.0164, -0.0000]    12   1.0000  rt [reuse]
+traps(main)        detect                       500   -0.0010 [ -0.0022, +0.0003]     5   1.0000  rt [reuse]
+traps(main)        detect                      2000   +0.0006 [ -0.0027, +0.0040]    15   1.0000  rt [reuse]
+traps(main)        full                         500   -0.0010 [ -0.0022, +0.0003]     5   1.0000  rt [reuse]
+traps(main)        full                        2000   +0.0006 [ -0.0027, +0.0040]    15   1.0000  rt [reuse]
+correct-keywords   expl                         100   -0.0128 [ -0.0155, -0.0101]     0   0.0000  rt [reuse] LOSS
+correct-keywords   expl                         250   -0.0125 [ -0.0144, -0.0105]     0   0.0000  rt [reuse] LOSS
+correct-keywords   expl                         500   -0.0111 [ -0.0124, -0.0098]     0   0.0000  rt [reuse] LOSS
+correct-keywords   expl                        1000   -0.0085 [ -0.0096, -0.0073]     1   0.0000  rt [reuse] LOSS
+correct-keywords   expl                        2000   -0.0055 [ -0.0067, -0.0042]     2   0.0000  rt [reuse] LOSS
+correct-keywords   ts                           500   -0.0007 [ -0.0013, -0.0001]    12   1.0000  rt [reuse]
+correct-keywords   ts                          2000   -0.0007 [ -0.0013, -0.0001]     9   1.0000  rt [reuse]
+correct-keywords   tdecay                       500   +0.0003 [ -0.0001, +0.0007]    11   1.0000  rt [reuse]
+correct-keywords   tdecay                      1000   +0.0015 [ +0.0008, +0.0021]    26   0.0131  rt [reuse] WIN
+correct-keywords   tdecay                      2000   +0.0037 [ +0.0028, +0.0047]    28   0.0000  rt [reuse] WIN
+correct-keywords   protect                      500   +0.0020 [ +0.0014, +0.0027]    24   0.0002  rt [reuse] WIN
+correct-keywords   protect                     1000   +0.0039 [ +0.0026, +0.0052]    28   0.0002  rt [reuse] WIN
+correct-keywords   protect                     2000   +0.0054 [ +0.0039, +0.0068]    29   0.0000  rt [reuse] WIN
+correct-keywords   detect                       500   -0.0001 [ -0.0002, +0.0001]     1   1.0000  rt [reuse]
+correct-keywords   detect                      2000   +0.0026 [ +0.0009, +0.0043]    23   0.7478  rt [reuse]
+correct-keywords   full                         500   -0.0001 [ -0.0002, +0.0001]     1   1.0000  rt [reuse]
+correct-keywords   full                        2000   +0.0026 [ +0.0009, +0.0043]    23   0.7478  rt [reuse]
+many-topics(16)    expl                         100   -0.0116 [ -0.0140, -0.0092]     1   0.0000  rt [reuse] LOSS
+many-topics(16)    expl                         250   -0.0110 [ -0.0129, -0.0091]     0   0.0000  rt [reuse] LOSS
+many-topics(16)    expl                         500   -0.0084 [ -0.0102, -0.0066]     0   0.0000  rt [reuse] LOSS
+many-topics(16)    expl                        1000   -0.0079 [ -0.0103, -0.0056]     3   0.0000  rt [reuse] LOSS
+many-topics(16)    expl                        2000   -0.0074 [ -0.0104, -0.0045]     4   0.0049  rt [reuse] LOSS
+many-topics(16)    ts                           500   -0.0006 [ -0.0022, +0.0009]    14   1.0000  rt [reuse]
+many-topics(16)    ts                          2000   -0.0048 [ -0.0082, -0.0014]     9   1.0000  rt [reuse]
+many-topics(16)    tdecay                       500   +0.0001 [ -0.0010, +0.0011]    14   1.0000  rt [reuse]
+many-topics(16)    tdecay                      2000   -0.0018 [ -0.0046, +0.0009]    10   1.0000  rt [reuse]
+many-topics(16)    protect                      500   +0.0006 [ -0.0010, +0.0023]    19   1.0000  rt [reuse]
+many-topics(16)    protect                     2000   -0.0053 [ -0.0095, -0.0011]     9   1.0000  rt [reuse]
+many-topics(16)    detect                       500   +0.0001 [ -0.0001, +0.0002]     2   1.0000  rt [reuse]
+many-topics(16)    detect                      2000   -0.0004 [ -0.0014, +0.0006]    15   1.0000  rt [reuse]
+many-topics(16)    full                         500   +0.0001 [ -0.0001, +0.0002]     2   1.0000  rt [reuse]
+many-topics(16)    full                        2000   -0.0004 [ -0.0014, +0.0006]    15   1.0000  rt [reuse]
+drift-abrupt       expl                         100   -0.0087 [ -0.0118, -0.0056]     3   0.0007  rt [reuse] LOSS
+drift-abrupt       expl                         250   -0.0090 [ -0.0129, -0.0052]     6   0.0113  rt [reuse] LOSS
+drift-abrupt       expl                         500   -0.0095 [ -0.0140, -0.0050]     3   0.0389  rt [reuse] LOSS
+drift-abrupt       expl                        2000   -0.0053 [ -0.0119, +0.0012]    11   1.0000  rt [reuse]
+drift-abrupt       ts                           500   -0.0040 [ -0.0089, +0.0008]    14   1.0000  rt [reuse]
+drift-abrupt       ts                          2000   +0.0012 [ -0.0053, +0.0078]    14   1.0000  rt [reuse]
+drift-abrupt       tdecay                       500   -0.0008 [ -0.0028, +0.0013]     9   1.0000  rt [reuse]
+drift-abrupt       tdecay                      2000   +0.0019 [ -0.0043, +0.0081]    17   1.0000  rt [reuse]
+drift-abrupt       protect                      500   -0.0045 [ -0.0096, +0.0006]    10   1.0000  rt [reuse]
+drift-abrupt       protect                     2000   -0.0073 [ -0.0152, +0.0005]    10   1.0000  rt [reuse]
+drift-abrupt       detect                       500   -0.0010 [ -0.0022, +0.0003]     5   1.0000  rt [reuse]
+drift-abrupt       detect                      2000   +0.0016 [ -0.0033, +0.0065]    15   1.0000  rt [reuse]
+drift-abrupt       full                         500   -0.0010 [ -0.0022, +0.0003]     5   1.0000  rt [reuse]
+drift-abrupt       full                        2000   +0.0016 [ -0.0033, +0.0065]    15   1.0000  rt [reuse]
+drift-gradual      expl                         100   -0.0087 [ -0.0118, -0.0056]     3   0.0007  rt [reuse] LOSS
+drift-gradual      expl                         250   -0.0090 [ -0.0129, -0.0052]     6   0.0113  rt [reuse] LOSS
+drift-gradual      expl                         500   -0.0095 [ -0.0140, -0.0050]     3   0.0389  rt [reuse] LOSS
+drift-gradual      expl                        2000   -0.0013 [ -0.0083, +0.0057]    13   1.0000  rt [reuse]
+drift-gradual      ts                           500   -0.0040 [ -0.0089, +0.0008]    14   1.0000  rt [reuse]
+drift-gradual      ts                          2000   +0.0019 [ -0.0044, +0.0081]    15   1.0000  rt [reuse]
+drift-gradual      tdecay                       500   -0.0008 [ -0.0028, +0.0013]     9   1.0000  rt [reuse]
+drift-gradual      tdecay                      2000   +0.0035 [ -0.0015, +0.0086]    21   1.0000  rt [reuse]
+drift-gradual      protect                      500   -0.0045 [ -0.0096, +0.0006]    10   1.0000  rt [reuse]
+drift-gradual      protect                     2000   -0.0045 [ -0.0114, +0.0024]    12   1.0000  rt [reuse]
+drift-gradual      detect                       500   -0.0010 [ -0.0022, +0.0003]     5   1.0000  rt [reuse]
+drift-gradual      detect                      2000   +0.0019 [ -0.0031, +0.0069]    17   1.0000  rt [reuse]
+drift-gradual      full                         500   -0.0010 [ -0.0022, +0.0003]     5   1.0000  rt [reuse]
+drift-gradual      full                        2000   +0.0019 [ -0.0031, +0.0069]    17   1.0000  rt [reuse]
+drift-recurrent    expl                         100   -0.0087 [ -0.0118, -0.0056]     3   0.0007  rt [reuse] LOSS
+drift-recurrent    expl                         250   -0.0090 [ -0.0129, -0.0052]     6   0.0113  rt [reuse] LOSS
+drift-recurrent    expl                         500   -0.0095 [ -0.0140, -0.0050]     3   0.0389  rt [reuse] LOSS
+drift-recurrent    expl                        2000   -0.0038 [ -0.0100, +0.0024]     9   1.0000  rt [reuse]
+drift-recurrent    ts                           500   -0.0040 [ -0.0089, +0.0008]    14   1.0000  rt [reuse]
+drift-recurrent    ts                          2000   +0.0003 [ -0.0065, +0.0070]    16   1.0000  rt [reuse]
+drift-recurrent    tdecay                       500   -0.0008 [ -0.0028, +0.0013]     9   1.0000  rt [reuse]
+drift-recurrent    tdecay                      2000   +0.0004 [ -0.0034, +0.0043]    14   1.0000  rt [reuse]
+drift-recurrent    protect                      500   -0.0045 [ -0.0096, +0.0006]    10   1.0000  rt [reuse]
+drift-recurrent    protect                     2000   -0.0060 [ -0.0121, +0.0002]    10   1.0000  rt [reuse]
+drift-recurrent    detect                       500   -0.0010 [ -0.0022, +0.0003]     5   1.0000  rt [reuse]
+drift-recurrent    detect                      2000   -0.0038 [ -0.0080, +0.0004]    10   1.0000  rt [reuse]
+drift-recurrent    full                         500   -0.0010 [ -0.0022, +0.0003]     5   1.0000  rt [reuse]
+drift-recurrent    full                        2000   -0.0038 [ -0.0080, +0.0004]    10   1.0000  rt [reuse]
+sim-fixed          expl                         100   -0.0076 [ -0.0108, -0.0045]     5   0.0068  rt [reuse] LOSS
+sim-fixed          expl                         500   -0.0081 [ -0.0142, -0.0019]     6   1.0000  rt [reuse]
+sim-fixed          expl                        2000   -0.0088 [ -0.0145, -0.0031]     7   0.8021  rt [reuse]
+sim-fixed          ts                           500   -0.0042 [ -0.0096, +0.0012]    12   1.0000  rt [reuse]
+sim-fixed          ts                          2000   -0.0078 [ -0.0134, -0.0022]     9   1.0000  rt [reuse]
+sim-fixed          tdecay                       500   +0.0022 [ -0.0001, +0.0045]    15   1.0000  rt [reuse]
+sim-fixed          tdecay                      2000   -0.0039 [ -0.0095, +0.0017]    11   1.0000  rt [reuse]
+sim-fixed          protect                      500   +0.0003 [ -0.0042, +0.0047]    15   1.0000  rt [reuse]
+sim-fixed          protect                     2000   -0.0120 [ -0.0177, -0.0063]     5   0.0405  rt [reuse] LOSS
+sim-fixed          detect                       500   +0.0010 [ -0.0011, +0.0031]     7   1.0000  rt [reuse]
+sim-fixed          detect                      2000   -0.0034 [ -0.0080, +0.0012]    11   1.0000  rt [reuse]
+sim-fixed          full                         500   +0.0010 [ -0.0011, +0.0031]     7   1.0000  rt [reuse]
+sim-fixed          full                        2000   -0.0034 [ -0.0080, +0.0012]    11   1.0000  rt [reuse]
+sim-random         expl                         100   -0.0076 [ -0.0102, -0.0049]     4   0.0006  rt [reuse] LOSS
+sim-random         expl                         250   -0.0095 [ -0.0137, -0.0053]     2   0.0172  rt [reuse] LOSS
+sim-random         expl                         500   -0.0094 [ -0.0147, -0.0041]     5   0.2623  rt [reuse]
+sim-random         expl                        2000   -0.0053 [ -0.0142, +0.0035]    12   1.0000  rt [reuse]
+sim-random         ts                           500   -0.0010 [ -0.0056, +0.0036]    13   1.0000  rt [reuse]
+sim-random         ts                          2000   +0.0048 [ -0.0032, +0.0129]    15   1.0000  rt [reuse]
+sim-random         tdecay                       500   -0.0023 [ -0.0064, +0.0018]    13   1.0000  rt [reuse]
+sim-random         tdecay                      2000   +0.0011 [ -0.0046, +0.0069]    16   1.0000  rt [reuse]
+sim-random         protect                      500   -0.0028 [ -0.0071, +0.0016]    14   1.0000  rt [reuse]
+sim-random         protect                     2000   -0.0058 [ -0.0141, +0.0025]    12   1.0000  rt [reuse]
+sim-random         detect                       500   +0.0009 [ -0.0002, +0.0019]     8   1.0000  rt [reuse]
+sim-random         detect                      2000   +0.0023 [ -0.0017, +0.0063]    13   1.0000  rt [reuse]
+sim-random         full                         500   +0.0009 [ -0.0002, +0.0019]     8   1.0000  rt [reuse]
+sim-random         full                        2000   +0.0023 [ -0.0017, +0.0063]    13   1.0000  rt [reuse]
+sim-notraps        expl                         100   -0.0120 [ -0.0143, -0.0097]     0   0.0000  rt [reuse] LOSS
+sim-notraps        expl                         250   -0.0114 [ -0.0132, -0.0096]     0   0.0000  rt [reuse] LOSS
+sim-notraps        expl                         500   -0.0092 [ -0.0107, -0.0076]     1   0.0000  rt [reuse] LOSS
+sim-notraps        expl                        1000   -0.0071 [ -0.0085, -0.0058]     1   0.0000  rt [reuse] LOSS
+sim-notraps        expl                        2000   -0.0038 [ -0.0056, -0.0019]     4   0.0667  rt [reuse]
+sim-notraps        ts                           500   +0.0001 [ -0.0007, +0.0008]     2   1.0000  rt [reuse]
+sim-notraps        ts                          2000   +0.0010 [ -0.0011, +0.0032]     7   1.0000  rt [reuse]
+sim-notraps        tdecay                       500   +0.0010 [ +0.0001, +0.0019]    10   1.0000  rt [reuse]
+sim-notraps        tdecay                      2000   +0.0009 [ -0.0020, +0.0039]    23   1.0000  rt [reuse]
+sim-notraps        protect                      500   +0.0035 [ +0.0014, +0.0055]    17   0.4413  rt [reuse]
+sim-notraps        protect                     1000   +0.0039 [ +0.0024, +0.0054]    26   0.0028  rt [reuse] WIN
+sim-notraps        protect                     2000   +0.0044 [ +0.0023, +0.0065]    24   0.0433  rt [reuse] WIN
+sim-notraps        detect                       500   +0.0001 [ -0.0000, +0.0002]     2   1.0000  rt [reuse]
+sim-notraps        detect                      2000   -0.0024 [ -0.0051, +0.0003]    18   1.0000  rt [reuse]
+sim-notraps        full                         500   +0.0001 [ -0.0000, +0.0002]     2   1.0000  rt [reuse]
+sim-notraps        full                        2000   -0.0024 [ -0.0051, +0.0003]    18   1.0000  rt [reuse]
+--> Holm wins 7, losses 30 of 270
+
+  -- world-level summary: WEAK: candidates - rt[reuse] (SAME signal, mechanism OFF = ablation)
+  candidate              world              class       H500     H1000     H2000    H2000p   Holm WIN Hs / LOSS Hs
+  expl                   traps(main)        stat     -0.0095   -0.0056   -0.0005    1.0000   [] / [100, 250, 500]
+  expl                   correct-keywords   stat     -0.0111   -0.0085   -0.0055    0.0000   [] / [100, 250, 500, 1000, 2000]
+  expl                   many-topics(16)    stat     -0.0084   -0.0079   -0.0074    0.0049   [] / [100, 250, 500, 1000, 2000]
+  expl                   drift-abrupt       drift    -0.0095   -0.0065   -0.0053    1.0000   [] / [100, 250, 500]
+  expl                   drift-gradual      drift    -0.0095   -0.0063   -0.0013    1.0000   [] / [100, 250, 500]
+  expl                   drift-recurrent    drift    -0.0095   -0.0055   -0.0038    1.0000   [] / [100, 250, 500]
+  expl                   sim-fixed          sim      -0.0081   -0.0055   -0.0088    0.8021   [] / [100]
+  expl                   sim-random         sim      -0.0094   -0.0104   -0.0053    1.0000   [] / [100, 250]
+  expl                   sim-notraps        sim      -0.0092   -0.0071   -0.0038    0.0667   [] / [100, 250, 500, 1000]
+  ==> expl: Holm-WIN worlds 0 [] | Holm-LOSS worlds 9 ["traps(main)", "correct-keywords", "many-topics(16)", "drift-abrupt", "drift-gradual", "drift-recurrent", "sim-fixed", "sim-random", "sim-notraps"]
+  ts                     traps(main)        stat     -0.0040   -0.0046   +0.0014    1.0000   [] / []
+  ts                     correct-keywords   stat     -0.0007   -0.0008   -0.0007    1.0000   [] / []
+  ts                     many-topics(16)    stat     -0.0006   -0.0026   -0.0048    1.0000   [] / []
+  ts                     drift-abrupt       drift    -0.0040   -0.0043   +0.0012    1.0000   [] / []
+  ts                     drift-gradual      drift    -0.0040   -0.0046   +0.0019    1.0000   [] / []
+  ts                     drift-recurrent    drift    -0.0040   -0.0034   +0.0003    1.0000   [] / []
+  ts                     sim-fixed          sim      -0.0042   -0.0059   -0.0078    1.0000   [] / []
+  ts                     sim-random         sim      -0.0010   -0.0008   +0.0048    1.0000   [] / []
+  ts                     sim-notraps        sim      +0.0001   -0.0001   +0.0010    1.0000   [] / []
+  ==> ts: Holm-WIN worlds 0 [] | Holm-LOSS worlds 0 []
+  tdecay                 traps(main)        stat     -0.0008   +0.0008   +0.0008    1.0000   [] / []
+  tdecay                 correct-keywords   stat     +0.0003   +0.0015   +0.0037    0.0000   [1000, 2000] / []
+  tdecay                 many-topics(16)    stat     +0.0001   -0.0009   -0.0018    1.0000   [] / []
+  tdecay                 drift-abrupt       drift    -0.0008   +0.0010   +0.0019    1.0000   [] / []
+  tdecay                 drift-gradual      drift    -0.0008   +0.0007   +0.0035    1.0000   [] / []
+  tdecay                 drift-recurrent    drift    -0.0008   +0.0014   +0.0004    1.0000   [] / []
+  tdecay                 sim-fixed          sim      +0.0022   +0.0015   -0.0039    1.0000   [] / []
+  tdecay                 sim-random         sim      -0.0023   -0.0018   +0.0011    1.0000   [] / []
+  tdecay                 sim-notraps        sim      +0.0010   +0.0015   +0.0009    1.0000   [] / []
+  ==> tdecay: Holm-WIN worlds 1 ["correct-keywords"] | Holm-LOSS worlds 0 []
+  protect                traps(main)        stat     -0.0045   -0.0068   -0.0082    1.0000   [] / []
+  protect                correct-keywords   stat     +0.0020   +0.0039   +0.0054    0.0000   [500, 1000, 2000] / []
+  protect                many-topics(16)    stat     +0.0006   -0.0007   -0.0053    1.0000   [] / []
+  protect                drift-abrupt       drift    -0.0045   -0.0053   -0.0073    1.0000   [] / []
+  protect                drift-gradual      drift    -0.0045   -0.0062   -0.0045    1.0000   [] / []
+  protect                drift-recurrent    drift    -0.0045   -0.0050   -0.0060    1.0000   [] / []
+  protect                sim-fixed          sim      +0.0003   -0.0037   -0.0120    0.0405   [] / [2000]
+  protect                sim-random         sim      -0.0028   -0.0059   -0.0058    1.0000   [] / []
+  protect                sim-notraps        sim      +0.0035   +0.0039   +0.0044    0.0433   [1000, 2000] / []
+  ==> protect: Holm-WIN worlds 2 ["correct-keywords", "sim-notraps"] | Holm-LOSS worlds 1 ["sim-fixed"]
+  detect                 traps(main)        stat     -0.0010   -0.0010   +0.0006    1.0000   [] / []
+  detect                 correct-keywords   stat     -0.0001   +0.0009   +0.0026    0.7478   [] / []
+  detect                 many-topics(16)    stat     +0.0001   -0.0003   -0.0004    1.0000   [] / []
+  detect                 drift-abrupt       drift    -0.0010   -0.0016   +0.0016    1.0000   [] / []
+  detect                 drift-gradual      drift    -0.0010   -0.0016   +0.0019    1.0000   [] / []
+  detect                 drift-recurrent    drift    -0.0010   -0.0009   -0.0038    1.0000   [] / []
+  detect                 sim-fixed          sim      +0.0010   +0.0010   -0.0034    1.0000   [] / []
+  detect                 sim-random         sim      +0.0009   +0.0025   +0.0023    1.0000   [] / []
+  detect                 sim-notraps        sim      +0.0001   -0.0001   -0.0024    1.0000   [] / []
+  ==> detect: Holm-WIN worlds 0 [] | Holm-LOSS worlds 0 []
+  full                   traps(main)        stat     -0.0010   -0.0010   +0.0006    1.0000   [] / []
+  full                   correct-keywords   stat     -0.0001   +0.0009   +0.0026    0.7478   [] / []
+  full                   many-topics(16)    stat     +0.0001   -0.0003   -0.0004    1.0000   [] / []
+  full                   drift-abrupt       drift    -0.0010   -0.0016   +0.0016    1.0000   [] / []
+  full                   drift-gradual      drift    -0.0010   -0.0016   +0.0019    1.0000   [] / []
+  full                   drift-recurrent    drift    -0.0010   -0.0009   -0.0038    1.0000   [] / []
+  full                   sim-fixed          sim      +0.0010   +0.0010   -0.0034    1.0000   [] / []
+  full                   sim-random         sim      +0.0009   +0.0025   +0.0023    1.0000   [] / []
+  full                   sim-notraps        sim      +0.0001   -0.0001   -0.0024    1.0000   [] / []
+  ==> full: Holm-WIN worlds 0 [] | Holm-LOSS worlds 0 []
+
+### diagnostics (seed 31, NORMAL mode): [kw followed, challenger, inner, explorations, drift alarms]
+  traps(main)        rt       Some([1412, 222, 366, 0, 0])
+  traps(main)        expl     Some([1395, 202, 382, 21, 0])
+  traps(main)        ts       Some([1406, 423, 171, 0, 0])
+  traps(main)        detect   Some([1256, 332, 412, 0, 18])
+  traps(main)        full     Some([1256, 332, 412, 0, 18])
+  correct-keywords   rt       Some([1956, 17, 27, 0, 0])
+  correct-keywords   expl     Some([1930, 22, 27, 21, 0])
+  correct-keywords   ts       Some([1953, 20, 27, 0, 0])
+  correct-keywords   detect   Some([1749, 25, 226, 0, 20])
+  correct-keywords   full     Some([1749, 25, 226, 0, 20])
+  many-topics(16)    rt       Some([1575, 143, 282, 0, 0])
+  many-topics(16)    expl     Some([1524, 162, 282, 32, 0])
+  many-topics(16)    ts       Some([1541, 326, 133, 0, 0])
+  many-topics(16)    detect   Some([1537, 144, 319, 0, 16])
+  many-topics(16)    full     Some([1537, 144, 319, 0, 16])
+  drift-abrupt       rt       Some([1337, 299, 364, 0, 0])
+  drift-abrupt       expl     Some([1326, 292, 362, 20, 0])
+  drift-abrupt       ts       Some([1350, 480, 170, 0, 0])
+  drift-abrupt       detect   Some([915, 456, 629, 0, 42])
+  drift-abrupt       full     Some([915, 456, 629, 0, 42])
+  drift-gradual      rt       Some([1338, 267, 395, 0, 0])
+  drift-gradual      expl     Some([1329, 273, 377, 21, 0])
+  drift-gradual      ts       Some([1344, 470, 186, 0, 0])
+  drift-gradual      detect   Some([908, 316, 776, 0, 41])
+  drift-gradual      full     Some([908, 316, 776, 0, 41])
+  drift-recurrent    rt       Some([1415, 233, 352, 0, 0])
+  drift-recurrent    expl     Some([1320, 236, 425, 19, 0])
+  drift-recurrent    ts       Some([1323, 522, 155, 0, 0])
+  drift-recurrent    detect   Some([856, 287, 857, 0, 62])
+  drift-recurrent    full     Some([856, 287, 857, 0, 62])
+  sim-fixed          rt       Some([1550, 230, 220, 0, 0])
+  sim-fixed          expl     Some([1531, 252, 201, 16, 0])
+  sim-fixed          ts       Some([1543, 442, 15, 0, 0])
+  sim-fixed          detect   Some([1335, 241, 424, 0, 46])
+  sim-fixed          full     Some([1335, 241, 424, 0, 46])
+  sim-random         rt       Some([1312, 287, 401, 0, 0])
+  sim-random         expl     Some([1307, 273, 408, 12, 0])
+  sim-random         ts       Some([1299, 640, 61, 0, 0])
+  sim-random         detect   Some([1126, 361, 513, 0, 44])
+  sim-random         full     Some([1126, 361, 513, 0, 44])
+  sim-notraps        rt       Some([1881, 119, 0, 0, 0])
+  sim-notraps        expl     Some([1878, 102, 0, 20, 0])
+  sim-notraps        ts       Some([1830, 170, 0, 0, 0])
+  sim-notraps        detect   Some([1598, 38, 364, 0, 50])
+  sim-notraps        full     Some([1598, 38, 364, 0, 50])
+
+wrote results/g19b_r2_main.json

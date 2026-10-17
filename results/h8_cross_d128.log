@@ -1,0 +1,26 @@
+h8_vectors mode=cross rayon=2 free=5.69GB
+[cross d128] n=1000: flat avx2 p50 11us; hnsw [Some(36.166666666666664), Some(38.96666666666666)]
+[cross d128] n=2000: flat avx2 p50 21us; hnsw [Some(52.199999999999996), Some(54.03333333333333)]
+[cross d128] n=5000: flat avx2 p50 47us; hnsw [Some(97.0), Some(91.76666666666667)]
+[cross d128] n=10000: flat avx2 p50 91us; hnsw [Some(109.10000000000001), Some(95.59999999999998)]
+[cross d128] n=20000: flat avx2 p50 212us; hnsw [Some(96.06666666666666), Some(95.33333333333333)]
+[cross d128] n=30000: flat avx2 p50 539us; hnsw [Some(100.23333333333333), Some(102.0)]
+ setting number of points 50000 
+ setting number of points 50000 
+[cross d128] n=50000: flat avx2 p50 972us; hnsw [Some(142.96666666666667), Some(138.6)]
+ setting number of points 100000 
+ setting number of points 100000 
+[cross d128] n=100000: flat avx2 p50 1859us; hnsw [Some(303.5), Some(241.9)]
+
+#### flat vs HNSW crossover (dim 128, synthetic, 1 thread, p50 us; HNSW = smallest ef reaching recall target)
+| N | flat avx2 | flat lib | flat bfp16 | int8+rr10 | tv4+rr4 | M16/efc200 r>=.95 (ef) | M16/efc200 r>=.99 (ef) | M32/efc100 r>=.95 (ef) | M32/efc100 r>=.99 (ef) |
+|---|---|---|---|---|---|---|---|---|---||
+| 1000 | 11 | 17 | 11 | 26 | 31 | 36 (10) | 37 (10) | 39 (10) | 40 (10) |
+| 2000 | 21 | 30 | 20 | 38 | 41 | 52 (10) | 51 (10) | 54 (10) | 54 (10) |
+| 5000 | 47 | 75 | 50 | 74 | 64 | 97 (10) | 124 (16) | 92 (10) | 142 (16) |
+| 10000 | 91 | 151 | 97 | 122 | 98 | 109 (10) | 108 (10) | 96 (10) | 92 (10) |
+| 20000 | 212 | 345 | 196 | 215 | 155 | 96 (10) | 104 (10) | 95 (10) | 85 (10) |
+| 30000 | 539 | 667 | 422 | 315 | 229 | 100 (10) | 129 (16) | 102 (10) | 117 (16) |
+| 50000 | 972 | 1262 | 586 | 496 | 162 | 143 (16) | 176 (24) | 139 (16) | 176 (24) |
+| 100000 | 1859 | 2046 | 1264 | 860 | 306 | 304 (48) | 513 (96) | 242 (32) | 395 (64) |
+wrote results/h8_cross_d128.json

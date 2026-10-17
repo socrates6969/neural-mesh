@@ -1,0 +1,438 @@
+{
+  "dim": 384,
+  "hnsw_recall": 0.9690000000000002,
+  "machine_end": {
+    "avx2": true,
+    "calib_ms_fixed_scan": 2.0547999999999997,
+    "f16c": true,
+    "free_ram_gb": 5.680206298828125,
+    "proc_peak_ws_mb": 693.6171875,
+    "proc_ws_mb": 358.91796875,
+    "rayon_threads": 2,
+    "tag": "end"
+  },
+  "machine_start": {
+    "avx2": true,
+    "calib_ms_fixed_scan": 1.5544,
+    "f16c": true,
+    "free_ram_gb": 6.219154357910156,
+    "proc_peak_ws_mb": 359.01953125,
+    "proc_ws_mb": 183.2421875,
+    "rayon_threads": 2,
+    "tag": "start"
+  },
+  "mode": "conc",
+  "n": 100000,
+  "reps": 3,
+  "results": [
+    {
+      "index": "hnsw M32 efc100 ef32 (fixed crate)",
+      "reps": [
+        {
+          "p50_us": 214.79999999999998,
+          "p99_us": 498.70000000000005,
+          "qps": 4255.206729690048,
+          "queries": 17025,
+          "threads": 1,
+          "writer_ops": 0,
+          "writer_ops_per_s": 0.0
+        },
+        {
+          "p50_us": 188.8,
+          "p99_us": 427.7,
+          "qps": 4888.0604168766895,
+          "queries": 19555,
+          "threads": 1,
+          "writer_ops": 0,
+          "writer_ops_per_s": 0.0
+        },
+        {
+          "p50_us": 191.6,
+          "p99_us": 439.0,
+          "qps": 4828.268018145089,
+          "queries": 19315,
+          "threads": 1,
+          "writer_ops": 0,
+          "writer_ops_per_s": 0.0
+        }
+      ],
+      "scenario": "read-only, shared Arc, no lock",
+      "threads": 1
+    },
+    {
+      "index": "hnsw M32 efc100 ef32 (fixed crate)",
+      "reps": [
+        {
+          "p50_us": 214.7,
+          "p99_us": 472.6,
+          "qps": 8614.036237490553,
+          "queries": 34463,
+          "threads": 2,
+          "writer_ops": 0,
+          "writer_ops_per_s": 0.0
+        },
+        {
+          "p50_us": 213.0,
+          "p99_us": 463.59999999999997,
+          "qps": 8712.341561580935,
+          "queries": 34857,
+          "threads": 2,
+          "writer_ops": 0,
+          "writer_ops_per_s": 0.0
+        },
+        {
+          "p50_us": 185.60000000000002,
+          "p99_us": 389.2,
+          "qps": 10123.546563402275,
+          "queries": 40499,
+          "threads": 2,
+          "writer_ops": 0,
+          "writer_ops_per_s": 0.0
+        }
+      ],
+      "scenario": "read-only, shared Arc, no lock",
+      "threads": 2
+    },
+    {
+      "index": "hnsw M32 efc100 ef32 (fixed crate)",
+      "reps": [
+        {
+          "p50_us": 218.9,
+          "p99_us": 465.29999999999995,
+          "qps": 16904.915505416557,
+          "queries": 67633,
+          "threads": 4,
+          "writer_ops": 0,
+          "writer_ops_per_s": 0.0
+        },
+        {
+          "p50_us": 198.2,
+          "p99_us": 433.79999999999995,
+          "qps": 18680.50890927153,
+          "queries": 74738,
+          "threads": 4,
+          "writer_ops": 0,
+          "writer_ops_per_s": 0.0
+        },
+        {
+          "p50_us": 192.8,
+          "p99_us": 413.40000000000003,
+          "qps": 19460.892726896913,
+          "queries": 77854,
+          "threads": 4,
+          "writer_ops": 0,
+          "writer_ops_per_s": 0.0
+        }
+      ],
+      "scenario": "read-only, shared Arc, no lock",
+      "threads": 4
+    },
+    {
+      "index": "hnsw M32 efc100 ef32 (fixed crate)",
+      "reps": [
+        {
+          "p50_us": 217.2,
+          "p99_us": 494.2,
+          "qps": 4228.490995396429,
+          "queries": 16916,
+          "threads": 1,
+          "writer_ops": 7820,
+          "writer_ops_per_s": 1954.7646951998152
+        },
+        {
+          "p50_us": 180.6,
+          "p99_us": 411.20000000000005,
+          "qps": 5109.194823539068,
+          "queries": 20441,
+          "threads": 1,
+          "writer_ops": 9734,
+          "writer_ops_per_s": 2432.9975251861106
+        },
+        {
+          "p50_us": 185.2,
+          "p99_us": 426.3,
+          "qps": 4979.133755204938,
+          "queries": 19920,
+          "threads": 1,
+          "writer_ops": 9422,
+          "writer_ops_per_s": 2355.090273169725
+        }
+      ],
+      "scenario": "readers + 1 concurrent insert thread (insert_slice on &self, no external lock)",
+      "threads": 1
+    },
+    {
+      "index": "hnsw M32 efc100 ef32 (fixed crate)",
+      "reps": [
+        {
+          "p50_us": 203.0,
+          "p99_us": 467.1,
+          "qps": 9057.345658555641,
+          "queries": 36235,
+          "threads": 2,
+          "writer_ops": 8763,
+          "writer_ops_per_s": 2190.410376871066
+        },
+        {
+          "p50_us": 187.70000000000002,
+          "p99_us": 402.7,
+          "qps": 9955.979865868612,
+          "queries": 39829,
+          "threads": 2,
+          "writer_ops": 9283,
+          "writer_ops_per_s": 2320.4539680850216
+        },
+        {
+          "p50_us": 183.1,
+          "p99_us": 393.7,
+          "qps": 10230.257145907977,
+          "queries": 40929,
+          "threads": 2,
+          "writer_ops": 9685,
+          "writer_ops_per_s": 2420.778432361376
+        }
+      ],
+      "scenario": "readers + 1 concurrent insert thread (insert_slice on &self, no external lock)",
+      "threads": 2
+    },
+    {
+      "index": "flat int8 + rerank4x (RAM f32)",
+      "reps": [
+        {
+          "p50_us": 1164.6,
+          "p99_us": 2134.9,
+          "qps": 786.226511108111,
+          "queries": 3146,
+          "threads": 1,
+          "writer_ops": 0,
+          "writer_ops_per_s": 0.0
+        },
+        {
+          "p50_us": 1213.0,
+          "p99_us": 2376.0,
+          "qps": 719.432853096083,
+          "queries": 2880,
+          "threads": 1,
+          "writer_ops": 0,
+          "writer_ops_per_s": 0.0
+        },
+        {
+          "p50_us": 1207.0,
+          "p99_us": 2309.9,
+          "qps": 738.0067714183098,
+          "queries": 2953,
+          "threads": 1,
+          "writer_ops": 0,
+          "writer_ops_per_s": 0.0
+        }
+      ],
+      "scenario": "read-only",
+      "threads": 1
+    },
+    {
+      "index": "flat int8 + rerank4x (RAM f32)",
+      "reps": [
+        {
+          "p50_us": 1307.7,
+          "p99_us": 2364.6,
+          "qps": 1363.8675746056554,
+          "queries": 5458,
+          "threads": 2,
+          "writer_ops": 0,
+          "writer_ops_per_s": 0.0
+        },
+        {
+          "p50_us": 1333.3,
+          "p99_us": 2464.5,
+          "qps": 1323.6453623163015,
+          "queries": 5296,
+          "threads": 2,
+          "writer_ops": 0,
+          "writer_ops_per_s": 0.0
+        },
+        {
+          "p50_us": 2003.2,
+          "p99_us": 2769.4,
+          "qps": 1073.2994842591113,
+          "queries": 4296,
+          "threads": 2,
+          "writer_ops": 0,
+          "writer_ops_per_s": 0.0
+        }
+      ],
+      "scenario": "read-only",
+      "threads": 2
+    },
+    {
+      "index": "flat int8 + rerank4x (RAM f32)",
+      "reps": [
+        {
+          "p50_us": 2488.5,
+          "p99_us": 4067.1,
+          "qps": 1540.2948976384757,
+          "queries": 6176,
+          "threads": 4,
+          "writer_ops": 0,
+          "writer_ops_per_s": 0.0
+        },
+        {
+          "p50_us": 2485.0,
+          "p99_us": 7188.400000000001,
+          "qps": 1483.0218326312556,
+          "queries": 5944,
+          "threads": 4,
+          "writer_ops": 0,
+          "writer_ops_per_s": 0.0
+        },
+        {
+          "p50_us": 2535.7000000000003,
+          "p99_us": 3760.0,
+          "qps": 1541.2189759829785,
+          "queries": 6178,
+          "threads": 4,
+          "writer_ops": 0,
+          "writer_ops_per_s": 0.0
+        }
+      ],
+      "scenario": "read-only",
+      "threads": 4
+    },
+    {
+      "index": "turbovec-4bit + rerank4x (RAM f32), RwLock, per-reader 1-thread rayon pool",
+      "reps": [
+        {
+          "p50_us": 957.4,
+          "p99_us": 1600.6,
+          "qps": 1008.2178595198687,
+          "queries": 4049,
+          "threads": 1,
+          "writer_ops": 0,
+          "writer_ops_per_s": 0.0
+        },
+        {
+          "p50_us": 1112.3000000000002,
+          "p99_us": 2340.3,
+          "qps": 861.7619598026536,
+          "queries": 3448,
+          "threads": 1,
+          "writer_ops": 0,
+          "writer_ops_per_s": 0.0
+        },
+        {
+          "p50_us": 996.7000000000002,
+          "p99_us": 1490.0,
+          "qps": 974.0365885834414,
+          "queries": 3897,
+          "threads": 1,
+          "writer_ops": 0,
+          "writer_ops_per_s": 0.0
+        }
+      ],
+      "scenario": "read-only",
+      "threads": 1
+    },
+    {
+      "index": "turbovec-4bit + rerank4x (RAM f32), RwLock, per-reader 1-thread rayon pool",
+      "reps": [
+        {
+          "p50_us": 1050.3000000000002,
+          "p99_us": 2622.4,
+          "qps": 1725.1613318245484,
+          "queries": 6903,
+          "threads": 2,
+          "writer_ops": 0,
+          "writer_ops_per_s": 0.0
+        },
+        {
+          "p50_us": 1017.9,
+          "p99_us": 2212.2999999999997,
+          "qps": 1820.2862262795513,
+          "queries": 7292,
+          "threads": 2,
+          "writer_ops": 0,
+          "writer_ops_per_s": 0.0
+        },
+        {
+          "p50_us": 1048.2,
+          "p99_us": 2201.9,
+          "qps": 1794.594383948772,
+          "queries": 7184,
+          "threads": 2,
+          "writer_ops": 0,
+          "writer_ops_per_s": 0.0
+        }
+      ],
+      "scenario": "read-only",
+      "threads": 2
+    },
+    {
+      "index": "turbovec-4bit + rerank4x (RAM f32), RwLock, per-reader 1-thread rayon pool",
+      "reps": [
+        {
+          "p50_us": 1048.8999999999999,
+          "p99_us": 3081.2000000000003,
+          "qps": 3046.408851092564,
+          "queries": 12199,
+          "threads": 4,
+          "writer_ops": 0,
+          "writer_ops_per_s": 0.0
+        },
+        {
+          "p50_us": 1022.6,
+          "p99_us": 5114.099999999999,
+          "qps": 2961.1665548344913,
+          "queries": 11862,
+          "threads": 4,
+          "writer_ops": 0,
+          "writer_ops_per_s": 0.0
+        },
+        {
+          "p50_us": 1009.2,
+          "p99_us": 3809.2999999999997,
+          "qps": 3145.550402922731,
+          "queries": 12624,
+          "threads": 4,
+          "writer_ops": 0,
+          "writer_ops_per_s": 0.0
+        }
+      ],
+      "scenario": "read-only",
+      "threads": 4
+    },
+    {
+      "index": "turbovec-4bit + rerank4x, RwLock",
+      "reps": [
+        {
+          "p50_us": 1010.4999999999999,
+          "p99_us": 2507.0,
+          "qps": 1809.6463448958075,
+          "queries": 7259,
+          "threads": 2,
+          "writer_ops": 4864,
+          "writer_ops_per_s": 1212.5802206327603
+        },
+        {
+          "p50_us": 1172.0,
+          "p99_us": 7158.099999999999,
+          "qps": 1350.0715161990652,
+          "queries": 5459,
+          "threads": 2,
+          "writer_ops": 4544,
+          "writer_ops_per_s": 1123.7818226064394
+        },
+        {
+          "p50_us": 1283.3,
+          "p99_us": 2765.6,
+          "qps": 1512.4243413466866,
+          "queries": 6060,
+          "threads": 2,
+          "writer_ops": 4736,
+          "writer_ops_per_s": 1181.9870760095557
+        }
+      ],
+      "scenario": "2 readers + writer adding 64 vecs/50ms (new vectors not in rerank store: skipped by rerank filter only for the file variant; RAM variant would index OOB so ids >= n are filtered by rerank_f32 callers: see note)",
+      "threads": 2
+    }
+  ],
+  "window_s": 4
+}

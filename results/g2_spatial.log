@@ -1,0 +1,139 @@
+G2 spatial: 2D/3D/4D correctness + speed (quick=false)
+CORRECTNESS: 15179522 exact comparisons, 0 mismatches (43.3s)
+  2D: kd knn 0/504000 grid knn 0/504000 | boxtree knn 0/252000 overlap tree 0/8400 sweep 0/8400 | gridN A* 0/800 spacetime A* 0/800 (reachable 649/800)
+  3D: kd knn 0/504000 grid knn 0/504000 | boxtree knn 0/252000 overlap tree 0/8400 sweep 0/8400 | gridN A* 0/800 spacetime A* 0/800 (reachable 750/800)
+  4D: kd knn 0/504000 grid knn 0/504000 | boxtree knn 0/252000 overlap tree 0/8400 sweep 0/8400 | gridN A* 0/800 spacetime A* 0/800 (reachable 739/800)
+points D=2 n=1000 uniform (build kd 0.000s grid 0.000s; mismatches in sample 0)
+    nearest     kd     2850424 q/s (     3.7x)  grid     3441452 q/s (     4.5x)  brute     769882 q/s
+    knn10       kd      868508 q/s (    47.0x)  grid     1113741 q/s (    60.3x)  brute      18468 q/s
+                  -> vs a fair heap-based brute force (354641 q/s): kd 2.4x, grid 3.1x
+    range_~50   kd      656761 q/s (     2.7x)  grid      859162 q/s (     3.5x)  brute     247396 q/s
+    radius_~50  kd      397500 q/s (     0.7x)  grid      492890 q/s (     0.9x)  brute     532028 q/s
+boxes  D=2 n=1000 (build 0.000s, mismatches in sample 0)
+    nearest_box                tree     2708559 q/s (    17.6x)  brute     154076 q/s
+    knn10_boxes                tree      866664 q/s (    49.6x)  brute      17467 q/s
+                                 -> vs a fair heap-based brute force (118947 q/s): tree 7.3x
+    boxes_intersecting_query   tree      722100 q/s (     3.3x)  brute     216111 q/s
+points D=3 n=1000 uniform (build kd 0.000s grid 0.000s; mismatches in sample 0)
+    nearest     kd     1788349 q/s (     2.8x)  grid     1711010 q/s (     2.6x)  brute     647186 q/s
+    knn10       kd      506086 q/s (    26.6x)  grid      564756 q/s (    29.7x)  brute      19036 q/s
+                  -> vs a fair heap-based brute force (296943 q/s): kd 1.7x, grid 1.9x
+    range_~50   kd      455026 q/s (     2.6x)  grid      636983 q/s (     3.6x)  brute     176090 q/s
+    radius_~50  kd      236525 q/s (     0.6x)  grid      312415 q/s (     0.8x)  brute     415749 q/s
+boxes  D=3 n=1000 (build 0.000s, mismatches in sample 0)
+    nearest_box                tree     1326304 q/s (    15.4x)  brute      86111 q/s
+    knn10_boxes                tree      399257 q/s (    25.7x)  brute      15522 q/s
+                                 -> vs a fair heap-based brute force (74077 q/s): tree 5.4x
+    boxes_intersecting_query   tree      307182 q/s (     2.1x)  brute     146089 q/s
+points D=4 n=1000 uniform (build kd 0.000s grid 0.000s; mismatches in sample 0)
+    nearest     kd     1045014 q/s (     2.4x)  grid      722009 q/s (     1.7x)  brute     433868 q/s
+    knn10       kd      282578 q/s (    16.1x)  grid      243064 q/s (    13.8x)  brute      17561 q/s
+                  -> vs a fair heap-based brute force (252334 q/s): kd 1.1x, grid 1.0x
+    range_~50   kd      391363 q/s (     2.5x)  grid      534202 q/s (     3.4x)  brute     155288 q/s
+    radius_~50  kd      180034 q/s (     0.5x)  grid      231547 q/s (     0.7x)  brute     353014 q/s
+boxes  D=4 n=1000 (build 0.000s, mismatches in sample 0)
+    nearest_box                tree      712352 q/s (    11.8x)  brute      60205 q/s
+    knn10_boxes                tree      214687 q/s (    16.4x)  brute      13086 q/s
+                                 -> vs a fair heap-based brute force (52864 q/s): tree 4.1x
+    boxes_intersecting_query   tree      209330 q/s (     1.5x)  brute     136053 q/s
+points D=2 n=10000 uniform (build kd 0.001s grid 0.000s; mismatches in sample 0)
+    nearest     kd     2482930 q/s (    30.6x)  grid     3314002 q/s (    40.8x)  brute      81146 q/s
+    knn10       kd      773246 q/s (   564.3x)  grid     1086366 q/s (   792.9x)  brute       1370 q/s
+                  -> vs a fair heap-based brute force (60078 q/s): kd 12.9x, grid 18.1x
+    range_~50   kd      506586 q/s (    19.1x)  grid      696258 q/s (    26.3x)  brute      26456 q/s
+    radius_~50  kd      341093 q/s (     4.3x)  grid      388010 q/s (     4.9x)  brute      79370 q/s
+boxes  D=2 n=10000 (build 0.001s, mismatches in sample 0)
+    nearest_box                tree     2191781 q/s (   155.7x)  brute      14073 q/s
+    knn10_boxes                tree      511574 q/s (   413.3x)  brute       1238 q/s
+                                 -> vs a fair heap-based brute force (13678 q/s): tree 37.4x
+    boxes_intersecting_query   tree      564414 q/s (    19.7x)  brute      28721 q/s
+points D=3 n=10000 uniform (build kd 0.001s grid 0.001s; mismatches in sample 0)
+    nearest     kd     1453488 q/s (    27.2x)  grid     1291572 q/s (    24.1x)  brute      53527 q/s
+    knn10       kd      361500 q/s (   277.5x)  grid      417101 q/s (   320.1x)  brute       1303 q/s
+                  -> vs a fair heap-based brute force (51604 q/s): kd 7.0x, grid 8.1x
+    range_~50   kd      301659 q/s (    14.9x)  grid      377465 q/s (    18.7x)  brute      20184 q/s
+    radius_~50  kd      159331 q/s (     2.6x)  grid      242615 q/s (     3.9x)  brute      61652 q/s
+boxes  D=3 n=10000 (build 0.002s, mismatches in sample 0)
+    nearest_box                tree      884369 q/s (    97.9x)  brute       9029 q/s
+    knn10_boxes                tree      219708 q/s (   196.2x)  brute       1120 q/s
+                                 -> vs a fair heap-based brute force (7209 q/s): tree 30.5x
+    boxes_intersecting_query   tree      156079 q/s (    11.9x)  brute      13139 q/s
+points D=4 n=10000 uniform (build kd 0.001s grid 0.001s; mismatches in sample 0)
+    nearest     kd      682710 q/s (    12.4x)  grid      544959 q/s (     9.9x)  brute      55147 q/s
+    knn10       kd      197297 q/s (   146.8x)  grid      176608 q/s (   131.4x)  brute       1344 q/s
+                  -> vs a fair heap-based brute force (41280 q/s): kd 4.8x, grid 4.3x
+    range_~50   kd      228663 q/s (    12.0x)  grid      365397 q/s (    19.2x)  brute      18984 q/s
+    radius_~50  kd      128750 q/s (     2.4x)  grid      171431 q/s (     3.2x)  brute      54168 q/s
+boxes  D=4 n=10000 (build 0.002s, mismatches in sample 0)
+    nearest_box                tree      473261 q/s (    70.4x)  brute       6720 q/s
+    knn10_boxes                tree      129517 q/s (   110.5x)  brute       1172 q/s
+                                 -> vs a fair heap-based brute force (6494 q/s): tree 19.9x
+    boxes_intersecting_query   tree       73917 q/s (     5.4x)  brute      13652 q/s
+points D=2 n=100000 uniform (build kd 0.011s grid 0.005s; mismatches in sample 0)
+    nearest     kd      897666 q/s (   127.0x)  grid     1241465 q/s (   175.7x)  brute       7066 q/s
+    knn10       kd      293126 q/s (  2819.9x)  grid      236323 q/s (  2273.5x)  brute        104 q/s
+                  -> vs a fair heap-based brute force (6579 q/s): kd 44.6x, grid 35.9x
+    range_~50   kd      220629 q/s (    76.5x)  grid      283688 q/s (    98.3x)  brute       2885 q/s
+    radius_~50  kd      131796 q/s (    14.3x)  grid      161407 q/s (    17.5x)  brute       9245 q/s
+boxes  D=2 n=100000 (build 0.022s, mismatches in sample 0)
+    nearest_box                tree     2127660 q/s (  1445.3x)  brute       1472 q/s
+    knn10_boxes                tree      382482 q/s (  3768.9x)  brute        101 q/s
+                                 -> vs a fair heap-based brute force (1462 q/s): tree 261.6x
+    boxes_intersecting_query   tree      278901 q/s (    84.6x)  brute       3296 q/s
+points D=3 n=100000 uniform (build kd 0.010s grid 0.005s; mismatches in sample 0)
+    nearest     kd     1043841 q/s (   159.9x)  grid      781250 q/s (   119.7x)  brute       6529 q/s
+    knn10       kd      316206 q/s (  2936.2x)  grid      287026 q/s (  2665.3x)  brute        108 q/s
+                  -> vs a fair heap-based brute force (6995 q/s): kd 45.2x, grid 41.0x
+    range_~50   kd      170765 q/s (    61.5x)  grid      288517 q/s (   103.9x)  brute       2776 q/s
+    radius_~50  kd      104085 q/s (    14.0x)  grid      120780 q/s (    16.2x)  brute       7435 q/s
+boxes  D=3 n=100000 (build 0.031s, mismatches in sample 0)
+    nearest_box                tree      951022 q/s (   885.4x)  brute       1074 q/s
+    knn10_boxes                tree      235988 q/s (  2318.0x)  brute        102 q/s
+                                 -> vs a fair heap-based brute force (1032 q/s): tree 228.6x
+    boxes_intersecting_query   tree       90355 q/s (    33.6x)  brute       2688 q/s
+points D=4 n=100000 uniform (build kd 0.010s grid 0.006s; mismatches in sample 0)
+    nearest     kd      385208 q/s (    62.8x)  grid      198511 q/s (    32.4x)  brute       6136 q/s
+    knn10       kd      113045 q/s (  1044.4x)  grid       60335 q/s (   557.4x)  brute        108 q/s
+                  -> vs a fair heap-based brute force (5640 q/s): kd 20.0x, grid 10.7x
+    range_~50   kd      120489 q/s (    49.3x)  grid      106849 q/s (    43.7x)  brute       2443 q/s
+    radius_~50  kd       75737 q/s (    12.9x)  grid       96404 q/s (    16.4x)  brute       5885 q/s
+boxes  D=4 n=100000 (build 0.023s, mismatches in sample 0)
+    nearest_box                tree      302847 q/s (   398.0x)  brute        761 q/s
+    knn10_boxes                tree       91882 q/s (   979.1x)  brute         94 q/s
+                                 -> vs a fair heap-based brute force (749 q/s): tree 122.7x
+    boxes_intersecting_query   tree       22310 q/s (    11.9x)  brute       1877 q/s
+points D=3 n=100000 CLUSTERED (build kd 0.010s grid 0.002s; mismatches in sample 0)
+    nearest     kd       23215 q/s (     3.4x)  grid       33278 q/s (     4.8x)  brute       6913 q/s
+    knn10       kd       19477 q/s (   179.4x)  grid       29691 q/s (   273.4x)  brute        109 q/s
+                  -> vs a fair heap-based brute force (6307 q/s): kd 3.1x, grid 4.7x
+    range_~50   kd      324097 q/s (   111.8x)  grid      662471 q/s (   228.5x)  brute       2899 q/s
+    radius_~50  kd      124844 q/s (    17.5x)  grid      282885 q/s (    39.6x)  brute       7138 q/s
+points D=4 n=100000 CLUSTERED (build kd 0.010s grid 0.002s; mismatches in sample 0)
+    nearest     kd        9811 q/s (     1.6x)  grid       17601 q/s (     2.9x)  brute       6066 q/s
+    knn10       kd        8218 q/s (    78.7x)  grid       15495 q/s (   148.4x)  brute        104 q/s
+                  -> vs a fair heap-based brute force (5297 q/s): kd 1.6x, grid 2.9x
+    range_~50   kd      285755 q/s (    98.0x)  grid      501882 q/s (   172.1x)  brute       2917 q/s
+    radius_~50  kd       85815 q/s (    14.9x)  grid      189394 q/s (    33.0x)  brute       5745 q/s
+overlap D=2 n=   500: pairs 980  brute      0.34 ms  sweep     0.10 ms (   3.5x)  tree     0.13 ms (   2.5x)  identical=true
+overlap D=3 n=   500: pairs 800  brute      0.54 ms  sweep     0.19 ms (   2.8x)  tree     0.20 ms (   2.7x)  identical=true
+overlap D=4 n=   500: pairs 632  brute      0.65 ms  sweep     0.26 ms (   2.5x)  tree     0.33 ms (   2.0x)  identical=true
+overlap D=2 n=  2000: pairs 3562  brute      4.66 ms  sweep     0.55 ms (   8.5x)  tree     0.89 ms (   5.2x)  identical=true
+overlap D=3 n=  2000: pairs 3323  brute      7.72 ms  sweep     1.51 ms (   5.1x)  tree     1.48 ms (   5.2x)  identical=true
+overlap D=4 n=  2000: pairs 2989  brute      9.94 ms  sweep     2.43 ms (   4.1x)  tree     1.91 ms (   5.2x)  identical=true
+overlap D=2 n=  8000: pairs 16003  brute     83.40 ms  sweep     3.47 ms (  24.1x)  tree     4.83 ms (  17.3x)  identical=true
+overlap D=3 n=  8000: pairs 15054  brute    116.84 ms  sweep    13.56 ms (   8.6x)  tree     8.30 ms (  14.1x)  identical=true
+overlap D=4 n=  8000: pairs 13239  brute    141.21 ms  sweep    26.69 ms (   5.3x)  tree    10.70 ms (  13.2x)  identical=true
+overlap D=2 n= 20000: pairs 39588  brute    563.86 ms  sweep    12.59 ms (  44.8x)  tree    13.40 ms (  42.1x)  identical=true
+overlap D=3 n= 20000: pairs 37500  brute    674.47 ms  sweep    57.81 ms (  11.7x)  tree    21.10 ms (  32.0x)  identical=true
+overlap D=4 n= 20000: pairs 33898  brute    863.29 ms  sweep   126.20 ms (   6.8x)  tree    36.61 ms (  23.6x)  identical=true
+path GridN A* vs BFS 400x400: {"astar_expanded_mean":15415.5,"astar_ms":2.4510166666666664,"bfs_ms":6.356541666666666,"cells":160000,"dim":2,"grid_cells":160000,"kind":"GridN A* vs BFS","label":"400x400","mismatches":0,"obstacle_density":0.2,"reachable":12,"speedup":2.593430617226865,"trials":12}
+path GridN A* vs BFS 64^3: {"astar_expanded_mean":6739.166666666667,"astar_ms":1.898208333333334,"bfs_ms":10.301741666666667,"cells":262144,"dim":3,"grid_cells":262144,"kind":"GridN A* vs BFS","label":"64^3","mismatches":0,"obstacle_density":0.2,"reachable":12,"speedup":5.42708694602366,"trials":12}
+path GridN A* vs BFS 64^3 open: {"astar_expanded_mean":11962.333333333334,"astar_ms":2.8557833333333336,"bfs_ms":11.332616666666667,"cells":262144,"dim":3,"grid_cells":262144,"kind":"GridN A* vs BFS","label":"64^3 open","mismatches":0,"obstacle_density":0.0,"reachable":12,"speedup":3.9683040846936333,"trials":12}
+path GridN A* vs BFS 20^4: {"astar_expanded_mean":2257.8333333333335,"astar_ms":0.9768,"bfs_ms":10.058883333333334,"cells":160000,"dim":4,"grid_cells":160000,"kind":"GridN A* vs BFS","label":"20^4","mismatches":0,"obstacle_density":0.2,"reachable":12,"speedup":10.29779211029211,"trials":12}
+path GridN A* vs BFS 20^4 open: {"astar_expanded_mean":4057.3333333333335,"astar_ms":1.4259583333333332,"bfs_ms":11.775133333333335,"cells":160000,"dim":4,"grid_cells":160000,"kind":"GridN A* vs BFS","label":"20^4 open","mismatches":0,"obstacle_density":0.0,"reachable":12,"speedup":8.257698039330275,"trials":12}
+path SpaceTime A* vs layered DP (x,y,t) 60x60, T=120: {"astar_expanded_mean":228.9,"astar_ms":1.18022,"astar_ms_reachable_only":1.18022,"astar_ms_unreachable_only":0.0,"dp_ms":3.5928899999999997,"dp_ms_reachable_only":3.5928899999999997,"dp_ms_unreachable_only":0.0,"dyn_density":0.05,"kind":"SpaceTime A* vs layered DP","label":"(x,y,t) 60x60, T=120","mismatches":0,"reachable":10,"spatial_dims":2,"speedup":3.0442544610326885,"speedup_reachable_only":3.0442544610326885,"states":435600,"static_density":0.1,"total_dims":3,"trials":10,"unreachable":0}
+path SpaceTime A* vs layered DP (x,y,z,t) 24^3, T=60: {"astar_expanded_mean":317.125,"astar_ms":21.746579999999998,"astar_ms_reachable_only":2.2230875,"astar_ms_unreachable_only":99.84055,"dp_ms":10.492209999999998,"dp_ms_reachable_only":10.3359125,"dp_ms_unreachable_only":11.1174,"dyn_density":0.05,"kind":"SpaceTime A* vs layered DP","label":"(x,y,z,t) 24^3, T=60","mismatches":0,"reachable":8,"spatial_dims":3,"speedup":0.4824763250129446,"speedup_reachable_only":4.649350284233076,"states":843264,"static_density":0.1,"total_dims":4,"trials":10,"unreachable":2}
+path SpaceTime A* vs layered DP (x,y,z,t) 24^3, T=60 static-only: {"astar_expanded_mean":342.0,"astar_ms":21.88226,"astar_ms_reachable_only":1.9116875,"astar_ms_unreachable_only":101.76455000000001,"dp_ms":8.33594,"dp_ms_reachable_only":8.1688875,"dp_ms_unreachable_only":9.00415,"dyn_density":0.0,"kind":"SpaceTime A* vs layered DP","label":"(x,y,z,t) 24^3, T=60 static-only","mismatches":0,"reachable":8,"spatial_dims":3,"speedup":0.38094511261633857,"speedup_reachable_only":4.273129107137019,"states":843264,"static_density":0.1,"total_dims":4,"trials":10,"unreachable":2}
+path SpaceTime A* vs layered DP (x,y,z,t) 32^3, T=90: {"astar_expanded_mean":1167.0,"astar_ms":83.63429,"astar_ms_reachable_only":5.828099999999999,"astar_ms_unreachable_only":394.85904999999997,"dp_ms":43.54704000000001,"dp_ms_reachable_only":43.7,"dp_ms_unreachable_only":42.9352,"dyn_density":0.1,"kind":"SpaceTime A* vs layered DP","label":"(x,y,z,t) 32^3, T=90","mismatches":0,"reachable":8,"spatial_dims":3,"speedup":0.5206840400032093,"speedup_reachable_only":7.4981554880664385,"states":2981888,"static_density":0.15,"total_dims":4,"trials":10,"unreachable":2}
+wrote results/g2_spatial.json
+runtime 129.3s

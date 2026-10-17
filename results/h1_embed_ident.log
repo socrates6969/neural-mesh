@@ -1,0 +1,27 @@
+h1_embed: corpus 2832 texts, dim 384; synthetic f5/f6 corpus (MiniLM table), NOT real traffic
+world | seed-count | decisions | enc calls/decision [baseline, memo4, memo4096, cached4096] | repeat-rate | bit-identical (all arms, all seeds)
+--- encoder = MINILM-table
+q                      | 30 | 60000 | [3.737, 0.987, 0.144, 0.144] | 0.856 | YES
+subj3                  | 30 | 60000 | [3.831, 0.889, 0.018, 0.018] | 0.982 | YES
+para                   | 30 | 60000 | [3.675, 0.990, 0.203, 0.203] | 0.797 | YES
+qpara                  | 30 | 60000 | [3.632, 0.994, 0.328, 0.328] | 0.672 | YES
+q-mixed50              | 30 | 60000 | [3.515, 0.996, 0.641, 0.641] | 0.359 | YES
+q-k6                   | 30 | 60000 | [3.804, 0.973, 0.072, 0.072] | 0.928 | YES
+q-then-para            | 30 | 60000 | [3.652, 0.988, 0.325, 0.325] | 0.675 | YES
+para-mixed50           | 30 | 60000 | [3.474, 0.998, 0.687, 0.687] | 0.313 | YES
+subj3-mixed50          | 30 | 60000 | [3.569, 0.973, 0.520, 0.520] | 0.480 | YES
+unique(no repeats)     | 30 | 60000 | [3.473, 1.000, 1.000, 1.000] | 0.000 | YES
+--- encoder = HASH
+q                      | 30 | 60000 | [3.616, 0.987, 0.144, 0.144] | 0.856 | YES
+subj3                  | 30 | 60000 | [3.820, 0.889, 0.018, 0.018] | 0.982 | YES
+para                   | 30 | 60000 | [3.553, 0.990, 0.203, 0.203] | 0.797 | YES
+qpara                  | 30 | 60000 | [3.490, 0.994, 0.328, 0.328] | 0.672 | YES
+q-mixed50              | 30 | 60000 | [3.505, 0.996, 0.641, 0.641] | 0.359 | YES
+q-k6                   | 30 | 60000 | [3.696, 0.973, 0.072, 0.072] | 0.928 | YES
+q-then-para            | 30 | 60000 | [3.492, 0.988, 0.325, 0.325] | 0.675 | YES
+para-mixed50           | 30 | 60000 | [3.463, 0.998, 0.687, 0.687] | 0.313 | YES
+subj3-mixed50          | 30 | 60000 | [3.619, 0.973, 0.520, 0.520] | 0.480 | YES
+unique(no repeats)     | 30 | 60000 | [3.571, 1.000, 1.000, 1.000] | 0.000 | YES
+MiniLM-table pooled over 10 worlds x 30 seeds: encoder calls/decision baseline 3.636, memo(cap4) 0.979, memo(cap4096) 0.394, cached(cap4096) 0.394
+modelled real-encoder cost @ 2.4 ms/text: baseline 8.73 ms/decision, memo4 2.35, memo4096 0.95, cached4096 0.95
+ALL ARMS BIT-IDENTICAL TO BASELINE ON ALL SEEDS/WORLDS: true

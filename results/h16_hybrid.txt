@@ -1,0 +1,34 @@
+loaded A 6831 docs, B 4181 docs (0.2s); library alpha 0.7 (h13 pick, hybz_s = z-fusion on the spell-corrected texts)
+
+== PARITY 1: doc-level levels of hybz_s vs results/h13_retrieval.json ==
+  A evals 8522 (14.3s)
+  [A tune 1-8] hybz_s: 45 levels compared, max |lib - h13| = 2.776e-17
+      h13 json: mix25 MRR 0.311798 hit1 0.221354 F1@3 0.158598
+  [A held 31-60] hybz_s: 45 levels compared, max |lib - h13| = 2.776e-17
+      h13 json: mix25 MRR 0.332169 hit1 0.227899 F1@3 0.182648
+  [A confirm 61-90] hybz_s: 45 levels compared, max |lib - h13| = 5.551e-17
+      h13 json: mix25 MRR 0.331870 hit1 0.228837 F1@3 0.182860
+  B evals 3582 (17.9s)
+  [B confirm 61-90] hybz_s: 45 levels compared, max |lib - h13| = 5.551e-17
+      h13 json: mix25 MRR 0.272579 hit1 0.184438 F1@3 0.146208
+  [A confirm 61-90 (raw flavour)] hybz_raw: 45 levels compared, max |lib - h13| = 5.551e-17
+      h13 json: mix25 MRR 0.314625 hit1 0.214670 F1@3 0.173346
+  PARITY 1 PASS: 225 levels, max |diff| 5.551e-17 (tolerance 1e-12); worst: A confirm 61-90 hybz_s clean Hit5: lib 0.45125000000000004 vs h13 0.45124999999999998
+
+== PARITY 2: top-8 lists (results/h13_top_{A,B}.bin, hybz base) ==
+  tops A: 42391 keys, 42391 identical (doc ids + dense-cosine f32 bits), 0 differ, 0 missing from the reference file (42391 reference entries)
+  tops B: 16473 keys, 16473 identical (doc ids + dense-cosine f32 bits), 0 differ, 0 missing from the reference file (16473 reference entries)
+  PARITY 2 PASS
+
+== PARITY 3: Rust SpellCorrector vs python Speller texts in the fixtures ==
+  spell A: sp1 33900/33900 identical to the python Speller texts (30163 actually corrected), sp2 33900/33900 (30160 corrected); first mismatches: []
+  spell B: sp1 12892/12892 identical to the python Speller texts (11221 actually corrected), sp2 12892/12892 (11218 corrected); first mismatches: []
+  PARITY 3 PASS
+
+== BENCH ==
+  BENCH corpus A (6831 docs, dim 384), single thread, 240 queries x3 passes:
+    dense scan+top8: mean 1580.9 us (p50 1587.2, p95 1613.2)
+    hybrid search (dense scan + BM25 + 2 z + fuse + top8): mean 1627.6 us (p50 1624.5, p95 1658.5) = +3.0% vs dense
+    BM25 scoring alone: mean 3.7 us; spell correct(): mean 2.9 us/query
+    index build 37 ms (BM25 + copy of dense); spell build 40 ms
+    bytes: dense matrix 10492416 (10.49 MB), BM25 payload 1032689 (1.03 MB, +9.8% over dense), BM25 serde_json 1626251 (1.63 MB), spell serde_json 237207 (0.24 MB), vocab 10909 terms

@@ -1,0 +1,161 @@
+# K4 SUMMARY (real text/structure; outcome/demand models SYNTHETIC where noted)
+taxonomy picks: tune pick tree|k0.50|g16|mg2|t0.08; by kind {'ts': 'ts|k2.00|cent|m2|mask|t0.08', 'tree': 'tree|k0.50|g16|mg2|t0.08'}
+
+## TAXONOMY two-stage vs flat hybrid+spell, MRR@10 (seed-paired t)   (Holm over 14 tests)
+  held|A  tree|k0.50|g16|mg2|t0.08  MRR                          d -0.0055 [-0.0077,-0.0034]  p 1.35e-05  holm 8.11e-05 *
+  held|A  ts|k2.00|cent|m2|mask|t0.08  MRR                       d -0.0060 [-0.0076,-0.0043]  p 3.56e-08  holm 3.2e-07 *
+  held|pydoc9  tree|k0.50|g16|mg2|t0.08  MRR                     d -0.0042 [-0.0063,-0.0022]  p 0.000232  holm 0.000696 *
+  held|pydoc9  ts|k2.00|cent|m2|mask|t0.08  MRR                  d -0.0055 [-0.0075,-0.0035]  p 3.79e-06  holm 2.65e-05 *
+  held|crates8  tree|k0.50|g16|mg2|t0.08  MRR                    d -0.0035 [-0.0043,-0.0027]  p 1.46e-09  holm 1.6e-08 *
+  held|crates8  ts|k2.00|cent|m2|mask|t0.08  MRR                 d +0.0000 [+0.0000,+0.0000]  p 1  holm 1 
+  confirm|A  tree|k0.50|g16|mg2|t0.08  MRR                       d -0.0049 [-0.0070,-0.0029]  p 3.47e-05  holm 0.000174 *
+  confirm|A  ts|k2.00|cent|m2|mask|t0.08  MRR                    d -0.0058 [-0.0077,-0.0039]  p 1.17e-06  holm 9.33e-06 *
+  confirm|B  tree|k0.50|g16|mg2|t0.08  MRR                       d -0.0032 [-0.0046,-0.0019]  p 4.66e-05  holm 0.000186 *
+  confirm|B  ts|k2.00|cent|m2|mask|t0.08  MRR                    d -0.0010 [-0.0022,+0.0002]  p 0.113  holm 0.226 
+  confirm|pydoc9  tree|k0.50|g16|mg2|t0.08  MRR                  d -0.0129 [-0.0158,-0.0100]  p 5.14e-10  holm 6.17e-09 *
+  confirm|pydoc9  ts|k2.00|cent|m2|mask|t0.08  MRR               d -0.0078 [-0.0097,-0.0058]  p 7.24e-09  holm 7.24e-08 *
+  confirm|crates8  tree|k0.50|g16|mg2|t0.08  MRR                 d -0.0190 [-0.0214,-0.0166]  p 4.44e-16  holm 6.22e-15 *
+  confirm|crates8  ts|k2.00|cent|m2|mask|t0.08  MRR              d -0.0097 [-0.0110,-0.0083]  p 6e-15  holm 7.79e-14 *
+  TOST +-.01 on MRR true in 11/14; TOST +-.02 on hit@8 true in 13/14; mean scan cost 0.900
+
+## TAXONOMY e2e quality under the h20 harm model (SYNTHETIC; auto clusters)   (Holm over 8 tests)
+  held|pydoc9  tree|k0.50|g16|mg2|t0.08  e2e dq (SYNTHETIC outcome model) d -0.0030 [-0.0040,-0.0020]  p 1.45e-06  holm 2.9e-06 *
+  held|pydoc9  ts|k2.00|cent|m2|mask|t0.08  e2e dq (SYNTHETIC outcome model) d -0.0036 [-0.0048,-0.0024]  p 6.68e-07  holm 2e-06 *
+  held|crates8  tree|k0.50|g16|mg2|t0.08  e2e dq (SYNTHETIC outcome model) d -0.0027 [-0.0034,-0.0020]  p 4.34e-09  holm 1.74e-08 *
+  held|crates8  ts|k2.00|cent|m2|mask|t0.08  e2e dq (SYNTHETIC outcome model) d -0.0002 [-0.0002,-0.0001]  p 4.8e-10  holm 2.4e-09 *
+  confirm|pydoc9  tree|k0.50|g16|mg2|t0.08  e2e dq (SYNTHETIC outcome model) d -0.0061 [-0.0074,-0.0047]  p 3.23e-10  holm 1.94e-09 *
+  confirm|pydoc9  ts|k2.00|cent|m2|mask|t0.08  e2e dq (SYNTHETIC outcome model) d -0.0032 [-0.0039,-0.0026]  p 6.9e-11  holm 4.83e-10 *
+  confirm|crates8  tree|k0.50|g16|mg2|t0.08  e2e dq (SYNTHETIC outcome model) d -0.0063 [-0.0070,-0.0057]  p 0  holm 0 *
+  confirm|crates8  ts|k2.00|cent|m2|mask|t0.08  e2e dq (SYNTHETIC outcome model) d -0.0014 [-0.0020,-0.0007]  p 0.000103  holm 0.000103 *
+
+links: r frozen = 1 ; tune gains by r {'1': -0.006666666666666667, '2': -0.023333333333333334, '3': -0.028333333333333335, '4': -0.04708333333333333}
+
+## LINKS non-circular expansion (union of every graph type EXCEPT the one that defined the pair) vs flat8, both-hop recall   (Holm over 8 tests)
+  A|held ADJ LE|union_nc|r1 both@8                               d -0.0217 [-0.0258,-0.0175]  p 1.63e-11  holm 8.16e-11 *
+  A|held SECNEXT LE|union_nc|r1 both@8                           d -0.0207 [-0.0242,-0.0171]  p 9.33e-13  holm 5.6e-12 *
+  A|held DEP LE|union_nc|r1 both@8                               d -0.0037 [-0.0093,+0.0019]  p 0.19  holm 0.38 
+  A|held XREF LE|union_nc|r1 both@8                              d -0.0435 [-0.0435,-0.0435]  p 0  holm 0 *
+  A|confirm ADJ LE|union_nc|r1 both@8                            d -0.0323 [-0.0366,-0.0281]  p 1.11e-15  holm 7.77e-15 *
+  A|confirm SECNEXT LE|union_nc|r1 both@8                        d -0.0147 [-0.0179,-0.0115]  p 3.06e-10  holm 1.22e-09 *
+  A|confirm DEP LE|union_nc|r1 both@8                            d +0.0073 [+0.0038,+0.0109]  p 0.000201  holm 0.000602 *
+  B|confirm ADJ LE|union_nc|r1 both@8                            d -0.0013 [-0.0037,+0.0010]  p 0.255  holm 0.38 
+
+## LINKS circular ceiling-type contrasts (graph == label structure)   (Holm over 8 tests)
+  A|held ADJ LE|adj|r1 both@8 (CIRCULAR: graph type = label type) d +0.0693 [+0.0635,+0.0751]  p 0  holm 0 *
+  A|held SECNEXT LE|adj|r1 both@8 (CIRCULAR: graph type = label type) d +0.0457 [+0.0417,+0.0497]  p 0  holm 0 *
+  A|held DEP LE|dep|r1 both@8 (CIRCULAR: graph type = label type) d +0.0137 [+0.0070,+0.0204]  p 0.000244  holm 0.000244 *
+  A|held XREF LE|xref|r1 both@8 (CIRCULAR: graph type = label type) d +0.0870 [+0.0870,+0.0870]  p 0  holm 0 *
+  A|confirm ADJ LE|adj|r1 both@8 (CIRCULAR: graph type = label type) d +0.0447 [+0.0393,+0.0500]  p 2.22e-16  holm 1.11e-15 *
+  A|confirm SECNEXT LE|adj|r1 both@8 (CIRCULAR: graph type = label type) d +0.0273 [+0.0210,+0.0337]  p 1.09e-09  holm 3.28e-09 *
+  A|confirm DEP LE|dep|r1 both@8 (CIRCULAR: graph type = label type) d +0.0130 [+0.0083,+0.0177]  p 4.35e-06  holm 8.7e-06 *
+  B|confirm ADJ LE|adj|r1 both@8 (CIRCULAR: graph type = label type) d +0.0460 [+0.0388,+0.0532]  p 1.31e-13  holm 5.22e-13 *
+  random-link control: 8 cells, mean d both@8 -0.0206, TOST+-.01 in 2
+  single-hop control: {'LE|union': (-0.0022, True, True), 'LE|shuf': (-0.0283, False, False)}
+
+## LINKS graph-based query expansion (beta=0.5) vs flat8   (Holm over 8 tests)
+  QE A|held|ADJ|union_nc                                         d -0.0213 [-0.0257,-0.0170]  p 6.36e-11  holm 5.09e-10 *
+  QE A|held|SECNEXT|union_nc                                     d +0.0053 [+0.0021,+0.0085]  p 0.002  holm 0.00802 *
+  QE A|held|DEP|union_nc                                         d +0.0157 [+0.0113,+0.0200]  p 4.1e-08  holm 2.46e-07 *
+  QE A|held|XREF|union_nc                                        d +0.0000 [+0.0000,+0.0000]  p 1  holm 1 
+  QE A|confirm|ADJ|union_nc                                      d -0.0150 [-0.0189,-0.0111]  p 1.08e-08  holm 7.55e-08 *
+  QE A|confirm|SECNEXT|union_nc                                  d +0.0140 [+0.0084,+0.0196]  p 1.85e-05  holm 9.24e-05 *
+  QE A|confirm|DEP|union_nc                                      d -0.0007 [-0.0048,+0.0035]  p 0.745  holm 1 
+  QE B|confirm|ADJ|union_nc                                      d -0.0050 [-0.0098,-0.0002]  p 0.0409  holm 0.123 
+
+## VERSIONS (tau 0.92; n queries {'NUM': 41, 'ENT': 62, 'STABLE': 1569, 'ONLYOLD': 44}; crate-cluster bootstrap, Holm inside k4_vers.txt)
+  tune|changed       n=45   correct@1 flat 0.911 key 0.867 keylist 0.978 sem 1.000 | sem-flat +0.089 [+0.000,+0.304]  keylist-flat +0.067 [-0.025,+0.304]
+  tune|STABLE        n=274  correct@1 flat 0.891 key 0.891 keylist 0.891 sem 0.891 | sem-flat +0.000 [+0.000,+0.000]  keylist-flat +0.000 [+0.000,+0.000]
+  tune|ONLYOLD       n=26   correct@1 flat 0.692 key 0.692 keylist 0.692 sem 0.615 | sem-flat -0.077 [-0.222,+0.000]  keylist-flat +0.000 [+0.000,+0.000]
+  held|changed       n=35   correct@1 flat 0.800 key 0.971 keylist 1.000 sem 1.000 | sem-flat +0.200 [+0.029,+0.440]  keylist-flat +0.200 [+0.029,+0.440]
+  held|STABLE        n=661  correct@1 flat 0.896 key 0.896 keylist 0.896 sem 0.893 | sem-flat -0.003 [-0.010,+0.000]  keylist-flat +0.000 [+0.000,+0.000]
+  held|ONLYOLD       n=14   correct@1 flat 0.786 key 0.786 keylist 0.786 sem 0.786 | sem-flat +0.000 [+0.000,+0.000]  keylist-flat +0.000 [+0.000,+0.000]
+  confirm|changed    n=23   correct@1 flat 0.826 key 0.913 keylist 0.913 sem 1.000 | sem-flat +0.174 [+0.000,+0.350]  keylist-flat +0.087 [+0.000,+0.222]
+  confirm|STABLE     n=634  correct@1 flat 0.733 key 0.733 keylist 0.733 sem 0.733 | sem-flat +0.000 [+0.000,+0.000]  keylist-flat +0.000 [+0.000,+0.000]
+  confirm|ONLYOLD    n=4    correct@1 flat 0.750 key 0.750 keylist 0.750 sem 0.750 | sem-flat +0.000 [+0.000,+0.000]  keylist-flat +0.000 [+0.000,+0.000]
+  signal: {"NUM": {"n": 41, "flag_conflict_in_top10": 0.756, "flag_top1_has_newer_version": 0.195, "flat_top1_wrong": 0.171, "precision_flag2_wrong": 0.875, "recall_wrong_caught": 1.0}, "ENT": {"n": 62, "flag_conflict_in_top10": 0.613, "flag_top1_has_newer_version": 0.226, "flat_top1_wrong": 0.129, "precision_flag2_wrong": 0.5, "recall_wrong_caught": 0.875}, "STABLE": {"n": 1569, "flag_conflict_in_top10": 0.099, "flag_top1_has_newer_version": 0.006, "flat_top1_wrong": 0.171, "precision_flag2_wrong": 1.0, "recall_wrong_caught": 0.034}, "ONLYOLD": {"n": 44, "flag_conflict_in_top10": 0.114, "flag_top1_has_newer_version": 0.0, "flat_top1_wrong": 0.273, "precision_flag2_wrong": null, "recall_wrong_caught": 0.0}}
+  key reliability: {'newest_paragraphs_with_near_copy_in_older': 1806, 'same_key_share': 0.9363233665559247}
+
+extend: frozen {'theta': 0.35, 'T': 0.12, 'gamma': 0.0}
+
+## ACQUISITION gap vs random (hot demand), cov_auc growth-curve mean over budgets   (Holm over 7 tests)
+  held|A|hot gap-random cov_auc                                  d +0.0186 [-0.0048,+0.0420]  p 0.114  holm 0.258 
+  held|pydoc9|hot gap-random cov_auc                             d +0.0682 [+0.0381,+0.0982]  p 6.84e-05  holm 0.000479 *
+  held|crates8|hot gap-random cov_auc                            d +0.0820 [+0.0393,+0.1247]  p 0.00049  holm 0.00294 *
+  confirm|A|hot gap-random cov_auc                               d +0.0241 [-0.0036,+0.0519]  p 0.0861  holm 0.258 
+  confirm|B|hot gap-random cov_auc                               d +0.0526 [+0.0128,+0.0924]  p 0.0114  holm 0.0454 *
+  confirm|pydoc9|hot gap-random cov_auc                          d +0.0362 [+0.0107,+0.0618]  p 0.00702  holm 0.0351 *
+  confirm|crates8|hot gap-random cov_auc                         d +0.0212 [-0.0200,+0.0623]  p 0.302  holm 0.302 
+
+## ACQUISITION gap vs random (hot demand), rec_auc growth-curve mean over budgets   (Holm over 7 tests)
+  held|A|hot gap-random rec_auc                                  d +0.0125 [-0.0001,+0.0250]  p 0.0509  holm 0.254 
+  held|pydoc9|hot gap-random rec_auc                             d +0.0381 [+0.0178,+0.0584]  p 0.000633  holm 0.00443 *
+  held|crates8|hot gap-random rec_auc                            d +0.0432 [+0.0090,+0.0774]  p 0.0151  holm 0.0906 
+  confirm|A|hot gap-random rec_auc                               d +0.0074 [-0.0164,+0.0311]  p 0.53  holm 1 
+  confirm|B|hot gap-random rec_auc                               d +0.0261 [-0.0044,+0.0566]  p 0.0903  holm 0.361 
+  confirm|pydoc9|hot gap-random rec_auc                          d +0.0062 [-0.0108,+0.0233]  p 0.459  holm 1 
+  confirm|crates8|hot gap-random rec_auc                         d +0.0048 [-0.0229,+0.0325]  p 0.727  holm 1 
+
+## ACQUISITION topic_pred vs random (hot demand), cov_auc growth-curve mean over budgets   (Holm over 7 tests)
+  held|A|hot topic_pred-random cov_auc                           d +0.0405 [-0.0011,+0.0821]  p 0.0558  holm 0.223 
+  held|pydoc9|hot topic_pred-random cov_auc                      d +0.1314 [+0.0864,+0.1764]  p 1.73e-06  holm 1.21e-05 *
+  held|crates8|hot topic_pred-random cov_auc                     d +0.0812 [+0.0300,+0.1325]  p 0.00297  holm 0.0164 *
+  confirm|A|hot topic_pred-random cov_auc                        d -0.0053 [-0.0364,+0.0257]  p 0.728  holm 0.728 
+  confirm|B|hot topic_pred-random cov_auc                        d +0.0298 [-0.0171,+0.0768]  p 0.204  holm 0.611 
+  confirm|pydoc9|hot topic_pred-random cov_auc                   d +0.0758 [+0.0285,+0.1230]  p 0.00273  holm 0.0164 *
+  confirm|crates8|hot topic_pred-random cov_auc                  d +0.0319 [-0.0196,+0.0834]  p 0.216  holm 0.611 
+
+## ACQUISITION topic_pred vs random (hot demand), rec_auc growth-curve mean over budgets   (Holm over 7 tests)
+  held|A|hot topic_pred-random rec_auc                           d +0.0144 [-0.0062,+0.0350]  p 0.162  holm 0.649 
+  held|pydoc9|hot topic_pred-random rec_auc                      d +0.0822 [+0.0543,+0.1100]  p 1.49e-06  holm 1.04e-05 *
+  held|crates8|hot topic_pred-random rec_auc                     d +0.0499 [+0.0081,+0.0917]  p 0.021  holm 0.119 
+  confirm|A|hot topic_pred-random rec_auc                        d -0.0083 [-0.0307,+0.0141]  p 0.455  holm 1 
+  confirm|B|hot topic_pred-random rec_auc                        d +0.0174 [-0.0199,+0.0548]  p 0.348  holm 1 
+  confirm|pydoc9|hot topic_pred-random rec_auc                   d +0.0367 [+0.0063,+0.0672]  p 0.0199  holm 0.119 
+  confirm|crates8|hot topic_pred-random rec_auc                  d +0.0175 [-0.0203,+0.0553]  p 0.352  holm 1 
+
+## control uniform demand, gap - random cov_auc | rec_auc:
+  held|A|uniform         cov -0.0115 [-0.0242,+0.0012] TOST.01=False TOST.02=False | rec +0.0049 [-0.0031,+0.0129]
+  held|pydoc9|uniform    cov +0.0098 [-0.0001,+0.0197] TOST.01=False TOST.02=True | rec +0.0011 [-0.0087,+0.0109]
+  held|crates8|uniform   cov +0.0454 [+0.0219,+0.0688] TOST.01=False TOST.02=False | rec +0.0199 [+0.0015,+0.0383]
+  confirm|A|uniform      cov +0.0024 [-0.0139,+0.0186] TOST.01=False TOST.02=True | rec -0.0050 [-0.0188,+0.0088]
+  confirm|B|uniform      cov +0.0354 [+0.0091,+0.0618] TOST.01=False TOST.02=False | rec +0.0326 [+0.0171,+0.0481]
+  confirm|pydoc9|uniform cov -0.0054 [-0.0167,+0.0060] TOST.01=False TOST.02=True | rec -0.0160 [-0.0253,-0.0066]
+  confirm|crates8|uniform cov -0.0123 [-0.0272,+0.0026] TOST.01=False TOST.02=False | rec -0.0246 [-0.0381,-0.0111]
+
+## control uniform demand, topic_pred - random cov_auc | rec_auc:
+  held|A|uniform         cov -0.0121 [-0.0240,-0.0002] TOST.01=False TOST.02=False | rec -0.0073 [-0.0146,+0.0001]
+  held|pydoc9|uniform    cov +0.0156 [+0.0055,+0.0257] TOST.01=False TOST.02=False | rec +0.0028 [-0.0064,+0.0121]
+  held|crates8|uniform   cov +0.0214 [-0.0053,+0.0482] TOST.01=False TOST.02=False | rec +0.0028 [-0.0197,+0.0253]
+  confirm|A|uniform      cov -0.0340 [-0.0514,-0.0166] TOST.01=False TOST.02=False | rec -0.0308 [-0.0462,-0.0155]
+  confirm|B|uniform      cov -0.0288 [-0.0513,-0.0064] TOST.01=False TOST.02=False | rec -0.0120 [-0.0264,+0.0023]
+  confirm|pydoc9|uniform cov +0.0058 [-0.0037,+0.0153] TOST.01=False TOST.02=True | rec -0.0113 [-0.0194,-0.0032]
+  confirm|crates8|uniform cov -0.0371 [-0.0518,-0.0224] TOST.01=False TOST.02=False | rec -0.0334 [-0.0459,-0.0209]
+
+## control drift demand, gap - random cov_auc | rec_auc:
+  held|A|drift           cov -0.0182 [-0.0488,+0.0124] TOST.01=False TOST.02=False | rec -0.0005 [-0.0146,+0.0135]
+  held|pydoc9|drift      cov -0.0398 [-0.0585,-0.0211] TOST.01=False TOST.02=False | rec -0.0333 [-0.0458,-0.0208]
+  held|crates8|drift     cov +0.0068 [-0.0359,+0.0496] TOST.01=False TOST.02=False | rec -0.0175 [-0.0449,+0.0100]
+  confirm|A|drift        cov -0.0103 [-0.0322,+0.0116] TOST.01=False TOST.02=False | rec -0.0056 [-0.0226,+0.0114]
+  confirm|B|drift        cov +0.0329 [-0.0144,+0.0801] TOST.01=False TOST.02=False | rec +0.0162 [-0.0220,+0.0545]
+  confirm|pydoc9|drift   cov -0.0095 [-0.0318,+0.0128] TOST.01=False TOST.02=False | rec -0.0166 [-0.0329,-0.0003]
+  confirm|crates8|drift  cov -0.0295 [-0.0663,+0.0073] TOST.01=False TOST.02=False | rec -0.0256 [-0.0529,+0.0018]
+
+## control drift demand, topic_pred - random cov_auc | rec_auc:
+  held|A|drift           cov -0.0218 [-0.0595,+0.0160] TOST.01=False TOST.02=False | rec -0.0105 [-0.0349,+0.0140]
+  held|pydoc9|drift      cov -0.0665 [-0.0956,-0.0374] TOST.01=False TOST.02=False | rec -0.0497 [-0.0681,-0.0313]
+  held|crates8|drift     cov -0.0307 [-0.0821,+0.0207] TOST.01=False TOST.02=False | rec -0.0520 [-0.0777,-0.0264]
+  confirm|A|drift        cov -0.0380 [-0.0744,-0.0016] TOST.01=False TOST.02=False | rec -0.0260 [-0.0507,-0.0013]
+  confirm|B|drift        cov -0.0244 [-0.0657,+0.0170] TOST.01=False TOST.02=False | rec -0.0124 [-0.0428,+0.0181]
+  confirm|pydoc9|drift   cov -0.0332 [-0.0741,+0.0078] TOST.01=False TOST.02=False | rec -0.0317 [-0.0597,-0.0037]
+  confirm|crates8|drift  cov -0.0630 [-0.1019,-0.0241] TOST.01=False TOST.02=False | rec -0.0568 [-0.0864,-0.0273]
+
+## ingestion-order baselines vs random (cov_auc, hot): recent / largest
+  held|A|hot             recent +0.0003 [-0.0236,+0.0241] largest -0.0067 oracle-topic +0.1990 oracle-unit +0.4759 gap +0.0186 topic_pred +0.0405
+  held|pydoc9|hot        recent +0.0079 [-0.0211,+0.0369] largest -0.0071 oracle-topic +0.2832 oracle-unit +0.4663 gap +0.0682 topic_pred +0.1314
+  held|crates8|hot       recent +0.0008 [-0.0313,+0.0329] largest -0.0349 oracle-topic +0.2034 oracle-unit +0.4148 gap +0.0820 topic_pred +0.0812
+  confirm|A|hot          recent +0.0059 [-0.0236,+0.0354] largest -0.0148 oracle-topic +0.1637 oracle-unit +0.4672 gap +0.0241 topic_pred -0.0053
+  confirm|B|hot          recent -0.0419 [-0.0627,-0.0210] largest -0.0846 oracle-topic +0.1419 oracle-unit +0.4606 gap +0.0526 topic_pred +0.0298
+  confirm|pydoc9|hot     recent +0.0372 [+0.0084,+0.0661] largest -0.0096 oracle-topic +0.1940 oracle-unit +0.4555 gap +0.0362 topic_pred +0.0758
+  confirm|crates8|hot    recent -0.0191 [-0.0457,+0.0074] largest -0.0895 oracle-topic +0.1282 oracle-unit +0.4116 gap +0.0212 topic_pred +0.0319
+
+## gap-detector AUC (label-free low-cosine signal vs 'relevant unit not ingested'): {'held|A|hot': 0.678, 'held|pydoc9|hot': 0.699, 'held|crates8|hot': 0.761, 'confirm|A|hot': 0.68, 'confirm|B|hot': 0.715, 'confirm|pydoc9|hot': 0.69, 'confirm|crates8|hot': 0.729}

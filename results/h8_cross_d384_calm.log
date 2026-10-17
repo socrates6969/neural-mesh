@@ -1,0 +1,18 @@
+h8_vectors mode=cross rayon=2 free=5.20GB
+[cross d384] n=5000: flat avx2 p50 77us; hnsw [Some(58.03333333333334), Some(55.833333333333336)]
+[cross d384] n=10000: flat avx2 p50 183us; hnsw [Some(70.73333333333333), Some(53.96666666666667)]
+[cross d384] n=30000: flat avx2 p50 731us; hnsw [Some(76.46666666666667), Some(71.03333333333335)]
+ setting number of points 50000 
+ setting number of points 50000 
+ setting number of points 100000 
+ setting number of points 100000 
+[cross d384] n=100000: flat avx2 p50 3187us; hnsw [Some(215.86666666666665), Some(172.33333333333334)]
+
+#### flat vs HNSW crossover (dim 384, synthetic, 1 thread, p50 us; HNSW = smallest ef reaching recall target)
+| N | flat avx2 | flat lib | flat bfp16 | int8+rr10 | tv4+rr4 | M16/efc200 r>=.95 (ef) | M16/efc200 r>=.99 (ef) | M32/efc100 r>=.95 (ef) | M32/efc100 r>=.99 (ef) |
+|---|---|---|---|---|---|---|---|---|---||
+| 5000 | 77 | 140 | 73 | 66 | 95 | 58 (10) | 71 (16) | 56 (10) | 76 (16) |
+| 10000 | 183 | 294 | 158 | 121 | 156 | 71 (10) | 72 (10) | 54 (10) | 55 (10) |
+| 30000 | 731 | 915 | 650 | 295 | 389 | 76 (10) | 100 (16) | 71 (10) | 90 (16) |
+| 100000 | 3187 | 3526 | 2335 | 941 | 655 | 216 (48) | 462 (128) | 172 (32) | 311 (64) |
+wrote results/h8_cross_d384_calm.json

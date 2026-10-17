@@ -1,0 +1,150 @@
+
+================ WORLD A (n=600, unseen phrasing 0.20, levels [0.3, 0.3, 0.22, 0.13, 0.05]) seeds 61-90 ================
+arm                                                         correct   cost/t  no-tool  silentW   toolOK  fallbk   rej/t
+keyword                                      0.6611 [0.6530,0.6692]    10.00    0.000    0.000    0.000   0.000   0.000
+eps-greedy                                   0.6171 [0.6088,0.6254]    10.00    0.000    0.000    0.000   0.000   0.000
+pooled-thompson                              0.6294 [0.6199,0.6388]    10.00    0.000    0.000    0.000   0.000   0.000
+hebbian-robust                               0.6304 [0.6211,0.6397]    10.00    0.000    0.000    0.000   0.000   0.000
+warm(hebr)                                   0.6476 [0.6382,0.6570]    10.00    0.000    0.000    0.000   0.000   0.000
+guarded-safe                                 0.6666 [0.6575,0.6757]    10.00    0.000    0.000    0.000   0.000   0.000
+W14-S0 clean spec (agent formulates)         0.8522 [0.8461,0.8584]    21.88    0.000    0.000    0.000   0.000   0.000
+W14-S1 clean spec (agent formulates)         0.8800 [0.8717,0.8883]    18.56    0.000    0.000    0.000   0.000   0.000
+vote3(plain, 3x cost)                        0.7401 [0.7327,0.7475]    30.00    0.000    0.000    0.000   0.000   0.000
+X-clean-spec+shared (no extractor errors)    0.9583 [0.9547,0.9620]    12.98    0.006    0.000    0.968   0.026   0.000
+X-static+shared                              0.8255 [0.8196,0.8314]    15.46    0.111    0.023    0.608   0.259   0.000
+X-rule(theta)+shared                         0.8960 [0.8916,0.9004]    12.74    0.133    0.031    0.836   0.000   0.000
+X-rule(theta)+indep                          0.8960 [0.8916,0.9004]    12.84    0.133    0.031    0.836   0.000   0.000
+X-learned(noconf)+shared                     0.8836 [0.8787,0.8886]    13.36    0.079    0.055    0.835   0.031   0.000
+X-learned(conf)+shared                       0.8843 [0.8788,0.8898]    13.32    0.091    0.053    0.823   0.033   0.000
+X-learned(conf)+indep [HEADLINE]             0.8844 [0.8790,0.8899]    13.41    0.091    0.053    0.823   0.033   0.000
+X-learned(conf)+indep+meta                   0.8844 [0.8789,0.8899]    13.82    0.095    0.052    0.819   0.034   0.000
+X-learned(conf)+noverify                     0.8843 [0.8784,0.8903]    12.45    0.100    0.042    0.809   0.049   0.000
+X-learned(conf)+indep+cache                  0.8844 [0.8790,0.8899]    12.88    0.091    0.053    0.823   0.033   0.000
+X-learned(conf)+indep+cache+memo             0.8826 [0.8767,0.8884]    11.56    0.089    0.053    0.826   0.032   0.000
+X-learned(conf+kgprior)+indep [POST-HOC]     0.8892 [0.8840,0.8944]    13.36    0.075    0.054    0.849   0.022   0.000
+X-oracle-kind+indep (extractor spec)         0.9164 [0.9123,0.9206]    13.19    0.063    0.034    0.877   0.026   0.000
+best fair baseline on these seeds: guarded-safe (0.6666) cost 10.00
+-- HEAD_indep_vs_baselines: correctness diff (X-learned(conf)+indep [HEADLINE] - baseline), Holm over 6
+   vs keyword            +0.2233 [+0.2140,+0.2326] w/l/t 30/0/0 p=1.77e-29 holm=8.85e-29
+   vs eps-greedy         +0.2673 [+0.2572,+0.2774] w/l/t 30/0/0 p=1.14e-30 holm=6.81e-30
+   vs pooled-thompson    +0.2551 [+0.2435,+0.2666] w/l/t 30/0/0 p=2.03e-28 holm=6.08e-28
+   vs hebbian-robust     +0.2541 [+0.2429,+0.2652] w/l/t 30/0/0 p=8.98e-29 holm=3.59e-28
+   vs warm(hebr)         +0.2368 [+0.2256,+0.2481] w/l/t 30/0/0 p=8.10e-28 holm=1.62e-27
+   vs guarded-safe       +0.2178 [+0.2072,+0.2285] w/l/t 30/0/0 p=1.70e-27 holm=1.70e-27
+   max Holm p over baselines: 1.70e-27
+-- HEAD_shared_vs_baselines: correctness diff (X-learned(conf)+shared - baseline), Holm over 6
+   vs keyword            +0.2232 [+0.2138,+0.2326] w/l/t 30/0/0 p=2.49e-29 holm=1.25e-28
+   vs eps-greedy         +0.2672 [+0.2569,+0.2774] w/l/t 30/0/0 p=1.60e-30 holm=9.63e-30
+   vs pooled-thompson    +0.2549 [+0.2432,+0.2665] w/l/t 30/0/0 p=2.60e-28 holm=7.81e-28
+   vs hebbian-robust     +0.2539 [+0.2426,+0.2651] w/l/t 30/0/0 p=1.05e-28 holm=4.22e-28
+   vs warm(hebr)         +0.2367 [+0.2253,+0.2480] w/l/t 30/0/0 p=1.08e-27 holm=2.16e-27
+   vs guarded-safe       +0.2177 [+0.2069,+0.2284] w/l/t 30/0/0 p=2.24e-27 holm=2.24e-27
+   max Holm p over baselines: 2.24e-27
+-- W14_S1_clean_vs_baselines: correctness diff (W14-S1 clean spec (agent formulates) - baseline), Holm over 6
+   vs keyword            +0.2189 [+0.2102,+0.2276] w/l/t 30/0/0 p=5.21e-30 holm=2.60e-29
+   vs eps-greedy         +0.2629 [+0.2535,+0.2723] w/l/t 30/0/0 p=2.51e-31 holm=1.50e-30
+   vs pooled-thompson    +0.2506 [+0.2399,+0.2613] w/l/t 30/0/0 p=3.67e-29 holm=1.47e-28
+   vs hebbian-robust     +0.2496 [+0.2387,+0.2605] w/l/t 30/0/0 p=7.58e-29 holm=2.27e-28
+   vs warm(hebr)         +0.2324 [+0.2218,+0.2430] w/l/t 30/0/0 p=2.56e-28 holm=5.13e-28
+   vs guarded-safe       +0.2134 [+0.2034,+0.2234] w/l/t 30/0/0 p=5.79e-28 holm=5.79e-28
+   max Holm p over baselines: 5.79e-28
+-- HEADLINE (extractor + learned(conf) + independent verifier) - best baseline  (correctness): +0.2178 [+0.2072,+0.2285] w/l/t 30/0/0 p=1.70e-27
+-- HEADLINE - best baseline  (cost/task): +3.4062 [+3.2960,+3.5164] w/l/t 30/0/0 p=1.27e-32
+-- extractor + learned(conf) + SHARED verifier - best baseline: +0.2177 [+0.2069,+0.2284] w/l/t 30/0/0 p=2.24e-27
+-- W14 S1 (clean spec, agent formulates) - best baseline  [what W14 reported]: +0.2134 [+0.2034,+0.2234] w/l/t 30/0/0 p=5.79e-28
+-- HEADLINE - W14 S1  (what the extractor + independent verifier cost vs W14): +0.0044 [-0.0045,+0.0134] w/l/t 21/9/0 p=3.18e-1
+-- HEADLINE - X-clean-spec (cost of extractor errors vs a clean deterministic spec): -0.0739 [-0.0792,-0.0686] w/l/t 0/30/0 p=9.00e-23
+-- independent - shared verifier (clean evaluator, no bugs): +0.0002 [-0.0001,+0.0004] w/l/t 2/0/28 p=1.84e-1
+-- independent - shared verifier (cost/task): +0.0879 [+0.0744,+0.1015] w/l/t 28/0/2 p=6.97e-14
+-- selector with extractor confidence - without: +0.0007 [-0.0026,+0.0039] w/l/t 18/9/3 p=6.80e-1
+-- learned(conf) - confidence rule (theta), both independent verifier: -0.0116 [-0.0162,-0.0069] w/l/t 3/27/0 p=1.94e-5
+-- learned(conf)+shared - static keyword rule+shared: +0.0588 [+0.0524,+0.0651] w/l/t 30/0/0 p=7.00e-18
+-- verification value: learned(conf)+indep - noverify: +0.0001 [-0.0028,+0.0030] w/l/t 13/17/0 p=9.39e-1
+-- indep+meta - indep: -0.0001 [-0.0009,+0.0008] w/l/t 6/4/20 p=8.91e-1
+-- indep+meta - indep (cost/task): +0.4137 [+0.3875,+0.4398] w/l/t 30/0/0 p=2.69e-24
+-- cache: indep+cache - indep (cost/task): -0.5230 [-0.5637,-0.4823] w/l/t 0/30/0 p=8.65e-22
+-- cache: indep+cache - indep (correctness; must be 0): +0.0000 [+0.0000,+0.0000] w/l/t 0/0/30 p=1.00e0
+-- memo: +memo - cache only (cost/task): -1.3187 [-1.3989,-1.2384] w/l/t 0/30/0 p=8.92e-25
+-- memo: +memo - cache only (correctness): -0.0019 [-0.0046,+0.0008] w/l/t 13/13/4 p=1.69e-1
+-- HEADLINE+cache - best baseline: +0.2178 [+0.2072,+0.2285] w/l/t 30/0/0 p=1.70e-27
+-- HEADLINE+cache - best baseline (cost): +2.8832 [+2.7898,+2.9766] w/l/t 30/0/0 p=1.31e-32
+-- HEADLINE - vote3 (correctness; vote3 costs 30/task): +0.1443 [+0.1352,+0.1535] w/l/t 30/0/0 p=3.10e-24
+-- headline arm: no tool on 0.091 of compute tasks (abstain/none), tool answer delivered right 0.823 / silently wrong 0.053, fallback after fail/reject 0.033, extractor cost/task 0.30, verifier cost/task 1.15, rejects/task 0.000
+-- cache: hit rate 0.197, cost saved/task 0.523 of 13.406 nominal/task
+-- LIFT SURVIVAL: W14 S1 lift +0.2134; extractor+independent +0.2178 (102.1% of W14); extractor+shared +0.2177 (102.0% of W14)
+
+================ WORLD B (n=600, unseen phrasing 0.35, levels [0.12, 0.22, 0.26, 0.3, 0.1]) seeds 61-90 ================
+arm                                                         correct   cost/t  no-tool  silentW   toolOK  fallbk   rej/t
+keyword                                      0.6198 [0.6030,0.6367]    10.00    0.000    0.000    0.000   0.000   0.000
+eps-greedy                                   0.6028 [0.5887,0.6169]    10.00    0.000    0.000    0.000   0.000   0.000
+pooled-thompson                              0.6019 [0.5863,0.6176]    10.00    0.000    0.000    0.000   0.000   0.000
+hebbian-robust                               0.6244 [0.6074,0.6415]    10.00    0.000    0.000    0.000   0.000   0.000
+warm(hebr)                                   0.6338 [0.6168,0.6509]    10.00    0.000    0.000    0.000   0.000   0.000
+guarded-safe                                 0.6341 [0.6173,0.6509]    10.00    0.000    0.000    0.000   0.000   0.000
+W14-S0 clean spec (agent formulates)         0.8692 [0.8620,0.8763]    21.56    0.000    0.000    0.000   0.000   0.000
+W14-S1 clean spec (agent formulates)         0.8967 [0.8893,0.9042]    19.84    0.000    0.000    0.000   0.000   0.000
+vote3(plain, 3x cost)                        0.7029 [0.6874,0.7185]    30.00    0.000    0.000    0.000   0.000   0.000
+X-clean-spec+shared (no extractor errors)    0.9688 [0.9651,0.9725]    15.41    0.007    0.000    0.968   0.025   0.000
+X-static+shared                              0.7953 [0.7863,0.8042]    16.73    0.183    0.048    0.555   0.214   0.000
+X-rule(theta)+shared                         0.8349 [0.8274,0.8423]    14.84    0.240    0.065    0.694   0.001   0.000
+X-rule(theta)+indep                          0.8349 [0.8274,0.8423]    14.87    0.240    0.065    0.694   0.001   0.000
+X-learned(noconf)+shared                     0.8221 [0.8138,0.8303]    15.45    0.185    0.085    0.686   0.044   0.000
+X-learned(conf)+shared                       0.8188 [0.8091,0.8285]    15.49    0.189    0.084    0.677   0.050   0.000
+X-learned(conf)+indep [HEADLINE]             0.8188 [0.8090,0.8286]    15.52    0.188    0.084    0.677   0.051   0.000
+X-learned(conf)+indep+meta                   0.8192 [0.8102,0.8281]    15.73    0.191    0.083    0.674   0.052   0.000
+X-learned(conf)+noverify                     0.8273 [0.8185,0.8360]    13.76    0.226    0.052    0.645   0.078   0.000
+X-learned(conf)+indep+cache                  0.8188 [0.8090,0.8286]    14.18    0.188    0.084    0.677   0.051   0.000
+X-learned(conf)+indep+cache+memo             0.8238 [0.8144,0.8331]    12.57    0.200    0.078    0.673   0.049   0.000
+X-learned(conf+kgprior)+indep [POST-HOC]     0.8212 [0.8127,0.8298]    15.49    0.173    0.088    0.701   0.038   0.000
+X-oracle-kind+indep (extractor spec)         0.8593 [0.8520,0.8665]    15.57    0.147    0.062    0.735   0.056   0.000
+best fair baseline on these seeds: guarded-safe (0.6341) cost 10.00
+-- HEAD_indep_vs_baselines: correctness diff (X-learned(conf)+indep [HEADLINE] - baseline), Holm over 6
+   vs keyword            +0.1990 [+0.1844,+0.2136] w/l/t 30/0/0 p=1.70e-22 holm=6.80e-22
+   vs eps-greedy         +0.2161 [+0.2015,+0.2306] w/l/t 30/0/0 p=1.65e-23 holm=9.92e-23
+   vs pooled-thompson    +0.2169 [+0.2013,+0.2324] w/l/t 30/0/0 p=8.89e-23 holm=4.45e-22
+   vs hebbian-robust     +0.1944 [+0.1758,+0.2130] w/l/t 30/0/0 p=2.75e-19 holm=2.75e-19
+   vs warm(hebr)         +0.1850 [+0.1705,+0.1995] w/l/t 30/0/0 p=1.09e-21 holm=3.27e-21
+   vs guarded-safe       +0.1847 [+0.1702,+0.1993] w/l/t 30/0/0 p=1.28e-21 holm=3.27e-21
+   max Holm p over baselines: 2.75e-19
+-- HEAD_shared_vs_baselines: correctness diff (X-learned(conf)+shared - baseline), Holm over 6
+   vs keyword            +0.1989 [+0.1845,+0.2133] w/l/t 30/0/0 p=1.18e-22 holm=5.74e-22
+   vs eps-greedy         +0.2160 [+0.2015,+0.2305] w/l/t 30/0/0 p=1.57e-23 holm=9.41e-23
+   vs pooled-thompson    +0.2168 [+0.2012,+0.2325] w/l/t 30/0/0 p=1.15e-22 holm=5.74e-22
+   vs hebbian-robust     +0.1943 [+0.1759,+0.2128] w/l/t 30/0/0 p=2.13e-19 holm=2.13e-19
+   vs warm(hebr)         +0.1849 [+0.1706,+0.1993] w/l/t 30/0/0 p=8.31e-22 holm=2.49e-21
+   vs guarded-safe       +0.1847 [+0.1702,+0.1991] w/l/t 30/0/0 p=1.02e-21 holm=2.49e-21
+   max Holm p over baselines: 2.13e-19
+-- W14_S1_clean_vs_baselines: correctness diff (W14-S1 clean spec (agent formulates) - baseline), Holm over 6
+   vs keyword            +0.2769 [+0.2617,+0.2921] w/l/t 30/0/0 p=4.89e-26 holm=1.96e-25
+   vs eps-greedy         +0.2939 [+0.2816,+0.3063] w/l/t 30/0/0 p=2.37e-29 holm=1.42e-28
+   vs pooled-thompson    +0.2948 [+0.2807,+0.3089] w/l/t 30/0/0 p=9.34e-28 holm=4.67e-27
+   vs hebbian-robust     +0.2723 [+0.2553,+0.2893] w/l/t 30/0/0 p=1.85e-24 holm=1.85e-24
+   vs warm(hebr)         +0.2629 [+0.2471,+0.2787] w/l/t 30/0/0 p=6.50e-25 holm=1.54e-24
+   vs guarded-safe       +0.2626 [+0.2469,+0.2783] w/l/t 30/0/0 p=5.14e-25 holm=1.54e-24
+   max Holm p over baselines: 1.85e-24
+-- HEADLINE (extractor + learned(conf) + independent verifier) - best baseline  (correctness): +0.1847 [+0.1702,+0.1993] w/l/t 30/0/0 p=1.28e-21
+-- HEADLINE - best baseline  (cost/task): +5.5156 [+5.1167,+5.9144] w/l/t 30/0/0 p=1.15e-22
+-- extractor + learned(conf) + SHARED verifier - best baseline: +0.1847 [+0.1702,+0.1991] w/l/t 30/0/0 p=1.02e-21
+-- W14 S1 (clean spec, agent formulates) - best baseline  [what W14 reported]: +0.2626 [+0.2469,+0.2783] w/l/t 30/0/0 p=5.14e-25
+-- HEADLINE - W14 S1  (what the extractor + independent verifier cost vs W14): -0.0779 [-0.0887,-0.0671] w/l/t 0/30/0 p=5.37e-15
+-- HEADLINE - X-clean-spec (cost of extractor errors vs a clean deterministic spec): -0.1499 [-0.1593,-0.1406] w/l/t 0/30/0 p=1.80e-24
+-- independent - shared verifier (clean evaluator, no bugs): +0.0001 [-0.0009,+0.0010] w/l/t 3/3/24 p=9.02e-1
+-- independent - shared verifier (cost/task): +0.0247 [+0.0150,+0.0343] w/l/t 25/0/5 p=1.32e-5
+-- selector with extractor confidence - without: -0.0033 [-0.0082,+0.0017] w/l/t 15/14/1 p=1.88e-1
+-- learned(conf) - confidence rule (theta), both independent verifier: -0.0161 [-0.0217,-0.0104] w/l/t 4/25/1 p=2.94e-6
+-- learned(conf)+shared - static keyword rule+shared: +0.0235 [+0.0166,+0.0304] w/l/t 28/2/0 p=1.24e-7
+-- verification value: learned(conf)+indep - noverify: -0.0084 [-0.0130,-0.0039] w/l/t 7/23/0 p=6.89e-4
+-- indep+meta - indep: +0.0003 [-0.0025,+0.0032] w/l/t 13/4/13 p=8.12e-1
+-- indep+meta - indep (cost/task): +0.2138 [+0.1535,+0.2741] w/l/t 28/2/0 p=5.51e-8
+-- cache: indep+cache - indep (cost/task): -1.3336 [-1.6047,-1.0624] w/l/t 0/30/0 p=5.79e-11
+-- cache: indep+cache - indep (correctness; must be 0): +0.0000 [+0.0000,+0.0000] w/l/t 0/0/30 p=1.00e0
+-- memo: +memo - cache only (cost/task): -1.6085 [-1.7307,-1.4862] w/l/t 0/30/0 p=4.65e-22
+-- memo: +memo - cache only (correctness): +0.0049 [+0.0005,+0.0094] w/l/t 19/9/2 p=2.96e-2
+-- HEADLINE+cache - best baseline: +0.1847 [+0.1702,+0.1993] w/l/t 30/0/0 p=1.28e-21
+-- HEADLINE+cache - best baseline (cost): +4.1820 [+3.9785,+4.3855] w/l/t 30/0/0 p=1.56e-27
+-- HEADLINE - vote3 (correctness; vote3 costs 30/task): +0.1159 [+0.1007,+0.1310] w/l/t 30/0/0 p=1.14e-15
+-- headline arm: no tool on 0.188 of compute tasks (abstain/none), tool answer delivered right 0.677 / silently wrong 0.084, fallback after fail/reject 0.051, extractor cost/task 0.30, verifier cost/task 2.01, rejects/task 0.000
+-- cache: hit rate 0.272, cost saved/task 1.334 of 15.516 nominal/task
+-- LIFT SURVIVAL: W14 S1 lift +0.2626; extractor+independent +0.1847 (70.3% of W14); extractor+shared +0.1847 (70.3% of W14)
+
+wrote results/g21_confirm61-90.json

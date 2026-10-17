@@ -1,0 +1,772 @@
+## CORPUS (REAL markdown tables; gold = pipe grid)
+files_with_tables 241 raw_tables 714 usable 249 fnv 1744236539a5b5fd
+  dev: tables=46 docs=16 crates/repos=1 gold_numeric_cells=4557
+  held: tables=28 docs=10 crates/repos=1 gold_numeric_cells=3746
+  confirm: tables=175 docs=78 crates/repos=58 gold_numeric_cells=1884
+  gold cell classes dev {'hdr_unit': 1, 'pct': 33, 'plain': 4491, 'sfx': 20, 'unit_other': 11, 'unit_time': 1}
+  gold cell classes held {'plain': 3746}
+  gold cell classes confirm {'hdr_unit': 8, 'pct': 146, 'plain': 687, 'sfx': 40, 'thousands': 200, 'unit_other': 89, 'unit_size': 162, 'unit_time': 552}
+  negative gold cells {'dev': 50, 'held': 102, 'confirm': 124}
+  footing-eligible tables (total row/col label present): {'tables_with_total_row': 7, 'tables_with_total_col': 8}
+
+## E1 extraction F1 per layout (v0 = original value text, mix = value perturbations), micro over cells, 95% CI = bootstrap over documents(files)
+-- extractor v1 split dev  (strict value F1 [lenient=number-as-written accepted])
+   pipe    v0 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 4557)   |  mix 0.993 [0.978,1.000] (P1.00/R0.99; lenient 0.996; cells 4557)
+   ws      v0 0.997 [0.986,1.000] (P1.00/R1.00; lenient 0.997; cells 4557)   |  mix 0.986 [0.967,0.999] (P0.99/R0.98; lenient 0.988; cells 4557)
+   wrap    v0 0.997 [0.986,1.000] (P1.00/R1.00; lenient 0.997; cells 4557)   |  mix 0.986 [0.967,0.999] (P0.99/R0.98; lenient 0.988; cells 4557)
+   csv     v0 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 4557)   |  mix 0.993 [0.978,1.000] (P1.00/R0.99; lenient 0.996; cells 4557)
+   split   v0 0.643 [0.598,0.733] (P0.78/R0.55; lenient 0.643; cells 4554)   |  mix 0.634 [0.596,0.722] (P0.78/R0.54; lenient 0.637; cells 4554)
+   merged  v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 2770)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 2770)
+   F1      v0 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 4557)   |  mix 0.993 [0.978,1.000] (P1.00/R0.99; lenient 0.996; cells 4557)
+   F2      v0 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 4557)   |  mix 0.993 [0.978,1.000] (P1.00/R0.99; lenient 0.996; cells 4557)
+   F3      v0 0.997 [0.986,1.000] (P1.00/R1.00; lenient 0.997; cells 4557)   |  mix 0.990 [0.970,1.000] (P0.99/R0.99; lenient 0.993; cells 4557)
+   H1      v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 4557)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 4557)
+   H2      v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 4557)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 4557)
+   H3      v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 4557)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 4557)
+   H4      v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 4557)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 4557)
+-- extractor v1 split held  (strict value F1 [lenient=number-as-written accepted])
+   pipe    v0 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 3746)   |  mix 0.995 [0.988,1.000] (P1.00/R0.99; lenient 0.995; cells 3746)
+   ws      v0 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 3746)   |  mix 0.950 [0.859,1.000] (P0.96/R0.94; lenient 0.950; cells 3746)
+   wrap    v0 0.996 [0.980,1.000] (P1.00/R1.00; lenient 0.996; cells 3746)   |  mix 0.945 [0.851,0.995] (P0.95/R0.94; lenient 0.945; cells 3746)
+   csv     v0 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 3746)   |  mix 0.995 [0.988,1.000] (P1.00/R0.99; lenient 0.995; cells 3746)
+   split   v0 0.630 [0.587,0.675] (P0.75/R0.54; lenient 0.630; cells 3746)   |  mix 0.593 [0.512,0.655] (P0.71/R0.51; lenient 0.593; cells 3746)
+   merged  v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 1636)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 1636)
+   F1      v0 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 3746)   |  mix 0.995 [0.988,1.000] (P1.00/R0.99; lenient 0.995; cells 3746)
+   F2      v0 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 3746)   |  mix 0.995 [0.988,1.000] (P1.00/R0.99; lenient 0.995; cells 3746)
+   F3      v0 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 3746)   |  mix 0.995 [0.988,1.000] (P1.00/R0.99; lenient 0.995; cells 3746)
+   H1      v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 3746)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 3746)
+   H2      v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 3746)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 3746)
+   H3      v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 3746)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 3746)
+   H4      v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 3746)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 3746)
+-- extractor v1 split confirm  (strict value F1 [lenient=number-as-written accepted])
+   pipe    v0 0.751 [0.608,0.860] (P0.75/R0.75; lenient 1.000; cells 1884)   |  mix 0.732 [0.600,0.834] (P0.74/R0.73; lenient 0.878; cells 1884)
+   ws      v0 0.745 [0.600,0.855] (P0.75/R0.74; lenient 0.995; cells 1884)   |  mix 0.727 [0.590,0.828] (P0.73/R0.72; lenient 0.873; cells 1884)
+   wrap    v0 0.725 [0.592,0.832] (P0.73/R0.72; lenient 0.976; cells 1884)   |  mix 0.707 [0.577,0.812] (P0.71/R0.70; lenient 0.853; cells 1884)
+   csv     v0 0.742 [0.602,0.857] (P0.75/R0.74; lenient 0.993; cells 1884)   |  mix 0.724 [0.589,0.829] (P0.73/R0.72; lenient 0.870; cells 1884)
+   split   v0 0.393 [0.279,0.530] (P0.49/R0.33; lenient 0.498; cells 1576)   |  mix 0.462 [0.370,0.559] (P0.55/R0.40; lenient 0.539; cells 1576)
+   merged  v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 193)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 181)
+   F1      v0 0.749 [0.605,0.859] (P0.75/R0.75; lenient 0.998; cells 1884)   |  mix 0.730 [0.598,0.832] (P0.73/R0.73; lenient 0.876; cells 1884)
+   F2      v0 0.751 [0.608,0.860] (P0.75/R0.75; lenient 1.000; cells 1884)   |  mix 0.732 [0.600,0.834] (P0.74/R0.73; lenient 0.878; cells 1884)
+   F3      v0 0.751 [0.608,0.860] (P0.75/R0.75; lenient 1.000; cells 1884)   |  mix 0.732 [0.600,0.834] (P0.74/R0.73; lenient 0.878; cells 1884)
+   H1      v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 1884)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 1884)
+   H2      v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 1884)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 1884)
+   H3      v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 1884)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 1884)
+   H4      v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 1884)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 1884)
+-- extractor v2 split dev  (strict value F1 [lenient=number-as-written accepted])
+   pipe    v0 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 4557)   |  mix 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 4557)
+   ws      v0 0.997 [0.987,1.000] (P1.00/R1.00; lenient 0.997; cells 4557)   |  mix 0.993 [0.979,1.000] (P1.00/R0.99; lenient 0.993; cells 4557)
+   wrap    v0 0.997 [0.987,1.000] (P1.00/R1.00; lenient 0.997; cells 4557)   |  mix 0.993 [0.979,1.000] (P1.00/R0.99; lenient 0.993; cells 4557)
+   csv     v0 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 4557)   |  mix 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 4557)
+   split   v0 0.975 [0.878,0.993] (P0.99/R0.96; lenient 0.975; cells 4554)   |  mix 0.966 [0.877,0.988] (P0.98/R0.95; lenient 0.966; cells 4554)
+   merged  v0 0.022 [0.000,0.353] (P0.08/R0.01; lenient 0.022; cells 2770)   |  mix 0.023 [0.000,0.353] (P0.08/R0.01; lenient 0.023; cells 2770)
+   F1      v0 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 4557)   |  mix 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 4557)
+   F2      v0 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 4557)   |  mix 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 4557)
+   F3      v0 0.997 [0.986,1.000] (P1.00/R1.00; lenient 0.997; cells 4557)   |  mix 0.997 [0.986,1.000] (P1.00/R1.00; lenient 0.997; cells 4557)
+   H1      v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 4557)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 4557)
+   H2      v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 4557)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 4557)
+   H3      v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 4557)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 4557)
+   H4      v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 4557)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 4557)
+-- extractor v2 split held  (strict value F1 [lenient=number-as-written accepted])
+   pipe    v0 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 3746)   |  mix 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 3746)
+   ws      v0 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 3746)   |  mix 0.955 [0.859,1.000] (P0.96/R0.95; lenient 0.955; cells 3746)
+   wrap    v0 0.996 [0.980,1.000] (P1.00/R1.00; lenient 0.996; cells 3746)   |  mix 0.951 [0.856,1.000] (P0.95/R0.95; lenient 0.951; cells 3746)
+   csv     v0 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 3746)   |  mix 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 3746)
+   split   v0 0.976 [0.943,1.000] (P0.99/R0.97; lenient 0.976; cells 3746)   |  mix 0.926 [0.841,1.000] (P0.95/R0.90; lenient 0.926; cells 3746)
+   merged  v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 1636)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 1636)
+   F1      v0 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 3746)   |  mix 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 3746)
+   F2      v0 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 3746)   |  mix 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 3746)
+   F3      v0 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 3746)   |  mix 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 3746)
+   H1      v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 3746)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 3746)
+   H2      v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 3746)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 3746)
+   H3      v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 3746)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 3746)
+   H4      v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 3746)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 3746)
+-- extractor v2 split confirm  (strict value F1 [lenient=number-as-written accepted])
+   pipe    v0 0.992 [0.980,1.000] (P0.99/R0.99; lenient 1.000; cells 1884)   |  mix 0.989 [0.977,0.998] (P0.99/R0.99; lenient 0.997; cells 1884)
+   ws      v0 0.987 [0.973,0.997] (P0.99/R0.98; lenient 0.995; cells 1884)   |  mix 0.984 [0.970,0.994] (P0.99/R0.98; lenient 0.992; cells 1884)
+   wrap    v0 0.967 [0.925,0.995] (P0.97/R0.96; lenient 0.975; cells 1884)   |  mix 0.962 [0.921,0.990] (P0.96/R0.96; lenient 0.970; cells 1884)
+   csv     v0 0.985 [0.970,0.995] (P0.99/R0.98; lenient 0.993; cells 1884)   |  mix 0.982 [0.966,0.993] (P0.99/R0.98; lenient 0.990; cells 1884)
+   split   v0 0.798 [0.623,0.912] (P0.88/R0.73; lenient 0.798; cells 1576)   |  mix 0.898 [0.834,0.941] (P0.95/R0.85; lenient 0.898; cells 1576)
+   merged  v0 0.601 [0.214,0.902] (P1.00/R0.43; lenient 0.601; cells 193)   |  mix 0.629 [0.250,0.932] (P1.00/R0.46; lenient 0.629; cells 181)
+   F1      v0 0.990 [0.978,0.998] (P0.99/R0.99; lenient 0.998; cells 1884)   |  mix 0.987 [0.975,0.997] (P0.99/R0.99; lenient 0.995; cells 1884)
+   F2      v0 0.992 [0.980,1.000] (P0.99/R0.99; lenient 1.000; cells 1884)   |  mix 0.989 [0.977,0.998] (P0.99/R0.99; lenient 0.997; cells 1884)
+   F3      v0 0.992 [0.980,1.000] (P0.99/R0.99; lenient 1.000; cells 1884)   |  mix 0.989 [0.977,0.998] (P0.99/R0.99; lenient 0.997; cells 1884)
+   H1      v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 1884)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 1884)
+   H2      v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 1884)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 1884)
+   H3      v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 1884)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 1884)
+   H4      v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 1884)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 1884)
+-- extractor v3 split dev  (strict value F1 [lenient=number-as-written accepted])
+   pipe    v0 1.000 [0.999,1.000] (P1.00/R1.00; lenient 1.000; cells 4557)   |  mix 1.000 [0.999,1.000] (P1.00/R1.00; lenient 1.000; cells 4557)
+   ws      v0 0.997 [0.986,1.000] (P1.00/R1.00; lenient 0.997; cells 4557)   |  mix 0.993 [0.979,1.000] (P1.00/R0.99; lenient 0.993; cells 4557)
+   wrap    v0 0.997 [0.986,1.000] (P1.00/R1.00; lenient 0.997; cells 4557)   |  mix 0.993 [0.979,1.000] (P1.00/R0.99; lenient 0.993; cells 4557)
+   csv     v0 1.000 [0.999,1.000] (P1.00/R1.00; lenient 1.000; cells 4557)   |  mix 1.000 [0.999,1.000] (P1.00/R1.00; lenient 1.000; cells 4557)
+   split   v0 0.974 [0.877,0.993] (P0.99/R0.96; lenient 0.974; cells 4554)   |  mix 0.966 [0.877,0.988] (P0.98/R0.95; lenient 0.966; cells 4554)
+   merged  v0 0.022 [0.000,0.353] (P0.08/R0.01; lenient 0.022; cells 2770)   |  mix 0.023 [0.000,0.353] (P0.08/R0.01; lenient 0.023; cells 2770)
+   F1      v0 1.000 [0.999,1.000] (P1.00/R1.00; lenient 1.000; cells 4557)   |  mix 1.000 [0.999,1.000] (P1.00/R1.00; lenient 1.000; cells 4557)
+   F2      v0 1.000 [0.999,1.000] (P1.00/R1.00; lenient 1.000; cells 4557)   |  mix 1.000 [0.999,1.000] (P1.00/R1.00; lenient 1.000; cells 4557)
+   F3      v0 0.997 [0.986,1.000] (P1.00/R1.00; lenient 0.997; cells 4557)   |  mix 0.997 [0.986,1.000] (P1.00/R1.00; lenient 0.997; cells 4557)
+   H1      v0 0.961 [0.872,0.984] (P1.00/R0.93; lenient 0.961; cells 4557)   |  mix 0.957 [0.866,0.981] (P1.00/R0.92; lenient 0.957; cells 4557)
+   H2      v0 0.945 [0.813,0.979] (P0.98/R0.91; lenient 0.945; cells 4557)   |  mix 0.941 [0.801,0.976] (P0.98/R0.91; lenient 0.941; cells 4557)
+   H3      v0 0.443 [0.071,0.580] (P0.61/R0.35; lenient 0.443; cells 4557)   |  mix 0.443 [0.071,0.580] (P0.61/R0.35; lenient 0.443; cells 4557)
+   H4      v0 0.026 [0.000,0.145] (P0.71/R0.01; lenient 0.026; cells 4557)   |  mix 0.025 [0.000,0.142] (P0.26/R0.01; lenient 0.025; cells 4557)
+-- extractor v3 split held  (strict value F1 [lenient=number-as-written accepted])
+   pipe    v0 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 3746)   |  mix 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 3746)
+   ws      v0 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 3746)   |  mix 0.955 [0.859,1.000] (P0.96/R0.95; lenient 0.955; cells 3746)
+   wrap    v0 0.996 [0.980,1.000] (P1.00/R1.00; lenient 0.996; cells 3746)   |  mix 0.951 [0.856,1.000] (P0.95/R0.95; lenient 0.951; cells 3746)
+   csv     v0 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 3746)   |  mix 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 3746)
+   split   v0 0.976 [0.943,1.000] (P0.99/R0.97; lenient 0.976; cells 3746)   |  mix 0.926 [0.841,1.000] (P0.95/R0.90; lenient 0.926; cells 3746)
+   merged  v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 1636)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 1636)
+   F1      v0 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 3746)   |  mix 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 3746)
+   F2      v0 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 3746)   |  mix 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 3746)
+   F3      v0 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 3746)   |  mix 1.000 [1.000,1.000] (P1.00/R1.00; lenient 1.000; cells 3746)
+   H1      v0 0.935 [0.769,0.980] (P1.00/R0.88; lenient 0.935; cells 3746)   |  mix 0.931 [0.756,0.977] (P1.00/R0.87; lenient 0.931; cells 3746)
+   H2      v0 0.786 [0.259,0.975] (P0.89/R0.70; lenient 0.786; cells 3746)   |  mix 0.782 [0.250,0.970] (P0.89/R0.70; lenient 0.782; cells 3746)
+   H3      v0 0.214 [0.000,0.412] (P0.38/R0.15; lenient 0.214; cells 3746)   |  mix 0.214 [0.000,0.412] (P0.38/R0.15; lenient 0.214; cells 3746)
+   H4      v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 3746)   |  mix 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 3746)
+-- extractor v3 split confirm  (strict value F1 [lenient=number-as-written accepted])
+   pipe    v0 0.992 [0.980,1.000] (P0.99/R0.99; lenient 1.000; cells 1884)   |  mix 0.989 [0.977,0.998] (P0.99/R0.99; lenient 0.997; cells 1884)
+   ws      v0 0.987 [0.973,0.997] (P0.99/R0.98; lenient 0.995; cells 1884)   |  mix 0.984 [0.970,0.994] (P0.99/R0.98; lenient 0.992; cells 1884)
+   wrap    v0 0.967 [0.925,0.995] (P0.97/R0.96; lenient 0.975; cells 1884)   |  mix 0.962 [0.921,0.990] (P0.96/R0.96; lenient 0.970; cells 1884)
+   csv     v0 0.985 [0.970,0.995] (P0.99/R0.98; lenient 0.993; cells 1884)   |  mix 0.982 [0.966,0.993] (P0.99/R0.98; lenient 0.990; cells 1884)
+   split   v0 0.796 [0.623,0.909] (P0.88/R0.73; lenient 0.796; cells 1576)   |  mix 0.896 [0.832,0.938] (P0.94/R0.85; lenient 0.896; cells 1576)
+   merged  v0 0.576 [0.190,0.902] (P0.87/R0.43; lenient 0.576; cells 193)   |  mix 0.601 [0.221,0.932] (P0.87/R0.46; lenient 0.601; cells 181)
+   F1      v0 0.990 [0.978,0.998] (P0.99/R0.99; lenient 0.998; cells 1884)   |  mix 0.987 [0.975,0.997] (P0.99/R0.99; lenient 0.995; cells 1884)
+   F2      v0 0.992 [0.980,1.000] (P0.99/R0.99; lenient 1.000; cells 1884)   |  mix 0.989 [0.977,0.998] (P0.99/R0.99; lenient 0.997; cells 1884)
+   F3      v0 0.992 [0.980,1.000] (P0.99/R0.99; lenient 1.000; cells 1884)   |  mix 0.989 [0.977,0.998] (P0.99/R0.99; lenient 0.997; cells 1884)
+   H1      v0 0.467 [0.315,0.612] (P0.79/R0.33; lenient 0.473; cells 1884)   |  mix 0.462 [0.318,0.608] (P0.76/R0.33; lenient 0.468; cells 1884)
+   H2      v0 0.442 [0.274,0.614] (P0.77/R0.31; lenient 0.448; cells 1884)   |  mix 0.439 [0.275,0.605] (P0.75/R0.31; lenient 0.445; cells 1884)
+   H3      v0 0.343 [0.249,0.446] (P0.52/R0.26; lenient 0.343; cells 1884)   |  mix 0.326 [0.235,0.425] (P0.49/R0.24; lenient 0.326; cells 1884)
+   H4      v0 0.000 [0.000,0.000] (P0.00/R0.00; lenient 0.000; cells 1884)   |  mix 0.008 [0.000,0.027] (P0.04/R0.00; lenient 0.008; cells 1884)
+
+## E2 extraction F1 per value-format perturbation (layouts pipe, ws, F2 [dev family], H2 [held-out family] pooled per layout)
+-- extractor v1 split dev
+   pipe  v0:1.000  thou:1.000  sfx:1.000  neg:0.989  pct:1.000  unit:1.000  eu:0.283  mix:0.993
+   ws    v0:0.997  thou:0.923  sfx:0.997  neg:0.986  pct:0.997  unit:0.997  eu:0.212  mix:0.986
+   F2    v0:1.000  thou:1.000  sfx:1.000  neg:0.989  pct:1.000  unit:1.000  eu:0.283  mix:0.993
+   H2    v0:0.000  thou:0.000  sfx:0.000  neg:0.000  pct:0.000  unit:0.000  eu:0.000  mix:0.000
+-- extractor v1 split held
+   pipe  v0:1.000  thou:1.000  sfx:1.000  neg:0.981  pct:1.000  unit:1.000  eu:0.215  mix:0.995
+   ws    v0:1.000  thou:0.953  sfx:1.000  neg:0.981  pct:1.000  unit:1.000  eu:0.171  mix:0.950
+   F2    v0:1.000  thou:1.000  sfx:1.000  neg:0.981  pct:1.000  unit:1.000  eu:0.215  mix:0.995
+   H2    v0:0.000  thou:0.000  sfx:0.000  neg:0.000  pct:0.000  unit:0.000  eu:0.000  mix:0.000
+-- extractor v1 split confirm
+   pipe  v0:0.751  thou:0.751  sfx:0.751  neg:0.722  pct:0.751  unit:0.719  eu:0.565  mix:0.732
+   ws    v0:0.745  thou:0.745  sfx:0.745  neg:0.716  pct:0.745  unit:0.714  eu:0.559  mix:0.727
+   F2    v0:0.751  thou:0.751  sfx:0.751  neg:0.722  pct:0.751  unit:0.719  eu:0.565  mix:0.732
+   H2    v0:0.000  thou:0.000  sfx:0.000  neg:0.000  pct:0.000  unit:0.000  eu:0.000  mix:0.000
+   per gold-field-class F1 [v1 dev; pipe+ws+F2, v0+mix]: hdr_unit:1.000(n=6), pct:0.995(n=198), plain:0.995(n=26946), sfx:1.000(n=120), unit_other:0.985(n=66), unit_time:1.000(n=6)
+   per gold-field-class F1 [v1 held; pipe+ws+F2, v0+mix]: plain:0.993(n=22476)
+   per gold-field-class F1 [v1 confirm; pipe+ws+F2, v0+mix]: hdr_unit:0.000(n=48), pct:1.000(n=876), plain:0.997(n=4122), sfx:0.925(n=240), thousands:0.985(n=1200), unit_other:0.966(n=534), unit_size:0.676(n=972), unit_time:0.242(n=3312)
+-- extractor v3 split dev
+   pipe  v0:1.000  thou:1.000  sfx:1.000  neg:1.000  pct:1.000  unit:1.000  eu:0.627  mix:1.000
+   ws    v0:0.997  thou:0.923  sfx:0.997  neg:0.997  pct:0.997  unit:0.997  eu:0.385  mix:0.993
+   F2    v0:1.000  thou:1.000  sfx:1.000  neg:1.000  pct:1.000  unit:1.000  eu:0.627  mix:1.000
+   H2    v0:0.945  thou:0.945  sfx:0.945  neg:0.939  pct:0.945  unit:0.945  eu:0.582  mix:0.941
+-- extractor v3 split held
+   pipe  v0:1.000  thou:1.000  sfx:1.000  neg:1.000  pct:1.000  unit:1.000  eu:0.704  mix:1.000
+   ws    v0:1.000  thou:0.953  sfx:1.000  neg:1.000  pct:1.000  unit:1.000  eu:0.411  mix:0.955
+   F2    v0:1.000  thou:1.000  sfx:1.000  neg:1.000  pct:1.000  unit:1.000  eu:0.704  mix:1.000
+   H2    v0:0.786  thou:0.809  sfx:0.786  neg:0.774  pct:0.786  unit:0.786  eu:0.512  mix:0.782
+-- extractor v3 split confirm
+   pipe  v0:0.992  thou:0.992  sfx:0.992  neg:0.992  pct:0.992  unit:0.977  eu:0.860  mix:0.989
+   ws    v0:0.987  thou:0.987  sfx:0.987  neg:0.987  pct:0.987  unit:0.972  eu:0.855  mix:0.984
+   F2    v0:0.992  thou:0.992  sfx:0.992  neg:0.992  pct:0.992  unit:0.977  eu:0.860  mix:0.989
+   H2    v0:0.442  thou:0.442  sfx:0.442  neg:0.405  pct:0.442  unit:0.435  eu:0.297  mix:0.439
+   per gold-field-class F1 [v3 dev; pipe+ws+F2, v0+mix]: hdr_unit:1.000(n=6), pct:1.000(n=198), plain:0.999(n=26946), sfx:1.000(n=120), unit_other:0.985(n=66), unit_time:1.000(n=6)
+   per gold-field-class F1 [v3 held; pipe+ws+F2, v0+mix]: plain:0.996(n=22476)
+   per gold-field-class F1 [v3 confirm; pipe+ws+F2, v0+mix]: hdr_unit:0.000(n=48), pct:1.000(n=876), plain:0.999(n=4122), sfx:0.925(n=240), thousands:1.000(n=1200), unit_other:0.966(n=534), unit_size:0.998(n=972), unit_time:0.991(n=3312)
+
+## E3 abstention: precision/recall vs confidence threshold tau (v3, layouts ws+F2+H2+wrap+split, mix; fraction of extracted facts kept)
+  dev: tau0.0: P0.991 R0.967 F1 0.979 kept 1.00 | tau0.3: P0.991 R0.967 F1 0.979 kept 1.00 | tau0.5: P0.994 R0.785 F1 0.878 kept 0.81 | tau0.7: P0.994 R0.704 F1 0.824 kept 0.73 | tau0.85: P0.992 R0.511 F1 0.675 kept 0.53 | tau0.95: P0.000 R0.000 F1 0.000 kept 0.00
+     ECE (confidence vs strict correctness) 0.241 over 22214 extracted facts; per-bin acc: 3:0.00(n=5) 4:0.98(n=4222) 5:1.00(n=10) 6:1.00(n=1847) 7:1.00(n=4387) 9:0.99(n=11743)
+  held: tau0.0: P0.954 R0.899 F1 0.926 kept 1.00 | tau0.3: P0.954 R0.899 F1 0.926 kept 1.00 | tau0.5: P0.965 R0.760 F1 0.850 kept 0.84 | tau0.7: P0.963 R0.683 F1 0.799 kept 0.75 | tau0.85: P0.952 R0.493 F1 0.650 kept 0.55 | tau0.95: P0.000 R0.000 F1 0.000 kept 0.00
+     ECE (confidence vs strict correctness) 0.196 over 17641 extracted facts; per-bin acc: 3:0.00(n=58) 4:0.92(n=2835) 5:0.00(n=24) 6:0.99(n=1450) 7:1.00(n=3562) 9:0.95(n=9712)
+  confirm: tau0.0: P0.951 R0.817 F1 0.879 kept 1.00 | tau0.3: P0.953 R0.817 F1 0.880 kept 1.00 | tau0.5: P0.969 R0.766 F1 0.856 kept 0.92 | tau0.7: P0.975 R0.646 F1 0.777 kept 0.77 | tau0.85: P0.974 R0.529 F1 0.686 kept 0.63 | tau0.95: P0.000 R0.000 F1 0.000 kept 0.00
+     ECE (confidence vs strict correctness) 0.159 over 7829 extracted facts; per-bin acc: 2:0.00(n=12) 3:0.00(n=14) 4:0.78(n=595) 5:0.58(n=97) 6:0.97(n=1075) 7:0.98(n=1087) 9:0.97(n=4949)
+
+## V0 verifier check ablation (extractor v1, layouts pipe/ws/wrap/csv/F2, value formats v0+mix+eu): catch of wrong / false-flag on correct, per check set. DEV is where the default (all hard checks, outlier OFF) was frozen.
+  dev     all_hard: catch 0.674 ff 0.0024 | no_span: catch 0.000 ff 0.0000 | no_amb: catch 0.007 ff 0.0000 | no_footing: catch 0.674 ff 0.0024 | +magnitude_outlier: catch 0.674 ff 0.0029 | narrow_units: catch 0.674 ff 0.0024
+  held    all_hard: catch 0.613 ff 0.0047 | no_span: catch 0.000 ff 0.0000 | no_amb: catch 0.000 ff 0.0000 | no_footing: catch 0.613 ff 0.0047 | +magnitude_outlier: catch 0.613 ff 0.0050 | narrow_units: catch 0.613 ff 0.0047
+  confirm all_hard: catch 0.839 ff 0.0074 | no_span: catch 0.000 ff 0.0072 | no_amb: catch 0.836 ff 0.0072 | no_footing: catch 0.839 ff 0.0003 | +magnitude_outlier: catch 0.839 ff 0.0130 | narrow_units: catch 0.003 ff 0.0074
+
+## V1 verifier catch / false-flag on NATURAL extraction errors (extractor v1 = dev knowledge only; layouts pipe,ws,wrap,csv,F2; value formats v0+mix+eu)
+   catch = flagged / wrong-extracted ; false-flag = flagged / correct-extracted ; repair = flagged wrong facts for which the verifier proposes the TRUE value
+  v1 dev     v0+mix  verifier=full  : wrong=    55 CATCH 1.000 [1.000,1.000] repaired-to-truth 1.000 | correct= 45188 FALSE-FLAG 0.0004 [0.0000,0.0020] | junk(non-gold key) 0/54
+       reasons on wrong: {'value_mismatch': 55}  reasons on correct: {'ambiguous_sep': 20}
+  v1 dev     v0+mix  verifier=narrow: wrong=    55 CATCH 1.000 [1.000,1.000] repaired-to-truth 1.000 | correct= 45188 FALSE-FLAG 0.0004 [0.0000,0.0020] | junk(non-gold key) 0/54
+       reasons on wrong: {'value_mismatch': 55}  reasons on correct: {'ambiguous_sep': 20}
+       v1 dev v0+mix: P/R/F1 raw 0.998/0.992/0.995 | full-ver drop-flagged 0.999/0.991/0.995 | full-ver +repair 0.999/0.992/0.996 | narrow drop 0.999/0.991/0.995
+  v1 dev     eu      verifier=full  : wrong=  7171 CATCH 0.734 [0.509,0.779] repaired-to-truth 0.000 | correct=  4480 FALSE-FLAG 0.0217 [0.0000,0.0815] | junk(non-gold key) 0/618
+       reasons on wrong: {'ambiguous_sep': 5266}  reasons on correct: {'ambiguous_sep': 97}
+  v1 dev     eu      verifier=narrow: wrong=  7171 CATCH 0.734 [0.509,0.779] repaired-to-truth 0.000 | correct=  4480 FALSE-FLAG 0.0217 [0.0000,0.0815] | junk(non-gold key) 0/618
+       reasons on wrong: {'ambiguous_sep': 5266}  reasons on correct: {'ambiguous_sep': 97}
+       v1 dev eu: P/R/F1 raw 0.365/0.197/0.256 | full-ver drop-flagged 0.635/0.192/0.295 | full-ver +repair 0.635/0.192/0.295 | narrow drop 0.635/0.192/0.295
+  v1 held    v0+mix  verifier=full  : wrong=     0 CATCH nan [nan,nan] repaired-to-truth nan | correct= 36880 FALSE-FLAG 0.0011 [0.0000,0.0060] | junk(non-gold key) 0/338
+       reasons on wrong: {}  reasons on correct: {'ambiguous_sep': 42}
+  v1 held    v0+mix  verifier=narrow: wrong=     0 CATCH nan [nan,nan] repaired-to-truth nan | correct= 36880 FALSE-FLAG 0.0011 [0.0000,0.0060] | junk(non-gold key) 0/338
+       reasons on wrong: {}  reasons on correct: {'ambiguous_sep': 42}
+       v1 held v0+mix: P/R/F1 raw 0.991/0.985/0.988 | full-ver drop-flagged 0.991/0.983/0.987 | full-ver +repair 0.991/0.983/0.987 | narrow drop 0.991/0.983/0.987
+  v1 held    eu      verifier=full  : wrong=  4602 CATCH 0.713 [0.514,0.782] repaired-to-truth 0.000 | correct=  2600 FALSE-FLAG 0.0554 [0.0000,0.1067] | junk(non-gold key) 18/444
+       reasons on wrong: {'ambiguous_sep': 3282}  reasons on correct: {'ambiguous_sep': 144}
+  v1 held    eu      verifier=narrow: wrong=  4602 CATCH 0.713 [0.514,0.782] repaired-to-truth 0.000 | correct=  2600 FALSE-FLAG 0.0554 [0.0000,0.1067] | junk(non-gold key) 18/444
+       reasons on wrong: {'ambiguous_sep': 3282}  reasons on correct: {'ambiguous_sep': 144}
+       v1 held eu: P/R/F1 raw 0.340/0.139/0.197 | full-ver drop-flagged 0.584/0.131/0.214 | full-ver +repair 0.584/0.131/0.214 | narrow drop 0.584/0.131/0.214
+  v1 confirm v0+mix  verifier=full  : wrong=  4825 CATCH 0.994 [0.983,1.000] repaired-to-truth 0.875 | correct= 13760 FALSE-FLAG 0.0068 [0.0000,0.0208] | junk(non-gold key) 0/90
+       reasons on wrong: {'value_mismatch': 4795}  reasons on correct: {'ambiguous_sep': 4, 'footing_member': 80, 'footing': 10}
+  v1 confirm v0+mix  verifier=narrow: wrong=  4825 CATCH 0.000 [0.000,0.000] repaired-to-truth 0.000 | correct= 13760 FALSE-FLAG 0.0068 [0.0000,0.0208] | junk(non-gold key) 0/90
+       reasons on wrong: {}  reasons on correct: {'ambiguous_sep': 4, 'footing_member': 80, 'footing': 10}
+       v1 confirm v0+mix: P/R/F1 raw 0.737/0.730/0.734 | full-ver drop-flagged 0.991/0.725/0.838 | full-ver +repair 0.993/0.949/0.971 | narrow drop 0.735/0.725/0.730
+  v1 confirm eu      verifier=full  : wrong=  3541 CATCH 0.660 [0.415,0.906] repaired-to-truth 0.554 | correct=  5032 FALSE-FLAG 0.0091 [0.0000,0.0270] | junk(non-gold key) 0/45
+       reasons on wrong: {'value_mismatch': 2310, 'ambiguous_sep': 26}  reasons on correct: {'ambiguous_sep': 1, 'footing_member': 40, 'footing': 5}
+  v1 confirm eu      verifier=narrow: wrong=  3541 CATCH 0.007 [0.000,0.022] repaired-to-truth 0.000 | correct=  5032 FALSE-FLAG 0.0091 [0.0000,0.0270] | junk(non-gold key) 0/45
+       reasons on wrong: {'ambiguous_sep': 26}  reasons on correct: {'ambiguous_sep': 1, 'footing_member': 40, 'footing': 5}
+       v1 confirm eu: P/R/F1 raw 0.584/0.534/0.558 | full-ver drop-flagged 0.800/0.529/0.637 | full-ver +repair 0.847/0.737/0.789 | narrow drop 0.583/0.529/0.555
+  v3 dev     v0+mix  verifier=full  : wrong=     0 CATCH nan [nan,nan] repaired-to-truth nan | correct= 45442 FALSE-FLAG 0.0004 [0.0000,0.0020] | junk(non-gold key) 0/64
+       reasons on wrong: {}  reasons on correct: {'ambiguous_sep': 20}
+  v3 dev     v0+mix  verifier=narrow: wrong=     0 CATCH nan [nan,nan] repaired-to-truth nan | correct= 45442 FALSE-FLAG 0.0047 [0.0000,0.0148] | junk(non-gold key) 0/64
+       reasons on wrong: {}  reasons on correct: {'ambiguous_sep': 20, 'span_unparseable': 195}
+       v3 dev v0+mix: P/R/F1 raw 0.999/0.997/0.998 | full-ver drop-flagged 0.999/0.997/0.998 | full-ver +repair 0.999/0.997/0.998 | narrow drop 0.999/0.992/0.996
+  v3 dev     eu      verifier=full  : wrong=  7171 CATCH 0.734 [0.509,0.779] repaired-to-truth 0.000 | correct= 11362 FALSE-FLAG 0.0085 [0.0000,0.0241] | junk(non-gold key) 0/623
+       reasons on wrong: {'ambiguous_sep': 5266}  reasons on correct: {'ambiguous_sep': 97}
+  v3 dev     eu      verifier=narrow: wrong=  7171 CATCH 0.734 [0.509,0.779] repaired-to-truth 0.000 | correct= 11362 FALSE-FLAG 0.0085 [0.0000,0.0241] | junk(non-gold key) 0/623
+       reasons on wrong: {'ambiguous_sep': 5266}  reasons on correct: {'ambiguous_sep': 97}
+       v3 dev eu: P/R/F1 raw 0.593/0.499/0.542 | full-ver drop-flagged 0.817/0.494/0.616 | full-ver +repair 0.817/0.494/0.616 | narrow drop 0.817/0.494/0.616
+  v3 held    v0+mix  verifier=full  : wrong=     0 CATCH nan [nan,nan] repaired-to-truth nan | correct= 37060 FALSE-FLAG 0.0011 [0.0000,0.0060] | junk(non-gold key) 0/338
+       reasons on wrong: {}  reasons on correct: {'ambiguous_sep': 42}
+  v3 held    v0+mix  verifier=narrow: wrong=     0 CATCH nan [nan,nan] repaired-to-truth nan | correct= 37060 FALSE-FLAG 0.0060 [0.0008,0.0150] | junk(non-gold key) 0/338
+       reasons on wrong: {}  reasons on correct: {'ambiguous_sep': 42, 'span_unparseable': 180}
+       v3 held v0+mix: P/R/F1 raw 0.991/0.989/0.990 | full-ver drop-flagged 0.991/0.988/0.990 | full-ver +repair 0.991/0.988/0.990 | narrow drop 0.991/0.983/0.987
+  v3 held    eu      verifier=full  : wrong=  4602 CATCH 0.713 [0.514,0.782] repaired-to-truth 0.000 | correct= 10300 FALSE-FLAG 0.0140 [0.0000,0.0268] | junk(non-gold key) 18/552
+       reasons on wrong: {'ambiguous_sep': 3282}  reasons on correct: {'ambiguous_sep': 144}
+  v3 held    eu      verifier=narrow: wrong=  4602 CATCH 0.713 [0.514,0.782] repaired-to-truth 0.000 | correct= 10300 FALSE-FLAG 0.0140 [0.0000,0.0268] | junk(non-gold key) 18/552
+       reasons on wrong: {'ambiguous_sep': 3282}  reasons on correct: {'ambiguous_sep': 144}
+       v3 held eu: P/R/F1 raw 0.666/0.550/0.603 | full-ver drop-flagged 0.846/0.542/0.661 | full-ver +repair 0.846/0.542/0.661 | narrow drop 0.846/0.542/0.661
+  v3 confirm v0+mix  verifier=full  : wrong=   184 CATCH 0.815 [0.361,0.985] repaired-to-truth 0.815 | correct= 18476 FALSE-FLAG 0.0051 [0.0000,0.0178] | junk(non-gold key) 0/92
+       reasons on wrong: {'value_mismatch': 150}  reasons on correct: {'ambiguous_sep': 4, 'footing_member': 80, 'footing': 10}
+  v3 confirm v0+mix  verifier=narrow: wrong=   184 CATCH 0.000 [0.000,0.000] repaired-to-truth 0.000 | correct= 18476 FALSE-FLAG 0.2606 [0.1480,0.3925] | junk(non-gold key) 2/92
+       reasons on wrong: {}  reasons on correct: {'value_mismatch': 4645, 'ambiguous_sep': 4, 'span_unparseable': 75, 'footing_member': 80, 'footing': 10}
+       v3 confirm v0+mix: P/R/F1 raw 0.985/0.981/0.983 | full-ver drop-flagged 0.993/0.976/0.984 | full-ver +repair 0.993/0.984/0.988 | narrow drop 0.980/0.725/0.834
+  v3 confirm eu      verifier=full  : wrong=  1308 CATCH 0.079 [0.007,0.335] repaired-to-truth 0.057 | correct=  8022 FALSE-FLAG 0.0057 [0.0000,0.0207] | junk(non-gold key) 0/46
+       reasons on wrong: {'value_mismatch': 75, 'ambiguous_sep': 28}  reasons on correct: {'ambiguous_sep': 1, 'footing_member': 40, 'footing': 5}
+  v3 confirm eu      verifier=narrow: wrong=  1308 CATCH 0.021 [0.000,0.100] repaired-to-truth 0.000 | correct=  8022 FALSE-FLAG 0.2893 [0.1672,0.4156] | junk(non-gold key) 1/46
+       reasons on wrong: {'ambiguous_sep': 28}  reasons on correct: {'value_mismatch': 2275, 'ambiguous_sep': 1, 'footing_member': 40, 'footing': 5}
+       v3 confirm eu: P/R/F1 raw 0.856/0.852/0.854 | full-ver drop-flagged 0.864/0.847/0.855 | full-ver +repair 0.866/0.855/0.860 | narrow drop 0.811/0.605/0.693
+
+## V2 INJECTED errors into clean extractions (v3 on pipe/v0 renders; facts extracted correctly, then ONE field corrupted): catch by verifier (full / narrow)
+  dev     baseline false-flag on clean facts: full 0.0000 narrow 0.0000 (n=4557)
+     inject scale_x1000      n=  817 catch full 1.000 narrow 1.000   [value mutated, span text left unchanged]
+     inject scale_div1000    n=  817 catch full 1.000 narrow 1.000   [value mutated, span text left unchanged]
+     inject sign_flip        n=  817 catch full 1.000 narrow 1.000   [value mutated, span text left unchanged]
+     inject digit_transpose  n=  734 catch full 1.000 narrow 1.000   [value mutated, span text left unchanged]
+     inject decimal_div10    n=  817 catch full 1.000 narrow 1.000   [value mutated, span text left unchanged]
+  held    baseline false-flag on clean facts: full 0.0000 narrow 0.0000 (n=3746)
+     inject scale_x1000      n=  646 catch full 1.000 narrow 1.000   [value mutated, span text left unchanged]
+     inject scale_div1000    n=  646 catch full 1.000 narrow 1.000   [value mutated, span text left unchanged]
+     inject sign_flip        n=  646 catch full 1.000 narrow 1.000   [value mutated, span text left unchanged]
+     inject digit_transpose  n=  561 catch full 1.000 narrow 1.000   [value mutated, span text left unchanged]
+     inject decimal_div10    n=  646 catch full 1.000 narrow 1.000   [value mutated, span text left unchanged]
+  confirm baseline false-flag on clean facts: full 0.0048 narrow 0.2483 (n=1869)
+     inject scale_x1000      n=  591 catch full 1.000 narrow 1.000   [value mutated, span text left unchanged]
+     inject scale_div1000    n=  591 catch full 1.000 narrow 1.000   [value mutated, span text left unchanged]
+     inject sign_flip        n=  591 catch full 1.000 narrow 1.000   [value mutated, span text left unchanged]
+     inject digit_transpose  n=  525 catch full 1.000 narrow 1.000   [value mutated, span text left unchanged]
+     inject decimal_div10    n=  591 catch full 1.000 narrow 1.000   [value mutated, span text left unchanged]
+
+## V3 WRONG-CELL errors (value AND span move to a neighbouring cell in the same row; the hard class: span re-parse agrees with itself): catch by footing/other checks
+  dev     wrong-cell n=206 catch full 0.000 narrow 0.000; tables with a total row/col (footing applicable): 0/46
+  held    wrong-cell n=115 catch full 0.000 narrow 0.000; tables with a total row/col (footing applicable): 0/28
+  confirm wrong-cell n=128 catch full 0.055 narrow 0.320; tables with a total row/col (footing applicable): 10/175
+
+## V4 footing check on REAL tables with total rows/cols (strict 1% tolerance vs precision-aware tolerance): how often does a real "total" foot?
+  dev     {'applicable': 0, 'strict_fail': 0, 'precise_fail': 0}
+  held    {'applicable': 0, 'strict_fail': 0, 'precise_fail': 0}
+  confirm {'applicable': 10, 'strict_fail': 3, 'precise_fail': 1}
+
+## V5 cross-source agreement between two renderings of the same table (v1 extractor, mix surface in A vs original surface in B vs identical surface)
+  dev     same-surface ws/v0 vs F2/v0     : wrong A-facts 0: caught by conflict nan, agree-on-wrong nan, single-source nan | correct 4542: false conflict 0.0000
+  dev     diff-surface ws/mix vs F2/v0    : wrong A-facts 11: caught by conflict 1.000, agree-on-wrong 0.000, single-source 0.000 | correct 4456: false conflict 0.0000
+  dev     diff-surface ws/mix vs csv/v0   : wrong A-facts 11: caught by conflict 1.000, agree-on-wrong 0.000, single-source 0.000 | correct 4456: false conflict 0.0000
+  held    same-surface ws/v0 vs F2/v0     : wrong A-facts 0: caught by conflict nan, agree-on-wrong nan, single-source nan | correct 3746: false conflict 0.0000
+  held    diff-surface ws/mix vs F2/v0    : wrong A-facts 0: caught by conflict nan, agree-on-wrong nan, single-source nan | correct 3526: false conflict 0.0000
+  held    diff-surface ws/mix vs csv/v0   : wrong A-facts 0: caught by conflict nan, agree-on-wrong nan, single-source nan | correct 3526: false conflict 0.0000
+  confirm same-surface ws/v0 vs F2/v0     : wrong A-facts 470: caught by conflict 0.000, agree-on-wrong 1.000, single-source 0.000 | correct 1400: false conflict 0.0000
+  confirm diff-surface ws/mix vs F2/v0    : wrong A-facts 495: caught by conflict 0.448, agree-on-wrong 0.552, single-source 0.000 | correct 1360: false conflict 0.0059
+  confirm diff-surface ws/mix vs csv/v0   : wrong A-facts 495: caught by conflict 0.448, agree-on-wrong 0.552, single-source 0.000 | correct 1360: false conflict 0.0059
+
+## C1 CONTROL: NO-STRUCTURE REAL PROSE (non-table lines of the same files; any extracted fact is a false extraction)
+  v1 dev    : prose chunks with >=3 numbers 82, numbers 5217; chunks with >=1 false extraction 1 (0.012); false facts 2 (0.4 per 1000 numbers); flagged by verifier 0/2; mean conf 0.63; conf>=0.85: 0
+  v1 held   : prose chunks with >=3 numbers 71, numbers 4592; chunks with >=1 false extraction 1 (0.014); false facts 9 (2.0 per 1000 numbers); flagged by verifier 0/9; mean conf 0.90; conf>=0.85: 9
+  v1 confirm: prose chunks with >=3 numbers 2431, numbers 21473; chunks with >=1 false extraction 27 (0.011); false facts 91 (4.2 per 1000 numbers); flagged by verifier 1/91; mean conf 0.91; conf>=0.85: 83
+  v3 dev    : prose chunks with >=3 numbers 82, numbers 5217; chunks with >=1 false extraction 3 (0.037); false facts 5 (1.0 per 1000 numbers); flagged by verifier 0/5; mean conf 0.51; conf>=0.85: 0
+  v3 held   : prose chunks with >=3 numbers 71, numbers 4592; chunks with >=1 false extraction 2 (0.028); false facts 10 (2.2 per 1000 numbers); flagged by verifier 0/10; mean conf 0.84; conf>=0.85: 9
+  v3 confirm: prose chunks with >=3 numbers 2431, numbers 21473; chunks with >=1 false extraction 98 (0.040); false facts 349 (16.3 per 1000 numbers); flagged by verifier 55/349; mean conf 0.55; conf>=0.85: 84
+
+## C2 ADVERSARIAL / realistic-failure layouts built from real grids (extractor v3; ws base layout; full verifier)
+   silent-wrong = extracted facts with the right key-or-not but WRONG value / all extracted ; catch = flagged fraction of wrong+junk
+  dev     transposed      tables= 23 gold=  715 extracted=  623  P 0.421 R 0.366  silent-wrong+junk 361 (0.579 of extracted)  verifier catch 0.000 (narrow 0.000)  false-flag on correct 0.000
+  dev     blank_cells     tables= 46 gold= 3956 extracted= 3140  P 0.834 R 0.662  silent-wrong+junk 520 (0.166 of extracted)  verifier catch 0.000 (narrow 0.000)  false-flag on correct 0.000
+  dev     footnote_marks  tables= 46 gold= 4557 extracted= 4137  P 0.997 R 0.905  silent-wrong+junk 11 (0.003 of extracted)  verifier catch 0.000 (narrow 0.000)  false-flag on correct 0.000
+  dev     glued_units     tables= 46 gold= 4557 extracted= 4555  P 0.996 R 0.996  silent-wrong+junk 16 (0.004 of extracted)  verifier catch 0.000 (narrow 0.000)  false-flag on correct 0.000
+  dev     ocr_1pct        tables= 46 gold= 4557 extracted= 4494  P 0.987 R 0.973  silent-wrong+junk 59 (0.013 of extracted)  verifier catch 0.000 (narrow 0.000)  false-flag on correct 0.000
+  dev     side_by_side    tables= 41 gold= 1472 extracted= 4572  P 0.156 R 0.484  silent-wrong+junk 3859 (0.844 of extracted)  verifier catch 0.000 (narrow 0.000)  false-flag on correct 0.000
+  dev     wrapped_labels  tables= 46 gold= 4557 extracted= 2193  P 0.515 R 0.248  silent-wrong+junk 1064 (0.485 of extracted)  verifier catch 0.000 (narrow 0.000)  false-flag on correct 0.000
+  dev     repeated_header tables= 46 gold= 4557 extracted= 4528  P 0.999 R 0.993  silent-wrong+junk 5 (0.001 of extracted)  verifier catch 0.000 (narrow 0.000)  false-flag on correct 0.000
+  held    transposed      tables= 14 gold=  315 extracted=  315  P 0.937 R 0.937  silent-wrong+junk 20 (0.063 of extracted)  verifier catch 0.000 (narrow 0.000)  false-flag on correct 0.000
+  held    blank_cells     tables= 28 gold= 3329 extracted= 2485  P 0.818 R 0.610  silent-wrong+junk 453 (0.182 of extracted)  verifier catch 0.000 (narrow 0.000)  false-flag on correct 0.000
+  held    footnote_marks  tables= 28 gold= 3746 extracted= 3415  P 1.000 R 0.912  silent-wrong+junk 0 (0.000 of extracted)  verifier catch 0.000 (narrow 0.000)  false-flag on correct 0.000
+  held    glued_units     tables= 28 gold= 3746 extracted= 3746  P 1.000 R 1.000  silent-wrong+junk 0 (0.000 of extracted)  verifier catch 0.000 (narrow 0.000)  false-flag on correct 0.000
+  held    ocr_1pct        tables= 28 gold= 3746 extracted= 3685  P 0.986 R 0.970  silent-wrong+junk 53 (0.014 of extracted)  verifier catch 0.000 (narrow 0.000)  false-flag on correct 0.000
+  held    side_by_side    tables= 24 gold= 1068 extracted= 3832  P 0.151 R 0.540  silent-wrong+junk 3255 (0.849 of extracted)  verifier catch 0.000 (narrow 0.000)  false-flag on correct 0.000
+  held    wrapped_labels  tables= 28 gold= 3746 extracted= 1775  P 0.567 R 0.269  silent-wrong+junk 769 (0.433 of extracted)  verifier catch 0.000 (narrow 0.000)  false-flag on correct 0.000
+  held    repeated_header tables= 28 gold= 3746 extracted= 3670  P 0.997 R 0.977  silent-wrong+junk 11 (0.003 of extracted)  verifier catch 0.000 (narrow 0.000)  false-flag on correct 0.000
+  confirm transposed      tables=162 gold= 1432 extracted= 1043  P 0.802 R 0.584  silent-wrong+junk 206 (0.198 of extracted)  verifier catch 0.000 (narrow 0.199)  false-flag on correct 0.002
+  confirm blank_cells     tables=175 gold= 1630 extracted= 1527  P 0.933 R 0.874  silent-wrong+junk 103 (0.067 of extracted)  verifier catch 0.136 (narrow 0.155)  false-flag on correct 0.018
+  confirm footnote_marks  tables=175 gold= 1884 extracted= 1662  P 0.991 R 0.874  silent-wrong+junk 15 (0.009 of extracted)  verifier catch 0.867 (narrow 0.000)  false-flag on correct 0.005
+  confirm glued_units     tables=175 gold= 1884 extracted= 1883  P 0.973 R 0.972  silent-wrong+junk 51 (0.027 of extracted)  verifier catch 0.294 (narrow 0.000)  false-flag on correct 0.005
+  confirm ocr_1pct        tables=175 gold= 1884 extracted= 1849  P 0.974 R 0.956  silent-wrong+junk 48 (0.026 of extracted)  verifier catch 0.312 (narrow 0.146)  false-flag on correct 0.005
+  confirm side_by_side    tables=132 gold= 2332 extracted= 2072  P 0.593 R 0.527  silent-wrong+junk 844 (0.407 of extracted)  verifier catch 0.088 (narrow 0.212)  false-flag on correct 0.012
+  confirm wrapped_labels  tables=175 gold= 1884 extracted= 1741  P 0.761 R 0.703  silent-wrong+junk 416 (0.239 of extracted)  verifier catch 0.026 (narrow 0.276)  false-flag on correct 0.007
+  confirm repeated_header tables=175 gold= 1884 extracted= 1788  P 0.979 R 0.929  silent-wrong+junk 38 (0.021 of extracted)  verifier catch 0.342 (narrow 0.000)  false-flag on correct 0.005
+
+## B STRUCTURED FILES (Cargo.toml via tomllib, CHANGELOG headings, repo Cargo.lock) -> prose templates (dev families P1-P3 / L1-L3, HELD-OUT families Q1-Q4 / M1-M4)
+  crates: confirm=595, dev=282, held=323; repo Cargo.lock packages 679 (dev-only record source); crates with changelog entries>=3: 149
+  REAL cross-source facts: dir-name == name-version 1200/1200 (by construction of cargo, a vacuous check); CHANGELOG top entry == Cargo.toml version 140/165 crates with dated headings; Cargo.toml version appears anywhere in changelog headings 140/165; changelog dates monotone (>=3 entries) 110/149
+  cue(v1)    dev     dev-fam      : P 0.997 R 0.939 F1 0.967 | per-field F1 version:0.99 edition:1.00 license:0.84 rust_version:1.00 n_deps:1.00 | wrong+junk 8 caught by verifier 0.625; false-flag on correct 0.0000
+  cue(v1)    dev     HELD-OUT-fam : P 0.712 R 0.140 F1 0.234 | per-field F1 version:0.00 edition:0.67 license:0.00 rust_version:0.40 n_deps:0.00 | wrong+junk 189 caught by verifier 0.000; false-flag on correct 0.0000
+  cue(v1)    held    dev-fam      : P 0.996 R 0.939 F1 0.967 | per-field F1 version:0.99 edition:1.00 license:0.84 rust_version:1.00 n_deps:1.00 | wrong+junk 9 caught by verifier 0.444; false-flag on correct 0.0000
+  cue(v1)    held    HELD-OUT-fam : P 0.697 R 0.136 F1 0.228 | per-field F1 version:0.00 edition:0.67 license:0.00 rust_version:0.40 n_deps:0.00 | wrong+junk 213 caught by verifier 0.000; false-flag on correct 0.0000
+  cue(v1)    confirm dev-fam      : P 0.999 R 0.938 F1 0.968 | per-field F1 version:1.00 edition:1.00 license:0.84 rust_version:1.00 n_deps:1.00 | wrong+junk 3 caught by verifier 0.333; false-flag on correct 0.0000
+  cue(v1)    confirm HELD-OUT-fam : P 0.710 R 0.136 F1 0.228 | per-field F1 version:0.00 edition:0.67 license:0.00 rust_version:0.40 n_deps:0.00 | wrong+junk 384 caught by verifier 0.000; false-flag on correct 0.0000
+  shape(v2)  dev     dev-fam      : P 0.984 R 0.982 F1 0.983 | per-field F1 version:0.99 edition:1.00 license:0.93 rust_version:1.00 n_deps:1.00 | wrong+junk 41 caught by verifier 0.122; false-flag on correct 0.0000
+  shape(v2)  dev     HELD-OUT-fam : P 0.984 R 0.880 F1 0.929 | per-field F1 version:1.00 edition:0.86 license:0.93 rust_version:1.00 n_deps:0.86 | wrong+junk 48 caught by verifier 0.000; false-flag on correct 0.0000
+  shape(v2)  held    dev-fam      : P 0.984 R 0.984 F1 0.984 | per-field F1 version:0.99 edition:1.00 license:0.93 rust_version:1.00 n_deps:1.00 | wrong+junk 43 caught by verifier 0.093; false-flag on correct 0.0000
+  shape(v2)  held    HELD-OUT-fam : P 0.984 R 0.880 F1 0.929 | per-field F1 version:1.00 edition:0.86 license:0.93 rust_version:1.00 n_deps:0.86 | wrong+junk 52 caught by verifier 0.000; false-flag on correct 0.0000
+  shape(v2)  confirm dev-fam      : P 0.978 R 0.977 F1 0.978 | per-field F1 version:1.00 edition:1.00 license:0.90 rust_version:1.00 n_deps:1.00 | wrong+junk 115 caught by verifier 0.009; false-flag on correct 0.0000
+  shape(v2)  confirm HELD-OUT-fam : P 0.975 R 0.873 F1 0.921 | per-field F1 version:1.00 edition:0.86 license:0.90 rust_version:1.00 n_deps:0.86 | wrong+junk 152 caught by verifier 0.000; false-flag on correct 0.0000
+  per-family F1, confirm crates (cue / shape):
+     P1: cue 0.911 shape 0.977
+     P2: cue 1.000 shape 0.978
+     P3: cue 0.988 shape 0.978
+     Q1: cue 0.333 shape 0.978
+     Q2: cue 0.000 shape 0.978
+     Q3: cue 0.000 shape 0.707
+     Q4: cue 0.440 shape 0.978
+  CROSS-SOURCE between two family renderings of the same crate (shape extractor; A = family under test, B = P2): wrong+junk facts caught by A/B disagreement; false conflicts on correct facts
+     A=P1: wrong+junk 39 caught 0.026 (agree-on-wrong 0.974); false conflict on correct 0.0000
+     A=Q1: wrong+junk 38 caught 0.000 (agree-on-wrong 1.000); false conflict on correct 0.0000
+     A=Q2: wrong+junk 38 caught 0.000 (agree-on-wrong 1.000); false conflict on correct 0.0000
+     A=Q3: wrong+junk 38 caught 0.000 (agree-on-wrong 1.000); false conflict on correct 0.0000
+     A=Q4: wrong+junk 38 caught 0.000 (agree-on-wrong 1.000); false conflict on correct 0.0000
+  changelog cue(v1)    dev     dev-fam      : P 1.000 R 1.000 F1 1.000 | wrong+junk 0 verifier-flagged 0.000 (ambiguous DD/MM dates flagged 0 of 1380 correct)
+  changelog cue(v1)    dev     HELD-OUT-fam : P 0.000 R 0.000 F1 0.000 | wrong+junk 0 verifier-flagged 0.000 (ambiguous DD/MM dates flagged 0 of 0 correct)
+  changelog cue(v1)    held    dev-fam      : P 1.000 R 1.000 F1 1.000 | wrong+junk 0 verifier-flagged 0.000 (ambiguous DD/MM dates flagged 0 of 951 correct)
+  changelog cue(v1)    held    HELD-OUT-fam : P 0.000 R 0.000 F1 0.000 | wrong+junk 0 verifier-flagged 0.000 (ambiguous DD/MM dates flagged 0 of 0 correct)
+  changelog cue(v1)    confirm dev-fam      : P 1.000 R 1.000 F1 1.000 | wrong+junk 0 verifier-flagged 0.000 (ambiguous DD/MM dates flagged 0 of 2511 correct)
+  changelog cue(v1)    confirm HELD-OUT-fam : P 0.000 R 0.000 F1 0.000 | wrong+junk 0 verifier-flagged 0.000 (ambiguous DD/MM dates flagged 0 of 0 correct)
+  changelog shape(v2)  dev     dev-fam      : P 1.000 R 1.000 F1 1.000 | wrong+junk 0 verifier-flagged 0.000 (ambiguous DD/MM dates flagged 0 of 1380 correct)
+  changelog shape(v2)  dev     HELD-OUT-fam : P 1.000 R 0.750 F1 0.857 | wrong+junk 0 verifier-flagged 0.000 (ambiguous DD/MM dates flagged 155 of 1380 correct)
+  changelog shape(v2)  held    dev-fam      : P 1.000 R 1.000 F1 1.000 | wrong+junk 0 verifier-flagged 0.000 (ambiguous DD/MM dates flagged 0 of 951 correct)
+  changelog shape(v2)  held    HELD-OUT-fam : P 1.000 R 0.750 F1 0.857 | wrong+junk 0 verifier-flagged 0.000 (ambiguous DD/MM dates flagged 113 of 951 correct)
+  changelog shape(v2)  confirm dev-fam      : P 1.000 R 1.000 F1 1.000 | wrong+junk 0 verifier-flagged 0.000 (ambiguous DD/MM dates flagged 0 of 2511 correct)
+  changelog shape(v2)  confirm HELD-OUT-fam : P 1.000 R 0.750 F1 0.857 | wrong+junk 0 verifier-flagged 0.000 (ambiguous DD/MM dates flagged 292 of 2511 correct)
+  per-family F1 changelog, confirm (cue / shape):
+     L1: cue 1.000 shape 1.000
+     L2: cue 1.000 shape 1.000
+     L3: cue 1.000 shape 1.000
+     M1: cue 0.000 shape 1.000
+     M2: cue 0.000 shape 1.000
+     M3: cue 0.000 shape 1.000
+     M4: cue 0.000 shape 0.000
+
+## C REAL FINANCE/ECONOMICS-STYLE NUMERIC TEXT ON DISK (read-only survey; NO labels for prose amounts => coverage/agreement only)
+  dev: currency_amounts=102, currency_with_magnitude_suffix_or_word=38, files=66, parsers_agree=102, percent_values=1280, size_values_KB_MB_GB=366, timing_values_ns_us_ms=341
+  held: currency_amounts=4, files=56, parsers_agree=2, percent_values=625, size_values_KB_MB_GB=238, timing_values_ns_us_ms=251, unparsed_by_one_parser=2
+  confirm: currency_amounts=17, currency_with_magnitude_suffix_or_word=3, files=1858, parsers_agree=17, percent_values=903, size_values_KB_MB_GB=1120, timing_values_ns_us_ms=1561
+  LICENSE copyright-year lines in vendored crates: 1062 (year ranges parsed; implausible/inverted: 0); mean span width 1.1 years
+  copyright_end_year < earliest-changelog-year-1 (cheap inconsistency screen) 79/225 crates with both
+  What does NOT exist on disk: no real financial statements, filings, earnings text, price series, or prose with labelled amounts; the only finance-flavoured material is the repo market-research / finance-packages catalog markdown (package popularity "~110M/mo", "$11.5B" market figures in prose) and crate benchmark tables (ns/MB/s).
+
+## D DOWNSTREAM QA (questions from the REAL grid: lookup, argmax, column sum/mean, ratio, growth; reader = ASSUMED noise model, extraction arms exact)
+   noise constants (ASSUMPTIONS, h19 values): E0=0.010 A_DIS=0.0004 B_LEN=0.006 C_SCALE=0.030 C_LAY=0.006 E_ARITH=0.020 ; costs tool 0.05 spec 0.10 verifier 0.02 fallback full read 1.0 ; spec failure E_SPEC=0.02
+  extractor v1 split dev cond MIX(deployment mixture, 50% clean/50% perturbed values) noise x1.0 (questions 5532)
+     plain          acc 0.7607 cost 1.000
+     ext            acc 0.9005 diff-vs-plain +0.1397 [+0.1071,+0.1755] p=0.0000 cost 0.469 | answered-right 0.678 answered-WRONG(silent) 0.004 fallback 0.319
+     tau            acc 0.9005 diff-vs-plain +0.1397 [+0.1071,+0.1755] p=0.0000 cost 0.469 | answered-right 0.678 answered-WRONG(silent) 0.004 fallback 0.319
+     ver_full       acc 0.9030 diff-vs-plain +0.1423 [+0.1079,+0.1790] p=0.0000 cost 0.495 | answered-right 0.675 answered-WRONG(silent) 0.000 fallback 0.325
+     ver_full_rep   acc 0.9035 diff-vs-plain +0.1428 [+0.1080,+0.1803] p=0.0000 cost 0.491 | answered-right 0.679 answered-WRONG(silent) 0.000 fallback 0.321
+     ver_narrow     acc 0.9030 diff-vs-plain +0.1423 [+0.1079,+0.1790] p=0.0000 cost 0.495 | answered-right 0.675 answered-WRONG(silent) 0.000 fallback 0.325
+     ver_full_xsrc  acc 0.9030 diff-vs-plain +0.1423 [+0.1079,+0.1790] p=0.0000 cost 0.545 | answered-right 0.675 answered-WRONG(silent) 0.000 fallback 0.325
+     ver_rand15     acc 0.7875 diff-vs-plain +0.0268 [+0.0202,+0.0357] p=0.0000 cost 0.783 | answered-right 0.385 answered-WRONG(silent) 0.002 fallback 0.613
+       Holm-adjusted p (over arms, this cond): ext:0.0000, tau:0.0000, ver_full:0.0000, ver_full_rep:0.0000, ver_narrow:0.0000, ver_full_xsrc:0.0000, ver_rand15:0.0000
+  extractor v1 split dev cond pipe-only (native markdown) noise x1.0 (questions 5532)
+     plain          acc 0.7820 cost 1.000
+     ext            acc 0.9743 diff-vs-plain +0.1923 [+0.1497,+0.2437] p=0.0000 cost 0.155 | answered-right 0.990 answered-WRONG(silent) 0.005 fallback 0.005
+     tau            acc 0.9743 diff-vs-plain +0.1923 [+0.1497,+0.2437] p=0.0000 cost 0.155 | answered-right 0.990 answered-WRONG(silent) 0.005 fallback 0.005
+     ver_full       acc 0.9785 diff-vs-plain +0.1966 [+0.1516,+0.2487] p=0.0000 cost 0.180 | answered-right 0.990 answered-WRONG(silent) 0.000 fallback 0.010
+     ver_full_rep   acc 0.9793 diff-vs-plain +0.1973 [+0.1522,+0.2497] p=0.0000 cost 0.175 | answered-right 0.995 answered-WRONG(silent) 0.000 fallback 0.005
+     ver_narrow     acc 0.9785 diff-vs-plain +0.1966 [+0.1516,+0.2487] p=0.0000 cost 0.180 | answered-right 0.990 answered-WRONG(silent) 0.000 fallback 0.010
+     ver_full_xsrc  acc 0.9785 diff-vs-plain +0.1966 [+0.1516,+0.2487] p=0.0000 cost 0.230 | answered-right 0.990 answered-WRONG(silent) 0.000 fallback 0.010
+     ver_rand15     acc 0.8238 diff-vs-plain +0.0418 [+0.0320,+0.0543] p=0.0000 cost 0.600 | answered-right 0.566 answered-WRONG(silent) 0.003 fallback 0.430
+       Holm-adjusted p (over arms, this cond): ext:0.0000, tau:0.0000, ver_full:0.0000, ver_full_rep:0.0000, ver_narrow:0.0000, ver_full_xsrc:0.0000, ver_rand15:0.0000
+  extractor v1 split dev cond HARD(ws,wrap,csv,H1-3,split,merged) noise x1.0 (questions 5532)
+     plain          acc 0.7505 cost 1.000
+     ext            acc 0.8478 diff-vs-plain +0.0973 [+0.0724,+0.1221] p=0.0000 cost 0.688 | answered-right 0.460 answered-WRONG(silent) 0.003 fallback 0.538
+     tau            acc 0.8478 diff-vs-plain +0.0973 [+0.0724,+0.1221] p=0.0000 cost 0.688 | answered-right 0.460 answered-WRONG(silent) 0.003 fallback 0.538
+     ver_full       acc 0.8494 diff-vs-plain +0.0989 [+0.0720,+0.1257] p=0.0000 cost 0.714 | answered-right 0.456 answered-WRONG(silent) 0.000 fallback 0.544
+     ver_full_rep   acc 0.8498 diff-vs-plain +0.0993 [+0.0722,+0.1268] p=0.0000 cost 0.711 | answered-right 0.459 answered-WRONG(silent) 0.000 fallback 0.541
+     ver_narrow     acc 0.8494 diff-vs-plain +0.0989 [+0.0720,+0.1257] p=0.0000 cost 0.714 | answered-right 0.456 answered-WRONG(silent) 0.000 fallback 0.544
+     ver_full_xsrc  acc 0.8494 diff-vs-plain +0.0989 [+0.0720,+0.1257] p=0.0000 cost 0.764 | answered-right 0.456 answered-WRONG(silent) 0.000 fallback 0.544
+     ver_rand15     acc 0.7648 diff-vs-plain +0.0144 [+0.0098,+0.0220] p=0.0000 cost 0.912 | answered-right 0.257 answered-WRONG(silent) 0.002 fallback 0.742
+       Holm-adjusted p (over arms, this cond): ext:0.0000, tau:0.0000, ver_full:0.0000, ver_full_rep:0.0000, ver_narrow:0.0000, ver_full_xsrc:0.0000, ver_rand15:0.0000
+  extractor v1 split dev: per-layout accuracy (noise x1, vf=all) plain / ext / ext+ver_full / ext+ver_full_rep / ver_narrow / cost(ver_full)
+     pipe   0.782 / 0.974 / 0.979 / 0.979 / 0.979  cost 0.18
+     ws     0.760 / 0.965 / 0.969 / 0.970 / 0.969  cost 0.23
+     csv    0.764 / 0.974 / 0.973 / 0.974 / 0.973  cost 0.21
+     wrap   0.741 / 0.964 / 0.968 / 0.969 / 0.968  cost 0.23
+     F2     0.757 / 0.974 / 0.978 / 0.979 / 0.978  cost 0.18
+     H1     0.757 / 0.742 / 0.742 / 0.742 / 0.742  cost 1.17
+     H2     0.757 / 0.741 / 0.741 / 0.741 / 0.741  cost 1.17
+     H3     0.757 / 0.742 / 0.742 / 0.742 / 0.742  cost 1.17
+     split  0.738 / 0.875 / 0.879 / 0.880 / 0.879  cost 0.63
+     merged 0.704 / 0.690 / 0.690 / 0.690 / 0.690  cost 1.17
+  extractor v1 split dev: per-question-type accuracy under MIX (plain / ext / ver_full)
+     lookup    n= 1724 0.923 / 0.951 / 0.954
+     argmax    n=  608 0.572 / 0.845 / 0.845
+     col_sum   n=  844 0.568 / 0.847 / 0.846
+     col_mean  n=  844 0.557 / 0.843 / 0.842
+     ratio     n=  756 0.882 / 0.930 / 0.937
+     growth    n=  756 0.864 / 0.924 / 0.931
+  extractor v1 split dev: SENSITIVITY under MIX: reader-noise multiplier -> plain / ext / ver_full / ver_full_rep (cost ver_full)
+     x0.05  0.9827 / 0.9897 / 0.9933 / 0.9933  cost 0.49
+     x0.1   0.9663 / 0.9833 / 0.9869 / 0.9869  cost 0.49
+     x0.25  0.9216 / 0.9658 / 0.9692 / 0.9694  cost 0.49
+     x0.5   0.8585 / 0.9408 / 0.9439 / 0.9442  cost 0.49
+     x1.0   0.7607 / 0.9005 / 0.9030 / 0.9035  cost 0.49
+     x2.0   0.6242 / 0.8397 / 0.8413 / 0.8423  cost 0.49
+     x4.0   0.4528 / 0.7533 / 0.7536 / 0.7553  cost 0.49
+     spec-step cost 0.05: cost ver_full 0.445 (plain 1.000)
+     spec-step cost 0.1: cost ver_full 0.495 (plain 1.000)
+     spec-step cost 0.3: cost ver_full 0.695 (plain 1.000)
+     spec-step error E_SPEC=0.0: plain/ext/ver_full 0.7607/0.9188/0.9214
+     spec-step error E_SPEC=0.02: plain/ext/ver_full 0.7607/0.9005/0.9030
+     spec-step error E_SPEC=0.1: plain/ext/ver_full 0.7607/0.8269/0.8293
+  extractor v1 split held cond MIX(deployment mixture, 50% clean/50% perturbed values) noise x1.0 (questions 3296)
+     plain          acc 0.7706 cost 1.000
+     ext            acc 0.9065 diff-vs-plain +0.1358 [+0.0911,+0.1922] p=0.0000 cost 0.463 | answered-right 0.687 answered-WRONG(silent) 0.000 fallback 0.313
+     tau            acc 0.9065 diff-vs-plain +0.1358 [+0.0911,+0.1922] p=0.0000 cost 0.463 | answered-right 0.687 answered-WRONG(silent) 0.000 fallback 0.313
+     ver_full       acc 0.9064 diff-vs-plain +0.1358 [+0.0911,+0.1922] p=0.0000 cost 0.483 | answered-right 0.687 answered-WRONG(silent) 0.000 fallback 0.313
+     ver_full_rep   acc 0.9064 diff-vs-plain +0.1358 [+0.0911,+0.1922] p=0.0000 cost 0.483 | answered-right 0.687 answered-WRONG(silent) 0.000 fallback 0.313
+     ver_narrow     acc 0.9064 diff-vs-plain +0.1358 [+0.0911,+0.1922] p=0.0000 cost 0.483 | answered-right 0.687 answered-WRONG(silent) 0.000 fallback 0.313
+     ver_full_xsrc  acc 0.9064 diff-vs-plain +0.1358 [+0.0911,+0.1922] p=0.0000 cost 0.533 | answered-right 0.687 answered-WRONG(silent) 0.000 fallback 0.313
+     ver_rand15     acc 0.7977 diff-vs-plain +0.0270 [+0.0224,+0.0320] p=0.0000 cost 0.778 | answered-right 0.392 answered-WRONG(silent) 0.000 fallback 0.608
+       Holm-adjusted p (over arms, this cond): ext:0.0000, tau:0.0000, ver_full:0.0000, ver_full_rep:0.0000, ver_narrow:0.0000, ver_full_xsrc:0.0000, ver_rand15:0.0000
+  extractor v1 split held cond pipe-only (native markdown) noise x1.0 (questions 3296)
+     plain          acc 0.7909 cost 1.000
+     ext            acc 0.9781 diff-vs-plain +0.1872 [+0.1236,+0.2715] p=0.0000 cost 0.161 | answered-right 0.989 answered-WRONG(silent) 0.000 fallback 0.011
+     tau            acc 0.9781 diff-vs-plain +0.1872 [+0.1236,+0.2715] p=0.0000 cost 0.161 | answered-right 0.989 answered-WRONG(silent) 0.000 fallback 0.011
+     ver_full       acc 0.9781 diff-vs-plain +0.1872 [+0.1236,+0.2715] p=0.0000 cost 0.181 | answered-right 0.989 answered-WRONG(silent) 0.000 fallback 0.011
+     ver_full_rep   acc 0.9781 diff-vs-plain +0.1872 [+0.1236,+0.2715] p=0.0000 cost 0.181 | answered-right 0.989 answered-WRONG(silent) 0.000 fallback 0.011
+     ver_narrow     acc 0.9781 diff-vs-plain +0.1872 [+0.1236,+0.2715] p=0.0000 cost 0.181 | answered-right 0.989 answered-WRONG(silent) 0.000 fallback 0.011
+     ver_full_xsrc  acc 0.9781 diff-vs-plain +0.1872 [+0.1236,+0.2715] p=0.0000 cost 0.231 | answered-right 0.989 answered-WRONG(silent) 0.000 fallback 0.011
+     ver_rand15     acc 0.8307 diff-vs-plain +0.0398 [+0.0347,+0.0455] p=0.0000 cost 0.608 | answered-right 0.562 answered-WRONG(silent) 0.000 fallback 0.438
+       Holm-adjusted p (over arms, this cond): ext:0.0000, tau:0.0000, ver_full:0.0000, ver_full_rep:0.0000, ver_narrow:0.0000, ver_full_xsrc:0.0000, ver_rand15:0.0000
+  extractor v1 split held cond HARD(ws,wrap,csv,H1-3,split,merged) noise x1.0 (questions 3296)
+     plain          acc 0.7604 cost 1.000
+     ext            acc 0.8536 diff-vs-plain +0.0933 [+0.0629,+0.1322] p=0.0000 cost 0.681 | answered-right 0.469 answered-WRONG(silent) 0.000 fallback 0.531
+     tau            acc 0.8536 diff-vs-plain +0.0933 [+0.0629,+0.1322] p=0.0000 cost 0.681 | answered-right 0.469 answered-WRONG(silent) 0.000 fallback 0.531
+     ver_full       acc 0.8536 diff-vs-plain +0.0932 [+0.0629,+0.1322] p=0.0000 cost 0.701 | answered-right 0.469 answered-WRONG(silent) 0.000 fallback 0.531
+     ver_full_rep   acc 0.8536 diff-vs-plain +0.0932 [+0.0629,+0.1322] p=0.0000 cost 0.701 | answered-right 0.469 answered-WRONG(silent) 0.000 fallback 0.531
+     ver_narrow     acc 0.8536 diff-vs-plain +0.0932 [+0.0629,+0.1322] p=0.0000 cost 0.701 | answered-right 0.469 answered-WRONG(silent) 0.000 fallback 0.531
+     ver_full_xsrc  acc 0.8536 diff-vs-plain +0.0932 [+0.0629,+0.1322] p=0.0000 cost 0.751 | answered-right 0.469 answered-WRONG(silent) 0.000 fallback 0.531
+     ver_rand15     acc 0.7766 diff-vs-plain +0.0162 [+0.0117,+0.0211] p=0.0000 cost 0.900 | answered-right 0.270 answered-WRONG(silent) 0.000 fallback 0.730
+       Holm-adjusted p (over arms, this cond): ext:0.0000, tau:0.0000, ver_full:0.0000, ver_full_rep:0.0000, ver_narrow:0.0000, ver_full_xsrc:0.0000, ver_rand15:0.0000
+  extractor v1 split held: per-layout accuracy (noise x1, vf=all) plain / ext / ext+ver_full / ext+ver_full_rep / ver_narrow / cost(ver_full)
+     pipe   0.791 / 0.978 / 0.978 / 0.978 / 0.978  cost 0.18
+     ws     0.771 / 0.971 / 0.971 / 0.971 / 0.971  cost 0.20
+     csv    0.774 / 0.978 / 0.978 / 0.978 / 0.978  cost 0.19
+     wrap   0.753 / 0.970 / 0.970 / 0.970 / 0.970  cost 0.20
+     F2     0.767 / 0.978 / 0.978 / 0.978 / 0.978  cost 0.18
+     H1     0.766 / 0.751 / 0.751 / 0.751 / 0.751  cost 1.17
+     H2     0.766 / 0.751 / 0.751 / 0.751 / 0.751  cost 1.17
+     H3     0.766 / 0.751 / 0.751 / 0.751 / 0.751  cost 1.17
+     split  0.753 / 0.858 / 0.858 / 0.858 / 0.858  cost 0.69
+     merged 0.657 / 0.644 / 0.644 / 0.644 / 0.644  cost 1.17
+  extractor v1 split held: per-question-type accuracy under MIX (plain / ext / ver_full)
+     lookup    n= 1036 0.925 / 0.956 / 0.956
+     argmax    n=  206 0.622 / 0.850 / 0.850
+     col_sum   n=  518 0.546 / 0.840 / 0.840
+     col_mean  n=  518 0.535 / 0.837 / 0.837
+     ratio     n=  500 0.887 / 0.939 / 0.939
+     growth    n=  518 0.870 / 0.934 / 0.934
+  extractor v1 split held: SENSITIVITY under MIX: reader-noise multiplier -> plain / ext / ver_full / ver_full_rep (cost ver_full)
+     x0.05  0.9830 / 0.9934 / 0.9934 / 0.9934  cost 0.48
+     x0.1   0.9669 / 0.9871 / 0.9871 / 0.9871  cost 0.48
+     x0.25  0.9231 / 0.9698 / 0.9697 / 0.9697  cost 0.48
+     x0.5   0.8622 / 0.9452 / 0.9451 / 0.9451  cost 0.48
+     x1.0   0.7706 / 0.9065 / 0.9064 / 0.9064  cost 0.48
+     x2.0   0.6472 / 0.8499 / 0.8498 / 0.8498  cost 0.48
+     x4.0   0.4867 / 0.7672 / 0.7671 / 0.7671  cost 0.48
+     spec-step cost 0.05: cost ver_full 0.433 (plain 1.000)
+     spec-step cost 0.1: cost ver_full 0.483 (plain 1.000)
+     spec-step cost 0.3: cost ver_full 0.683 (plain 1.000)
+     spec-step error E_SPEC=0.0: plain/ext/ver_full 0.7706/0.9250/0.9249
+     spec-step error E_SPEC=0.02: plain/ext/ver_full 0.7706/0.9065/0.9064
+     spec-step error E_SPEC=0.1: plain/ext/ver_full 0.7706/0.8325/0.8324
+  extractor v1 split confirm cond MIX(deployment mixture, 50% clean/50% perturbed values) noise x1.0 (questions 17249)
+     plain          acc 0.8611 cost 1.000
+     ext            acc 0.8239 diff-vs-plain -0.0372 [-0.0858,+0.0030] p=0.0971 cost 0.450 | answered-right 0.583 answered-WRONG(silent) 0.116 fallback 0.300
+     tau            acc 0.8239 diff-vs-plain -0.0372 [-0.0858,+0.0030] p=0.0971 cost 0.450 | answered-right 0.583 answered-WRONG(silent) 0.116 fallback 0.300
+     ver_full       acc 0.9072 diff-vs-plain +0.0461 [+0.0347,+0.0579] p=0.0000 cost 0.629 | answered-right 0.537 answered-WRONG(silent) 0.004 fallback 0.459
+     ver_full_rep   acc 0.9287 diff-vs-plain +0.0676 [+0.0583,+0.0780] p=0.0000 cost 0.489 | answered-right 0.677 answered-WRONG(silent) 0.004 fallback 0.319
+     ver_narrow     acc 0.8231 diff-vs-plain -0.0380 [-0.0864,+0.0017] p=0.0888 cost 0.474 | answered-right 0.579 answered-WRONG(silent) 0.116 fallback 0.304
+     ver_full_xsrc  acc 0.9106 diff-vs-plain +0.0495 [+0.0391,+0.0601] p=0.0000 cost 0.684 | answered-right 0.536 answered-WRONG(silent) 0.000 fallback 0.464
+     ver_rand15     acc 0.8147 diff-vs-plain -0.0464 [-0.0777,-0.0197] p=0.0018 cost 0.722 | answered-right 0.373 answered-WRONG(silent) 0.075 fallback 0.552
+       Holm-adjusted p (over arms, this cond): ext:0.2663, tau:0.2663, ver_full:0.0000, ver_full_rep:0.0000, ver_narrow:0.2663, ver_full_xsrc:0.0000, ver_rand15:0.0071
+  extractor v1 split confirm cond pipe-only (native markdown) noise x1.0 (questions 17249)
+     plain          acc 0.8741 cost 1.000
+     ext            acc 0.8187 diff-vs-plain -0.0554 [-0.1243,+0.0022] p=0.0820 cost 0.152 | answered-right 0.834 answered-WRONG(silent) 0.164 fallback 0.002
+     tau            acc 0.8187 diff-vs-plain -0.0554 [-0.1243,+0.0022] p=0.0820 cost 0.152 | answered-right 0.834 answered-WRONG(silent) 0.164 fallback 0.002
+     ver_full       acc 0.9393 diff-vs-plain +0.0653 [+0.0500,+0.0810] p=0.0000 cost 0.397 | answered-right 0.768 answered-WRONG(silent) 0.006 fallback 0.227
+     ver_full_rep   acc 0.9676 diff-vs-plain +0.0935 [+0.0810,+0.1080] p=0.0000 cost 0.198 | answered-right 0.966 answered-WRONG(silent) 0.006 fallback 0.028
+     ver_narrow     acc 0.8177 diff-vs-plain -0.0563 [-0.1252,+0.0012] p=0.0759 cost 0.177 | answered-right 0.829 answered-WRONG(silent) 0.164 fallback 0.007
+     ver_full_xsrc  acc 0.9441 diff-vs-plain +0.0700 [+0.0561,+0.0845] p=0.0000 cost 0.453 | answered-right 0.767 answered-WRONG(silent) 0.000 fallback 0.233
+     ver_rand15     acc 0.8099 diff-vs-plain -0.0641 [-0.1088,-0.0253] p=0.0025 cost 0.533 | answered-right 0.531 answered-WRONG(silent) 0.106 fallback 0.363
+       Holm-adjusted p (over arms, this cond): ext:0.2277, tau:0.2277, ver_full:0.0000, ver_full_rep:0.0000, ver_narrow:0.2277, ver_full_xsrc:0.0000, ver_rand15:0.0099
+  extractor v1 split confirm cond HARD(ws,wrap,csv,H1-3,split,merged) noise x1.0 (questions 17249)
+     plain          acc 0.8557 cost 1.000
+     ext            acc 0.8285 diff-vs-plain -0.0272 [-0.0599,-0.0001] p=0.0776 cost 0.671 | answered-right 0.399 answered-WRONG(silent) 0.080 fallback 0.521
+     tau            acc 0.8285 diff-vs-plain -0.0272 [-0.0599,-0.0001] p=0.0776 cost 0.671 | answered-right 0.399 answered-WRONG(silent) 0.080 fallback 0.521
+     ver_full       acc 0.8844 diff-vs-plain +0.0287 [+0.0201,+0.0374] p=0.0000 cost 0.799 | answered-right 0.368 answered-WRONG(silent) 0.003 fallback 0.629
+     ver_full_rep   acc 0.8999 diff-vs-plain +0.0443 [+0.0373,+0.0516] p=0.0000 cost 0.704 | answered-right 0.463 answered-WRONG(silent) 0.003 fallback 0.534
+     ver_narrow     acc 0.8279 diff-vs-plain -0.0278 [-0.0606,-0.0008] p=0.0699 cost 0.694 | answered-right 0.396 answered-WRONG(silent) 0.080 fallback 0.524
+     ver_full_xsrc  acc 0.8868 diff-vs-plain +0.0312 [+0.0235,+0.0390] p=0.0000 cost 0.852 | answered-right 0.368 answered-WRONG(silent) 0.000 fallback 0.632
+     ver_rand15     acc 0.8208 diff-vs-plain -0.0348 [-0.0562,-0.0166] p=0.0006 cost 0.862 | answered-right 0.256 answered-WRONG(silent) 0.051 fallback 0.692
+       Holm-adjusted p (over arms, this cond): ext:0.2098, tau:0.2098, ver_full:0.0000, ver_full_rep:0.0000, ver_narrow:0.2098, ver_full_xsrc:0.0000, ver_rand15:0.0022
+  extractor v1 split confirm: per-layout accuracy (noise x1, vf=all) plain / ext / ext+ver_full / ext+ver_full_rep / ver_narrow / cost(ver_full)
+     pipe   0.874 / 0.819 / 0.939 / 0.968 / 0.818  cost 0.40
+     ws     0.859 / 0.816 / 0.933 / 0.964 / 0.815  cost 0.41
+     csv    0.860 / 0.815 / 0.932 / 0.963 / 0.813  cost 0.42
+     wrap   0.845 / 0.813 / 0.928 / 0.961 / 0.812  cost 0.42
+     F2     0.859 / 0.819 / 0.936 / 0.967 / 0.818  cost 0.40
+     H1     0.859 / 0.842 / 0.842 / 0.842 / 0.842  cost 1.17
+     H2     0.859 / 0.842 / 0.842 / 0.842 / 0.842  cost 1.17
+     H3     0.859 / 0.842 / 0.842 / 0.842 / 0.842  cost 1.17
+     split  0.845 / 0.828 / 0.871 / 0.886 / 0.828  cost 0.79
+     merged 0.871 / 0.854 / 0.854 / 0.854 / 0.854  cost 1.17
+  extractor v1 split confirm: per-question-type accuracy under MIX (plain / ext / ver_full)
+     lookup    n= 6150 0.958 / 0.844 / 0.957
+     argmax    n= 2317 0.779 / 0.881 / 0.876
+     col_sum   n= 2799 0.781 / 0.776 / 0.871
+     col_mean  n= 2799 0.766 / 0.771 / 0.864
+     ratio     n= 1563 0.896 / 0.822 / 0.907
+     growth    n= 1621 0.880 / 0.840 / 0.899
+  extractor v1 split confirm: SENSITIVITY under MIX: reader-noise multiplier -> plain / ext / ver_full / ver_full_rep (cost ver_full)
+     x0.05  0.9920 / 0.8804 / 0.9909 / 0.9921  cost 0.63
+     x0.1   0.9842 / 0.8770 / 0.9859 / 0.9883  cost 0.63
+     x0.25  0.9614 / 0.8673 / 0.9714 / 0.9773  cost 0.63
+     x0.5   0.9256 / 0.8520 / 0.9485 / 0.9600  cost 0.63
+     x1.0   0.8611 / 0.8239 / 0.9072 / 0.9287  cost 0.63
+     x2.0   0.7537 / 0.7754 / 0.8376 / 0.8754  cost 0.63
+     x4.0   0.5948 / 0.6986 / 0.7316 / 0.7916  cost 0.63
+     spec-step cost 0.05: cost ver_full 0.579 (plain 1.000)
+     spec-step cost 0.1: cost ver_full 0.629 (plain 1.000)
+     spec-step cost 0.3: cost ver_full 0.829 (plain 1.000)
+     spec-step error E_SPEC=0.0: plain/ext/ver_full 0.8611/0.8407/0.9257
+     spec-step error E_SPEC=0.02: plain/ext/ver_full 0.8611/0.8239/0.9072
+     spec-step error E_SPEC=0.1: plain/ext/ver_full 0.8611/0.7566/0.8332
+  extractor v3 split dev cond MIX(deployment mixture, 50% clean/50% perturbed values) noise x1.0 (questions 5532)
+     plain          acc 0.7607 cost 1.000
+     ext            acc 0.9452 diff-vs-plain +0.1845 [+0.1297,+0.2336] p=0.0000 cost 0.315 | answered-right 0.835 answered-WRONG(silent) 0.000 fallback 0.165
+     tau            acc 0.9120 diff-vs-plain +0.1513 [+0.1150,+0.1896] p=0.0000 cost 0.436 | answered-right 0.714 answered-WRONG(silent) 0.000 fallback 0.286
+     ver_full       acc 0.9447 diff-vs-plain +0.1839 [+0.1283,+0.2336] p=0.0000 cost 0.338 | answered-right 0.832 answered-WRONG(silent) 0.000 fallback 0.168
+     ver_full_rep   acc 0.9447 diff-vs-plain +0.1839 [+0.1283,+0.2336] p=0.0000 cost 0.338 | answered-right 0.832 answered-WRONG(silent) 0.000 fallback 0.168
+     ver_narrow     acc 0.9441 diff-vs-plain +0.1834 [+0.1283,+0.2331] p=0.0000 cost 0.341 | answered-right 0.829 answered-WRONG(silent) 0.000 fallback 0.171
+     ver_full_xsrc  acc 0.9447 diff-vs-plain +0.1839 [+0.1283,+0.2336] p=0.0000 cost 0.388 | answered-right 0.832 answered-WRONG(silent) 0.000 fallback 0.168
+     ver_rand15     acc 0.8005 diff-vs-plain +0.0398 [+0.0343,+0.0457] p=0.0000 cost 0.698 | answered-right 0.472 answered-WRONG(silent) 0.000 fallback 0.528
+       Holm-adjusted p (over arms, this cond): ext:0.0000, tau:0.0000, ver_full:0.0000, ver_full_rep:0.0000, ver_narrow:0.0000, ver_full_xsrc:0.0000, ver_rand15:0.0000
+  extractor v3 split dev cond pipe-only (native markdown) noise x1.0 (questions 5532)
+     plain          acc 0.7820 cost 1.000
+     ext            acc 0.9800 diff-vs-plain +0.1980 [+0.1525,+0.2509] p=0.0000 cost 0.150 | answered-right 1.000 answered-WRONG(silent) 0.000 fallback 0.000
+     tau            acc 0.9800 diff-vs-plain +0.1980 [+0.1525,+0.2509] p=0.0000 cost 0.150 | answered-right 1.000 answered-WRONG(silent) 0.000 fallback 0.000
+     ver_full       acc 0.9800 diff-vs-plain +0.1980 [+0.1525,+0.2509] p=0.0000 cost 0.170 | answered-right 1.000 answered-WRONG(silent) 0.000 fallback 0.000
+     ver_full_rep   acc 0.9800 diff-vs-plain +0.1980 [+0.1525,+0.2509] p=0.0000 cost 0.170 | answered-right 1.000 answered-WRONG(silent) 0.000 fallback 0.000
+     ver_narrow     acc 0.9793 diff-vs-plain +0.1973 [+0.1522,+0.2497] p=0.0000 cost 0.175 | answered-right 0.995 answered-WRONG(silent) 0.000 fallback 0.005
+     ver_full_xsrc  acc 0.9800 diff-vs-plain +0.1980 [+0.1525,+0.2509] p=0.0000 cost 0.220 | answered-right 1.000 answered-WRONG(silent) 0.000 fallback 0.000
+     ver_rand15     acc 0.8278 diff-vs-plain +0.0459 [+0.0399,+0.0562] p=0.0000 cost 0.595 | answered-right 0.575 answered-WRONG(silent) 0.000 fallback 0.425
+       Holm-adjusted p (over arms, this cond): ext:0.0000, tau:0.0000, ver_full:0.0000, ver_full_rep:0.0000, ver_narrow:0.0000, ver_full_xsrc:0.0000, ver_rand15:0.0000
+  extractor v3 split dev cond HARD(ws,wrap,csv,H1-3,split,merged) noise x1.0 (questions 5532)
+     plain          acc 0.7505 cost 1.000
+     ext            acc 0.9124 diff-vs-plain +0.1619 [+0.1041,+0.2066] p=0.0000 cost 0.454 | answered-right 0.696 answered-WRONG(silent) 0.000 fallback 0.304
+     tau            acc 0.8688 diff-vs-plain +0.1184 [+0.0862,+0.1447] p=0.0000 cost 0.612 | answered-right 0.538 answered-WRONG(silent) 0.000 fallback 0.462
+     ver_full       acc 0.9117 diff-vs-plain +0.1612 [+0.1032,+0.2060] p=0.0000 cost 0.477 | answered-right 0.693 answered-WRONG(silent) 0.000 fallback 0.307
+     ver_full_rep   acc 0.9117 diff-vs-plain +0.1612 [+0.1032,+0.2060] p=0.0000 cost 0.477 | answered-right 0.693 answered-WRONG(silent) 0.000 fallback 0.307
+     ver_narrow     acc 0.9113 diff-vs-plain +0.1608 [+0.1027,+0.2055] p=0.0000 cost 0.480 | answered-right 0.690 answered-WRONG(silent) 0.000 fallback 0.310
+     ver_full_xsrc  acc 0.9117 diff-vs-plain +0.1612 [+0.1032,+0.2060] p=0.0000 cost 0.527 | answered-right 0.693 answered-WRONG(silent) 0.000 fallback 0.307
+     ver_rand15     acc 0.7830 diff-vs-plain +0.0326 [+0.0258,+0.0372] p=0.0000 cost 0.781 | answered-right 0.389 answered-WRONG(silent) 0.000 fallback 0.611
+       Holm-adjusted p (over arms, this cond): ext:0.0000, tau:0.0000, ver_full:0.0000, ver_full_rep:0.0000, ver_narrow:0.0000, ver_full_xsrc:0.0000, ver_rand15:0.0000
+  extractor v3 split dev: per-layout accuracy (noise x1, vf=all) plain / ext / ext+ver_full / ext+ver_full_rep / ver_narrow / cost(ver_full)
+     pipe   0.782 / 0.980 / 0.980 / 0.980 / 0.979  cost 0.17
+     ws     0.760 / 0.974 / 0.974 / 0.974 / 0.973  cost 0.21
+     csv    0.764 / 0.980 / 0.975 / 0.975 / 0.974  cost 0.20
+     wrap   0.741 / 0.973 / 0.973 / 0.973 / 0.972  cost 0.21
+     F2     0.757 / 0.980 / 0.980 / 0.980 / 0.979  cost 0.17
+     H1     0.757 / 0.904 / 0.904 / 0.904 / 0.904  cost 0.58
+     H2     0.757 / 0.900 / 0.900 / 0.900 / 0.900  cost 0.60
+     H3     0.757 / 0.802 / 0.802 / 0.802 / 0.802  cost 0.92
+     split  0.738 / 0.947 / 0.947 / 0.947 / 0.946  cost 0.35
+     merged 0.704 / 0.693 / 0.693 / 0.693 / 0.693  cost 1.15
+  extractor v3 split dev: per-question-type accuracy under MIX (plain / ext / ver_full)
+     lookup    n= 1724 0.923 / 0.968 / 0.968
+     argmax    n=  608 0.572 / 0.919 / 0.919
+     col_sum   n=  844 0.568 / 0.918 / 0.917
+     col_mean  n=  844 0.557 / 0.916 / 0.915
+     ratio     n=  756 0.882 / 0.962 / 0.962
+     growth    n=  756 0.864 / 0.959 / 0.959
+  extractor v3 split dev: SENSITIVITY under MIX: reader-noise multiplier -> plain / ext / ver_full / ver_full_rep (cost ver_full)
+     x0.05  0.9827 / 0.9966 / 0.9965 / 0.9965  cost 0.34
+     x0.1   0.9663 / 0.9933 / 0.9932 / 0.9932  cost 0.34
+     x0.25  0.9216 / 0.9839 / 0.9837 / 0.9837  cost 0.34
+     x0.5   0.8585 / 0.9698 / 0.9695 / 0.9695  cost 0.34
+     x1.0   0.7607 / 0.9452 / 0.9447 / 0.9447  cost 0.34
+     x2.0   0.6242 / 0.9044 / 0.9035 / 0.9035  cost 0.34
+     x4.0   0.4528 / 0.8399 / 0.8385 / 0.8385  cost 0.34
+     spec-step cost 0.05: cost ver_full 0.288 (plain 1.000)
+     spec-step cost 0.1: cost ver_full 0.338 (plain 1.000)
+     spec-step cost 0.3: cost ver_full 0.538 (plain 1.000)
+     spec-step error E_SPEC=0.0: plain/ext/ver_full 0.7607/0.9645/0.9639
+     spec-step error E_SPEC=0.02: plain/ext/ver_full 0.7607/0.9452/0.9447
+     spec-step error E_SPEC=0.1: plain/ext/ver_full 0.7607/0.8680/0.8675
+  extractor v3 split held cond MIX(deployment mixture, 50% clean/50% perturbed values) noise x1.0 (questions 3296)
+     plain          acc 0.7706 cost 1.000
+     ext            acc 0.9361 diff-vs-plain +0.1654 [+0.1031,+0.2459] p=0.0000 cost 0.350 | answered-right 0.800 answered-WRONG(silent) 0.000 fallback 0.200
+     tau            acc 0.9132 diff-vs-plain +0.1425 [+0.0951,+0.2028] p=0.0000 cost 0.429 | answered-right 0.721 answered-WRONG(silent) 0.000 fallback 0.279
+     ver_full       acc 0.9360 diff-vs-plain +0.1654 [+0.1030,+0.2459] p=0.0000 cost 0.370 | answered-right 0.800 answered-WRONG(silent) 0.000 fallback 0.200
+     ver_full_rep   acc 0.9360 diff-vs-plain +0.1654 [+0.1030,+0.2459] p=0.0000 cost 0.370 | answered-right 0.800 answered-WRONG(silent) 0.000 fallback 0.200
+     ver_narrow     acc 0.9344 diff-vs-plain +0.1638 [+0.1023,+0.2429] p=0.0000 cost 0.380 | answered-right 0.790 answered-WRONG(silent) 0.000 fallback 0.210
+     ver_full_xsrc  acc 0.9360 diff-vs-plain +0.1654 [+0.1030,+0.2459] p=0.0000 cost 0.420 | answered-right 0.800 answered-WRONG(silent) 0.000 fallback 0.200
+     ver_rand15     acc 0.8056 diff-vs-plain +0.0350 [+0.0316,+0.0407] p=0.0000 cost 0.712 | answered-right 0.458 answered-WRONG(silent) 0.000 fallback 0.542
+       Holm-adjusted p (over arms, this cond): ext:0.0000, tau:0.0000, ver_full:0.0000, ver_full_rep:0.0000, ver_narrow:0.0000, ver_full_xsrc:0.0000, ver_rand15:0.0000
+  extractor v3 split held cond pipe-only (native markdown) noise x1.0 (questions 3296)
+     plain          acc 0.7909 cost 1.000
+     ext            acc 0.9800 diff-vs-plain +0.1891 [+0.1242,+0.2743] p=0.0000 cost 0.150 | answered-right 1.000 answered-WRONG(silent) 0.000 fallback 0.000
+     tau            acc 0.9800 diff-vs-plain +0.1891 [+0.1242,+0.2743] p=0.0000 cost 0.150 | answered-right 1.000 answered-WRONG(silent) 0.000 fallback 0.000
+     ver_full       acc 0.9800 diff-vs-plain +0.1891 [+0.1242,+0.2743] p=0.0000 cost 0.170 | answered-right 1.000 answered-WRONG(silent) 0.000 fallback 0.000
+     ver_full_rep   acc 0.9800 diff-vs-plain +0.1891 [+0.1242,+0.2743] p=0.0000 cost 0.170 | answered-right 1.000 answered-WRONG(silent) 0.000 fallback 0.000
+     ver_narrow     acc 0.9781 diff-vs-plain +0.1872 [+0.1236,+0.2715] p=0.0000 cost 0.181 | answered-right 0.989 answered-WRONG(silent) 0.000 fallback 0.011
+     ver_full_xsrc  acc 0.9800 diff-vs-plain +0.1891 [+0.1242,+0.2743] p=0.0000 cost 0.220 | answered-right 1.000 answered-WRONG(silent) 0.000 fallback 0.000
+     ver_rand15     acc 0.8326 diff-vs-plain +0.0417 [+0.0377,+0.0471] p=0.0000 cost 0.597 | answered-right 0.573 answered-WRONG(silent) 0.000 fallback 0.427
+       Holm-adjusted p (over arms, this cond): ext:0.0000, tau:0.0000, ver_full:0.0000, ver_full_rep:0.0000, ver_narrow:0.0000, ver_full_xsrc:0.0000, ver_rand15:0.0000
+  extractor v3 split held cond HARD(ws,wrap,csv,H1-3,split,merged) noise x1.0 (questions 3296)
+     plain          acc 0.7604 cost 1.000
+     ext            acc 0.8992 diff-vs-plain +0.1388 [+0.0838,+0.2128] p=0.0000 cost 0.502 | answered-right 0.648 answered-WRONG(silent) 0.000 fallback 0.352
+     tau            acc 0.8688 diff-vs-plain +0.1084 [+0.0730,+0.1517] p=0.0000 cost 0.607 | answered-right 0.543 answered-WRONG(silent) 0.000 fallback 0.457
+     ver_full       acc 0.8991 diff-vs-plain +0.1388 [+0.0837,+0.2128] p=0.0000 cost 0.523 | answered-right 0.647 answered-WRONG(silent) 0.000 fallback 0.353
+     ver_full_rep   acc 0.8991 diff-vs-plain +0.1388 [+0.0837,+0.2128] p=0.0000 cost 0.523 | answered-right 0.647 answered-WRONG(silent) 0.000 fallback 0.353
+     ver_narrow     acc 0.8977 diff-vs-plain +0.1374 [+0.0835,+0.2099] p=0.0000 cost 0.531 | answered-right 0.639 answered-WRONG(silent) 0.000 fallback 0.361
+     ver_full_xsrc  acc 0.8991 diff-vs-plain +0.1388 [+0.0837,+0.2128] p=0.0000 cost 0.573 | answered-right 0.647 answered-WRONG(silent) 0.000 fallback 0.353
+     ver_rand15     acc 0.7880 diff-vs-plain +0.0276 [+0.0236,+0.0344] p=0.0000 cost 0.799 | answered-right 0.371 answered-WRONG(silent) 0.000 fallback 0.629
+       Holm-adjusted p (over arms, this cond): ext:0.0001, tau:0.0000, ver_full:0.0001, ver_full_rep:0.0001, ver_narrow:0.0001, ver_full_xsrc:0.0001, ver_rand15:0.0000
+  extractor v3 split held: per-layout accuracy (noise x1, vf=all) plain / ext / ext+ver_full / ext+ver_full_rep / ver_narrow / cost(ver_full)
+     pipe   0.791 / 0.980 / 0.980 / 0.980 / 0.978  cost 0.17
+     ws     0.771 / 0.973 / 0.973 / 0.973 / 0.971  cost 0.19
+     csv    0.774 / 0.980 / 0.980 / 0.980 / 0.978  cost 0.18
+     wrap   0.753 / 0.972 / 0.972 / 0.972 / 0.970  cost 0.19
+     F2     0.767 / 0.980 / 0.980 / 0.980 / 0.978  cost 0.17
+     H1     0.766 / 0.866 / 0.866 / 0.866 / 0.865  cost 0.75
+     H2     0.766 / 0.857 / 0.857 / 0.857 / 0.856  cost 0.83
+     H3     0.766 / 0.754 / 0.754 / 0.754 / 0.754  cost 1.14
+     split  0.753 / 0.958 / 0.958 / 0.958 / 0.956  cost 0.23
+     merged 0.657 / 0.644 / 0.644 / 0.644 / 0.644  cost 1.17
+  extractor v3 split held: per-question-type accuracy under MIX (plain / ext / ver_full)
+     lookup    n= 1036 0.925 / 0.967 / 0.967
+     argmax    n=  206 0.622 / 0.860 / 0.860
+     col_sum   n=  518 0.546 / 0.901 / 0.901
+     col_mean  n=  518 0.535 / 0.899 / 0.899
+     ratio     n=  500 0.887 / 0.958 / 0.958
+     growth    n=  518 0.870 / 0.955 / 0.955
+  extractor v3 split held: SENSITIVITY under MIX: reader-noise multiplier -> plain / ext / ver_full / ver_full_rep (cost ver_full)
+     x0.05  0.9830 / 0.9959 / 0.9959 / 0.9959  cost 0.37
+     x0.1   0.9669 / 0.9919 / 0.9919 / 0.9919  cost 0.37
+     x0.25  0.9231 / 0.9806 / 0.9806 / 0.9806  cost 0.37
+     x0.5   0.8622 / 0.9640 / 0.9639 / 0.9639  cost 0.37
+     x1.0   0.7706 / 0.9361 / 0.9360 / 0.9360  cost 0.37
+     x2.0   0.6472 / 0.8922 / 0.8921 / 0.8921  cost 0.37
+     x4.0   0.4867 / 0.8242 / 0.8240 / 0.8240  cost 0.37
+     spec-step cost 0.05: cost ver_full 0.320 (plain 1.000)
+     spec-step cost 0.1: cost ver_full 0.370 (plain 1.000)
+     spec-step cost 0.3: cost ver_full 0.570 (plain 1.000)
+     spec-step error E_SPEC=0.0: plain/ext/ver_full 0.7706/0.9552/0.9551
+     spec-step error E_SPEC=0.02: plain/ext/ver_full 0.7706/0.9361/0.9360
+     spec-step error E_SPEC=0.1: plain/ext/ver_full 0.7706/0.8597/0.8596
+  extractor v3 split confirm cond MIX(deployment mixture, 50% clean/50% perturbed values) noise x1.0 (questions 17249)
+     plain          acc 0.8611 cost 1.000
+     ext            acc 0.9382 diff-vs-plain +0.0771 [+0.0624,+0.0929] p=0.0000 cost 0.384 | answered-right 0.756 answered-WRONG(silent) 0.010 fallback 0.234
+     tau            acc 0.9329 diff-vs-plain +0.0718 [+0.0584,+0.0854] p=0.0000 cost 0.419 | answered-right 0.721 answered-WRONG(silent) 0.010 fallback 0.269
+     ver_full       acc 0.9421 diff-vs-plain +0.0809 [+0.0684,+0.0960] p=0.0000 cost 0.415 | answered-right 0.751 answered-WRONG(silent) 0.005 fallback 0.245
+     ver_full_rep   acc 0.9429 diff-vs-plain +0.0818 [+0.0693,+0.0970] p=0.0000 cost 0.408 | answered-right 0.757 answered-WRONG(silent) 0.005 fallback 0.238
+     ver_narrow     acc 0.9093 diff-vs-plain +0.0482 [+0.0335,+0.0630] p=0.0000 cost 0.577 | answered-right 0.582 answered-WRONG(silent) 0.010 fallback 0.407
+     ver_full_xsrc  acc 0.9457 diff-vs-plain +0.0846 [+0.0730,+0.0990] p=0.0000 cost 0.470 | answered-right 0.750 answered-WRONG(silent) 0.000 fallback 0.250
+     ver_rand15     acc 0.8835 diff-vs-plain +0.0224 [+0.0132,+0.0310] p=0.0000 cost 0.680 | answered-right 0.481 answered-WRONG(silent) 0.009 fallback 0.510
+       Holm-adjusted p (over arms, this cond): ext:0.0000, tau:0.0000, ver_full:0.0000, ver_full_rep:0.0000, ver_narrow:0.0000, ver_full_xsrc:0.0000, ver_rand15:0.0000
+  extractor v3 split confirm cond pipe-only (native markdown) noise x1.0 (questions 17249)
+     plain          acc 0.8741 cost 1.000
+     ext            acc 0.9665 diff-vs-plain +0.0924 [+0.0743,+0.1100] p=0.0000 cost 0.150 | answered-right 0.986 answered-WRONG(silent) 0.014 fallback 0.000
+     tau            acc 0.9665 diff-vs-plain +0.0924 [+0.0743,+0.1100] p=0.0000 cost 0.150 | answered-right 0.986 answered-WRONG(silent) 0.014 fallback 0.000
+     ver_full       acc 0.9724 diff-vs-plain +0.0983 [+0.0846,+0.1143] p=0.0000 cost 0.184 | answered-right 0.980 answered-WRONG(silent) 0.006 fallback 0.014
+     ver_full_rep   acc 0.9736 diff-vs-plain +0.0995 [+0.0858,+0.1158] p=0.0000 cost 0.175 | answered-right 0.989 answered-WRONG(silent) 0.006 fallback 0.005
+     ver_narrow     acc 0.9325 diff-vs-plain +0.0584 [+0.0399,+0.0763] p=0.0000 cost 0.388 | answered-right 0.769 answered-WRONG(silent) 0.014 fallback 0.218
+     ver_full_xsrc  acc 0.9772 diff-vs-plain +0.1031 [+0.0908,+0.1178] p=0.0000 cost 0.241 | answered-right 0.979 answered-WRONG(silent) 0.000 fallback 0.021
+     ver_rand15     acc 0.9016 diff-vs-plain +0.0275 [+0.0146,+0.0388] p=0.0000 cost 0.532 | answered-right 0.626 answered-WRONG(silent) 0.013 fallback 0.362
+       Holm-adjusted p (over arms, this cond): ext:0.0000, tau:0.0000, ver_full:0.0000, ver_full_rep:0.0000, ver_narrow:0.0000, ver_full_xsrc:0.0000, ver_rand15:0.0000
+  extractor v3 split confirm cond HARD(ws,wrap,csv,H1-3,split,merged) noise x1.0 (questions 17249)
+     plain          acc 0.8557 cost 1.000
+     ext            acc 0.9179 diff-vs-plain +0.0622 [+0.0500,+0.0763] p=0.0000 cost 0.552 | answered-right 0.591 answered-WRONG(silent) 0.007 fallback 0.402
+     tau            acc 0.9097 diff-vs-plain +0.0541 [+0.0436,+0.0655] p=0.0000 cost 0.607 | answered-right 0.536 answered-WRONG(silent) 0.007 fallback 0.457
+     ver_full       acc 0.9202 diff-vs-plain +0.0645 [+0.0530,+0.0785] p=0.0000 cost 0.579 | answered-right 0.587 answered-WRONG(silent) 0.004 fallback 0.409
+     ver_full_rep   acc 0.9208 diff-vs-plain +0.0651 [+0.0535,+0.0791] p=0.0000 cost 0.575 | answered-right 0.591 answered-WRONG(silent) 0.004 fallback 0.405
+     ver_narrow     acc 0.8931 diff-vs-plain +0.0374 [+0.0254,+0.0501] p=0.0000 cost 0.714 | answered-right 0.449 answered-WRONG(silent) 0.007 fallback 0.544
+     ver_full_xsrc  acc 0.9232 diff-vs-plain +0.0675 [+0.0564,+0.0812] p=0.0000 cost 0.633 | answered-right 0.587 answered-WRONG(silent) 0.000 fallback 0.413
+     ver_rand15     acc 0.8725 diff-vs-plain +0.0168 [+0.0102,+0.0235] p=0.0000 cost 0.786 | answered-right 0.377 answered-WRONG(silent) 0.007 fallback 0.616
+       Holm-adjusted p (over arms, this cond): ext:0.0000, tau:0.0000, ver_full:0.0000, ver_full_rep:0.0000, ver_narrow:0.0000, ver_full_xsrc:0.0000, ver_rand15:0.0000
+  extractor v3 split confirm: per-layout accuracy (noise x1, vf=all) plain / ext / ext+ver_full / ext+ver_full_rep / ver_narrow / cost(ver_full)
+     pipe   0.874 / 0.966 / 0.972 / 0.974 / 0.932  cost 0.18
+     ws     0.859 / 0.963 / 0.969 / 0.970 / 0.926  cost 0.20
+     csv    0.860 / 0.963 / 0.968 / 0.969 / 0.925  cost 0.21
+     wrap   0.845 / 0.960 / 0.966 / 0.967 / 0.921  cost 0.21
+     F2     0.859 / 0.966 / 0.972 / 0.973 / 0.929  cost 0.18
+     H1     0.859 / 0.874 / 0.874 / 0.874 / 0.866  cost 0.96
+     H2     0.859 / 0.873 / 0.873 / 0.873 / 0.865  cost 0.97
+     H3     0.859 / 0.864 / 0.864 / 0.864 / 0.852  cost 1.01
+     split  0.845 / 0.932 / 0.932 / 0.932 / 0.897  cost 0.45
+     merged 0.871 / 0.899 / 0.899 / 0.899 / 0.899  cost 0.70
+  extractor v3 split confirm: per-question-type accuracy under MIX (plain / ext / ver_full)
+     lookup    n= 6150 0.958 / 0.960 / 0.967
+     argmax    n= 2317 0.779 / 0.928 / 0.925
+     col_sum   n= 2799 0.781 / 0.916 / 0.921
+     col_mean  n= 2799 0.766 / 0.912 / 0.917
+     ratio     n= 1563 0.896 / 0.948 / 0.948
+     growth    n= 1621 0.880 / 0.945 / 0.945
+  extractor v3 split confirm: SENSITIVITY under MIX: reader-noise multiplier -> plain / ext / ver_full / ver_full_rep (cost ver_full)
+     x0.05  0.9920 / 0.9870 / 0.9925 / 0.9926  cost 0.41
+     x0.1   0.9842 / 0.9842 / 0.9896 / 0.9897  cost 0.41
+     x0.25  0.9614 / 0.9759 / 0.9811 / 0.9813  cost 0.41
+     x0.5   0.9256 / 0.9627 / 0.9674 / 0.9679  cost 0.41
+     x1.0   0.8611 / 0.9382 / 0.9421 / 0.9429  cost 0.41
+     x2.0   0.7537 / 0.8947 / 0.8973 / 0.8988  cost 0.41
+     x4.0   0.5948 / 0.8229 / 0.8236 / 0.8261  cost 0.41
+     spec-step cost 0.05: cost ver_full 0.365 (plain 1.000)
+     spec-step cost 0.1: cost ver_full 0.415 (plain 1.000)
+     spec-step cost 0.3: cost ver_full 0.615 (plain 1.000)
+     spec-step error E_SPEC=0.0: plain/ext/ver_full 0.8611/0.9573/0.9613
+     spec-step error E_SPEC=0.02: plain/ext/ver_full 0.8611/0.9382/0.9421
+     spec-step error E_SPEC=0.1: plain/ext/ver_full 0.8611/0.8616/0.8652
+  GLOBAL Holm over all 126 (extractor x split x condition x arm) paired-bootstrap tests vs plain (normal-approx p from bootstrap SE): 117 significant at 0.05; NOT significant: 9
+     not-sig ('v1/confirm/MIX(/ext', -0.0372, 0.0971, 0.6293)
+     not-sig ('v1/confirm/MIX(/tau', -0.0372, 0.0971, 0.6293)
+     not-sig ('v1/confirm/MIX(/ver_narrow', -0.038, 0.0888, 0.6293)
+     not-sig ('v1/confirm/pipe/ext', -0.0554, 0.082, 0.6293)
+     not-sig ('v1/confirm/pipe/tau', -0.0554, 0.082, 0.6293)
+     not-sig ('v1/confirm/pipe/ver_narrow', -0.0563, 0.0759, 0.6293)
+     not-sig ('v1/confirm/HARD/ext', -0.0272, 0.0776, 0.6293)
+     not-sig ('v1/confirm/HARD/tau', -0.0272, 0.0776, 0.6293)
+     not-sig ('v1/confirm/HARD/ver_narrow', -0.0278, 0.0699, 0.6293)
+elapsed 239.6

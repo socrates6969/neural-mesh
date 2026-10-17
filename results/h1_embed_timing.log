@@ -1,0 +1,23 @@
+h1_embed: corpus 2832 texts, dim 384; synthetic f5/f6 corpus (MiniLM table), NOT real traffic
+per-embed latency (single thread, hit-path for the memos, 512 distinct texts):
+  TableEmbedding.embed_task (raw)                      184 ns/embed
+  CachedEmbedding(Table) hit embed_task                422 ns/embed
+  MemoEmbedding(Table) hit embed_task (Vec)            181 ns/embed
+  MemoEmbedding(Table) hit embed_task_shared (Arc)       113 ns/embed
+  MemoEmbedding(Table) cap0 pass-through               773 ns/embed
+  HashEmbedding(384).embed_task (raw)                  188 ns/embed
+  CachedEmbedding(Hash) hit                            396 ns/embed
+  MemoEmbedding(Hash) hit embed_task_shared            118 ns/embed
+per-decision wall, q world, 3 seeds (decision = knowledge retrieve+remember, Warm<CaseRouter> select, update):
+  MiniLM table (cheap lookup)                  baseline             0.157 ms/decision wall, 3.745 enc calls/decision
+  MiniLM table (cheap lookup)                  memo(cap4)           0.158 ms/decision wall, 0.988 enc calls/decision
+  MiniLM table (cheap lookup)                  memo(cap4096)        0.179 ms/decision wall, 0.144 enc calls/decision
+  MiniLM table (cheap lookup)                  cached(cap4096)      0.187 ms/decision wall, 0.144 enc calls/decision
+  hash (cheap)                                 baseline             0.120 ms/decision wall, 3.622 enc calls/decision
+  hash (cheap)                                 memo(cap4)           0.126 ms/decision wall, 0.988 enc calls/decision
+  hash (cheap)                                 memo(cap4096)        0.125 ms/decision wall, 0.144 enc calls/decision
+  hash (cheap)                                 cached(cap4096)      0.124 ms/decision wall, 0.144 enc calls/decision
+  simulated real encoder: table + spin 2.4 ms  baseline             7.906 ms/decision wall, 3.271 enc calls/decision
+  simulated real encoder: table + spin 2.4 ms  memo(cap4)           2.409 ms/decision wall, 0.987 enc calls/decision
+  simulated real encoder: table + spin 2.4 ms  memo(cap4096)        1.981 ms/decision wall, 0.811 enc calls/decision
+  simulated real encoder: table + spin 2.4 ms  cached(cap4096)      1.987 ms/decision wall, 0.811 enc calls/decision

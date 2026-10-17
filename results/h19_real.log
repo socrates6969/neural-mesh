@@ -1,0 +1,63 @@
+# h19_real: REAL on-disk text, no labels; author inspects flagged items. Label every number REAL-TEXT/UNLABELLED.
+
+## (A) results/*.md tables (this repo; machine-written benchmark tables): 23 files with tables, 56 tables, numeric cells (extractor parser) 4167 vs (trivial parser) 5083
+   parser agreement (extractor vs trivial): 5930/6932 = 0.8555
+   verifier independent re-parse vs extractor parse: disagreements 0/4167 = 0.0000 (a proxy for FALSE flags on real cells; no labels)
+   total-row footing: 0/0 columns foot (tolerance .6%); violations 0
+   percent columns 24; implausible values 0
+     parser-disagree: finance-packages-catalog.md:54 '1.43, 2026-07' mine=None triv=1.43
+     parser-disagree: finance-packages-catalog.md:59 '3.0, last upload 2022-11' mine=None triv=3
+     parser-disagree: finance-packages-catalog.md:83 '152.7M' mine=152700000 triv=None
+     parser-disagree: finance-packages-catalog.md:84 '124M' mine=124000000 triv=None
+     parser-disagree: finance-packages-catalog.md:85 '1.0M' mine=1000000 triv=None
+     parser-disagree: finance-packages-catalog.md:86 '2.3M' mine=2300000 triv=None
+     parser-disagree: finance-packages-catalog.md:87 '12.8k' mine=12800 triv=None
+     parser-disagree: finance-packages-catalog.md:88 '53k' mine=53000 triv=None
+     parser-disagree: finance-packages-catalog.md:89 '3.3k' mine=3300 triv=None
+     parser-disagree: finance-packages-catalog.md:90 '363k' mine=363000 triv=None
+     parser-disagree: finance-packages-catalog.md:91 '15.2M' mine=15200000 triv=None
+     parser-disagree: finance-packages-catalog.md:92 '222k' mine=222000 triv=None
+
+## (B) vendored crate READMEs (~/.cargo/registry; real third-party benchmark/feature tables): 131 files with tables, 275 tables, numeric cells (extractor parser) 1056 vs (trivial parser) 1134
+   parser agreement (extractor vs trivial): 4230/4642 = 0.9112
+   verifier independent re-parse vs extractor parse: disagreements 0/1056 = 0.0000 (a proxy for FALSE flags on real cells; no labels)
+   total-row footing: 0/2 columns foot (tolerance .6%); violations 2
+   percent columns 20; implausible values 0
+     parser-disagree: README.md:95 '`32` and `64`' mine=None triv=32
+     parser-disagree: README.md:96 '`32` and `64`' mine=None triv=32
+     parser-disagree: README.md:97 '`64` only' mine=None triv=64
+     parser-disagree: README.md:104 '15.017 µs' mine=None triv=15.017
+     parser-disagree: README.md:104 '13.906 µs -7.3967%' mine=None triv=13.906
+     parser-disagree: README.md:104 '15.877 μs +5.7268%' mine=None triv=15.877
+     parser-disagree: README.md:105 '40.144 µs' mine=None triv=40.144
+     parser-disagree: README.md:105 '25.963 µs -35.603%' mine=None triv=25.963
+     parser-disagree: README.md:105 '42.118 μs +4.9173%' mine=None triv=42.118
+     parser-disagree: README.md:106 '41.334 µs' mine=None triv=41.334
+     parser-disagree: README.md:106 '27.874 µs -32.660%' mine=None triv=27.874
+     parser-disagree: README.md:106 '43.985 μs +6.4136%' mine=None triv=43.985
+     footing-violation: README.md:961 col 2 total 24000 vs sum 6400
+     footing-violation: README.md:961 col 3 total 1 vs sum 0.61
+
+## (C) currency amounts in real prose (results/market-research.md, results/finance-packages-catalog.md)
+   amounts found 95; independent re-parse agrees on 58 (0.611); disagreements (likely scale suffix K/M/B/mn after the span, i.e. true extractor misses):
+     results/market-research.md '$11.5' extractor=11.5 iparse=11500000000 (tail 'B (202')
+     results/market-research.md '$37' extractor=37 iparse=37000000000 (tail 'B (202')
+     results/market-research.md '$12.5' extractor=12.5 iparse=12500000000 (tail 'B in 2')
+     results/market-research.md '$3.5' extractor=3.5 iparse=3500000000 (tail 'B (Nov')
+     results/market-research.md '$8.4' extractor=8.4 iparse=8400000000 (tail 'B (mid')
+     results/market-research.md '$28.3' extractor=28.3 iparse=28300000000 (tail 'B (202')
+     results/market-research.md '$51.6' extractor=51.6 iparse=51600000000 (tail 'B (202')
+     results/market-research.md '$63' extractor=63 iparse=63000000000 (tail 'B (202')
+     results/market-research.md '$220' extractor=220 iparse=220000000000 (tail 'B (203')
+     results/market-research.md '$28.9' extractor=28.9 iparse=28900000000 (tail 'B (202')
+     results/market-research.md '$142.7' extractor=142.7 iparse=142700000000 (tail 'B (203')
+     results/market-research.md '$83.3' extractor=83.3 iparse=83300000000 (tail 'B (202')
+
+## (D) interval triples 'x [lo,hi]' in results/*.md (containment lo <= x <= hi)
+   triples 1885; containment violations 6 (0.0032)
+     violation: g17_board_entry.md:6 200 [0.0029,0.0143]
+     violation: g2_board_entry.md:55 16 [-0.0037,0.0025]
+     violation: g2_board_entry.md:55 16 [-0.0031,0.0029]
+     violation: g2_board_entry.md:55 16 [-0.0028,0.0029]
+     violation: g2_board_entry.md:55 16 [-0.0028,0.0035]
+     violation: h10_board_entry.md:7 1 [-0.014,0.021]

@@ -1,0 +1,95 @@
+h5_equiv: 8 worlds x 420 seeds x (1 ref + 4 subjects), 2 workers
+  natural size sim-fixed                rows    32.0  vocab    32.0  (keyword ids pinned: 32)
+  natural size sim-random               rows    32.0  vocab    32.0  (keyword ids pinned: 32)
+  natural size sim-no-traps             rows    32.0  vocab    32.0  (keyword ids pinned: 32)
+  natural size big-32agents             rows   232.0  vocab   232.0  (keyword ids pinned: 192)
+  natural size big-32agents-longtail    rows  1840.0  vocab  1840.0  (keyword ids pinned: 192)
+  natural size big-32agents-open        rows  2583.1  vocab  2583.1  (keyword ids pinned: 192)
+  natural size big-64agents             rows   232.0  vocab   232.0  (keyword ids pinned: 192)
+  natural size big-128agents            rows   232.0  vocab   232.0  (keyword ids pinned: 192)
+  sim-fixed done (1.8s)
+  sim-random done (3.4s)
+  sim-no-traps done (5.5s)
+  big-32agents done (18.3s)
+  big-32agents-longtail done (35.5s)
+  big-32agents-open done (51.7s)
+  big-64agents done (69.0s)
+  big-128agents done (94.1s)
+
+=== MEAN BYTES PER TRAINED BRAIN (pooled seeds 31-90; owned = ids+rows+struct after shrink_to_fit; vocab = private vocab estimate) ===
+-- sim-fixed
+   combo[u16/q16,1,none]  owned     2084 B (100.0% of u16/q16)  vocab~    2862 B  rows    32.0  cells    183.3  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   combo[u16/q16,0.0625,vocab] owned     2084 B (100.0% of u16/q16)  vocab~    2958 B  rows    32.0  cells    183.3  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   combo[u16/q16,0.03125,vocab] owned     2084 B (100.0% of u16/q16)  vocab~    2958 B  rows    32.0  cells    183.3  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   combo[u16/q16,0.0,vocab] owned     2084 B (100.0% of u16/q16)  vocab~    2958 B  rows    32.0  cells    183.3  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+-- sim-random
+   combo[u16/q16,1,none]  owned     1920 B (100.0% of u16/q16)  vocab~    2862 B  rows    32.0  cells    156.0  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   combo[u16/q16,0.0625,vocab] owned     1920 B (100.0% of u16/q16)  vocab~    2958 B  rows    32.0  cells    156.0  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   combo[u16/q16,0.03125,vocab] owned     1920 B (100.0% of u16/q16)  vocab~    2958 B  rows    32.0  cells    156.0  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   combo[u16/q16,0.0,vocab] owned     1920 B (100.0% of u16/q16)  vocab~    2958 B  rows    32.0  cells    156.0  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+-- sim-no-traps
+   combo[u16/q16,1,none]  owned     1891 B (100.0% of u16/q16)  vocab~    2862 B  rows    32.0  cells    151.2  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   combo[u16/q16,0.0625,vocab] owned     1891 B (100.0% of u16/q16)  vocab~    2958 B  rows    32.0  cells    151.2  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   combo[u16/q16,0.03125,vocab] owned     1891 B (100.0% of u16/q16)  vocab~    2958 B  rows    32.0  cells    151.2  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   combo[u16/q16,0.0,vocab] owned     1891 B (100.0% of u16/q16)  vocab~    2958 B  rows    32.0  cells    151.2  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+-- big-32agents
+   combo[u16/q16,1,none]  owned    15250 B (100.0% of u16/q16)  vocab~   21638 B  rows   232.0  cells   1828.4  row-evictions     0.0  vocab ids   232.0   cert95 both splits: true
+   combo[u16/q16,0.0625,vocab] owned    11588 B ( 76.0% of u16/q16)  vocab~   15311 B  rows   194.1  cells   1319.1  row-evictions     0.0  vocab ids   194.1   cert95 both splits: false
+   combo[u16/q16,0.03125,vocab] owned    11581 B ( 75.9% of u16/q16)  vocab~   15302 B  rows   193.6  cells   1319.2  row-evictions     0.0  vocab ids   193.6   cert95 both splits: false
+   combo[u16/q16,0.0,vocab] owned    11563 B ( 75.8% of u16/q16)  vocab~   15291 B  rows   193.0  cells   1317.8  row-evictions     0.0  vocab ids   193.0   cert95 both splits: false
+-- big-32agents-longtail
+   combo[u16/q16,1,none]  owned    51793 B (100.0% of u16/q16)  vocab~  173194 B  rows  1841.7  cells   3626.4  row-evictions     0.0  vocab ids  1841.7   cert95 both splits: true
+   combo[u16/q16,0.0625,vocab] owned    13544 B ( 26.2% of u16/q16)  vocab~   28479 B  rows   274.6  cells   1430.5  row-evictions     0.0  vocab ids   274.6   cert95 both splits: false
+   combo[u16/q16,0.03125,vocab] owned    12452 B ( 24.0% of u16/q16)  vocab~   22574 B  rows   230.3  cells   1366.5  row-evictions     0.0  vocab ids   230.3   cert95 both splits: false
+   combo[u16/q16,0.0,vocab] owned    11632 B ( 22.5% of u16/q16)  vocab~   21693 B  rows   193.0  cells   1329.3  row-evictions     0.0  vocab ids   193.0   cert95 both splits: false
+-- big-32agents-open
+   combo[u16/q16,1,none]  owned    64330 B (100.0% of u16/q16)  vocab~  233968 B  rows  2588.4  cells   3724.7  row-evictions     0.0  vocab ids  2588.4   cert95 both splits: true
+   combo[u16/q16,0.0625,vocab] owned    14449 B ( 22.5% of u16/q16)  vocab~   42918 B  rows   321.1  cells   1457.3  row-evictions     0.0  vocab ids   321.1   cert95 both splits: false
+   combo[u16/q16,0.03125,vocab] owned    12941 B ( 20.1% of u16/q16)  vocab~   28343 B  rows   252.5  cells   1388.8  row-evictions     0.0  vocab ids   252.5   cert95 both splits: false
+   combo[u16/q16,0.0,vocab] owned    11632 B ( 18.1% of u16/q16)  vocab~   21698 B  rows   193.0  cells   1329.3  row-evictions     0.0  vocab ids   193.0   cert95 both splits: false
+-- big-64agents
+   combo[u16/q16,1,none]  owned    17600 B (100.0% of u16/q16)  vocab~   21638 B  rows   232.0  cells   2065.4  row-evictions     0.0  vocab ids   232.0   cert95 both splits: false
+   combo[u16/q16,0.0625,vocab] owned    13313 B ( 75.6% of u16/q16)  vocab~   15312 B  rows   194.1  cells   1477.1  row-evictions     0.0  vocab ids   194.1   cert95 both splits: false
+   combo[u16/q16,0.03125,vocab] owned    13294 B ( 75.5% of u16/q16)  vocab~   15301 B  rows   193.6  cells   1475.8  row-evictions     0.0  vocab ids   193.6   cert95 both splits: false
+   combo[u16/q16,0.0,vocab] owned    13280 B ( 75.5% of u16/q16)  vocab~   15291 B  rows   193.0  cells   1475.4  row-evictions     0.0  vocab ids   193.0   cert95 both splits: false
+-- big-128agents
+   combo[u16/q16,1,none]  owned    20479 B (100.0% of u16/q16)  vocab~   21638 B  rows   232.0  cells   2235.8  row-evictions     0.0  vocab ids   232.0   cert95 both splits: false
+   combo[u16/q16,0.0625,vocab] owned    15746 B ( 76.9% of u16/q16)  vocab~   15311 B  rows   194.1  cells   1624.0  row-evictions     0.0  vocab ids   194.1   cert95 both splits: false
+   combo[u16/q16,0.03125,vocab] owned    15720 B ( 76.8% of u16/q16)  vocab~   15300 B  rows   193.5  cells   1622.2  row-evictions     0.0  vocab ids   193.5   cert95 both splits: false
+   combo[u16/q16,0.0,vocab] owned    15702 B ( 76.7% of u16/q16)  vocab~   15291 B  rows   193.0  cells   1621.6  row-evictions     0.0  vocab ids   193.0   cert95 both splits: false
+
+=== PAIRED DIFF (subject - f64 reference) of mean expected success, split pooled, margin +-0.005: mean [95% CI] verdict ===
+combo[u16/q16,1,none] | -0.0001[-0.0003,+0.0001]C95 | +0.0004[-0.0010,+0.0017]C95 | +0.0001[-0.0001,+0.0004]C95 | +0.0005[-0.0028,+0.0038]C95 | +0.0003[-0.0016,+0.0022]C95 | +0.0019[-0.0009,+0.0046]C95 | +0.0014[-0.0020,+0.0047]C95 | +0.0010[-0.0043,+0.0063]inc
+combo[u16/q16,0.0625,vocab] | -0.0001[-0.0003,+0.0001]C95 | +0.0004[-0.0010,+0.0017]C95 | +0.0001[-0.0001,+0.0004]C95 | -0.0013[-0.0067,+0.0042]inc | +0.0026[-0.0008,+0.0060]inc | +0.0019[-0.0009,+0.0046]inc | +0.0060[-0.0008,+0.0129]inc | +0.0013[-0.0042,+0.0069]inc
+combo[u16/q16,0.03125,vocab] | -0.0001[-0.0003,+0.0001]C95 | +0.0004[-0.0010,+0.0017]C95 | +0.0001[-0.0001,+0.0004]C95 | -0.0016[-0.0070,+0.0038]inc | +0.0025[-0.0008,+0.0059]inc | +0.0019[-0.0009,+0.0046]inc | +0.0058[-0.0009,+0.0125]inc | +0.0014[-0.0041,+0.0069]inc
+combo[u16/q16,0.0,vocab] | -0.0001[-0.0003,+0.0001]C95 | +0.0004[-0.0010,+0.0017]C95 | +0.0001[-0.0001,+0.0004]C95 | -0.0014[-0.0068,+0.0041]inc | +0.0031[-0.0002,+0.0065]inc | +0.0019[-0.0009,+0.0046]inc | +0.0058[-0.0009,+0.0125]inc | +0.0014[-0.0041,+0.0069]inc
+                     | worlds in order: sim-fixed | sim-random | sim-no-traps | big-32agents | big-32agents-longtail | big-32agents-open | big-64agents | big-128agents
+
+=== PAIRED DIFF (subject - f64 reference) of mean expected success, split power, margin +-0.005: mean [95% CI] verdict ===
+combo[u16/q16,1,none] | +0.0000[-0.0003,+0.0004]C95 | +0.0004[-0.0002,+0.0010]C95 | -0.0000[-0.0001,+0.0001]C95 | +0.0002[-0.0025,+0.0029]C95 | -0.0006[-0.0031,+0.0019]C95 | -0.0004[-0.0026,+0.0019]C95 | +0.0027[-0.0002,+0.0056]inc | +0.0004[-0.0020,+0.0029]C95
+combo[u16/q16,0.0625,vocab] | +0.0000[-0.0003,+0.0004]C95 | +0.0004[-0.0002,+0.0010]C95 | -0.0000[-0.0001,+0.0001]C95 | +0.0001[-0.0039,+0.0042]C95 | -0.0020[-0.0047,+0.0008]C95 | -0.0004[-0.0026,+0.0019]C95 | +0.0021[-0.0029,+0.0071]inc | +0.0026[-0.0012,+0.0064]inc
+combo[u16/q16,0.03125,vocab] | +0.0000[-0.0003,+0.0004]C95 | +0.0004[-0.0002,+0.0010]C95 | -0.0000[-0.0001,+0.0001]C95 | +0.0003[-0.0037,+0.0043]C95 | -0.0018[-0.0046,+0.0010]C95 | -0.0004[-0.0026,+0.0019]C95 | +0.0013[-0.0037,+0.0062]inc | +0.0023[-0.0014,+0.0061]inc
+combo[u16/q16,0.0,vocab] | +0.0000[-0.0003,+0.0004]C95 | +0.0004[-0.0002,+0.0010]C95 | -0.0000[-0.0001,+0.0001]C95 | +0.0006[-0.0035,+0.0048]inc | -0.0015[-0.0044,+0.0013]C95 | -0.0004[-0.0026,+0.0019]C95 | +0.0007[-0.0042,+0.0057]inc | +0.0023[-0.0015,+0.0060]inc
+                     | worlds in order: sim-fixed | sim-random | sim-no-traps | big-32agents | big-32agents-longtail | big-32agents-open | big-64agents | big-128agents
+
+=== PAIRED DIFF (subject - f64 reference) of mean expected success, split fresh, margin +-0.005: mean [95% CI] verdict ===
+combo[u16/q16,1,none] | +0.0002[-0.0001,+0.0005]C95 | +0.0003[-0.0001,+0.0008]C95 | -0.0000[-0.0001,+0.0001]C95 | -0.0002[-0.0019,+0.0016]C95 | -0.0010[-0.0027,+0.0006]C95 | -0.0008[-0.0024,+0.0008]C95 | +0.0020[+0.0001,+0.0039]C95 | +0.0004[-0.0015,+0.0023]C95
+combo[u16/q16,0.0625,vocab] | +0.0002[-0.0001,+0.0005]C95 | +0.0003[-0.0001,+0.0008]C95 | -0.0000[-0.0001,+0.0001]C95 | +0.0004[-0.0023,+0.0031]C95 | -0.0012[-0.0030,+0.0007]C95 | -0.0008[-0.0024,+0.0008]C95 | +0.0014[-0.0016,+0.0044]C95 | +0.0013[-0.0012,+0.0037]C95
+combo[u16/q16,0.03125,vocab] | +0.0002[-0.0001,+0.0005]C95 | +0.0003[-0.0001,+0.0008]C95 | -0.0000[-0.0001,+0.0001]C95 | +0.0005[-0.0021,+0.0032]C95 | -0.0011[-0.0030,+0.0008]C95 | -0.0008[-0.0024,+0.0008]C95 | +0.0006[-0.0024,+0.0036]C95 | +0.0013[-0.0012,+0.0037]C95
+combo[u16/q16,0.0,vocab] | +0.0002[-0.0001,+0.0005]C95 | +0.0003[-0.0001,+0.0008]C95 | -0.0000[-0.0001,+0.0001]C95 | +0.0004[-0.0023,+0.0031]C95 | -0.0011[-0.0029,+0.0008]C95 | -0.0008[-0.0024,+0.0008]C95 | +0.0006[-0.0024,+0.0036]C95 | +0.0012[-0.0012,+0.0037]C95
+                     | worlds in order: sim-fixed | sim-random | sim-no-traps | big-32agents | big-32agents-longtail | big-32agents-open | big-64agents | big-128agents
+
+=== PASS TABLE STAGE 1 (declared): pooled 31-90 AND power 91-250: all 8 worlds, +-0.005, Holm p<.05 and 95% CI inside (CERT95) | TOST-only (CERT90) | +-0.003 TOST | non-inferior (one-sided, Holm, +-0.005) ===
+combo[u16/q16,1,none]  PASS95: false  CERT90: false  +-.003: false  NONINF: true   failing(95%): big-64agents, big-128agents   not-noninferior: -
+combo[u16/q16,0.0625,vocab] PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): big-32agents, big-32agents-longtail, big-32agents-open, big-64agents, big-128agents   not-noninferior: big-32agents
+combo[u16/q16,0.03125,vocab] PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): big-32agents, big-32agents-longtail, big-32agents-open, big-64agents, big-128agents   not-noninferior: big-32agents
+combo[u16/q16,0.0,vocab] PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): big-32agents, big-32agents-longtail, big-32agents-open, big-64agents, big-128agents   not-noninferior: big-32agents
+
+=== PASS TABLE STAGE 2 (declared after stage 1, more fresh power): FRESH seeds 91-450 (n=360): all 8 worlds, +-0.005, Holm p<.05 and 95% CI inside (CERT95) | TOST-only (CERT90) | +-0.003 TOST | non-inferior (one-sided, Holm, +-0.005) ===
+combo[u16/q16,1,none]  PASS95: true   CERT90: true   +-.003: false  NONINF: true   failing(95%): -   not-noninferior: -
+combo[u16/q16,0.0625,vocab] PASS95: true   CERT90: true   +-.003: false  NONINF: true   failing(95%): -   not-noninferior: -
+combo[u16/q16,0.03125,vocab] PASS95: true   CERT90: true   +-.003: false  NONINF: true   failing(95%): -   not-noninferior: -
+combo[u16/q16,0.0,vocab] PASS95: true   CERT90: true   +-.003: false  NONINF: true   failing(95%): -   not-noninferior: -
+
+compact-f64 (new sorted-row/u128-mask layout) vs reference: max |mean diff| / sd over every cell = 0e0 (must be 0 when present)
+wrote results/h5_equiv_stage4.json (94.1s)

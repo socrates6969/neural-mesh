@@ -1,0 +1,1385 @@
+H7 lab exp=bok worlds=n set=confirm
+[tune1-8] N1-grid-archive                      G = warm(hebR,k=10,Mean)
+[tune1-8] N2-global-corpus                     G = eps-greedy(g=1,e=0.02)
+[tune1-8] N3-modal-concave                     G = pooled-ts(g=1)
+[tune1-8] N4-grid-recent24-unattainable        G = pooled-ts(g=1)
+[tune1-8] NK1-grid-correct                     G = eps-greedy(g=0.95,e=0.02)
+[tune1-8] NK2-corpus-correct                   G = warm(hebR,k=3,Mean)
+[tune1-8] NK3-modal-correct                    G = eps-greedy(g=0.9,e=0.02)
+[tune1-8] NM1-grid-mixed-3of6                  G = warm(hebR,k=3,Set)
+[tune1-8] NM2-corpus-mixed-3of6                G = keyword
+[tune1-8] BoK-dedup k=2                -> Dedup { theta: 0.0, w: 0.5 }  pooled mean value 0.6081 (grid 12)
+[tune1-8] BoK-dedup k=3                -> Dedup { theta: 0.0, w: 0.5 }  pooled mean value 0.6145 (grid 12)
+[tune1-8] BoK-dedup k=4                -> Dedup { theta: 0.0, w: 0.5 }  pooled mean value 0.6175 (grid 12)
+[tune1-8] BoK-archive(sign) k=3        -> Arch { w: 0.5, t: 8.0, cell: Sign }  pooled mean value 0.6099 (grid 9)
+[tune1-8] BoK-archive(grid8) k=3       -> Arch { w: 0.5, t: 16.0, cell: Grid(8) }  pooled mean value 0.6134 (grid 9)
+[tune1-8] BoK-dedup k=3 on plain-ucb   -> Dedup { theta: 0.15, w: 0.5 }  pooled mean value 0.6144 (grid 12)
+[tune1-8] STACK nbucb|declared + dedup k=2 -> Dedup { theta: 0.15, w: 0.75 }  pooled mean value 0.6085 (grid 12)
+[tune1-8] STACK nbucb|declared + dedup k=3 -> Dedup { theta: 0.0, w: 0.75 }  pooled mean value 0.6152 (grid 12)
+evaluated 24 arms x 9 worlds x 30 seeds in 32.0s
+
+=== mean value per world: creative | correctness | overall | gen-calls/creative-task | judge/creative-task | multi-on[cr/cor] ===
+-- N1-grid-archive (grid)
+   G (best fair, 1 call)                                          0.3591 | NaN | 0.3591 | calls 1.00 judge 0.00 | on 0.00/NaN
+   U plain-ucb (1 call)                                           0.3589 | NaN | 0.3589 | calls 1.00 judge 0.00 | on 0.00/NaN
+   W4 nbucb(b=.8)|learned                                         0.3531 | NaN | 0.3531 | calls 1.00 judge 0.00 | on 0.00/NaN
+   W4 nbreg|learned                                               0.3545 | NaN | 0.3545 | calls 1.00 judge 0.00 | on 0.00/NaN
+   W4 nbucb(b=.4)|declared                                        0.3561 | NaN | 0.3561 | calls 1.00 judge 0.00 | on 0.00/NaN
+   BoK-q k=2 (multi-agent, quality-only select)                   0.3753 | NaN | 0.3753 | calls 2.00 judge 2.00 | on 1.00/NaN
+   BoK-dedup k=2                                                  0.3771 | NaN | 0.3771 | calls 2.00 judge 2.00 | on 1.00/NaN
+   BoK-q k=3 (multi-agent, quality-only select)                   0.3847 | NaN | 0.3847 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-dedup k=3                                                  0.3860 | NaN | 0.3860 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-q k=4 (multi-agent, quality-only select)                   0.3903 | NaN | 0.3903 | calls 4.00 judge 4.00 | on 1.00/NaN
+   BoK-dedup k=4                                                  0.3924 | NaN | 0.3924 | calls 4.00 judge 4.00 | on 1.00/NaN
+   BoK-archive(sign) k=3                                          0.3837 | NaN | 0.3837 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-archive(grid8) k=3                                         0.3815 | NaN | 0.3815 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-dedup k=3 on plain-ucb                                     0.3680 | NaN | 0.3680 | calls 3.00 judge 3.00 | on 1.00/NaN
+   STACK nbucb(b=.4)|decl + dedup k=2                             0.3606 | NaN | 0.3606 | calls 2.00 judge 2.00 | on 1.00/NaN
+   STACK nbucb(b=.4)|decl + dedup k=3                             0.3809 | NaN | 0.3809 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-dedup k=3 judge_sd=0                                       0.3889 | NaN | 0.3889 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-dedup k=3 judge_sd=0.1                                     0.3822 | NaN | 0.3822 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-dedup k=3 judge_sd=0.2                                     0.3738 | NaN | 0.3738 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-dedup k=3 judge_sd=-1                                      0.3582 | NaN | 0.3582 | calls 3.00 judge 0.00 | on 1.00/NaN
+   same-agent k=3 native sampling (dedup)                         0.3898 | NaN | 0.3898 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-dedup k=3 |learned gate                                    0.3775 | NaN | 0.3775 | calls 2.41 judge 2.12 | on 0.71/NaN
+   ORACLE clairvoyant best-of-3 by true value (ceiling, 3 calls)  0.3855 | NaN | 0.3855 | calls 3.00 judge 3.00 | on 1.00/NaN
+   ORACLE clairvoyant best-of-8 by true value (ceiling, 8 calls)  0.4138 | NaN | 0.4138 | calls 8.00 judge 8.00 | on 1.00/NaN
+-- N2-global-corpus (corpus)
+   G (best fair, 1 call)                                          0.2852 | NaN | 0.2852 | calls 1.00 judge 0.00 | on 0.00/NaN
+   U plain-ucb (1 call)                                           0.2800 | NaN | 0.2800 | calls 1.00 judge 0.00 | on 0.00/NaN
+   W4 nbucb(b=.8)|learned                                         0.2787 | NaN | 0.2787 | calls 1.00 judge 0.00 | on 0.00/NaN
+   W4 nbreg|learned                                               0.2752 | NaN | 0.2752 | calls 1.00 judge 0.00 | on 0.00/NaN
+   W4 nbucb(b=.4)|declared                                        0.2636 | NaN | 0.2636 | calls 1.00 judge 0.00 | on 0.00/NaN
+   BoK-q k=2 (multi-agent, quality-only select)                   0.2945 | NaN | 0.2945 | calls 2.00 judge 2.00 | on 1.00/NaN
+   BoK-dedup k=2                                                  0.2939 | NaN | 0.2939 | calls 2.00 judge 2.00 | on 1.00/NaN
+   BoK-q k=3 (multi-agent, quality-only select)                   0.2997 | NaN | 0.2997 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-dedup k=3                                                  0.2953 | NaN | 0.2953 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-q k=4 (multi-agent, quality-only select)                   0.3033 | NaN | 0.3033 | calls 4.00 judge 4.00 | on 1.00/NaN
+   BoK-dedup k=4                                                  0.2957 | NaN | 0.2957 | calls 4.00 judge 4.00 | on 1.00/NaN
+   BoK-archive(sign) k=3                                          0.2920 | NaN | 0.2920 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-archive(grid8) k=3                                         0.2933 | NaN | 0.2933 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-dedup k=3 on plain-ucb                                     0.2917 | NaN | 0.2917 | calls 3.00 judge 3.00 | on 1.00/NaN
+   STACK nbucb(b=.4)|decl + dedup k=2                             0.2746 | NaN | 0.2746 | calls 2.00 judge 2.00 | on 1.00/NaN
+   STACK nbucb(b=.4)|decl + dedup k=3                             0.2806 | NaN | 0.2806 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-dedup k=3 judge_sd=0                                       0.2966 | NaN | 0.2966 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-dedup k=3 judge_sd=0.1                                     0.2927 | NaN | 0.2927 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-dedup k=3 judge_sd=0.2                                     0.2887 | NaN | 0.2887 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-dedup k=3 judge_sd=-1                                      0.2797 | NaN | 0.2797 | calls 3.00 judge 0.00 | on 1.00/NaN
+   same-agent k=3 native sampling (dedup)                         0.3090 | NaN | 0.3090 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-dedup k=3 |learned gate                                    0.2870 | NaN | 0.2870 | calls 1.41 judge 0.61 | on 0.20/NaN
+   ORACLE clairvoyant best-of-3 by true value (ceiling, 3 calls)  0.3082 | NaN | 0.3082 | calls 3.00 judge 3.00 | on 1.00/NaN
+   ORACLE clairvoyant best-of-8 by true value (ceiling, 8 calls)  0.3292 | NaN | 0.3292 | calls 8.00 judge 8.00 | on 1.00/NaN
+-- N3-modal-concave (modal)
+   G (best fair, 1 call)                                          0.6212 | NaN | 0.6212 | calls 1.00 judge 0.00 | on 0.00/NaN
+   U plain-ucb (1 call)                                           0.5875 | NaN | 0.5875 | calls 1.00 judge 0.00 | on 0.00/NaN
+   W4 nbucb(b=.8)|learned                                         0.6199 | NaN | 0.6199 | calls 1.00 judge 0.00 | on 0.00/NaN
+   W4 nbreg|learned                                               0.6209 | NaN | 0.6209 | calls 1.00 judge 0.00 | on 0.00/NaN
+   W4 nbucb(b=.4)|declared                                        0.6263 | NaN | 0.6263 | calls 1.00 judge 0.00 | on 0.00/NaN
+   BoK-q k=2 (multi-agent, quality-only select)                   0.6479 | NaN | 0.6479 | calls 2.00 judge 2.00 | on 1.00/NaN
+   BoK-dedup k=2                                                  0.6655 | NaN | 0.6655 | calls 2.00 judge 2.00 | on 1.00/NaN
+   BoK-q k=3 (multi-agent, quality-only select)                   0.6600 | NaN | 0.6600 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-dedup k=3                                                  0.6851 | NaN | 0.6851 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-q k=4 (multi-agent, quality-only select)                   0.6694 | NaN | 0.6694 | calls 4.00 judge 4.00 | on 1.00/NaN
+   BoK-dedup k=4                                                  0.6986 | NaN | 0.6986 | calls 4.00 judge 4.00 | on 1.00/NaN
+   BoK-archive(sign) k=3                                          0.6688 | NaN | 0.6688 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-archive(grid8) k=3                                         0.6618 | NaN | 0.6618 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-dedup k=3 on plain-ucb                                     0.6788 | NaN | 0.6788 | calls 3.00 judge 3.00 | on 1.00/NaN
+   STACK nbucb(b=.4)|decl + dedup k=2                             0.6740 | NaN | 0.6740 | calls 2.00 judge 2.00 | on 1.00/NaN
+   STACK nbucb(b=.4)|decl + dedup k=3                             0.6886 | NaN | 0.6886 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-dedup k=3 judge_sd=0                                       0.6889 | NaN | 0.6889 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-dedup k=3 judge_sd=0.1                                     0.6782 | NaN | 0.6782 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-dedup k=3 judge_sd=0.2                                     0.6636 | NaN | 0.6636 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-dedup k=3 judge_sd=-1                                      0.6613 | NaN | 0.6613 | calls 3.00 judge 0.00 | on 1.00/NaN
+   same-agent k=3 native sampling (dedup)                         0.6825 | NaN | 0.6825 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-dedup k=3 |learned gate                                    0.6742 | NaN | 0.6742 | calls 2.61 judge 2.41 | on 0.80/NaN
+   ORACLE clairvoyant best-of-3 by true value (ceiling, 3 calls)  0.7263 | NaN | 0.7263 | calls 3.00 judge 3.00 | on 1.00/NaN
+   ORACLE clairvoyant best-of-8 by true value (ceiling, 8 calls)  0.7843 | NaN | 0.7843 | calls 8.00 judge 8.00 | on 1.00/NaN
+-- N4-grid-recent24-unattainable (grid)
+   G (best fair, 1 call)                                          0.5490 | NaN | 0.5490 | calls 1.00 judge 0.00 | on 0.00/NaN
+   U plain-ucb (1 call)                                           0.5378 | NaN | 0.5378 | calls 1.00 judge 0.00 | on 0.00/NaN
+   W4 nbucb(b=.8)|learned                                         0.5506 | NaN | 0.5506 | calls 1.00 judge 0.00 | on 0.00/NaN
+   W4 nbreg|learned                                               0.5490 | NaN | 0.5490 | calls 1.00 judge 0.00 | on 0.00/NaN
+   W4 nbucb(b=.4)|declared                                        0.5483 | NaN | 0.5483 | calls 1.00 judge 0.00 | on 0.00/NaN
+   BoK-q k=2 (multi-agent, quality-only select)                   0.5723 | NaN | 0.5723 | calls 2.00 judge 2.00 | on 1.00/NaN
+   BoK-dedup k=2                                                  0.5844 | NaN | 0.5844 | calls 2.00 judge 2.00 | on 1.00/NaN
+   BoK-q k=3 (multi-agent, quality-only select)                   0.5866 | NaN | 0.5866 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-dedup k=3                                                  0.5973 | NaN | 0.5973 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-q k=4 (multi-agent, quality-only select)                   0.5902 | NaN | 0.5902 | calls 4.00 judge 4.00 | on 1.00/NaN
+   BoK-dedup k=4                                                  0.6082 | NaN | 0.6082 | calls 4.00 judge 4.00 | on 1.00/NaN
+   BoK-archive(sign) k=3                                          0.5840 | NaN | 0.5840 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-archive(grid8) k=3                                         0.6240 | NaN | 0.6240 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-dedup k=3 on plain-ucb                                     0.6010 | NaN | 0.6010 | calls 3.00 judge 3.00 | on 1.00/NaN
+   STACK nbucb(b=.4)|decl + dedup k=2                             0.5872 | NaN | 0.5872 | calls 2.00 judge 2.00 | on 1.00/NaN
+   STACK nbucb(b=.4)|decl + dedup k=3                             0.6011 | NaN | 0.6011 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-dedup k=3 judge_sd=0                                       0.5987 | NaN | 0.5987 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-dedup k=3 judge_sd=0.1                                     0.5905 | NaN | 0.5905 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-dedup k=3 judge_sd=0.2                                     0.5826 | NaN | 0.5826 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-dedup k=3 judge_sd=-1                                      0.5808 | NaN | 0.5808 | calls 3.00 judge 0.00 | on 1.00/NaN
+   same-agent k=3 native sampling (dedup)                         0.5964 | NaN | 0.5964 | calls 3.00 judge 3.00 | on 1.00/NaN
+   BoK-dedup k=3 |learned gate                                    0.5840 | NaN | 0.5840 | calls 2.35 judge 2.02 | on 0.67/NaN
+   ORACLE clairvoyant best-of-3 by true value (ceiling, 3 calls)  0.7180 | NaN | 0.7180 | calls 3.00 judge 3.00 | on 1.00/NaN
+   ORACLE clairvoyant best-of-8 by true value (ceiling, 8 calls)  0.8143 | NaN | 0.8143 | calls 8.00 judge 8.00 | on 1.00/NaN
+-- NK1-grid-correct (grid)
+   G (best fair, 1 call)                                          NaN | 0.7987 | 0.7987 | calls NaN judge NaN | on NaN/0.00
+   U plain-ucb (1 call)                                           NaN | 0.8086 | 0.8086 | calls NaN judge NaN | on NaN/0.00
+   W4 nbucb(b=.8)|learned                                         NaN | 0.8079 | 0.8079 | calls NaN judge NaN | on NaN/0.00
+   W4 nbreg|learned                                               NaN | 0.8077 | 0.8077 | calls NaN judge NaN | on NaN/0.00
+   W4 nbucb(b=.4)|declared                                        NaN | 0.8086 | 0.8086 | calls NaN judge NaN | on NaN/0.00
+   BoK-q k=2 (multi-agent, quality-only select)                   NaN | 0.7987 | 0.7987 | calls NaN judge NaN | on NaN/0.00
+   BoK-dedup k=2                                                  NaN | 0.7987 | 0.7987 | calls NaN judge NaN | on NaN/0.00
+   BoK-q k=3 (multi-agent, quality-only select)                   NaN | 0.7987 | 0.7987 | calls NaN judge NaN | on NaN/0.00
+   BoK-dedup k=3                                                  NaN | 0.7987 | 0.7987 | calls NaN judge NaN | on NaN/0.00
+   BoK-q k=4 (multi-agent, quality-only select)                   NaN | 0.7987 | 0.7987 | calls NaN judge NaN | on NaN/0.00
+   BoK-dedup k=4                                                  NaN | 0.7987 | 0.7987 | calls NaN judge NaN | on NaN/0.00
+   BoK-archive(sign) k=3                                          NaN | 0.7987 | 0.7987 | calls NaN judge NaN | on NaN/0.00
+   BoK-archive(grid8) k=3                                         NaN | 0.7987 | 0.7987 | calls NaN judge NaN | on NaN/0.00
+   BoK-dedup k=3 on plain-ucb                                     NaN | 0.8086 | 0.8086 | calls NaN judge NaN | on NaN/0.00
+   STACK nbucb(b=.4)|decl + dedup k=2                             NaN | 0.8086 | 0.8086 | calls NaN judge NaN | on NaN/0.00
+   STACK nbucb(b=.4)|decl + dedup k=3                             NaN | 0.8086 | 0.8086 | calls NaN judge NaN | on NaN/0.00
+   BoK-dedup k=3 judge_sd=0                                       NaN | 0.7987 | 0.7987 | calls NaN judge NaN | on NaN/0.00
+   BoK-dedup k=3 judge_sd=0.1                                     NaN | 0.7987 | 0.7987 | calls NaN judge NaN | on NaN/0.00
+   BoK-dedup k=3 judge_sd=0.2                                     NaN | 0.7987 | 0.7987 | calls NaN judge NaN | on NaN/0.00
+   BoK-dedup k=3 judge_sd=-1                                      NaN | 0.7987 | 0.7987 | calls NaN judge NaN | on NaN/0.00
+   same-agent k=3 native sampling (dedup)                         NaN | 0.7987 | 0.7987 | calls NaN judge NaN | on NaN/0.00
+   BoK-dedup k=3 |learned gate                                    NaN | 0.7995 | 0.7995 | calls NaN judge NaN | on NaN/0.03
+   ORACLE clairvoyant best-of-3 by true value (ceiling, 3 calls)  NaN | 0.7987 | 0.7987 | calls NaN judge NaN | on NaN/0.00
+   ORACLE clairvoyant best-of-8 by true value (ceiling, 8 calls)  NaN | 0.7987 | 0.7987 | calls NaN judge NaN | on NaN/0.00
+-- NK2-corpus-correct (corpus)
+   G (best fair, 1 call)                                          NaN | 0.8016 | 0.8016 | calls NaN judge NaN | on NaN/0.00
+   U plain-ucb (1 call)                                           NaN | 0.8083 | 0.8083 | calls NaN judge NaN | on NaN/0.00
+   W4 nbucb(b=.8)|learned                                         NaN | 0.8075 | 0.8075 | calls NaN judge NaN | on NaN/0.00
+   W4 nbreg|learned                                               NaN | 0.8069 | 0.8069 | calls NaN judge NaN | on NaN/0.00
+   W4 nbucb(b=.4)|declared                                        NaN | 0.8083 | 0.8083 | calls NaN judge NaN | on NaN/0.00
+   BoK-q k=2 (multi-agent, quality-only select)                   NaN | 0.8016 | 0.8016 | calls NaN judge NaN | on NaN/0.00
+   BoK-dedup k=2                                                  NaN | 0.8016 | 0.8016 | calls NaN judge NaN | on NaN/0.00
+   BoK-q k=3 (multi-agent, quality-only select)                   NaN | 0.8016 | 0.8016 | calls NaN judge NaN | on NaN/0.00
+   BoK-dedup k=3                                                  NaN | 0.8016 | 0.8016 | calls NaN judge NaN | on NaN/0.00
+   BoK-q k=4 (multi-agent, quality-only select)                   NaN | 0.8016 | 0.8016 | calls NaN judge NaN | on NaN/0.00
+   BoK-dedup k=4                                                  NaN | 0.8016 | 0.8016 | calls NaN judge NaN | on NaN/0.00
+   BoK-archive(sign) k=3                                          NaN | 0.8016 | 0.8016 | calls NaN judge NaN | on NaN/0.00
+   BoK-archive(grid8) k=3                                         NaN | 0.8016 | 0.8016 | calls NaN judge NaN | on NaN/0.00
+   BoK-dedup k=3 on plain-ucb                                     NaN | 0.8083 | 0.8083 | calls NaN judge NaN | on NaN/0.00
+   STACK nbucb(b=.4)|decl + dedup k=2                             NaN | 0.8083 | 0.8083 | calls NaN judge NaN | on NaN/0.00
+   STACK nbucb(b=.4)|decl + dedup k=3                             NaN | 0.8083 | 0.8083 | calls NaN judge NaN | on NaN/0.00
+   BoK-dedup k=3 judge_sd=0                                       NaN | 0.8016 | 0.8016 | calls NaN judge NaN | on NaN/0.00
+   BoK-dedup k=3 judge_sd=0.1                                     NaN | 0.8016 | 0.8016 | calls NaN judge NaN | on NaN/0.00
+   BoK-dedup k=3 judge_sd=0.2                                     NaN | 0.8016 | 0.8016 | calls NaN judge NaN | on NaN/0.00
+   BoK-dedup k=3 judge_sd=-1                                      NaN | 0.8016 | 0.8016 | calls NaN judge NaN | on NaN/0.00
+   same-agent k=3 native sampling (dedup)                         NaN | 0.8016 | 0.8016 | calls NaN judge NaN | on NaN/0.00
+   BoK-dedup k=3 |learned gate                                    NaN | 0.8013 | 0.8013 | calls NaN judge NaN | on NaN/0.00
+   ORACLE clairvoyant best-of-3 by true value (ceiling, 3 calls)  NaN | 0.8016 | 0.8016 | calls NaN judge NaN | on NaN/0.00
+   ORACLE clairvoyant best-of-8 by true value (ceiling, 8 calls)  NaN | 0.8016 | 0.8016 | calls NaN judge NaN | on NaN/0.00
+-- NK3-modal-correct (modal)
+   G (best fair, 1 call)                                          NaN | 0.8026 | 0.8026 | calls NaN judge NaN | on NaN/0.00
+   U plain-ucb (1 call)                                           NaN | 0.8100 | 0.8100 | calls NaN judge NaN | on NaN/0.00
+   W4 nbucb(b=.8)|learned                                         NaN | 0.8099 | 0.8099 | calls NaN judge NaN | on NaN/0.00
+   W4 nbreg|learned                                               NaN | 0.8087 | 0.8087 | calls NaN judge NaN | on NaN/0.00
+   W4 nbucb(b=.4)|declared                                        NaN | 0.8100 | 0.8100 | calls NaN judge NaN | on NaN/0.00
+   BoK-q k=2 (multi-agent, quality-only select)                   NaN | 0.8026 | 0.8026 | calls NaN judge NaN | on NaN/0.00
+   BoK-dedup k=2                                                  NaN | 0.8026 | 0.8026 | calls NaN judge NaN | on NaN/0.00
+   BoK-q k=3 (multi-agent, quality-only select)                   NaN | 0.8026 | 0.8026 | calls NaN judge NaN | on NaN/0.00
+   BoK-dedup k=3                                                  NaN | 0.8026 | 0.8026 | calls NaN judge NaN | on NaN/0.00
+   BoK-q k=4 (multi-agent, quality-only select)                   NaN | 0.8026 | 0.8026 | calls NaN judge NaN | on NaN/0.00
+   BoK-dedup k=4                                                  NaN | 0.8026 | 0.8026 | calls NaN judge NaN | on NaN/0.00
+   BoK-archive(sign) k=3                                          NaN | 0.8026 | 0.8026 | calls NaN judge NaN | on NaN/0.00
+   BoK-archive(grid8) k=3                                         NaN | 0.8026 | 0.8026 | calls NaN judge NaN | on NaN/0.00
+   BoK-dedup k=3 on plain-ucb                                     NaN | 0.8100 | 0.8100 | calls NaN judge NaN | on NaN/0.00
+   STACK nbucb(b=.4)|decl + dedup k=2                             NaN | 0.8100 | 0.8100 | calls NaN judge NaN | on NaN/0.00
+   STACK nbucb(b=.4)|decl + dedup k=3                             NaN | 0.8100 | 0.8100 | calls NaN judge NaN | on NaN/0.00
+   BoK-dedup k=3 judge_sd=0                                       NaN | 0.8026 | 0.8026 | calls NaN judge NaN | on NaN/0.00
+   BoK-dedup k=3 judge_sd=0.1                                     NaN | 0.8026 | 0.8026 | calls NaN judge NaN | on NaN/0.00
+   BoK-dedup k=3 judge_sd=0.2                                     NaN | 0.8026 | 0.8026 | calls NaN judge NaN | on NaN/0.00
+   BoK-dedup k=3 judge_sd=-1                                      NaN | 0.8026 | 0.8026 | calls NaN judge NaN | on NaN/0.00
+   same-agent k=3 native sampling (dedup)                         NaN | 0.8026 | 0.8026 | calls NaN judge NaN | on NaN/0.00
+   BoK-dedup k=3 |learned gate                                    NaN | 0.8027 | 0.8027 | calls NaN judge NaN | on NaN/0.01
+   ORACLE clairvoyant best-of-3 by true value (ceiling, 3 calls)  NaN | 0.8026 | 0.8026 | calls NaN judge NaN | on NaN/0.00
+   ORACLE clairvoyant best-of-8 by true value (ceiling, 8 calls)  NaN | 0.8026 | 0.8026 | calls NaN judge NaN | on NaN/0.00
+-- NM1-grid-mixed-3of6 (grid)
+   G (best fair, 1 call)                                          0.3797 | 0.7909 | 0.5867 | calls 1.00 judge 0.00 | on 0.00/0.00
+   U plain-ucb (1 call)                                           0.3925 | 0.8052 | 0.6001 | calls 1.00 judge 0.00 | on 0.00/0.00
+   W4 nbucb(b=.8)|learned                                         0.3889 | 0.8042 | 0.5979 | calls 1.00 judge 0.00 | on 0.00/0.00
+   W4 nbreg|learned                                               0.3907 | 0.8026 | 0.5980 | calls 1.00 judge 0.00 | on 0.00/0.00
+   W4 nbucb(b=.4)|declared                                        0.3910 | 0.8052 | 0.5994 | calls 1.00 judge 0.00 | on 0.00/0.00
+   BoK-q k=2 (multi-agent, quality-only select)                   0.4057 | 0.7881 | 0.5981 | calls 2.00 judge 2.00 | on 1.00/0.00
+   BoK-dedup k=2                                                  0.4087 | 0.7872 | 0.5992 | calls 2.00 judge 2.00 | on 1.00/0.00
+   BoK-q k=3 (multi-agent, quality-only select)                   0.4177 | 0.7868 | 0.6034 | calls 3.00 judge 3.00 | on 1.00/0.00
+   BoK-dedup k=3                                                  0.4228 | 0.7864 | 0.6058 | calls 3.00 judge 3.00 | on 1.00/0.00
+   BoK-q k=4 (multi-agent, quality-only select)                   0.4251 | 0.7835 | 0.6055 | calls 4.00 judge 4.00 | on 1.00/0.00
+   BoK-dedup k=4                                                  0.4305 | 0.7851 | 0.6090 | calls 4.00 judge 4.00 | on 1.00/0.00
+   BoK-archive(sign) k=3                                          0.4169 | 0.7871 | 0.6033 | calls 3.00 judge 3.00 | on 1.00/0.00
+   BoK-archive(grid8) k=3                                         0.4191 | 0.7857 | 0.6036 | calls 3.00 judge 3.00 | on 1.00/0.00
+   BoK-dedup k=3 on plain-ucb                                     0.4067 | 0.8055 | 0.6073 | calls 3.00 judge 3.00 | on 1.00/0.00
+   STACK nbucb(b=.4)|decl + dedup k=2                             0.3991 | 0.8064 | 0.6041 | calls 2.00 judge 2.00 | on 1.00/0.00
+   STACK nbucb(b=.4)|decl + dedup k=3                             0.4195 | 0.8055 | 0.6137 | calls 3.00 judge 3.00 | on 1.00/0.00
+   BoK-dedup k=3 judge_sd=0                                       0.4253 | 0.7862 | 0.6069 | calls 3.00 judge 3.00 | on 1.00/0.00
+   BoK-dedup k=3 judge_sd=0.1                                     0.4190 | 0.7850 | 0.6032 | calls 3.00 judge 3.00 | on 1.00/0.00
+   BoK-dedup k=3 judge_sd=0.2                                     0.4064 | 0.7842 | 0.5965 | calls 3.00 judge 3.00 | on 1.00/0.00
+   BoK-dedup k=3 judge_sd=-1                                      0.3925 | 0.7845 | 0.5898 | calls 3.00 judge 0.00 | on 1.00/0.00
+   same-agent k=3 native sampling (dedup)                         0.4138 | 0.7910 | 0.6037 | calls 3.00 judge 3.00 | on 1.00/0.00
+   BoK-dedup k=3 |learned gate                                    0.4082 | 0.7865 | 0.5986 | calls 2.31 judge 1.96 | on 0.65/0.00
+   ORACLE clairvoyant best-of-3 by true value (ceiling, 3 calls)  0.4261 | 0.7860 | 0.6072 | calls 3.00 judge 3.00 | on 1.00/0.00
+   ORACLE clairvoyant best-of-8 by true value (ceiling, 8 calls)  0.4593 | 0.7839 | 0.6227 | calls 8.00 judge 8.00 | on 1.00/0.00
+-- NM2-corpus-mixed-3of6 (corpus)
+   G (best fair, 1 call)                                          0.2753 | 0.7790 | 0.5284 | calls 1.00 judge 0.00 | on 0.00/0.00
+   U plain-ucb (1 call)                                           0.2818 | 0.8039 | 0.5443 | calls 1.00 judge 0.00 | on 0.00/0.00
+   W4 nbucb(b=.8)|learned                                         0.2800 | 0.8030 | 0.5430 | calls 1.00 judge 0.00 | on 0.00/0.00
+   W4 nbreg|learned                                               0.2777 | 0.8028 | 0.5418 | calls 1.00 judge 0.00 | on 0.00/0.00
+   W4 nbucb(b=.4)|declared                                        0.2649 | 0.8039 | 0.5360 | calls 1.00 judge 0.00 | on 0.00/0.00
+   BoK-q k=2 (multi-agent, quality-only select)                   0.2963 | 0.7790 | 0.5389 | calls 2.00 judge 2.00 | on 1.00/0.00
+   BoK-dedup k=2                                                  0.2846 | 0.7790 | 0.5331 | calls 2.00 judge 2.00 | on 1.00/0.00
+   BoK-q k=3 (multi-agent, quality-only select)                   0.3035 | 0.7790 | 0.5425 | calls 3.00 judge 3.00 | on 1.00/0.00
+   BoK-dedup k=3                                                  0.2908 | 0.7790 | 0.5362 | calls 3.00 judge 3.00 | on 1.00/0.00
+   BoK-q k=4 (multi-agent, quality-only select)                   0.3079 | 0.7790 | 0.5447 | calls 4.00 judge 4.00 | on 1.00/0.00
+   BoK-dedup k=4                                                  0.2951 | 0.7790 | 0.5383 | calls 4.00 judge 4.00 | on 1.00/0.00
+   BoK-archive(sign) k=3                                          0.2891 | 0.7790 | 0.5353 | calls 3.00 judge 3.00 | on 1.00/0.00
+   BoK-archive(grid8) k=3                                         0.2886 | 0.7790 | 0.5351 | calls 3.00 judge 3.00 | on 1.00/0.00
+   BoK-dedup k=3 on plain-ucb                                     0.2939 | 0.8040 | 0.5504 | calls 3.00 judge 3.00 | on 1.00/0.00
+   STACK nbucb(b=.4)|decl + dedup k=2                             0.2759 | 0.8042 | 0.5415 | calls 2.00 judge 2.00 | on 1.00/0.00
+   STACK nbucb(b=.4)|decl + dedup k=3                             0.2829 | 0.8040 | 0.5449 | calls 3.00 judge 3.00 | on 1.00/0.00
+   BoK-dedup k=3 judge_sd=0                                       0.2921 | 0.7790 | 0.5369 | calls 3.00 judge 3.00 | on 1.00/0.00
+   BoK-dedup k=3 judge_sd=0.1                                     0.2881 | 0.7790 | 0.5348 | calls 3.00 judge 3.00 | on 1.00/0.00
+   BoK-dedup k=3 judge_sd=0.2                                     0.2831 | 0.7790 | 0.5323 | calls 3.00 judge 3.00 | on 1.00/0.00
+   BoK-dedup k=3 judge_sd=-1                                      0.2675 | 0.7790 | 0.5246 | calls 3.00 judge 0.00 | on 1.00/0.00
+   same-agent k=3 native sampling (dedup)                         0.2992 | 0.7790 | 0.5403 | calls 3.00 judge 3.00 | on 1.00/0.00
+   BoK-dedup k=3 |learned gate                                    0.2854 | 0.7789 | 0.5334 | calls 1.72 judge 1.08 | on 0.36/0.00
+   ORACLE clairvoyant best-of-3 by true value (ceiling, 3 calls)  0.3122 | 0.7790 | 0.5468 | calls 3.00 judge 3.00 | on 1.00/0.00
+   ORACLE clairvoyant best-of-8 by true value (ceiling, 8 calls)  0.3347 | 0.7790 | 0.5580 | calls 8.00 judge 8.00 | on 1.00/0.00
+
+=== DIFFS vs [G (best fair, 1 call)] : creative-valued subset  (diff [95% CI] w/l, Holm; break-even = value gain per extra gen+judge call per creative task) ===
+## U plain-ucb (1 call)
+   creative N1-grid-archive                    -0.0002 [-0.0014,+0.0010] w/l 15/15 holm 1.000  extra calls +0.00 breakeven/call NaN
+   creative N2-global-corpus                   -0.0052 [-0.0058,-0.0046] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   creative N3-modal-concave                   -0.0337 [-0.0359,-0.0314] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      -0.0111 [-0.0163,-0.0059] w/l 5/25 holm 0.017 LOSS  extra calls +0.00 breakeven/call NaN
+   correct  NK1-grid-correct                   +0.0099 [+0.0061,+0.0136] 90%lo +0.0067 TOST.01 p 0.469 NONINF
+   correct  NK2-corpus-correct                 +0.0068 [+0.0026,+0.0109] 90%lo +0.0033 TOST.01 p 0.062 NONINF
+   correct  NK3-modal-correct                  +0.0074 [+0.0040,+0.0107] 90%lo +0.0046 TOST.01 p 0.060 NONINF
+   creative NM1-grid-mixed-3of6                +0.0128 [+0.0073,+0.0182] w/l 23/7 holm 0.006 WIN  extra calls +0.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                +0.0142 [+0.0045,+0.0240] 90%lo +0.0061 TOST.01 p 0.809 NONINF
+   creative NM2-corpus-mixed-3of6              +0.0065 [+0.0009,+0.0121] w/l 17/13 holm 1.000  extra calls +0.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              +0.0249 [+0.0089,+0.0409] 90%lo +0.0116 TOST.01 p 0.967 NONINF
+## W4 nbucb(b=.8)|learned
+   creative N1-grid-archive                    -0.0060 [-0.0076,-0.0044] w/l 2/28 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   creative N2-global-corpus                   -0.0065 [-0.0071,-0.0059] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   creative N3-modal-concave                   -0.0013 [-0.0047,+0.0021] w/l 15/15 holm 1.000  extra calls +0.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      +0.0016 [-0.0023,+0.0056] w/l 18/12 holm 1.000  extra calls +0.00 breakeven/call NaN
+   correct  NK1-grid-correct                   +0.0091 [+0.0054,+0.0129] 90%lo +0.0060 TOST.01 p 0.322 NONINF
+   correct  NK2-corpus-correct                 +0.0060 [+0.0017,+0.0103] 90%lo +0.0024 TOST.01 p 0.035 EQ NONINF
+   correct  NK3-modal-correct                  +0.0073 [+0.0040,+0.0105] 90%lo +0.0046 TOST.01 p 0.049 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0092 [+0.0038,+0.0146] w/l 20/10 holm 0.162  extra calls +0.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                +0.0133 [+0.0036,+0.0230] 90%lo +0.0053 TOST.01 p 0.755 NONINF
+   creative NM2-corpus-mixed-3of6              +0.0048 [-0.0010,+0.0105] w/l 16/14 holm 1.000  extra calls +0.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              +0.0240 [+0.0082,+0.0398] 90%lo +0.0109 TOST.01 p 0.960 NONINF
+## W4 nbreg|learned
+   creative N1-grid-archive                    -0.0046 [-0.0064,-0.0028] w/l 5/25 holm 0.002 LOSS  extra calls +0.00 breakeven/call NaN
+   creative N2-global-corpus                   -0.0100 [-0.0107,-0.0093] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   creative N3-modal-concave                   -0.0002 [-0.0031,+0.0027] w/l 14/16 holm 1.000  extra calls +0.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      +0.0000 [-0.0038,+0.0038] w/l 14/16 holm 1.000  extra calls +0.00 breakeven/call NaN
+   correct  NK1-grid-correct                   +0.0089 [+0.0055,+0.0123] 90%lo +0.0061 TOST.01 p 0.261 NONINF
+   correct  NK2-corpus-correct                 +0.0054 [+0.0014,+0.0094] 90%lo +0.0020 TOST.01 p 0.013 EQ NONINF
+   correct  NK3-modal-correct                  +0.0061 [+0.0030,+0.0092] 90%lo +0.0035 TOST.01 p 0.008 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0110 [+0.0054,+0.0167] w/l 23/7 holm 0.048 WIN  extra calls +0.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                +0.0117 [+0.0014,+0.0219] 90%lo +0.0031 TOST.01 p 0.628 NONINF
+   creative NM2-corpus-mixed-3of6              +0.0024 [-0.0033,+0.0082] w/l 15/15 holm 1.000  extra calls +0.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              +0.0239 [+0.0077,+0.0400] 90%lo +0.0104 TOST.01 p 0.955 NONINF
+## W4 nbucb(b=.4)|declared
+   creative N1-grid-archive                    -0.0029 [-0.0047,-0.0012] w/l 8/22 holm 0.224  extra calls +0.00 breakeven/call NaN
+   creative N2-global-corpus                   -0.0216 [-0.0228,-0.0204] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   creative N3-modal-concave                   +0.0051 [+0.0019,+0.0083] w/l 21/9 holm 0.283  extra calls +0.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      -0.0007 [-0.0031,+0.0018] w/l 14/16 holm 1.000  extra calls +0.00 breakeven/call NaN
+   correct  NK1-grid-correct                   +0.0099 [+0.0061,+0.0136] 90%lo +0.0067 TOST.01 p 0.469 NONINF
+   correct  NK2-corpus-correct                 +0.0068 [+0.0026,+0.0109] 90%lo +0.0033 TOST.01 p 0.062 NONINF
+   correct  NK3-modal-correct                  +0.0074 [+0.0040,+0.0107] 90%lo +0.0046 TOST.01 p 0.060 NONINF
+   creative NM1-grid-mixed-3of6                +0.0114 [+0.0057,+0.0170] w/l 24/6 holm 0.032 WIN  extra calls +0.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                +0.0142 [+0.0045,+0.0240] 90%lo +0.0061 TOST.01 p 0.809 NONINF
+   creative NM2-corpus-mixed-3of6              -0.0104 [-0.0164,-0.0043] w/l 11/19 holm 0.161  extra calls +0.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              +0.0249 [+0.0089,+0.0409] 90%lo +0.0116 TOST.01 p 0.967 NONINF
+## BoK-q k=2 (multi-agent, quality-only select)
+   creative N1-grid-archive                    +0.0162 [+0.0148,+0.0175] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0054
+   creative N2-global-corpus                   +0.0093 [+0.0085,+0.0101] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0031
+   creative N3-modal-concave                   +0.0267 [+0.0248,+0.0285] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0089
+   creative N4-grid-recent24-unattainable      +0.0233 [+0.0202,+0.0265] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0078
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                +0.0260 [+0.0227,+0.0293] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0087
+   correct  NM1-grid-mixed-3of6                -0.0028 [-0.0046,-0.0011] 90%lo -0.0043 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              +0.0210 [+0.0174,+0.0246] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0070
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+## BoK-dedup k=2
+   creative N1-grid-archive                    +0.0180 [+0.0166,+0.0194] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0060
+   creative N2-global-corpus                   +0.0087 [+0.0077,+0.0097] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0029
+   creative N3-modal-concave                   +0.0443 [+0.0422,+0.0464] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0148
+   creative N4-grid-recent24-unattainable      +0.0354 [+0.0324,+0.0385] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0118
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                +0.0291 [+0.0258,+0.0323] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0097
+   correct  NM1-grid-mixed-3of6                -0.0037 [-0.0055,-0.0019] 90%lo -0.0052 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              +0.0094 [+0.0047,+0.0141] w/l 21/9 holm 0.038 WIN  extra calls +3.00 breakeven/call +0.0031
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+## BoK-q k=3 (multi-agent, quality-only select)
+   creative N1-grid-archive                    +0.0257 [+0.0244,+0.0269] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0051
+   creative N2-global-corpus                   +0.0145 [+0.0137,+0.0152] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0029
+   creative N3-modal-concave                   +0.0389 [+0.0368,+0.0409] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0078
+   creative N4-grid-recent24-unattainable      +0.0376 [+0.0337,+0.0416] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0075
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                +0.0380 [+0.0339,+0.0422] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0076
+   correct  NM1-grid-mixed-3of6                -0.0042 [-0.0063,-0.0020] 90%lo -0.0059 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              +0.0282 [+0.0236,+0.0328] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0056
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+## BoK-dedup k=3
+   creative N1-grid-archive                    +0.0269 [+0.0254,+0.0285] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0054
+   creative N2-global-corpus                   +0.0102 [+0.0090,+0.0114] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0020
+   creative N3-modal-concave                   +0.0639 [+0.0620,+0.0658] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0128
+   creative N4-grid-recent24-unattainable      +0.0483 [+0.0451,+0.0516] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0097
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                +0.0431 [+0.0391,+0.0472] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0086
+   correct  NM1-grid-mixed-3of6                -0.0045 [-0.0073,-0.0017] 90%lo -0.0069 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              +0.0155 [+0.0101,+0.0209] w/l 27/3 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0031
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+## BoK-q k=4 (multi-agent, quality-only select)
+   creative N1-grid-archive                    +0.0313 [+0.0298,+0.0327] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0045
+   creative N2-global-corpus                   +0.0182 [+0.0173,+0.0190] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0026
+   creative N3-modal-concave                   +0.0482 [+0.0456,+0.0507] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0069
+   creative N4-grid-recent24-unattainable      +0.0412 [+0.0377,+0.0447] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0059
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                +0.0454 [+0.0408,+0.0500] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0065
+   correct  NM1-grid-mixed-3of6                -0.0074 [-0.0108,-0.0040] 90%lo -0.0102 TOST.01 p 0.064 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0327 [+0.0278,+0.0376] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0047
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+## BoK-dedup k=4
+   creative N1-grid-archive                    +0.0334 [+0.0320,+0.0347] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0048
+   creative N2-global-corpus                   +0.0105 [+0.0095,+0.0116] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0015
+   creative N3-modal-concave                   +0.0775 [+0.0757,+0.0792] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0111
+   creative N4-grid-recent24-unattainable      +0.0592 [+0.0556,+0.0627] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0085
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                +0.0509 [+0.0461,+0.0557] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0073
+   correct  NM1-grid-mixed-3of6                -0.0058 [-0.0092,-0.0024] 90%lo -0.0086 TOST.01 p 0.009 EQ NONINF
+   creative NM2-corpus-mixed-3of6              +0.0198 [+0.0144,+0.0252] w/l 29/1 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0028
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+## BoK-archive(sign) k=3
+   creative N1-grid-archive                    +0.0246 [+0.0229,+0.0263] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0049
+   creative N2-global-corpus                   +0.0069 [+0.0059,+0.0078] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0014
+   creative N3-modal-concave                   +0.0477 [+0.0454,+0.0499] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0095
+   creative N4-grid-recent24-unattainable      +0.0350 [+0.0311,+0.0389] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0070
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                +0.0373 [+0.0327,+0.0418] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0075
+   correct  NM1-grid-mixed-3of6                -0.0038 [-0.0059,-0.0017] 90%lo -0.0056 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              +0.0138 [+0.0085,+0.0190] w/l 25/5 holm 0.001 WIN  extra calls +5.00 breakeven/call +0.0028
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+## BoK-archive(grid8) k=3
+   creative N1-grid-archive                    +0.0224 [+0.0209,+0.0239] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0045
+   creative N2-global-corpus                   +0.0082 [+0.0073,+0.0090] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0016
+   creative N3-modal-concave                   +0.0406 [+0.0376,+0.0436] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0081
+   creative N4-grid-recent24-unattainable      +0.0750 [+0.0709,+0.0792] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0150
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                +0.0394 [+0.0351,+0.0437] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0079
+   correct  NM1-grid-mixed-3of6                -0.0052 [-0.0078,-0.0026] 90%lo -0.0073 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              +0.0133 [+0.0084,+0.0183] w/l 25/5 holm 0.001 WIN  extra calls +5.00 breakeven/call +0.0027
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+## BoK-dedup k=3 on plain-ucb
+   creative N1-grid-archive                    +0.0089 [+0.0073,+0.0105] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0018
+   creative N2-global-corpus                   +0.0065 [+0.0055,+0.0076] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0013
+   creative N3-modal-concave                   +0.0577 [+0.0558,+0.0596] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0115
+   creative N4-grid-recent24-unattainable      +0.0520 [+0.0479,+0.0561] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0104
+   correct  NK1-grid-correct                   +0.0099 [+0.0061,+0.0136] 90%lo +0.0067 TOST.01 p 0.469 NONINF
+   correct  NK2-corpus-correct                 +0.0068 [+0.0026,+0.0109] 90%lo +0.0033 TOST.01 p 0.062 NONINF
+   correct  NK3-modal-correct                  +0.0074 [+0.0040,+0.0107] 90%lo +0.0046 TOST.01 p 0.060 NONINF
+   creative NM1-grid-mixed-3of6                +0.0271 [+0.0217,+0.0324] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0054
+   correct  NM1-grid-mixed-3of6                +0.0146 [+0.0048,+0.0243] 90%lo +0.0065 TOST.01 p 0.827 NONINF
+   creative NM2-corpus-mixed-3of6              +0.0186 [+0.0128,+0.0243] w/l 27/3 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0037
+   correct  NM2-corpus-mixed-3of6              +0.0250 [+0.0089,+0.0412] 90%lo +0.0116 TOST.01 p 0.967 NONINF
+## STACK nbucb(b=.4)|decl + dedup k=2
+   creative N1-grid-archive                    +0.0015 [-0.0003,+0.0033] w/l 20/10 holm 1.000  extra calls +3.00 breakeven/call +0.0005
+   creative N2-global-corpus                   -0.0106 [-0.0119,-0.0093] w/l 0/30 holm 0.000 LOSS  extra calls +3.00 breakeven/call -0.0035
+   creative N3-modal-concave                   +0.0528 [+0.0504,+0.0553] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0176
+   creative N4-grid-recent24-unattainable      +0.0382 [+0.0343,+0.0422] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0127
+   correct  NK1-grid-correct                   +0.0099 [+0.0061,+0.0136] 90%lo +0.0067 TOST.01 p 0.469 NONINF
+   correct  NK2-corpus-correct                 +0.0068 [+0.0026,+0.0109] 90%lo +0.0033 TOST.01 p 0.062 NONINF
+   correct  NK3-modal-correct                  +0.0074 [+0.0040,+0.0107] 90%lo +0.0046 TOST.01 p 0.060 NONINF
+   creative NM1-grid-mixed-3of6                +0.0195 [+0.0143,+0.0247] w/l 29/1 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0065
+   correct  NM1-grid-mixed-3of6                +0.0155 [+0.0055,+0.0255] 90%lo +0.0072 TOST.01 p 0.864 NONINF
+   creative NM2-corpus-mixed-3of6              +0.0006 [-0.0054,+0.0065] w/l 13/17 holm 1.000  extra calls +3.00 breakeven/call +0.0002
+   correct  NM2-corpus-mixed-3of6              +0.0253 [+0.0095,+0.0411] 90%lo +0.0121 TOST.01 p 0.971 NONINF
+## STACK nbucb(b=.4)|decl + dedup k=3
+   creative N1-grid-archive                    +0.0218 [+0.0201,+0.0236] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0044
+   creative N2-global-corpus                   -0.0046 [-0.0059,-0.0033] w/l 3/27 holm 0.000 LOSS  extra calls +5.00 breakeven/call -0.0009
+   creative N3-modal-concave                   +0.0674 [+0.0650,+0.0699] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0135
+   creative N4-grid-recent24-unattainable      +0.0521 [+0.0474,+0.0569] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0104
+   correct  NK1-grid-correct                   +0.0099 [+0.0061,+0.0136] 90%lo +0.0067 TOST.01 p 0.469 NONINF
+   correct  NK2-corpus-correct                 +0.0068 [+0.0026,+0.0109] 90%lo +0.0033 TOST.01 p 0.062 NONINF
+   correct  NK3-modal-correct                  +0.0074 [+0.0040,+0.0107] 90%lo +0.0046 TOST.01 p 0.060 NONINF
+   creative NM1-grid-mixed-3of6                +0.0398 [+0.0348,+0.0449] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0080
+   correct  NM1-grid-mixed-3of6                +0.0146 [+0.0048,+0.0243] 90%lo +0.0065 TOST.01 p 0.827 NONINF
+   creative NM2-corpus-mixed-3of6              +0.0076 [+0.0017,+0.0135] w/l 18/12 holm 1.000  extra calls +5.00 breakeven/call +0.0015
+   correct  NM2-corpus-mixed-3of6              +0.0250 [+0.0089,+0.0412] 90%lo +0.0116 TOST.01 p 0.967 NONINF
+## BoK-dedup k=3 judge_sd=0
+   creative N1-grid-archive                    +0.0298 [+0.0281,+0.0316] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0060
+   creative N2-global-corpus                   +0.0114 [+0.0104,+0.0125] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0023
+   creative N3-modal-concave                   +0.0677 [+0.0659,+0.0695] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0135
+   creative N4-grid-recent24-unattainable      +0.0497 [+0.0463,+0.0532] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0099
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                +0.0456 [+0.0414,+0.0499] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0091
+   correct  NM1-grid-mixed-3of6                -0.0047 [-0.0067,-0.0028] 90%lo -0.0063 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              +0.0169 [+0.0115,+0.0222] w/l 27/3 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0034
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+## BoK-dedup k=3 judge_sd=0.1
+   creative N1-grid-archive                    +0.0231 [+0.0217,+0.0246] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0046
+   creative N2-global-corpus                   +0.0075 [+0.0064,+0.0086] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0015
+   creative N3-modal-concave                   +0.0571 [+0.0548,+0.0593] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0114
+   creative N4-grid-recent24-unattainable      +0.0415 [+0.0378,+0.0452] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0083
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                +0.0394 [+0.0353,+0.0435] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0079
+   correct  NM1-grid-mixed-3of6                -0.0059 [-0.0081,-0.0038] 90%lo -0.0077 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              +0.0128 [+0.0076,+0.0181] w/l 24/6 holm 0.003 WIN  extra calls +5.00 breakeven/call +0.0026
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+## BoK-dedup k=3 judge_sd=0.2
+   creative N1-grid-archive                    +0.0147 [+0.0133,+0.0161] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0029
+   creative N2-global-corpus                   +0.0035 [+0.0025,+0.0046] w/l 26/4 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0007
+   creative N3-modal-concave                   +0.0424 [+0.0404,+0.0443] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0085
+   creative N4-grid-recent24-unattainable      +0.0336 [+0.0296,+0.0377] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0067
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                +0.0267 [+0.0223,+0.0310] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0053
+   correct  NM1-grid-mixed-3of6                -0.0068 [-0.0089,-0.0046] 90%lo -0.0086 TOST.01 p 0.002 EQ NONINF
+   creative NM2-corpus-mixed-3of6              +0.0078 [+0.0026,+0.0130] w/l 17/13 holm 0.415  extra calls +5.00 breakeven/call +0.0016
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+## BoK-dedup k=3 judge_sd=-1
+   creative N1-grid-archive                    -0.0009 [-0.0025,+0.0007] w/l 14/16 holm 1.000  extra calls +2.00 breakeven/call -0.0004
+   creative N2-global-corpus                   -0.0055 [-0.0068,-0.0041] w/l 3/27 holm 0.000 LOSS  extra calls +2.00 breakeven/call -0.0027
+   creative N3-modal-concave                   +0.0401 [+0.0379,+0.0423] w/l 30/0 holm 0.000 WIN  extra calls +2.00 breakeven/call +0.0201
+   creative N4-grid-recent24-unattainable      +0.0318 [+0.0272,+0.0364] w/l 30/0 holm 0.000 WIN  extra calls +2.00 breakeven/call +0.0159
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                +0.0128 [+0.0085,+0.0172] w/l 29/1 holm 0.000 WIN  extra calls +2.00 breakeven/call +0.0064
+   correct  NM1-grid-mixed-3of6                -0.0064 [-0.0084,-0.0044] 90%lo -0.0081 TOST.01 p 0.001 EQ NONINF
+   creative NM2-corpus-mixed-3of6              -0.0078 [-0.0136,-0.0020] w/l 10/20 holm 0.790  extra calls +2.00 breakeven/call -0.0039
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+## same-agent k=3 native sampling (dedup)
+   creative N1-grid-archive                    +0.0307 [+0.0294,+0.0320] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0061
+   creative N2-global-corpus                   +0.0238 [+0.0232,+0.0245] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0048
+   creative N3-modal-concave                   +0.0613 [+0.0593,+0.0634] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0123
+   creative N4-grid-recent24-unattainable      +0.0474 [+0.0439,+0.0510] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0095
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                +0.0341 [+0.0316,+0.0367] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0068
+   correct  NM1-grid-mixed-3of6                +0.0001 [-0.0004,+0.0007] 90%lo -0.0003 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              +0.0240 [+0.0232,+0.0247] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0048
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+## BoK-dedup k=3 |learned gate
+   creative N1-grid-archive                    +0.0185 [+0.0164,+0.0206] w/l 30/0 holm 0.000 WIN  extra calls +3.53 breakeven/call +0.0052
+   creative N2-global-corpus                   +0.0018 [+0.0011,+0.0025] w/l 26/3 holm 0.001 WIN  extra calls +1.02 breakeven/call +0.0018
+   creative N3-modal-concave                   +0.0530 [+0.0514,+0.0546] w/l 30/0 holm 0.000 WIN  extra calls +4.02 breakeven/call +0.0132
+   creative N4-grid-recent24-unattainable      +0.0350 [+0.0305,+0.0394] w/l 30/0 holm 0.000 WIN  extra calls +3.37 breakeven/call +0.0104
+   correct  NK1-grid-correct                   +0.0008 [+0.0001,+0.0015] 90%lo +0.0002 TOST.01 p 0.000 EQ NONINF
+   correct  NK2-corpus-correct                 -0.0002 [-0.0006,+0.0002] 90%lo -0.0006 TOST.01 p 0.000 EQ NONINF
+   correct  NK3-modal-correct                  +0.0001 [-0.0002,+0.0003] 90%lo -0.0002 TOST.01 p 0.000 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0285 [+0.0241,+0.0329] w/l 29/1 holm 0.000 WIN  extra calls +3.26 breakeven/call +0.0087
+   correct  NM1-grid-mixed-3of6                -0.0044 [-0.0065,-0.0022] 90%lo -0.0062 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              +0.0101 [+0.0079,+0.0123] w/l 29/1 holm 0.000 WIN  extra calls +1.81 breakeven/call +0.0056
+   correct  NM2-corpus-mixed-3of6              -0.0001 [-0.0003,+0.0001] 90%lo -0.0003 TOST.01 p 0.000 EQ NONINF
+## ORACLE clairvoyant best-of-3 by true value (ceiling, 3 calls)
+   creative N1-grid-archive                    +0.0264 [+0.0249,+0.0278] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0053
+   creative N2-global-corpus                   +0.0230 [+0.0221,+0.0240] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0046
+   creative N3-modal-concave                   +0.1051 [+0.1030,+0.1071] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0210
+   creative N4-grid-recent24-unattainable      +0.1690 [+0.1655,+0.1725] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0338
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                +0.0464 [+0.0426,+0.0502] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0093
+   correct  NM1-grid-mixed-3of6                -0.0049 [-0.0075,-0.0023] 90%lo -0.0071 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              +0.0369 [+0.0325,+0.0414] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0074
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+## ORACLE clairvoyant best-of-8 by true value (ceiling, 8 calls)
+   creative N1-grid-archive                    +0.0548 [+0.0532,+0.0563] w/l 30/0 holm 0.000 WIN  extra calls +15.00 breakeven/call +0.0037
+   creative N2-global-corpus                   +0.0440 [+0.0430,+0.0449] w/l 30/0 holm 0.000 WIN  extra calls +15.00 breakeven/call +0.0029
+   creative N3-modal-concave                   +0.1631 [+0.1606,+0.1656] w/l 30/0 holm 0.000 WIN  extra calls +15.00 breakeven/call +0.0109
+   creative N4-grid-recent24-unattainable      +0.2653 [+0.2616,+0.2690] w/l 30/0 holm 0.000 WIN  extra calls +15.00 breakeven/call +0.0177
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                +0.0796 [+0.0745,+0.0848] w/l 30/0 holm 0.000 WIN  extra calls +15.00 breakeven/call +0.0053
+   correct  NM1-grid-mixed-3of6                -0.0070 [-0.0109,-0.0031] 90%lo -0.0102 TOST.01 p 0.063 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0595 [+0.0536,+0.0653] w/l 30/0 holm 0.000 WIN  extra calls +15.00 breakeven/call +0.0040
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+
+=== DIFFS vs [BoK-q k=3 (multi-agent, quality-only select)] : creative-valued subset  (diff [95% CI] w/l, Holm; break-even = value gain per extra gen+judge call per creative task) ===
+## G (best fair, 1 call)
+   creative N1-grid-archive                    -0.0257 [-0.0269,-0.0244] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   creative N2-global-corpus                   -0.0145 [-0.0152,-0.0137] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   creative N3-modal-concave                   -0.0389 [-0.0409,-0.0368] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      -0.0376 [-0.0416,-0.0337] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                -0.0380 [-0.0422,-0.0339] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                +0.0042 [+0.0020,+0.0063] 90%lo +0.0024 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              -0.0282 [-0.0328,-0.0236] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+## U plain-ucb (1 call)
+   creative N1-grid-archive                    -0.0259 [-0.0272,-0.0246] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   creative N2-global-corpus                   -0.0197 [-0.0205,-0.0189] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   creative N3-modal-concave                   -0.0725 [-0.0746,-0.0705] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      -0.0488 [-0.0548,-0.0427] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   correct  NK1-grid-correct                   +0.0099 [+0.0061,+0.0136] 90%lo +0.0067 TOST.01 p 0.469 NONINF
+   correct  NK2-corpus-correct                 +0.0068 [+0.0026,+0.0109] 90%lo +0.0033 TOST.01 p 0.062 NONINF
+   correct  NK3-modal-correct                  +0.0074 [+0.0040,+0.0107] 90%lo +0.0046 TOST.01 p 0.060 NONINF
+   creative NM1-grid-mixed-3of6                -0.0252 [-0.0286,-0.0219] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                +0.0184 [+0.0094,+0.0274] 90%lo +0.0109 TOST.01 p 0.967 NONINF
+   creative NM2-corpus-mixed-3of6              -0.0217 [-0.0233,-0.0201] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              +0.0249 [+0.0089,+0.0409] 90%lo +0.0116 TOST.01 p 0.967 NONINF
+## W4 nbucb(b=.8)|learned
+   creative N1-grid-archive                    -0.0317 [-0.0333,-0.0300] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   creative N2-global-corpus                   -0.0210 [-0.0216,-0.0204] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   creative N3-modal-concave                   -0.0401 [-0.0441,-0.0362] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      -0.0360 [-0.0408,-0.0312] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   correct  NK1-grid-correct                   +0.0091 [+0.0054,+0.0129] 90%lo +0.0060 TOST.01 p 0.322 NONINF
+   correct  NK2-corpus-correct                 +0.0060 [+0.0017,+0.0103] 90%lo +0.0024 TOST.01 p 0.035 EQ NONINF
+   correct  NK3-modal-correct                  +0.0073 [+0.0040,+0.0105] 90%lo +0.0046 TOST.01 p 0.049 EQ NONINF
+   creative NM1-grid-mixed-3of6                -0.0288 [-0.0320,-0.0256] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                +0.0175 [+0.0085,+0.0264] 90%lo +0.0101 TOST.01 p 0.951 NONINF
+   creative NM2-corpus-mixed-3of6              -0.0234 [-0.0252,-0.0217] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              +0.0240 [+0.0082,+0.0398] 90%lo +0.0109 TOST.01 p 0.960 NONINF
+## W4 nbreg|learned
+   creative N1-grid-archive                    -0.0302 [-0.0318,-0.0287] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   creative N2-global-corpus                   -0.0245 [-0.0252,-0.0237] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   creative N3-modal-concave                   -0.0391 [-0.0425,-0.0357] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      -0.0376 [-0.0417,-0.0335] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   correct  NK1-grid-correct                   +0.0089 [+0.0055,+0.0123] 90%lo +0.0061 TOST.01 p 0.261 NONINF
+   correct  NK2-corpus-correct                 +0.0054 [+0.0014,+0.0094] 90%lo +0.0020 TOST.01 p 0.013 EQ NONINF
+   correct  NK3-modal-correct                  +0.0061 [+0.0030,+0.0092] 90%lo +0.0035 TOST.01 p 0.008 EQ NONINF
+   creative NM1-grid-mixed-3of6                -0.0270 [-0.0306,-0.0234] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                +0.0158 [+0.0063,+0.0253] 90%lo +0.0079 TOST.01 p 0.890 NONINF
+   creative NM2-corpus-mixed-3of6              -0.0258 [-0.0275,-0.0240] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              +0.0239 [+0.0077,+0.0400] 90%lo +0.0104 TOST.01 p 0.955 NONINF
+## W4 nbucb(b=.4)|declared
+   creative N1-grid-archive                    -0.0286 [-0.0299,-0.0272] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   creative N2-global-corpus                   -0.0361 [-0.0372,-0.0350] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   creative N3-modal-concave                   -0.0338 [-0.0378,-0.0297] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      -0.0383 [-0.0420,-0.0346] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   correct  NK1-grid-correct                   +0.0099 [+0.0061,+0.0136] 90%lo +0.0067 TOST.01 p 0.469 NONINF
+   correct  NK2-corpus-correct                 +0.0068 [+0.0026,+0.0109] 90%lo +0.0033 TOST.01 p 0.062 NONINF
+   correct  NK3-modal-correct                  +0.0074 [+0.0040,+0.0107] 90%lo +0.0046 TOST.01 p 0.060 NONINF
+   creative NM1-grid-mixed-3of6                -0.0267 [-0.0301,-0.0233] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                +0.0184 [+0.0094,+0.0274] 90%lo +0.0109 TOST.01 p 0.967 NONINF
+   creative NM2-corpus-mixed-3of6              -0.0386 [-0.0405,-0.0366] w/l 0/30 holm 0.000 LOSS  extra calls -5.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              +0.0249 [+0.0089,+0.0409] 90%lo +0.0116 TOST.01 p 0.967 NONINF
+## BoK-q k=2 (multi-agent, quality-only select)
+   creative N1-grid-archive                    -0.0095 [-0.0107,-0.0082] w/l 0/30 holm 0.000 LOSS  extra calls -2.00 breakeven/call NaN
+   creative N2-global-corpus                   -0.0052 [-0.0058,-0.0046] w/l 0/30 holm 0.000 LOSS  extra calls -2.00 breakeven/call NaN
+   creative N3-modal-concave                   -0.0122 [-0.0136,-0.0108] w/l 0/30 holm 0.000 LOSS  extra calls -2.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      -0.0143 [-0.0186,-0.0100] w/l 3/27 holm 0.000 LOSS  extra calls -2.00 breakeven/call NaN
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                -0.0120 [-0.0146,-0.0094] w/l 1/29 holm 0.000 LOSS  extra calls -2.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                +0.0013 [-0.0005,+0.0031] 90%lo -0.0002 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              -0.0072 [-0.0084,-0.0060] w/l 0/30 holm 0.000 LOSS  extra calls -2.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+## BoK-dedup k=2
+   creative N1-grid-archive                    -0.0077 [-0.0089,-0.0064] w/l 0/30 holm 0.000 LOSS  extra calls -2.00 breakeven/call NaN
+   creative N2-global-corpus                   -0.0058 [-0.0068,-0.0048] w/l 0/30 holm 0.000 LOSS  extra calls -2.00 breakeven/call NaN
+   creative N3-modal-concave                   +0.0054 [+0.0033,+0.0076] w/l 26/4 holm 0.003 WIN  extra calls -2.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      -0.0022 [-0.0059,+0.0015] w/l 13/17 holm 1.000  extra calls -2.00 breakeven/call NaN
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                -0.0090 [-0.0112,-0.0067] w/l 3/27 holm 0.000 LOSS  extra calls -2.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                +0.0005 [-0.0010,+0.0020] 90%lo -0.0007 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              -0.0189 [-0.0198,-0.0179] w/l 0/30 holm 0.000 LOSS  extra calls -2.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+## BoK-dedup k=3
+   creative N1-grid-archive                    +0.0013 [+0.0002,+0.0024] w/l 20/10 holm 1.000  extra calls +0.00 breakeven/call NaN
+   creative N2-global-corpus                   -0.0043 [-0.0053,-0.0034] w/l 1/29 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   creative N3-modal-concave                   +0.0250 [+0.0232,+0.0269] w/l 30/0 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      +0.0107 [+0.0075,+0.0139] w/l 27/3 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                +0.0051 [+0.0031,+0.0071] w/l 24/6 holm 0.002 WIN  extra calls +0.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                -0.0004 [-0.0030,+0.0023] 90%lo -0.0026 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              -0.0127 [-0.0138,-0.0116] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+## BoK-q k=4 (multi-agent, quality-only select)
+   creative N1-grid-archive                    +0.0056 [+0.0050,+0.0062] w/l 30/0 holm 0.000 WIN  extra calls +2.00 breakeven/call +0.0028
+   creative N2-global-corpus                   +0.0037 [+0.0030,+0.0043] w/l 28/2 holm 0.000 WIN  extra calls +2.00 breakeven/call +0.0018
+   creative N3-modal-concave                   +0.0093 [+0.0078,+0.0109] w/l 29/1 holm 0.000 WIN  extra calls +2.00 breakeven/call +0.0047
+   creative N4-grid-recent24-unattainable      +0.0036 [-0.0006,+0.0077] w/l 22/8 holm 1.000  extra calls +2.00 breakeven/call +0.0018
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                +0.0074 [+0.0053,+0.0094] w/l 28/2 holm 0.000 WIN  extra calls +2.00 breakeven/call +0.0037
+   correct  NM1-grid-mixed-3of6                -0.0032 [-0.0058,-0.0007] 90%lo -0.0054 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              +0.0045 [+0.0039,+0.0050] w/l 30/0 holm 0.000 WIN  extra calls +2.00 breakeven/call +0.0022
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+## BoK-dedup k=4
+   creative N1-grid-archive                    +0.0077 [+0.0066,+0.0088] w/l 30/0 holm 0.000 WIN  extra calls +2.00 breakeven/call +0.0039
+   creative N2-global-corpus                   -0.0040 [-0.0049,-0.0031] w/l 2/28 holm 0.000 LOSS  extra calls +2.00 breakeven/call -0.0020
+   creative N3-modal-concave                   +0.0386 [+0.0369,+0.0403] w/l 30/0 holm 0.000 WIN  extra calls +2.00 breakeven/call +0.0193
+   creative N4-grid-recent24-unattainable      +0.0215 [+0.0170,+0.0261] w/l 29/1 holm 0.000 WIN  extra calls +2.00 breakeven/call +0.0108
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                +0.0128 [+0.0107,+0.0149] w/l 30/0 holm 0.000 WIN  extra calls +2.00 breakeven/call +0.0064
+   correct  NM1-grid-mixed-3of6                -0.0016 [-0.0049,+0.0017] 90%lo -0.0043 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              -0.0084 [-0.0094,-0.0074] w/l 0/30 holm 0.000 LOSS  extra calls +2.00 breakeven/call -0.0042
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+## BoK-archive(sign) k=3
+   creative N1-grid-archive                    -0.0011 [-0.0022,+0.0001] w/l 12/18 holm 1.000  extra calls +0.00 breakeven/call NaN
+   creative N2-global-corpus                   -0.0076 [-0.0083,-0.0070] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   creative N3-modal-concave                   +0.0088 [+0.0065,+0.0111] w/l 27/3 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      -0.0027 [-0.0062,+0.0009] w/l 12/18 holm 1.000  extra calls +0.00 breakeven/call NaN
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                -0.0008 [-0.0025,+0.0010] w/l 13/17 holm 1.000  extra calls +0.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                +0.0004 [-0.0011,+0.0018] 90%lo -0.0009 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              -0.0144 [-0.0156,-0.0133] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+## BoK-archive(grid8) k=3
+   creative N1-grid-archive                    -0.0032 [-0.0040,-0.0024] w/l 1/29 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   creative N2-global-corpus                   -0.0063 [-0.0071,-0.0056] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   creative N3-modal-concave                   +0.0018 [-0.0006,+0.0041] w/l 19/11 holm 1.000  extra calls +0.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      +0.0374 [+0.0341,+0.0407] w/l 30/0 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                +0.0014 [-0.0006,+0.0034] w/l 18/12 holm 1.000  extra calls +0.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                -0.0010 [-0.0030,+0.0010] 90%lo -0.0027 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              -0.0149 [-0.0163,-0.0135] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+## BoK-dedup k=3 on plain-ucb
+   creative N1-grid-archive                    -0.0167 [-0.0180,-0.0155] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   creative N2-global-corpus                   -0.0080 [-0.0088,-0.0072] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   creative N3-modal-concave                   +0.0188 [+0.0166,+0.0210] w/l 30/0 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      +0.0144 [+0.0100,+0.0187] w/l 26/4 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   correct  NK1-grid-correct                   +0.0099 [+0.0061,+0.0136] 90%lo +0.0067 TOST.01 p 0.469 NONINF
+   correct  NK2-corpus-correct                 +0.0068 [+0.0026,+0.0109] 90%lo +0.0033 TOST.01 p 0.062 NONINF
+   correct  NK3-modal-correct                  +0.0074 [+0.0040,+0.0107] 90%lo +0.0046 TOST.01 p 0.060 NONINF
+   creative NM1-grid-mixed-3of6                -0.0110 [-0.0138,-0.0082] w/l 4/26 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                +0.0187 [+0.0096,+0.0279] 90%lo +0.0111 TOST.01 p 0.969 NONINF
+   creative NM2-corpus-mixed-3of6              -0.0096 [-0.0117,-0.0076] w/l 1/29 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              +0.0250 [+0.0089,+0.0412] 90%lo +0.0116 TOST.01 p 0.967 NONINF
+## STACK nbucb(b=.4)|decl + dedup k=2
+   creative N1-grid-archive                    -0.0241 [-0.0255,-0.0228] w/l 0/30 holm 0.000 LOSS  extra calls -2.00 breakeven/call NaN
+   creative N2-global-corpus                   -0.0251 [-0.0262,-0.0241] w/l 0/30 holm 0.000 LOSS  extra calls -2.00 breakeven/call NaN
+   creative N3-modal-concave                   +0.0140 [+0.0111,+0.0169] w/l 30/0 holm 0.000 WIN  extra calls -2.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      +0.0006 [-0.0038,+0.0050] w/l 15/15 holm 1.000  extra calls -2.00 breakeven/call NaN
+   correct  NK1-grid-correct                   +0.0099 [+0.0061,+0.0136] 90%lo +0.0067 TOST.01 p 0.469 NONINF
+   correct  NK2-corpus-correct                 +0.0068 [+0.0026,+0.0109] 90%lo +0.0033 TOST.01 p 0.062 NONINF
+   correct  NK3-modal-correct                  +0.0074 [+0.0040,+0.0107] 90%lo +0.0046 TOST.01 p 0.060 NONINF
+   creative NM1-grid-mixed-3of6                -0.0186 [-0.0209,-0.0162] w/l 0/30 holm 0.000 LOSS  extra calls -2.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                +0.0197 [+0.0104,+0.0290] 90%lo +0.0119 TOST.01 p 0.979 NONINF
+   creative NM2-corpus-mixed-3of6              -0.0276 [-0.0295,-0.0257] w/l 0/30 holm 0.000 LOSS  extra calls -2.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              +0.0253 [+0.0095,+0.0411] 90%lo +0.0121 TOST.01 p 0.971 NONINF
+## STACK nbucb(b=.4)|decl + dedup k=3
+   creative N1-grid-archive                    -0.0038 [-0.0051,-0.0026] w/l 4/26 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   creative N2-global-corpus                   -0.0191 [-0.0202,-0.0180] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   creative N3-modal-concave                   +0.0285 [+0.0257,+0.0314] w/l 30/0 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      +0.0145 [+0.0096,+0.0194] w/l 25/5 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   correct  NK1-grid-correct                   +0.0099 [+0.0061,+0.0136] 90%lo +0.0067 TOST.01 p 0.469 NONINF
+   correct  NK2-corpus-correct                 +0.0068 [+0.0026,+0.0109] 90%lo +0.0033 TOST.01 p 0.062 NONINF
+   correct  NK3-modal-correct                  +0.0074 [+0.0040,+0.0107] 90%lo +0.0046 TOST.01 p 0.060 NONINF
+   creative NM1-grid-mixed-3of6                +0.0018 [-0.0009,+0.0045] w/l 17/13 holm 1.000  extra calls +0.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                +0.0187 [+0.0096,+0.0279] 90%lo +0.0111 TOST.01 p 0.969 NONINF
+   creative NM2-corpus-mixed-3of6              -0.0206 [-0.0225,-0.0188] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              +0.0250 [+0.0089,+0.0412] 90%lo +0.0116 TOST.01 p 0.967 NONINF
+## BoK-dedup k=3 judge_sd=0
+   creative N1-grid-archive                    +0.0042 [+0.0031,+0.0053] w/l 26/4 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   creative N2-global-corpus                   -0.0031 [-0.0039,-0.0022] w/l 3/27 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   creative N3-modal-concave                   +0.0288 [+0.0270,+0.0307] w/l 30/0 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      +0.0121 [+0.0082,+0.0159] w/l 26/4 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                +0.0076 [+0.0057,+0.0095] w/l 28/2 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                -0.0006 [-0.0018,+0.0006] 90%lo -0.0016 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              -0.0113 [-0.0124,-0.0103] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+## BoK-dedup k=3 judge_sd=0.1
+   creative N1-grid-archive                    -0.0025 [-0.0035,-0.0015] w/l 5/25 holm 0.003 LOSS  extra calls +0.00 breakeven/call NaN
+   creative N2-global-corpus                   -0.0070 [-0.0080,-0.0060] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   creative N3-modal-concave                   +0.0182 [+0.0162,+0.0202] w/l 30/0 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      +0.0039 [-0.0008,+0.0086] w/l 19/11 holm 1.000  extra calls +0.00 breakeven/call NaN
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                +0.0013 [-0.0006,+0.0032] w/l 17/13 holm 1.000  extra calls +0.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                -0.0018 [-0.0035,-0.0001] 90%lo -0.0032 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              -0.0154 [-0.0164,-0.0143] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+## BoK-dedup k=3 judge_sd=0.2
+   creative N1-grid-archive                    -0.0110 [-0.0119,-0.0100] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   creative N2-global-corpus                   -0.0110 [-0.0118,-0.0102] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   creative N3-modal-concave                   +0.0035 [+0.0016,+0.0054] w/l 22/8 holm 0.090  extra calls +0.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      -0.0040 [-0.0087,+0.0007] w/l 12/18 holm 1.000  extra calls +0.00 breakeven/call NaN
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                -0.0113 [-0.0134,-0.0093] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                -0.0026 [-0.0042,-0.0009] 90%lo -0.0040 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              -0.0204 [-0.0213,-0.0194] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+## BoK-dedup k=3 judge_sd=-1
+   creative N1-grid-archive                    -0.0265 [-0.0278,-0.0252] w/l 0/30 holm 0.000 LOSS  extra calls -3.00 breakeven/call NaN
+   creative N2-global-corpus                   -0.0200 [-0.0213,-0.0186] w/l 0/30 holm 0.000 LOSS  extra calls -3.00 breakeven/call NaN
+   creative N3-modal-concave                   +0.0012 [-0.0011,+0.0036] w/l 13/17 holm 1.000  extra calls -3.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      -0.0058 [-0.0110,-0.0007] w/l 10/20 holm 1.000  extra calls -3.00 breakeven/call NaN
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                -0.0252 [-0.0276,-0.0228] w/l 0/30 holm 0.000 LOSS  extra calls -3.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                -0.0023 [-0.0049,+0.0004] 90%lo -0.0045 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              -0.0360 [-0.0376,-0.0344] w/l 0/30 holm 0.000 LOSS  extra calls -3.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+## same-agent k=3 native sampling (dedup)
+   creative N1-grid-archive                    +0.0050 [+0.0039,+0.0062] w/l 29/1 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   creative N2-global-corpus                   +0.0094 [+0.0086,+0.0101] w/l 30/0 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   creative N3-modal-concave                   +0.0225 [+0.0205,+0.0245] w/l 30/0 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      +0.0098 [+0.0055,+0.0141] w/l 25/5 holm 0.008 WIN  extra calls +0.00 breakeven/call NaN
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                -0.0039 [-0.0080,+0.0002] w/l 13/17 holm 1.000  extra calls +0.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                +0.0043 [+0.0022,+0.0064] 90%lo +0.0026 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              -0.0043 [-0.0090,+0.0005] w/l 13/17 holm 1.000  extra calls +0.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+## BoK-dedup k=3 |learned gate
+   creative N1-grid-archive                    -0.0072 [-0.0092,-0.0052] w/l 3/27 holm 0.000 LOSS  extra calls -1.47 breakeven/call NaN
+   creative N2-global-corpus                   -0.0127 [-0.0136,-0.0118] w/l 0/30 holm 0.000 LOSS  extra calls -3.98 breakeven/call NaN
+   creative N3-modal-concave                   +0.0141 [+0.0120,+0.0163] w/l 30/0 holm 0.000 WIN  extra calls -0.98 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      -0.0027 [-0.0074,+0.0020] w/l 10/20 holm 1.000  extra calls -1.63 breakeven/call NaN
+   correct  NK1-grid-correct                   +0.0008 [+0.0001,+0.0015] 90%lo +0.0002 TOST.01 p 0.000 EQ NONINF
+   correct  NK2-corpus-correct                 -0.0002 [-0.0006,+0.0002] 90%lo -0.0006 TOST.01 p 0.000 EQ NONINF
+   correct  NK3-modal-correct                  +0.0001 [-0.0002,+0.0003] 90%lo -0.0002 TOST.01 p 0.000 EQ NONINF
+   creative NM1-grid-mixed-3of6                -0.0095 [-0.0124,-0.0067] w/l 4/26 holm 0.000 LOSS  extra calls -1.74 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                -0.0002 [-0.0028,+0.0024] 90%lo -0.0024 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              -0.0181 [-0.0211,-0.0152] w/l 0/30 holm 0.000 LOSS  extra calls -3.19 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              -0.0001 [-0.0003,+0.0001] 90%lo -0.0003 TOST.01 p 0.000 EQ NONINF
+## ORACLE clairvoyant best-of-3 by true value (ceiling, 3 calls)
+   creative N1-grid-archive                    +0.0007 [-0.0001,+0.0016] w/l 20/10 holm 1.000  extra calls +0.00 breakeven/call NaN
+   creative N2-global-corpus                   +0.0085 [+0.0078,+0.0093] w/l 30/0 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   creative N3-modal-concave                   +0.0662 [+0.0643,+0.0682] w/l 30/0 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      +0.1314 [+0.1273,+0.1355] w/l 30/0 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                +0.0084 [+0.0064,+0.0104] w/l 29/1 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                -0.0007 [-0.0023,+0.0008] 90%lo -0.0020 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              +0.0087 [+0.0082,+0.0093] w/l 30/0 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+## ORACLE clairvoyant best-of-8 by true value (ceiling, 8 calls)
+   creative N1-grid-archive                    +0.0291 [+0.0280,+0.0302] w/l 30/0 holm 0.000 WIN  extra calls +10.00 breakeven/call +0.0029
+   creative N2-global-corpus                   +0.0295 [+0.0287,+0.0303] w/l 30/0 holm 0.000 WIN  extra calls +10.00 breakeven/call +0.0029
+   creative N3-modal-concave                   +0.1242 [+0.1218,+0.1266] w/l 30/0 holm 0.000 WIN  extra calls +10.00 breakeven/call +0.0124
+   creative N4-grid-recent24-unattainable      +0.2277 [+0.2233,+0.2320] w/l 30/0 holm 0.000 WIN  extra calls +10.00 breakeven/call +0.0228
+   correct  NK1-grid-correct                   +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK2-corpus-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  NK3-modal-correct                  +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative NM1-grid-mixed-3of6                +0.0416 [+0.0393,+0.0439] w/l 30/0 holm 0.000 WIN  extra calls +10.00 breakeven/call +0.0042
+   correct  NM1-grid-mixed-3of6                -0.0028 [-0.0063,+0.0007] 90%lo -0.0057 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              +0.0313 [+0.0296,+0.0329] w/l 30/0 holm 0.000 WIN  extra calls +10.00 breakeven/call +0.0031
+   correct  NM2-corpus-mixed-3of6              +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+
+=== DIFFS vs [W4 nbucb(b=.8)|learned] : creative-valued subset  (diff [95% CI] w/l, Holm; break-even = value gain per extra gen+judge call per creative task) ===
+## G (best fair, 1 call)
+   creative N1-grid-archive                    +0.0060 [+0.0044,+0.0076] w/l 28/2 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   creative N2-global-corpus                   +0.0065 [+0.0059,+0.0071] w/l 30/0 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   creative N3-modal-concave                   +0.0013 [-0.0021,+0.0047] w/l 15/15 holm 1.000  extra calls +0.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      -0.0016 [-0.0056,+0.0023] w/l 12/18 holm 1.000  extra calls +0.00 breakeven/call NaN
+   correct  NK1-grid-correct                   -0.0091 [-0.0129,-0.0054] 90%lo -0.0123 TOST.01 p 0.322 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0060 [-0.0103,-0.0017] 90%lo -0.0096 TOST.01 p 0.035 EQ NONINF
+   correct  NK3-modal-correct                  -0.0073 [-0.0105,-0.0040] 90%lo -0.0100 TOST.01 p 0.049 EQ NONINF
+   creative NM1-grid-mixed-3of6                -0.0092 [-0.0146,-0.0038] w/l 10/20 holm 0.120  extra calls +0.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                -0.0133 [-0.0230,-0.0036] 90%lo -0.0214 TOST.01 p 0.755 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              -0.0048 [-0.0105,+0.0010] w/l 14/16 holm 1.000  extra calls +0.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              -0.0240 [-0.0398,-0.0082] 90%lo -0.0371 TOST.01 p 0.960 NOT-NONINF
+## U plain-ucb (1 call)
+   creative N1-grid-archive                    +0.0058 [+0.0047,+0.0069] w/l 29/1 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   creative N2-global-corpus                   +0.0013 [+0.0008,+0.0017] w/l 28/2 holm 0.001 WIN  extra calls +0.00 breakeven/call NaN
+   creative N3-modal-concave                   -0.0324 [-0.0364,-0.0284] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      -0.0128 [-0.0160,-0.0096] w/l 1/29 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   correct  NK1-grid-correct                   +0.0007 [-0.0011,+0.0026] 90%lo -0.0008 TOST.01 p 0.000 EQ NONINF
+   correct  NK2-corpus-correct                 +0.0008 [-0.0000,+0.0016] 90%lo +0.0001 TOST.01 p 0.000 EQ NONINF
+   correct  NK3-modal-correct                  +0.0001 [-0.0001,+0.0003] 90%lo -0.0001 TOST.01 p 0.000 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0036 [+0.0021,+0.0050] w/l 23/7 holm 0.004 WIN  extra calls +0.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                +0.0009 [-0.0001,+0.0019] 90%lo +0.0001 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              +0.0018 [+0.0012,+0.0023] w/l 22/1 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              +0.0009 [-0.0005,+0.0024] 90%lo -0.0003 TOST.01 p 0.000 EQ NONINF
+## W4 nbreg|learned
+   creative N1-grid-archive                    +0.0014 [+0.0000,+0.0028] w/l 19/11 holm 1.000  extra calls +0.00 breakeven/call NaN
+   creative N2-global-corpus                   -0.0035 [-0.0040,-0.0030] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   creative N3-modal-concave                   +0.0010 [-0.0015,+0.0036] w/l 19/11 holm 1.000  extra calls +0.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      -0.0016 [-0.0047,+0.0014] w/l 14/16 holm 1.000  extra calls +0.00 breakeven/call NaN
+   correct  NK1-grid-correct                   -0.0002 [-0.0018,+0.0013] 90%lo -0.0015 TOST.01 p 0.000 EQ NONINF
+   correct  NK2-corpus-correct                 -0.0006 [-0.0018,+0.0006] 90%lo -0.0016 TOST.01 p 0.000 EQ NONINF
+   correct  NK3-modal-correct                  -0.0012 [-0.0019,-0.0004] 90%lo -0.0018 TOST.01 p 0.000 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0018 [-0.0001,+0.0038] w/l 15/15 holm 1.000  extra calls +0.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                -0.0017 [-0.0036,+0.0002] 90%lo -0.0032 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              -0.0023 [-0.0029,-0.0017] w/l 3/27 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              -0.0001 [-0.0016,+0.0013] 90%lo -0.0013 TOST.01 p 0.000 EQ NONINF
+## W4 nbucb(b=.4)|declared
+   creative N1-grid-archive                    +0.0031 [+0.0016,+0.0046] w/l 21/9 holm 0.020 WIN  extra calls +0.00 breakeven/call NaN
+   creative N2-global-corpus                   -0.0151 [-0.0161,-0.0141] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   creative N3-modal-concave                   +0.0064 [+0.0040,+0.0088] w/l 25/5 holm 0.001 WIN  extra calls +0.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      -0.0023 [-0.0054,+0.0008] w/l 12/18 holm 1.000  extra calls +0.00 breakeven/call NaN
+   correct  NK1-grid-correct                   +0.0007 [-0.0011,+0.0026] 90%lo -0.0008 TOST.01 p 0.000 EQ NONINF
+   correct  NK2-corpus-correct                 +0.0008 [-0.0000,+0.0016] 90%lo +0.0001 TOST.01 p 0.000 EQ NONINF
+   correct  NK3-modal-correct                  +0.0001 [-0.0001,+0.0003] 90%lo -0.0001 TOST.01 p 0.000 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0021 [-0.0001,+0.0044] w/l 19/11 holm 1.000  extra calls +0.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                +0.0009 [-0.0001,+0.0019] 90%lo +0.0001 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              -0.0151 [-0.0166,-0.0137] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              +0.0009 [-0.0005,+0.0024] 90%lo -0.0003 TOST.01 p 0.000 EQ NONINF
+## BoK-q k=2 (multi-agent, quality-only select)
+   creative N1-grid-archive                    +0.0222 [+0.0206,+0.0238] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0074
+   creative N2-global-corpus                   +0.0158 [+0.0152,+0.0165] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0053
+   creative N3-modal-concave                   +0.0279 [+0.0242,+0.0317] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0093
+   creative N4-grid-recent24-unattainable      +0.0217 [+0.0180,+0.0254] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0072
+   correct  NK1-grid-correct                   -0.0091 [-0.0129,-0.0054] 90%lo -0.0123 TOST.01 p 0.322 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0060 [-0.0103,-0.0017] 90%lo -0.0096 TOST.01 p 0.035 EQ NONINF
+   correct  NK3-modal-correct                  -0.0073 [-0.0105,-0.0040] 90%lo -0.0100 TOST.01 p 0.049 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0168 [+0.0127,+0.0209] w/l 26/4 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0056
+   correct  NM1-grid-mixed-3of6                -0.0162 [-0.0252,-0.0071] 90%lo -0.0237 TOST.01 p 0.914 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0162 [+0.0138,+0.0186] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0054
+   correct  NM2-corpus-mixed-3of6              -0.0240 [-0.0398,-0.0082] 90%lo -0.0371 TOST.01 p 0.960 NOT-NONINF
+## BoK-dedup k=2
+   creative N1-grid-archive                    +0.0240 [+0.0222,+0.0258] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0080
+   creative N2-global-corpus                   +0.0152 [+0.0143,+0.0161] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0051
+   creative N3-modal-concave                   +0.0456 [+0.0416,+0.0496] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0152
+   creative N4-grid-recent24-unattainable      +0.0338 [+0.0301,+0.0374] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0113
+   correct  NK1-grid-correct                   -0.0091 [-0.0129,-0.0054] 90%lo -0.0123 TOST.01 p 0.322 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0060 [-0.0103,-0.0017] 90%lo -0.0096 TOST.01 p 0.035 EQ NONINF
+   correct  NK3-modal-correct                  -0.0073 [-0.0105,-0.0040] 90%lo -0.0100 TOST.01 p 0.049 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0198 [+0.0161,+0.0235] w/l 29/1 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0066
+   correct  NM1-grid-mixed-3of6                -0.0170 [-0.0263,-0.0077] 90%lo -0.0247 TOST.01 p 0.933 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0046 [+0.0028,+0.0064] w/l 24/6 holm 0.002 WIN  extra calls +3.00 breakeven/call +0.0015
+   correct  NM2-corpus-mixed-3of6              -0.0240 [-0.0398,-0.0082] 90%lo -0.0371 TOST.01 p 0.960 NOT-NONINF
+## BoK-q k=3 (multi-agent, quality-only select)
+   creative N1-grid-archive                    +0.0317 [+0.0300,+0.0333] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0063
+   creative N2-global-corpus                   +0.0210 [+0.0204,+0.0216] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0042
+   creative N3-modal-concave                   +0.0401 [+0.0362,+0.0441] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0080
+   creative N4-grid-recent24-unattainable      +0.0360 [+0.0312,+0.0408] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0072
+   correct  NK1-grid-correct                   -0.0091 [-0.0129,-0.0054] 90%lo -0.0123 TOST.01 p 0.322 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0060 [-0.0103,-0.0017] 90%lo -0.0096 TOST.01 p 0.035 EQ NONINF
+   correct  NK3-modal-correct                  -0.0073 [-0.0105,-0.0040] 90%lo -0.0100 TOST.01 p 0.049 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0288 [+0.0256,+0.0320] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0058
+   correct  NM1-grid-mixed-3of6                -0.0175 [-0.0264,-0.0085] 90%lo -0.0249 TOST.01 p 0.951 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0234 [+0.0217,+0.0252] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0047
+   correct  NM2-corpus-mixed-3of6              -0.0240 [-0.0398,-0.0082] 90%lo -0.0371 TOST.01 p 0.960 NOT-NONINF
+## BoK-dedup k=3
+   creative N1-grid-archive                    +0.0329 [+0.0313,+0.0346] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0066
+   creative N2-global-corpus                   +0.0166 [+0.0156,+0.0176] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0033
+   creative N3-modal-concave                   +0.0652 [+0.0614,+0.0689] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0130
+   creative N4-grid-recent24-unattainable      +0.0467 [+0.0426,+0.0508] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0093
+   correct  NK1-grid-correct                   -0.0091 [-0.0129,-0.0054] 90%lo -0.0123 TOST.01 p 0.322 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0060 [-0.0103,-0.0017] 90%lo -0.0096 TOST.01 p 0.035 EQ NONINF
+   correct  NK3-modal-correct                  -0.0073 [-0.0105,-0.0040] 90%lo -0.0100 TOST.01 p 0.049 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0339 [+0.0310,+0.0368] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0068
+   correct  NM1-grid-mixed-3of6                -0.0178 [-0.0270,-0.0087] 90%lo -0.0255 TOST.01 p 0.955 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0107 [+0.0093,+0.0122] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0021
+   correct  NM2-corpus-mixed-3of6              -0.0240 [-0.0398,-0.0082] 90%lo -0.0371 TOST.01 p 0.960 NOT-NONINF
+## BoK-q k=4 (multi-agent, quality-only select)
+   creative N1-grid-archive                    +0.0373 [+0.0357,+0.0388] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0053
+   creative N2-global-corpus                   +0.0246 [+0.0240,+0.0253] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0035
+   creative N3-modal-concave                   +0.0495 [+0.0452,+0.0538] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0071
+   creative N4-grid-recent24-unattainable      +0.0396 [+0.0355,+0.0437] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0057
+   correct  NK1-grid-correct                   -0.0091 [-0.0129,-0.0054] 90%lo -0.0123 TOST.01 p 0.322 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0060 [-0.0103,-0.0017] 90%lo -0.0096 TOST.01 p 0.035 EQ NONINF
+   correct  NK3-modal-correct                  -0.0073 [-0.0105,-0.0040] 90%lo -0.0100 TOST.01 p 0.049 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0362 [+0.0332,+0.0392] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0052
+   correct  NM1-grid-mixed-3of6                -0.0207 [-0.0293,-0.0122] 90%lo -0.0278 TOST.01 p 0.992 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0279 [+0.0264,+0.0294] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0040
+   correct  NM2-corpus-mixed-3of6              -0.0240 [-0.0398,-0.0082] 90%lo -0.0371 TOST.01 p 0.960 NOT-NONINF
+## BoK-dedup k=4
+   creative N1-grid-archive                    +0.0394 [+0.0377,+0.0411] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0056
+   creative N2-global-corpus                   +0.0170 [+0.0162,+0.0178] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0024
+   creative N3-modal-concave                   +0.0787 [+0.0750,+0.0825] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0112
+   creative N4-grid-recent24-unattainable      +0.0575 [+0.0541,+0.0609] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0082
+   correct  NK1-grid-correct                   -0.0091 [-0.0129,-0.0054] 90%lo -0.0123 TOST.01 p 0.322 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0060 [-0.0103,-0.0017] 90%lo -0.0096 TOST.01 p 0.035 EQ NONINF
+   correct  NK3-modal-correct                  -0.0073 [-0.0105,-0.0040] 90%lo -0.0100 TOST.01 p 0.049 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0417 [+0.0393,+0.0440] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0060
+   correct  NM1-grid-mixed-3of6                -0.0191 [-0.0278,-0.0104] 90%lo -0.0263 TOST.01 p 0.979 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0150 [+0.0137,+0.0164] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0021
+   correct  NM2-corpus-mixed-3of6              -0.0240 [-0.0398,-0.0082] 90%lo -0.0371 TOST.01 p 0.960 NOT-NONINF
+## BoK-archive(sign) k=3
+   creative N1-grid-archive                    +0.0306 [+0.0287,+0.0324] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0061
+   creative N2-global-corpus                   +0.0133 [+0.0126,+0.0141] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0027
+   creative N3-modal-concave                   +0.0489 [+0.0449,+0.0530] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0098
+   creative N4-grid-recent24-unattainable      +0.0333 [+0.0292,+0.0375] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0067
+   correct  NK1-grid-correct                   -0.0091 [-0.0129,-0.0054] 90%lo -0.0123 TOST.01 p 0.322 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0060 [-0.0103,-0.0017] 90%lo -0.0096 TOST.01 p 0.035 EQ NONINF
+   correct  NK3-modal-correct                  -0.0073 [-0.0105,-0.0040] 90%lo -0.0100 TOST.01 p 0.049 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0280 [+0.0251,+0.0310] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0056
+   correct  NM1-grid-mixed-3of6                -0.0171 [-0.0263,-0.0080] 90%lo -0.0248 TOST.01 p 0.939 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0090 [+0.0074,+0.0106] w/l 29/1 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0018
+   correct  NM2-corpus-mixed-3of6              -0.0240 [-0.0398,-0.0082] 90%lo -0.0371 TOST.01 p 0.960 NOT-NONINF
+## BoK-archive(grid8) k=3
+   creative N1-grid-archive                    +0.0284 [+0.0269,+0.0300] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0057
+   creative N2-global-corpus                   +0.0146 [+0.0139,+0.0154] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0029
+   creative N3-modal-concave                   +0.0419 [+0.0377,+0.0461] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0084
+   creative N4-grid-recent24-unattainable      +0.0734 [+0.0686,+0.0782] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0147
+   correct  NK1-grid-correct                   -0.0091 [-0.0129,-0.0054] 90%lo -0.0123 TOST.01 p 0.322 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0060 [-0.0103,-0.0017] 90%lo -0.0096 TOST.01 p 0.035 EQ NONINF
+   correct  NK3-modal-correct                  -0.0073 [-0.0105,-0.0040] 90%lo -0.0100 TOST.01 p 0.049 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0302 [+0.0277,+0.0327] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0060
+   correct  NM1-grid-mixed-3of6                -0.0185 [-0.0280,-0.0090] 90%lo -0.0264 TOST.01 p 0.961 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0086 [+0.0067,+0.0105] w/l 28/2 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0017
+   correct  NM2-corpus-mixed-3of6              -0.0240 [-0.0398,-0.0082] 90%lo -0.0371 TOST.01 p 0.960 NOT-NONINF
+## BoK-dedup k=3 on plain-ucb
+   creative N1-grid-archive                    +0.0149 [+0.0135,+0.0164] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0030
+   creative N2-global-corpus                   +0.0130 [+0.0122,+0.0138] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0026
+   creative N3-modal-concave                   +0.0589 [+0.0551,+0.0628] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0118
+   creative N4-grid-recent24-unattainable      +0.0504 [+0.0466,+0.0541] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0101
+   correct  NK1-grid-correct                   +0.0007 [-0.0011,+0.0026] 90%lo -0.0008 TOST.01 p 0.000 EQ NONINF
+   correct  NK2-corpus-correct                 +0.0008 [-0.0000,+0.0016] 90%lo +0.0001 TOST.01 p 0.000 EQ NONINF
+   correct  NK3-modal-correct                  +0.0001 [-0.0001,+0.0003] 90%lo -0.0001 TOST.01 p 0.000 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0178 [+0.0155,+0.0202] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0036
+   correct  NM1-grid-mixed-3of6                +0.0012 [-0.0023,+0.0048] 90%lo -0.0017 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              +0.0138 [+0.0123,+0.0153] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0028
+   correct  NM2-corpus-mixed-3of6              +0.0010 [-0.0017,+0.0037] 90%lo -0.0012 TOST.01 p 0.000 EQ NONINF
+## STACK nbucb(b=.4)|decl + dedup k=2
+   creative N1-grid-archive                    +0.0075 [+0.0064,+0.0086] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0025
+   creative N2-global-corpus                   -0.0041 [-0.0052,-0.0031] w/l 1/29 holm 0.000 LOSS  extra calls +3.00 breakeven/call -0.0014
+   creative N3-modal-concave                   +0.0541 [+0.0512,+0.0571] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0180
+   creative N4-grid-recent24-unattainable      +0.0366 [+0.0329,+0.0403] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0122
+   correct  NK1-grid-correct                   +0.0007 [-0.0011,+0.0026] 90%lo -0.0008 TOST.01 p 0.000 EQ NONINF
+   correct  NK2-corpus-correct                 +0.0008 [-0.0000,+0.0016] 90%lo +0.0001 TOST.01 p 0.000 EQ NONINF
+   correct  NK3-modal-correct                  +0.0001 [-0.0001,+0.0003] 90%lo -0.0001 TOST.01 p 0.000 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0102 [+0.0084,+0.0121] w/l 29/1 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0034
+   correct  NM1-grid-mixed-3of6                +0.0022 [-0.0008,+0.0052] 90%lo -0.0003 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              -0.0042 [-0.0057,-0.0026] w/l 4/26 holm 0.001 LOSS  extra calls +3.00 breakeven/call -0.0014
+   correct  NM2-corpus-mixed-3of6              +0.0013 [-0.0009,+0.0034] 90%lo -0.0005 TOST.01 p 0.000 EQ NONINF
+## STACK nbucb(b=.4)|decl + dedup k=3
+   creative N1-grid-archive                    +0.0278 [+0.0264,+0.0292] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0056
+   creative N2-global-corpus                   +0.0019 [+0.0008,+0.0029] w/l 24/6 holm 0.108  extra calls +5.00 breakeven/call +0.0004
+   creative N3-modal-concave                   +0.0687 [+0.0657,+0.0717] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0137
+   creative N4-grid-recent24-unattainable      +0.0505 [+0.0460,+0.0550] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0101
+   correct  NK1-grid-correct                   +0.0007 [-0.0011,+0.0026] 90%lo -0.0008 TOST.01 p 0.000 EQ NONINF
+   correct  NK2-corpus-correct                 +0.0008 [-0.0000,+0.0016] 90%lo +0.0001 TOST.01 p 0.000 EQ NONINF
+   correct  NK3-modal-correct                  +0.0001 [-0.0001,+0.0003] 90%lo -0.0001 TOST.01 p 0.000 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0306 [+0.0280,+0.0332] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0061
+   correct  NM1-grid-mixed-3of6                +0.0012 [-0.0023,+0.0048] 90%lo -0.0017 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              +0.0028 [+0.0013,+0.0044] w/l 22/8 holm 0.063  extra calls +5.00 breakeven/call +0.0006
+   correct  NM2-corpus-mixed-3of6              +0.0010 [-0.0017,+0.0037] 90%lo -0.0012 TOST.01 p 0.000 EQ NONINF
+## BoK-dedup k=3 judge_sd=0
+   creative N1-grid-archive                    +0.0358 [+0.0342,+0.0375] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0072
+   creative N2-global-corpus                   +0.0179 [+0.0171,+0.0187] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0036
+   creative N3-modal-concave                   +0.0690 [+0.0653,+0.0727] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0138
+   creative N4-grid-recent24-unattainable      +0.0481 [+0.0442,+0.0520] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0096
+   correct  NK1-grid-correct                   -0.0091 [-0.0129,-0.0054] 90%lo -0.0123 TOST.01 p 0.322 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0060 [-0.0103,-0.0017] 90%lo -0.0096 TOST.01 p 0.035 EQ NONINF
+   correct  NK3-modal-correct                  -0.0073 [-0.0105,-0.0040] 90%lo -0.0100 TOST.01 p 0.049 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0364 [+0.0337,+0.0391] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0073
+   correct  NM1-grid-mixed-3of6                -0.0181 [-0.0274,-0.0087] 90%lo -0.0258 TOST.01 p 0.956 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0121 [+0.0107,+0.0135] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0024
+   correct  NM2-corpus-mixed-3of6              -0.0240 [-0.0398,-0.0082] 90%lo -0.0371 TOST.01 p 0.960 NOT-NONINF
+## BoK-dedup k=3 judge_sd=0.1
+   creative N1-grid-archive                    +0.0292 [+0.0276,+0.0307] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0058
+   creative N2-global-corpus                   +0.0140 [+0.0132,+0.0148] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0028
+   creative N3-modal-concave                   +0.0583 [+0.0543,+0.0624] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0117
+   creative N4-grid-recent24-unattainable      +0.0399 [+0.0357,+0.0440] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0080
+   correct  NK1-grid-correct                   -0.0091 [-0.0129,-0.0054] 90%lo -0.0123 TOST.01 p 0.322 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0060 [-0.0103,-0.0017] 90%lo -0.0096 TOST.01 p 0.035 EQ NONINF
+   correct  NK3-modal-correct                  -0.0073 [-0.0105,-0.0040] 90%lo -0.0100 TOST.01 p 0.049 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0301 [+0.0272,+0.0331] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0060
+   correct  NM1-grid-mixed-3of6                -0.0193 [-0.0286,-0.0099] 90%lo -0.0270 TOST.01 p 0.974 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0081 [+0.0065,+0.0096] w/l 28/2 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0016
+   correct  NM2-corpus-mixed-3of6              -0.0240 [-0.0398,-0.0082] 90%lo -0.0371 TOST.01 p 0.960 NOT-NONINF
+## BoK-dedup k=3 judge_sd=0.2
+   creative N1-grid-archive                    +0.0207 [+0.0191,+0.0223] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0041
+   creative N2-global-corpus                   +0.0100 [+0.0092,+0.0108] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0020
+   creative N3-modal-concave                   +0.0436 [+0.0400,+0.0473] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0087
+   creative N4-grid-recent24-unattainable      +0.0320 [+0.0284,+0.0356] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0064
+   correct  NK1-grid-correct                   -0.0091 [-0.0129,-0.0054] 90%lo -0.0123 TOST.01 p 0.322 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0060 [-0.0103,-0.0017] 90%lo -0.0096 TOST.01 p 0.035 EQ NONINF
+   correct  NK3-modal-correct                  -0.0073 [-0.0105,-0.0040] 90%lo -0.0100 TOST.01 p 0.049 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0175 [+0.0146,+0.0203] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0035
+   correct  NM1-grid-mixed-3of6                -0.0201 [-0.0291,-0.0110] 90%lo -0.0276 TOST.01 p 0.985 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0031 [+0.0016,+0.0045] w/l 24/6 holm 0.019 WIN  extra calls +5.00 breakeven/call +0.0006
+   correct  NM2-corpus-mixed-3of6              -0.0240 [-0.0398,-0.0082] 90%lo -0.0371 TOST.01 p 0.960 NOT-NONINF
+## BoK-dedup k=3 judge_sd=-1
+   creative N1-grid-archive                    +0.0051 [+0.0035,+0.0067] w/l 25/5 holm 0.000 WIN  extra calls +2.00 breakeven/call +0.0026
+   creative N2-global-corpus                   +0.0010 [-0.0002,+0.0022] w/l 17/13 holm 1.000  extra calls +2.00 breakeven/call +0.0005
+   creative N3-modal-concave                   +0.0414 [+0.0371,+0.0457] w/l 30/0 holm 0.000 WIN  extra calls +2.00 breakeven/call +0.0207
+   creative N4-grid-recent24-unattainable      +0.0302 [+0.0255,+0.0349] w/l 30/0 holm 0.000 WIN  extra calls +2.00 breakeven/call +0.0151
+   correct  NK1-grid-correct                   -0.0091 [-0.0129,-0.0054] 90%lo -0.0123 TOST.01 p 0.322 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0060 [-0.0103,-0.0017] 90%lo -0.0096 TOST.01 p 0.035 EQ NONINF
+   correct  NK3-modal-correct                  -0.0073 [-0.0105,-0.0040] 90%lo -0.0100 TOST.01 p 0.049 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0036 [+0.0004,+0.0068] w/l 21/9 holm 1.000  extra calls +2.00 breakeven/call +0.0018
+   correct  NM1-grid-mixed-3of6                -0.0198 [-0.0297,-0.0098] 90%lo -0.0280 TOST.01 p 0.973 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              -0.0126 [-0.0146,-0.0106] w/l 0/30 holm 0.000 LOSS  extra calls +2.00 breakeven/call -0.0063
+   correct  NM2-corpus-mixed-3of6              -0.0240 [-0.0398,-0.0082] 90%lo -0.0371 TOST.01 p 0.960 NOT-NONINF
+## same-agent k=3 native sampling (dedup)
+   creative N1-grid-archive                    +0.0367 [+0.0349,+0.0385] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0073
+   creative N2-global-corpus                   +0.0303 [+0.0296,+0.0311] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0061
+   creative N3-modal-concave                   +0.0626 [+0.0588,+0.0664] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0125
+   creative N4-grid-recent24-unattainable      +0.0458 [+0.0412,+0.0504] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0092
+   correct  NK1-grid-correct                   -0.0091 [-0.0129,-0.0054] 90%lo -0.0123 TOST.01 p 0.322 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0060 [-0.0103,-0.0017] 90%lo -0.0096 TOST.01 p 0.035 EQ NONINF
+   correct  NK3-modal-correct                  -0.0073 [-0.0105,-0.0040] 90%lo -0.0100 TOST.01 p 0.049 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0249 [+0.0198,+0.0300] w/l 29/1 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0050
+   correct  NM1-grid-mixed-3of6                -0.0132 [-0.0227,-0.0037] 90%lo -0.0211 TOST.01 p 0.751 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0192 [+0.0133,+0.0251] w/l 27/3 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0038
+   correct  NM2-corpus-mixed-3of6              -0.0240 [-0.0398,-0.0082] 90%lo -0.0371 TOST.01 p 0.960 NOT-NONINF
+## BoK-dedup k=3 |learned gate
+   creative N1-grid-archive                    +0.0245 [+0.0216,+0.0274] w/l 30/0 holm 0.000 WIN  extra calls +3.53 breakeven/call +0.0069
+   creative N2-global-corpus                   +0.0083 [+0.0074,+0.0092] w/l 30/0 holm 0.000 WIN  extra calls +1.02 breakeven/call +0.0081
+   creative N3-modal-concave                   +0.0543 [+0.0505,+0.0580] w/l 30/0 holm 0.000 WIN  extra calls +4.02 breakeven/call +0.0135
+   creative N4-grid-recent24-unattainable      +0.0333 [+0.0289,+0.0378] w/l 30/0 holm 0.000 WIN  extra calls +3.37 breakeven/call +0.0099
+   correct  NK1-grid-correct                   -0.0084 [-0.0124,-0.0043] 90%lo -0.0117 TOST.01 p 0.204 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0062 [-0.0106,-0.0018] 90%lo -0.0099 TOST.01 p 0.044 EQ NONINF
+   correct  NK3-modal-correct                  -0.0072 [-0.0105,-0.0039] 90%lo -0.0100 TOST.01 p 0.048 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0193 [+0.0145,+0.0240] w/l 29/1 holm 0.000 WIN  extra calls +3.26 breakeven/call +0.0059
+   correct  NM1-grid-mixed-3of6                -0.0177 [-0.0279,-0.0075] 90%lo -0.0262 TOST.01 p 0.934 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0053 [+0.0012,+0.0094] w/l 20/10 holm 0.534  extra calls +1.81 breakeven/call +0.0029
+   correct  NM2-corpus-mixed-3of6              -0.0241 [-0.0399,-0.0083] 90%lo -0.0372 TOST.01 p 0.961 NOT-NONINF
+## ORACLE clairvoyant best-of-3 by true value (ceiling, 3 calls)
+   creative N1-grid-archive                    +0.0324 [+0.0309,+0.0338] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0065
+   creative N2-global-corpus                   +0.0295 [+0.0288,+0.0302] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0059
+   creative N3-modal-concave                   +0.1064 [+0.1025,+0.1102] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0213
+   creative N4-grid-recent24-unattainable      +0.1674 [+0.1632,+0.1715] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0335
+   correct  NK1-grid-correct                   -0.0091 [-0.0129,-0.0054] 90%lo -0.0123 TOST.01 p 0.322 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0060 [-0.0103,-0.0017] 90%lo -0.0096 TOST.01 p 0.035 EQ NONINF
+   correct  NK3-modal-correct                  -0.0073 [-0.0105,-0.0040] 90%lo -0.0100 TOST.01 p 0.049 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0372 [+0.0343,+0.0402] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0074
+   correct  NM1-grid-mixed-3of6                -0.0182 [-0.0273,-0.0092] 90%lo -0.0257 TOST.01 p 0.964 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0322 [+0.0304,+0.0339] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0064
+   correct  NM2-corpus-mixed-3of6              -0.0240 [-0.0398,-0.0082] 90%lo -0.0371 TOST.01 p 0.960 NOT-NONINF
+## ORACLE clairvoyant best-of-8 by true value (ceiling, 8 calls)
+   creative N1-grid-archive                    +0.0608 [+0.0593,+0.0622] w/l 30/0 holm 0.000 WIN  extra calls +15.00 breakeven/call +0.0041
+   creative N2-global-corpus                   +0.0505 [+0.0497,+0.0512] w/l 30/0 holm 0.000 WIN  extra calls +15.00 breakeven/call +0.0034
+   creative N3-modal-concave                   +0.1644 [+0.1600,+0.1687] w/l 30/0 holm 0.000 WIN  extra calls +15.00 breakeven/call +0.0110
+   creative N4-grid-recent24-unattainable      +0.2637 [+0.2599,+0.2674] w/l 30/0 holm 0.000 WIN  extra calls +15.00 breakeven/call +0.0176
+   correct  NK1-grid-correct                   -0.0091 [-0.0129,-0.0054] 90%lo -0.0123 TOST.01 p 0.322 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0060 [-0.0103,-0.0017] 90%lo -0.0096 TOST.01 p 0.035 EQ NONINF
+   correct  NK3-modal-correct                  -0.0073 [-0.0105,-0.0040] 90%lo -0.0100 TOST.01 p 0.049 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0704 [+0.0676,+0.0732] w/l 30/0 holm 0.000 WIN  extra calls +15.00 breakeven/call +0.0047
+   correct  NM1-grid-mixed-3of6                -0.0203 [-0.0288,-0.0118] 90%lo -0.0274 TOST.01 p 0.990 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0547 [+0.0535,+0.0559] w/l 30/0 holm 0.000 WIN  extra calls +15.00 breakeven/call +0.0036
+   correct  NM2-corpus-mixed-3of6              -0.0240 [-0.0398,-0.0082] 90%lo -0.0371 TOST.01 p 0.960 NOT-NONINF
+
+=== DIFFS vs [W4 nbreg|learned] : creative-valued subset  (diff [95% CI] w/l, Holm; break-even = value gain per extra gen+judge call per creative task) ===
+## G (best fair, 1 call)
+   creative N1-grid-archive                    +0.0046 [+0.0028,+0.0064] w/l 25/5 holm 0.001 WIN  extra calls +0.00 breakeven/call NaN
+   creative N2-global-corpus                   +0.0100 [+0.0093,+0.0107] w/l 30/0 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   creative N3-modal-concave                   +0.0002 [-0.0027,+0.0031] w/l 16/14 holm 1.000  extra calls +0.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      -0.0000 [-0.0038,+0.0038] w/l 16/14 holm 1.000  extra calls +0.00 breakeven/call NaN
+   correct  NK1-grid-correct                   -0.0089 [-0.0123,-0.0055] 90%lo -0.0117 TOST.01 p 0.261 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0054 [-0.0094,-0.0014] 90%lo -0.0087 TOST.01 p 0.013 EQ NONINF
+   correct  NK3-modal-correct                  -0.0061 [-0.0092,-0.0030] 90%lo -0.0087 TOST.01 p 0.008 EQ NONINF
+   creative NM1-grid-mixed-3of6                -0.0110 [-0.0167,-0.0054] w/l 7/23 holm 0.042 LOSS  extra calls +0.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                -0.0117 [-0.0219,-0.0014] 90%lo -0.0202 TOST.01 p 0.628 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              -0.0024 [-0.0082,+0.0033] w/l 15/15 holm 1.000  extra calls +0.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              -0.0239 [-0.0400,-0.0077] 90%lo -0.0373 TOST.01 p 0.955 NOT-NONINF
+## U plain-ucb (1 call)
+   creative N1-grid-archive                    +0.0044 [+0.0031,+0.0056] w/l 27/3 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   creative N2-global-corpus                   +0.0048 [+0.0042,+0.0053] w/l 30/0 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   creative N3-modal-concave                   -0.0334 [-0.0367,-0.0302] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      -0.0111 [-0.0152,-0.0071] w/l 6/24 holm 0.001 LOSS  extra calls +0.00 breakeven/call NaN
+   correct  NK1-grid-correct                   +0.0009 [-0.0006,+0.0025] 90%lo -0.0004 TOST.01 p 0.000 EQ NONINF
+   correct  NK2-corpus-correct                 +0.0014 [+0.0006,+0.0022] 90%lo +0.0008 TOST.01 p 0.000 EQ NONINF
+   correct  NK3-modal-correct                  +0.0013 [+0.0005,+0.0020] 90%lo +0.0007 TOST.01 p 0.000 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0017 [+0.0002,+0.0033] w/l 20/10 holm 0.875  extra calls +0.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                +0.0026 [+0.0009,+0.0043] 90%lo +0.0012 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              +0.0041 [+0.0036,+0.0046] w/l 30/0 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              +0.0011 [+0.0003,+0.0019] 90%lo +0.0004 TOST.01 p 0.000 EQ NONINF
+## W4 nbucb(b=.8)|learned
+   creative N1-grid-archive                    -0.0014 [-0.0028,-0.0000] w/l 11/19 holm 1.000  extra calls +0.00 breakeven/call NaN
+   creative N2-global-corpus                   +0.0035 [+0.0030,+0.0040] w/l 30/0 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   creative N3-modal-concave                   -0.0010 [-0.0036,+0.0015] w/l 11/19 holm 1.000  extra calls +0.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      +0.0016 [-0.0014,+0.0047] w/l 16/14 holm 1.000  extra calls +0.00 breakeven/call NaN
+   correct  NK1-grid-correct                   +0.0002 [-0.0013,+0.0018] 90%lo -0.0011 TOST.01 p 0.000 EQ NONINF
+   correct  NK2-corpus-correct                 +0.0006 [-0.0006,+0.0018] 90%lo -0.0004 TOST.01 p 0.000 EQ NONINF
+   correct  NK3-modal-correct                  +0.0012 [+0.0004,+0.0019] 90%lo +0.0006 TOST.01 p 0.000 EQ NONINF
+   creative NM1-grid-mixed-3of6                -0.0018 [-0.0038,+0.0001] w/l 15/15 holm 1.000  extra calls +0.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                +0.0017 [-0.0002,+0.0036] 90%lo +0.0001 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              +0.0023 [+0.0017,+0.0029] w/l 27/3 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              +0.0001 [-0.0013,+0.0016] 90%lo -0.0011 TOST.01 p 0.000 EQ NONINF
+## W4 nbucb(b=.4)|declared
+   creative N1-grid-archive                    +0.0017 [+0.0001,+0.0032] w/l 20/10 holm 1.000  extra calls +0.00 breakeven/call NaN
+   creative N2-global-corpus                   -0.0116 [-0.0125,-0.0107] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   creative N3-modal-concave                   +0.0053 [+0.0034,+0.0073] w/l 26/4 holm 0.001 WIN  extra calls +0.00 breakeven/call NaN
+   creative N4-grid-recent24-unattainable      -0.0007 [-0.0040,+0.0027] w/l 14/16 holm 1.000  extra calls +0.00 breakeven/call NaN
+   correct  NK1-grid-correct                   +0.0009 [-0.0006,+0.0025] 90%lo -0.0004 TOST.01 p 0.000 EQ NONINF
+   correct  NK2-corpus-correct                 +0.0014 [+0.0006,+0.0022] 90%lo +0.0008 TOST.01 p 0.000 EQ NONINF
+   correct  NK3-modal-correct                  +0.0013 [+0.0005,+0.0020] 90%lo +0.0007 TOST.01 p 0.000 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0003 [-0.0023,+0.0029] w/l 15/15 holm 1.000  extra calls +0.00 breakeven/call NaN
+   correct  NM1-grid-mixed-3of6                +0.0026 [+0.0009,+0.0043] 90%lo +0.0012 TOST.01 p 0.000 EQ NONINF
+   creative NM2-corpus-mixed-3of6              -0.0128 [-0.0142,-0.0114] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   correct  NM2-corpus-mixed-3of6              +0.0011 [+0.0003,+0.0019] 90%lo +0.0004 TOST.01 p 0.000 EQ NONINF
+## BoK-q k=2 (multi-agent, quality-only select)
+   creative N1-grid-archive                    +0.0208 [+0.0189,+0.0226] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0069
+   creative N2-global-corpus                   +0.0193 [+0.0185,+0.0201] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0064
+   creative N3-modal-concave                   +0.0269 [+0.0236,+0.0302] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0090
+   creative N4-grid-recent24-unattainable      +0.0233 [+0.0202,+0.0265] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0078
+   correct  NK1-grid-correct                   -0.0089 [-0.0123,-0.0055] 90%lo -0.0117 TOST.01 p 0.261 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0054 [-0.0094,-0.0014] 90%lo -0.0087 TOST.01 p 0.013 EQ NONINF
+   correct  NK3-modal-correct                  -0.0061 [-0.0092,-0.0030] 90%lo -0.0087 TOST.01 p 0.008 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0150 [+0.0107,+0.0192] w/l 27/3 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0050
+   correct  NM1-grid-mixed-3of6                -0.0145 [-0.0242,-0.0048] 90%lo -0.0225 TOST.01 p 0.826 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0186 [+0.0161,+0.0211] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0062
+   correct  NM2-corpus-mixed-3of6              -0.0239 [-0.0400,-0.0077] 90%lo -0.0373 TOST.01 p 0.955 NOT-NONINF
+## BoK-dedup k=2
+   creative N1-grid-archive                    +0.0226 [+0.0206,+0.0245] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0075
+   creative N2-global-corpus                   +0.0187 [+0.0177,+0.0197] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0062
+   creative N3-modal-concave                   +0.0445 [+0.0411,+0.0480] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0148
+   creative N4-grid-recent24-unattainable      +0.0354 [+0.0322,+0.0387] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0118
+   correct  NK1-grid-correct                   -0.0089 [-0.0123,-0.0055] 90%lo -0.0117 TOST.01 p 0.261 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0054 [-0.0094,-0.0014] 90%lo -0.0087 TOST.01 p 0.013 EQ NONINF
+   correct  NK3-modal-correct                  -0.0061 [-0.0092,-0.0030] 90%lo -0.0087 TOST.01 p 0.008 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0180 [+0.0139,+0.0221] w/l 27/3 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0060
+   correct  NM1-grid-mixed-3of6                -0.0153 [-0.0252,-0.0054] 90%lo -0.0236 TOST.01 p 0.860 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0069 [+0.0050,+0.0089] w/l 27/3 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0023
+   correct  NM2-corpus-mixed-3of6              -0.0239 [-0.0400,-0.0077] 90%lo -0.0373 TOST.01 p 0.955 NOT-NONINF
+## BoK-q k=3 (multi-agent, quality-only select)
+   creative N1-grid-archive                    +0.0302 [+0.0287,+0.0318] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0060
+   creative N2-global-corpus                   +0.0245 [+0.0237,+0.0252] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0049
+   creative N3-modal-concave                   +0.0391 [+0.0357,+0.0425] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0078
+   creative N4-grid-recent24-unattainable      +0.0376 [+0.0335,+0.0417] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0075
+   correct  NK1-grid-correct                   -0.0089 [-0.0123,-0.0055] 90%lo -0.0117 TOST.01 p 0.261 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0054 [-0.0094,-0.0014] 90%lo -0.0087 TOST.01 p 0.013 EQ NONINF
+   correct  NK3-modal-correct                  -0.0061 [-0.0092,-0.0030] 90%lo -0.0087 TOST.01 p 0.008 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0270 [+0.0234,+0.0306] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0054
+   correct  NM1-grid-mixed-3of6                -0.0158 [-0.0253,-0.0063] 90%lo -0.0237 TOST.01 p 0.890 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0258 [+0.0240,+0.0275] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0052
+   correct  NM2-corpus-mixed-3of6              -0.0239 [-0.0400,-0.0077] 90%lo -0.0373 TOST.01 p 0.955 NOT-NONINF
+## BoK-dedup k=3
+   creative N1-grid-archive                    +0.0315 [+0.0297,+0.0334] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0063
+   creative N2-global-corpus                   +0.0201 [+0.0190,+0.0213] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0040
+   creative N3-modal-concave                   +0.0641 [+0.0613,+0.0670] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0128
+   creative N4-grid-recent24-unattainable      +0.0483 [+0.0453,+0.0514] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0097
+   correct  NK1-grid-correct                   -0.0089 [-0.0123,-0.0055] 90%lo -0.0117 TOST.01 p 0.261 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0054 [-0.0094,-0.0014] 90%lo -0.0087 TOST.01 p 0.013 EQ NONINF
+   correct  NK3-modal-correct                  -0.0061 [-0.0092,-0.0030] 90%lo -0.0087 TOST.01 p 0.008 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0321 [+0.0286,+0.0356] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0064
+   correct  NM1-grid-mixed-3of6                -0.0162 [-0.0258,-0.0066] 90%lo -0.0242 TOST.01 p 0.901 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0131 [+0.0116,+0.0145] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0026
+   correct  NM2-corpus-mixed-3of6              -0.0239 [-0.0400,-0.0077] 90%lo -0.0373 TOST.01 p 0.955 NOT-NONINF
+## BoK-q k=4 (multi-agent, quality-only select)
+   creative N1-grid-archive                    +0.0358 [+0.0343,+0.0374] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0051
+   creative N2-global-corpus                   +0.0281 [+0.0274,+0.0289] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0040
+   creative N3-modal-concave                   +0.0484 [+0.0446,+0.0522] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0069
+   creative N4-grid-recent24-unattainable      +0.0412 [+0.0377,+0.0446] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0059
+   correct  NK1-grid-correct                   -0.0089 [-0.0123,-0.0055] 90%lo -0.0117 TOST.01 p 0.261 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0054 [-0.0094,-0.0014] 90%lo -0.0087 TOST.01 p 0.013 EQ NONINF
+   correct  NK3-modal-correct                  -0.0061 [-0.0092,-0.0030] 90%lo -0.0087 TOST.01 p 0.008 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0344 [+0.0311,+0.0376] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0049
+   correct  NM1-grid-mixed-3of6                -0.0191 [-0.0282,-0.0099] 90%lo -0.0266 TOST.01 p 0.974 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0302 [+0.0287,+0.0318] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0043
+   correct  NM2-corpus-mixed-3of6              -0.0239 [-0.0400,-0.0077] 90%lo -0.0373 TOST.01 p 0.955 NOT-NONINF
+## BoK-dedup k=4
+   creative N1-grid-archive                    +0.0379 [+0.0362,+0.0397] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0054
+   creative N2-global-corpus                   +0.0205 [+0.0196,+0.0214] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0029
+   creative N3-modal-concave                   +0.0777 [+0.0744,+0.0810] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0111
+   creative N4-grid-recent24-unattainable      +0.0592 [+0.0556,+0.0628] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0085
+   correct  NK1-grid-correct                   -0.0089 [-0.0123,-0.0055] 90%lo -0.0117 TOST.01 p 0.261 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0054 [-0.0094,-0.0014] 90%lo -0.0087 TOST.01 p 0.013 EQ NONINF
+   correct  NK3-modal-correct                  -0.0061 [-0.0092,-0.0030] 90%lo -0.0087 TOST.01 p 0.008 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0398 [+0.0373,+0.0424] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0057
+   correct  NM1-grid-mixed-3of6                -0.0174 [-0.0266,-0.0082] 90%lo -0.0251 TOST.01 p 0.946 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0173 [+0.0160,+0.0187] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0025
+   correct  NM2-corpus-mixed-3of6              -0.0239 [-0.0400,-0.0077] 90%lo -0.0373 TOST.01 p 0.955 NOT-NONINF
+## BoK-archive(sign) k=3
+   creative N1-grid-archive                    +0.0292 [+0.0273,+0.0310] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0058
+   creative N2-global-corpus                   +0.0168 [+0.0160,+0.0177] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0034
+   creative N3-modal-concave                   +0.0479 [+0.0447,+0.0511] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0096
+   creative N4-grid-recent24-unattainable      +0.0350 [+0.0317,+0.0382] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0070
+   correct  NK1-grid-correct                   -0.0089 [-0.0123,-0.0055] 90%lo -0.0117 TOST.01 p 0.261 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0054 [-0.0094,-0.0014] 90%lo -0.0087 TOST.01 p 0.013 EQ NONINF
+   correct  NK3-modal-correct                  -0.0061 [-0.0092,-0.0030] 90%lo -0.0087 TOST.01 p 0.008 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0262 [+0.0228,+0.0296] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0052
+   correct  NM1-grid-mixed-3of6                -0.0155 [-0.0252,-0.0058] 90%lo -0.0235 TOST.01 p 0.871 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0113 [+0.0098,+0.0128] w/l 29/1 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0023
+   correct  NM2-corpus-mixed-3of6              -0.0239 [-0.0400,-0.0077] 90%lo -0.0373 TOST.01 p 0.955 NOT-NONINF
+## BoK-archive(grid8) k=3
+   creative N1-grid-archive                    +0.0270 [+0.0254,+0.0286] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0054
+   creative N2-global-corpus                   +0.0181 [+0.0173,+0.0190] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0036
+   creative N3-modal-concave                   +0.0409 [+0.0369,+0.0448] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0082
+   creative N4-grid-recent24-unattainable      +0.0750 [+0.0706,+0.0794] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0150
+   correct  NK1-grid-correct                   -0.0089 [-0.0123,-0.0055] 90%lo -0.0117 TOST.01 p 0.261 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0054 [-0.0094,-0.0014] 90%lo -0.0087 TOST.01 p 0.013 EQ NONINF
+   correct  NK3-modal-correct                  -0.0061 [-0.0092,-0.0030] 90%lo -0.0087 TOST.01 p 0.008 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0284 [+0.0253,+0.0314] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0057
+   correct  NM1-grid-mixed-3of6                -0.0168 [-0.0269,-0.0068] 90%lo -0.0252 TOST.01 p 0.913 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0109 [+0.0090,+0.0129] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0022
+   correct  NM2-corpus-mixed-3of6              -0.0239 [-0.0400,-0.0077] 90%lo -0.0373 TOST.01 p 0.955 NOT-NONINF
+## BoK-dedup k=3 on plain-ucb
+   creative N1-grid-archive                    +0.0135 [+0.0120,+0.0150] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0027
+   creative N2-global-corpus                   +0.0165 [+0.0156,+0.0174] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0033
+   creative N3-modal-concave                   +0.0579 [+0.0549,+0.0609] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0116
+   creative N4-grid-recent24-unattainable      +0.0520 [+0.0482,+0.0558] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0104
+   correct  NK1-grid-correct                   +0.0009 [-0.0006,+0.0025] 90%lo -0.0004 TOST.01 p 0.000 EQ NONINF
+   correct  NK2-corpus-correct                 +0.0014 [+0.0006,+0.0022] 90%lo +0.0008 TOST.01 p 0.000 EQ NONINF
+   correct  NK3-modal-correct                  +0.0013 [+0.0005,+0.0020] 90%lo +0.0007 TOST.01 p 0.000 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0160 [+0.0134,+0.0186] w/l 28/2 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0032
+   correct  NM1-grid-mixed-3of6                +0.0029 [-0.0014,+0.0072] 90%lo -0.0007 TOST.01 p 0.001 EQ NONINF
+   creative NM2-corpus-mixed-3of6              +0.0161 [+0.0146,+0.0177] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0032
+   correct  NM2-corpus-mixed-3of6              +0.0012 [-0.0012,+0.0036] 90%lo -0.0008 TOST.01 p 0.000 EQ NONINF
+## STACK nbucb(b=.4)|decl + dedup k=2
+   creative N1-grid-archive                    +0.0061 [+0.0044,+0.0078] w/l 29/1 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0020
+   creative N2-global-corpus                   -0.0006 [-0.0017,+0.0004] w/l 11/19 holm 1.000  extra calls +3.00 breakeven/call -0.0002
+   creative N3-modal-concave                   +0.0531 [+0.0513,+0.0549] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0177
+   creative N4-grid-recent24-unattainable      +0.0382 [+0.0344,+0.0420] w/l 30/0 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0127
+   correct  NK1-grid-correct                   +0.0009 [-0.0006,+0.0025] 90%lo -0.0004 TOST.01 p 0.000 EQ NONINF
+   correct  NK2-corpus-correct                 +0.0014 [+0.0006,+0.0022] 90%lo +0.0008 TOST.01 p 0.000 EQ NONINF
+   correct  NK3-modal-correct                  +0.0013 [+0.0005,+0.0020] 90%lo +0.0007 TOST.01 p 0.000 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0084 [+0.0060,+0.0108] w/l 28/2 holm 0.000 WIN  extra calls +3.00 breakeven/call +0.0028
+   correct  NM1-grid-mixed-3of6                +0.0038 [-0.0001,+0.0078] 90%lo +0.0005 TOST.01 p 0.002 EQ NONINF
+   creative NM2-corpus-mixed-3of6              -0.0018 [-0.0035,-0.0002] w/l 11/19 holm 0.837  extra calls +3.00 breakeven/call -0.0006
+   correct  NM2-corpus-mixed-3of6              +0.0014 [-0.0009,+0.0037] 90%lo -0.0005 TOST.01 p 0.000 EQ NONINF
+## STACK nbucb(b=.4)|decl + dedup k=3
+   creative N1-grid-archive                    +0.0264 [+0.0247,+0.0281] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0053
+   creative N2-global-corpus                   +0.0054 [+0.0042,+0.0065] w/l 28/2 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0011
+   creative N3-modal-concave                   +0.0677 [+0.0649,+0.0704] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0135
+   creative N4-grid-recent24-unattainable      +0.0521 [+0.0468,+0.0574] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0104
+   correct  NK1-grid-correct                   +0.0009 [-0.0006,+0.0025] 90%lo -0.0004 TOST.01 p 0.000 EQ NONINF
+   correct  NK2-corpus-correct                 +0.0014 [+0.0006,+0.0022] 90%lo +0.0008 TOST.01 p 0.000 EQ NONINF
+   correct  NK3-modal-correct                  +0.0013 [+0.0005,+0.0020] 90%lo +0.0007 TOST.01 p 0.000 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0288 [+0.0259,+0.0316] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0058
+   correct  NM1-grid-mixed-3of6                +0.0029 [-0.0014,+0.0072] 90%lo -0.0007 TOST.01 p 0.001 EQ NONINF
+   creative NM2-corpus-mixed-3of6              +0.0052 [+0.0036,+0.0067] w/l 26/4 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0010
+   correct  NM2-corpus-mixed-3of6              +0.0012 [-0.0012,+0.0036] 90%lo -0.0008 TOST.01 p 0.000 EQ NONINF
+## BoK-dedup k=3 judge_sd=0
+   creative N1-grid-archive                    +0.0344 [+0.0326,+0.0362] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0069
+   creative N2-global-corpus                   +0.0214 [+0.0204,+0.0224] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0043
+   creative N3-modal-concave                   +0.0680 [+0.0647,+0.0712] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0136
+   creative N4-grid-recent24-unattainable      +0.0497 [+0.0466,+0.0529] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0099
+   correct  NK1-grid-correct                   -0.0089 [-0.0123,-0.0055] 90%lo -0.0117 TOST.01 p 0.261 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0054 [-0.0094,-0.0014] 90%lo -0.0087 TOST.01 p 0.013 EQ NONINF
+   correct  NK3-modal-correct                  -0.0061 [-0.0092,-0.0030] 90%lo -0.0087 TOST.01 p 0.008 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0346 [+0.0314,+0.0378] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0069
+   correct  NM1-grid-mixed-3of6                -0.0164 [-0.0263,-0.0065] 90%lo -0.0246 TOST.01 p 0.902 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0144 [+0.0130,+0.0158] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0029
+   correct  NM2-corpus-mixed-3of6              -0.0239 [-0.0400,-0.0077] 90%lo -0.0373 TOST.01 p 0.955 NOT-NONINF
+## BoK-dedup k=3 judge_sd=0.1
+   creative N1-grid-archive                    +0.0277 [+0.0262,+0.0293] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0055
+   creative N2-global-corpus                   +0.0175 [+0.0165,+0.0185] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0035
+   creative N3-modal-concave                   +0.0573 [+0.0540,+0.0606] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0115
+   creative N4-grid-recent24-unattainable      +0.0415 [+0.0382,+0.0448] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0083
+   correct  NK1-grid-correct                   -0.0089 [-0.0123,-0.0055] 90%lo -0.0117 TOST.01 p 0.261 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0054 [-0.0094,-0.0014] 90%lo -0.0087 TOST.01 p 0.013 EQ NONINF
+   correct  NK3-modal-correct                  -0.0061 [-0.0092,-0.0030] 90%lo -0.0087 TOST.01 p 0.008 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0283 [+0.0250,+0.0317] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0057
+   correct  NM1-grid-mixed-3of6                -0.0176 [-0.0275,-0.0077] 90%lo -0.0258 TOST.01 p 0.936 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0104 [+0.0088,+0.0119] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0021
+   correct  NM2-corpus-mixed-3of6              -0.0239 [-0.0400,-0.0077] 90%lo -0.0373 TOST.01 p 0.955 NOT-NONINF
+## BoK-dedup k=3 judge_sd=0.2
+   creative N1-grid-archive                    +0.0193 [+0.0178,+0.0208] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0039
+   creative N2-global-corpus                   +0.0135 [+0.0126,+0.0145] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0027
+   creative N3-modal-concave                   +0.0426 [+0.0399,+0.0453] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0085
+   creative N4-grid-recent24-unattainable      +0.0336 [+0.0301,+0.0372] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0067
+   correct  NK1-grid-correct                   -0.0089 [-0.0123,-0.0055] 90%lo -0.0117 TOST.01 p 0.261 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0054 [-0.0094,-0.0014] 90%lo -0.0087 TOST.01 p 0.013 EQ NONINF
+   correct  NK3-modal-correct                  -0.0061 [-0.0092,-0.0030] 90%lo -0.0087 TOST.01 p 0.008 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0156 [+0.0122,+0.0191] w/l 28/2 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0031
+   correct  NM1-grid-mixed-3of6                -0.0184 [-0.0280,-0.0089] 90%lo -0.0263 TOST.01 p 0.959 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0054 [+0.0039,+0.0069] w/l 27/3 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0011
+   correct  NM2-corpus-mixed-3of6              -0.0239 [-0.0400,-0.0077] 90%lo -0.0373 TOST.01 p 0.955 NOT-NONINF
+## BoK-dedup k=3 judge_sd=-1
+   creative N1-grid-archive                    +0.0037 [+0.0019,+0.0055] w/l 25/5 holm 0.028 WIN  extra calls +2.00 breakeven/call +0.0018
+   creative N2-global-corpus                   +0.0045 [+0.0032,+0.0059] w/l 27/3 holm 0.000 WIN  extra calls +2.00 breakeven/call +0.0023
+   creative N3-modal-concave                   +0.0403 [+0.0369,+0.0437] w/l 30/0 holm 0.000 WIN  extra calls +2.00 breakeven/call +0.0202
+   creative N4-grid-recent24-unattainable      +0.0318 [+0.0273,+0.0363] w/l 29/1 holm 0.000 WIN  extra calls +2.00 breakeven/call +0.0159
+   correct  NK1-grid-correct                   -0.0089 [-0.0123,-0.0055] 90%lo -0.0117 TOST.01 p 0.261 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0054 [-0.0094,-0.0014] 90%lo -0.0087 TOST.01 p 0.013 EQ NONINF
+   correct  NK3-modal-correct                  -0.0061 [-0.0092,-0.0030] 90%lo -0.0087 TOST.01 p 0.008 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0018 [-0.0019,+0.0055] w/l 17/13 holm 1.000  extra calls +2.00 breakeven/call +0.0009
+   correct  NM1-grid-mixed-3of6                -0.0181 [-0.0285,-0.0077] 90%lo -0.0268 TOST.01 p 0.938 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              -0.0102 [-0.0122,-0.0083] w/l 1/29 holm 0.000 LOSS  extra calls +2.00 breakeven/call -0.0051
+   correct  NM2-corpus-mixed-3of6              -0.0239 [-0.0400,-0.0077] 90%lo -0.0373 TOST.01 p 0.955 NOT-NONINF
+## same-agent k=3 native sampling (dedup)
+   creative N1-grid-archive                    +0.0353 [+0.0335,+0.0370] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0071
+   creative N2-global-corpus                   +0.0338 [+0.0329,+0.0347] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0068
+   creative N3-modal-concave                   +0.0616 [+0.0587,+0.0645] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0123
+   creative N4-grid-recent24-unattainable      +0.0474 [+0.0436,+0.0513] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0095
+   correct  NK1-grid-correct                   -0.0089 [-0.0123,-0.0055] 90%lo -0.0117 TOST.01 p 0.261 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0054 [-0.0094,-0.0014] 90%lo -0.0087 TOST.01 p 0.013 EQ NONINF
+   correct  NK3-modal-correct                  -0.0061 [-0.0092,-0.0030] 90%lo -0.0087 TOST.01 p 0.008 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0231 [+0.0177,+0.0284] w/l 27/3 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0046
+   correct  NM1-grid-mixed-3of6                -0.0115 [-0.0216,-0.0015] 90%lo -0.0199 TOST.01 p 0.620 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0215 [+0.0156,+0.0274] w/l 28/2 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0043
+   correct  NM2-corpus-mixed-3of6              -0.0239 [-0.0400,-0.0077] 90%lo -0.0373 TOST.01 p 0.955 NOT-NONINF
+## BoK-dedup k=3 |learned gate
+   creative N1-grid-archive                    +0.0231 [+0.0201,+0.0260] w/l 30/0 holm 0.000 WIN  extra calls +3.53 breakeven/call +0.0065
+   creative N2-global-corpus                   +0.0118 [+0.0108,+0.0128] w/l 30/0 holm 0.000 WIN  extra calls +1.02 breakeven/call +0.0116
+   creative N3-modal-concave                   +0.0532 [+0.0503,+0.0562] w/l 30/0 holm 0.000 WIN  extra calls +4.02 breakeven/call +0.0132
+   creative N4-grid-recent24-unattainable      +0.0350 [+0.0313,+0.0387] w/l 30/0 holm 0.000 WIN  extra calls +3.37 breakeven/call +0.0104
+   correct  NK1-grid-correct                   -0.0081 [-0.0118,-0.0045] 90%lo -0.0112 TOST.01 p 0.152 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0056 [-0.0097,-0.0016] 90%lo -0.0090 TOST.01 p 0.017 EQ NONINF
+   correct  NK3-modal-correct                  -0.0060 [-0.0092,-0.0029] 90%lo -0.0086 TOST.01 p 0.007 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0174 [+0.0125,+0.0224] w/l 27/3 holm 0.000 WIN  extra calls +3.26 breakeven/call +0.0053
+   correct  NM1-grid-mixed-3of6                -0.0160 [-0.0267,-0.0054] 90%lo -0.0249 TOST.01 p 0.872 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0077 [+0.0035,+0.0118] w/l 20/10 holm 0.065  extra calls +1.81 breakeven/call +0.0042
+   correct  NM2-corpus-mixed-3of6              -0.0240 [-0.0401,-0.0078] 90%lo -0.0374 TOST.01 p 0.956 NOT-NONINF
+## ORACLE clairvoyant best-of-3 by true value (ceiling, 3 calls)
+   creative N1-grid-archive                    +0.0310 [+0.0293,+0.0327] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0062
+   creative N2-global-corpus                   +0.0330 [+0.0322,+0.0339] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0066
+   creative N3-modal-concave                   +0.1053 [+0.1020,+0.1086] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0211
+   creative N4-grid-recent24-unattainable      +0.1690 [+0.1651,+0.1729] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0338
+   correct  NK1-grid-correct                   -0.0089 [-0.0123,-0.0055] 90%lo -0.0117 TOST.01 p 0.261 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0054 [-0.0094,-0.0014] 90%lo -0.0087 TOST.01 p 0.013 EQ NONINF
+   correct  NK3-modal-correct                  -0.0061 [-0.0092,-0.0030] 90%lo -0.0087 TOST.01 p 0.008 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0354 [+0.0318,+0.0390] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0071
+   correct  NM1-grid-mixed-3of6                -0.0166 [-0.0262,-0.0069] 90%lo -0.0246 TOST.01 p 0.913 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0345 [+0.0328,+0.0362] w/l 30/0 holm 0.000 WIN  extra calls +5.00 breakeven/call +0.0069
+   correct  NM2-corpus-mixed-3of6              -0.0239 [-0.0400,-0.0077] 90%lo -0.0373 TOST.01 p 0.955 NOT-NONINF
+## ORACLE clairvoyant best-of-8 by true value (ceiling, 8 calls)
+   creative N1-grid-archive                    +0.0593 [+0.0578,+0.0609] w/l 30/0 holm 0.000 WIN  extra calls +15.00 breakeven/call +0.0040
+   creative N2-global-corpus                   +0.0540 [+0.0531,+0.0548] w/l 30/0 holm 0.000 WIN  extra calls +15.00 breakeven/call +0.0036
+   creative N3-modal-concave                   +0.1633 [+0.1597,+0.1669] w/l 30/0 holm 0.000 WIN  extra calls +15.00 breakeven/call +0.0109
+   creative N4-grid-recent24-unattainable      +0.2653 [+0.2613,+0.2692] w/l 30/0 holm 0.000 WIN  extra calls +15.00 breakeven/call +0.0177
+   correct  NK1-grid-correct                   -0.0089 [-0.0123,-0.0055] 90%lo -0.0117 TOST.01 p 0.261 NOT-NONINF
+   correct  NK2-corpus-correct                 -0.0054 [-0.0094,-0.0014] 90%lo -0.0087 TOST.01 p 0.013 EQ NONINF
+   correct  NK3-modal-correct                  -0.0061 [-0.0092,-0.0030] 90%lo -0.0087 TOST.01 p 0.008 EQ NONINF
+   creative NM1-grid-mixed-3of6                +0.0686 [+0.0655,+0.0717] w/l 30/0 holm 0.000 WIN  extra calls +15.00 breakeven/call +0.0046
+   correct  NM1-grid-mixed-3of6                -0.0186 [-0.0279,-0.0094] 90%lo -0.0263 TOST.01 p 0.967 NOT-NONINF
+   creative NM2-corpus-mixed-3of6              +0.0570 [+0.0559,+0.0582] w/l 30/0 holm 0.000 WIN  extra calls +15.00 breakeven/call +0.0038
+   correct  NM2-corpus-mixed-3of6              -0.0239 [-0.0400,-0.0077] 90%lo -0.0373 TOST.01 p 0.955 NOT-NONINF
+
+=== SUMMARY vs G: creative diff per world (* Holm win, ! Holm loss) | mean extra calls | correctness: TOST.01 equivalent / non-inferior counts ===
+arm                                                            N1-grid-a N2-global N3-modal- N4-grid-r NK1-grid- NK2-corpu NK3-modal NM1-grid- NM2-corpu | calls | eq/ni/n
+U plain-ucb (1 call)                                            -0.0002   -0.0052!  -0.0337!  -0.0111!         -         -         -  +0.0128*  +0.0065  | +0.00 | 0/5/5
+W4 nbucb(b=.8)|learned                                          -0.0060!  -0.0065!  -0.0013   +0.0016          -         -         -  +0.0092   +0.0048  | +0.00 | 2/5/5
+W4 nbreg|learned                                                -0.0046!  -0.0100!  -0.0002   +0.0000          -         -         -  +0.0110*  +0.0024  | +0.00 | 2/5/5
+W4 nbucb(b=.4)|declared                                         -0.0029   -0.0216!  +0.0051   -0.0007          -         -         -  +0.0114*  -0.0104  | +0.00 | 0/5/5
+BoK-q k=2 (multi-agent, quality-only select)                    +0.0162*  +0.0093*  +0.0267*  +0.0233*         -         -         -  +0.0260*  +0.0210* | +3.00 | 5/5/5
+BoK-dedup k=2                                                   +0.0180*  +0.0087*  +0.0443*  +0.0354*         -         -         -  +0.0291*  +0.0094* | +3.00 | 5/5/5
+BoK-q k=3 (multi-agent, quality-only select)                    +0.0257*  +0.0145*  +0.0389*  +0.0376*         -         -         -  +0.0380*  +0.0282* | +5.00 | 5/5/5
+BoK-dedup k=3                                                   +0.0269*  +0.0102*  +0.0639*  +0.0483*         -         -         -  +0.0431*  +0.0155* | +5.00 | 5/5/5
+BoK-q k=4 (multi-agent, quality-only select)                    +0.0313*  +0.0182*  +0.0482*  +0.0412*         -         -         -  +0.0454*  +0.0327* | +7.00 | 4/4/5
+BoK-dedup k=4                                                   +0.0334*  +0.0105*  +0.0775*  +0.0592*         -         -         -  +0.0509*  +0.0198* | +7.00 | 5/5/5
+BoK-archive(sign) k=3                                           +0.0246*  +0.0069*  +0.0477*  +0.0350*         -         -         -  +0.0373*  +0.0138* | +5.00 | 5/5/5
+BoK-archive(grid8) k=3                                          +0.0224*  +0.0082*  +0.0406*  +0.0750*         -         -         -  +0.0394*  +0.0133* | +5.00 | 5/5/5
+BoK-dedup k=3 on plain-ucb                                      +0.0089*  +0.0065*  +0.0577*  +0.0520*         -         -         -  +0.0271*  +0.0186* | +5.00 | 0/5/5
+STACK nbucb(b=.4)|decl + dedup k=2                              +0.0015   -0.0106!  +0.0528*  +0.0382*         -         -         -  +0.0195*  +0.0006  | +3.00 | 0/5/5
+STACK nbucb(b=.4)|decl + dedup k=3                              +0.0218*  -0.0046!  +0.0674*  +0.0521*         -         -         -  +0.0398*  +0.0076  | +5.00 | 0/5/5
+BoK-dedup k=3 judge_sd=0                                        +0.0298*  +0.0114*  +0.0677*  +0.0497*         -         -         -  +0.0456*  +0.0169* | +5.00 | 5/5/5
+BoK-dedup k=3 judge_sd=0.1                                      +0.0231*  +0.0075*  +0.0571*  +0.0415*         -         -         -  +0.0394*  +0.0128* | +5.00 | 5/5/5
+BoK-dedup k=3 judge_sd=0.2                                      +0.0147*  +0.0035*  +0.0424*  +0.0336*         -         -         -  +0.0267*  +0.0078  | +5.00 | 5/5/5
+BoK-dedup k=3 judge_sd=-1                                       -0.0009   -0.0055!  +0.0401*  +0.0318*         -         -         -  +0.0128*  -0.0078  | +2.00 | 5/5/5
+same-agent k=3 native sampling (dedup)                          +0.0307*  +0.0238*  +0.0613*  +0.0474*         -         -         -  +0.0341*  +0.0240* | +5.00 | 5/5/5
+BoK-dedup k=3 |learned gate                                     +0.0185*  +0.0018*  +0.0530*  +0.0350*         -         -         -  +0.0285*  +0.0101* | +2.83 | 5/5/5
+ORACLE clairvoyant best-of-3 by true value (ceiling, 3 calls)   +0.0264*  +0.0230*  +0.1051*  +0.1690*         -         -         -  +0.0464*  +0.0369* | +5.00 | 5/5/5
+ORACLE clairvoyant best-of-8 by true value (ceiling, 8 calls)   +0.0548*  +0.0440*  +0.1631*  +0.2653*         -         -         -  +0.0796*  +0.0595* | +15.00 | 4/4/5
+wrote results/h7_bok_n_confirm.json

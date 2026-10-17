@@ -1,0 +1,27 @@
+h8_vectors mode=selftest rayon=2 free=4.56GB
+stream==synth_ds: queries true base true (chunks 7000)
+gen speed: 200000 rows in 1.33s
+dot f32 0.065437 bfp 0.065435 int8 0.065309
+self-dot f32 1.000000 bfp 1.000001 int8 1.001314
+  rows0-4 simd [0.016184736, -0.038766764, 0.06904313, -0.010776694, 0.06327677] exact-float [0.016870169, -0.03946432, 0.06931789, -0.011135703, 0.06385835] true [-0.027045993, -0.070703015, 0.05217344, -0.0022446653, 0.052626304]
+  debug_s (scalar S, simd S, sq): (109.0, 109.0, 0.0013981638)
+rabitq 1-bit: 52 B/vec, mean |err| 0.0299 (mean |true| 0.0504), corr 0.8973 slope est-on-true 0.9867 mean true 0.0028 mean est 0.0036
+  rows0-4 simd [-0.006935808, -0.04467619, 0.09020607, -0.010597055, 0.067859225] exact-float [-0.006311954, -0.045055907, 0.090602584, -0.010834717, 0.06856316] true [-0.027045993, -0.070703015, 0.05217344, -0.0022446653, 0.052626304]
+  debug_s (scalar S, simd S, sq): (-35.0, -35.0, 0.0013981638)
+rabitq 2-bit: 100 B/vec, mean |err| 0.0151 (mean |true| 0.0504), corr 0.9710 slope est-on-true 0.9948 mean true 0.0028 mean est 0.0025
+  rows0-4 simd [-0.014771835, -0.05860515, 0.07331445, -0.0050173756, 0.048084598] exact-float [-0.014049065, -0.058810376, 0.07376771, -0.0051377295, 0.04894728] true [-0.027045993, -0.070703015, 0.05217344, -0.0022446653, 0.052626304]
+  debug_s (scalar S, simd S, sq): (-237.0, -237.0, 0.0013981638)
+rabitq 3-bit: 148 B/vec, mean |err| 0.0079 (mean |true| 0.0504), corr 0.9917 slope est-on-true 0.9945 mean true 0.0028 mean est 0.0025
+  rows0-4 simd [-0.018565763, -0.06748142, 0.051638015, -0.008165252, 0.052395027] exact-float [-0.017711867, -0.06763851, 0.052266423, -0.008177077, 0.053330686] true [-0.027045993, -0.070703015, 0.05217344, -0.0022446653, 0.052626304]
+  debug_s (scalar S, simd S, sq): (-444.0, -444.0, 0.0013981638)
+rabitq 4-bit: 196 B/vec, mean |err| 0.0043 (mean |true| 0.0504), corr 0.9975 slope est-on-true 0.9992 mean true 0.0028 mean est 0.0024
+  rows0-4 simd [-0.029725887, -0.06893956, 0.055550512, -0.0019077285, 0.051250447] exact-float [-0.028814416, -0.06905679, 0.05649111, -0.0017933963, 0.05226351] true [-0.027045993, -0.070703015, 0.05217344, -0.0022446653, 0.052626304]
+  debug_s (scalar S, simd S, sq): (-3172.0, -3172.0, 0.0013981638)
+rabitq 6-bit: 292 B/vec, mean |err| 0.0013 (mean |true| 0.0504), corr 0.9998 slope est-on-true 1.0002 mean true 0.0028 mean est 0.0021
+q norm 1.0000 max|q| 0.158 max|Rq| 0.178 ; base0 max 0.177 max|R b0| 0.164
+rotation check: dot -0.027046 rotated -0.027046 norm 1.000000
+file store direct=false: rows match true, 3.8 us/row
+file store direct=true: rows match true, 72.5 us/row
+HNSW 5k M16 efc200 self-recall: queried 5000, not-top1 0, not-in-top10 0; heap 6523 B/vec
+HNSW 5k M16 efc200 bfp16 self-recall: queried 5000, not-top1 0, not-in-top10 0; heap 5841 B/vec
+HNSW 5k M16 efc200 int8 self-recall: queried 5000, not-top1 1, not-in-top10 1; heap 5370 B/vec

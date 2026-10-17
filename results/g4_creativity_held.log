@@ -1,0 +1,688 @@
+G4 creativity lab. world.rs fnv64=f7bf8195fa828dcb len=12131 (sha256 in results/g4_world_frozen.md)
+eval set 'held': seeds 31..60   tune seeds 1-8
+[tune1-8] C1-multistyle                      best fair baseline = pooled-ts(g=0.9)                             (0.3997)
+[tune1-8] C2-star-plus-diverse               best fair baseline = pooled-ts(g=0.9)                             (0.3655)
+[tune1-8] C3-clustered-drift                 best fair baseline = hebbian-robust                               (0.2693)
+[tune1-8] K1-multistyle-correct              best fair baseline = warm(hebR,k=10,Mean)                         (0.7996)
+[tune1-8] K2-star-correct                    best fair baseline = eps-greedy(g=0.9,e=0.02)                     (0.8699)
+[tune1-8] K3-clustered-drift-correct         best fair baseline = warm(hebR,k=3,Mean)                          (0.6594)
+[tune1-8] M1-mixed-3of6-creative             best fair baseline = eps-greedy(g=0.95,e=0.05)                    (0.5815)
+[tune1-8] M2-mixed-1of6-creative-star        best fair baseline = eps-greedy(g=0.9,e=0.02)                     (0.7756)
+[tune1-8] R1-rigged-hidden-novelty-dims      best fair baseline = eps-greedy(g=0.9,e=0.05)                     (0.2903)
+[tune1-8] pooled-tuned fair baselines (one config for all worlds): ["keyword", "eps-greedy(g=0.9,e=0.05)", "pooled-ts(g=1)", "hebbian-robust", "warm(hebR,k=3,Mean)", "guarded-safe"]
+[tune1-8] pooled tuning of 150 arm configs over 9 worlds x 8 seeds
+   pooled-tuned antirepeat|nogate        -> antirepeat(m=1)/warm(hebR,k=10,Mean)|nogate          pooled mean value 0.5196
+   pooled-tuned novfilter|nogate         -> novfilter(k=6)/warm(hebR,k=10,Mean)|nogate           pooled mean value 0.5100
+   pooled-tuned archive|nogate           -> archive(k=5,T=4)/warm(hebR,k=10,Mean)|nogate         pooled mean value 0.5038
+   pooled-tuned nbucb|nogate             -> nbucb(b=0.1,c=0.05)|nogate                           pooled mean value 0.5817
+   pooled-tuned antirepeat|declared      -> antirepeat(m=2)/warm(hebR,k=10,Mean)|declared        pooled mean value 0.5438
+   pooled-tuned novfilter|declared       -> novfilter(k=2)/warm(hebR,k=10,Mean)|declared         pooled mean value 0.5685
+   pooled-tuned archive|declared         -> archive(k=5,T=16)/warm(hebR,k=10,Mean)|declared      pooled mean value 0.5452
+   pooled-tuned nbucb|declared           -> nbucb(b=0.4,c=0.05)|declared                         pooled mean value 0.5923
+   pooled-tuned antirepeat|learned       -> antirepeat(m=1)/warm(hebR,k=10,Mean)|learned         pooled mean value 0.5422
+   pooled-tuned novfilter|learned        -> novfilter(k=2)/warm(hebR,k=10,Mean)|learned          pooled mean value 0.5625
+   pooled-tuned archive|learned          -> archive(k=5,T=8)/warm(hebR,k=10,Mean)|learned        pooled mean value 0.5425
+   pooled-tuned nbucb|learned            -> nbucb(b=0.8,c=0.05)|learned                          pooled mean value 0.5913
+
+=== mean value per world (held) : overall | creative-subset | correctness-subset | creative novelty ===
+-- C1-multistyle (creative domains 4/4) best per-world-tuned fair = pooled-thompson ; best pooled-tuned fair = pooled-thompson
+   keyword [per-world tuned]                                      0.2670 | 0.2670 | NaN | nov 0.125
+   eps-greedy [per-world tuned]                                   0.3776 | 0.3776 | NaN | nov 0.365
+   pooled-thompson [per-world tuned]                              0.3991 | 0.3991 | NaN | nov 0.422
+   hebbian-robust [per-world tuned]                               0.3735 | 0.3735 | NaN | nov 0.358
+   warm(hebr) [per-world tuned]                                   0.3730 | 0.3730 | NaN | nov 0.357
+   guarded-safe [per-world tuned]                                 0.3739 | 0.3739 | NaN | nov 0.359
+   keyword [pooled-tuned keyword]                                 0.2670 | 0.2670 | NaN | nov 0.125
+   eps-greedy [pooled-tuned eps-greedy(g=0.9,e=0.05)]             0.3768 | 0.3768 | NaN | nov 0.362
+   pooled-thompson [pooled-tuned pooled-ts(g=1)]                  0.3923 | 0.3923 | NaN | nov 0.402
+   hebbian-robust [pooled-tuned hebbian-robust]                   0.3735 | 0.3735 | NaN | nov 0.358
+   warm(hebr) [pooled-tuned warm(hebR,k=3,Mean)]                  0.3730 | 0.3730 | NaN | nov 0.357
+   guarded-safe [pooled-tuned guarded-safe]                       0.3739 | 0.3739 | NaN | nov 0.359
+   antirepeat(m=1)/warm(hebR,k=10,Mean)|nogate                    0.3739 | 0.3739 | NaN | nov 0.362 gateon[cr 1.00 / cor NaN]
+   novfilter(k=6)/warm(hebR,k=10,Mean)|nogate                     0.3973 | 0.3973 | NaN | nov 0.404 gateon[cr 1.00 / cor NaN]
+   archive(k=5,T=4)/warm(hebR,k=10,Mean)|nogate                   0.3753 | 0.3753 | NaN | nov 0.367 gateon[cr 1.00 / cor NaN]
+   nbucb(b=0.1,c=0.05)|nogate                                     0.4535 | 0.4535 | NaN | nov 0.503 gateon[cr 1.00 / cor NaN]
+   antirepeat(m=2)/warm(hebR,k=10,Mean)|declared                  0.3735 | 0.3735 | NaN | nov 0.364 gateon[cr 1.00 / cor NaN]
+   novfilter(k=2)/warm(hebR,k=10,Mean)|declared                   0.4505 | 0.4505 | NaN | nov 0.516 gateon[cr 1.00 / cor NaN]
+   archive(k=5,T=16)/warm(hebR,k=10,Mean)|declared                0.3761 | 0.3761 | NaN | nov 0.370 gateon[cr 1.00 / cor NaN]
+   nbucb(b=0.4,c=0.05)|declared                                   0.4795 | 0.4795 | NaN | nov 0.567 gateon[cr 1.00 / cor NaN]
+   antirepeat(m=1)/warm(hebR,k=10,Mean)|learned                   0.3701 | 0.3701 | NaN | nov 0.353 gateon[cr 0.83 / cor NaN]
+   novfilter(k=2)/warm(hebR,k=10,Mean)|learned                    0.4345 | 0.4345 | NaN | nov 0.484 gateon[cr 0.83 / cor NaN]
+   archive(k=5,T=8)/warm(hebR,k=10,Mean)|learned                  0.3708 | 0.3708 | NaN | nov 0.359 gateon[cr 0.83 / cor NaN]
+   nbucb(b=0.8,c=0.05)|learned                                    0.4707 | 0.4707 | NaN | nov 0.553 gateon[cr 0.82 / cor NaN]
+   nbreg(c=0.05)|declared                                         0.4685 | 0.4685 | NaN | nov 0.544 gateon[cr 1.00 / cor NaN]
+   nbreg(c=0.05)|learned                                          0.4685 | 0.4685 | NaN | nov 0.544 gateon[cr 0.82 / cor NaN]
+   plain-ucb(c=0.05) [domain-keyed own learner, EXTRA-STRONG ref, 0.3913 | 0.3913 | NaN | nov 0.381 gateon[cr 1.00 / cor NaN]
+   ORACLE-ISH                                                     0.5161 | 0.5161 | NaN | nov 0.644
+-- C2-star-plus-diverse (creative domains 4/4) best per-world-tuned fair = pooled-thompson ; best pooled-tuned fair = pooled-thompson
+   keyword [per-world tuned]                                      0.2808 | 0.2808 | NaN | nov 0.125
+   eps-greedy [per-world tuned]                                   0.3530 | 0.3530 | NaN | nov 0.348
+   pooled-thompson [per-world tuned]                              0.3651 | 0.3651 | NaN | nov 0.422
+   hebbian-robust [per-world tuned]                               0.3518 | 0.3518 | NaN | nov 0.348
+   warm(hebr) [per-world tuned]                                   0.3518 | 0.3518 | NaN | nov 0.348
+   guarded-safe [per-world tuned]                                 0.3523 | 0.3523 | NaN | nov 0.348
+   keyword [pooled-tuned keyword]                                 0.2808 | 0.2808 | NaN | nov 0.125
+   eps-greedy [pooled-tuned eps-greedy(g=0.9,e=0.05)]             0.3503 | 0.3503 | NaN | nov 0.338
+   pooled-thompson [pooled-tuned pooled-ts(g=1)]                  0.3617 | 0.3617 | NaN | nov 0.397
+   hebbian-robust [pooled-tuned hebbian-robust]                   0.3518 | 0.3518 | NaN | nov 0.348
+   warm(hebr) [pooled-tuned warm(hebR,k=3,Mean)]                  0.3518 | 0.3518 | NaN | nov 0.348
+   guarded-safe [pooled-tuned guarded-safe]                       0.3523 | 0.3523 | NaN | nov 0.348
+   antirepeat(m=1)/warm(hebR,k=10,Mean)|nogate                    0.3487 | 0.3487 | NaN | nov 0.354 gateon[cr 1.00 / cor NaN]
+   novfilter(k=6)/warm(hebR,k=10,Mean)|nogate                     0.3693 | 0.3693 | NaN | nov 0.402 gateon[cr 1.00 / cor NaN]
+   archive(k=5,T=4)/warm(hebR,k=10,Mean)|nogate                   0.3479 | 0.3479 | NaN | nov 0.363 gateon[cr 1.00 / cor NaN]
+   nbucb(b=0.1,c=0.05)|nogate                                     0.4131 | 0.4131 | NaN | nov 0.493 gateon[cr 1.00 / cor NaN]
+   antirepeat(m=2)/warm(hebR,k=10,Mean)|declared                  0.3467 | 0.3467 | NaN | nov 0.359 gateon[cr 1.00 / cor NaN]
+   novfilter(k=2)/warm(hebR,k=10,Mean)|declared                   0.4113 | 0.4113 | NaN | nov 0.514 gateon[cr 1.00 / cor NaN]
+   archive(k=5,T=16)/warm(hebR,k=10,Mean)|declared                0.3473 | 0.3473 | NaN | nov 0.364 gateon[cr 1.00 / cor NaN]
+   nbucb(b=0.4,c=0.05)|declared                                   0.4348 | 0.4348 | NaN | nov 0.557 gateon[cr 1.00 / cor NaN]
+   antirepeat(m=1)/warm(hebR,k=10,Mean)|learned                   0.3471 | 0.3471 | NaN | nov 0.349 gateon[cr 0.83 / cor NaN]
+   novfilter(k=2)/warm(hebR,k=10,Mean)|learned                    0.3996 | 0.3996 | NaN | nov 0.484 gateon[cr 0.83 / cor NaN]
+   archive(k=5,T=8)/warm(hebR,k=10,Mean)|learned                  0.3454 | 0.3454 | NaN | nov 0.356 gateon[cr 0.83 / cor NaN]
+   nbucb(b=0.8,c=0.05)|learned                                    0.4283 | 0.4283 | NaN | nov 0.544 gateon[cr 0.82 / cor NaN]
+   nbreg(c=0.05)|declared                                         0.4220 | 0.4220 | NaN | nov 0.527 gateon[cr 1.00 / cor NaN]
+   nbreg(c=0.05)|learned                                          0.4220 | 0.4220 | NaN | nov 0.527 gateon[cr 0.82 / cor NaN]
+   plain-ucb(c=0.05) [domain-keyed own learner, EXTRA-STRONG ref, 0.3640 | 0.3640 | NaN | nov 0.359 gateon[cr 1.00 / cor NaN]
+   ORACLE-ISH                                                     0.4691 | 0.4691 | NaN | nov 0.635
+-- C3-clustered-drift (creative domains 4/4) best per-world-tuned fair = hebbian-robust ; best pooled-tuned fair = hebbian-robust
+   keyword [per-world tuned]                                      0.2290 | 0.2290 | NaN | nov 0.128
+   eps-greedy [per-world tuned]                                   0.2803 | 0.2803 | NaN | nov 0.270
+   pooled-thompson [per-world tuned]                              0.2840 | 0.2840 | NaN | nov 0.318
+   hebbian-robust [per-world tuned]                               0.2846 | 0.2846 | NaN | nov 0.294
+   warm(hebr) [per-world tuned]                                   0.2832 | 0.2832 | NaN | nov 0.292
+   guarded-safe [per-world tuned]                                 0.2838 | 0.2838 | NaN | nov 0.294
+   keyword [pooled-tuned keyword]                                 0.2290 | 0.2290 | NaN | nov 0.128
+   eps-greedy [pooled-tuned eps-greedy(g=0.9,e=0.05)]             0.2792 | 0.2792 | NaN | nov 0.260
+   pooled-thompson [pooled-tuned pooled-ts(g=1)]                  0.2840 | 0.2840 | NaN | nov 0.318
+   hebbian-robust [pooled-tuned hebbian-robust]                   0.2846 | 0.2846 | NaN | nov 0.294
+   warm(hebr) [pooled-tuned warm(hebR,k=3,Mean)]                  0.2832 | 0.2832 | NaN | nov 0.292
+   guarded-safe [pooled-tuned guarded-safe]                       0.2838 | 0.2838 | NaN | nov 0.294
+   antirepeat(m=1)/warm(hebR,k=10,Mean)|nogate                    0.2816 | 0.2816 | NaN | nov 0.294 gateon[cr 1.00 / cor NaN]
+   novfilter(k=6)/warm(hebR,k=10,Mean)|nogate                     0.2901 | 0.2901 | NaN | nov 0.319 gateon[cr 1.00 / cor NaN]
+   archive(k=5,T=4)/warm(hebR,k=10,Mean)|nogate                   0.2761 | 0.2761 | NaN | nov 0.295 gateon[cr 1.00 / cor NaN]
+   nbucb(b=0.1,c=0.05)|nogate                                     0.3062 | 0.3062 | NaN | nov 0.359 gateon[cr 1.00 / cor NaN]
+   antirepeat(m=2)/warm(hebR,k=10,Mean)|declared                  0.2794 | 0.2794 | NaN | nov 0.297 gateon[cr 1.00 / cor NaN]
+   novfilter(k=2)/warm(hebR,k=10,Mean)|declared                   0.3011 | 0.3011 | NaN | nov 0.385 gateon[cr 1.00 / cor NaN]
+   archive(k=5,T=16)/warm(hebR,k=10,Mean)|declared                0.2764 | 0.2764 | NaN | nov 0.297 gateon[cr 1.00 / cor NaN]
+   nbucb(b=0.4,c=0.05)|declared                                   0.3100 | 0.3100 | NaN | nov 0.396 gateon[cr 1.00 / cor NaN]
+   antirepeat(m=1)/warm(hebR,k=10,Mean)|learned                   0.2804 | 0.2804 | NaN | nov 0.294 gateon[cr 0.83 / cor NaN]
+   novfilter(k=2)/warm(hebR,k=10,Mean)|learned                    0.2993 | 0.2993 | NaN | nov 0.377 gateon[cr 0.83 / cor NaN]
+   archive(k=5,T=8)/warm(hebR,k=10,Mean)|learned                  0.2760 | 0.2760 | NaN | nov 0.295 gateon[cr 0.83 / cor NaN]
+   nbucb(b=0.8,c=0.05)|learned                                    0.3133 | 0.3133 | NaN | nov 0.408 gateon[cr 0.83 / cor NaN]
+   nbreg(c=0.05)|declared                                         0.3115 | 0.3115 | NaN | nov 0.374 gateon[cr 1.00 / cor NaN]
+   nbreg(c=0.05)|learned                                          0.3110 | 0.3110 | NaN | nov 0.373 gateon[cr 0.83 / cor NaN]
+   plain-ucb(c=0.05) [domain-keyed own learner, EXTRA-STRONG ref, 0.2871 | 0.2871 | NaN | nov 0.287 gateon[cr 1.00 / cor NaN]
+   ORACLE-ISH                                                     0.3450 | 0.3450 | NaN | nov 0.473
+-- K1-multistyle-correct (creative domains 0/4) best per-world-tuned fair = warm(hebr) ; best pooled-tuned fair = warm(hebr)
+   keyword [per-world tuned]                                      0.7763 | NaN | 0.7763 | nov NaN
+   eps-greedy [per-world tuned]                                   0.8013 | NaN | 0.8013 | nov NaN
+   pooled-thompson [per-world tuned]                              0.7609 | NaN | 0.7609 | nov NaN
+   hebbian-robust [per-world tuned]                               0.7796 | NaN | 0.7796 | nov NaN
+   warm(hebr) [per-world tuned]                                   0.7957 | NaN | 0.7957 | nov NaN
+   guarded-safe [per-world tuned]                                 0.7855 | NaN | 0.7855 | nov NaN
+   keyword [pooled-tuned keyword]                                 0.7763 | NaN | 0.7763 | nov NaN
+   eps-greedy [pooled-tuned eps-greedy(g=0.9,e=0.05)]             0.7982 | NaN | 0.7982 | nov NaN
+   pooled-thompson [pooled-tuned pooled-ts(g=1)]                  0.7609 | NaN | 0.7609 | nov NaN
+   hebbian-robust [pooled-tuned hebbian-robust]                   0.7796 | NaN | 0.7796 | nov NaN
+   warm(hebr) [pooled-tuned warm(hebR,k=3,Mean)]                  0.7956 | NaN | 0.7956 | nov NaN
+   guarded-safe [pooled-tuned guarded-safe]                       0.7855 | NaN | 0.7855 | nov NaN
+   antirepeat(m=1)/warm(hebR,k=10,Mean)|nogate                    0.7741 | NaN | 0.7741 | nov NaN gateon[cr NaN / cor 1.00]
+   novfilter(k=6)/warm(hebR,k=10,Mean)|nogate                     0.7540 | NaN | 0.7540 | nov NaN gateon[cr NaN / cor 1.00]
+   archive(k=5,T=4)/warm(hebR,k=10,Mean)|nogate                   0.7540 | NaN | 0.7540 | nov NaN gateon[cr NaN / cor 1.00]
+   nbucb(b=0.1,c=0.05)|nogate                                     0.7913 | NaN | 0.7913 | nov NaN gateon[cr NaN / cor 1.00]
+   antirepeat(m=2)/warm(hebR,k=10,Mean)|declared                  0.7957 | NaN | 0.7957 | nov NaN gateon[cr NaN / cor 0.00]
+   novfilter(k=2)/warm(hebR,k=10,Mean)|declared                   0.7957 | NaN | 0.7957 | nov NaN gateon[cr NaN / cor 0.00]
+   archive(k=5,T=16)/warm(hebR,k=10,Mean)|declared                0.7957 | NaN | 0.7957 | nov NaN gateon[cr NaN / cor 0.00]
+   nbucb(b=0.4,c=0.05)|declared                                   0.8088 | NaN | 0.8088 | nov NaN gateon[cr NaN / cor 0.00]
+   antirepeat(m=1)/warm(hebR,k=10,Mean)|learned                   0.7949 | NaN | 0.7949 | nov NaN gateon[cr NaN / cor 0.00]
+   novfilter(k=2)/warm(hebR,k=10,Mean)|learned                    0.7946 | NaN | 0.7946 | nov NaN gateon[cr NaN / cor 0.00]
+   archive(k=5,T=8)/warm(hebR,k=10,Mean)|learned                  0.7951 | NaN | 0.7951 | nov NaN gateon[cr NaN / cor 0.00]
+   nbucb(b=0.8,c=0.05)|learned                                    0.8071 | NaN | 0.8071 | nov NaN gateon[cr NaN / cor 0.02]
+   nbreg(c=0.05)|declared                                         0.8069 | NaN | 0.8069 | nov NaN gateon[cr NaN / cor 0.00]
+   nbreg(c=0.05)|learned                                          0.8067 | NaN | 0.8067 | nov NaN gateon[cr NaN / cor 0.00]
+   plain-ucb(c=0.05) [domain-keyed own learner, EXTRA-STRONG ref, 0.8088 | NaN | 0.8088 | nov NaN gateon[cr NaN / cor 1.00]
+   ORACLE-ISH                                                     0.8108 | NaN | 0.8108 | nov NaN
+-- K2-star-correct (creative domains 0/4) best per-world-tuned fair = eps-greedy ; best pooled-tuned fair = warm(hebr)
+   keyword [per-world tuned]                                      0.8165 | NaN | 0.8165 | nov NaN
+   eps-greedy [per-world tuned]                                   0.8722 | NaN | 0.8722 | nov NaN
+   pooled-thompson [per-world tuned]                              0.8332 | NaN | 0.8332 | nov NaN
+   hebbian-robust [per-world tuned]                               0.8014 | NaN | 0.8014 | nov NaN
+   warm(hebr) [per-world tuned]                                   0.8573 | NaN | 0.8573 | nov NaN
+   guarded-safe [per-world tuned]                                 0.8253 | NaN | 0.8253 | nov NaN
+   keyword [pooled-tuned keyword]                                 0.8165 | NaN | 0.8165 | nov NaN
+   eps-greedy [pooled-tuned eps-greedy(g=0.9,e=0.05)]             0.8655 | NaN | 0.8655 | nov NaN
+   pooled-thompson [pooled-tuned pooled-ts(g=1)]                  0.8332 | NaN | 0.8332 | nov NaN
+   hebbian-robust [pooled-tuned hebbian-robust]                   0.8014 | NaN | 0.8014 | nov NaN
+   warm(hebr) [pooled-tuned warm(hebR,k=3,Mean)]                  0.8573 | NaN | 0.8573 | nov NaN
+   guarded-safe [pooled-tuned guarded-safe]                       0.8253 | NaN | 0.8253 | nov NaN
+   antirepeat(m=1)/warm(hebR,k=10,Mean)|nogate                    0.7473 | NaN | 0.7473 | nov NaN gateon[cr NaN / cor 1.00]
+   novfilter(k=6)/warm(hebR,k=10,Mean)|nogate                     0.6921 | NaN | 0.6921 | nov NaN gateon[cr NaN / cor 1.00]
+   archive(k=5,T=4)/warm(hebR,k=10,Mean)|nogate                   0.7030 | NaN | 0.7030 | nov NaN gateon[cr NaN / cor 1.00]
+   nbucb(b=0.1,c=0.05)|nogate                                     0.8949 | NaN | 0.8949 | nov NaN gateon[cr NaN / cor 1.00]
+   antirepeat(m=2)/warm(hebR,k=10,Mean)|declared                  0.8468 | NaN | 0.8468 | nov NaN gateon[cr NaN / cor 0.00]
+   novfilter(k=2)/warm(hebR,k=10,Mean)|declared                   0.8468 | NaN | 0.8468 | nov NaN gateon[cr NaN / cor 0.00]
+   archive(k=5,T=16)/warm(hebR,k=10,Mean)|declared                0.8468 | NaN | 0.8468 | nov NaN gateon[cr NaN / cor 0.00]
+   nbucb(b=0.4,c=0.05)|declared                                   0.8964 | NaN | 0.8964 | nov NaN gateon[cr NaN / cor 0.00]
+   antirepeat(m=1)/warm(hebR,k=10,Mean)|learned                   0.8474 | NaN | 0.8474 | nov NaN gateon[cr NaN / cor 0.00]
+   novfilter(k=2)/warm(hebR,k=10,Mean)|learned                    0.8477 | NaN | 0.8477 | nov NaN gateon[cr NaN / cor 0.00]
+   archive(k=5,T=8)/warm(hebR,k=10,Mean)|learned                  0.8473 | NaN | 0.8473 | nov NaN gateon[cr NaN / cor 0.00]
+   nbucb(b=0.8,c=0.05)|learned                                    0.8956 | NaN | 0.8956 | nov NaN gateon[cr NaN / cor 0.00]
+   nbreg(c=0.05)|declared                                         0.8963 | NaN | 0.8963 | nov NaN gateon[cr NaN / cor 0.00]
+   nbreg(c=0.05)|learned                                          0.8963 | NaN | 0.8963 | nov NaN gateon[cr NaN / cor 0.00]
+   plain-ucb(c=0.05) [domain-keyed own learner, EXTRA-STRONG ref, 0.8964 | NaN | 0.8964 | nov NaN gateon[cr NaN / cor 1.00]
+   ORACLE-ISH                                                     0.8964 | NaN | 0.8964 | nov NaN
+-- K3-clustered-drift-correct (creative domains 0/4) best per-world-tuned fair = warm(hebr) ; best pooled-tuned fair = warm(hebr)
+   keyword [per-world tuned]                                      0.6627 | NaN | 0.6627 | nov NaN
+   eps-greedy [per-world tuned]                                   0.6942 | NaN | 0.6942 | nov NaN
+   pooled-thompson [per-world tuned]                              0.6569 | NaN | 0.6569 | nov NaN
+   hebbian-robust [per-world tuned]                               0.6844 | NaN | 0.6844 | nov NaN
+   warm(hebr) [per-world tuned]                                   0.6969 | NaN | 0.6969 | nov NaN
+   guarded-safe [per-world tuned]                                 0.6917 | NaN | 0.6917 | nov NaN
+   keyword [pooled-tuned keyword]                                 0.6627 | NaN | 0.6627 | nov NaN
+   eps-greedy [pooled-tuned eps-greedy(g=0.9,e=0.05)]             0.6906 | NaN | 0.6906 | nov NaN
+   pooled-thompson [pooled-tuned pooled-ts(g=1)]                  0.6569 | NaN | 0.6569 | nov NaN
+   hebbian-robust [pooled-tuned hebbian-robust]                   0.6844 | NaN | 0.6844 | nov NaN
+   warm(hebr) [pooled-tuned warm(hebR,k=3,Mean)]                  0.6969 | NaN | 0.6969 | nov NaN
+   guarded-safe [pooled-tuned guarded-safe]                       0.6917 | NaN | 0.6917 | nov NaN
+   antirepeat(m=1)/warm(hebR,k=10,Mean)|nogate                    0.6660 | NaN | 0.6660 | nov NaN gateon[cr NaN / cor 1.00]
+   novfilter(k=6)/warm(hebR,k=10,Mean)|nogate                     0.6334 | NaN | 0.6334 | nov NaN gateon[cr NaN / cor 1.00]
+   archive(k=5,T=4)/warm(hebR,k=10,Mean)|nogate                   0.6237 | NaN | 0.6237 | nov NaN gateon[cr NaN / cor 1.00]
+   nbucb(b=0.1,c=0.05)|nogate                                     0.6871 | NaN | 0.6871 | nov NaN gateon[cr NaN / cor 1.00]
+   antirepeat(m=2)/warm(hebR,k=10,Mean)|declared                  0.6950 | NaN | 0.6950 | nov NaN gateon[cr NaN / cor 0.00]
+   novfilter(k=2)/warm(hebR,k=10,Mean)|declared                   0.6950 | NaN | 0.6950 | nov NaN gateon[cr NaN / cor 0.00]
+   archive(k=5,T=16)/warm(hebR,k=10,Mean)|declared                0.6950 | NaN | 0.6950 | nov NaN gateon[cr NaN / cor 0.00]
+   nbucb(b=0.4,c=0.05)|declared                                   0.6968 | NaN | 0.6968 | nov NaN gateon[cr NaN / cor 0.00]
+   antirepeat(m=1)/warm(hebR,k=10,Mean)|learned                   0.6948 | NaN | 0.6948 | nov NaN gateon[cr NaN / cor 0.00]
+   novfilter(k=2)/warm(hebR,k=10,Mean)|learned                    0.6947 | NaN | 0.6947 | nov NaN gateon[cr NaN / cor 0.00]
+   archive(k=5,T=8)/warm(hebR,k=10,Mean)|learned                  0.6947 | NaN | 0.6947 | nov NaN gateon[cr NaN / cor 0.00]
+   nbucb(b=0.8,c=0.05)|learned                                    0.6957 | NaN | 0.6957 | nov NaN gateon[cr NaN / cor 0.00]
+   nbreg(c=0.05)|declared                                         0.6954 | NaN | 0.6954 | nov NaN gateon[cr NaN / cor 0.00]
+   nbreg(c=0.05)|learned                                          0.6953 | NaN | 0.6953 | nov NaN gateon[cr NaN / cor 0.10]
+   plain-ucb(c=0.05) [domain-keyed own learner, EXTRA-STRONG ref, 0.6968 | NaN | 0.6968 | nov NaN gateon[cr NaN / cor 1.00]
+   ORACLE-ISH                                                     0.6989 | NaN | 0.6989 | nov NaN
+-- M1-mixed-3of6-creative (creative domains 3/6) best per-world-tuned fair = eps-greedy ; best pooled-tuned fair = eps-greedy
+   keyword [per-world tuned]                                      0.5289 | 0.2711 | 0.7837 | nov 0.127
+   eps-greedy [per-world tuned]                                   0.5777 | 0.3671 | 0.7858 | nov 0.351
+   pooled-thompson [per-world tuned]                              0.5757 | 0.3906 | 0.7586 | nov 0.403
+   hebbian-robust [per-world tuned]                               0.5540 | 0.3462 | 0.7592 | nov 0.308
+   warm(hebr) [per-world tuned]                                   0.5698 | 0.3414 | 0.7954 | nov 0.296
+   guarded-safe [per-world tuned]                                 0.5741 | 0.3546 | 0.7910 | nov 0.319
+   keyword [pooled-tuned keyword]                                 0.5289 | 0.2711 | 0.7837 | nov 0.127
+   eps-greedy [pooled-tuned eps-greedy(g=0.9,e=0.05)]             0.5787 | 0.3690 | 0.7859 | nov 0.355
+   pooled-thompson [pooled-tuned pooled-ts(g=1)]                  0.5757 | 0.3906 | 0.7586 | nov 0.403
+   hebbian-robust [pooled-tuned hebbian-robust]                   0.5540 | 0.3462 | 0.7592 | nov 0.308
+   warm(hebr) [pooled-tuned warm(hebR,k=3,Mean)]                  0.5709 | 0.3467 | 0.7924 | nov 0.308
+   guarded-safe [pooled-tuned guarded-safe]                       0.5741 | 0.3546 | 0.7910 | nov 0.319
+   antirepeat(m=1)/warm(hebR,k=10,Mean)|nogate                    0.5680 | 0.3657 | 0.7680 | nov 0.348 gateon[cr 1.00 / cor 1.00]
+   novfilter(k=6)/warm(hebR,k=10,Mean)|nogate                     0.5727 | 0.3958 | 0.7475 | nov 0.406 gateon[cr 1.00 / cor 1.00]
+   archive(k=5,T=4)/warm(hebR,k=10,Mean)|nogate                   0.5628 | 0.3748 | 0.7485 | nov 0.369 gateon[cr 1.00 / cor 1.00]
+   nbucb(b=0.1,c=0.05)|nogate                                     0.6216 | 0.4548 | 0.7864 | nov 0.506 gateon[cr 1.00 / cor 1.00]
+   antirepeat(m=2)/warm(hebR,k=10,Mean)|declared                  0.5780 | 0.3610 | 0.7923 | nov 0.338 gateon[cr 1.00 / cor 0.00]
+   novfilter(k=2)/warm(hebR,k=10,Mean)|declared                   0.6171 | 0.4472 | 0.7849 | nov 0.509 gateon[cr 1.00 / cor 0.00]
+   archive(k=5,T=16)/warm(hebR,k=10,Mean)|declared                0.5783 | 0.3646 | 0.7894 | nov 0.347 gateon[cr 1.00 / cor 0.00]
+   nbucb(b=0.4,c=0.05)|declared                                   0.6416 | 0.4793 | 0.8018 | nov 0.566 gateon[cr 1.00 / cor 0.00]
+   antirepeat(m=1)/warm(hebR,k=10,Mean)|learned                   0.5706 | 0.3443 | 0.7941 | nov 0.304 gateon[cr 0.76 / cor 0.00]
+   novfilter(k=2)/warm(hebR,k=10,Mean)|learned                    0.6063 | 0.4242 | 0.7860 | nov 0.462 gateon[cr 0.76 / cor 0.00]
+   archive(k=5,T=8)/warm(hebR,k=10,Mean)|learned                  0.5746 | 0.3551 | 0.7914 | nov 0.328 gateon[cr 0.76 / cor 0.00]
+   nbucb(b=0.8,c=0.05)|learned                                    0.6346 | 0.4662 | 0.8009 | nov 0.542 gateon[cr 0.70 / cor 0.00]
+   nbreg(c=0.05)|declared                                         0.6348 | 0.4660 | 0.8015 | nov 0.538 gateon[cr 1.00 / cor 0.00]
+   nbreg(c=0.05)|learned                                          0.6348 | 0.4661 | 0.8014 | nov 0.538 gateon[cr 0.71 / cor 0.00]
+   plain-ucb(c=0.05) [domain-keyed own learner, EXTRA-STRONG ref, 0.6015 | 0.3988 | 0.8018 | nov 0.397 gateon[cr 1.00 / cor 1.00]
+   ORACLE-ISH                                                     0.6620 | 0.5183 | 0.8039 | nov 0.648
+-- M2-mixed-1of6-creative-star (creative domains 1/6) best per-world-tuned fair = eps-greedy ; best pooled-tuned fair = eps-greedy
+   keyword [per-world tuned]                                      0.7304 | 0.2995 | 0.8163 | nov 0.127
+   eps-greedy [per-world tuned]                                   0.7753 | 0.3289 | 0.8642 | nov 0.366
+   pooled-thompson [per-world tuned]                              0.7396 | 0.3474 | 0.8178 | nov 0.393
+   hebbian-robust [per-world tuned]                               0.6779 | 0.3426 | 0.7446 | nov 0.354
+   warm(hebr) [per-world tuned]                                   0.7510 | 0.3437 | 0.8322 | nov 0.361
+   guarded-safe [per-world tuned]                                 0.7443 | 0.3434 | 0.8242 | nov 0.349
+   keyword [pooled-tuned keyword]                                 0.7304 | 0.2995 | 0.8163 | nov 0.127
+   eps-greedy [pooled-tuned eps-greedy(g=0.9,e=0.05)]             0.7757 | 0.3305 | 0.8645 | nov 0.370
+   pooled-thompson [pooled-tuned pooled-ts(g=1)]                  0.7396 | 0.3474 | 0.8178 | nov 0.393
+   hebbian-robust [pooled-tuned hebbian-robust]                   0.6779 | 0.3426 | 0.7446 | nov 0.354
+   warm(hebr) [pooled-tuned warm(hebR,k=3,Mean)]                  0.7510 | 0.3437 | 0.8322 | nov 0.361
+   guarded-safe [pooled-tuned guarded-safe]                       0.7443 | 0.3434 | 0.8242 | nov 0.349
+   antirepeat(m=1)/warm(hebR,k=10,Mean)|nogate                    0.6815 | 0.3463 | 0.7484 | nov 0.366 gateon[cr 1.00 / cor 1.00]
+   novfilter(k=6)/warm(hebR,k=10,Mean)|nogate                     0.6396 | 0.3703 | 0.6933 | nov 0.413 gateon[cr 1.00 / cor 1.00]
+   archive(k=5,T=4)/warm(hebR,k=10,Mean)|nogate                   0.6457 | 0.3480 | 0.7051 | nov 0.377 gateon[cr 1.00 / cor 1.00]
+   nbucb(b=0.1,c=0.05)|nogate                                     0.8113 | 0.4118 | 0.8910 | nov 0.493 gateon[cr 1.00 / cor 1.00]
+   antirepeat(m=2)/warm(hebR,k=10,Mean)|declared                  0.7459 | 0.3370 | 0.8273 | nov 0.353 gateon[cr 1.00 / cor 0.00]
+   novfilter(k=2)/warm(hebR,k=10,Mean)|declared                   0.7501 | 0.4004 | 0.8197 | nov 0.499 gateon[cr 1.00 / cor 0.00]
+   archive(k=5,T=16)/warm(hebR,k=10,Mean)|declared                0.7443 | 0.3405 | 0.8246 | nov 0.363 gateon[cr 1.00 / cor 0.00]
+   nbucb(b=0.4,c=0.05)|declared                                   0.8157 | 0.4292 | 0.8927 | nov 0.549 gateon[cr 1.00 / cor 0.00]
+   antirepeat(m=1)/warm(hebR,k=10,Mean)|learned                   0.7486 | 0.3408 | 0.8298 | nov 0.355 gateon[cr 0.77 / cor 0.00]
+   novfilter(k=2)/warm(hebR,k=10,Mean)|learned                    0.7544 | 0.3857 | 0.8278 | nov 0.463 gateon[cr 0.77 / cor 0.00]
+   archive(k=5,T=8)/warm(hebR,k=10,Mean)|learned                  0.7453 | 0.3377 | 0.8265 | nov 0.353 gateon[cr 0.77 / cor 0.00]
+   nbucb(b=0.8,c=0.05)|learned                                    0.8143 | 0.4216 | 0.8925 | nov 0.533 gateon[cr 0.72 / cor 0.00]
+   nbreg(c=0.05)|declared                                         0.8136 | 0.4173 | 0.8926 | nov 0.516 gateon[cr 1.00 / cor 0.00]
+   nbreg(c=0.05)|learned                                          0.8136 | 0.4174 | 0.8926 | nov 0.516 gateon[cr 0.72 / cor 0.00]
+   plain-ucb(c=0.05) [domain-keyed own learner, EXTRA-STRONG ref, 0.8055 | 0.3681 | 0.8927 | nov 0.377 gateon[cr 1.00 / cor 1.00]
+   ORACLE-ISH                                                     0.8219 | 0.4669 | 0.8927 | nov 0.635
+-- R1-rigged-hidden-novelty-dims (creative domains 4/4) best per-world-tuned fair = eps-greedy ; best pooled-tuned fair = eps-greedy
+   keyword [per-world tuned]                                      0.2324 | 0.2324 | NaN | nov 0.062
+   eps-greedy [per-world tuned]                                   0.2907 | 0.2907 | NaN | nov 0.196
+   pooled-thompson [per-world tuned]                              0.2890 | 0.2890 | NaN | nov 0.213
+   hebbian-robust [per-world tuned]                               0.2917 | 0.2917 | NaN | nov 0.201
+   warm(hebr) [per-world tuned]                                   0.2903 | 0.2903 | NaN | nov 0.199
+   guarded-safe [per-world tuned]                                 0.2905 | 0.2905 | NaN | nov 0.199
+   keyword [pooled-tuned keyword]                                 0.2324 | 0.2324 | NaN | nov 0.062
+   eps-greedy [pooled-tuned eps-greedy(g=0.9,e=0.05)]             0.2907 | 0.2907 | NaN | nov 0.196
+   pooled-thompson [pooled-tuned pooled-ts(g=1)]                  0.2901 | 0.2901 | NaN | nov 0.209
+   hebbian-robust [pooled-tuned hebbian-robust]                   0.2917 | 0.2917 | NaN | nov 0.201
+   warm(hebr) [pooled-tuned warm(hebR,k=3,Mean)]                  0.2903 | 0.2903 | NaN | nov 0.199
+   guarded-safe [pooled-tuned guarded-safe]                       0.2905 | 0.2905 | NaN | nov 0.199
+   antirepeat(m=1)/warm(hebR,k=10,Mean)|nogate                    0.2856 | 0.2856 | NaN | nov 0.191 gateon[cr 1.00 / cor NaN]
+   novfilter(k=6)/warm(hebR,k=10,Mean)|nogate                     0.2963 | 0.2963 | NaN | nov 0.212 gateon[cr 1.00 / cor NaN]
+   archive(k=5,T=4)/warm(hebR,k=10,Mean)|nogate                   0.2866 | 0.2866 | NaN | nov 0.195 gateon[cr 1.00 / cor NaN]
+   nbucb(b=0.1,c=0.05)|nogate                                     0.3096 | 0.3096 | NaN | nov 0.236 gateon[cr 1.00 / cor NaN]
+   antirepeat(m=2)/warm(hebR,k=10,Mean)|declared                  0.2831 | 0.2831 | NaN | nov 0.188 gateon[cr 1.00 / cor NaN]
+   novfilter(k=2)/warm(hebR,k=10,Mean)|declared                   0.2952 | 0.2952 | NaN | nov 0.222 gateon[cr 1.00 / cor NaN]
+   archive(k=5,T=16)/warm(hebR,k=10,Mean)|declared                0.2866 | 0.2866 | NaN | nov 0.194 gateon[cr 1.00 / cor NaN]
+   nbucb(b=0.4,c=0.05)|declared                                   0.3045 | 0.3045 | NaN | nov 0.234 gateon[cr 1.00 / cor NaN]
+   antirepeat(m=1)/warm(hebR,k=10,Mean)|learned                   0.2852 | 0.2852 | NaN | nov 0.191 gateon[cr 0.82 / cor NaN]
+   novfilter(k=2)/warm(hebR,k=10,Mean)|learned                    0.2933 | 0.2933 | NaN | nov 0.216 gateon[cr 0.82 / cor NaN]
+   archive(k=5,T=8)/warm(hebR,k=10,Mean)|learned                  0.2850 | 0.2850 | NaN | nov 0.191 gateon[cr 0.82 / cor NaN]
+   nbucb(b=0.8,c=0.05)|learned                                    0.3028 | 0.3028 | NaN | nov 0.232 gateon[cr 0.81 / cor NaN]
+   nbreg(c=0.05)|declared                                         0.3036 | 0.3036 | NaN | nov 0.226 gateon[cr 1.00 / cor NaN]
+   nbreg(c=0.05)|learned                                          0.3043 | 0.3043 | NaN | nov 0.227 gateon[cr 0.82 / cor NaN]
+   plain-ucb(c=0.05) [domain-keyed own learner, EXTRA-STRONG ref, 0.3081 | 0.3081 | NaN | nov 0.224 gateon[cr 1.00 / cor NaN]
+   ORACLE-ISH                                                     0.3420 | 0.3420 | NaN | nov 0.297
+Holm family win+harm: 154 two-sided tests; TOST family 70
+Holm family winP+harmP: 154 two-sided tests; TOST family 70
+Holm family winU+harmU: 154 two-sided tests; TOST family 70
+Holm family layerC+layerK: 154 two-sided tests; TOST family 70
+
+=== per-arm verdicts (held). Refs: [G] best of the task's fair list, tuned PER WORLD (generous) | [P] best fair, pooled-tuned like the arms | [U] plain domain-keyed UCB (extra-strong learner) | [L] the arm's OWN base without the diversity layer ===
+
+## antirepeat(m=1)/warm(hebR,k=10,Mean)|nogate
+   [G] creative C1-multistyle                      -0.0252 [-0.0283,-0.0222] w/l 0/30 holm 0.000
+   [G] creative C2-star-plus-diverse               -0.0163 [-0.0191,-0.0136] w/l 0/30 holm 0.000
+   [G] creative C3-clustered-drift                 -0.0031 [-0.0040,-0.0021] w/l 3/27 holm 0.000
+   [G] correct  K1-multistyle-correct              -0.0216 [-0.0268,-0.0163] 90%[-0.0259,-0.0172] TOST.01 p 1.000 (holm 1.000) TOST.02 p 0.728
+   [G] correct  K2-star-correct                    -0.1249 [-0.1323,-0.1175] 90%[-0.1310,-0.1187] TOST.01 p 1.000 (holm 1.000) TOST.02 p 1.000
+   [G] correct  K3-clustered-drift-correct         -0.0309 [-0.0381,-0.0237] 90%[-0.0369,-0.0249] TOST.01 p 1.000 (holm 1.000) TOST.02 p 0.998
+   [G] creative M1-mixed-3of6-creative             -0.0014 [-0.0047,+0.0018] w/l 11/19 holm 1.000
+   [G] correct  M1-mixed-3of6-creative             -0.0178 [-0.0230,-0.0126] 90%[-0.0222,-0.0135] TOST.01 p 0.998 (holm 1.000) TOST.02 p 0.201
+   [G] creative M2-mixed-1of6-creative-star        +0.0173 [+0.0119,+0.0228] w/l 25/5 holm 0.000
+   [G] correct  M2-mixed-1of6-creative-star        -0.1158 [-0.1223,-0.1093] 90%[-0.1212,-0.1104] TOST.01 p 1.000 (holm 1.000) TOST.02 p 1.000
+   [G] creative R1-rigged-hidden-novelty-dims      -0.0051 [-0.0064,-0.0037] w/l 1/29 holm 0.000
+   [G] SUMMARY: indep creative worlds won (Holm) 0/3 ; mixed creative-subsets won 1/2 ; R1 diff -0.0051 ; correctness equivalence TOST.01 0/5 (Holm 0/5) ; NON-INFERIOR(lo90>-.01) 0/5 ; sig correctness losses 5
+   [P] SUMMARY: indep creative worlds won (Holm) 0/3 ; mixed creative-subsets won 1/2 ; R1 diff -0.0051 ; correctness equivalence TOST.01 0/5 (Holm 0/5) ; NON-INFERIOR(lo90>-.01) 0/5 ; sig correctness losses 5
+   [U] SUMMARY: indep creative worlds won (Holm) 0/3 ; mixed creative-subsets won 0/2 ; R1 diff -0.0225 ; correctness equivalence TOST.01 0/5 (Holm 0/5) ; NON-INFERIOR(lo90>-.01) 0/5 ; sig correctness losses 5
+   [L] creative C1-multistyle                      +0.0022 [+0.0007,+0.0037] w/l 21/9 holm 0.344
+   [L] creative C2-star-plus-diverse               -0.0013 [-0.0027,+0.0000] w/l 12/18 holm 1.000
+   [L] creative C3-clustered-drift                 -0.0005 [-0.0017,+0.0006] w/l 17/13 holm 1.000
+   [L] correct  K1-multistyle-correct              -0.0216 [-0.0268,-0.0163] 90%[-0.0259,-0.0172] TOST.01 p 1.000 (holm 1.000) TOST.02 p 0.728
+   [L] correct  K2-star-correct                    -0.0995 [-0.1172,-0.0818] 90%[-0.1142,-0.0848] TOST.01 p 1.000 (holm 1.000) TOST.02 p 1.000
+   [L] correct  K3-clustered-drift-correct         -0.0290 [-0.0360,-0.0221] 90%[-0.0348,-0.0232] TOST.01 p 1.000 (holm 1.000) TOST.02 p 0.994
+   [L] creative M1-mixed-3of6-creative             +0.0243 [+0.0192,+0.0294] w/l 29/1 holm 0.000
+   [L] correct  M1-mixed-3of6-creative             -0.0274 [-0.0345,-0.0204] 90%[-0.0333,-0.0216] TOST.01 p 1.000 (holm 1.000) TOST.02 p 0.980
+   [L] creative M2-mixed-1of6-creative-star        +0.0045 [+0.0001,+0.0088] w/l 20/10 holm 1.000
+   [L] correct  M2-mixed-1of6-creative-star        -0.0810 [-0.0970,-0.0649] 90%[-0.0943,-0.0676] TOST.01 p 1.000 (holm 1.000) TOST.02 p 1.000
+   [L] creative R1-rigged-hidden-novelty-dims      -0.0029 [-0.0042,-0.0016] w/l 7/23 holm 0.006
+   [L] SUMMARY: indep creative worlds won (Holm) 0/3 ; mixed creative-subsets won 1/2 ; R1 diff -0.0029 ; correctness equivalence TOST.01 0/5 (Holm 0/5) ; NON-INFERIOR(lo90>-.01) 0/5 ; sig correctness losses 5
+
+## novfilter(k=6)/warm(hebR,k=10,Mean)|nogate
+   [G] creative C1-multistyle                      -0.0018 [-0.0045,+0.0008] w/l 14/16 holm 1.000
+   [G] creative C2-star-plus-diverse               +0.0042 [+0.0016,+0.0068] w/l 21/9 holm 0.088
+   [G] creative C3-clustered-drift                 +0.0054 [+0.0034,+0.0075] w/l 25/5 holm 0.000
+   [G] correct  K1-multistyle-correct              -0.0417 [-0.0483,-0.0351] 90%[-0.0471,-0.0362] TOST.01 p 1.000 (holm 1.000) TOST.02 p 1.000
+   [G] correct  K2-star-correct                    -0.1801 [-0.1865,-0.1738] 90%[-0.1854,-0.1748] TOST.01 p 1.000 (holm 1.000) TOST.02 p 1.000
+   [G] correct  K3-clustered-drift-correct         -0.0636 [-0.0772,-0.0500] 90%[-0.0749,-0.0523] TOST.01 p 1.000 (holm 1.000) TOST.02 p 1.000
+   [G] creative M1-mixed-3of6-creative             +0.0287 [+0.0254,+0.0319] w/l 30/0 holm 0.000
+   [G] correct  M1-mixed-3of6-creative             -0.0383 [-0.0444,-0.0322] 90%[-0.0434,-0.0332] TOST.01 p 1.000 (holm 1.000) TOST.02 p 1.000
+   [G] creative M2-mixed-1of6-creative-star        +0.0414 [+0.0350,+0.0478] w/l 30/0 holm 0.000
+   [G] correct  M2-mixed-1of6-creative-star        -0.1709 [-0.1769,-0.1649] 90%[-0.1759,-0.1659] TOST.01 p 1.000 (holm 1.000) TOST.02 p 1.000
+   [G] creative R1-rigged-hidden-novelty-dims      +0.0056 [+0.0038,+0.0074] w/l 27/3 holm 0.000
+   [G] SUMMARY: indep creative worlds won (Holm) 1/3 ; mixed creative-subsets won 2/2 ; R1 diff +0.0056 ; correctness equivalence TOST.01 0/5 (Holm 0/5) ; NON-INFERIOR(lo90>-.01) 0/5 ; sig correctness losses 5
+   [P] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff +0.0056 ; correctness equivalence TOST.01 0/5 (Holm 0/5) ; NON-INFERIOR(lo90>-.01) 0/5 ; sig correctness losses 5
+   [U] SUMMARY: indep creative worlds won (Holm) 2/3 ; mixed creative-subsets won 0/2 ; R1 diff -0.0118 ; correctness equivalence TOST.01 0/5 (Holm 0/5) ; NON-INFERIOR(lo90>-.01) 0/5 ; sig correctness losses 5
+   [L] creative C1-multistyle                      +0.0256 [+0.0232,+0.0280] w/l 30/0 holm 0.000
+   [L] creative C2-star-plus-diverse               +0.0192 [+0.0162,+0.0222] w/l 30/0 holm 0.000
+   [L] creative C3-clustered-drift                 +0.0080 [+0.0059,+0.0102] w/l 28/2 holm 0.000
+   [L] correct  K1-multistyle-correct              -0.0417 [-0.0483,-0.0351] 90%[-0.0471,-0.0362] TOST.01 p 1.000 (holm 1.000) TOST.02 p 1.000
+   [L] correct  K2-star-correct                    -0.1547 [-0.1739,-0.1356] 90%[-0.1707,-0.1388] TOST.01 p 1.000 (holm 1.000) TOST.02 p 1.000
+   [L] correct  K3-clustered-drift-correct         -0.0617 [-0.0750,-0.0484] 90%[-0.0727,-0.0506] TOST.01 p 1.000 (holm 1.000) TOST.02 p 1.000
+   [L] creative M1-mixed-3of6-creative             +0.0544 [+0.0473,+0.0614] w/l 30/0 holm 0.000
+   [L] correct  M1-mixed-3of6-creative             -0.0479 [-0.0572,-0.0386] 90%[-0.0556,-0.0402] TOST.01 p 1.000 (holm 1.000) TOST.02 p 1.000
+   [L] creative M2-mixed-1of6-creative-star        +0.0285 [+0.0231,+0.0339] w/l 30/0 holm 0.000
+   [L] correct  M2-mixed-1of6-creative-star        -0.1360 [-0.1534,-0.1187] 90%[-0.1505,-0.1216] TOST.01 p 1.000 (holm 1.000) TOST.02 p 1.000
+   [L] creative R1-rigged-hidden-novelty-dims      +0.0077 [+0.0060,+0.0095] w/l 28/2 holm 0.000
+   [L] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff +0.0077 ; correctness equivalence TOST.01 0/5 (Holm 0/5) ; NON-INFERIOR(lo90>-.01) 0/5 ; sig correctness losses 5
+
+## archive(k=5,T=4)/warm(hebR,k=10,Mean)|nogate
+   [G] creative C1-multistyle                      -0.0238 [-0.0262,-0.0214] w/l 0/30 holm 0.000
+   [G] creative C2-star-plus-diverse               -0.0172 [-0.0196,-0.0148] w/l 0/30 holm 0.000
+   [G] creative C3-clustered-drift                 -0.0085 [-0.0108,-0.0062] w/l 1/29 holm 0.000
+   [G] correct  K1-multistyle-correct              -0.0417 [-0.0483,-0.0351] 90%[-0.0472,-0.0362] TOST.01 p 1.000 (holm 1.000) TOST.02 p 1.000
+   [G] correct  K2-star-correct                    -0.1692 [-0.1766,-0.1618] 90%[-0.1754,-0.1630] TOST.01 p 1.000 (holm 1.000) TOST.02 p 1.000
+   [G] correct  K3-clustered-drift-correct         -0.0733 [-0.0902,-0.0563] 90%[-0.0874,-0.0591] TOST.01 p 1.000 (holm 1.000) TOST.02 p 1.000
+   [G] creative M1-mixed-3of6-creative             +0.0077 [+0.0052,+0.0101] w/l 24/6 holm 0.000
+   [G] correct  M1-mixed-3of6-creative             -0.0373 [-0.0425,-0.0320] 90%[-0.0416,-0.0329] TOST.01 p 1.000 (holm 1.000) TOST.02 p 1.000
+   [G] creative M2-mixed-1of6-creative-star        +0.0191 [+0.0142,+0.0240] w/l 28/2 holm 0.000
+   [G] correct  M2-mixed-1of6-creative-star        -0.1591 [-0.1660,-0.1523] 90%[-0.1648,-0.1535] TOST.01 p 1.000 (holm 1.000) TOST.02 p 1.000
+   [G] creative R1-rigged-hidden-novelty-dims      -0.0041 [-0.0057,-0.0025] w/l 4/26 holm 0.001
+   [G] SUMMARY: indep creative worlds won (Holm) 0/3 ; mixed creative-subsets won 2/2 ; R1 diff -0.0041 ; correctness equivalence TOST.01 0/5 (Holm 0/5) ; NON-INFERIOR(lo90>-.01) 0/5 ; sig correctness losses 5
+   [P] SUMMARY: indep creative worlds won (Holm) 0/3 ; mixed creative-subsets won 1/2 ; R1 diff -0.0041 ; correctness equivalence TOST.01 0/5 (Holm 0/5) ; NON-INFERIOR(lo90>-.01) 0/5 ; sig correctness losses 5
+   [U] SUMMARY: indep creative worlds won (Holm) 0/3 ; mixed creative-subsets won 0/2 ; R1 diff -0.0215 ; correctness equivalence TOST.01 0/5 (Holm 0/5) ; NON-INFERIOR(lo90>-.01) 0/5 ; sig correctness losses 5
+   [L] creative C1-multistyle                      +0.0036 [+0.0011,+0.0062] w/l 21/9 holm 0.437
+   [L] creative C2-star-plus-diverse               -0.0022 [-0.0041,-0.0002] w/l 8/22 holm 1.000
+   [L] creative C3-clustered-drift                 -0.0059 [-0.0085,-0.0034] w/l 4/26 holm 0.004
+   [L] correct  K1-multistyle-correct              -0.0417 [-0.0483,-0.0351] 90%[-0.0472,-0.0362] TOST.01 p 1.000 (holm 1.000) TOST.02 p 1.000
+   [L] correct  K2-star-correct                    -0.1438 [-0.1628,-0.1249] 90%[-0.1596,-0.1281] TOST.01 p 1.000 (holm 1.000) TOST.02 p 1.000
+   [L] correct  K3-clustered-drift-correct         -0.0714 [-0.0882,-0.0545] 90%[-0.0853,-0.0574] TOST.01 p 1.000 (holm 1.000) TOST.02 p 1.000
+   [L] creative M1-mixed-3of6-creative             +0.0333 [+0.0273,+0.0393] w/l 30/0 holm 0.000
+   [L] correct  M1-mixed-3of6-creative             -0.0469 [-0.0548,-0.0389] 90%[-0.0535,-0.0402] TOST.01 p 1.000 (holm 1.000) TOST.02 p 1.000
+   [L] creative M2-mixed-1of6-creative-star        +0.0062 [+0.0013,+0.0112] w/l 19/11 holm 0.915
+   [L] correct  M2-mixed-1of6-creative-star        -0.1243 [-0.1419,-0.1067] 90%[-0.1389,-0.1097] TOST.01 p 1.000 (holm 1.000) TOST.02 p 1.000
+   [L] creative R1-rigged-hidden-novelty-dims      -0.0020 [-0.0035,-0.0004] w/l 10/20 holm 0.915
+   [L] SUMMARY: indep creative worlds won (Holm) 0/3 ; mixed creative-subsets won 1/2 ; R1 diff -0.0020 ; correctness equivalence TOST.01 0/5 (Holm 0/5) ; NON-INFERIOR(lo90>-.01) 0/5 ; sig correctness losses 5
+
+## nbucb(b=0.1,c=0.05)|nogate
+   [G] creative C1-multistyle                      +0.0543 [+0.0519,+0.0568] w/l 30/0 holm 0.000
+   [G] creative C2-star-plus-diverse               +0.0480 [+0.0450,+0.0510] w/l 30/0 holm 0.000
+   [G] creative C3-clustered-drift                 +0.0216 [+0.0180,+0.0251] w/l 30/0 holm 0.000
+   [G] correct  K1-multistyle-correct              -0.0044 [-0.0104,+0.0016] 90%[-0.0093,+0.0006] TOST.01 p 0.032 EQ (holm 1.000) TOST.02 p 0.000
+   [G] correct  K2-star-correct                    +0.0227 [+0.0187,+0.0268] 90%[+0.0194,+0.0261] TOST.01 p 1.000 (holm 1.000) TOST.02 p 0.910
+   [G] correct  K3-clustered-drift-correct         -0.0099 [-0.0132,-0.0065] 90%[-0.0127,-0.0071] TOST.01 p 0.472 (holm 1.000) TOST.02 p 0.000
+   [G] creative M1-mixed-3of6-creative             +0.0877 [+0.0839,+0.0915] w/l 30/0 holm 0.000
+   [G] correct  M1-mixed-3of6-creative             +0.0006 [-0.0035,+0.0047] 90%[-0.0028,+0.0040] TOST.01 p 0.000 EQ (holm 0.002 EQ) TOST.02 p 0.000
+   [G] creative M2-mixed-1of6-creative-star        +0.0828 [+0.0773,+0.0884] w/l 30/0 holm 0.000
+   [G] correct  M2-mixed-1of6-creative-star        +0.0268 [+0.0221,+0.0315] 90%[+0.0229,+0.0307] TOST.01 p 1.000 (holm 1.000) TOST.02 p 0.997
+   [G] creative R1-rigged-hidden-novelty-dims      +0.0189 [+0.0152,+0.0225] w/l 29/1 holm 0.000
+   [G] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff +0.0189 ; correctness equivalence TOST.01 2/5 (Holm 1/5) ; NON-INFERIOR(lo90>-.01) 4/5 ; sig correctness losses 1
+   [P] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff +0.0189 ; correctness equivalence TOST.01 2/5 (Holm 1/5) ; NON-INFERIOR(lo90>-.01) 4/5 ; sig correctness losses 1
+   [U] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff +0.0014 ; correctness equivalence TOST.01 2/5 (Holm 2/5) ; NON-INFERIOR(lo90>-.01) 2/5 ; sig correctness losses 5
+   [L] creative C1-multistyle                      +0.0622 [+0.0591,+0.0652] w/l 30/0 holm 0.000
+   [L] creative C2-star-plus-diverse               +0.0490 [+0.0452,+0.0528] w/l 30/0 holm 0.000
+   [L] creative C3-clustered-drift                 +0.0192 [+0.0152,+0.0231] w/l 30/0 holm 0.000
+   [L] correct  K1-multistyle-correct              -0.0175 [-0.0192,-0.0158] 90%[-0.0189,-0.0160] TOST.01 p 1.000 (holm 1.000) TOST.02 p 0.003
+   [L] correct  K2-star-correct                    -0.0015 [-0.0017,-0.0012] 90%[-0.0017,-0.0013] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] correct  K3-clustered-drift-correct         -0.0098 [-0.0121,-0.0074] 90%[-0.0117,-0.0078] TOST.01 p 0.417 (holm 1.000) TOST.02 p 0.000
+   [L] creative M1-mixed-3of6-creative             +0.0560 [+0.0528,+0.0591] w/l 30/0 holm 0.000
+   [L] correct  M1-mixed-3of6-creative             -0.0154 [-0.0177,-0.0132] 90%[-0.0173,-0.0135] TOST.01 p 1.000 (holm 1.000) TOST.02 p 0.000
+   [L] creative M2-mixed-1of6-creative-star        +0.0437 [+0.0380,+0.0495] w/l 30/0 holm 0.000
+   [L] correct  M2-mixed-1of6-creative-star        -0.0017 [-0.0020,-0.0014] 90%[-0.0019,-0.0014] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] creative R1-rigged-hidden-novelty-dims      +0.0014 [-0.0021,+0.0050] w/l 16/14 holm 1.000
+   [L] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff +0.0014 ; correctness equivalence TOST.01 2/5 (Holm 2/5) ; NON-INFERIOR(lo90>-.01) 2/5 ; sig correctness losses 5
+
+## antirepeat(m=2)/warm(hebR,k=10,Mean)|declared
+   [G] creative C1-multistyle                      -0.0256 [-0.0276,-0.0235] w/l 0/30 holm 0.000
+   [G] creative C2-star-plus-diverse               -0.0183 [-0.0206,-0.0160] w/l 0/30 holm 0.000
+   [G] creative C3-clustered-drift                 -0.0053 [-0.0063,-0.0042] w/l 0/30 holm 0.000
+   [G] correct  K1-multistyle-correct              +0.0000 [+0.0000,+0.0000] 90%[+0.0000,+0.0000] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [G] correct  K2-star-correct                    -0.0254 [-0.0462,-0.0045] 90%[-0.0427,-0.0081] TOST.01 p 0.929 (holm 1.000) TOST.02 p 0.699
+   [G] correct  K3-clustered-drift-correct         -0.0019 [-0.0035,-0.0003] 90%[-0.0032,-0.0006] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [G] creative M1-mixed-3of6-creative             -0.0061 [-0.0087,-0.0035] w/l 8/22 holm 0.003
+   [G] correct  M1-mixed-3of6-creative             +0.0065 [-0.0008,+0.0138] 90%[+0.0004,+0.0126] TOST.01 p 0.169 (holm 1.000) TOST.02 p 0.000
+   [G] creative M2-mixed-1of6-creative-star        +0.0080 [+0.0025,+0.0136] w/l 21/9 holm 0.225
+   [G] correct  M2-mixed-1of6-creative-star        -0.0369 [-0.0573,-0.0165] 90%[-0.0538,-0.0200] TOST.01 p 0.994 (holm 1.000) TOST.02 p 0.950
+   [G] creative R1-rigged-hidden-novelty-dims      -0.0076 [-0.0089,-0.0063] w/l 0/30 holm 0.000
+   [G] SUMMARY: indep creative worlds won (Holm) 0/3 ; mixed creative-subsets won 0/2 ; R1 diff -0.0076 ; correctness equivalence TOST.01 2/5 (Holm 2/5) ; NON-INFERIOR(lo90>-.01) 3/5 ; sig correctness losses 3
+   [P] SUMMARY: indep creative worlds won (Holm) 0/3 ; mixed creative-subsets won 0/2 ; R1 diff -0.0076 ; correctness equivalence TOST.01 2/5 (Holm 2/5) ; NON-INFERIOR(lo90>-.01) 3/5 ; sig correctness losses 3
+   [U] SUMMARY: indep creative worlds won (Holm) 0/3 ; mixed creative-subsets won 0/2 ; R1 diff -0.0250 ; correctness equivalence TOST.01 1/5 (Holm 1/5) ; NON-INFERIOR(lo90>-.01) 1/5 ; sig correctness losses 4
+   [L] creative C1-multistyle                      +0.0018 [-0.0000,+0.0037] w/l 18/12 holm 1.000
+   [L] creative C2-star-plus-diverse               -0.0033 [-0.0051,-0.0015] w/l 8/22 holm 0.052
+   [L] creative C3-clustered-drift                 -0.0027 [-0.0039,-0.0015] w/l 6/24 holm 0.005
+   [L] correct  K1-multistyle-correct              +0.0000 [+0.0000,+0.0000] 90%[+0.0000,+0.0000] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] correct  K2-star-correct                    +0.0000 [+0.0000,+0.0000] 90%[+0.0000,+0.0000] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] correct  K3-clustered-drift-correct         +0.0000 [+0.0000,+0.0000] 90%[+0.0000,+0.0000] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] creative M1-mixed-3of6-creative             +0.0196 [+0.0140,+0.0252] w/l 27/3 holm 0.000
+   [L] correct  M1-mixed-3of6-creative             -0.0031 [-0.0042,-0.0020] 90%[-0.0040,-0.0022] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] creative M2-mixed-1of6-creative-star        -0.0049 [-0.0089,-0.0009] w/l 10/20 holm 1.000
+   [L] correct  M2-mixed-1of6-creative-star        -0.0021 [-0.0082,+0.0040] 90%[-0.0072,+0.0030] TOST.01 p 0.007 EQ (holm 0.151) TOST.02 p 0.000
+   [L] creative R1-rigged-hidden-novelty-dims      -0.0055 [-0.0066,-0.0043] w/l 1/29 holm 0.000
+   [L] SUMMARY: indep creative worlds won (Holm) 0/3 ; mixed creative-subsets won 1/2 ; R1 diff -0.0055 ; correctness equivalence TOST.01 5/5 (Holm 4/5) ; NON-INFERIOR(lo90>-.01) 5/5 ; sig correctness losses 1
+
+## novfilter(k=2)/warm(hebR,k=10,Mean)|declared
+   [G] creative C1-multistyle                      +0.0514 [+0.0463,+0.0564] w/l 30/0 holm 0.000
+   [G] creative C2-star-plus-diverse               +0.0462 [+0.0419,+0.0505] w/l 30/0 holm 0.000
+   [G] creative C3-clustered-drift                 +0.0165 [+0.0118,+0.0212] w/l 26/4 holm 0.000
+   [G] correct  K1-multistyle-correct              +0.0000 [+0.0000,+0.0000] 90%[+0.0000,+0.0000] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [G] correct  K2-star-correct                    -0.0254 [-0.0462,-0.0045] 90%[-0.0427,-0.0081] TOST.01 p 0.929 (holm 1.000) TOST.02 p 0.699
+   [G] correct  K3-clustered-drift-correct         -0.0019 [-0.0035,-0.0003] 90%[-0.0032,-0.0006] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [G] creative M1-mixed-3of6-creative             +0.0801 [+0.0729,+0.0873] w/l 30/0 holm 0.000
+   [G] correct  M1-mixed-3of6-creative             -0.0009 [-0.0084,+0.0067] 90%[-0.0071,+0.0054] TOST.01 p 0.010 EQ (holm 0.507) TOST.02 p 0.000
+   [G] creative M2-mixed-1of6-creative-star        +0.0714 [+0.0615,+0.0814] w/l 30/0 holm 0.000
+   [G] correct  M2-mixed-1of6-creative-star        -0.0445 [-0.0653,-0.0236] 90%[-0.0618,-0.0272] TOST.01 p 0.999 (holm 1.000) TOST.02 p 0.988
+   [G] creative R1-rigged-hidden-novelty-dims      +0.0045 [+0.0016,+0.0074] w/l 22/8 holm 0.129
+   [G] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff +0.0045 ; correctness equivalence TOST.01 3/5 (Holm 2/5) ; NON-INFERIOR(lo90>-.01) 3/5 ; sig correctness losses 3
+   [P] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff +0.0045 ; correctness equivalence TOST.01 3/5 (Holm 2/5) ; NON-INFERIOR(lo90>-.01) 3/5 ; sig correctness losses 3
+   [U] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff -0.0129 ; correctness equivalence TOST.01 1/5 (Holm 1/5) ; NON-INFERIOR(lo90>-.01) 1/5 ; sig correctness losses 4
+   [L] creative C1-multistyle                      +0.0788 [+0.0720,+0.0857] w/l 30/0 holm 0.000
+   [L] creative C2-star-plus-diverse               +0.0612 [+0.0554,+0.0671] w/l 30/0 holm 0.000
+   [L] creative C3-clustered-drift                 +0.0190 [+0.0142,+0.0239] w/l 28/2 holm 0.000
+   [L] correct  K1-multistyle-correct              +0.0000 [+0.0000,+0.0000] 90%[+0.0000,+0.0000] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] correct  K2-star-correct                    +0.0000 [+0.0000,+0.0000] 90%[+0.0000,+0.0000] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] correct  K3-clustered-drift-correct         +0.0000 [+0.0000,+0.0000] 90%[+0.0000,+0.0000] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] creative M1-mixed-3of6-creative             +0.1058 [+0.0957,+0.1158] w/l 30/0 holm 0.000
+   [L] correct  M1-mixed-3of6-creative             -0.0105 [-0.0143,-0.0067] 90%[-0.0136,-0.0073] TOST.01 p 0.601 (holm 1.000) TOST.02 p 0.000
+   [L] creative M2-mixed-1of6-creative-star        +0.0586 [+0.0484,+0.0687] w/l 29/1 holm 0.000
+   [L] correct  M2-mixed-1of6-creative-star        -0.0096 [-0.0166,-0.0027] 90%[-0.0154,-0.0039] TOST.01 p 0.459 (holm 1.000) TOST.02 p 0.002
+   [L] creative R1-rigged-hidden-novelty-dims      +0.0066 [+0.0038,+0.0095] w/l 22/8 holm 0.003
+   [L] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff +0.0066 ; correctness equivalence TOST.01 3/5 (Holm 3/5) ; NON-INFERIOR(lo90>-.01) 3/5 ; sig correctness losses 2
+
+## archive(k=5,T=16)/warm(hebR,k=10,Mean)|declared
+   [G] creative C1-multistyle                      -0.0230 [-0.0250,-0.0210] w/l 0/30 holm 0.000
+   [G] creative C2-star-plus-diverse               -0.0178 [-0.0201,-0.0154] w/l 0/30 holm 0.000
+   [G] creative C3-clustered-drift                 -0.0082 [-0.0106,-0.0059] w/l 0/30 holm 0.000
+   [G] correct  K1-multistyle-correct              +0.0000 [+0.0000,+0.0000] 90%[+0.0000,+0.0000] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [G] correct  K2-star-correct                    -0.0254 [-0.0462,-0.0045] 90%[-0.0427,-0.0081] TOST.01 p 0.929 (holm 1.000) TOST.02 p 0.699
+   [G] correct  K3-clustered-drift-correct         -0.0019 [-0.0035,-0.0003] 90%[-0.0032,-0.0006] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [G] creative M1-mixed-3of6-creative             -0.0025 [-0.0061,+0.0010] w/l 9/21 holm 1.000
+   [G] correct  M1-mixed-3of6-creative             +0.0036 [-0.0038,+0.0110] 90%[-0.0025,+0.0097] TOST.01 p 0.043 EQ (holm 1.000) TOST.02 p 0.000
+   [G] creative M2-mixed-1of6-creative-star        +0.0116 [+0.0058,+0.0173] w/l 24/6 holm 0.013
+   [G] correct  M2-mixed-1of6-creative-star        -0.0396 [-0.0598,-0.0193] 90%[-0.0564,-0.0227] TOST.01 p 0.997 (holm 1.000) TOST.02 p 0.971
+   [G] creative R1-rigged-hidden-novelty-dims      -0.0041 [-0.0058,-0.0025] w/l 4/26 holm 0.001
+   [G] SUMMARY: indep creative worlds won (Holm) 0/3 ; mixed creative-subsets won 1/2 ; R1 diff -0.0041 ; correctness equivalence TOST.01 3/5 (Holm 2/5) ; NON-INFERIOR(lo90>-.01) 3/5 ; sig correctness losses 3
+   [P] SUMMARY: indep creative worlds won (Holm) 0/3 ; mixed creative-subsets won 1/2 ; R1 diff -0.0041 ; correctness equivalence TOST.01 2/5 (Holm 2/5) ; NON-INFERIOR(lo90>-.01) 3/5 ; sig correctness losses 3
+   [U] SUMMARY: indep creative worlds won (Holm) 0/3 ; mixed creative-subsets won 0/2 ; R1 diff -0.0216 ; correctness equivalence TOST.01 1/5 (Holm 1/5) ; NON-INFERIOR(lo90>-.01) 1/5 ; sig correctness losses 4
+   [L] creative C1-multistyle                      +0.0044 [+0.0023,+0.0066] w/l 26/4 holm 0.019
+   [L] creative C2-star-plus-diverse               -0.0028 [-0.0049,-0.0006] w/l 9/21 holm 0.919
+   [L] creative C3-clustered-drift                 -0.0057 [-0.0082,-0.0031] w/l 5/25 holm 0.007
+   [L] correct  K1-multistyle-correct              +0.0000 [+0.0000,+0.0000] 90%[+0.0000,+0.0000] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] correct  K2-star-correct                    +0.0000 [+0.0000,+0.0000] 90%[+0.0000,+0.0000] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] correct  K3-clustered-drift-correct         +0.0000 [+0.0000,+0.0000] 90%[+0.0000,+0.0000] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] creative M1-mixed-3of6-creative             +0.0231 [+0.0175,+0.0287] w/l 28/2 holm 0.000
+   [L] correct  M1-mixed-3of6-creative             -0.0060 [-0.0089,-0.0031] 90%[-0.0084,-0.0036] TOST.01 p 0.005 EQ (holm 0.112) TOST.02 p 0.000
+   [L] creative M2-mixed-1of6-creative-star        -0.0013 [-0.0070,+0.0043] w/l 14/16 holm 1.000
+   [L] correct  M2-mixed-1of6-creative-star        -0.0047 [-0.0115,+0.0020] 90%[-0.0104,+0.0009] TOST.01 p 0.061 (holm 1.000) TOST.02 p 0.000
+   [L] creative R1-rigged-hidden-novelty-dims      -0.0020 [-0.0034,-0.0006] w/l 12/18 holm 0.465
+   [L] SUMMARY: indep creative worlds won (Holm) 1/3 ; mixed creative-subsets won 1/2 ; R1 diff -0.0020 ; correctness equivalence TOST.01 4/5 (Holm 3/5) ; NON-INFERIOR(lo90>-.01) 4/5 ; sig correctness losses 1
+
+## nbucb(b=0.4,c=0.05)|declared
+   [G] creative C1-multistyle                      +0.0804 [+0.0750,+0.0858] w/l 30/0 holm 0.000
+   [G] creative C2-star-plus-diverse               +0.0697 [+0.0646,+0.0748] w/l 30/0 holm 0.000
+   [G] creative C3-clustered-drift                 +0.0253 [+0.0200,+0.0307] w/l 30/0 holm 0.000
+   [G] correct  K1-multistyle-correct              +0.0131 [+0.0067,+0.0196] 90%[+0.0078,+0.0185] TOST.01 p 0.834 (holm 1.000) TOST.02 p 0.019
+   [G] correct  K2-star-correct                    +0.0242 [+0.0200,+0.0283] 90%[+0.0207,+0.0276] TOST.01 p 1.000 (holm 1.000) TOST.02 p 0.976
+   [G] correct  K3-clustered-drift-correct         -0.0001 [-0.0027,+0.0024] 90%[-0.0022,+0.0020] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [G] creative M1-mixed-3of6-creative             +0.1122 [+0.1041,+0.1203] w/l 30/0 holm 0.000
+   [G] correct  M1-mixed-3of6-creative             +0.0161 [+0.0117,+0.0204] 90%[+0.0124,+0.0197] TOST.01 p 0.996 (holm 1.000) TOST.02 p 0.038
+   [G] creative M2-mixed-1of6-creative-star        +0.1003 [+0.0906,+0.1100] w/l 30/0 holm 0.000
+   [G] correct  M2-mixed-1of6-creative-star        +0.0285 [+0.0237,+0.0333] 90%[+0.0245,+0.0325] TOST.01 p 1.000 (holm 1.000) TOST.02 p 0.999
+   [G] creative R1-rigged-hidden-novelty-dims      +0.0138 [+0.0099,+0.0177] w/l 29/1 holm 0.000
+   [G] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff +0.0138 ; correctness equivalence TOST.01 1/5 (Holm 1/5) ; NON-INFERIOR(lo90>-.01) 5/5 ; sig correctness losses 0
+   [P] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff +0.0138 ; correctness equivalence TOST.01 1/5 (Holm 1/5) ; NON-INFERIOR(lo90>-.01) 5/5 ; sig correctness losses 0
+   [U] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff -0.0036 ; correctness equivalence TOST.01 5/5 (Holm 5/5) ; NON-INFERIOR(lo90>-.01) 5/5 ; sig correctness losses 0
+   [L] creative C1-multistyle                      +0.0882 [+0.0811,+0.0953] w/l 30/0 holm 0.000
+   [L] creative C2-star-plus-diverse               +0.0707 [+0.0638,+0.0777] w/l 30/0 holm 0.000
+   [L] creative C3-clustered-drift                 +0.0229 [+0.0169,+0.0289] w/l 27/3 holm 0.000
+   [L] correct  K1-multistyle-correct              +0.0000 [+0.0000,+0.0000] 90%[+0.0000,+0.0000] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] correct  K2-star-correct                    +0.0000 [+0.0000,+0.0000] 90%[+0.0000,+0.0000] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] correct  K3-clustered-drift-correct         +0.0000 [+0.0000,+0.0000] 90%[+0.0000,+0.0000] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] creative M1-mixed-3of6-creative             +0.0805 [+0.0731,+0.0880] w/l 30/0 holm 0.000
+   [L] correct  M1-mixed-3of6-creative             +0.0000 [+0.0000,+0.0000] 90%[+0.0000,+0.0000] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] creative M2-mixed-1of6-creative-star        +0.0612 [+0.0515,+0.0709] w/l 29/1 holm 0.000
+   [L] correct  M2-mixed-1of6-creative-star        +0.0000 [+0.0000,+0.0000] 90%[+0.0000,+0.0000] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] creative R1-rigged-hidden-novelty-dims      -0.0036 [-0.0074,+0.0001] w/l 11/19 holm 1.000
+   [L] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff -0.0036 ; correctness equivalence TOST.01 5/5 (Holm 5/5) ; NON-INFERIOR(lo90>-.01) 5/5 ; sig correctness losses 0
+
+## antirepeat(m=1)/warm(hebR,k=10,Mean)|learned
+   [G] creative C1-multistyle                      -0.0291 [-0.0325,-0.0257] w/l 0/30 holm 0.000
+   [G] creative C2-star-plus-diverse               -0.0179 [-0.0207,-0.0152] w/l 0/30 holm 0.000
+   [G] creative C3-clustered-drift                 -0.0042 [-0.0052,-0.0033] w/l 1/29 holm 0.000
+   [G] correct  K1-multistyle-correct              -0.0008 [-0.0016,-0.0000] 90%[-0.0014,-0.0002] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [G] correct  K2-star-correct                    -0.0248 [-0.0451,-0.0045] 90%[-0.0417,-0.0079] TOST.01 p 0.927 (holm 1.000) TOST.02 p 0.684
+   [G] correct  K3-clustered-drift-correct         -0.0022 [-0.0038,-0.0006] 90%[-0.0035,-0.0009] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [G] creative M1-mixed-3of6-creative             -0.0228 [-0.0272,-0.0183] w/l 1/29 holm 0.000
+   [G] correct  M1-mixed-3of6-creative             +0.0083 [+0.0009,+0.0156] 90%[+0.0022,+0.0144] TOST.01 p 0.316 (holm 1.000) TOST.02 p 0.001
+   [G] creative M2-mixed-1of6-creative-star        +0.0118 [+0.0060,+0.0177] w/l 22/8 holm 0.013
+   [G] correct  M2-mixed-1of6-creative-star        -0.0344 [-0.0538,-0.0149] 90%[-0.0505,-0.0182] TOST.01 p 0.992 (holm 1.000) TOST.02 p 0.929
+   [G] creative R1-rigged-hidden-novelty-dims      -0.0054 [-0.0069,-0.0040] w/l 1/29 holm 0.000
+   [G] SUMMARY: indep creative worlds won (Holm) 0/3 ; mixed creative-subsets won 1/2 ; R1 diff -0.0054 ; correctness equivalence TOST.01 2/5 (Holm 2/5) ; NON-INFERIOR(lo90>-.01) 3/5 ; sig correctness losses 4
+   [P] SUMMARY: indep creative worlds won (Holm) 0/3 ; mixed creative-subsets won 1/2 ; R1 diff -0.0054 ; correctness equivalence TOST.01 2/5 (Holm 2/5) ; NON-INFERIOR(lo90>-.01) 3/5 ; sig correctness losses 3
+   [U] SUMMARY: indep creative worlds won (Holm) 0/3 ; mixed creative-subsets won 0/2 ; R1 diff -0.0229 ; correctness equivalence TOST.01 1/5 (Holm 1/5) ; NON-INFERIOR(lo90>-.01) 1/5 ; sig correctness losses 4
+   [L] creative C1-multistyle                      -0.0016 [-0.0031,-0.0001] w/l 9/21 holm 1.000
+   [L] creative C2-star-plus-diverse               -0.0029 [-0.0048,-0.0010] w/l 9/21 holm 0.237
+   [L] creative C3-clustered-drift                 -0.0017 [-0.0027,-0.0007] w/l 7/23 holm 0.121
+   [L] correct  K1-multistyle-correct              -0.0008 [-0.0016,-0.0000] 90%[-0.0014,-0.0002] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] correct  K2-star-correct                    +0.0006 [-0.0017,+0.0028] 90%[-0.0013,+0.0025] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] correct  K3-clustered-drift-correct         -0.0003 [-0.0008,+0.0002] 90%[-0.0007,+0.0001] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] creative M1-mixed-3of6-creative             +0.0029 [-0.0001,+0.0059] w/l 19/11 holm 1.000
+   [L] correct  M1-mixed-3of6-creative             -0.0013 [-0.0022,-0.0004] 90%[-0.0021,-0.0006] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] creative M2-mixed-1of6-creative-star        -0.0011 [-0.0038,+0.0017] w/l 11/19 holm 1.000
+   [L] correct  M2-mixed-1of6-creative-star        +0.0005 [-0.0021,+0.0031] 90%[-0.0017,+0.0026] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] creative R1-rigged-hidden-novelty-dims      -0.0033 [-0.0042,-0.0024] w/l 3/27 holm 0.000
+   [L] SUMMARY: indep creative worlds won (Holm) 0/3 ; mixed creative-subsets won 0/2 ; R1 diff -0.0033 ; correctness equivalence TOST.01 5/5 (Holm 5/5) ; NON-INFERIOR(lo90>-.01) 5/5 ; sig correctness losses 2
+
+## novfilter(k=2)/warm(hebR,k=10,Mean)|learned
+   [G] creative C1-multistyle                      +0.0354 [+0.0314,+0.0394] w/l 30/0 holm 0.000
+   [G] creative C2-star-plus-diverse               +0.0346 [+0.0309,+0.0382] w/l 30/0 holm 0.000
+   [G] creative C3-clustered-drift                 +0.0146 [+0.0098,+0.0195] w/l 23/7 holm 0.000
+   [G] correct  K1-multistyle-correct              -0.0011 [-0.0024,+0.0002] 90%[-0.0022,-0.0000] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [G] correct  K2-star-correct                    -0.0245 [-0.0449,-0.0040] 90%[-0.0415,-0.0075] TOST.01 p 0.921 (holm 1.000) TOST.02 p 0.671
+   [G] correct  K3-clustered-drift-correct         -0.0022 [-0.0038,-0.0006] 90%[-0.0035,-0.0009] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [G] creative M1-mixed-3of6-creative             +0.0571 [+0.0528,+0.0614] w/l 30/0 holm 0.000
+   [G] correct  M1-mixed-3of6-creative             +0.0002 [-0.0064,+0.0068] 90%[-0.0053,+0.0057] TOST.01 p 0.002 EQ (holm 0.129) TOST.02 p 0.000
+   [G] creative M2-mixed-1of6-creative-star        +0.0567 [+0.0491,+0.0644] w/l 30/0 holm 0.000
+   [G] correct  M2-mixed-1of6-creative-star        -0.0364 [-0.0555,-0.0174] 90%[-0.0522,-0.0206] TOST.01 p 0.996 (holm 1.000) TOST.02 p 0.956
+   [G] creative R1-rigged-hidden-novelty-dims      +0.0026 [+0.0000,+0.0051] w/l 18/12 holm 0.920
+   [G] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff +0.0026 ; correctness equivalence TOST.01 3/5 (Holm 2/5) ; NON-INFERIOR(lo90>-.01) 3/5 ; sig correctness losses 3
+   [P] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff +0.0026 ; correctness equivalence TOST.01 3/5 (Holm 2/5) ; NON-INFERIOR(lo90>-.01) 3/5 ; sig correctness losses 2
+   [U] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff -0.0148 ; correctness equivalence TOST.01 1/5 (Holm 1/5) ; NON-INFERIOR(lo90>-.01) 1/5 ; sig correctness losses 4
+   [L] creative C1-multistyle                      +0.0628 [+0.0576,+0.0681] w/l 30/0 holm 0.000
+   [L] creative C2-star-plus-diverse               +0.0496 [+0.0444,+0.0547] w/l 30/0 holm 0.000
+   [L] creative C3-clustered-drift                 +0.0172 [+0.0124,+0.0220] w/l 28/2 holm 0.000
+   [L] correct  K1-multistyle-correct              -0.0011 [-0.0024,+0.0002] 90%[-0.0022,-0.0000] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] correct  K2-star-correct                    +0.0009 [-0.0010,+0.0028] 90%[-0.0007,+0.0025] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] correct  K3-clustered-drift-correct         -0.0003 [-0.0007,+0.0001] 90%[-0.0007,+0.0001] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] creative M1-mixed-3of6-creative             +0.0828 [+0.0748,+0.0908] w/l 30/0 holm 0.000
+   [L] correct  M1-mixed-3of6-creative             -0.0094 [-0.0127,-0.0061] 90%[-0.0121,-0.0067] TOST.01 p 0.358 (holm 1.000) TOST.02 p 0.000
+   [L] creative M2-mixed-1of6-creative-star        +0.0439 [+0.0376,+0.0502] w/l 30/0 holm 0.000
+   [L] correct  M2-mixed-1of6-creative-star        -0.0016 [-0.0048,+0.0017] 90%[-0.0043,+0.0011] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] creative R1-rigged-hidden-novelty-dims      +0.0047 [+0.0024,+0.0071] w/l 22/8 holm 0.019
+   [L] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff +0.0047 ; correctness equivalence TOST.01 4/5 (Holm 4/5) ; NON-INFERIOR(lo90>-.01) 4/5 ; sig correctness losses 1
+
+## archive(k=5,T=8)/warm(hebR,k=10,Mean)|learned
+   [G] creative C1-multistyle                      -0.0283 [-0.0310,-0.0256] w/l 0/30 holm 0.000
+   [G] creative C2-star-plus-diverse               -0.0196 [-0.0226,-0.0167] w/l 0/30 holm 0.000
+   [G] creative C3-clustered-drift                 -0.0086 [-0.0106,-0.0067] w/l 0/30 holm 0.000
+   [G] correct  K1-multistyle-correct              -0.0006 [-0.0012,+0.0000] 90%[-0.0011,-0.0001] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [G] correct  K2-star-correct                    -0.0248 [-0.0453,-0.0043] 90%[-0.0419,-0.0078] TOST.01 p 0.925 (holm 1.000) TOST.02 p 0.684
+   [G] correct  K3-clustered-drift-correct         -0.0023 [-0.0039,-0.0007] 90%[-0.0036,-0.0009] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [G] creative M1-mixed-3of6-creative             -0.0119 [-0.0150,-0.0089] w/l 3/27 holm 0.000
+   [G] correct  M1-mixed-3of6-creative             +0.0056 [-0.0011,+0.0124] 90%[+0.0000,+0.0112] TOST.01 p 0.097 (holm 1.000) TOST.02 p 0.000
+   [G] creative M2-mixed-1of6-creative-star        +0.0088 [+0.0023,+0.0153] w/l 21/9 holm 0.325
+   [G] correct  M2-mixed-1of6-creative-star        -0.0377 [-0.0568,-0.0186] 90%[-0.0536,-0.0219] TOST.01 p 0.997 (holm 1.000) TOST.02 p 0.966
+   [G] creative R1-rigged-hidden-novelty-dims      -0.0057 [-0.0072,-0.0041] w/l 1/29 holm 0.000
+   [G] SUMMARY: indep creative worlds won (Holm) 0/3 ; mixed creative-subsets won 0/2 ; R1 diff -0.0057 ; correctness equivalence TOST.01 2/5 (Holm 2/5) ; NON-INFERIOR(lo90>-.01) 3/5 ; sig correctness losses 3
+   [P] SUMMARY: indep creative worlds won (Holm) 0/3 ; mixed creative-subsets won 0/2 ; R1 diff -0.0057 ; correctness equivalence TOST.01 2/5 (Holm 2/5) ; NON-INFERIOR(lo90>-.01) 3/5 ; sig correctness losses 3
+   [U] SUMMARY: indep creative worlds won (Holm) 0/3 ; mixed creative-subsets won 0/2 ; R1 diff -0.0231 ; correctness equivalence TOST.01 1/5 (Holm 1/5) ; NON-INFERIOR(lo90>-.01) 1/5 ; sig correctness losses 4
+   [L] creative C1-multistyle                      -0.0009 [-0.0026,+0.0008] w/l 16/14 holm 1.000
+   [L] creative C2-star-plus-diverse               -0.0046 [-0.0066,-0.0026] w/l 6/24 holm 0.005
+   [L] creative C3-clustered-drift                 -0.0061 [-0.0082,-0.0039] w/l 4/26 holm 0.000
+   [L] correct  K1-multistyle-correct              -0.0006 [-0.0012,+0.0000] 90%[-0.0011,-0.0001] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] correct  K2-star-correct                    +0.0005 [-0.0009,+0.0020] 90%[-0.0007,+0.0018] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] correct  K3-clustered-drift-correct         -0.0004 [-0.0009,+0.0002] 90%[-0.0008,+0.0001] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] creative M1-mixed-3of6-creative             +0.0137 [+0.0085,+0.0189] w/l 25/5 holm 0.001
+   [L] correct  M1-mixed-3of6-creative             -0.0040 [-0.0062,-0.0017] 90%[-0.0059,-0.0021] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] creative M2-mixed-1of6-creative-star        -0.0041 [-0.0080,-0.0002] w/l 13/17 holm 1.000
+   [L] correct  M2-mixed-1of6-creative-star        -0.0029 [-0.0061,+0.0003] 90%[-0.0055,-0.0002] TOST.01 p 0.000 EQ (holm 0.001 EQ) TOST.02 p 0.000
+   [L] creative R1-rigged-hidden-novelty-dims      -0.0035 [-0.0047,-0.0023] w/l 5/25 holm 0.000
+   [L] SUMMARY: indep creative worlds won (Holm) 0/3 ; mixed creative-subsets won 1/2 ; R1 diff -0.0035 ; correctness equivalence TOST.01 5/5 (Holm 5/5) ; NON-INFERIOR(lo90>-.01) 5/5 ; sig correctness losses 1
+
+## nbucb(b=0.8,c=0.05)|learned
+   [G] creative C1-multistyle                      +0.0716 [+0.0664,+0.0768] w/l 30/0 holm 0.000
+   [G] creative C2-star-plus-diverse               +0.0633 [+0.0580,+0.0686] w/l 30/0 holm 0.000
+   [G] creative C3-clustered-drift                 +0.0287 [+0.0233,+0.0341] w/l 30/0 holm 0.000
+   [G] correct  K1-multistyle-correct              +0.0114 [+0.0044,+0.0184] 90%[+0.0056,+0.0173] TOST.01 p 0.659 (holm 1.000) TOST.02 p 0.009
+   [G] correct  K2-star-correct                    +0.0234 [+0.0190,+0.0279] 90%[+0.0197,+0.0272] TOST.01 p 1.000 (holm 1.000) TOST.02 p 0.936
+   [G] correct  K3-clustered-drift-correct         -0.0012 [-0.0042,+0.0017] 90%[-0.0037,+0.0012] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [G] creative M1-mixed-3of6-creative             +0.0991 [+0.0916,+0.1065] w/l 30/0 holm 0.000
+   [G] correct  M1-mixed-3of6-creative             +0.0151 [+0.0101,+0.0202] 90%[+0.0110,+0.0193] TOST.01 p 0.978 (holm 1.000) TOST.02 p 0.029
+   [G] creative M2-mixed-1of6-creative-star        +0.0926 [+0.0843,+0.1010] w/l 30/0 holm 0.000
+   [G] correct  M2-mixed-1of6-creative-star        +0.0283 [+0.0236,+0.0330] 90%[+0.0244,+0.0322] TOST.01 p 1.000 (holm 1.000) TOST.02 p 0.999
+   [G] creative R1-rigged-hidden-novelty-dims      +0.0121 [+0.0086,+0.0157] w/l 28/2 holm 0.000
+   [G] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff +0.0121 ; correctness equivalence TOST.01 1/5 (Holm 1/5) ; NON-INFERIOR(lo90>-.01) 5/5 ; sig correctness losses 0
+   [P] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff +0.0121 ; correctness equivalence TOST.01 1/5 (Holm 1/5) ; NON-INFERIOR(lo90>-.01) 5/5 ; sig correctness losses 0
+   [U] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff -0.0053 ; correctness equivalence TOST.01 5/5 (Holm 5/5) ; NON-INFERIOR(lo90>-.01) 5/5 ; sig correctness losses 0
+   [L] creative C1-multistyle                      +0.0794 [+0.0726,+0.0863] w/l 30/0 holm 0.000
+   [L] creative C2-star-plus-diverse               +0.0643 [+0.0575,+0.0712] w/l 30/0 holm 0.000
+   [L] creative C3-clustered-drift                 +0.0262 [+0.0202,+0.0323] w/l 30/0 holm 0.000
+   [L] correct  K1-multistyle-correct              -0.0017 [-0.0035,+0.0001] 90%[-0.0032,-0.0002] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] correct  K2-star-correct                    -0.0007 [-0.0018,+0.0003] 90%[-0.0016,+0.0001] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] correct  K3-clustered-drift-correct         -0.0011 [-0.0023,+0.0002] 90%[-0.0021,-0.0001] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] creative M1-mixed-3of6-creative             +0.0674 [+0.0609,+0.0739] w/l 30/0 holm 0.000
+   [L] correct  M1-mixed-3of6-creative             -0.0009 [-0.0027,+0.0009] 90%[-0.0024,+0.0006] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] creative M2-mixed-1of6-creative-star        +0.0535 [+0.0458,+0.0612] w/l 29/1 holm 0.000
+   [L] correct  M2-mixed-1of6-creative-star        -0.0002 [-0.0006,+0.0002] 90%[-0.0005,+0.0001] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] creative R1-rigged-hidden-novelty-dims      -0.0053 [-0.0085,-0.0021] w/l 4/26 holm 0.146
+   [L] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff -0.0053 ; correctness equivalence TOST.01 5/5 (Holm 5/5) ; NON-INFERIOR(lo90>-.01) 5/5 ; sig correctness losses 0
+
+## nbreg(c=0.05)|declared
+   [G] creative C1-multistyle                      +0.0693 [+0.0628,+0.0759] w/l 30/0 holm 0.000
+   [G] creative C2-star-plus-diverse               +0.0569 [+0.0522,+0.0617] w/l 30/0 holm 0.000
+   [G] creative C3-clustered-drift                 +0.0268 [+0.0224,+0.0312] w/l 30/0 holm 0.000
+   [G] correct  K1-multistyle-correct              +0.0113 [+0.0049,+0.0176] 90%[+0.0060,+0.0165] TOST.01 p 0.655 (holm 1.000) TOST.02 p 0.004
+   [G] correct  K2-star-correct                    +0.0241 [+0.0200,+0.0283] 90%[+0.0207,+0.0276] TOST.01 p 1.000 (holm 1.000) TOST.02 p 0.975
+   [G] correct  K3-clustered-drift-correct         -0.0015 [-0.0040,+0.0010] 90%[-0.0036,+0.0006] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [G] creative M1-mixed-3of6-creative             +0.0990 [+0.0926,+0.1054] w/l 30/0 holm 0.000
+   [G] correct  M1-mixed-3of6-creative             +0.0157 [+0.0112,+0.0202] 90%[+0.0120,+0.0195] TOST.01 p 0.993 (holm 1.000) TOST.02 p 0.031
+   [G] creative M2-mixed-1of6-creative-star        +0.0883 [+0.0788,+0.0979] w/l 30/0 holm 0.000
+   [G] correct  M2-mixed-1of6-creative-star        +0.0284 [+0.0236,+0.0332] 90%[+0.0244,+0.0324] TOST.01 p 1.000 (holm 1.000) TOST.02 p 0.999
+   [G] creative R1-rigged-hidden-novelty-dims      +0.0129 [+0.0096,+0.0162] w/l 28/2 holm 0.000
+   [G] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff +0.0129 ; correctness equivalence TOST.01 1/5 (Holm 1/5) ; NON-INFERIOR(lo90>-.01) 5/5 ; sig correctness losses 0
+   [P] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff +0.0129 ; correctness equivalence TOST.01 1/5 (Holm 1/5) ; NON-INFERIOR(lo90>-.01) 5/5 ; sig correctness losses 0
+   [U] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff -0.0045 ; correctness equivalence TOST.01 5/5 (Holm 5/5) ; NON-INFERIOR(lo90>-.01) 5/5 ; sig correctness losses 4
+   [L] creative C1-multistyle                      +0.0486 [+0.0422,+0.0550] w/l 29/1 holm 0.000
+   [L] creative C2-star-plus-diverse               +0.0348 [+0.0300,+0.0396] w/l 29/1 holm 0.000
+   [L] creative C3-clustered-drift                 +0.0136 [+0.0095,+0.0177] w/l 27/3 holm 0.000
+   [L] correct  K1-multistyle-correct              +0.0000 [+0.0000,+0.0000] 90%[+0.0000,+0.0000] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] correct  K2-star-correct                    +0.0000 [+0.0000,+0.0000] 90%[+0.0000,+0.0000] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] correct  K3-clustered-drift-correct         +0.0000 [+0.0000,+0.0000] 90%[+0.0000,+0.0000] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] creative M1-mixed-3of6-creative             +0.0451 [+0.0402,+0.0501] w/l 30/0 holm 0.000
+   [L] correct  M1-mixed-3of6-creative             +0.0000 [+0.0000,+0.0000] 90%[+0.0000,+0.0000] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] creative M2-mixed-1of6-creative-star        +0.0328 [+0.0252,+0.0403] w/l 30/0 holm 0.000
+   [L] correct  M2-mixed-1of6-creative-star        +0.0000 [+0.0000,+0.0000] 90%[+0.0000,+0.0000] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] creative R1-rigged-hidden-novelty-dims      -0.0046 [-0.0068,-0.0024] w/l 6/24 holm 0.014
+   [L] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff -0.0046 ; correctness equivalence TOST.01 5/5 (Holm 5/5) ; NON-INFERIOR(lo90>-.01) 5/5 ; sig correctness losses 0
+
+## nbreg(c=0.05)|learned
+   [G] creative C1-multistyle                      +0.0693 [+0.0628,+0.0759] w/l 30/0 holm 0.000
+   [G] creative C2-star-plus-diverse               +0.0569 [+0.0522,+0.0617] w/l 30/0 holm 0.000
+   [G] creative C3-clustered-drift                 +0.0263 [+0.0220,+0.0306] w/l 30/0 holm 0.000
+   [G] correct  K1-multistyle-correct              +0.0110 [+0.0046,+0.0175] 90%[+0.0057,+0.0164] TOST.01 p 0.629 (holm 1.000) TOST.02 p 0.004
+   [G] correct  K2-star-correct                    +0.0241 [+0.0200,+0.0283] 90%[+0.0207,+0.0276] TOST.01 p 1.000 (holm 1.000) TOST.02 p 0.975
+   [G] correct  K3-clustered-drift-correct         -0.0016 [-0.0041,+0.0009] 90%[-0.0037,+0.0004] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [G] creative M1-mixed-3of6-creative             +0.0990 [+0.0926,+0.1054] w/l 30/0 holm 0.000
+   [G] correct  M1-mixed-3of6-creative             +0.0156 [+0.0111,+0.0202] 90%[+0.0119,+0.0194] TOST.01 p 0.992 (holm 1.000) TOST.02 p 0.029
+   [G] creative M2-mixed-1of6-creative-star        +0.0884 [+0.0789,+0.0980] w/l 30/0 holm 0.000
+   [G] correct  M2-mixed-1of6-creative-star        +0.0284 [+0.0236,+0.0332] 90%[+0.0244,+0.0324] TOST.01 p 1.000 (holm 1.000) TOST.02 p 0.999
+   [G] creative R1-rigged-hidden-novelty-dims      +0.0136 [+0.0099,+0.0172] w/l 28/2 holm 0.000
+   [G] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff +0.0136 ; correctness equivalence TOST.01 1/5 (Holm 1/5) ; NON-INFERIOR(lo90>-.01) 5/5 ; sig correctness losses 0
+   [P] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff +0.0136 ; correctness equivalence TOST.01 1/5 (Holm 1/5) ; NON-INFERIOR(lo90>-.01) 5/5 ; sig correctness losses 0
+   [U] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff -0.0038 ; correctness equivalence TOST.01 5/5 (Holm 5/5) ; NON-INFERIOR(lo90>-.01) 5/5 ; sig correctness losses 4
+   [L] creative C1-multistyle                      +0.0486 [+0.0422,+0.0550] w/l 29/1 holm 0.000
+   [L] creative C2-star-plus-diverse               +0.0348 [+0.0300,+0.0396] w/l 29/1 holm 0.000
+   [L] creative C3-clustered-drift                 +0.0131 [+0.0091,+0.0172] w/l 27/3 holm 0.000
+   [L] correct  K1-multistyle-correct              -0.0002 [-0.0007,+0.0003] 90%[-0.0006,+0.0002] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] correct  K2-star-correct                    +0.0000 [+0.0000,+0.0000] 90%[+0.0000,+0.0000] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] correct  K3-clustered-drift-correct         -0.0001 [-0.0003,+0.0000] 90%[-0.0002,-0.0000] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] creative M1-mixed-3of6-creative             +0.0452 [+0.0402,+0.0502] w/l 30/0 holm 0.000
+   [L] correct  M1-mixed-3of6-creative             -0.0001 [-0.0003,+0.0001] 90%[-0.0003,+0.0001] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] creative M2-mixed-1of6-creative-star        +0.0329 [+0.0253,+0.0404] w/l 30/0 holm 0.000
+   [L] correct  M2-mixed-1of6-creative-star        +0.0000 [+0.0000,+0.0000] 90%[+0.0000,+0.0000] TOST.01 p 0.000 EQ (holm 0.000 EQ) TOST.02 p 0.000
+   [L] creative R1-rigged-hidden-novelty-dims      -0.0040 [-0.0063,-0.0016] w/l 7/23 holm 0.125
+   [L] SUMMARY: indep creative worlds won (Holm) 3/3 ; mixed creative-subsets won 2/2 ; R1 diff -0.0040 ; correctness equivalence TOST.01 5/5 (Holm 5/5) ; NON-INFERIOR(lo90>-.01) 5/5 ; sig correctness losses 0
+
+wrote results/g4_creativity_held.json

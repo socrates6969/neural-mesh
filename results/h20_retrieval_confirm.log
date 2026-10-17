@@ -1,0 +1,187 @@
+[world] pydoc9       n=2874 dom=7 purity 0.706 base 0.188 excess +0.518 domain_ok=True conf_thr(spec)=0.427
+[world] crates8      n=832 dom=7 purity 0.534 base 0.160 excess +0.374 domain_ok=True conf_thr(spec)=0.386
+[world] syn10        n=3200 dom=10 purity 0.990 base 0.100 excess +0.890 domain_ok=True conf_thr(spec)=0.484
+[world] pydoc9+shuf  n=2874 dom=7 purity 0.189 base 0.188 excess +0.001 domain_ok=False conf_thr(spec)=0.297
+[world] crates8+shuf n=832 dom=7 purity 0.148 base 0.160 excess -0.011 domain_ok=False conf_thr(spec)=0.304
+[world] syn10+shuf   n=3200 dom=10 purity 0.102 base 0.100 excess +0.001 domain_ok=False conf_thr(spec)=0.135
+== phase confirm frozen: P|knn|l16.0 families: {'P': 'P|knn|l16.0', 'M': 'M|knn|m1|t0.2', 'H': 'H|knn|t0.2'} best pooled: hyb_spell
+-- pydoc9  n=2874  structure purity 0.706 (base 0.188, excess +0.518) domain_mode=True router_acc={'_knn': 0.864}
+   none                   q 0.4486  hit5 0.000  mrr 0.000  r1 0.000  off 0.000
+   dense_raw              q 0.5737  hit5 0.528  mrr 0.400  r1 0.304  off 0.329
+   dense_spell            q 0.5792  hit5 0.544  mrr 0.408  r1 0.310  off 0.322
+   hyb_raw                q 0.6085  hit5 0.625  mrr 0.471  r1 0.351  off 0.273
+   hyb_spell              q 0.6110  hit5 0.632  mrr 0.482  r1 0.362  off 0.268
+   oracle_H               q 0.6503  hit5 0.674  mrr 0.526  r1 0.407  off 0.000
+   oracle_M               q 0.6498  hit5 0.672  mrr 0.525  r1 0.403  off 0.000
+   P|knn|l16.0            q 0.6208  hit5 0.621  mrr 0.482  r1 0.364  off 0.136
+   M|knn|m1|t0.2          q 0.6224  hit5 0.634  mrr 0.488  r1 0.367  off 0.160
+   H|knn|t0.2             q 0.6228  hit5 0.635  mrr 0.491  r1 0.372  off 0.160
+   P|knn|l16.0#nocheck    q 0.6208  hit5 0.621  mrr 0.482  r1 0.364  off 0.136
+   P|knn|l16.0 - hyb_spell  [q] +0.0098 [+0.0081,+0.0115] p=1.77e-12  TOST+-.01 False
+   P|knn|l16.0 - hyb_spell  [hit5] -0.0111 [-0.0163,-0.0059] p=0.000146
+   P|knn|l16.0 - hyb_spell  [mrr] +0.0002 [-0.0026,+0.0029] p=0.908
+   M|knn|m1|t0.2 - hyb_spell  [q] +0.0114 [+0.0103,+0.0124] p=8.45e-20  TOST+-.01 False
+   M|knn|m1|t0.2 - hyb_spell  [hit5] +0.0022 [-0.0010,+0.0054] p=0.169
+   M|knn|m1|t0.2 - hyb_spell  [mrr] +0.0067 [+0.0051,+0.0083] p=3.04e-09
+   H|knn|t0.2 - hyb_spell  [q] +0.0117 [+0.0102,+0.0132] p=5.69e-16  TOST+-.01 False
+   H|knn|t0.2 - hyb_spell  [hit5] +0.0033 [-0.0014,+0.0080] p=0.158
+   H|knn|t0.2 - hyb_spell  [mrr] +0.0090 [+0.0067,+0.0113] p=5.61e-09
+   P|knn|l16.0 - hyb_spell  [q] +0.0098 [+0.0081,+0.0115] p=1.77e-12  TOST+-.01 False
+   P|knn|l16.0 - hyb_spell  [hit5] -0.0111 [-0.0163,-0.0059] p=0.000146
+   P|knn|l16.0 - hyb_spell  [mrr] +0.0002 [-0.0026,+0.0029] p=0.908
+   oracle_H - hyb_spell  [q] +0.0392 [+0.0372,+0.0413] p=1.99e-26  TOST+-.01 False
+   oracle_H - hyb_spell  [hit5] +0.0420 [+0.0367,+0.0473] p=4.88e-16
+   oracle_H - hyb_spell  [mrr] +0.0446 [+0.0405,+0.0488] p=1.1e-19
+   oracle_M - hyb_spell  [q] +0.0388 [+0.0368,+0.0407] p=3.21e-27  TOST+-.01 False
+   oracle_M - hyb_spell  [hit5] +0.0404 [+0.0357,+0.0452] p=5.42e-17
+   oracle_M - hyb_spell  [mrr] +0.0433 [+0.0393,+0.0473] p=1.31e-19
+-- crates8  n=832  structure purity 0.534 (base 0.160, excess +0.374) domain_mode=True router_acc={'_knn': 0.789}
+   none                   q 0.4490  hit5 0.000  mrr 0.000  r1 0.000  off 0.000
+   dense_raw              q 0.5756  hit5 0.576  mrr 0.426  r1 0.319  off 0.462
+   dense_spell            q 0.5800  hit5 0.588  mrr 0.424  r1 0.306  off 0.453
+   hyb_raw                q 0.5914  hit5 0.616  mrr 0.467  r1 0.358  off 0.421
+   hyb_spell              q 0.5990  hit5 0.638  mrr 0.482  r1 0.369  off 0.413
+   oracle_H               q 0.6765  hit5 0.759  mrr 0.579  r1 0.447  off 0.000
+   oracle_M               q 0.6825  hit5 0.779  mrr 0.585  r1 0.449  off 0.000
+   P|knn|l16.0            q 0.6196  hit5 0.639  mrr 0.485  r1 0.375  off 0.208
+   M|knn|m1|t0.2          q 0.6194  hit5 0.648  mrr 0.489  r1 0.369  off 0.237
+   H|knn|t0.2             q 0.6180  hit5 0.643  mrr 0.488  r1 0.372  off 0.237
+   P|knn|l16.0#nocheck    q 0.6196  hit5 0.639  mrr 0.485  r1 0.375  off 0.208
+   P|knn|l16.0 - hyb_spell  [q] +0.0206 [+0.0186,+0.0226] p=2.72e-19  TOST+-.01 False
+   P|knn|l16.0 - hyb_spell  [hit5] +0.0007 [-0.0053,+0.0067] p=0.814
+   P|knn|l16.0 - hyb_spell  [mrr] +0.0032 [+0.0010,+0.0055] p=0.00622
+   M|knn|m1|t0.2 - hyb_spell  [q] +0.0204 [+0.0190,+0.0219] p=6.53e-23  TOST+-.01 False
+   M|knn|m1|t0.2 - hyb_spell  [hit5] +0.0096 [+0.0052,+0.0139] p=9.18e-05
+   M|knn|m1|t0.2 - hyb_spell  [mrr] +0.0070 [+0.0057,+0.0083] p=1.01e-11
+   H|knn|t0.2 - hyb_spell  [q] +0.0191 [+0.0176,+0.0206] p=1.63e-21  TOST+-.01 False
+   H|knn|t0.2 - hyb_spell  [hit5] +0.0051 [+0.0007,+0.0096] p=0.0251
+   H|knn|t0.2 - hyb_spell  [mrr] +0.0059 [+0.0041,+0.0076] p=1.39e-07
+   P|knn|l16.0 - hyb_spell  [q] +0.0206 [+0.0186,+0.0226] p=2.72e-19  TOST+-.01 False
+   P|knn|l16.0 - hyb_spell  [hit5] +0.0007 [-0.0053,+0.0067] p=0.814
+   P|knn|l16.0 - hyb_spell  [mrr] +0.0032 [+0.0010,+0.0055] p=0.00622
+   oracle_H - hyb_spell  [q] +0.0775 [+0.0755,+0.0795] p=1.07e-35  TOST+-.01 False
+   oracle_H - hyb_spell  [hit5] +0.1210 [+0.1154,+0.1265] p=2.66e-28
+   oracle_H - hyb_spell  [mrr] +0.0972 [+0.0933,+0.1012] p=8.67e-30
+   oracle_M - hyb_spell  [q] +0.0835 [+0.0816,+0.0854] p=3.4e-37  TOST+-.01 False
+   oracle_M - hyb_spell  [hit5] +0.1410 [+0.1355,+0.1465] p=2.59e-30
+   oracle_M - hyb_spell  [mrr] +0.1031 [+0.0992,+0.1070] p=1.08e-30
+-- syn10  n=3200  structure purity 0.990 (base 0.100, excess +0.890) domain_mode=True router_acc={'_knn': 0.987}
+   none                   q 0.4514  hit5 0.000  mrr 0.000  r1 0.000  off 0.000
+   dense_raw              q 0.5252  hit5 0.256  mrr 0.169  r1 0.104  off 0.027
+   dense_spell            q 0.5255  hit5 0.256  mrr 0.170  r1 0.102  off 0.025
+   hyb_raw                q 0.5568  hit5 0.357  mrr 0.259  r1 0.186  off 0.014
+   hyb_spell              q 0.5597  hit5 0.366  mrr 0.263  r1 0.187  off 0.014
+   oracle_H               q 0.5640  hit5 0.376  mrr 0.276  r1 0.205  off 0.000
+   oracle_M               q 0.5617  hit5 0.368  mrr 0.265  r1 0.188  off 0.000
+   P|knn|l16.0            q 0.5588  hit5 0.363  mrr 0.260  r1 0.184  off 0.012
+   M|knn|m1|t0.2          q 0.5588  hit5 0.363  mrr 0.260  r1 0.184  off 0.012
+   H|knn|t0.2             q 0.5611  hit5 0.371  mrr 0.271  r1 0.200  off 0.012
+   P|knn|l16.0#nocheck    q 0.5588  hit5 0.363  mrr 0.260  r1 0.184  off 0.012
+   P|knn|l16.0 - hyb_spell  [q] -0.0009 [-0.0014,-0.0004] p=0.00149  TOST+-.01 True
+   P|knn|l16.0 - hyb_spell  [hit5] -0.0033 [-0.0049,-0.0018] p=0.000154
+   P|knn|l16.0 - hyb_spell  [mrr] -0.0033 [-0.0049,-0.0017] p=0.0002
+   M|knn|m1|t0.2 - hyb_spell  [q] -0.0009 [-0.0014,-0.0004] p=0.00113  TOST+-.01 True
+   M|knn|m1|t0.2 - hyb_spell  [hit5] -0.0033 [-0.0049,-0.0018] p=0.000154
+   M|knn|m1|t0.2 - hyb_spell  [mrr] -0.0035 [-0.0050,-0.0019] p=8.56e-05
+   H|knn|t0.2 - hyb_spell  [q] +0.0014 [-0.0002,+0.0031] p=0.0776  TOST+-.01 True
+   H|knn|t0.2 - hyb_spell  [hit5] +0.0044 [-0.0009,+0.0098] p=0.0985
+   H|knn|t0.2 - hyb_spell  [mrr] +0.0078 [+0.0041,+0.0115] p=0.000173
+   P|knn|l16.0 - hyb_spell  [q] -0.0009 [-0.0014,-0.0004] p=0.00149  TOST+-.01 True
+   P|knn|l16.0 - hyb_spell  [hit5] -0.0033 [-0.0049,-0.0018] p=0.000154
+   P|knn|l16.0 - hyb_spell  [mrr] -0.0033 [-0.0049,-0.0017] p=0.0002
+   oracle_H - hyb_spell  [q] +0.0043 [+0.0028,+0.0059] p=3.88e-06  TOST+-.01 True
+   oracle_H - hyb_spell  [hit5] +0.0100 [+0.0049,+0.0151] p=0.000385
+   oracle_H - hyb_spell  [mrr] +0.0130 [+0.0099,+0.0161] p=1.74e-09
+   oracle_M - hyb_spell  [q] +0.0020 [+0.0015,+0.0026] p=4.92e-08  TOST+-.01 True
+   oracle_M - hyb_spell  [hit5] +0.0022 [+0.0009,+0.0036] p=0.00232
+   oracle_M - hyb_spell  [mrr] +0.0015 [+0.0007,+0.0023] p=0.000723
+-- pydoc9+shuf  n=2874  structure purity 0.189 (base 0.188, excess +0.001) domain_mode=False router_acc={'_knn': 0.454}
+   none                   q 0.4486  hit5 0.000  mrr 0.000  r1 0.000  off 0.000
+   dense_raw              q 0.5737  hit5 0.528  mrr 0.400  r1 0.304  off 0.329
+   dense_spell            q 0.5792  hit5 0.544  mrr 0.408  r1 0.310  off 0.322
+   hyb_raw                q 0.6085  hit5 0.625  mrr 0.471  r1 0.351  off 0.273
+   hyb_spell              q 0.6110  hit5 0.632  mrr 0.482  r1 0.362  off 0.268
+   oracle_H               q 0.6475  hit5 0.786  mrr 0.666  r1 0.573  off 0.365
+   oracle_M               q 0.6494  hit5 0.792  mrr 0.668  r1 0.573  off 0.365
+   P|knn|l16.0            q 0.6110  hit5 0.632  mrr 0.482  r1 0.362  off 0.268
+   M|knn|m1|t0.2          q 0.6110  hit5 0.632  mrr 0.482  r1 0.362  off 0.268
+   H|knn|t0.2             q 0.6110  hit5 0.632  mrr 0.482  r1 0.362  off 0.268
+   P|knn|l16.0#nocheck    q 0.5777  hit5 0.536  mrr 0.437  r1 0.356  off 0.316
+   P|knn|l16.0 - hyb_spell  [q] +0.0000 [+0.0000,+0.0000] p=1  TOST+-.01 True
+   P|knn|l16.0 - hyb_spell  [hit5] +0.0000 [+0.0000,+0.0000] p=1
+   P|knn|l16.0 - hyb_spell  [mrr] +0.0000 [+0.0000,+0.0000] p=1
+   M|knn|m1|t0.2 - hyb_spell  [q] +0.0000 [+0.0000,+0.0000] p=1  TOST+-.01 True
+   M|knn|m1|t0.2 - hyb_spell  [hit5] +0.0000 [+0.0000,+0.0000] p=1
+   M|knn|m1|t0.2 - hyb_spell  [mrr] +0.0000 [+0.0000,+0.0000] p=1
+   H|knn|t0.2 - hyb_spell  [q] +0.0000 [+0.0000,+0.0000] p=1  TOST+-.01 True
+   H|knn|t0.2 - hyb_spell  [hit5] +0.0000 [+0.0000,+0.0000] p=1
+   H|knn|t0.2 - hyb_spell  [mrr] +0.0000 [+0.0000,+0.0000] p=1
+   P|knn|l16.0 - hyb_spell  [q] +0.0000 [+0.0000,+0.0000] p=1  TOST+-.01 True
+   P|knn|l16.0 - hyb_spell  [hit5] +0.0000 [+0.0000,+0.0000] p=1
+   P|knn|l16.0 - hyb_spell  [mrr] +0.0000 [+0.0000,+0.0000] p=1
+   oracle_H - hyb_spell  [q] +0.0365 [+0.0330,+0.0400] p=3.34e-19  TOST+-.01 False
+   oracle_H - hyb_spell  [hit5] +0.1538 [+0.1425,+0.1650] p=1.65e-22
+   oracle_H - hyb_spell  [mrr] +0.1843 [+0.1775,+0.1911] p=5.9e-31
+   oracle_M - hyb_spell  [q] +0.0383 [+0.0346,+0.0421] p=5.45e-19  TOST+-.01 False
+   oracle_M - hyb_spell  [hit5] +0.1602 [+0.1480,+0.1725] p=5.54e-22
+   oracle_M - hyb_spell  [mrr] +0.1862 [+0.1792,+0.1933] p=1.09e-30
+-- crates8+shuf  n=832  structure purity 0.148 (base 0.160, excess -0.011) domain_mode=False router_acc={'_knn': 0.45}
+   none                   q 0.4490  hit5 0.000  mrr 0.000  r1 0.000  off 0.000
+   dense_raw              q 0.5756  hit5 0.576  mrr 0.426  r1 0.319  off 0.462
+   dense_spell            q 0.5800  hit5 0.588  mrr 0.424  r1 0.306  off 0.453
+   hyb_raw                q 0.5914  hit5 0.616  mrr 0.467  r1 0.358  off 0.421
+   hyb_spell              q 0.5990  hit5 0.638  mrr 0.482  r1 0.369  off 0.413
+   oracle_H               q 0.6469  hit5 0.842  mrr 0.698  r1 0.595  off 0.546
+   oracle_M               q 0.6492  hit5 0.851  mrr 0.706  r1 0.603  off 0.549
+   P|knn|l16.0            q 0.5990  hit5 0.638  mrr 0.482  r1 0.369  off 0.413
+   M|knn|m1|t0.2          q 0.5990  hit5 0.638  mrr 0.482  r1 0.369  off 0.413
+   H|knn|t0.2             q 0.5990  hit5 0.638  mrr 0.482  r1 0.369  off 0.413
+   P|knn|l16.0#nocheck    q 0.5574  hit5 0.527  mrr 0.440  r1 0.374  off 0.495
+   P|knn|l16.0 - hyb_spell  [q] +0.0000 [+0.0000,+0.0000] p=1  TOST+-.01 True
+   P|knn|l16.0 - hyb_spell  [hit5] +0.0000 [+0.0000,+0.0000] p=1
+   P|knn|l16.0 - hyb_spell  [mrr] +0.0000 [+0.0000,+0.0000] p=1
+   M|knn|m1|t0.2 - hyb_spell  [q] +0.0000 [+0.0000,+0.0000] p=1  TOST+-.01 True
+   M|knn|m1|t0.2 - hyb_spell  [hit5] +0.0000 [+0.0000,+0.0000] p=1
+   M|knn|m1|t0.2 - hyb_spell  [mrr] +0.0000 [+0.0000,+0.0000] p=1
+   H|knn|t0.2 - hyb_spell  [q] +0.0000 [+0.0000,+0.0000] p=1  TOST+-.01 True
+   H|knn|t0.2 - hyb_spell  [hit5] +0.0000 [+0.0000,+0.0000] p=1
+   H|knn|t0.2 - hyb_spell  [mrr] +0.0000 [+0.0000,+0.0000] p=1
+   P|knn|l16.0 - hyb_spell  [q] +0.0000 [+0.0000,+0.0000] p=1  TOST+-.01 True
+   P|knn|l16.0 - hyb_spell  [hit5] +0.0000 [+0.0000,+0.0000] p=1
+   P|knn|l16.0 - hyb_spell  [mrr] +0.0000 [+0.0000,+0.0000] p=1
+   oracle_H - hyb_spell  [q] +0.0480 [+0.0458,+0.0502] p=1.76e-28  TOST+-.01 False
+   oracle_H - hyb_spell  [hit5] +0.2040 [+0.1973,+0.2106] p=1.86e-32
+   oracle_H - hyb_spell  [mrr] +0.2162 [+0.2110,+0.2214] p=2.29e-36
+   oracle_M - hyb_spell  [q] +0.0502 [+0.0480,+0.0524] p=8.39e-29  TOST+-.01 False
+   oracle_M - hyb_spell  [hit5] +0.2124 [+0.2057,+0.2191] p=6.18e-33
+   oracle_M - hyb_spell  [mrr] +0.2235 [+0.2182,+0.2287] p=1.19e-36
+-- syn10+shuf  n=3200  structure purity 0.102 (base 0.100, excess +0.001) domain_mode=False router_acc={'_knn': 0.281}
+   none                   q 0.4514  hit5 0.000  mrr 0.000  r1 0.000  off 0.000
+   dense_raw              q 0.5252  hit5 0.256  mrr 0.169  r1 0.104  off 0.027
+   dense_spell            q 0.5255  hit5 0.256  mrr 0.170  r1 0.102  off 0.025
+   hyb_raw                q 0.5568  hit5 0.357  mrr 0.259  r1 0.186  off 0.014
+   hyb_spell              q 0.5597  hit5 0.366  mrr 0.263  r1 0.187  off 0.014
+   oracle_H               q 0.6972  hit5 0.832  mrr 0.569  r1 0.395  off 0.032
+   oracle_M               q 0.6986  hit5 0.836  mrr 0.584  r1 0.416  off 0.031
+   P|knn|l16.0            q 0.5597  hit5 0.366  mrr 0.263  r1 0.187  off 0.014
+   M|knn|m1|t0.2          q 0.5597  hit5 0.366  mrr 0.263  r1 0.187  off 0.014
+   H|knn|t0.2             q 0.5597  hit5 0.366  mrr 0.263  r1 0.187  off 0.014
+   P|knn|l16.0#nocheck    q 0.5384  hit5 0.298  mrr 0.234  r1 0.186  off 0.022
+   P|knn|l16.0 - hyb_spell  [q] +0.0000 [+0.0000,+0.0000] p=1  TOST+-.01 True
+   P|knn|l16.0 - hyb_spell  [hit5] +0.0000 [+0.0000,+0.0000] p=1
+   P|knn|l16.0 - hyb_spell  [mrr] +0.0000 [+0.0000,+0.0000] p=1
+   M|knn|m1|t0.2 - hyb_spell  [q] +0.0000 [+0.0000,+0.0000] p=1  TOST+-.01 True
+   M|knn|m1|t0.2 - hyb_spell  [hit5] +0.0000 [+0.0000,+0.0000] p=1
+   M|knn|m1|t0.2 - hyb_spell  [mrr] +0.0000 [+0.0000,+0.0000] p=1
+   H|knn|t0.2 - hyb_spell  [q] +0.0000 [+0.0000,+0.0000] p=1  TOST+-.01 True
+   H|knn|t0.2 - hyb_spell  [hit5] +0.0000 [+0.0000,+0.0000] p=1
+   H|knn|t0.2 - hyb_spell  [mrr] +0.0000 [+0.0000,+0.0000] p=1
+   P|knn|l16.0 - hyb_spell  [q] +0.0000 [+0.0000,+0.0000] p=1  TOST+-.01 True
+   P|knn|l16.0 - hyb_spell  [hit5] +0.0000 [+0.0000,+0.0000] p=1
+   P|knn|l16.0 - hyb_spell  [mrr] +0.0000 [+0.0000,+0.0000] p=1
+   oracle_H - hyb_spell  [q] +0.1376 [+0.1336,+0.1415] p=3.63e-34  TOST+-.01 False
+   oracle_H - hyb_spell  [hit5] +0.4656 [+0.4523,+0.4789] p=3.54e-34
+   oracle_H - hyb_spell  [mrr] +0.3052 [+0.2968,+0.3136] p=1.27e-34
+   oracle_M - hyb_spell  [q] +0.1389 [+0.1348,+0.1430] p=1.05e-33  TOST+-.01 False
+   oracle_M - hyb_spell  [hit5] +0.4700 [+0.4560,+0.4840] p=1.26e-33
+   oracle_M - hyb_spell  [mrr] +0.3209 [+0.3124,+0.3294] p=3.64e-35

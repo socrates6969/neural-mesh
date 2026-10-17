@@ -1,0 +1,53 @@
+MUTATION TESTING of the evaluator: 21 seeded bugs, workload = canonical specs of worlds A+B, seeds 1-8
+catch = share of WRONG tool outputs (that the tool returned as Ok) the verifier rejects; 'visible' = tool errored (visible failure, not silent)
+id  mutant                  n wrongOk visible |   shared    indep  indep+M meta-only |   frS   frI   frM   frO
+1   P_unary_tight        5852       0       0 |      n/a      n/a      n/a       n/a |     0     0     0     0
+2   P_pow_left           5852       0       0 |      n/a      n/a      n/a       n/a |     0     0     0     0
+3   P_addsub_right       5852     380       0 |     0.0%   100.0%   100.0%      0.0% |     0     0     0     0
+4   P_muldiv_right       5852       0       0 |      n/a      n/a      n/a       n/a |     0     0     0     0
+5   P_flat_prec          5852     762       0 |     0.0%   100.0%   100.0%      0.0% |     0     0     0     0
+6   N_dec_off            5852       0       0 |      n/a      n/a      n/a       n/a |     0     0     0     0
+7   E_pow_off1           5852     254       0 |     0.0%   100.0%   100.0%      0.0% |     0     0     0     0
+8   E_idiv               5852     274       6 |    99.6%   100.0%   100.0%     26.6% |     0     0   493   493
+9   E_round2             5852    1114       0 |    62.9%   100.0%   100.0%      3.8% |     0     0     0     0
+10  E_mod_trunc          5852       0       0 |      n/a      n/a      n/a       n/a |     0     0     0     0
+11  U_ft                 5852      70       0 |     0.0%   100.0%   100.0%      0.0% |     0     0     0     0
+12  U_lb                 5852     102       0 |     0.0%   100.0%   100.0%      0.0% |     0     0     0     0
+13  U_week               5852      80       0 |     0.0%   100.0%   100.0%      0.0% |     0     0     0     0
+14  U_knot               5852     124       0 |     0.0%   100.0%   100.0%      0.0% |     0     0     0     0
+15  U_cm_recip           5852      73       0 |     0.0%   100.0%   100.0%      0.0% |     0     0     0     0
+16  U_sum_drop           5852     396       0 |     0.0%   100.0%   100.0%    100.0% |     0     0     0     0
+17  U_sum_unconv         5852     316       0 |     0.0%   100.0%   100.0%    100.0% |     0     0     0     0
+18  C_lt_le              5852     287       0 |     0.0%   100.0%   100.0%      0.0% |     0     0     0     0
+19  C_dom_excl           5852     137       0 |     0.0%   100.0%   100.0%      0.0% |     0     0     0     0
+20  CM_U_lb              5852     102       0 |     0.0%     0.0%     0.0%      0.0% |     0     0     0     0
+21  CM_P_addsub_right    5852     380       0 |     0.0%     0.0%     0.0%      0.0% |     0     0     0     0
+
+STRESS CORPUS (random calc expressions, minimal parentheses, ground truth from the generating tree; calc tool only), 1500 per seed
+id  mutant                  n wrongOk visible |   shared    indep  indep+M meta-only |   frS   frI   frM   frO
+0   none (clean)        12000       0       0 |      n/a      n/a      n/a       n/a |     0     0     0     0
+1   P_unary_tight       12000     194       0 |     0.0%   100.0%   100.0%    100.0% |     0     0     0     0
+2   P_pow_left          12000       0       0 |      n/a      n/a      n/a       n/a |     0     0     0     0
+3   P_addsub_right      12000    1319       1 |     0.0%   100.0%   100.0%    100.0% |     0     0     0     0
+4   P_muldiv_right      12000     709       5 |     0.0%   100.0%   100.0%    100.0% |     0     0     0     0
+5   P_flat_prec         12000    2126       1 |     0.0%   100.0%   100.0%    100.0% |     0     0     0     0
+6   N_dec_off           12000    6326       0 |     0.0%   100.0%   100.0%    100.0% |     0     0     0     0
+7   E_pow_off1          12000    1674       0 |   100.0%   100.0%   100.0%      0.0% |     0     0     0     0
+8   E_idiv              12000    1267      73 |    99.6%   100.0%   100.0%     57.9% |     0     0  7246  7246
+9   E_round2            12000    5758       0 |   100.0%   100.0%   100.0%      0.0% |     0     0     0     0
+10  E_mod_trunc         12000       0       0 |      n/a      n/a      n/a       n/a |     0     0     0     0
+11  U_ft                12000       0       0 |      n/a      n/a      n/a       n/a |     0     0     0     0
+12  U_lb                12000       0       0 |      n/a      n/a      n/a       n/a |     0     0     0     0
+13  U_week              12000       0       0 |      n/a      n/a      n/a       n/a |     0     0     0     0
+14  U_knot              12000       0       0 |      n/a      n/a      n/a       n/a |     0     0     0     0
+15  U_cm_recip          12000       0       0 |      n/a      n/a      n/a       n/a |     0     0     0     0
+16  U_sum_drop          12000       0       0 |      n/a      n/a      n/a       n/a |     0     0     0     0
+17  U_sum_unconv        12000       0       0 |      n/a      n/a      n/a       n/a |     0     0     0     0
+18  C_lt_le             12000       0       0 |      n/a      n/a      n/a       n/a |     0     0     0     0
+19  C_dom_excl          12000       0       0 |      n/a      n/a      n/a       n/a |     0     0     0     0
+20  CM_U_lb             12000       0       0 |      n/a      n/a      n/a       n/a |     0     0     0     0
+21  CM_P_addsub_right   12000    1319       1 |     0.0%     0.0%     0.0%      0.0% |     0     0     0     0
+STRESS TOTAL silent wrong outputs 20692: caught by shared  42.0% / independent  93.6% / independent+metamorphic  93.6% / metamorphic-only  55.1%
+
+TOTAL silent wrong outputs over all mutants: 4851; caught by shared  20.1% / independent  90.1% / independent+metamorphic  90.1%
+mutants that manifest on this workload: 16/21; 'killed' (>=90% of silent wrong outputs caught): shared 1, independent 14, independent+metamorphic 14

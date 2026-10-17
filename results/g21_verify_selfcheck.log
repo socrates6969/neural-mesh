@@ -1,0 +1,14 @@
+selfcheck: mutant 0 (unmutated copy) vs the REAL tools in neural_mesh::tools, seeds 1-6
+copy == real tools on 4384/4384 canonical specs; shared-verifier copy == real Verifier on correct outputs 4384/4384, on wrong claims 4384/4384
+
+independent verifier on the CLEAN evaluator (no bugs):
+kind          n  indep cov    false rej  false rej+M cost ind/shr
+arith       884     100.0%        0/884        0/884  1.00/1.00 
+units       859     100.0%        0/859        0/859  1.00/1.00 
+csp         852     100.0%        0/852        0/852  1.00/1.00 
+sym         470     100.0%        0/470        0/470  2.00/1.00 
+prog        890     100.0%        0/890        0/890  6.98/6.98 
+lookup      429     100.0%        0/429        0/429  1.00/1.00 
+wrong claims rejected by the independent verifier: 4384/4384 (with metamorphic checks 4384/4384)
+DIFFERENTIAL TEST of the real tools::Calc on 9000 minimal-parenthesis random expressions: output == generating-tree truth on 9000/9000 (tool errors 0); independent+metamorphic verifier accepts 9000/9000; rejects wrong claims 9000/9000
+SELFCHECK PASS

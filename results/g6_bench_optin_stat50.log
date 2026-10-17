@@ -1,0 +1,17 @@
+base: C:/Users/mariu/nm-target-r6/g6/neural-mesh-new.exe
+new:  C:/Users/mariu/nm-target-r6/g6/neural-mesh-new-knob.exe
+new side runs with env NEURAL_MESH_SERVE_STAT_MS=50
+secs/run 1.5, reps 5, ABAB interleaved (order alternates each rep). decision = route + feedback.
+
+config                                                     | base dec/s  new dec/s |      x |  base p50   new p50 | base cpu  new cpu | base WS  new WS
+tcp lockstep N=1 (defaults flush 64/1s)                    |       4712      10429 |  2.21x |     164us      58us |    172us     73us |   7.8MB   7.8MB
+tcp lockstep N=2 (defaults flush 64/1s)                    |       7614      12390 |  1.63x |     192us      83us |    180us     95us |   7.8MB   7.8MB
+tcp lockstep N=4 (defaults flush 64/1s)                    |       6781      14574 |  2.15x |     455us     114us |    203us    104us |   7.9MB   8.0MB
+tcp lockstep N=8 (defaults flush 64/1s)                    |       6185      15637 |  2.53x |    1024us     226us |    231us    128us |   8.1MB   8.2MB
+tcp lockstep N=1 (flush off)                               |       6267      15807 |  2.52x |     150us      60us |    123us     38us |  19.6MB  37.9MB
+tcp lockstep N=8 (flush off)                               |      10173      40999 |  4.03x |     757us     180us |    149us     84us |  27.9MB  87.9MB
+tcp pipelined 32+32 per write N=1 (defaults flush)         |       9683      23226 |  2.40x |      94us      40us |     99us     41us |   7.8MB   7.8MB
+tcp pipelined 32+32 per write N=4 (defaults flush)         |       6697      13993 |  2.09x |     538us     280us |    156us     77us |   8.0MB   8.0MB
+tcp pipelined 32+32 per write N=8 (defaults flush)         |       9556      17361 |  1.82x |     718us     456us |    117us     68us |   8.3MB   8.3MB
+stdio pipe, 20k decisions (defaults flush)                 |      10248      23056 |  2.25x |      49us      22us |     96us     42us |   7.8MB   7.8MB
+stdio pipe, 20k decisions (flush off)                      |      16139      88055 |  5.46x |      31us       6us |     61us     11us |  32.9MB  33.0MB

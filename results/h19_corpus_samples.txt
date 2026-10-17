@@ -1,0 +1,621 @@
+
+######## SYNTHETIC world=paper layout=L0 bank=Dev seed=1 idx=2000 facts=26 questions=5
+Robust Inference for Benchmark Tasks
+
+Abstract
+We present OurNet and evaluate it against 5 baselines on 6 datasets in 2018. Code and data are available at release 3.
+
+1. Methods
+We trained all models with 103 epochs, a batch size of 256, a learning rate of 3e-4, and 4,333 participants (random seed 65; see Appendix B and [37]).
+
+2. Results
+Table 2: Main results on the held-out test set.
+
+| Model | F1 (%) | Memory (GB) | Error rate (%) |
+|---|---:|---:|---:|
+| ResNet-50 | 66.6 | 21.4 | 16.0 |
+| DistilNet | 58.9 | 24.3 | 23.8 |
+| OurNet | 62.0 | 5.5 | 17.9 |
+| ViT-B | 94.1 | 36.7 | 12.7 |
+| LSTM-Base | 64.8 | 6.4 | 15.0 |
+| T5-small | 69.9 | 8.6 | 15.1 |
+
+ViT-B reaches 94.1 % in this setting (p < 0.04, n = 384).
+
+3. Discussion
+ResNet-50 outperforms DistilNet in terms of F1 [12].
+On error rate, DistilNet improves on T5-small [4].
+ResNet-50 outperforms OurNet in terms of error rate [25].
+T5-small improves on OurNet in terms of F1 [31].
+Prior work [36] used a single seed; our protocol follows [31].
+
+4. Limitations
+We evaluate on 9 datasets only and did not test beyond 909 tokens; effects may not transfer to other regimes.
+
+References
+[1] A. Author and B. Writer. Journal of Machine Studies 36(12), pp. 197-433, 2022.
+[2] A. Author and B. Writer. Journal of Machine Studies 31(11), pp. 255-628, 2021.
+[3] A. Author and B. Writer. Journal of Machine Studies 15(7), pp. 114-797, 2018.
+[4] A. Author and B. Writer. Journal of Machine Studies 15(1), pp. 97-462, 2015.
+[5] A. Author and B. Writer. Journal of Machine Studies 27(9), pp. 13-657, 2023.
+[Q ArgBest(false)] Which model is best on F1? -> 3
+[Q ArgBest(true)] Which model is best on memory? -> 2
+[Q Diff] Difference in F1 between ResNet-50 and DistilNet? -> 7.699999999999996
+[Q Ratio] Ratio? -> 1.130730050933786
+[Q CountSupported] How many firm claims are supported by the tables? -> 3
+
+######## SYNTHETIC world=paper layout=L0 bank=Unseen seed=1 idx=2000 facts=25 questions=5
+Scalable Training for Benchmark Tasks
+
+Abstract
+We present OurNet and evaluate it against 3 baselines on 8 datasets in 2021. Code and data are available at release 1.
+
+1. Methods
+We trained all models with mini-batches of 64 samples, dropout probability 0.2, a cohort of 3,341 subjects, and 7 accelerators (random seed 21; see Appendix A and [15]).
+
+2. Results
+Table 1: Main results on the held-out test set.
+
+| Model | Inference time (s) | Top-1 acc. (%) | BLEU-4 | Memory (GB) |
+|---|---:|---:|---:|---:|
+| OurNet | 0.3520 | 66.0 | 34.6 | 39.3 |
+| T5-small | 0.3530 | 67.2 | 35.1 | 27.0 |
+| ResNet-50 | 0.4270 | 87.2 | 41.0 | 10.6 |
+| ViT-B | 0.0840 | 85.6 | 31.1 | 20.4 |
+
+3. Discussion
+On inference time, it seems likely that ViT-B beats OurNet [10].
+ResNet-50 improves on T5-small in terms of memory footprint [40].
+Our results suggest that ViT-B does not outperform OurNet in terms of BLEU score [33].
+On BLEU, T5-small outperforms ResNet-50 [27].
+We conjecture that ViT-B is better than T5-small in terms of memory footprint [20].
+Prior work [5] used a single seed; our protocol follows [9].
+
+4. Limitations
+We evaluate on 7 datasets only and did not test beyond 4,886 tokens; effects may not transfer to other regimes.
+
+References
+[1] A. Author and B. Writer. Journal of Machine Studies 26(5), pp. 311-421, 2014.
+[2] A. Author and B. Writer. Journal of Machine Studies 25(11), pp. 368-445, 2012.
+[3] A. Author and B. Writer. Journal of Machine Studies 17(12), pp. 227-468, 2012.
+[4] A. Author and B. Writer. Journal of Machine Studies 12(2), pp. 63-726, 2021.
+[5] A. Author and B. Writer. Journal of Machine Studies 21(3), pp. 265-683, 2016.
+[6] A. Author and B. Writer. Journal of Machine Studies 37(5), pp. 40-670, 2021.
+[Q ArgBest(true)] Which model is best on latency? -> 3
+[Q ArgBest(false)] Which model is best on accuracy? -> 2
+[Q Diff] Difference in accuracy between OurNet and T5-small? -> -1.2000000000000028
+[Q Ratio] Ratio? -> 0.9821428571428571
+[Q CountSupported] How many firm claims are supported by the tables? -> 1
+
+######## SYNTHETIC world=paper layout=L2 bank=Dev seed=1 idx=2000 facts=26 questions=5
+Robust Inference for Benchmark Tasks
+
+Abstract
+We present OurNet and evaluate it against 5 baselines on 6 datasets in 2018. Code and data are available at release 3.
+
+1. Methods
+We trained all models with 103 epochs, a batch size of 256, a learning rate of 3e-4, and 4,333 participants (random seed 65; see Appendix B and [37]).
+
+2. Results
+Table 2: Main results on the held-out test set.
+
+Model,F1 (%),Memory (GB),Error rate (%)
+ResNet-50,66.6,21.4,16.0
+DistilNet,58.9,24.3,23.8
+OurNet,62.0,5.5,17.9
+ViT-B,94.1,36.7,12.7
+LSTM-Base,64.8,6.4,15.0
+T5-small,69.9,8.6,15.1
+
+ViT-B reaches 94.1 % in this setting (p < 0.04, n = 384).
+
+3. Discussion
+ResNet-50 outperforms DistilNet in terms of F1 [12].
+On error rate, DistilNet improves on T5-small [4].
+ResNet-50 outperforms OurNet in terms of error rate [25].
+T5-small improves on OurNet in terms of F1 [31].
+Prior work [36] used a single seed; our protocol follows [31].
+
+4. Limitations
+We evaluate on 9 datasets only and did not test beyond 909 tokens; effects may not transfer to other regimes.
+
+References
+[1] A. Author and B. Writer. Journal of Machine Studies 36(12), pp. 197-433, 2022.
+[2] A. Author and B. Writer. Journal of Machine Studies 31(11), pp. 255-628, 2021.
+[3] A. Author and B. Writer. Journal of Machine Studies 15(7), pp. 114-797, 2018.
+[4] A. Author and B. Writer. Journal of Machine Studies 15(1), pp. 97-462, 2015.
+[5] A. Author and B. Writer. Journal of Machine Studies 27(9), pp. 13-657, 2023.
+[Q ArgBest(false)] Which model is best on F1? -> 3
+[Q ArgBest(true)] Which model is best on memory? -> 2
+[Q Diff] Difference in F1 between ResNet-50 and DistilNet? -> 7.699999999999996
+[Q Ratio] Ratio? -> 1.130730050933786
+[Q CountSupported] How many firm claims are supported by the tables? -> 3
+
+######## SYNTHETIC world=paper layout=L2 bank=Unseen seed=1 idx=2000 facts=25 questions=5
+Scalable Training for Benchmark Tasks
+
+Abstract
+We present OurNet and evaluate it against 3 baselines on 8 datasets in 2021. Code and data are available at release 1.
+
+1. Methods
+We trained all models with mini-batches of 64 samples, dropout probability 0.2, a cohort of 3,341 subjects, and 7 accelerators (random seed 21; see Appendix A and [15]).
+
+2. Results
+Table 1: Main results on the held-out test set.
+
+Model,Inference time (s),Top-1 acc. (%),BLEU-4,Memory (GB)
+OurNet,0.3520,66.0,34.6,39.3
+T5-small,0.3530,67.2,35.1,27.0
+ResNet-50,0.4270,87.2,41.0,10.6
+ViT-B,0.0840,85.6,31.1,20.4
+
+3. Discussion
+On inference time, it seems likely that ViT-B beats OurNet [10].
+ResNet-50 improves on T5-small in terms of memory footprint [40].
+Our results suggest that ViT-B does not outperform OurNet in terms of BLEU score [33].
+On BLEU, T5-small outperforms ResNet-50 [27].
+We conjecture that ViT-B is better than T5-small in terms of memory footprint [20].
+Prior work [5] used a single seed; our protocol follows [9].
+
+4. Limitations
+We evaluate on 7 datasets only and did not test beyond 4,886 tokens; effects may not transfer to other regimes.
+
+References
+[1] A. Author and B. Writer. Journal of Machine Studies 26(5), pp. 311-421, 2014.
+[2] A. Author and B. Writer. Journal of Machine Studies 25(11), pp. 368-445, 2012.
+[3] A. Author and B. Writer. Journal of Machine Studies 17(12), pp. 227-468, 2012.
+[4] A. Author and B. Writer. Journal of Machine Studies 12(2), pp. 63-726, 2021.
+[5] A. Author and B. Writer. Journal of Machine Studies 21(3), pp. 265-683, 2016.
+[6] A. Author and B. Writer. Journal of Machine Studies 37(5), pp. 40-670, 2021.
+[Q ArgBest(true)] Which model is best on latency? -> 3
+[Q ArgBest(false)] Which model is best on accuracy? -> 2
+[Q Diff] Difference in accuracy between OurNet and T5-small? -> -1.2000000000000028
+[Q Ratio] Ratio? -> 0.9821428571428571
+[Q CountSupported] How many firm claims are supported by the tables? -> 1
+
+######## SYNTHETIC world=paper layout=L4 bank=Dev seed=1 idx=2000 facts=24 questions=5
+Scalable Inference for Benchmark Tasks
+
+Abstract
+We present OurNet and evaluate it against 5 baselines on 8 datasets in 2024. Code and data are available at release 4.
+
+1. Methods
+We trained all models with 421 participants, and 271 epochs (random seed 65; see Appendix B and [37]).
+
+2. Results
+Table 2: Main results on the held-out test set. Best per column in bold; values after the plus-minus sign are standard deviations over 5 runs.
+
+Metric             ResNet-50   DistilNet      OurNet           ViT-B   LSTM-Base    T5-small
+--------------------------------------------------------------------------------------------
+F1 (%)            66.6 ± 0.5  58.9 ± 0.8  62.0 ± 1.0  **94.1 ± 0.7**  64.8 ± 0.1  69.9 ± 0.2
+Memory (GB)             21.4        24.3     **5.5**            36.7         6.4         8.6
+Error rate (%)          16.0        23.8        17.9        **12.7**        15.0        15.1
+
+ViT-B reaches 94.1 % in this setting (p < 0.03, n = 302).
+
+3. Discussion
+On F1, DistilNet is not better than ResNet-50 [4].
+LSTM-Base fails to improve on ViT-B in terms of F1 [14].
+DistilNet improves on ResNet-50 in terms of memory [18].
+On error rate, OurNet is not better than DistilNet [4].
+Prior work [40] used a single seed; our protocol follows [20].
+
+4. Limitations
+We evaluate on 2 datasets only and did not test beyond 7,051 tokens; effects may not transfer to other regimes.
+
+References
+[1] A. Author and B. Writer. Journal of Machine Studies 36(8), pp. 187-780, 2016.
+[2] A. Author and B. Writer. Journal of Machine Studies 24(4), pp. 319-678, 2016.
+[3] A. Author and B. Writer. Journal of Machine Studies 4(3), pp. 57-531, 2019.
+[4] A. Author and B. Writer. Journal of Machine Studies 29(1), pp. 210-868, 2014.
+[5] A. Author and B. Writer. Journal of Machine Studies 36(2), pp. 84-784, 2013.
+[Q ArgBest(false)] Which model is best on F1? -> 3
+[Q ArgBest(true)] Which model is best on memory? -> 2
+[Q Diff] Difference in F1 between ResNet-50 and DistilNet? -> 7.699999999999996
+[Q Ratio] Ratio? -> 1.130730050933786
+[Q CountSupported] How many firm claims are supported by the tables? -> 2
+
+######## SYNTHETIC world=paper layout=L4 bank=Unseen seed=1 idx=2000 facts=23 questions=5
+Scalable Training for Benchmark Tasks
+
+Abstract
+We present OurNet and evaluate it against 3 baselines on 8 datasets in 2021. Code and data are available at release 1.
+
+1. Methods
+We trained all models with mini-batches of 64 samples, dropout probability 0.2, a cohort of 3,341 subjects, and 7 accelerators (random seed 21; see Appendix A and [15]).
+
+2. Results
+Table 1: Main results on the held-out test set. Best per column in bold; values after the plus-minus sign are standard deviations over 5 runs.
+
+Metric                OurNet    T5-small       ResNet-50       ViT-B
+--------------------------------------------------------------------
+Latency               352 ms      353 ms          427 ms   **84 ms**
+Top-1 acc. (%)    66.0 ± 0.7  67.2 ± 0.1  **87.2 ± 0.2**  85.6 ± 0.9
+BLEU-4            34.6 ± 0.3  35.1 ± 0.1  **41.0 ± 0.4**  31.1 ± 0.3
+Memory (GB)             39.3        27.0        **10.6**        20.4
+
+3. Discussion
+ResNet-50 trails T5-small in terms of inference time [36].
+Compared with ViT-B, ResNet-50 outperforms on memory [30].
+OurNet surpasses ViT-B in terms of inference time [10].
+Prior work [6] used a single seed; our protocol follows [17].
+
+4. Limitations
+We evaluate on 9 datasets only and did not test beyond 5,471 tokens; effects may not transfer to other regimes.
+
+References
+[1] A. Author and B. Writer. Journal of Machine Studies 4(10), pp. 182-829, 2021.
+[2] A. Author and B. Writer. Journal of Machine Studies 40(5), pp. 42-405, 2013.
+[3] A. Author and B. Writer. Journal of Machine Studies 21(8), pp. 349-514, 2018.
+[4] A. Author and B. Writer. Journal of Machine Studies 7(5), pp. 166-458, 2014.
+[5] A. Author and B. Writer. Journal of Machine Studies 27(8), pp. 341-713, 2016.
+[6] A. Author and B. Writer. Journal of Machine Studies 32(1), pp. 83-699, 2022.
+[Q ArgBest(true)] Which model is best on latency? -> 3
+[Q ArgBest(false)] Which model is best on accuracy? -> 2
+[Q Diff] Difference in memory between OurNet and T5-small? -> 12.299999999999997
+[Q Ratio] Ratio? -> 1.4555555555555555
+[Q CountSupported] How many firm claims are supported by the tables? -> 2
+
+######## SYNTHETIC world=financial layout=L0 bank=Dev seed=1 idx=2000 facts=44 questions=9
+Evergreen Power - Annual Report Extract
+Fiscal year ended December 31, 2023. Reporting currency: EUR.
+
+Management discussion: the group employed 5,699 people across 18 countries and opened 20 new sites during the year.
+
+Consolidated Statements of Income (€ in thousands)
+
+| Item | 2023 | Fiscal 2022 |
+|---|---:|---:|
+| Total revenues | 674,465 | 611,887 |
+| Cost of sales | 446,752 | 371,872 |
+| Gross margin | 227,713 | 240,015 |
+| Operating expenses | 132,082 | 96,431 |
+| Income from operations | 95,631 | 143,584 |
+| Interest expense | 7,892 | 24,142 |
+| Income before income taxes | 87,739 | 119,442 |
+| Provision for income taxes | 17,090 | 18,104 |
+| Net income | 70,649 | 101,338 |
+
+Consolidated Balance Sheets (€ in thousands)
+
+| Line item | 2023 | Fiscal 2022 |
+|---|---:|---:|
+| Cash | 61,014 | 48,730 |
+| Accounts receivable | 100,060 | 60,882 |
+| Inventory | 90,789 | 47,661 |
+| Total current assets | 251,863 | 157,273 |
+| PP&E, net | 321,779 | 416,457 |
+| Total assets | 573,642 | 573,730 |
+| Accounts payable | 51,915 | 61,644 |
+| Short-term debt | 52,766 | 62,675 |
+| Total current liabilities | 104,681 | 124,319 |
+| Long-term debt | 198,975 | 132,809 |
+| Total liabilities | 303,656 | 257,128 |
+| Total stockholders' equity | 269,986 | 316,602 |
+| Total liabilities and equity | 573,642 | 573,730 |
+
+[Q Growth] What was revenue growth FY over FY? -> 0.10227051726871138
+[Q Growth] What was net income growth? -> -0.30283802719611597
+[Q Lookup] What was revenue in the latest year (in currency units)? -> 674465000
+[Q Diff] By how much did revenue change (absolute)? -> 62578000
+[Q Ratio] What is the gross margin? -> 0.3376201878525943
+[Q Ratio] What is the net margin? -> 0.10474820783880558
+[Q Ratio] What is the operating margin? -> 0.1417879356230494
+[Q Ratio] What is the current ratio? -> 2.4060049101556156
+[Q Ratio] What is the liabilities-to-equity ratio? -> 1.124710170156971
+
+######## SYNTHETIC world=financial layout=L0 bank=Unseen seed=1 idx=2000 facts=44 questions=9
+Northwind Holdings - Annual Report Extract
+Fiscal year ended December 31, 2023. Figures in USD.
+
+Management discussion: the group employed 42,478 people across 33 countries and opened 52 new sites during the year.
+
+Consolidated Statements of Income (in thousands of USD)
+
+| Item | Current year | Prior year |
+|---|---:|---:|
+| Net revenues | 338,952 | 326,541 |
+| Cost of revenue | 243,073 | 153,491 |
+| Gross profit | 95,879 | 173,050 |
+| Total operating expenses | 39,196 | 97,770 |
+| Operating income | 56,683 | 75,280 |
+| Interest and other expense | 5,253 | 5,078 |
+| Income before tax | 51,430 | 70,202 |
+| Provision for income taxes | 8,803 | 17,403 |
+| Profit for the year | 42,627 | 52,799 |
+
+Consolidated Balance Sheets (in thousands of USD)
+
+| Line item | Current year | Prior year |
+|---|---:|---:|
+| Cash and cash equivalents | 74,689 | 42,134 |
+| Receivables, net | 63,491 | 41,800 |
+| Inventories | 31,033 | 30,621 |
+| Total current assets | 169,213 | 114,555 |
+| Fixed assets | 235,034 | 146,640 |
+| Total assets | 404,247 | 261,195 |
+| Creditors | 57,828 | 38,522 |
+| Short-term debt | 30,878 | 25,321 |
+| Current liabilities, total | 88,706 | 63,843 |
+| Term loans | 85,787 | 44,588 |
+| Total liabilities | 174,493 | 108,431 |
+| Total stockholders' equity | 229,754 | 152,764 |
+| Liabilities and equity, total | 404,247 | 261,195 |
+
+[Q Growth] What was revenue growth FY over FY? -> 0.03800747838709381
+[Q Growth] What was net income growth? -> -0.19265516392355916
+[Q Lookup] What was revenue in the latest year (in currency units)? -> 338952000
+[Q Diff] By how much did revenue change (absolute)? -> 12411000
+[Q Ratio] What is the gross margin? -> 0.282868960796809
+[Q Ratio] What is the net margin? -> 0.12576116972314663
+[Q Ratio] What is the operating margin? -> 0.16723016828341475
+[Q Ratio] What is the current ratio? -> 1.9075710774919397
+[Q Ratio] What is the liabilities-to-equity ratio? -> 0.7594775281387919
+
+######## SYNTHETIC world=financial layout=L2 bank=Dev seed=1 idx=2000 facts=66 questions=9
+Evergreen Power - Annual Report Extract
+Fiscal year ended December 31, 2023. Reporting currency: EUR.
+
+Management discussion: the group employed 12,641 people across 34 countries and opened 21 new sites during the year.
+
+Consolidated Statements of Income (in thousands)
+
+Line item                       Fiscal 2023  Fiscal 2022       2021
+-------------------------------------------------------------------
+Revenue ......................    € 630,686      662,644    589,739
+Cost of revenue ..............    € 351,654      494,273    308,886
+Gross profit .................    € 279,032    € 168,371  € 280,853
+Operating expenses ...........    € 117,036       51,219     95,704
+Operating income .............    € 161,996      117,152    185,149
+Interest and other expense ...      € 7,172        4,426     14,557
+Income before income taxes ...    € 154,824      112,726    170,592
+Income tax expense ...........     € 33,806       19,106     33,474
+Net income ...................    € 121,018     € 93,620  € 137,118
+
+Consolidated Balance Sheets (in thousands)
+
+Line item                              2023     FY2022       2021
+-----------------------------------------------------------------
+Cash ...........................    155,844     85,442    123,215
+Trade receivables ..............    102,881    148,553     82,615
+Inventory ......................     48,312     64,233     75,469
+Total current assets ...........    307,037    298,228    281,299
+PP&E, net ......................    370,468    460,709    278,127
+Total assets ...................  € 677,505  € 758,937  € 559,426
+Trade payables .................    107,550     85,451     74,539
+Short-term debt ................     51,479     31,650     59,546
+Total current liabilities ......    159,029    117,101    134,085
+Long-term debt .................    232,242    205,129    143,497
+Total liabilities ..............    391,271    322,230    277,582
+Total equity ...................    286,234    436,707    281,844
+Total liabilities and equity ...  € 677,505  € 758,937  € 559,426
+
+[Q Growth] What was revenue growth FY over FY? -> -0.04822800779905952
+[Q Growth] What was net income growth? -> 0.2926511429181799
+[Q Lookup] What was revenue in the latest year (in currency units)? -> 630686000
+[Q Diff] By how much did revenue change (absolute)? -> -31958000
+[Q Ratio] What is the gross margin? -> 0.4424261835525127
+[Q Ratio] What is the net margin? -> 0.1918831240902763
+[Q Ratio] What is the operating margin? -> 0.25685681939982813
+[Q Ratio] What is the current ratio? -> 1.9306981745467808
+[Q Ratio] What is the liabilities-to-equity ratio? -> 1.3669619961290413
+
+######## SYNTHETIC world=financial layout=L2 bank=Unseen seed=1 idx=2000 facts=66 questions=9
+Northwind Holdings - Annual Report Extract
+Fiscal year ended December 31, 2023. Reporting currency: USD.
+
+Management discussion: the group employed 46,933 people across 37 countries and opened 39 new sites during the year.
+
+Consolidated Statements of Income (expressed in thousand USD)
+
+Line item,FY 2023A,12M to 31/12/2022,12M to 31/12/2021
+Revenue,"810,558","890,066","1,006,066"
+Cost of goods sold,"413,197","568,404","687,512"
+Gross profit,"397,361","321,662","318,554"
+Total operating expenses,"196,226","137,214","116,379"
+Operating profit,"201,135","184,448","202,175"
+Interest expense,"8,280","21,746","5,742"
+Profit before taxation,"192,855","162,702","196,433"
+Income tax expense,"48,640","32,120","37,553"
+Net profit,"144,215","130,582","158,880"
+
+Consolidated Balance Sheets (expressed in thousand USD)
+
+Line item,Year ended Dec 31, 2023,FY2022,FY 2021A
+Cash and cash equivalents,"185,505","115,723","124,863"
+"Receivables, net","117,082","131,033","213,701"
+Inventories,"128,408","88,808","135,582"
+Total current assets,"430,995","335,564","474,146"
+"Property, plant and equipment","498,705","567,347","629,505"
+"Assets, total","929,700","902,911","1,103,651"
+Trade payables,"109,686","129,731","155,062"
+Current loans,"61,275","47,518","79,552"
+"Current liabilities, total","170,961","177,249","234,614"
+Term loans,"263,444","132,174","204,418"
+Total liabilities,"434,405","309,423","439,032"
+Total equity,"495,295","593,488","664,619"
+"Liabilities and equity, total","929,700","902,911","1,103,651"
+
+[Q Growth] What was revenue growth FY over FY? -> -0.08932820712171906
+[Q Growth] What was net income growth? -> 0.10440183179917599
+[Q Lookup] What was revenue in the latest year (in currency units)? -> 810558000
+[Q Diff] By how much did revenue change (absolute)? -> -79508000
+[Q Ratio] What is the gross margin? -> 0.4902314208236795
+[Q Ratio] What is the net margin? -> 0.17792064232294297
+[Q Ratio] What is the operating margin? -> 0.24814387125905857
+[Q Ratio] What is the current ratio? -> 2.521013564497166
+[Q Ratio] What is the liabilities-to-equity ratio? -> 0.8770631643767856
+
+######## SYNTHETIC world=financial layout=L4 bank=Dev seed=1 idx=2000 facts=26 questions=8
+Evergreen Power - Annual Report Extract
+Fiscal year ended December 31, 2023. Reporting currency: EUR.
+
+Management discussion: the group employed 35,334 people across 38 countries and opened 47 new sites during the year.
+Net revenue increased -9.8% compared with the prior year, see Note 8.
+
+Consolidated Statements of Income (in thousands of EUR)
+
+Line item                        FY2023  FY2022 (restated)
+----------------------------------------------------------
+Revenue ......................  411,218            455,896
+Cost of sales ................  279,701            238,982
+Gross profit .................  131,517            216,914
+Operating expenses ...........   68,608            148,475
+Income from operations (a) ...   62,909             68,439
+Interest and other expense ...    4,136              6,239
+Income before tax ............   58,773             62,200
+Provision for income taxes ...   15,646             18,571
+Net earnings (b) .............   43,127             43,629
+
+(a) Includes restructuring charges of 396 in the current year; see Note 20.
+
+Prior-year figures were restated; revenue for FY2022 was previously reported as 435,576.
+
+Consolidated Statements of Cash Flows (in thousands of EUR)
+
+Item                                                         2023  2022 (restated)
+----------------------------------------------------------------------------------
+Net cash provided by operating activities .............    64,316           44,506
+Net cash used in investing activities .................   (8,570)         (12,834)
+Net cash provided by (used in) financing activities ...  (19,797)          (9,535)
+Net change in cash ....................................    35,949           22,137
+
+[Q Growth] What was revenue growth FY over FY? -> -0.09800042114868303
+[Q Growth] What was net income growth? -> -0.01150610832244608
+[Q Lookup] What was revenue in the latest year (in currency units)? -> 411218000
+[Q Diff] By how much did revenue change (absolute)? -> -44678000
+[Q Ratio] What is the gross margin? -> 0.319823062220039
+[Q Ratio] What is the net margin? -> 0.1048762456896342
+[Q Ratio] What is the operating margin? -> 0.15298211654159108
+[Q Diff] How much does operating cash flow exceed net income? -> 21189000
+
+######## SYNTHETIC world=financial layout=L4 bank=Unseen seed=1 idx=2000 facts=18 questions=7
+Northwind Holdings - Annual Report Extract
+Fiscal year ended December 31, 2023.
+
+Management discussion: the group employed 16,592 people across 14 countries and opened 3 new sites during the year.
+
+Consolidated Statements of Income
+
+Item                      12M to 31/12/2023  Year ended Dec 31, 2022 (restated)  FY 2022A (as reported)
+----------------------------------------------------------------------------------------------------
+Net revenues                        644,469                             658,947                 636,088
+Direct costs                      (362,052)                           (374,202)               (432,924)
+Gross income                        282,417                             284,745                 203,164
+Operating expenses (a)            (196,204)                           (142,161)               (130,140)
+Operating income                     86,213                             142,584                  73,024
+Interest expense                   (12,464)                            (21,562)                (10,278)
+Profit before taxation               73,749                             121,022                  62,746
+Income tax expense                 (17,476)                            (33,344)                (14,362)
+Net earnings (b)                     56,273                          87,678 (1)                  48,384
+
+(a) Includes restructuring charges of 205 in the current year; see Note 26.
+
+Prior-year figures were restated; revenue for FY2022 was previously reported as 636,088.
+
+All amounts in expressed thousand USD unless otherwise stated.
+[Q Growth] What was revenue growth FY over FY? -> -0.021971418035137878
+[Q Growth] What was net income growth? -> -0.35818563379639135
+[Q Lookup] What was revenue in the latest year (in currency units)? -> 644469000
+[Q Diff] By how much did revenue change (absolute)? -> -14478000
+[Q Ratio] What is the gross margin? -> 0.43821657829934413
+[Q Ratio] What is the net margin? -> 0.08731684534089304
+[Q Ratio] What is the operating margin? -> 0.13377369586434723
+
+######## SYNTHETIC world=business layout=L0 bank=Dev seed=1 idx=2000 facts=8 questions=4
+SERVICES AGREEMENT
+
+This Services Agreement (the "Agreement") is entered into as of May 8, 2024 between Fjord Analytics AB ("Supplier") and Evergreen Partners ("Customer").
+Notices shall be sent to 185 Market Street, Suite 326, tel. (415) 555-0138.
+
+1. Term. The initial term of this Agreement is 6 months, commencing on the Effective Date.
+   A one-time setup fee of $3,750 is payable on signature.
+2. Fees. The Customer shall pay the Supplier a fee of $13,000.00 per month (i.e., a total contract value of $78,000.00 over the term).
+3. Termination. Either party may terminate this Agreement upon 60 days' written notice.
+4. Late Payment. Overdue amounts bear interest at 8% per annum.
+5. Liability. The Supplier's aggregate liability shall not exceed $80,000.00.
+6. Survival. Section 8.1 survives termination for 32 months; uptime shall be at least 99.8% (Exhibit C).
+[Q Prod] Total contract value over the term? -> 78000
+[Q EndDate] End date of the initial term? -> 20035
+[Q Lookup] Liability cap? -> 80000
+[Q Lookup] Notice period (days)? -> 60
+
+######## SYNTHETIC world=business layout=L0 bank=Unseen seed=1 idx=2000 facts=8 questions=3
+Northwind SaaS - 4Q22 KPI Report
+Prepared by Finance and Operations for the leadership team.
+
+| KPI | 4Q22 | Q3 2022 | Change |
+|---|---:|---:|---:|
+| MRR | $4.35 mn | $4.9M | -11.2% |
+| Customer attrition | 6.0% | 6.8% | -0.8 pp |
+| ARPU | $108 | $93 | +16.1% |
+| Staff count | 788 | 720 | +9.4% |
+
+Commentary: MRR grew -11.2% quarter over quarter; we closed 38 enterprise deals and hired 5 people. Next review is on November 2, 2022.
+[Q Growth] MRR growth quarter over quarter? -> -0.11224489795918367
+[Q Diff] Change in churn (pp)? -> -0.7999999999999998
+[Q Lookup] Current MRR? -> 4350000
+
+######## SYNTHETIC world=business layout=L2 bank=Dev seed=1 idx=2000 facts=8 questions=4
+SERVICES AGREEMENT
+
+This Services Agreement (the "Agreement") is entered into as of 05/08/2024 between Fjord Analytics AB ("Supplier") and Evergreen Partners ("Customer").
+Notices shall be sent to 135 Market Street, Suite 406, tel. (415) 555-0177.
+
+1. Term. The initial term of this Agreement is several (6) months, commencing on the Effective Date.
+2. Fees. The Customer shall pay the Supplier a fee of $13,000 per month (i.e., a total contract value of $78,000 over the term).
+3. Termination. Either party may terminate this Agreement upon 60 days' written notice.
+4. Late Payment. Overdue amounts bear interest at 8% per annum.
+5. Liability. The Supplier's aggregate liability shall not exceed $80,000.00.
+6. Survival. Section 7.5 survives termination for 6 months; uptime shall be at least 99.9% (Exhibit C).
+[Q Prod] Total contract value over the term? -> 78000
+[Q EndDate] End date of the initial term? -> 20035
+[Q Lookup] Liability cap? -> 80000
+[Q Lookup] Notice period (days)? -> 60
+
+######## SYNTHETIC world=business layout=L2 bank=Unseen seed=1 idx=2000 facts=8 questions=3
+Northwind SaaS - 4Q22 KPI Report
+Prepared by Finance and Operations for the leadership team.
+
+- MRR: $4.35 mn (4Q22) vs $4.9M (Q3 2022)
+- Customer attrition: 6.0% (4Q22) vs 6.8% (Q3 2022)
+- ARPU: $108 (4Q22) vs $93 (Q3 2022)
+- Staff count: 788 (4Q22) vs 720 (Q3 2022)
+
+Commentary: MRR grew -11.2% quarter over quarter; we closed 38 enterprise deals and hired 5 people. Next review is on November 2, 2022.
+[Q Growth] MRR growth quarter over quarter? -> -0.11224489795918367
+[Q Diff] Change in churn (pp)? -> -0.7999999999999998
+[Q Lookup] Current MRR? -> 4350000
+
+######## SYNTHETIC world=business layout=L4 bank=Dev seed=1 idx=2000 facts=8 questions=4
+SERVICES AGREEMENT
+
+This Services Agreement (the "Agreement") is entered into as of 05/08/2024 between Fjord Analytics AB ("Supplier") and Evergreen Partners ("Customer").
+Notices shall be sent to 135 Market Street, Suite 406, tel. (415) 555-0177.
+
+1. Term. The initial term of this Agreement is several (6) months, commencing on the Effective Date.
+2. Fees. The Customer shall pay the Supplier a fee of $13,000 per month (i.e., a total contract value of $78,000 over the term).
+3. Termination. Either party may terminate this Agreement upon 60 days' written notice.
+4. Late Payment. Overdue amounts bear interest at 8% per annum.
+5. Liability. The Supplier's aggregate liability shall not exceed $80,000.00.
+6. Survival. Section 7.5 survives termination for 6 months; uptime shall be at least 99.9% (Exhibit C).
+[Q Prod] Total contract value over the term? -> 78000
+[Q EndDate] End date of the initial term? -> 20035
+[Q Lookup] Liability cap? -> 80000
+[Q Lookup] Notice period (days)? -> 60
+
+######## SYNTHETIC world=business layout=L4 bank=Unseen seed=1 idx=2000 facts=8 questions=3
+Northwind SaaS - 4Q22 KPI Report
+Prepared by Finance and Operations for the leadership team.
+
+| KPI | 4Q22 | Q3 2022 | Change |
+|---|---:|---:|---:|
+| MRR (USD thousands) | 4,350 | 4,900 | -11.2% |
+| Customer attrition | 6.0% | 6.8% | -0.8 pp |
+| ARPU | $108 | $93 | +16.1% |
+| Staff count | 788 | 720 | +9.4% |
+
+Commentary: MRR grew -11.2% quarter over quarter; we closed 21 enterprise deals and hired 2 people. Next review is on 11/16/2022.
+[Q Growth] MRR growth quarter over quarter? -> -0.11224489795918367
+[Q Diff] Change in churn (pp)? -> -0.7999999999999998
+[Q Lookup] Current MRR? -> 4350000

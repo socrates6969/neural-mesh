@@ -1,0 +1,23 @@
+[h14_popguard] 14 worlds x 30 seeds, K=6, policy pop-guard+conf[M16,m1=1,cov0.5,inf=8][w0=0.8,cg=0.5]
+h14 popguard parity: library PopGuarded vs h9_common PopGuarded vs results/h9_priors_confirm61-90.json (pop-guard+conf[M16,m1=1,cov0.5,inf=8][w0=0.8,cg=0.5], K=6, seeds 61-90)
+SYNTHETIC-until-validated-on-real-traffic. library-vs-h9 equality is BIT-exact (f32 curves, f64 priors); json comparison uses tol 1e-12.
+world                  seeds |     s50    s100    s250    s500    s2000 | prior==h9 curve==h9 empty==recommended | max|d| vs json
+A1-sim-fixed              30 |  0.8262  0.8262  0.8250  0.8202   0.7802 | true      true      true               | 1.42e-14
+A2-sim-random             30 |  0.7246  0.7378  0.7667  0.7855   0.7754 | true      true      true               | 1.42e-14
+A3-sim-notraps            30 |  0.8388  0.8388  0.8397  0.8302   0.7903 | true      true      true               | 1.42e-14
+A4-big32                  30 |  0.6523  0.6527  0.6592  0.6764   0.7069 | true      true      true               | 2.84e-14
+A5-sim-mismatch           30 |  0.7069  0.7246  0.7608  0.7831   0.7741 | true      true      true               | 1.42e-14
+B1-md-related             30 |  0.7858  0.7933  0.8045  0.8192   0.8344 | true      true      true               | 2.84e-14
+B2-md-partial             30 |  0.7714  0.7773  0.7950  0.8100   0.8315 | true      true      true               | 1.42e-14
+B3-md-big20               30 |  0.7587  0.7683  0.7887  0.8065   0.8251 | true      true      true               | 2.84e-14
+B4-md-shift               30 |  0.7199  0.7361  0.7784  0.8164   0.8210 | true      true      true               | 2.84e-14
+B5-md-heldout-family      30 |  0.7121  0.7207  0.7240  0.7343   0.7545 | true      true      true               | 2.84e-14
+B6-md-wrong               30 |  0.7641  0.7780  0.7912  0.8073   0.8356 | true      true      true               | 1.42e-14
+B7-md-equal               30 |  0.7000  0.7000  0.7000  0.7000   0.7000 | true      true      true               | 0.00e0
+B9-md-uninformative-fb    30 |  0.7576  0.7368  0.6807  0.6360   0.5884 | true      true      true               | 0.00e0
+B8-md-noinfo              30 |  0.6127  0.6238  0.6448  0.6667   0.7070 | true      true      true               | 5.68e-14
+
+SUMMARY: prior bit-equal in all cells: true; library curve+metrics bit-equal to h9_common PopGuarded: true; empty prior == recommended_router: true
+         vs results/h9_priors_confirm61-90.json: 5040 (world,seed,metric) values compared, max |dev| = 5.684e-14
+PARITY: PASS
+wrote results/h14_popguard.json

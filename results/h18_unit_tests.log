@@ -1,0 +1,35 @@
+warning: value assigned to `verdict_ok` is never read
+    --> src\cognition.rs:1020:17
+     |
+1020 |                 verdict_ok = None;
+     |                 ^^^^^^^^^^^^^^^^^ this value is reassigned later and never used
+...
+1033 |                     verdict_ok = Some(flagged == !correct1);
+     |                     --------------------------------------- `verdict_ok` is overwritten here before the previous value is read
+     |
+     = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: `neural-mesh` (lib test) generated 1 warning
+    Finished `release` profile [optimized] target(s) in 0.44s
+     Running unittests src\lib.rs (C:/Users/mariu/nm-target-r4\release\deps\neural_mesh-b480cf1802215668.exe)
+
+running 16 tests
+test fin::tests::amortisation_sums_to_principal ... ok
+test fin::tests::error_propagation_and_statistics ... ok
+test fin::tests::common_mode_bug_is_invisible ... ok
+test fin::tests::chemistry_and_physics ... ok
+test fin::tests::bond_duration_matches_numeric_derivative_and_yield_roundtrip ... ok
+test fin::tests::determinism_and_registry_integration ... ok
+test fin::tests::fin_known_values ... ok
+test fin::tests::guards_and_errors_are_clean ... ok
+test fin::tests::irr_converges_and_reports ... ok
+test fin::tests::put_call_parity ... ok
+test fin::tests::mutants_are_visible_to_independent_but_not_shared ... ok
+test fin::tests::significant_figures_and_scientific ... ok
+test fin::tests::independent_verifier_accepts_clean_and_rejects_wrong ... ok
+test fin::tests::units_dimensions_and_roundtrip ... ok
+test fin::tests::bug_hook_zero_is_production ... ok
+test fin::tests::t_table_matches_incomplete_beta_inversion ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 317 filtered out; finished in 0.00s
+

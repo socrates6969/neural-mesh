@@ -1,0 +1,3 @@
+- (R6-B) Library ports are verifiable by in-process bit-equality against the bin they came from (curves/priors), stored json can only be compared to ~1 ulp (serde_json float parsing).
+- (R6-B) Row-level precision in the h6 F1 metric inflates duplicate-containing stores at k>=3; use distinct-doc recall when judging dedup. Natural duplicate texts exist in g1 corpus A (1 doc).
+- (R6-B) Never pipe `python -` in a Bash call: it blocks on stdin and hangs the tool; use </dev/null for runs.

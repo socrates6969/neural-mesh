@@ -1,0 +1,15 @@
+--- hnsw.rs.orig	2026-10-05 02:34:47.009622600 +0200
++++ hnsw.rs	2026-10-05 02:34:56.322977000 +0200
+@@ -930,7 +930,11 @@
+         // we will store positive distances in this one
+         let mut return_points = BinaryHeap::<Arc<PointWithOrder<T>>>::with_capacity(skiplist_size);
+         //
+-        if self.layer_indexed_points.points_by_layer.read()[layer as usize].is_empty() {
++        // H15 PATCH: points_by_layer[l] lists only the points whose TOP level is l, but layer 0 contains EVERY point, so layer 0 is never
++        // "empty" once a point exists. The original test returned an empty result at layer 0 while all points so far had level >= 1, so
++        // such a point got no layer-0 neighbours and later level-0 points attached to either of the layer-0 islands: the layer-0 graph
++        // stayed in >= 2 components for the whole build (about 1/M^2 of builds, 8-47 % of the items unfindable).
++        if layer != 0 && self.layer_indexed_points.points_by_layer.read()[layer as usize].is_empty() {
+             // at the beginning we can have nothing in layer
+             trace!("search layer {:?}, empty layer", layer);
+             return return_points;

@@ -1,0 +1,214 @@
+h8_vectors mode=scale rayon=2 free=5.98GB
+[scale] N=100000: streaming queries + ground truth
+  gt 1.1s free 6.0GB
+  wrote rerank file C:/Users/mariu/nm-target-r8/h8_tmp/scale_100000.f32 (0.8s)
+ setting number of points 50000 
+ setting number of points 100000 
+  HNSW M16 efc200 f32lib: build 50s heap 6168 B/vec, ws 377 MB
+ setting number of points 50000 
+ setting number of points 100000 
+  HNSW M32 efc100 f32lib: build 25s heap 6898 B/vec, ws 372 MB
+ setting number of points 50000 
+ setting number of points 100000 
+  HNSW M48 efc100 f32lib: build 23s heap 7267 B/vec, ws 359 MB
+ setting number of points 50000 
+ setting number of points 100000 
+  HNSW M32 efc100 bfp16: build 22s heap 6117 B/vec, ws 293 MB
+ setting number of points 50000 
+ setting number of points 100000 
+  HNSW M32 efc100 int8: build 16s heap 5703 B/vec, ws 254 MB
+
+#### scale N=100000 dim=384 (peak WS 452 MB)
+| config | index heap B/vec (measured) | RAM B/vec total | SSD B/vec | M vectors/GB RAM | recall@10 | p50 us | p99 us | build s |
+|---|---|---|---|---|---|---|---|---|
+| flat blockfp16(32,i16+f32 scale) | 816.0 | 816.0 | 0.0 | 1.23 | 1.000 | 2705.3 | 3807.7 | 0.8 |
+| flat int8(per-vector scale) | 388.0 | 388.0 | 0.0 | 2.58 | 0.974 | 1121.9 | 1819.3 | 0.7 |
+| flat int8 + rerank4x [SSD direct] | 388.0 | 388.0 | 1536.0 | 2.58 | 1.000 | 4458.1 | 5829.3 | 0.7 |
+| flat int8 + rerank4x [SSD buffered] | 388.0 | 388.0 | 1536.0 | 2.58 | 1.000 | 1324.5 | 1885.9 | 0.7 |
+| turbovec 2-bit | 133.6 | 133.6 | 0.0 | 7.48 | 0.553 | 197.6 | 480.4 | 0.8 |
+| turbovec 2-bit + rerank4x [SSD direct] | 133.6 | 133.6 | 1536.0 | 7.48 | 0.957 | 3398.4 | 4170.7 | 0.8 |
+| turbovec 2-bit + rerank4x [SSD buffered] | 133.6 | 133.6 | 1536.0 | 7.48 | 0.957 | 360.3 | 504.2 | 0.8 |
+| turbovec 2-bit + rerank16x [SSD direct] | 133.6 | 133.6 | 1536.0 | 7.48 | 1.000 | 12546.5 | 15678.6 | 0.8 |
+| turbovec 2-bit + rerank16x [SSD buffered] | 133.6 | 133.6 | 1536.0 | 7.48 | 1.000 | 1995.3 | 9149.1 | 0.8 |
+| turbovec 3-bit | 231.6 | 231.6 | 0.0 | 4.32 | 0.723 | 1796.9 | 15822.4 | 2.6 |
+| turbovec 3-bit + rerank8x [SSD direct] | 231.6 | 231.6 | 1536.0 | 4.32 | 1.000 | 10591.4 | 50042.8 | 2.6 |
+| turbovec 3-bit + rerank8x [SSD buffered] | 231.6 | 231.6 | 1536.0 | 4.32 | 1.000 | 2553.8 | 13647.6 | 2.6 |
+| turbovec 4-bit | 231.6 | 231.6 | 0.0 | 4.32 | 0.848 | 1512.5 | 20147.0 | 3.0 |
+| turbovec 4-bit + rerank4x [SSD direct] | 231.6 | 231.6 | 1536.0 | 4.32 | 1.000 | 6013.5 | 43682.8 | 3.0 |
+| turbovec 4-bit + rerank4x [SSD buffered] | 231.6 | 231.6 | 1536.0 | 4.32 | 1.000 | 1862.0 | 9193.5 | 3.0 |
+| rabitq-style 1-bit | 57.9 | 57.9 | 0.0 | 17.27 | 0.344 | 1093.9 | 4466.8 | 2.4 |
+| rabitq-style 1-bit + rerank16x [SSD direct] | 57.9 | 57.9 | 1536.0 | 17.27 | 1.000 | 16357.4 | 52625.4 | 2.4 |
+| rabitq-style 1-bit + rerank16x [SSD buffered] | 57.9 | 57.9 | 1536.0 | 17.27 | 1.000 | 2305.4 | 12260.3 | 2.4 |
+| rabitq-style 2-bit | 105.9 | 105.9 | 0.0 | 9.44 | 0.557 | 1945.8 | 6047.2 | 3.9 |
+| rabitq-style 2-bit + rerank8x [SSD direct] | 105.9 | 105.9 | 1536.0 | 9.44 | 1.000 | 9833.8 | 51250.8 | 3.9 |
+| rabitq-style 2-bit + rerank8x [SSD buffered] | 105.9 | 105.9 | 1536.0 | 9.44 | 1.000 | 2643.4 | 17353.6 | 3.9 |
+| rabitq-style 3-bit | 153.9 | 153.9 | 0.0 | 6.50 | 0.708 | 2770.8 | 10070.5 | 3.7 |
+| rabitq-style 3-bit + rerank4x [SSD direct] | 153.9 | 153.9 | 1536.0 | 6.50 | 1.000 | 6810.6 | 49162.3 | 3.7 |
+| rabitq-style 3-bit + rerank4x [SSD buffered] | 153.9 | 153.9 | 1536.0 | 6.50 | 1.000 | 3149.0 | 19184.1 | 3.7 |
+| rabitq-style 4-bit | 201.9 | 201.9 | 0.0 | 4.95 | 0.838 | 3565.5 | 20902.1 | 3.5 |
+| rabitq-style 4-bit + rerank4x [SSD direct] | 201.9 | 201.9 | 1536.0 | 4.95 | 1.000 | 7730.2 | 51675.6 | 3.5 |
+| rabitq-style 4-bit + rerank4x [SSD buffered] | 201.9 | 201.9 | 1536.0 | 4.95 | 1.000 | 3960.1 | 21132.3 | 3.5 |
+| HNSW M16 efc200 ef32 [f32lib stored] | 6167.7 | 6167.7 | 0.0 | 0.16 | 0.919 | 204.8 | 449.4 | 50.0 |
+| HNSW M16 efc200 ef64 [f32lib stored] | 6167.7 | 6167.7 | 0.0 | 0.16 | 0.985 | 319.5 | 684.7 | 50.0 |
+| HNSW M16 efc200 ef128 [f32lib stored] | 6167.7 | 6167.7 | 0.0 | 0.16 | 1.000 | 489.1 | 882.6 | 50.0 |
+| HNSW M16 efc200 ef256 [f32lib stored] | 6167.7 | 6167.7 | 0.0 | 0.16 | 1.000 | 854.5 | 1465.2 | 50.0 |
+| HNSW M32 efc100 ef32 [f32lib stored] | 6898.1 | 6898.1 | 0.0 | 0.14 | 0.934 | 165.5 | 357.1 | 24.9 |
+| HNSW M32 efc100 ef64 [f32lib stored] | 6898.1 | 6898.1 | 0.0 | 0.14 | 0.985 | 262.7 | 521.1 | 24.9 |
+| HNSW M32 efc100 ef128 [f32lib stored] | 6898.1 | 6898.1 | 0.0 | 0.14 | 1.000 | 451.1 | 820.9 | 24.9 |
+| HNSW M32 efc100 ef256 [f32lib stored] | 6898.1 | 6898.1 | 0.0 | 0.14 | 1.000 | 741.6 | 1155.2 | 24.9 |
+| HNSW M48 efc100 ef24 [f32lib stored] | 7266.9 | 7266.9 | 0.0 | 0.14 | 0.982 | 165.7 | 323.3 | 23.3 |
+| HNSW M48 efc100 ef32 [f32lib stored] | 7266.9 | 7266.9 | 0.0 | 0.14 | 0.995 | 191.7 | 378.4 | 23.3 |
+| HNSW M48 efc100 ef64 [f32lib stored] | 7266.9 | 7266.9 | 0.0 | 0.14 | 1.000 | 302.5 | 599.3 | 23.3 |
+| HNSW M48 efc100 ef128 [f32lib stored] | 7266.9 | 7266.9 | 0.0 | 0.14 | 1.000 | 503.7 | 769.2 | 23.3 |
+| HNSW M48 efc100 ef256 [f32lib stored] | 7266.9 | 7266.9 | 0.0 | 0.14 | 1.000 | 848.5 | 1185.6 | 23.3 |
+| HNSW M32 efc100 ef32 [bfp16 stored] | 6116.6 | 6116.6 | 0.0 | 0.16 | 0.989 | 134.6 | 309.7 | 22.5 |
+| HNSW M32 efc100 ef64 [bfp16 stored] | 6116.6 | 6116.6 | 0.0 | 0.16 | 0.990 | 207.6 | 394.0 | 22.5 |
+| HNSW M32 efc100 ef128 [bfp16 stored] | 6116.6 | 6116.6 | 0.0 | 0.16 | 1.000 | 368.2 | 576.4 | 22.5 |
+| HNSW M32 efc100 ef256 [bfp16 stored] | 6116.6 | 6116.6 | 0.0 | 0.16 | 1.000 | 702.1 | 1334.7 | 22.5 |
+| HNSW M32 efc100 ef32 [int8 stored] | 5703.2 | 5703.2 | 0.0 | 0.18 | 0.949 | 120.3 | 235.2 | 16.0 |
+| HNSW M32 efc100 ef64 [int8 stored] | 5703.2 | 5703.2 | 0.0 | 0.18 | 0.969 | 184.5 | 381.4 | 16.0 |
+| HNSW M32 efc100 ef128 [int8 stored] | 5703.2 | 5703.2 | 0.0 | 0.18 | 0.969 | 324.3 | 519.6 | 16.0 |
+| HNSW M32 efc100 ef256 [int8 stored] | 5703.2 | 5703.2 | 0.0 | 0.18 | 0.974 | 619.5 | 972.0 | 16.0 |
+| flat f32 exact (avx2) | 1536.0 | 1536.0 | 0.0 | 0.65 | 1.000 | 3852.5 | 5912.4 | 0.0 |
+| turbovec 4-bit + rerank4x [RAM f32] | 196.1 | 1732.1 | 0.0 | 0.58 | 1.000 | 927.7 | 1470.1 | 0.1 |
+wrote results/h8_scale.json
+[scale] N=300000: streaming queries + ground truth
+  gt 3.2s free 5.8GB
+  wrote rerank file C:/Users/mariu/nm-target-r8/h8_tmp/scale_300000.f32 (2.3s)
+ setting number of points 50000 
+ setting number of points 100000 
+ setting number of points 150000 
+ setting number of points 200000 
+ setting number of points 250000 
+ setting number of points 300000 
+  HNSW M16 efc200 f32lib: build 130s heap 6234 B/vec, ws 1163 MB
+ setting number of points 50000 
+ setting number of points 100000 
+ setting number of points 150000 
+ setting number of points 200000 
+ setting number of points 250000 
+ setting number of points 300000 
+  HNSW M32 efc100 f32lib: build 71s heap 6879 B/vec, ws 1095 MB
+ setting number of points 50000 
+ setting number of points 100000 
+ setting number of points 150000 
+ setting number of points 200000 
+ setting number of points 250000 
+ setting number of points 300000 
+  HNSW M48 efc100 f32lib: build 69s heap 7323 B/vec, ws 1094 MB
+ setting number of points 50000 
+ setting number of points 100000 
+ setting number of points 150000 
+ setting number of points 200000 
+ setting number of points 250000 
+ setting number of points 300000 
+  HNSW M32 efc100 bfp16: build 57s heap 6182 B/vec, ws 900 MB
+ setting number of points 50000 
+ setting number of points 100000 
+ setting number of points 150000 
+ setting number of points 200000 
+ setting number of points 250000 
+ setting number of points 300000 
+  HNSW M32 efc100 int8: build 51s heap 5719 B/vec, ws 756 MB
+
+#### scale N=300000 dim=384 (peak WS 1238 MB)
+| config | index heap B/vec (measured) | RAM B/vec total | SSD B/vec | M vectors/GB RAM | recall@10 | p50 us | p99 us | build s |
+|---|---|---|---|---|---|---|---|---|
+| flat blockfp16(32,i16+f32 scale) | 816.0 | 816.0 | 0.0 | 1.23 | 1.000 | 9233.6 | 10755.0 | 2.3 |
+| flat int8(per-vector scale) | 388.0 | 388.0 | 0.0 | 2.58 | 0.964 | 5681.0 | 22578.0 | 2.3 |
+| flat int8 + rerank4x [SSD direct] | 388.0 | 388.0 | 1536.0 | 2.58 | 1.000 | 8767.9 | 25991.4 | 2.3 |
+| flat int8 + rerank4x [SSD buffered] | 388.0 | 388.0 | 1536.0 | 2.58 | 1.000 | 3743.6 | 6066.8 | 2.3 |
+| turbovec 2-bit | 115.7 | 115.7 | 0.0 | 8.64 | 0.461 | 1838.7 | 2874.6 | 2.3 |
+| turbovec 2-bit + rerank4x [SSD direct] | 115.7 | 115.7 | 1536.0 | 8.64 | 0.854 | 5553.2 | 10330.4 | 2.3 |
+| turbovec 2-bit + rerank4x [SSD buffered] | 115.7 | 115.7 | 1536.0 | 8.64 | 0.854 | 2389.5 | 4163.1 | 2.3 |
+| turbovec 2-bit + rerank16x [SSD direct] | 115.7 | 115.7 | 1536.0 | 8.64 | 0.999 | 14385.9 | 16945.1 | 2.3 |
+| turbovec 2-bit + rerank16x [SSD buffered] | 115.7 | 115.7 | 1536.0 | 8.64 | 0.999 | 2878.4 | 4208.5 | 2.3 |
+| turbovec 3-bit | 216.7 | 216.7 | 0.0 | 4.61 | 0.651 | 3151.2 | 4327.7 | 2.6 |
+| turbovec 3-bit + rerank8x [SSD direct] | 216.7 | 216.7 | 1536.0 | 4.61 | 1.000 | 12985.1 | 44763.4 | 2.6 |
+| turbovec 3-bit + rerank8x [SSD buffered] | 216.7 | 216.7 | 1536.0 | 4.61 | 1.000 | 3663.4 | 5010.7 | 2.6 |
+| turbovec 4-bit | 216.7 | 216.7 | 0.0 | 4.61 | 0.803 | 2646.8 | 3145.0 | 2.4 |
+| turbovec 4-bit + rerank4x [SSD direct] | 216.7 | 216.7 | 1536.0 | 4.61 | 1.000 | 5704.7 | 7056.0 | 2.4 |
+| turbovec 4-bit + rerank4x [SSD buffered] | 216.7 | 216.7 | 1536.0 | 4.61 | 1.000 | 2802.7 | 3839.4 | 2.4 |
+| rabitq-style 1-bit | 54.0 | 54.0 | 0.0 | 18.53 | 0.227 | 3272.8 | 15687.8 | 3.5 |
+| rabitq-style 1-bit + rerank16x [SSD direct] | 54.0 | 54.0 | 1536.0 | 18.53 | 0.953 | 15590.4 | 26679.5 | 3.5 |
+| rabitq-style 1-bit + rerank16x [SSD buffered] | 54.0 | 54.0 | 1536.0 | 18.53 | 0.953 | 3569.4 | 4738.3 | 3.5 |
+| rabitq-style 2-bit | 102.0 | 102.0 | 0.0 | 9.81 | 0.466 | 4201.1 | 5138.3 | 8.1 |
+| rabitq-style 2-bit + rerank8x [SSD direct] | 102.0 | 102.0 | 1536.0 | 9.81 | 0.961 | 11910.1 | 13200.3 | 8.1 |
+| rabitq-style 2-bit + rerank8x [SSD buffered] | 102.0 | 102.0 | 1536.0 | 9.81 | 0.961 | 5308.8 | 7089.0 | 8.1 |
+| rabitq-style 3-bit | 150.0 | 150.0 | 0.0 | 6.67 | 0.655 | 7063.6 | 8874.6 | 6.8 |
+| rabitq-style 3-bit + rerank4x [SSD direct] | 150.0 | 150.0 | 1536.0 | 6.67 | 0.979 | 10916.8 | 12274.4 | 6.8 |
+| rabitq-style 3-bit + rerank4x [SSD buffered] | 150.0 | 150.0 | 1536.0 | 6.67 | 0.979 | 6586.5 | 8130.5 | 6.8 |
+| rabitq-style 4-bit | 198.0 | 198.0 | 0.0 | 5.05 | 0.794 | 8072.7 | 9234.2 | 5.4 |
+| rabitq-style 4-bit + rerank4x [SSD direct] | 198.0 | 198.0 | 1536.0 | 5.05 | 1.000 | 11310.1 | 12825.0 | 5.4 |
+| rabitq-style 4-bit + rerank4x [SSD buffered] | 198.0 | 198.0 | 1536.0 | 5.05 | 1.000 | 8410.1 | 9202.1 | 5.4 |
+| HNSW M16 efc200 ef32 [f32lib stored] | 6234.2 | 6234.2 | 0.0 | 0.16 | 0.752 | 196.4 | 444.8 | 130.4 |
+| HNSW M16 efc200 ef64 [f32lib stored] | 6234.2 | 6234.2 | 0.0 | 0.16 | 0.807 | 291.7 | 670.7 | 130.4 |
+| HNSW M16 efc200 ef128 [f32lib stored] | 6234.2 | 6234.2 | 0.0 | 0.16 | 0.832 | 420.1 | 1022.9 | 130.4 |
+| HNSW M16 efc200 ef256 [f32lib stored] | 6234.2 | 6234.2 | 0.0 | 0.16 | 0.891 | 682.1 | 1951.7 | 130.4 |
+| HNSW M32 efc100 ef32 [f32lib stored] | 6879.2 | 6879.2 | 0.0 | 0.15 | 0.791 | 232.1 | 546.2 | 71.3 |
+| HNSW M32 efc100 ef64 [f32lib stored] | 6879.2 | 6879.2 | 0.0 | 0.15 | 0.868 | 332.1 | 707.6 | 71.3 |
+| HNSW M32 efc100 ef128 [f32lib stored] | 6879.2 | 6879.2 | 0.0 | 0.15 | 0.958 | 447.2 | 1140.0 | 71.3 |
+| HNSW M32 efc100 ef256 [f32lib stored] | 6879.2 | 6879.2 | 0.0 | 0.15 | 0.993 | 661.6 | 1601.4 | 71.3 |
+| HNSW M48 efc100 ef24 [f32lib stored] | 7323.4 | 7323.4 | 0.0 | 0.14 | 0.877 | 255.6 | 597.4 | 69.2 |
+| HNSW M48 efc100 ef32 [f32lib stored] | 7323.4 | 7323.4 | 0.0 | 0.14 | 0.897 | 238.2 | 552.1 | 69.2 |
+| HNSW M48 efc100 ef64 [f32lib stored] | 7323.4 | 7323.4 | 0.0 | 0.14 | 0.974 | 331.9 | 730.3 | 69.2 |
+| HNSW M48 efc100 ef128 [f32lib stored] | 7323.4 | 7323.4 | 0.0 | 0.14 | 0.990 | 456.0 | 918.0 | 69.2 |
+| HNSW M48 efc100 ef256 [f32lib stored] | 7323.4 | 7323.4 | 0.0 | 0.14 | 1.000 | 673.0 | 1237.1 | 69.2 |
+| HNSW M32 efc100 ef32 [bfp16 stored] | 6182.2 | 6182.2 | 0.0 | 0.16 | 0.804 | 202.8 | 454.7 | 57.4 |
+| HNSW M32 efc100 ef64 [bfp16 stored] | 6182.2 | 6182.2 | 0.0 | 0.16 | 0.908 | 312.0 | 880.6 | 57.4 |
+| HNSW M32 efc100 ef128 [bfp16 stored] | 6182.2 | 6182.2 | 0.0 | 0.16 | 0.957 | 376.7 | 982.8 | 57.4 |
+| HNSW M32 efc100 ef256 [bfp16 stored] | 6182.2 | 6182.2 | 0.0 | 0.16 | 0.987 | 545.0 | 1345.6 | 57.4 |
+| HNSW M32 efc100 ef32 [int8 stored] | 5719.0 | 5719.0 | 0.0 | 0.17 | 0.848 | 154.6 | 395.9 | 51.3 |
+| HNSW M32 efc100 ef64 [int8 stored] | 5719.0 | 5719.0 | 0.0 | 0.17 | 0.897 | 231.3 | 574.9 | 51.3 |
+| HNSW M32 efc100 ef128 [int8 stored] | 5719.0 | 5719.0 | 0.0 | 0.17 | 0.944 | 327.8 | 810.9 | 51.3 |
+| HNSW M32 efc100 ef256 [int8 stored] | 5719.0 | 5719.0 | 0.0 | 0.17 | 0.958 | 498.9 | 1192.0 | 51.3 |
+| flat f32 exact (avx2) | 1536.0 | 1536.0 | 0.0 | 0.65 | 1.000 | 10862.2 | 15547.8 | 0.0 |
+| turbovec 4-bit + rerank4x [RAM f32] | 196.0 | 1732.0 | 0.0 | 0.58 | 1.000 | 2943.6 | 3773.7 | 0.3 |
+wrote results/h8_scale.json
+[scale] N=1000000: streaming queries + ground truth
+  gt 11.2s free 5.7GB
+  wrote rerank file C:/Users/mariu/nm-target-r8/h8_tmp/scale_1000000.f32 (9.6s)
+  HNSW M16-efc200-f32lib SKIP: projected 6.23 GB (cap 2.5 GB, free 5.9)
+  HNSW M32-efc100-f32lib SKIP: projected 6.88 GB (cap 2.5 GB, free 5.9)
+  HNSW M48-efc100-f32lib SKIP: projected 7.32 GB (cap 2.5 GB, free 5.9)
+  HNSW M32-efc100-bfp16 SKIP: projected 6.18 GB (cap 2.5 GB, free 5.9)
+  HNSW M32-efc100-int8 SKIP: projected 5.72 GB (cap 2.5 GB, free 5.9)
+
+#### scale N=1000000 dim=384 (peak WS 3154 MB)
+| config | index heap B/vec (measured) | RAM B/vec total | SSD B/vec | M vectors/GB RAM | recall@10 | p50 us | p99 us | build s |
+|---|---|---|---|---|---|---|---|---|
+| flat blockfp16(32,i16+f32 scale) | 816.0 | 816.0 | 0.0 | 1.23 | 1.000 | 32709.5 | 52483.3 | 10.4 |
+| flat int8(per-vector scale) | 388.0 | 388.0 | 0.0 | 2.58 | 0.963 | 11636.6 | 17059.8 | 9.9 |
+| flat int8 + rerank4x [SSD direct] | 388.0 | 388.0 | 1536.0 | 2.58 | 1.000 | 15485.1 | 23980.0 | 9.9 |
+| flat int8 + rerank4x [SSD buffered] | 388.0 | 388.0 | 1536.0 | 2.58 | 1.000 | 11956.2 | 19590.9 | 9.9 |
+| turbovec 2-bit | 107.2 | 107.2 | 0.0 | 9.33 | 0.361 | 5832.4 | 7537.5 | 7.5 |
+| turbovec 2-bit + rerank4x [SSD direct] | 107.2 | 107.2 | 1536.0 | 9.33 | 0.717 | 9197.4 | 11600.1 | 7.5 |
+| turbovec 2-bit + rerank4x [SSD buffered] | 107.2 | 107.2 | 1536.0 | 9.33 | 0.717 | 6296.8 | 8243.4 | 7.5 |
+| turbovec 2-bit + rerank16x [SSD direct] | 107.2 | 107.2 | 1536.0 | 9.33 | 0.969 | 18507.7 | 22966.1 | 7.5 |
+| turbovec 2-bit + rerank16x [SSD buffered] | 107.2 | 107.2 | 1536.0 | 9.33 | 0.969 | 7904.4 | 15476.7 | 7.5 |
+| turbovec 3-bit | 207.0 | 207.0 | 0.0 | 4.83 | 0.606 | 9601.0 | 11478.3 | 8.3 |
+| turbovec 3-bit + rerank8x [SSD direct] | 207.0 | 207.0 | 1536.0 | 4.83 | 0.995 | 16741.1 | 20111.4 | 8.3 |
+| turbovec 3-bit + rerank8x [SSD buffered] | 207.0 | 207.0 | 1536.0 | 4.83 | 0.995 | 10564.7 | 21491.5 | 8.3 |
+| turbovec 4-bit | 207.0 | 207.0 | 0.0 | 4.83 | 0.772 | 11787.9 | 19106.0 | 9.8 |
+| turbovec 4-bit + rerank4x [SSD direct] | 207.0 | 207.0 | 1536.0 | 4.83 | 0.999 | 14625.6 | 16264.4 | 9.8 |
+| turbovec 4-bit + rerank4x [SSD buffered] | 207.0 | 207.0 | 1536.0 | 4.83 | 0.999 | 11672.5 | 14931.3 | 9.8 |
+| rabitq-style 1-bit | 52.6 | 52.6 | 0.0 | 19.02 | 0.139 | 11317.5 | 12076.7 | 15.9 |
+| rabitq-style 1-bit + rerank16x [SSD direct] | 52.6 | 52.6 | 1536.0 | 19.02 | 0.711 | 22098.7 | 25348.3 | 15.9 |
+| rabitq-style 1-bit + rerank16x [SSD buffered] | 52.6 | 52.6 | 1536.0 | 19.02 | 0.711 | 8288.4 | 10635.4 | 15.9 |
+| rabitq-style 2-bit | 100.6 | 100.6 | 0.0 | 9.94 | 0.343 | 18437.4 | 20894.2 | 29.1 |
+| rabitq-style 2-bit + rerank8x [SSD direct] | 100.6 | 100.6 | 1536.0 | 9.94 | 0.865 | 25910.4 | 52336.7 | 29.1 |
+| rabitq-style 2-bit + rerank8x [SSD buffered] | 100.6 | 100.6 | 1536.0 | 9.94 | 0.865 | 14607.5 | 17882.4 | 29.1 |
+| rabitq-style 3-bit | 148.6 | 148.6 | 0.0 | 6.73 | 0.587 | 26280.2 | 29538.6 | 18.4 |
+| rabitq-style 3-bit + rerank4x [SSD direct] | 148.6 | 148.6 | 1536.0 | 6.73 | 0.955 | 31649.1 | 37748.3 | 18.4 |
+| rabitq-style 3-bit + rerank4x [SSD buffered] | 148.6 | 148.6 | 1536.0 | 6.73 | 0.955 | 30093.1 | 57558.5 | 18.4 |
+| rabitq-style 4-bit | 196.6 | 196.6 | 0.0 | 5.09 | 0.755 | 32637.9 | 48419.5 | 25.2 |
+| rabitq-style 4-bit + rerank4x [SSD direct] | 196.6 | 196.6 | 1536.0 | 5.09 | 0.997 | 42325.9 | 66406.1 | 25.2 |
+| rabitq-style 4-bit + rerank4x [SSD buffered] | 196.6 | 196.6 | 1536.0 | 5.09 | 0.997 | 38657.2 | 40561.4 | 25.2 |
+| flat f32 exact (avx2) | 1536.0 | 1536.0 | 0.0 | 0.65 | 1.000 | 35225.4 | 43992.4 | 0.0 |
+| turbovec 4-bit + rerank4x [RAM f32] | 196.0 | 1732.0 | 0.0 | 0.58 | 0.999 | 10166.9 | 14923.9 | 1.3 |
+HNSW M16 efc200 ef128 [f32lib stored] SKIPPED (projected 6.23 GB > cap 2.5 GB or free RAM)
+HNSW M32 efc100 ef32 [f32lib stored] SKIPPED (projected 6.88 GB > cap 2.5 GB or free RAM)
+HNSW M48 efc100 ef24 [f32lib stored] SKIPPED (projected 7.32 GB > cap 2.5 GB or free RAM)
+HNSW M32 efc100 ef32 [bfp16 stored] SKIPPED (projected 6.18 GB > cap 2.5 GB or free RAM)
+HNSW M32 efc100 ef32 [int8 stored] SKIPPED (projected 5.72 GB > cap 2.5 GB or free RAM)
+wrote results/h8_scale.json

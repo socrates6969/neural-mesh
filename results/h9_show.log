@@ -1,0 +1,29 @@
+selftest ok (PopTs(empty)==pooled-ts bit-identical; shrinkage + trust behave)
+ 0 A1-sim-fixed           role=Treat tune=true agents=6 | sim Fixed (hand-designed traps+drift); pool = other seeds of the SAME hidden skills (related)
+     seed1 first-250 STATIC policies: prior-argmax 0.830 keyword 0.723 oracle 0.832 | prior coverage 1.00 cells(m>0) 74 mean m 6.4 kw_acc(pool) 0.82 map-corrections 9 acc(corrected map) 0.83
+ 1 A2-sim-random          role=Control tune=true agents=6 | sim Random: hidden skills redrawn per seed; pool shares only vocabulary/structure, no agent identity (randomized world)
+     seed1 first-250 STATIC policies: prior-argmax 0.537 keyword 0.769 oracle 0.853 | prior coverage 1.00 cells(m>0) 94 mean m 3.5 kw_acc(pool) 0.80 map-corrections 20 acc(corrected map) 0.82
+ 2 A3-sim-notraps         role=Control tune=false agents=6 | sim NoTraps: keyword map correct pre-drift; skills random per seed
+     seed1 first-250 STATIC policies: prior-argmax 0.432 keyword 0.826 oracle 0.826 | prior coverage 1.00 cells(m>0) 61 mean m 3.9 kw_acc(pool) 0.84 map-corrections 23 acc(corrected map) 0.84
+ 3 A4-big32               role=Control tune=true agents=32 | f3 BigWorld 32 agents x 48 types, skills random per seed (first 2000 tasks, pre-drift)
+     seed1 first-250 STATIC policies: prior-argmax 0.257 keyword 0.704 oracle 0.864 | prior coverage 0.08 cells(m>0) 7 mean m 2.8 kw_acc(pool) 0.75 map-corrections 7 acc(corrected map) 0.78
+ 4 A5-sim-mismatch        role=Stress tune=false agents=6 | WRONG prior: pool = sim Fixed, eval = sim Random (same vocabulary, unrelated skills)
+     seed1 first-250 STATIC policies: prior-argmax 0.305 keyword 0.769 oracle 0.853 | prior coverage 1.00 cells(m>0) 74 mean m 6.4 kw_acc(pool) 0.82 map-corrections 30 acc(corrected map) 0.83
+ 5 B1-md-related          role=Treat tune=true agents=10 | multi-domain agency pool, 10% of domains re-drawn, sigma .05, decoy .3; pool = same family
+     seed1 first-250 STATIC policies: prior-argmax 0.840 keyword 0.760 oracle 0.868 | prior coverage 1.00 cells(m>0) 92 mean m 6.1 kw_acc(pool) 0.84 map-corrections 15 acc(corrected map) 0.88
+ 6 B2-md-partial          role=Treat tune=true agents=10 | as B1 but 40% of domains re-drawn per deployment (partially related)
+     seed1 first-250 STATIC policies: prior-argmax 0.747 keyword 0.718 oracle 0.890 | prior coverage 1.00 cells(m>0) 100 mean m 4.8 kw_acc(pool) 0.84 map-corrections 17 acc(corrected map) 0.88
+ 7 B3-md-big20            role=Treat tune=false agents=20 | 20-agent pool (3 specialists/domain + generalists), rho .2
+     seed1 first-250 STATIC policies: prior-argmax 0.829 keyword 0.747 oracle 0.887 | prior coverage 1.00 cells(m>0) 108 mean m 5.2 kw_acc(pool) 0.84 map-corrections 21 acc(corrected map) 0.88
+ 8 B4-md-shift            role=Treat tune=false agents=12 | POOL DISTRIBUTION SHIFT: eval has drift, 2 new agents unknown to the pool, decoy .5, different domain mix
+     seed1 first-250 STATIC policies: prior-argmax 0.854 keyword 0.634 oracle 0.930 | prior coverage 1.00 cells(m>0) 92 mean m 6.1 kw_acc(pool) 0.84 map-corrections 26 acc(corrected map) 0.88
+ 9 B5-md-heldout-family   role=Stress tune=false agents=10 | HELD-OUT FAMILY: pool = agency structure; eval = latent-factor pool, half the vocabulary renamed
+     seed1 first-250 STATIC policies: prior-argmax 0.562 keyword 0.731 oracle 0.857 | prior coverage 0.97 cells(m>0) 92 mean m 6.1 kw_acc(pool) 0.84 map-corrections 29 acc(corrected map) 0.88
+10 B6-md-wrong            role=Stress tune=true agents=10 | WRONG prior: every domain's specialist structure moved to a different agent
+     seed1 first-250 STATIC policies: prior-argmax 0.504 keyword 0.733 oracle 0.886 | prior coverage 1.00 cells(m>0) 92 mean m 6.1 kw_acc(pool) 0.84 map-corrections 30 acc(corrected map) 0.88
+11 B7-md-equal            role=Control tune=true agents=8 | 8 identical agents: nothing to win (sanity control)
+     seed1 first-250 STATIC policies: prior-argmax 0.700 keyword 0.700 oracle 0.700 | prior coverage 1.00 cells(m>0) 53 mean m 6.4 kw_acc(pool) 0.71 map-corrections 14 acc(corrected map) 0.72
+12 B9-md-uninformative-fb role=Control tune=false agents=10 | uninformative feedback: related pool, but the reward the router sees in this deployment is an agent-independent coin
+     seed1 first-250 STATIC policies: prior-argmax 0.840 keyword 0.760 oracle 0.868 | prior coverage 1.00 cells(m>0) 92 mean m 6.1 kw_acc(pool) 0.84 map-corrections 15 acc(corrected map) 0.88
+13 B8-md-noinfo           role=Control tune=false agents=10 | no-prior-info world: skills random per deployment, pool deployments are mutually inconsistent
+     seed1 first-250 STATIC policies: prior-argmax 0.422 keyword 0.677 oracle 0.860 | prior coverage 1.00 cells(m>0) 141 mean m 4.5 kw_acc(pool) 0.73 map-corrections 24 acc(corrected map) 0.78

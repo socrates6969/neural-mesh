@@ -1,0 +1,240 @@
+== world pipe-main (family Pipe, pool Spec, shape Dag, steps 3-6, prop 0.5, noise 0.1, d [0.25, 0.05, 0.18, 0.08] x1, projects 10, p_id 0.9, sig_v 0.1, cv 0.3, decoy 0.3, mono_pen 0)
+agents (true competence per type ["lookup", "compute", "synthesize", "check"]) ; keyword map [0, 3, 1, 7]
+  agent 0: 0.93 0.50 0.47 0.48
+  agent 1: 0.47 0.47 0.93 0.44
+  agent 2: 0.44 0.90 0.49 0.51
+  agent 3: 0.45 0.43 0.40 0.45
+  agent 4: 0.61 0.61 0.61 0.66
+  agent 5: 0.80 0.54 0.50 0.82
+  agent 6: 0.63 0.64 0.66 0.64
+  agent 7: 0.48 0.41 0.44 0.90
+  task proj 7 [0:synthesize<-[] 1:synthesize<-[0] 2:lookup<-[0, 1]]  single-shot view: type=Some("lookup+synthesize+synthesize") feats=["lookup", "synthesize", "proj:7"]
+  task proj 7 [0:synthesize<-[] 1:synthesize<-[0] 2:compute<-[1] 3:lookup<-[2] 4:synthesize<-[3]]  single-shot view: type=Some("lookup+compute+synthesize+synthesize+synthesize") feats=["compute", "lookup", "synthesize", "proj:7"]
+  task proj 6 [0:compute<-[] 1:lookup<-[0] 2:synthesize<-[1] 3:compute<-[2] 4:lookup<-[1, 3]]  single-shot view: type=Some("lookup+lookup+compute+compute+synthesize") feats=["compute", "lookup", "synthesize", "proj:6"]
+  task proj 3 [0:compute<-[] 1:compute<-[0] 2:synthesize<-[0, 1]]  single-shot view: type=Some("compute+compute+synthesize") feats=["compute", "synthesize", "proj:3"]
+  mean steps/task 4.53, mean deps/step 0.98
+  oracle-single q 0.487 ok 0.007 | oracle-decomp q 0.672 ok 0.345 | oracle-decomp+ctx q 0.843 ok 0.939
+== world pipe-chain (family Pipe, pool Spec, shape Chain, steps 3-6, prop 0.5, noise 0.1, d [0.25, 0.05, 0.18, 0.08] x1, projects 10, p_id 0.9, sig_v 0.1, cv 0.3, decoy 0.3, mono_pen 0)
+agents (true competence per type ["lookup", "compute", "synthesize", "check"]) ; keyword map [6, 2, 5, 5]
+  agent 0: 0.66 0.66 0.62 0.65
+  agent 1: 0.82 0.53 0.47 0.81
+  agent 2: 0.42 0.90 0.46 0.48
+  agent 3: 0.49 0.46 0.47 0.91
+  agent 4: 0.40 0.45 0.45 0.43
+  agent 5: 0.43 0.44 0.92 0.44
+  agent 6: 0.93 0.49 0.44 0.51
+  agent 7: 0.65 0.65 0.62 0.64
+  task proj 6 [0:compute<-[] 1:compute<-[0] 2:lookup<-[1] 3:synthesize<-[2] 4:synthesize<-[3]]  single-shot view: type=Some("lookup+compute+compute+synthesize+synthesize") feats=["compute", "lookup", "synthesize", "proj:6"]
+  task proj 7 [0:lookup<-[] 1:synthesize<-[0] 2:lookup<-[1] 3:lookup<-[2]]  single-shot view: type=Some("lookup+lookup+lookup+synthesize") feats=["lookup", "synthesize", "proj:7"]
+  task proj 8 [0:compute<-[] 1:compute<-[0] 2:lookup<-[1] 3:lookup<-[2] 4:check<-[3]]  single-shot view: type=Some("lookup+lookup+compute+compute+check") feats=["check", "compute", "lookup", "proj:8"]
+  task proj 4 [0:check<-[] 1:compute<-[0] 2:synthesize<-[1]]  single-shot view: type=Some("compute+synthesize+check") feats=["check", "compute", "synthesize", "proj:4"]
+  mean steps/task 4.48, mean deps/step 0.78
+  oracle-single q 0.482 ok 0.011 | oracle-decomp q 0.667 ok 0.316 | oracle-decomp+ctx q 0.841 ok 0.918
+== world pipe-wide (family Pipe, pool Spec, shape Wide, steps 3-6, prop 0.5, noise 0.1, d [0.25, 0.05, 0.18, 0.08] x1, projects 10, p_id 0.9, sig_v 0.1, cv 0.3, decoy 0.3, mono_pen 0)
+agents (true competence per type ["lookup", "compute", "synthesize", "check"]) ; keyword map [1, 4, 7, 5]
+  agent 0: 0.45 0.42 0.45 0.41
+  agent 1: 0.90 0.45 0.46 0.49
+  agent 2: 0.66 0.66 0.64 0.66
+  agent 3: 0.64 0.64 0.67 0.63
+  agent 4: 0.42 0.92 0.47 0.42
+  agent 5: 0.47 0.46 0.42 0.90
+  agent 6: 0.79 0.51 0.49 0.83
+  agent 7: 0.46 0.45 0.89 0.44
+  task proj 2 [0:check<-[] 1:check<-[] 2:lookup<-[] 3:synthesize<-[0, 1, 2] 4:lookup<-[3] 5:synthesize<-[4]]  single-shot view: type=Some("lookup+lookup+synthesize+synthesize+check+check") feats=["check", "lookup", "synthesize", "proj:2"]
+  task proj 1 [0:check<-[] 1:compute<-[] 2:compute<-[] 3:synthesize<-[0, 1, 2] 4:check<-[3] 5:lookup<-[4]]  single-shot view: type=Some("lookup+compute+compute+synthesize+check+check") feats=["check", "compute", "lookup", "synthesize", "proj:1"]
+  task proj 6 [0:compute<-[] 1:check<-[] 2:check<-[0, 1] 3:synthesize<-[2] 4:synthesize<-[3]]  single-shot view: type=Some("compute+synthesize+synthesize+check+check") feats=["check", "compute", "synthesize", "proj:6"]
+  task proj 5 [0:synthesize<-[] 1:check<-[] 2:synthesize<-[0, 1]]  single-shot view: type=Some("synthesize+synthesize+check") feats=["check", "synthesize", "proj:5"]
+  mean steps/task 4.52, mean deps/step 0.78
+  oracle-single q 0.525 ok 0.019 | oracle-decomp q 0.698 ok 0.376 | oracle-decomp+ctx q 0.848 ok 0.932
+== world pipe-weakctx (family Pipe, pool Spec, shape Dag, steps 3-6, prop 0.5, noise 0.1, d [0.25, 0.05, 0.18, 0.08] x0.4, projects 10, p_id 0.9, sig_v 0.1, cv 0.3, decoy 0.3, mono_pen 0)
+agents (true competence per type ["lookup", "compute", "synthesize", "check"]) ; keyword map [0, 0, 7, 7]
+  agent 0: 0.41 0.91 0.41 0.50
+  agent 1: 0.83 0.53 0.47 0.79
+  agent 2: 0.49 0.42 0.49 0.90
+  agent 3: 0.45 0.44 0.45 0.39
+  agent 4: 0.64 0.62 0.63 0.62
+  agent 5: 0.63 0.62 0.63 0.65
+  agent 6: 0.93 0.45 0.44 0.46
+  agent 7: 0.45 0.49 0.88 0.51
+  task proj 4 [0:synthesize<-[] 1:lookup<-[0] 2:synthesize<-[1]]  single-shot view: type=Some("lookup+synthesize+synthesize") feats=["lookup", "synthesize", "proj:4"]
+  task proj 9 [0:compute<-[] 1:compute<-[0] 2:lookup<-[1] 3:lookup<-[1] 4:lookup<-[0] 5:synthesize<-[4, 0, 2, 3]]  single-shot view: type=Some("lookup+lookup+lookup+compute+compute+synthesize") feats=["compute", "lookup", "synthesize", "proj:9"]
+  task proj 8 [0:compute<-[] 1:lookup<-[0] 2:check<-[1] 3:check<-[2] 4:compute<-[0, 2, 3]]  single-shot view: type=Some("lookup+compute+compute+check+check") feats=["check", "compute", "lookup", "proj:8"]
+  task proj 5 [0:synthesize<-[] 1:check<-[0] 2:compute<-[1, 0] 3:synthesize<-[1, 2]]  single-shot view: type=Some("compute+synthesize+synthesize+check") feats=["check", "compute", "synthesize", "proj:5"]
+  mean steps/task 4.46, mean deps/step 0.98
+  oracle-single q 0.550 ok 0.034 | oracle-decomp q 0.768 ok 0.764 | oracle-decomp+ctx q 0.837 ok 0.919
+== world pipe-lowrec (family Pipe, pool Spec, shape Dag, steps 3-6, prop 0.5, noise 0.1, d [0.25, 0.05, 0.18, 0.08] x1, projects 300, p_id 0.9, sig_v 0.1, cv 0.3, decoy 0.3, mono_pen 0)
+agents (true competence per type ["lookup", "compute", "synthesize", "check"]) ; keyword map [2, 6, 1, 4]
+  agent 0: 0.83 0.51 0.49 0.80
+  agent 1: 0.47 0.48 0.90 0.46
+  agent 2: 0.88 0.46 0.45 0.42
+  agent 3: 0.41 0.42 0.45 0.40
+  agent 4: 0.43 0.43 0.49 0.92
+  agent 5: 0.62 0.66 0.65 0.62
+  agent 6: 0.48 0.92 0.43 0.47
+  agent 7: 0.65 0.63 0.64 0.66
+  task proj 126 [0:compute<-[] 1:check<-[0] 2:synthesize<-[1] 3:compute<-[0] 4:synthesize<-[3, 2]]  single-shot view: type=Some("compute+compute+synthesize+synthesize+check") feats=["check", "compute", "synthesize", "proj:126"]
+  task proj 168 [0:lookup<-[] 1:check<-[0] 2:synthesize<-[1] 3:synthesize<-[2] 4:compute<-[3] 5:compute<-[0, 4]]  single-shot view: type=Some("lookup+compute+compute+synthesize+synthesize+check") feats=["check", "compute", "lookup", "synthesize", "proj:168"]
+  task proj 180 [0:compute<-[] 1:compute<-[0] 2:lookup<-[1] 3:synthesize<-[2]]  single-shot view: type=Some("lookup+compute+compute+synthesize") feats=["compute", "lookup", "synthesize", "proj:180"]
+  task proj 179 [0:synthesize<-[] 1:synthesize<-[0] 2:check<-[1] 3:compute<-[2] 4:synthesize<-[3]]  single-shot view: type=Some("compute+synthesize+synthesize+synthesize+check") feats=["check", "compute", "synthesize", "proj:179"]
+  mean steps/task 4.42, mean deps/step 0.98
+  oracle-single q 0.485 ok 0.010 | oracle-decomp q 0.663 ok 0.276 | oracle-decomp+ctx q 0.828 ok 0.907
+== world pipe-badver (family Pipe, pool Spec, shape Dag, steps 3-6, prop 0.5, noise 0.1, d [0.25, 0.05, 0.18, 0.08] x1, projects 10, p_id 0.9, sig_v 0.22, cv 0.3, decoy 0.3, mono_pen 0)
+agents (true competence per type ["lookup", "compute", "synthesize", "check"]) ; keyword map [5, 7, 6, 0]
+  agent 0: 0.42 0.46 0.43 0.93
+  agent 1: 0.65 0.61 0.62 0.64
+  agent 2: 0.39 0.42 0.39 0.42
+  agent 3: 0.78 0.54 0.50 0.79
+  agent 4: 0.65 0.62 0.64 0.67
+  agent 5: 0.87 0.44 0.48 0.47
+  agent 6: 0.47 0.41 0.90 0.42
+  agent 7: 0.51 0.91 0.44 0.47
+  task proj 0 [0:lookup<-[] 1:compute<-[0] 2:lookup<-[1] 3:synthesize<-[2, 0] 4:synthesize<-[0] 5:compute<-[4, 1, 3]]  single-shot view: type=Some("lookup+lookup+compute+compute+synthesize+synthesize") feats=["compute", "lookup", "synthesize", "proj:0"]
+  task proj 1 [0:compute<-[] 1:check<-[0] 2:lookup<-[1] 3:lookup<-[2] 4:synthesize<-[0, 3]]  single-shot view: type=Some("lookup+lookup+compute+synthesize+check") feats=["check", "compute", "lookup", "synthesize", "proj:1"]
+  task proj 2 [0:compute<-[] 1:synthesize<-[0] 2:lookup<-[1, 0] 3:synthesize<-[2]]  single-shot view: type=Some("lookup+compute+synthesize+synthesize") feats=["compute", "lookup", "synthesize", "proj:2"]
+  task proj 1 [0:compute<-[] 1:lookup<-[0] 2:synthesize<-[1, 0]]  single-shot view: type=Some("lookup+compute+synthesize") feats=["compute", "lookup", "synthesize", "proj:1"]
+  mean steps/task 4.52, mean deps/step 0.97
+  oracle-single q 0.476 ok 0.010 | oracle-decomp q 0.659 ok 0.245 | oracle-decomp+ctx q 0.822 ok 0.887
+== world lat-main (family Latent, pool Latent, shape RandDag(0.35), steps 3-6, prop 0.6, noise 0.1, d [0.2, 0.08, 0.2, 0.1] x1, projects 12, p_id 0.85, sig_v 0.1, cv 0.3, decoy 0.3, mono_pen 0)
+agents (true competence per type ["lookup", "compute", "synthesize", "check"]) ; keyword map [3, 6, 7, 2]
+  agent 0: 0.62 0.71 0.56 0.61
+  agent 1: 0.58 0.80 0.55 0.73
+  agent 2: 0.61 0.70 0.57 0.62
+  agent 3: 0.87 0.69 0.91 0.74
+  agent 4: 0.73 0.81 0.67 0.78
+  agent 5: 0.55 0.56 0.52 0.57
+  agent 6: 0.84 0.89 0.89 0.87
+  agent 7: 0.50 0.38 0.55 0.40
+  task proj 2 [0:compute<-[] 1:synthesize<-[] 2:lookup<-[1] 3:synthesize<-[1] 4:compute<-[0, 1, 2] 5:synthesize<-[]]  single-shot view: type=Some("lookup+compute+compute+synthesize+synthesize+synthesize") feats=["compute", "lookup", "synthesize", "proj:2"]
+  task proj 7 [0:synthesize<-[] 1:synthesize<-[] 2:synthesize<-[1]]  single-shot view: type=Some("synthesize+synthesize+synthesize") feats=["synthesize", "proj:7"]
+  task proj 11 [0:compute<-[] 1:compute<-[] 2:synthesize<-[] 3:compute<-[2] 4:lookup<-[2]]  single-shot view: type=Some("lookup+compute+compute+compute+synthesize") feats=["compute", "lookup", "synthesize", "proj:11"]
+  task proj 10 [0:lookup<-[] 1:lookup<-[0] 2:lookup<-[0] 3:synthesize<-[2]]  single-shot view: type=Some("lookup+lookup+lookup+synthesize") feats=["lookup", "synthesize", "proj:10"]
+  mean steps/task 4.50, mean deps/step 0.75
+  oracle-single q 0.657 ok 0.235 | oracle-decomp q 0.667 ok 0.295 | oracle-decomp+ctx q 0.819 ok 0.846
+== world lat-highprop (family Latent, pool Latent, shape RandDag(0.35), steps 3-6, prop 0.9, noise 0.1, d [0.2, 0.08, 0.2, 0.1] x1, projects 12, p_id 0.85, sig_v 0.1, cv 0.3, decoy 0.3, mono_pen 0)
+agents (true competence per type ["lookup", "compute", "synthesize", "check"]) ; keyword map [4, 1, 6, 4]
+  agent 0: 0.56 0.64 0.61 0.62
+  agent 1: 0.66 0.87 0.73 0.76
+  agent 2: 0.69 0.44 0.65 0.60
+  agent 3: 0.74 0.59 0.52 0.60
+  agent 4: 0.86 0.74 0.68 0.77
+  agent 5: 0.60 0.60 0.53 0.64
+  agent 6: 0.68 0.72 0.73 0.72
+  agent 7: 0.73 0.64 0.65 0.69
+  task proj 10 [0:lookup<-[] 1:lookup<-[] 2:synthesize<-[1] 3:synthesize<-[0] 4:compute<-[2, 3] 5:check<-[0, 4]]  single-shot view: type=Some("lookup+lookup+compute+synthesize+synthesize+check") feats=["check", "compute", "lookup", "synthesize", "proj:10"]
+  task proj 8 [0:lookup<-[] 1:lookup<-[0] 2:check<-[0] 3:synthesize<-[0] 4:synthesize<-[3]]  single-shot view: type=Some("lookup+lookup+synthesize+synthesize+check") feats=["check", "lookup", "synthesize", "proj:8"]
+  task proj 5 [0:compute<-[] 1:compute<-[0] 2:synthesize<-[1]]  single-shot view: type=Some("compute+compute+synthesize") feats=["compute", "synthesize", "proj:5"]
+  task proj 6 [0:lookup<-[] 1:compute<-[0] 2:synthesize<-[0]]  single-shot view: type=Some("lookup+compute+synthesize") feats=["compute", "lookup", "synthesize", "proj:6"]
+  mean steps/task 4.52, mean deps/step 0.76
+  oracle-single q 0.508 ok 0.020 | oracle-decomp q 0.537 ok 0.046 | oracle-decomp+ctx q 0.671 ok 0.255
+== world lat-noisyag (family Latent, pool Latent, shape RandDag(0.35), steps 3-6, prop 0.6, noise 0.16, d [0.2, 0.08, 0.2, 0.1] x1, projects 12, p_id 0.85, sig_v 0.1, cv 0.3, decoy 0.3, mono_pen 0)
+agents (true competence per type ["lookup", "compute", "synthesize", "check"]) ; keyword map [0, 4, 5, 0]
+  agent 0: 0.75 0.65 0.68 0.73
+  agent 1: 0.55 0.60 0.47 0.58
+  agent 2: 0.74 0.68 0.74 0.71
+  agent 3: 0.52 0.58 0.62 0.58
+  agent 4: 0.62 0.75 0.66 0.72
+  agent 5: 0.69 0.68 0.97 0.69
+  agent 6: 0.62 0.60 0.58 0.55
+  agent 7: 0.54 0.70 0.57 0.63
+  task proj 10 [0:compute<-[] 1:lookup<-[] 2:compute<-[1]]  single-shot view: type=Some("lookup+compute+compute") feats=["compute", "lookup", "proj:10"]
+  task proj 4 [0:lookup<-[] 1:lookup<-[0] 2:synthesize<-[1] 3:lookup<-[] 4:synthesize<-[2] 5:synthesize<-[0, 2, 4]]  single-shot view: type=Some("lookup+lookup+lookup+synthesize+synthesize+synthesize") feats=["lookup", "synthesize", "proj:4"]
+  task proj 11 [0:compute<-[] 1:lookup<-[] 2:lookup<-[0]]  single-shot view: type=Some("lookup+lookup+compute") feats=["compute", "lookup", "proj:11"]
+  task proj 9 [0:lookup<-[] 1:lookup<-[] 2:compute<-[1] 3:lookup<-[0] 4:compute<-[0, 1]]  single-shot view: type=Some("lookup+lookup+lookup+compute+compute") feats=["compute", "lookup", "proj:9"]
+  mean steps/task 4.50, mean deps/step 0.77
+  oracle-single q 0.551 ok 0.051 | oracle-decomp q 0.581 ok 0.081 | oracle-decomp+ctx q 0.709 ok 0.319
+== world lat-pricever (family Latent, pool Latent, shape RandDag(0.35), steps 3-6, prop 0.6, noise 0.1, d [0.2, 0.08, 0.2, 0.1] x1, projects 12, p_id 0.85, sig_v 0.1, cv 0.8, decoy 0.3, mono_pen 0)
+agents (true competence per type ["lookup", "compute", "synthesize", "check"]) ; keyword map [1, 1, 1, 1]
+  agent 0: 0.57 0.69 0.75 0.62
+  agent 1: 0.85 0.87 0.95 0.83
+  agent 2: 0.79 0.70 0.72 0.68
+  agent 3: 0.53 0.47 0.58 0.54
+  agent 4: 0.47 0.74 0.66 0.66
+  agent 5: 0.50 0.58 0.60 0.55
+  agent 6: 0.65 0.73 0.59 0.69
+  agent 7: 0.49 0.65 0.54 0.56
+  task proj 5 [0:compute<-[] 1:synthesize<-[] 2:synthesize<-[1] 3:lookup<-[] 4:lookup<-[0] 5:synthesize<-[1, 3, 4]]  single-shot view: type=Some("lookup+lookup+compute+synthesize+synthesize+synthesize") feats=["compute", "lookup", "synthesize", "proj:5"]
+  task proj 1 [0:compute<-[] 1:compute<-[] 2:synthesize<-[1]]  single-shot view: type=Some("compute+compute+synthesize") feats=["compute", "synthesize", "proj:1"]
+  task proj 2 [0:lookup<-[] 1:lookup<-[] 2:compute<-[1] 3:synthesize<-[0, 2] 4:lookup<-[0]]  single-shot view: type=Some("lookup+lookup+lookup+compute+synthesize") feats=["compute", "lookup", "synthesize", "proj:2"]
+  task proj 4 [0:check<-[] 1:lookup<-[] 2:synthesize<-[]]  single-shot view: type=Some("lookup+synthesize+check") feats=["check", "lookup", "synthesize", "proj:4"]
+  mean steps/task 4.52, mean deps/step 0.75
+  oracle-single q 0.657 ok 0.246 | oracle-decomp q 0.657 ok 0.246 | oracle-decomp+ctx q 0.807 ok 0.798
+== world ctl-single-step (family Pipe, pool Spec, shape Single, steps 1-1, prop 0.5, noise 0.1, d [0.25, 0.05, 0.18, 0.08] x1, projects 10, p_id 0.9, sig_v 0.1, cv 0.3, decoy 0.3, mono_pen 0)
+agents (true competence per type ["lookup", "compute", "synthesize", "check"]) ; keyword map [3, 7, 5, 2]
+  agent 0: 0.61 0.62 0.65 0.64
+  agent 1: 0.80 0.55 0.48 0.78
+  agent 2: 0.45 0.49 0.44 0.92
+  agent 3: 0.89 0.42 0.46 0.41
+  agent 4: 0.64 0.62 0.61 0.65
+  agent 5: 0.45 0.49 0.93 0.43
+  agent 6: 0.39 0.45 0.39 0.44
+  agent 7: 0.43 0.91 0.45 0.45
+  task proj 4 [0:synthesize<-[]]  single-shot view: type=Some("synthesize") feats=["synthesize", "proj:4"]
+  task proj 5 [0:compute<-[]]  single-shot view: type=Some("compute") feats=["compute", "proj:5"]
+  task proj 1 [0:synthesize<-[]]  single-shot view: type=Some("synthesize") feats=["synthesize", "proj:1"]
+  task proj 2 [0:lookup<-[]]  single-shot view: type=Some("lookup") feats=["lookup", "proj:2"]
+  mean steps/task 1.00, mean deps/step 0.00
+  oracle-single q 0.759 ok 0.910 | oracle-decomp q 0.759 ok 0.910 | oracle-decomp+ctx q 0.888 ok 0.995
+== world ctl-indep-dominant (family Pipe, pool Dominant, shape Indep, steps 3-6, prop 0.5, noise 0.1, d [0.25, 0.05, 0.18, 0.08] x1, projects 10, p_id 0.9, sig_v 0.1, cv 0.3, decoy 0.3, mono_pen 0)
+agents (true competence per type ["lookup", "compute", "synthesize", "check"]) ; keyword map [7, 7, 7, 7]
+  agent 0: 0.62 0.61 0.62 0.60
+  agent 1: 0.63 0.58 0.61 0.61
+  agent 2: 0.61 0.64 0.57 0.63
+  agent 3: 0.56 0.63 0.57 0.57
+  agent 4: 0.62 0.55 0.57 0.60
+  agent 5: 0.58 0.62 0.58 0.61
+  agent 6: 0.56 0.60 0.64 0.57
+  agent 7: 0.87 0.87 0.87 0.87
+  task proj 6 [0:lookup<-[] 1:compute<-[] 2:lookup<-[] 3:check<-[] 4:compute<-[] 5:lookup<-[]]  single-shot view: type=Some("lookup+lookup+lookup+compute+compute+check") feats=["check", "compute", "lookup", "proj:6"]
+  task proj 9 [0:check<-[] 1:synthesize<-[] 2:synthesize<-[] 3:compute<-[]]  single-shot view: type=Some("compute+synthesize+synthesize+check") feats=["check", "compute", "synthesize", "proj:9"]
+  task proj 8 [0:compute<-[] 1:check<-[] 2:check<-[] 3:check<-[] 4:synthesize<-[] 5:lookup<-[]]  single-shot view: type=Some("lookup+compute+synthesize+check+check+check") feats=["check", "compute", "lookup", "synthesize", "proj:8"]
+  task proj 0 [0:lookup<-[] 1:lookup<-[] 2:check<-[] 3:synthesize<-[]]  single-shot view: type=Some("lookup+lookup+synthesize+check") feats=["check", "lookup", "synthesize", "proj:0"]
+  mean steps/task 4.51, mean deps/step 0.00
+  oracle-single q 0.730 ok 0.555 | oracle-decomp q 0.730 ok 0.555 | oracle-decomp+ctx q 0.856 ok 0.931
+== world ctl-indep-spec (family Pipe, pool Spec, shape Indep, steps 3-6, prop 0.5, noise 0.1, d [0.25, 0.05, 0.18, 0.08] x1, projects 10, p_id 0.9, sig_v 0.1, cv 0.3, decoy 0.3, mono_pen 0)
+agents (true competence per type ["lookup", "compute", "synthesize", "check"]) ; keyword map [3, 6, 2, 1]
+  agent 0: 0.45 0.43 0.40 0.38
+  agent 1: 0.64 0.64 0.65 0.66
+  agent 2: 0.44 0.47 0.90 0.47
+  agent 3: 0.91 0.50 0.47 0.49
+  agent 4: 0.67 0.65 0.63 0.62
+  agent 5: 0.78 0.55 0.48 0.82
+  agent 6: 0.43 0.91 0.41 0.46
+  agent 7: 0.45 0.43 0.45 0.91
+  task proj 7 [0:compute<-[] 1:lookup<-[] 2:compute<-[] 3:synthesize<-[] 4:synthesize<-[]]  single-shot view: type=Some("lookup+compute+compute+synthesize+synthesize") feats=["compute", "lookup", "synthesize", "proj:7"]
+  task proj 0 [0:synthesize<-[] 1:compute<-[] 2:check<-[] 3:synthesize<-[]]  single-shot view: type=Some("compute+synthesize+synthesize+check") feats=["check", "compute", "synthesize", "proj:0"]
+  task proj 1 [0:lookup<-[] 1:compute<-[] 2:synthesize<-[] 3:check<-[]]  single-shot view: type=Some("lookup+compute+synthesize+check") feats=["check", "compute", "lookup", "synthesize", "proj:1"]
+  task proj 5 [0:lookup<-[] 1:synthesize<-[] 2:check<-[] 3:check<-[] 4:check<-[] 5:synthesize<-[]]  single-shot view: type=Some("lookup+synthesize+synthesize+check+check+check") feats=["check", "lookup", "synthesize", "proj:5"]
+  mean steps/task 4.50, mean deps/step 0.00
+  oracle-single q 0.592 ok 0.027 | oracle-decomp q 0.754 ok 0.693 | oracle-decomp+ctx q 0.884 ok 0.973
+== world ctl-rare-pricever (family Pipe, pool HighSkill, shape Dag, steps 3-6, prop 0.5, noise 0.06, d [0.05, 0.02, 0.04, 0.02] x1, projects 10, p_id 0.9, sig_v 0.1, cv 1, decoy 0.3, mono_pen 0)
+agents (true competence per type ["lookup", "compute", "synthesize", "check"]) ; keyword map [5, 7, 4, 2]
+  agent 0: 0.94 0.90 0.92 0.90
+  agent 1: 0.92 0.91 0.91 0.93
+  agent 2: 0.94 0.92 0.91 0.94
+  agent 3: 0.93 0.93 0.91 0.92
+  agent 4: 0.93 0.90 0.93 0.94
+  agent 5: 0.93 0.93 0.93 0.94
+  agent 6: 0.93 0.93 0.93 0.93
+  agent 7: 0.91 0.93 0.92 0.92
+  task proj 9 [0:synthesize<-[] 1:synthesize<-[0] 2:synthesize<-[0, 1]]  single-shot view: type=Some("synthesize+synthesize+synthesize") feats=["synthesize", "proj:9"]
+  task proj 3 [0:synthesize<-[] 1:lookup<-[0] 2:check<-[1] 3:compute<-[2] 4:compute<-[3] 5:synthesize<-[4]]  single-shot view: type=Some("lookup+compute+compute+synthesize+synthesize+check") feats=["check", "compute", "lookup", "synthesize", "proj:3"]
+  task proj 6 [0:synthesize<-[] 1:synthesize<-[0] 2:synthesize<-[1]]  single-shot view: type=Some("synthesize+synthesize+synthesize") feats=["synthesize", "proj:6"]
+  task proj 9 [0:lookup<-[] 1:check<-[0] 2:synthesize<-[1]]  single-shot view: type=Some("lookup+synthesize+check") feats=["check", "lookup", "synthesize", "proj:9"]
+  mean steps/task 4.52, mean deps/step 0.98
+  oracle-single q 0.838 ok 0.987 | oracle-decomp q 0.842 ok 0.989 | oracle-decomp+ctx q 0.885 ok 0.997
+== world ctl-equal-agents (family Pipe, pool Equal, shape Dag, steps 3-6, prop 0.5, noise 0.1, d [0.25, 0.05, 0.18, 0.08] x1, projects 10, p_id 0.9, sig_v 0.1, cv 0.3, decoy 0.3, mono_pen 0)
+agents (true competence per type ["lookup", "compute", "synthesize", "check"]) ; keyword map [0, 0, 3, 4]
+  agent 0: 0.70 0.70 0.70 0.70
+  agent 1: 0.70 0.70 0.70 0.70
+  agent 2: 0.70 0.70 0.70 0.70
+  agent 3: 0.70 0.70 0.70 0.70
+  agent 4: 0.70 0.70 0.70 0.70
+  agent 5: 0.70 0.70 0.70 0.70
+  agent 6: 0.70 0.70 0.70 0.70
+  agent 7: 0.70 0.70 0.70 0.70
+  task proj 1 [0:compute<-[] 1:compute<-[0] 2:synthesize<-[1]]  single-shot view: type=Some("compute+compute+synthesize") feats=["compute", "synthesize", "proj:1"]
+  task proj 7 [0:check<-[] 1:compute<-[0] 2:lookup<-[1] 3:compute<-[2] 4:synthesize<-[3]]  single-shot view: type=Some("lookup+compute+compute+synthesize+check") feats=["check", "compute", "lookup", "synthesize", "proj:7"]
+  task proj 1 [0:check<-[] 1:synthesize<-[0] 2:synthesize<-[1] 3:compute<-[2, 0] 4:synthesize<-[3] 5:synthesize<-[4, 2]]  single-shot view: type=Some("compute+synthesize+synthesize+synthesize+synthesize+check") feats=["check", "compute", "synthesize", "proj:1"]
+  task proj 1 [0:check<-[] 1:compute<-[0] 2:check<-[1] 3:lookup<-[2] 4:synthesize<-[0, 3]]  single-shot view: type=Some("lookup+compute+synthesize+check+check") feats=["check", "compute", "lookup", "synthesize", "proj:1"]
+  mean steps/task 4.50, mean deps/step 0.98
+  oracle-single q 0.484 ok 0.003 | oracle-decomp q 0.484 ok 0.003 | oracle-decomp+ctx q 0.583 ok 0.061

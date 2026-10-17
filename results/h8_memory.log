@@ -1,0 +1,244 @@
+h8_vectors mode=memory rayon=2 free=5.71GB
+[memory] real-mini n=23153 dim=384
+
+#### max-vectors-per-GB, measured (heap via counting allocator) real-mini n=23153 dim=384
+| config | index heap B/vec (measured) | RAM B/vec total | SSD B/vec | M vectors/GB RAM | recall@10 | p50 us | p99 us | build s |
+|---|---|---|---|---|---|---|---|---|
+| flat f32 exact (avx2) | 1536.0 | 1536.0 | 0.0 | 0.65 | 1.000 | 1150.8 | 3413.5 | 0.0 |
+| flat f16 | 768.0 | 768.0 | 0.0 | 1.30 | 1.000 | 803.2 | 2385.5 | 0.0 |
+| flat blockfp16(32,i16+f32 scale) | 816.0 | 816.0 | 0.0 | 1.23 | 1.000 | 1070.2 | 2703.2 | 0.0 |
+| flat int8(per-vector scale) | 388.0 | 388.0 | 0.0 | 2.58 | 0.997 | 559.8 | 2584.1 | 0.0 |
+| flat int8 + rerank4x [RAM] | 388.0 | 1924.0 | 0.0 | 0.52 | 1.000 | 610.3 | 2278.7 | 0.0 |
+| flat int8 + rerank4x [SSD buffered] | 388.0 | 388.0 | 1536.0 | 2.58 | 1.000 | 766.3 | 5021.9 | 0.0 |
+| flat int8 + rerank4x [SSD direct] | 388.0 | 388.0 | 1536.0 | 2.58 | 1.000 | 6925.1 | 18168.6 | 0.0 |
+| turbovec 2-bit | 100.4 | 100.4 | 0.0 | 9.96 | 0.924 | 84.4 | 303.1 | 0.1 |
+| turbovec 2-bit + rerank4x [RAM] | 100.4 | 1636.4 | 0.0 | 0.61 | 1.000 | 113.7 | 1069.6 | 0.1 |
+| turbovec 2-bit + rerank4x [SSD buffered] | 100.4 | 100.4 | 1536.0 | 9.96 | 1.000 | 332.9 | 2085.3 | 0.1 |
+| turbovec 2-bit + rerank4x [SSD direct] | 100.4 | 100.4 | 1536.0 | 9.96 | 1.000 | 4116.7 | 10218.1 | 0.1 |
+| turbovec 2-bit + rerank8x [RAM] | 100.4 | 1636.4 | 0.0 | 0.61 | 1.000 | 148.3 | 205.8 | 0.1 |
+| turbovec 2-bit + rerank8x [SSD buffered] | 100.4 | 100.4 | 1536.0 | 9.96 | 1.000 | 507.3 | 1287.8 | 0.1 |
+| turbovec 2-bit + rerank8x [SSD direct] | 100.4 | 100.4 | 1536.0 | 9.96 | 1.000 | 10841.9 | 45034.5 | 0.1 |
+| turbovec 2-bit + rerank16x [RAM] | 100.4 | 1636.4 | 0.0 | 0.61 | 1.000 | 297.8 | 2114.9 | 0.1 |
+| turbovec 2-bit + rerank16x [SSD buffered] | 100.4 | 100.4 | 1536.0 | 9.96 | 1.000 | 1093.6 | 3060.6 | 0.1 |
+| turbovec 2-bit + rerank16x [SSD direct] | 100.4 | 100.4 | 1536.0 | 9.96 | 1.000 | 18168.3 | 42742.3 | 0.1 |
+| turbovec 3-bit | 196.5 | 196.5 | 0.0 | 5.09 | 0.960 | 125.4 | 151.9 | 0.1 |
+| turbovec 3-bit + rerank2x [RAM] | 196.5 | 1732.5 | 0.0 | 0.58 | 1.000 | 139.6 | 171.0 | 0.1 |
+| turbovec 3-bit + rerank4x [RAM] | 196.5 | 1732.5 | 0.0 | 0.58 | 1.000 | 163.1 | 251.0 | 0.1 |
+| turbovec 3-bit + rerank4x [SSD buffered] | 196.5 | 196.5 | 1536.0 | 5.09 | 1.000 | 327.1 | 450.4 | 0.1 |
+| turbovec 3-bit + rerank4x [SSD direct] | 196.5 | 196.5 | 1536.0 | 5.09 | 1.000 | 3783.8 | 15934.1 | 0.1 |
+| turbovec 3-bit + rerank8x [RAM] | 196.5 | 1732.5 | 0.0 | 0.58 | 1.000 | 203.6 | 236.8 | 0.1 |
+| turbovec 3-bit + rerank8x [SSD buffered] | 196.5 | 196.5 | 1536.0 | 5.09 | 1.000 | 533.0 | 696.9 | 0.1 |
+| turbovec 3-bit + rerank8x [SSD direct] | 196.5 | 196.5 | 1536.0 | 5.09 | 1.000 | 6806.3 | 8868.9 | 0.1 |
+| turbovec 4-bit | 196.5 | 196.5 | 0.0 | 5.09 | 0.977 | 341.3 | 380.2 | 0.1 |
+| turbovec 4-bit + rerank2x [RAM] | 196.5 | 1732.5 | 0.0 | 0.58 | 1.000 | 357.6 | 385.1 | 0.1 |
+| turbovec 4-bit + rerank2x [SSD buffered] | 196.5 | 196.5 | 1536.0 | 5.09 | 1.000 | 447.1 | 505.5 | 0.1 |
+| turbovec 4-bit + rerank2x [SSD direct] | 196.5 | 196.5 | 1536.0 | 5.09 | 1.000 | 2019.1 | 2941.2 | 0.1 |
+| turbovec 4-bit + rerank4x [RAM] | 196.5 | 1732.5 | 0.0 | 0.58 | 1.000 | 371.6 | 411.1 | 0.1 |
+| turbovec 4-bit + rerank4x [SSD buffered] | 196.5 | 196.5 | 1536.0 | 5.09 | 1.000 | 542.8 | 627.0 | 0.1 |
+| turbovec 4-bit + rerank4x [SSD direct] | 196.5 | 196.5 | 1536.0 | 5.09 | 1.000 | 3862.9 | 5979.0 | 0.1 |
+| turbovec 4-bit + rerank8x [RAM] | 196.5 | 1732.5 | 0.0 | 0.58 | 1.000 | 425.4 | 581.9 | 0.1 |
+| turbovec 4-bit + rerank8x [SSD buffered] | 196.5 | 196.5 | 1536.0 | 5.09 | 1.000 | 745.2 | 1206.0 | 0.1 |
+| turbovec 4-bit + rerank8x [SSD direct] | 196.5 | 196.5 | 1536.0 | 5.09 | 1.000 | 7370.2 | 10719.4 | 0.1 |
+| rabitq-style 1-bit | 77.5 | 77.5 | 0.0 | 12.91 | 0.867 | 249.9 | 1004.4 | 0.2 |
+| rabitq-style 1-bit + rerank8x [RAM] | 77.5 | 1613.5 | 0.0 | 0.62 | 1.000 | 292.4 | 415.6 | 0.2 |
+| rabitq-style 1-bit + rerank8x [SSD buffered] | 77.5 | 77.5 | 1536.0 | 12.91 | 1.000 | 616.2 | 783.4 | 0.2 |
+| rabitq-style 1-bit + rerank8x [SSD direct] | 77.5 | 77.5 | 1536.0 | 12.91 | 1.000 | 6804.9 | 9336.5 | 0.2 |
+| rabitq-style 1-bit + rerank16x [RAM] | 77.5 | 1613.5 | 0.0 | 0.62 | 1.000 | 358.5 | 654.1 | 0.2 |
+| rabitq-style 2-bit | 125.5 | 125.5 | 0.0 | 7.97 | 0.929 | 446.6 | 1102.5 | 0.6 |
+| rabitq-style 2-bit + rerank2x [RAM] | 125.5 | 1661.5 | 0.0 | 0.60 | 0.999 | 484.7 | 1096.9 | 0.6 |
+| rabitq-style 2-bit + rerank4x [RAM] | 125.5 | 1661.5 | 0.0 | 0.60 | 1.000 | 512.6 | 2127.2 | 0.6 |
+| rabitq-style 2-bit + rerank4x [SSD buffered] | 125.5 | 125.5 | 1536.0 | 7.97 | 1.000 | 649.7 | 1254.9 | 0.6 |
+| rabitq-style 2-bit + rerank4x [SSD direct] | 125.5 | 125.5 | 1536.0 | 7.97 | 1.000 | 4339.2 | 7649.4 | 0.6 |
+| rabitq-style 2-bit + rerank8x [RAM] | 125.5 | 1661.5 | 0.0 | 0.60 | 1.000 | 521.6 | 633.8 | 0.6 |
+| rabitq-style 3-bit | 173.5 | 173.5 | 0.0 | 5.76 | 0.959 | 647.6 | 683.0 | 0.5 |
+| rabitq-style 3-bit + rerank2x [RAM] | 173.5 | 1709.5 | 0.0 | 0.58 | 1.000 | 654.2 | 708.3 | 0.5 |
+| rabitq-style 3-bit + rerank4x [RAM] | 173.5 | 1709.5 | 0.0 | 0.58 | 1.000 | 696.6 | 787.9 | 0.5 |
+| rabitq-style 3-bit + rerank4x [SSD buffered] | 173.5 | 173.5 | 1536.0 | 5.76 | 1.000 | 869.7 | 1053.7 | 0.5 |
+| rabitq-style 3-bit + rerank4x [SSD direct] | 173.5 | 173.5 | 1536.0 | 5.76 | 1.000 | 6918.0 | 11556.7 | 0.5 |
+| rabitq-style 3-bit + rerank8x [RAM] | 173.5 | 1709.5 | 0.0 | 0.58 | 1.000 | 698.5 | 837.4 | 0.5 |
+| rabitq-style 4-bit | 221.5 | 221.5 | 0.0 | 4.52 | 0.972 | 884.4 | 3592.1 | 0.5 |
+| rabitq-style 4-bit + rerank2x [RAM] | 221.5 | 1757.5 | 0.0 | 0.57 | 1.000 | 906.6 | 2755.4 | 0.5 |
+| rabitq-style 4-bit + rerank4x [RAM] | 221.5 | 1757.5 | 0.0 | 0.57 | 1.000 | 822.0 | 1040.5 | 0.5 |
+| rabitq-style 4-bit + rerank4x [SSD buffered] | 221.5 | 221.5 | 1536.0 | 4.52 | 1.000 | 1104.1 | 2371.2 | 0.5 |
+| rabitq-style 4-bit + rerank4x [SSD direct] | 221.5 | 221.5 | 1536.0 | 4.52 | 1.000 | 4142.5 | 5325.1 | 0.5 |
+| rabitq-style 4-bit + rerank8x [RAM] | 221.5 | 1757.5 | 0.0 | 0.57 | 1.000 | 866.9 | 971.6 | 0.5 |
+| rabitq-style 5-bit | 269.5 | 269.5 | 0.0 | 3.71 | 0.987 | 954.3 | 1065.0 | 0.4 |
+| rabitq-style 6-bit | 317.5 | 317.5 | 0.0 | 3.15 | 0.992 | 1187.6 | 2390.7 | 0.5 |
+| HNSW M32 efc100 ef24 [f32lib stored] | 6561.8 | 6561.8 | 0.0 | 0.15 | 0.992 | 127.3 | 231.9 | 3.2 |
+| HNSW M32 efc100 ef24 [bfp16 stored] | 5815.9 | 5815.9 | 0.0 | 0.17 | 0.994 | 120.2 | 221.4 | 2.5 |
+| HNSW M32 efc100 ef24 [int8 stored] | 5432.3 | 5432.3 | 0.0 | 0.18 | 0.988 | 103.3 | 168.4 | 2.3 |
+| HNSW M16 efc100 ef24 [f32lib stored] | 5856.3 | 5856.3 | 0.0 | 0.17 | 0.992 | 142.0 | 268.7 | 3.5 |
+| HNSW M16 efc100 ef24 [bfp16 stored] | 5124.1 | 5124.1 | 0.0 | 0.20 | 0.994 | 105.7 | 208.8 | 2.4 |
+| HNSW M16 efc100 ef24 [int8 stored] | 4695.3 | 4695.3 | 0.0 | 0.21 | 0.993 | 116.0 | 214.8 | 2.1 |
+| HNSW M48 efc200 ef16 [f32lib stored] | 7134.6 | 7134.6 | 0.0 | 0.14 | 0.994 | 134.7 | 241.3 | 8.2 |
+| HNSW M48 efc200 ef16 [bfp16 stored] | 6418.7 | 6418.7 | 0.0 | 0.16 | 0.995 | 102.6 | 204.6 | 7.3 |
+| HNSW M48 efc200 ef16 [int8 stored] | 6003.1 | 6003.1 | 0.0 | 0.17 | 0.992 | 75.4 | 146.5 | 4.8 |
+wrote results/h8_memory_real-mini.json
+[memory] real-bge n=23453 dim=768
+
+#### max-vectors-per-GB, measured (heap via counting allocator) real-bge n=23453 dim=768
+| config | index heap B/vec (measured) | RAM B/vec total | SSD B/vec | M vectors/GB RAM | recall@10 | p50 us | p99 us | build s |
+|---|---|---|---|---|---|---|---|---|
+| flat f32 exact (avx2) | 3072.0 | 3072.0 | 0.0 | 0.33 | 1.000 | 1972.8 | 2940.3 | 0.0 |
+| flat f16 | 1536.0 | 1536.0 | 0.0 | 0.65 | 1.000 | 1489.1 | 1799.1 | 0.0 |
+| flat blockfp16(32,i16+f32 scale) | 1632.0 | 1632.0 | 0.0 | 0.61 | 1.000 | 1394.0 | 1717.3 | 0.1 |
+| flat int8(per-vector scale) | 772.0 | 772.0 | 0.0 | 1.30 | 0.993 | 953.3 | 1059.4 | 0.1 |
+| flat int8 + rerank4x [RAM] | 772.0 | 3844.0 | 0.0 | 0.26 | 1.000 | 987.2 | 1184.5 | 0.1 |
+| flat int8 + rerank4x [SSD buffered] | 772.0 | 772.0 | 3072.0 | 1.30 | 1.000 | 1203.0 | 1457.5 | 0.1 |
+| flat int8 + rerank4x [SSD direct] | 772.0 | 772.0 | 3072.0 | 1.30 | 1.000 | 4949.2 | 14200.2 | 0.1 |
+| turbovec 2-bit | 196.7 | 196.7 | 0.0 | 5.08 | 0.931 | 129.7 | 206.6 | 0.1 |
+| turbovec 2-bit + rerank4x [RAM] | 196.7 | 3268.7 | 0.0 | 0.31 | 1.000 | 169.6 | 217.2 | 0.1 |
+| turbovec 2-bit + rerank4x [SSD buffered] | 196.7 | 196.7 | 3072.0 | 5.08 | 1.000 | 429.6 | 856.0 | 0.1 |
+| turbovec 2-bit + rerank4x [SSD direct] | 196.7 | 196.7 | 3072.0 | 5.08 | 1.000 | 4523.9 | 6546.3 | 0.1 |
+| turbovec 2-bit + rerank8x [RAM] | 196.7 | 3268.7 | 0.0 | 0.31 | 1.000 | 383.3 | 1243.0 | 0.1 |
+| turbovec 2-bit + rerank8x [SSD buffered] | 196.7 | 196.7 | 3072.0 | 5.08 | 1.000 | 779.7 | 1365.1 | 0.1 |
+| turbovec 2-bit + rerank8x [SSD direct] | 196.7 | 196.7 | 3072.0 | 5.08 | 1.000 | 8384.9 | 11925.9 | 0.1 |
+| turbovec 2-bit + rerank16x [RAM] | 196.7 | 3268.7 | 0.0 | 0.31 | 1.000 | 403.6 | 538.3 | 0.1 |
+| turbovec 2-bit + rerank16x [SSD buffered] | 196.7 | 196.7 | 3072.0 | 5.08 | 1.000 | 1277.9 | 3909.3 | 0.1 |
+| turbovec 2-bit + rerank16x [SSD direct] | 196.7 | 196.7 | 3072.0 | 5.08 | 1.000 | 15623.5 | 24601.1 | 0.1 |
+| turbovec 3-bit | 388.7 | 388.7 | 0.0 | 2.57 | 0.958 | 233.7 | 395.0 | 0.2 |
+| turbovec 3-bit + rerank2x [RAM] | 388.7 | 3460.7 | 0.0 | 0.29 | 1.000 | 295.7 | 514.3 | 0.2 |
+| turbovec 3-bit + rerank4x [RAM] | 388.7 | 3460.7 | 0.0 | 0.29 | 1.000 | 592.2 | 770.2 | 0.2 |
+| turbovec 3-bit + rerank4x [SSD buffered] | 388.7 | 388.7 | 3072.0 | 2.57 | 1.000 | 772.5 | 1007.9 | 0.2 |
+| turbovec 3-bit + rerank4x [SSD direct] | 388.7 | 388.7 | 3072.0 | 2.57 | 1.000 | 4079.7 | 5293.0 | 0.2 |
+| turbovec 3-bit + rerank8x [RAM] | 388.7 | 3460.7 | 0.0 | 0.29 | 1.000 | 425.6 | 627.4 | 0.2 |
+| turbovec 3-bit + rerank8x [SSD buffered] | 388.7 | 388.7 | 3072.0 | 2.57 | 1.000 | 924.5 | 1093.5 | 0.2 |
+| turbovec 3-bit + rerank8x [SSD direct] | 388.7 | 388.7 | 3072.0 | 2.57 | 1.000 | 7367.5 | 8162.1 | 0.2 |
+| turbovec 4-bit | 388.7 | 388.7 | 0.0 | 2.57 | 0.976 | 658.8 | 722.4 | 0.2 |
+| turbovec 4-bit + rerank2x [RAM] | 388.7 | 3460.7 | 0.0 | 0.29 | 1.000 | 679.7 | 768.6 | 0.2 |
+| turbovec 4-bit + rerank2x [SSD buffered] | 388.7 | 388.7 | 3072.0 | 2.57 | 1.000 | 801.8 | 938.0 | 0.2 |
+| turbovec 4-bit + rerank2x [SSD direct] | 388.7 | 388.7 | 3072.0 | 2.57 | 1.000 | 2455.0 | 2803.8 | 0.2 |
+| turbovec 4-bit + rerank4x [RAM] | 388.7 | 3460.7 | 0.0 | 0.29 | 1.000 | 699.0 | 1267.3 | 0.2 |
+| turbovec 4-bit + rerank4x [SSD buffered] | 388.7 | 388.7 | 3072.0 | 2.57 | 1.000 | 871.5 | 1063.2 | 0.2 |
+| turbovec 4-bit + rerank4x [SSD direct] | 388.7 | 388.7 | 3072.0 | 2.57 | 1.000 | 4066.8 | 6034.4 | 0.2 |
+| turbovec 4-bit + rerank8x [RAM] | 388.7 | 3460.7 | 0.0 | 0.29 | 1.000 | 746.7 | 828.5 | 0.2 |
+| turbovec 4-bit + rerank8x [SSD buffered] | 388.7 | 388.7 | 3072.0 | 2.57 | 1.000 | 1078.9 | 1227.0 | 0.2 |
+| turbovec 4-bit + rerank8x [SSD direct] | 388.7 | 388.7 | 3072.0 | 2.57 | 1.000 | 7040.0 | 8788.9 | 0.2 |
+| rabitq-style 1-bit | 200.6 | 200.6 | 0.0 | 4.99 | 0.869 | 463.3 | 554.4 | 0.7 |
+| rabitq-style 1-bit + rerank8x [RAM] | 200.6 | 3272.6 | 0.0 | 0.31 | 1.000 | 371.5 | 552.6 | 0.7 |
+| rabitq-style 1-bit + rerank8x [SSD buffered] | 200.6 | 200.6 | 3072.0 | 4.99 | 1.000 | 761.6 | 1006.8 | 0.7 |
+| rabitq-style 1-bit + rerank8x [SSD direct] | 200.6 | 200.6 | 3072.0 | 4.99 | 1.000 | 6106.5 | 7263.6 | 0.7 |
+| rabitq-style 1-bit + rerank16x [RAM] | 200.6 | 3272.6 | 0.0 | 0.31 | 1.000 | 506.6 | 598.5 | 0.7 |
+| rabitq-style 2-bit | 296.6 | 296.6 | 0.0 | 3.37 | 0.923 | 821.6 | 855.1 | 1.2 |
+| rabitq-style 2-bit + rerank2x [RAM] | 296.6 | 3368.6 | 0.0 | 0.30 | 0.999 | 669.8 | 869.0 | 1.2 |
+| rabitq-style 2-bit + rerank4x [RAM] | 296.6 | 3368.6 | 0.0 | 0.30 | 1.000 | 843.5 | 880.1 | 1.2 |
+| rabitq-style 2-bit + rerank4x [SSD buffered] | 296.6 | 296.6 | 3072.0 | 3.37 | 1.000 | 882.2 | 1134.1 | 1.2 |
+| rabitq-style 2-bit + rerank4x [SSD direct] | 296.6 | 296.6 | 3072.0 | 3.37 | 1.000 | 4554.8 | 7562.9 | 1.2 |
+| rabitq-style 2-bit + rerank8x [RAM] | 296.6 | 3368.6 | 0.0 | 0.30 | 1.000 | 881.1 | 936.5 | 1.2 |
+| rabitq-style 3-bit | 392.6 | 392.6 | 0.0 | 2.55 | 0.955 | 899.3 | 1179.9 | 1.3 |
+| rabitq-style 3-bit + rerank2x [RAM] | 392.6 | 3464.6 | 0.0 | 0.29 | 1.000 | 1034.5 | 1270.6 | 1.3 |
+| rabitq-style 3-bit + rerank4x [RAM] | 392.6 | 3464.6 | 0.0 | 0.29 | 1.000 | 922.0 | 1265.0 | 1.3 |
+| rabitq-style 3-bit + rerank4x [SSD buffered] | 392.6 | 392.6 | 3072.0 | 2.55 | 1.000 | 1109.7 | 1481.9 | 1.3 |
+| rabitq-style 3-bit + rerank4x [SSD direct] | 392.6 | 392.6 | 3072.0 | 2.55 | 1.000 | 3788.4 | 4714.6 | 1.3 |
+| rabitq-style 3-bit + rerank8x [RAM] | 392.6 | 3464.6 | 0.0 | 0.29 | 1.000 | 1065.9 | 1247.7 | 1.3 |
+| rabitq-style 4-bit | 488.6 | 488.6 | 0.0 | 2.05 | 0.975 | 1343.0 | 1631.3 | 1.0 |
+| rabitq-style 4-bit + rerank2x [RAM] | 488.6 | 3560.6 | 0.0 | 0.28 | 1.000 | 1150.7 | 1646.6 | 1.0 |
+| rabitq-style 4-bit + rerank4x [RAM] | 488.6 | 3560.6 | 0.0 | 0.28 | 1.000 | 1444.8 | 2926.9 | 1.0 |
+| rabitq-style 4-bit + rerank4x [SSD buffered] | 488.6 | 488.6 | 3072.0 | 2.05 | 1.000 | 1656.2 | 1932.9 | 1.0 |
+| rabitq-style 4-bit + rerank4x [SSD direct] | 488.6 | 488.6 | 3072.0 | 2.05 | 1.000 | 4259.2 | 5137.6 | 1.0 |
+| rabitq-style 4-bit + rerank8x [RAM] | 488.6 | 3560.6 | 0.0 | 0.28 | 1.000 | 1212.5 | 2133.5 | 1.0 |
+| rabitq-style 5-bit | 584.6 | 584.6 | 0.0 | 1.71 | 0.987 | 1632.2 | 2071.9 | 1.1 |
+| rabitq-style 6-bit | 680.6 | 680.6 | 0.0 | 1.47 | 0.992 | 1677.3 | 2396.7 | 1.1 |
+| HNSW M32 efc100 ef24 [f32lib stored] | 8164.6 | 8164.6 | 0.0 | 0.12 | 0.996 | 162.0 | 257.2 | 3.4 |
+| HNSW M32 efc100 ef24 [bfp16 stored] | 6696.3 | 6696.3 | 0.0 | 0.15 | 0.996 | 128.1 | 221.9 | 2.5 |
+| HNSW M32 efc100 ef24 [int8 stored] | 5873.9 | 5873.9 | 0.0 | 0.17 | 0.993 | 94.9 | 164.2 | 2.1 |
+| HNSW M16 efc100 ef24 [f32lib stored] | 7416.2 | 7416.2 | 0.0 | 0.13 | 0.999 | 142.4 | 238.4 | 3.4 |
+| HNSW M16 efc100 ef24 [bfp16 stored] | 5986.2 | 5986.2 | 0.0 | 0.17 | 0.999 | 144.0 | 226.6 | 2.5 |
+| HNSW M16 efc100 ef24 [int8 stored] | 5111.4 | 5111.4 | 0.0 | 0.20 | 0.980 | 99.0 | 223.1 | 2.0 |
+| HNSW M48 efc200 ef16 [f32lib stored] | 8697.6 | 8697.6 | 0.0 | 0.11 | 0.999 | 153.7 | 239.5 | 10.0 |
+| HNSW M48 efc200 ef16 [bfp16 stored] | 7268.2 | 7268.2 | 0.0 | 0.14 | 0.999 | 91.1 | 172.2 | 5.9 |
+| HNSW M48 efc200 ef16 [int8 stored] | 6404.9 | 6404.9 | 0.0 | 0.16 | 0.993 | 75.0 | 132.8 | 3.9 |
+wrote results/h8_memory_real-bge.json
+[memory] synth384-n100000 n=100000 dim=384
+ setting number of points 50000 
+ setting number of points 100000 
+ setting number of points 50000 
+ setting number of points 100000 
+ setting number of points 50000 
+ setting number of points 100000 
+ setting number of points 50000 
+ setting number of points 100000 
+ setting number of points 50000 
+ setting number of points 100000 
+ setting number of points 50000 
+ setting number of points 100000 
+ setting number of points 50000 
+ setting number of points 100000 
+ setting number of points 50000 
+ setting number of points 100000 
+ setting number of points 50000 
+ setting number of points 100000 
+
+#### max-vectors-per-GB, measured (heap via counting allocator) synth384-n100000 n=100000 dim=384
+| config | index heap B/vec (measured) | RAM B/vec total | SSD B/vec | M vectors/GB RAM | recall@10 | p50 us | p99 us | build s |
+|---|---|---|---|---|---|---|---|---|
+| flat f32 exact (avx2) | 1536.0 | 1536.0 | 0.0 | 0.65 | 1.000 | 3225.0 | 4716.6 | 0.0 |
+| flat f16 | 768.0 | 768.0 | 0.0 | 1.30 | 0.999 | 3003.6 | 3143.8 | 0.0 |
+| flat blockfp16(32,i16+f32 scale) | 816.0 | 816.0 | 0.0 | 1.23 | 1.000 | 2539.5 | 3239.7 | 0.1 |
+| flat int8(per-vector scale) | 388.0 | 388.0 | 0.0 | 2.58 | 0.976 | 2100.2 | 2235.1 | 0.1 |
+| flat int8 + rerank4x [RAM] | 388.0 | 1924.0 | 0.0 | 0.52 | 1.000 | 1474.9 | 2077.5 | 0.1 |
+| flat int8 + rerank4x [SSD buffered] | 388.0 | 388.0 | 1536.0 | 2.58 | 1.000 | 2374.3 | 2502.5 | 0.1 |
+| flat int8 + rerank4x [SSD direct] | 388.0 | 388.0 | 1536.0 | 2.58 | 1.000 | 4828.1 | 6044.1 | 0.1 |
+| turbovec 2-bit | 100.1 | 100.1 | 0.0 | 9.99 | 0.557 | 613.8 | 840.0 | 0.1 |
+| turbovec 2-bit + rerank4x [RAM] | 100.1 | 1636.1 | 0.0 | 0.61 | 0.957 | 615.5 | 1109.2 | 0.1 |
+| turbovec 2-bit + rerank4x [SSD buffered] | 100.1 | 100.1 | 1536.0 | 9.99 | 0.957 | 588.1 | 939.5 | 0.1 |
+| turbovec 2-bit + rerank4x [SSD direct] | 100.1 | 100.1 | 1536.0 | 9.99 | 0.957 | 3762.5 | 4543.3 | 0.1 |
+| turbovec 2-bit + rerank8x [RAM] | 100.1 | 1636.1 | 0.0 | 0.61 | 1.000 | 274.5 | 507.4 | 0.1 |
+| turbovec 2-bit + rerank8x [SSD buffered] | 100.1 | 100.1 | 1536.0 | 9.99 | 1.000 | 797.0 | 1211.3 | 0.1 |
+| turbovec 2-bit + rerank8x [SSD direct] | 100.1 | 100.1 | 1536.0 | 9.99 | 1.000 | 6655.8 | 8205.2 | 0.1 |
+| turbovec 2-bit + rerank16x [RAM] | 100.1 | 1636.1 | 0.0 | 0.61 | 1.000 | 471.4 | 754.9 | 0.1 |
+| turbovec 2-bit + rerank16x [SSD buffered] | 100.1 | 100.1 | 1536.0 | 9.99 | 1.000 | 1594.8 | 1869.4 | 0.1 |
+| turbovec 2-bit + rerank16x [SSD direct] | 100.1 | 100.1 | 1536.0 | 9.99 | 1.000 | 12817.7 | 18115.2 | 0.1 |
+| turbovec 3-bit | 196.1 | 196.1 | 0.0 | 5.10 | 0.726 | 1037.5 | 1369.2 | 0.1 |
+| turbovec 3-bit + rerank2x [RAM] | 196.1 | 1732.1 | 0.0 | 0.58 | 0.946 | 917.8 | 1138.2 | 0.1 |
+| turbovec 3-bit + rerank4x [RAM] | 196.1 | 1732.1 | 0.0 | 0.58 | 0.998 | 945.7 | 1120.6 | 0.1 |
+| turbovec 3-bit + rerank4x [SSD buffered] | 196.1 | 196.1 | 1536.0 | 5.10 | 0.998 | 1305.4 | 1618.5 | 0.1 |
+| turbovec 3-bit + rerank4x [SSD direct] | 196.1 | 196.1 | 1536.0 | 5.10 | 0.998 | 4165.0 | 4938.9 | 0.1 |
+| turbovec 3-bit + rerank8x [RAM] | 196.1 | 1732.1 | 0.0 | 0.58 | 1.000 | 925.0 | 1152.4 | 0.1 |
+| turbovec 3-bit + rerank8x [SSD buffered] | 196.1 | 196.1 | 1536.0 | 5.10 | 1.000 | 1439.9 | 1925.2 | 0.1 |
+| turbovec 3-bit + rerank8x [SSD direct] | 196.1 | 196.1 | 1536.0 | 5.10 | 1.000 | 7373.6 | 18994.0 | 0.1 |
+| turbovec 4-bit | 196.1 | 196.1 | 0.0 | 5.10 | 0.847 | 764.7 | 993.0 | 0.1 |
+| turbovec 4-bit + rerank2x [RAM] | 196.1 | 1732.1 | 0.0 | 0.58 | 0.995 | 768.3 | 969.0 | 0.1 |
+| turbovec 4-bit + rerank2x [SSD buffered] | 196.1 | 196.1 | 1536.0 | 5.10 | 0.995 | 890.6 | 1087.6 | 0.1 |
+| turbovec 4-bit + rerank2x [SSD direct] | 196.1 | 196.1 | 1536.0 | 5.10 | 0.995 | 2505.7 | 2925.8 | 0.1 |
+| turbovec 4-bit + rerank4x [RAM] | 196.1 | 1732.1 | 0.0 | 0.58 | 1.000 | 810.8 | 968.9 | 0.1 |
+| turbovec 4-bit + rerank4x [SSD buffered] | 196.1 | 196.1 | 1536.0 | 5.10 | 1.000 | 1037.7 | 1346.2 | 0.1 |
+| turbovec 4-bit + rerank4x [SSD direct] | 196.1 | 196.1 | 1536.0 | 5.10 | 1.000 | 4415.0 | 5081.6 | 0.1 |
+| turbovec 4-bit + rerank8x [RAM] | 196.1 | 1732.1 | 0.0 | 0.58 | 1.000 | 752.0 | 996.7 | 0.1 |
+| turbovec 4-bit + rerank8x [SSD buffered] | 196.1 | 196.1 | 1536.0 | 5.10 | 1.000 | 1211.0 | 1431.9 | 0.1 |
+| turbovec 4-bit + rerank8x [SSD direct] | 196.1 | 196.1 | 1536.0 | 5.10 | 1.000 | 7327.1 | 16849.7 | 0.1 |
+| rabitq-style 1-bit | 57.9 | 57.9 | 0.0 | 17.27 | 0.347 | 952.2 | 1100.1 | 0.6 |
+| rabitq-style 1-bit + rerank8x [RAM] | 57.9 | 1593.9 | 0.0 | 0.63 | 0.987 | 1003.1 | 1093.4 | 0.6 |
+| rabitq-style 1-bit + rerank8x [SSD buffered] | 57.9 | 57.9 | 1536.0 | 17.27 | 0.987 | 1422.0 | 1839.0 | 0.6 |
+| rabitq-style 1-bit + rerank8x [SSD direct] | 57.9 | 57.9 | 1536.0 | 17.27 | 0.987 | 7202.1 | 8127.7 | 0.6 |
+| rabitq-style 1-bit + rerank16x [RAM] | 57.9 | 1593.9 | 0.0 | 0.63 | 1.000 | 1560.8 | 1630.3 | 0.6 |
+| rabitq-style 2-bit | 105.9 | 105.9 | 0.0 | 9.44 | 0.554 | 2610.1 | 2692.0 | 1.8 |
+| rabitq-style 2-bit + rerank2x [RAM] | 105.9 | 1641.9 | 0.0 | 0.61 | 0.787 | 2693.5 | 2781.2 | 1.8 |
+| rabitq-style 2-bit + rerank4x [RAM] | 105.9 | 1641.9 | 0.0 | 0.61 | 0.958 | 2253.9 | 2734.0 | 1.8 |
+| rabitq-style 2-bit + rerank4x [SSD buffered] | 105.9 | 105.9 | 1536.0 | 9.44 | 0.958 | 2528.9 | 3059.3 | 1.8 |
+| rabitq-style 2-bit + rerank4x [SSD direct] | 105.9 | 105.9 | 1536.0 | 9.44 | 0.958 | 4605.3 | 6119.0 | 1.8 |
+| rabitq-style 2-bit + rerank8x [RAM] | 105.9 | 1641.9 | 0.0 | 0.61 | 0.999 | 1794.0 | 2233.3 | 1.8 |
+| rabitq-style 3-bit | 153.9 | 153.9 | 0.0 | 6.50 | 0.720 | 2514.8 | 3873.5 | 1.7 |
+| rabitq-style 3-bit + rerank2x [RAM] | 153.9 | 1689.9 | 0.0 | 0.59 | 0.934 | 2913.8 | 3909.5 | 1.7 |
+| rabitq-style 3-bit + rerank4x [RAM] | 153.9 | 1689.9 | 0.0 | 0.59 | 0.999 | 2684.3 | 3876.7 | 1.7 |
+| rabitq-style 3-bit + rerank4x [SSD buffered] | 153.9 | 153.9 | 1536.0 | 6.50 | 0.999 | 3017.7 | 3876.2 | 1.7 |
+| rabitq-style 3-bit + rerank4x [SSD direct] | 153.9 | 153.9 | 1536.0 | 6.50 | 0.999 | 5116.3 | 7079.7 | 1.7 |
+| rabitq-style 3-bit + rerank8x [RAM] | 153.9 | 1689.9 | 0.0 | 0.59 | 1.000 | 3890.1 | 3925.4 | 1.7 |
+| rabitq-style 4-bit | 201.9 | 201.9 | 0.0 | 4.95 | 0.842 | 3904.0 | 5076.1 | 1.6 |
+| rabitq-style 4-bit + rerank2x [RAM] | 201.9 | 1737.9 | 0.0 | 0.58 | 0.994 | 4588.6 | 5154.4 | 1.6 |
+| rabitq-style 4-bit + rerank4x [RAM] | 201.9 | 1737.9 | 0.0 | 0.58 | 1.000 | 3317.7 | 5131.2 | 1.6 |
+| rabitq-style 4-bit + rerank4x [SSD buffered] | 201.9 | 201.9 | 1536.0 | 4.95 | 1.000 | 4047.3 | 5382.2 | 1.6 |
+| rabitq-style 4-bit + rerank4x [SSD direct] | 201.9 | 201.9 | 1536.0 | 4.95 | 1.000 | 5975.1 | 8621.8 | 1.6 |
+| rabitq-style 4-bit + rerank8x [RAM] | 201.9 | 1737.9 | 0.0 | 0.58 | 1.000 | 3122.5 | 4929.3 | 1.6 |
+| rabitq-style 5-bit | 249.9 | 249.9 | 0.0 | 4.00 | 0.908 | 4372.5 | 6224.7 | 1.7 |
+| rabitq-style 6-bit | 297.9 | 297.9 | 0.0 | 3.36 | 0.950 | 4544.4 | 7495.7 | 1.6 |
+| HNSW M32 efc100 ef24 [f32lib stored] | 6843.0 | 6843.0 | 0.0 | 0.15 | 0.936 | 164.6 | 331.3 | 29.5 |
+| HNSW M32 efc100 ef24 [bfp16 stored] | 6129.5 | 6129.5 | 0.0 | 0.16 | 0.942 | 109.2 | 239.6 | 21.4 |
+| HNSW M32 efc100 ef24 [int8 stored] | 5684.2 | 5684.2 | 0.0 | 0.18 | 0.927 | 152.3 | 329.2 | 18.2 |
+| HNSW M16 efc100 ef24 [f32lib stored] | 6087.2 | 6087.2 | 0.0 | 0.16 | 0.818 | 197.3 | 455.5 | 26.7 |
+| HNSW M16 efc100 ef24 [bfp16 stored] | 5371.4 | 5371.4 | 0.0 | 0.19 | 0.842 | 118.9 | 291.4 | 19.6 |
+| HNSW M16 efc100 ef24 [int8 stored] | 4884.2 | 4884.2 | 0.0 | 0.20 | 0.815 | 92.0 | 206.6 | 17.4 |
+| HNSW M48 efc200 ef16 [f32lib stored] | 7423.8 | 7423.8 | 0.0 | 0.13 | 0.962 | 199.6 | 351.9 | 59.8 |
+| HNSW M48 efc200 ef16 [bfp16 stored] | 6706.9 | 6706.9 | 0.0 | 0.15 | 0.969 | 143.6 | 285.3 | 53.3 |
+| HNSW M48 efc200 ef16 [int8 stored] | 6276.9 | 6276.9 | 0.0 | 0.16 | 0.945 | 94.6 | 174.6 | 40.6 |
+wrote results/h8_memory_synth384-n100000.json

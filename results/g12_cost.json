@@ -1,0 +1,871 @@
+{
+  "experiment": "g12_cost",
+  "nets": [
+    {
+      "case": "sim 6 agents",
+      "net": "ann H8",
+      "param_bytes": 8444,
+      "params": 2111,
+      "replay_cap": 1000,
+      "replay_entry_bytes": 80
+    },
+    {
+      "case": "big 32 agents",
+      "net": "ann H8",
+      "param_bytes": 9380,
+      "params": 2345,
+      "replay_cap": 1000,
+      "replay_entry_bytes": 80
+    },
+    {
+      "case": "rich-cont 8 agents + 10 dense",
+      "net": "ann H8",
+      "param_bytes": 8836,
+      "params": 2209,
+      "replay_cap": 1000,
+      "replay_entry_bytes": 80
+    },
+    {
+      "case": "sim 6 agents",
+      "net": "ann H24 replay3",
+      "param_bytes": 25276,
+      "params": 6319,
+      "replay_cap": 1000,
+      "replay_entry_bytes": 80
+    },
+    {
+      "case": "big 32 agents",
+      "net": "ann H24 replay3",
+      "param_bytes": 27876,
+      "params": 6969,
+      "replay_cap": 1000,
+      "replay_entry_bytes": 80
+    },
+    {
+      "case": "rich-cont 8 agents + 10 dense",
+      "net": "ann H24 replay3",
+      "param_bytes": 26436,
+      "params": 6609,
+      "replay_cap": 1000,
+      "replay_entry_bytes": 80
+    },
+    {
+      "case": "sim 6 agents",
+      "net": "ann-pg H24",
+      "param_bytes": 25276,
+      "params": 6319,
+      "replay_cap": 1,
+      "replay_entry_bytes": 80
+    },
+    {
+      "case": "big 32 agents",
+      "net": "ann-pg H24",
+      "param_bytes": 27876,
+      "params": 6969,
+      "replay_cap": 1,
+      "replay_entry_bytes": 80
+    },
+    {
+      "case": "rich-cont 8 agents + 10 dense",
+      "net": "ann-pg H24",
+      "param_bytes": 26436,
+      "params": 6609,
+      "replay_cap": 1,
+      "replay_entry_bytes": 80
+    }
+  ],
+  "rows": [
+    {
+      "T": 2000,
+      "arm": "loop-overhead(first-agent)",
+      "live_bytes_after_run": 32,
+      "ns_decision_net": 15.35,
+      "ns_step_total": 15.35,
+      "peak_bytes": 8080,
+      "world": "sim-fixed"
+    },
+    {
+      "T": 2000,
+      "arm": "keyword",
+      "live_bytes_after_run": 2454,
+      "ns_decision_net": 171.85,
+      "ns_step_total": 187.2,
+      "peak_bytes": 10662,
+      "world": "sim-fixed"
+    },
+    {
+      "T": 2000,
+      "arm": "eps-greedy",
+      "live_bytes_after_run": 5662,
+      "ns_decision_net": 2123.75,
+      "ns_step_total": 2139.1,
+      "peak_bytes": 13813,
+      "world": "sim-fixed"
+    },
+    {
+      "T": 2000,
+      "arm": "pooled-thompson",
+      "live_bytes_after_run": 5654,
+      "ns_decision_net": 2695.9500000000003,
+      "ns_step_total": 2711.3,
+      "peak_bytes": 13805,
+      "world": "sim-fixed"
+    },
+    {
+      "T": 2000,
+      "arm": "hebbian-robust",
+      "live_bytes_after_run": 6140,
+      "ns_decision_net": 1875.0,
+      "ns_step_total": 1890.35,
+      "peak_bytes": 14491,
+      "world": "sim-fixed"
+    },
+    {
+      "T": 2000,
+      "arm": "warm(hebr)",
+      "live_bytes_after_run": 87105,
+      "ns_decision_net": 3264.05,
+      "ns_step_total": 3279.4,
+      "peak_bytes": 109086,
+      "world": "sim-fixed"
+    },
+    {
+      "T": 2000,
+      "arm": "guarded-safe",
+      "live_bytes_after_run": 15144,
+      "ns_decision_net": 1994.3000000000002,
+      "ns_step_total": 2009.65,
+      "peak_bytes": 24088,
+      "world": "sim-fixed"
+    },
+    {
+      "T": 2000,
+      "arm": "pts-pairs",
+      "live_bytes_after_run": 91943,
+      "ns_decision_net": 7741.0,
+      "ns_step_total": 7756.35,
+      "peak_bytes": 100950,
+      "world": "sim-fixed"
+    },
+    {
+      "T": 2000,
+      "arm": "ann H8 no-replay",
+      "live_bytes_after_run": 8760,
+      "ns_decision_net": 587.5,
+      "ns_step_total": 602.85,
+      "peak_bytes": 16808,
+      "world": "sim-fixed"
+    },
+    {
+      "T": 2000,
+      "arm": "ann H24 replay3",
+      "live_bytes_after_run": 119800,
+      "ns_decision_net": 2205.7000000000003,
+      "ns_step_total": 2221.05,
+      "peak_bytes": 127848,
+      "world": "sim-fixed"
+    },
+    {
+      "T": 2000,
+      "arm": "ann-pg H24",
+      "live_bytes_after_run": 25592,
+      "ns_decision_net": 982.9499999999999,
+      "ns_step_total": 998.3,
+      "peak_bytes": 33640,
+      "world": "sim-fixed"
+    },
+    {
+      "T": 20000,
+      "arm": "loop-overhead(first-agent)",
+      "live_bytes_after_run": 320,
+      "ns_decision_net": 15.065,
+      "ns_step_total": 15.065,
+      "peak_bytes": 80368,
+      "world": "sim-fixed"
+    },
+    {
+      "T": 20000,
+      "arm": "keyword",
+      "live_bytes_after_run": 2742,
+      "ns_decision_net": 252.95999999999998,
+      "ns_step_total": 268.025,
+      "peak_bytes": 82790,
+      "world": "sim-fixed"
+    },
+    {
+      "T": 20000,
+      "arm": "eps-greedy",
+      "live_bytes_after_run": 5950,
+      "ns_decision_net": 2351.335,
+      "ns_step_total": 2366.4,
+      "peak_bytes": 85998,
+      "world": "sim-fixed"
+    },
+    {
+      "T": 20000,
+      "arm": "pooled-thompson",
+      "live_bytes_after_run": 5942,
+      "ns_decision_net": 3078.75,
+      "ns_step_total": 3093.815,
+      "peak_bytes": 85990,
+      "world": "sim-fixed"
+    },
+    {
+      "T": 20000,
+      "arm": "hebbian-robust",
+      "live_bytes_after_run": 6428,
+      "ns_decision_net": 2150.04,
+      "ns_step_total": 2165.105,
+      "peak_bytes": 86491,
+      "world": "sim-fixed"
+    },
+    {
+      "T": 20000,
+      "arm": "warm(hebr)",
+      "live_bytes_after_run": 309945,
+      "ns_decision_net": 3545.375,
+      "ns_step_total": 3560.44,
+      "peak_bytes": 441968,
+      "world": "sim-fixed"
+    },
+    {
+      "T": 20000,
+      "arm": "guarded-safe",
+      "live_bytes_after_run": 15432,
+      "ns_decision_net": 2198.355,
+      "ns_step_total": 2213.42,
+      "peak_bytes": 96088,
+      "world": "sim-fixed"
+    },
+    {
+      "T": 20000,
+      "arm": "pts-pairs",
+      "live_bytes_after_run": 97560,
+      "ns_decision_net": 8395.779999999999,
+      "ns_step_total": 8410.845,
+      "peak_bytes": 178304,
+      "world": "sim-fixed"
+    },
+    {
+      "T": 20000,
+      "arm": "ann H8 no-replay",
+      "live_bytes_after_run": 9048,
+      "ns_decision_net": 629.0949999999999,
+      "ns_step_total": 644.16,
+      "peak_bytes": 89096,
+      "world": "sim-fixed"
+    },
+    {
+      "T": 20000,
+      "arm": "ann H24 replay3",
+      "live_bytes_after_run": 120088,
+      "ns_decision_net": 2354.5299999999997,
+      "ns_step_total": 2369.595,
+      "peak_bytes": 200136,
+      "world": "sim-fixed"
+    },
+    {
+      "T": 20000,
+      "arm": "ann-pg H24",
+      "live_bytes_after_run": 25880,
+      "ns_decision_net": 1059.7949999999998,
+      "ns_step_total": 1074.86,
+      "peak_bytes": 105928,
+      "world": "sim-fixed"
+    },
+    {
+      "T": 2000,
+      "arm": "loop-overhead(first-agent)",
+      "live_bytes_after_run": 32,
+      "ns_decision_net": 9.9,
+      "ns_step_total": 9.9,
+      "peak_bytes": 8288,
+      "world": "big-32agents"
+    },
+    {
+      "T": 2000,
+      "arm": "keyword",
+      "live_bytes_after_run": 9472,
+      "ns_decision_net": 188.65,
+      "ns_step_total": 198.55,
+      "peak_bytes": 17888,
+      "world": "big-32agents"
+    },
+    {
+      "T": 2000,
+      "arm": "eps-greedy",
+      "live_bytes_after_run": 137686,
+      "ns_decision_net": 13397.300000000001,
+      "ns_step_total": 13407.2,
+      "peak_bytes": 146053,
+      "world": "big-32agents"
+    },
+    {
+      "T": 2000,
+      "arm": "pooled-thompson",
+      "live_bytes_after_run": 137678,
+      "ns_decision_net": 15427.7,
+      "ns_step_total": 15437.6,
+      "peak_bytes": 146045,
+      "world": "big-32agents"
+    },
+    {
+      "T": 2000,
+      "arm": "hebbian-robust",
+      "live_bytes_after_run": 91692,
+      "ns_decision_net": 7491.35,
+      "ns_step_total": 7501.25,
+      "peak_bytes": 100891,
+      "world": "big-32agents"
+    },
+    {
+      "T": 2000,
+      "arm": "warm(hebr)",
+      "live_bytes_after_run": 272240,
+      "ns_decision_net": 8127.8,
+      "ns_step_total": 8137.7,
+      "peak_bytes": 304738,
+      "world": "big-32agents"
+    },
+    {
+      "T": 2000,
+      "arm": "guarded-safe",
+      "live_bytes_after_run": 246170,
+      "ns_decision_net": 5724.6,
+      "ns_step_total": 5734.5,
+      "peak_bytes": 260701,
+      "world": "big-32agents"
+    },
+    {
+      "T": 2000,
+      "arm": "pts-pairs",
+      "live_bytes_after_run": 1766213,
+      "ns_decision_net": 38789.2,
+      "ns_step_total": 38799.1,
+      "peak_bytes": 1774776,
+      "world": "big-32agents"
+    },
+    {
+      "T": 2000,
+      "arm": "ann H8 no-replay",
+      "live_bytes_after_run": 9696,
+      "ns_decision_net": 1221.3,
+      "ns_step_total": 1231.2,
+      "peak_bytes": 17952,
+      "world": "big-32agents"
+    },
+    {
+      "T": 2000,
+      "arm": "ann H24 replay3",
+      "live_bytes_after_run": 122400,
+      "ns_decision_net": 4215.5,
+      "ns_step_total": 4225.4,
+      "peak_bytes": 130656,
+      "world": "big-32agents"
+    },
+    {
+      "T": 2000,
+      "arm": "ann-pg H24",
+      "live_bytes_after_run": 28192,
+      "ns_decision_net": 2330.65,
+      "ns_step_total": 2340.55,
+      "peak_bytes": 36448,
+      "world": "big-32agents"
+    },
+    {
+      "T": 20000,
+      "arm": "loop-overhead(first-agent)",
+      "live_bytes_after_run": 320,
+      "ns_decision_net": 9.255,
+      "ns_step_total": 9.255,
+      "peak_bytes": 80576,
+      "world": "big-32agents"
+    },
+    {
+      "T": 20000,
+      "arm": "keyword",
+      "live_bytes_after_run": 9760,
+      "ns_decision_net": 257.96,
+      "ns_step_total": 267.215,
+      "peak_bytes": 90016,
+      "world": "big-32agents"
+    },
+    {
+      "T": 20000,
+      "arm": "eps-greedy",
+      "live_bytes_after_run": 137974,
+      "ns_decision_net": 13281.380000000001,
+      "ns_step_total": 13290.635,
+      "peak_bytes": 218230,
+      "world": "big-32agents"
+    },
+    {
+      "T": 20000,
+      "arm": "pooled-thompson",
+      "live_bytes_after_run": 137966,
+      "ns_decision_net": 18575.629999999997,
+      "ns_step_total": 18584.885,
+      "peak_bytes": 218222,
+      "world": "big-32agents"
+    },
+    {
+      "T": 20000,
+      "arm": "hebbian-robust",
+      "live_bytes_after_run": 91980,
+      "ns_decision_net": 7121.01,
+      "ns_step_total": 7130.265,
+      "peak_bytes": 172891,
+      "world": "big-32agents"
+    },
+    {
+      "T": 20000,
+      "arm": "warm(hebr)",
+      "live_bytes_after_run": 1180154,
+      "ns_decision_net": 8390.855000000001,
+      "ns_step_total": 8400.11,
+      "peak_bytes": 1496954,
+      "world": "big-32agents"
+    },
+    {
+      "T": 20000,
+      "arm": "guarded-safe",
+      "live_bytes_after_run": 246458,
+      "ns_decision_net": 5423.5,
+      "ns_step_total": 5432.755,
+      "peak_bytes": 332701,
+      "world": "big-32agents"
+    },
+    {
+      "T": 20000,
+      "arm": "pts-pairs",
+      "live_bytes_after_run": 7889619,
+      "ns_decision_net": 41395.285,
+      "ns_step_total": 41404.54,
+      "peak_bytes": 7969926,
+      "world": "big-32agents"
+    },
+    {
+      "T": 20000,
+      "arm": "ann H8 no-replay",
+      "live_bytes_after_run": 9984,
+      "ns_decision_net": 1243.77,
+      "ns_step_total": 1253.025,
+      "peak_bytes": 90240,
+      "world": "big-32agents"
+    },
+    {
+      "T": 20000,
+      "arm": "ann H24 replay3",
+      "live_bytes_after_run": 122688,
+      "ns_decision_net": 4320.135,
+      "ns_step_total": 4329.39,
+      "peak_bytes": 202944,
+      "world": "big-32agents"
+    },
+    {
+      "T": 20000,
+      "arm": "ann-pg H24",
+      "live_bytes_after_run": 28480,
+      "ns_decision_net": 2483.96,
+      "ns_step_total": 2493.215,
+      "peak_bytes": 108736,
+      "world": "big-32agents"
+    },
+    {
+      "T": 2000,
+      "arm": "loop-overhead(first-agent)",
+      "live_bytes_after_run": 32,
+      "ns_decision_net": 10.65,
+      "ns_step_total": 10.65,
+      "peak_bytes": 8080,
+      "world": "xor-cont"
+    },
+    {
+      "T": 2000,
+      "arm": "keyword",
+      "live_bytes_after_run": 2456,
+      "ns_decision_net": 265.35,
+      "ns_step_total": 276.0,
+      "peak_bytes": 10664,
+      "world": "xor-cont"
+    },
+    {
+      "T": 2000,
+      "arm": "eps-greedy",
+      "live_bytes_after_run": 8832,
+      "ns_decision_net": 4384.3,
+      "ns_step_total": 4394.95,
+      "peak_bytes": 17022,
+      "world": "xor-cont"
+    },
+    {
+      "T": 2000,
+      "arm": "pooled-thompson",
+      "live_bytes_after_run": 8824,
+      "ns_decision_net": 5075.0,
+      "ns_step_total": 5085.65,
+      "peak_bytes": 17014,
+      "world": "xor-cont"
+    },
+    {
+      "T": 2000,
+      "arm": "hebbian-robust",
+      "live_bytes_after_run": 9648,
+      "ns_decision_net": 3700.45,
+      "ns_step_total": 3711.1,
+      "peak_bytes": 18054,
+      "world": "xor-cont"
+    },
+    {
+      "T": 2000,
+      "arm": "warm(hebr)",
+      "live_bytes_after_run": 334476,
+      "ns_decision_net": 6051.400000000001,
+      "ns_step_total": 6062.05,
+      "peak_bytes": 399732,
+      "world": "xor-cont"
+    },
+    {
+      "T": 2000,
+      "arm": "guarded-safe",
+      "live_bytes_after_run": 20192,
+      "ns_decision_net": 4896.3,
+      "ns_step_total": 4906.95,
+      "peak_bytes": 28598,
+      "world": "xor-cont"
+    },
+    {
+      "T": 2000,
+      "arm": "pts-pairs",
+      "live_bytes_after_run": 181080,
+      "ns_decision_net": 27519.5,
+      "ns_step_total": 27530.15,
+      "peak_bytes": 190641,
+      "world": "xor-cont"
+    },
+    {
+      "T": 2000,
+      "arm": "ann H8 no-replay",
+      "live_bytes_after_run": 8952,
+      "ns_decision_net": 827.2,
+      "ns_step_total": 837.85,
+      "peak_bytes": 17000,
+      "world": "xor-cont"
+    },
+    {
+      "T": 2000,
+      "arm": "ann H24 replay3",
+      "live_bytes_after_run": 120376,
+      "ns_decision_net": 3349.35,
+      "ns_step_total": 3360.0,
+      "peak_bytes": 128424,
+      "world": "xor-cont"
+    },
+    {
+      "T": 2000,
+      "arm": "ann-pg H24",
+      "live_bytes_after_run": 26168,
+      "ns_decision_net": 1369.1,
+      "ns_step_total": 1379.75,
+      "peak_bytes": 34216,
+      "world": "xor-cont"
+    },
+    {
+      "T": 20000,
+      "arm": "loop-overhead(first-agent)",
+      "live_bytes_after_run": 320,
+      "ns_decision_net": 10.2,
+      "ns_step_total": 10.2,
+      "peak_bytes": 80368,
+      "world": "xor-cont"
+    },
+    {
+      "T": 20000,
+      "arm": "keyword",
+      "live_bytes_after_run": 2744,
+      "ns_decision_net": 330.11,
+      "ns_step_total": 340.31,
+      "peak_bytes": 82792,
+      "world": "xor-cont"
+    },
+    {
+      "T": 20000,
+      "arm": "eps-greedy",
+      "live_bytes_after_run": 9120,
+      "ns_decision_net": 4404.395,
+      "ns_step_total": 4414.595,
+      "peak_bytes": 89168,
+      "world": "xor-cont"
+    },
+    {
+      "T": 20000,
+      "arm": "pooled-thompson",
+      "live_bytes_after_run": 9112,
+      "ns_decision_net": 5061.41,
+      "ns_step_total": 5071.61,
+      "peak_bytes": 89160,
+      "world": "xor-cont"
+    },
+    {
+      "T": 20000,
+      "arm": "hebbian-robust",
+      "live_bytes_after_run": 9936,
+      "ns_decision_net": 3975.695,
+      "ns_step_total": 3985.895,
+      "peak_bytes": 90054,
+      "world": "xor-cont"
+    },
+    {
+      "T": 20000,
+      "arm": "warm(hebr)",
+      "live_bytes_after_run": 2758318,
+      "ns_decision_net": 6460.955,
+      "ns_step_total": 6471.155,
+      "peak_bytes": 3078889,
+      "world": "xor-cont"
+    },
+    {
+      "T": 20000,
+      "arm": "guarded-safe",
+      "live_bytes_after_run": 20480,
+      "ns_decision_net": 4961.79,
+      "ns_step_total": 4971.99,
+      "peak_bytes": 100598,
+      "world": "xor-cont"
+    },
+    {
+      "T": 20000,
+      "arm": "pts-pairs",
+      "live_bytes_after_run": 181368,
+      "ns_decision_net": 28287.545,
+      "ns_step_total": 28297.745,
+      "peak_bytes": 262641,
+      "world": "xor-cont"
+    },
+    {
+      "T": 20000,
+      "arm": "ann H8 no-replay",
+      "live_bytes_after_run": 9240,
+      "ns_decision_net": 845.035,
+      "ns_step_total": 855.235,
+      "peak_bytes": 89288,
+      "world": "xor-cont"
+    },
+    {
+      "T": 20000,
+      "arm": "ann H24 replay3",
+      "live_bytes_after_run": 120664,
+      "ns_decision_net": 3532.59,
+      "ns_step_total": 3542.79,
+      "peak_bytes": 200712,
+      "world": "xor-cont"
+    },
+    {
+      "T": 20000,
+      "arm": "ann-pg H24",
+      "live_bytes_after_run": 26456,
+      "ns_decision_net": 1399.73,
+      "ns_step_total": 1409.93,
+      "peak_bytes": 106504,
+      "world": "xor-cont"
+    },
+    {
+      "T": 2000,
+      "arm": "loop-overhead(first-agent)",
+      "live_bytes_after_run": 32,
+      "ns_decision_net": 10.4,
+      "ns_step_total": 10.4,
+      "peak_bytes": 8096,
+      "world": "rich-cont"
+    },
+    {
+      "T": 2000,
+      "arm": "keyword",
+      "live_bytes_after_run": 4728,
+      "ns_decision_net": 403.95000000000005,
+      "ns_step_total": 414.35,
+      "peak_bytes": 12952,
+      "world": "rich-cont"
+    },
+    {
+      "T": 2000,
+      "arm": "eps-greedy",
+      "live_bytes_after_run": 16800,
+      "ns_decision_net": 8973.0,
+      "ns_step_total": 8983.4,
+      "peak_bytes": 25122,
+      "world": "rich-cont"
+    },
+    {
+      "T": 2000,
+      "arm": "pooled-thompson",
+      "live_bytes_after_run": 16792,
+      "ns_decision_net": 10041.45,
+      "ns_step_total": 10051.85,
+      "peak_bytes": 25114,
+      "world": "rich-cont"
+    },
+    {
+      "T": 2000,
+      "arm": "hebbian-robust",
+      "live_bytes_after_run": 16432,
+      "ns_decision_net": 7723.900000000001,
+      "ns_step_total": 7734.3,
+      "peak_bytes": 25050,
+      "world": "rich-cont"
+    },
+    {
+      "T": 2000,
+      "arm": "warm(hebr)",
+      "live_bytes_after_run": 317661,
+      "ns_decision_net": 10109.9,
+      "ns_step_total": 10120.3,
+      "peak_bytes": 380962,
+      "world": "rich-cont"
+    },
+    {
+      "T": 2000,
+      "arm": "guarded-safe",
+      "live_bytes_after_run": 38176,
+      "ns_decision_net": 9014.45,
+      "ns_step_total": 9024.85,
+      "peak_bytes": 46794,
+      "world": "rich-cont"
+    },
+    {
+      "T": 2000,
+      "arm": "pts-pairs",
+      "live_bytes_after_run": 630776,
+      "ns_decision_net": 98562.90000000001,
+      "ns_step_total": 98573.3,
+      "peak_bytes": 643363,
+      "world": "rich-cont"
+    },
+    {
+      "T": 2000,
+      "arm": "ann H8 no-replay",
+      "live_bytes_after_run": 9152,
+      "ns_decision_net": 1158.6,
+      "ns_step_total": 1169.0,
+      "peak_bytes": 17216,
+      "world": "rich-cont"
+    },
+    {
+      "T": 2000,
+      "arm": "ann H24 replay3",
+      "live_bytes_after_run": 120960,
+      "ns_decision_net": 4297.55,
+      "ns_step_total": 4307.95,
+      "peak_bytes": 129024,
+      "world": "rich-cont"
+    },
+    {
+      "T": 2000,
+      "arm": "ann-pg H24",
+      "live_bytes_after_run": 26752,
+      "ns_decision_net": 1798.1,
+      "ns_step_total": 1808.5,
+      "peak_bytes": 34816,
+      "world": "rich-cont"
+    },
+    {
+      "T": 20000,
+      "arm": "loop-overhead(first-agent)",
+      "live_bytes_after_run": 320,
+      "ns_decision_net": 10.25,
+      "ns_step_total": 10.25,
+      "peak_bytes": 80384,
+      "world": "rich-cont"
+    },
+    {
+      "T": 20000,
+      "arm": "keyword",
+      "live_bytes_after_run": 5016,
+      "ns_decision_net": 639.38,
+      "ns_step_total": 649.63,
+      "peak_bytes": 85080,
+      "world": "rich-cont"
+    },
+    {
+      "T": 20000,
+      "arm": "eps-greedy",
+      "live_bytes_after_run": 17088,
+      "ns_decision_net": 9197.57,
+      "ns_step_total": 9207.82,
+      "peak_bytes": 97152,
+      "world": "rich-cont"
+    },
+    {
+      "T": 20000,
+      "arm": "pooled-thompson",
+      "live_bytes_after_run": 17080,
+      "ns_decision_net": 10334.15,
+      "ns_step_total": 10344.4,
+      "peak_bytes": 97144,
+      "world": "rich-cont"
+    },
+    {
+      "T": 20000,
+      "arm": "hebbian-robust",
+      "live_bytes_after_run": 16720,
+      "ns_decision_net": 7892.575,
+      "ns_step_total": 7902.825,
+      "peak_bytes": 97050,
+      "world": "rich-cont"
+    },
+    {
+      "T": 20000,
+      "arm": "warm(hebr)",
+      "live_bytes_after_run": 2326892,
+      "ns_decision_net": 9768.415,
+      "ns_step_total": 9778.665,
+      "peak_bytes": 2613089,
+      "world": "rich-cont"
+    },
+    {
+      "T": 20000,
+      "arm": "guarded-safe",
+      "live_bytes_after_run": 38464,
+      "ns_decision_net": 9165.28,
+      "ns_step_total": 9175.53,
+      "peak_bytes": 118794,
+      "world": "rich-cont"
+    },
+    {
+      "T": 20000,
+      "arm": "pts-pairs",
+      "live_bytes_after_run": 631064,
+      "ns_decision_net": 96099.23,
+      "ns_step_total": 96109.48,
+      "peak_bytes": 715363,
+      "world": "rich-cont"
+    },
+    {
+      "T": 20000,
+      "arm": "ann H8 no-replay",
+      "live_bytes_after_run": 9440,
+      "ns_decision_net": 1137.64,
+      "ns_step_total": 1147.89,
+      "peak_bytes": 89504,
+      "world": "rich-cont"
+    },
+    {
+      "T": 20000,
+      "arm": "ann H24 replay3",
+      "live_bytes_after_run": 121248,
+      "ns_decision_net": 4191.07,
+      "ns_step_total": 4201.32,
+      "peak_bytes": 201312,
+      "world": "rich-cont"
+    },
+    {
+      "T": 20000,
+      "arm": "ann-pg H24",
+      "live_bytes_after_run": 27040,
+      "ns_decision_net": 2008.805,
+      "ns_step_total": 2019.055,
+      "peak_bytes": 107104,
+      "world": "rich-cont"
+    }
+  ]
+}

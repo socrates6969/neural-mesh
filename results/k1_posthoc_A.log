@@ -1,0 +1,23 @@
+
+=== POSTHOC world A (confirm seeds 61-90) (30 seeds) ===
+stream length mean 13078; unbounded-store bytes mean 22.12 MB; eligible queries at c3 mean 1939
+arm                          rows%  bytes% |     hit1      mrr | hit1 d [lo,hi] EQ(holm) | mrr d [lo,hi] EQ(holm) | stale1 | rev_stale1 | loop safe/g1 dH2000 (T12,Tqa,ctl)
+none                         100.0   100.0 |   0.2122   0.2851 |              |              |  0.082 |  0.126 | +0.0000/+0.0000 +0.0000/+0.0000 +0.0000/+0.0000
+supdel                        64.8    64.8 |   0.2261   0.3145 | +0.0139 [+0.0110,+0.0168] NI | +0.0294 [+0.0276,+0.0312] NI |  0.000 |  0.000 | +0.0025/+0.0063 -0.0002/+0.0005 -0.0022/-0.0021
+exact+supdel                  64.7    64.7 |   0.2258   0.3144 | +0.0137 [+0.0108,+0.0165] NI | +0.0293 [+0.0275,+0.0310] NI |  0.000 |  0.000 | +0.0021/+0.0063 -0.0002/+0.0003 -0.0024/-0.0015
+supdel-arrival                64.8    64.8 |   0.2221   0.3090 | +0.0099 [+0.0068,+0.0130] NI | +0.0239 [+0.0219,+0.0260] NI |  0.014 |  0.025 | +0.0044/+0.0053 -0.0004/+0.0010 -0.0025/+0.0007
+closed-loop Holm family (30 cells = frozen arms x 5 worlds x 2 gates): TOST+-0.01 equivalent after Holm in 25 cells
+  loop T12        safe : front 0.5354  none-store 0.5491  oracle 0.8246
+  loop T12        g1   : front 0.5354  none-store 0.5721  oracle 0.8420
+  loop T12-drift  safe : front 0.5232  none-store 0.5342  oracle 0.7814
+  loop T12-drift  g1   : front 0.5232  none-store 0.5554  oracle 0.7971
+  loop Tctx       safe : front 0.4670  none-store 0.4988  oracle 0.5719
+  loop Tctx       g1   : front 0.4670  none-store 0.5371  oracle 0.5944
+  loop Tqa        safe : front 0.2040  none-store 0.2046  oracle 0.3250
+  loop Tqa        g1   : front 0.2040  none-store 0.2207  oracle 0.3290
+  loop ctl-irrel  safe : front 0.4577  none-store 0.4799  oracle 0.4782
+  loop ctl-irrel  g1   : front 0.4577  none-store 0.5182  oracle 0.5207
+  growth none ckpt 0: rows 3269 bytes 5.53 MB hit1 0.3131 mrr 0.4090 stale1 0.0938 store_stale_frac 0.186 eligible q 441
+  growth none ckpt 1: rows 6539 bytes 11.06 MB hit1 0.2511 mrr 0.3415 stale1 0.0912 store_stale_frac 0.180 eligible q 980
+  growth none ckpt 2: rows 9808 bytes 16.59 MB hit1 0.2246 mrr 0.3021 stale1 0.0912 store_stale_frac 0.171 eligible q 1513
+  growth none ckpt 3: rows 13078 bytes 22.12 MB hit1 0.2122 mrr 0.2851 stale1 0.0816 store_stale_frac 0.159 eligible q 1939

@@ -1,0 +1,333 @@
+TUNE seeds 1-8 (tune pool): alpha_raw=0.7 (MRR 0.2974), alpha_s1=0.7 (MRR 0.3118); grid [{"alpha":0.4,"hyb_raw_mrr":0.2849216881421549,"hyb_s1_mrr":0.3002048910728488},{"alpha":0.5,"hyb_raw_mrr":0.2887886698981713,"hyb_s1_mrr":0.30427827486170483},{"alpha":0.6,"hyb_raw_mrr":0.29214794278377365,"hyb_s1_mrr":0.30721214878328995},{"alpha":0.7,"hyb_raw_mrr":0.2973941981120411,"hyb_s1_mrr":0.3117979743057961},{"alpha":0.8,"hyb_raw_mrr":0.29517175317314054,"hyb_s1_mrr":0.3086305004615986},{"alpha":0.9,"hyb_raw_mrr":0.2866029676067992,"hyb_s1_mrr":0.30070045171102994},{"alpha":1.0,"hyb_raw_mrr":0.25896628502923286,"hyb_s1_mrr":0.2737459803522532}]
+
+=== A tune seeds 1-8 (tune pool): mean over 8 seeds (hit@1 / MRR / hit@5) ===
+dense_raw  | mix25 0.181/0.259 | clean 0.196/0.277 | typo 0.136/0.204 | mix25-H 0.205/0.280 | mix25-S 0.157/0.238
+dense_s1   | mix25 0.191/0.274 | clean 0.192/0.276 | typo 0.186/0.266 | mix25-H 0.227/0.307 | mix25-S 0.154/0.240
+dense_s2   | mix25 0.191/0.274 | clean 0.192/0.276 | typo 0.186/0.266 | mix25-H 0.227/0.307 | mix25-S 0.154/0.240
+bm25_raw   | mix25 0.175/0.254 | clean 0.185/0.269 | typo 0.143/0.210 | mix25-H 0.176/0.255 | mix25-S 0.173/0.254
+bm25_s1    | mix25 0.183/0.268 | clean 0.185/0.270 | typo 0.179/0.262 | mix25-H 0.193/0.279 | mix25-S 0.174/0.257
+hyb_raw    | mix25 0.208/0.297 | clean 0.221/0.313 | typo 0.170/0.250 | mix25-H 0.217/0.303 | mix25-S 0.199/0.291
+hyb_s1     | mix25 0.221/0.312 | clean 0.223/0.314 | typo 0.215/0.304 | mix25-H 0.241/0.331 | mix25-S 0.202/0.293
+hyb_s2     | mix25 0.221/0.312 | clean 0.223/0.314 | typo 0.215/0.304 | mix25-H 0.241/0.331 | mix25-S 0.202/0.293
+--- paired diffs (a-b), 95% t-CI over seeds, Holm over 100 tests; * Holm win, ! Holm loss ---
+dense_s1  - dense_raw mix25    Mrr: +0.0148 [+0.0127,+0.0168] holm 0.0001* w8/l0
+dense_s1  - dense_raw mix25    Hit1: +0.0098 [+0.0064,+0.0131] holm 0.0120* w8/l0
+dense_s1  - dense_raw clean    Mrr: -0.0010 [-0.0017,-0.0002] holm 0.8964 w1/l7
+dense_s1  - dense_raw clean    Hit1: -0.0036 [-0.0049,-0.0024] holm 0.0116! w0/l7
+dense_s1  - dense_raw typo     Mrr: +0.0620 [+0.0550,+0.0690] holm 0.0000* w8/l0
+dense_s1  - dense_raw typo     Hit1: +0.0500 [+0.0384,+0.0616] holm 0.0013* w8/l0
+dense_s2  - dense_raw mix25    Mrr: +0.0148 [+0.0127,+0.0168] holm 0.0001* w8/l0
+dense_s2  - dense_raw mix25    Hit1: +0.0098 [+0.0064,+0.0131] holm 0.0120* w8/l0
+dense_s2  - dense_raw clean    Mrr: -0.0010 [-0.0017,-0.0002] holm 0.8964 w1/l7
+dense_s2  - dense_raw clean    Hit1: -0.0036 [-0.0049,-0.0024] holm 0.0116! w0/l7
+dense_s2  - dense_raw typo     Mrr: +0.0620 [+0.0550,+0.0690] holm 0.0000* w8/l0
+dense_s2  - dense_raw typo     Hit1: +0.0500 [+0.0384,+0.0616] holm 0.0013* w8/l0
+dense_s1  - dense_s2  mix25    Mrr: +0.0000 [+0.0000,+0.0000] holm 1.0000 w0/l0
+dense_s1  - dense_s2  mix25    Hit1: +0.0000 [+0.0000,+0.0000] holm 1.0000 w0/l0
+dense_s1  - dense_s2  clean    Mrr: +0.0000 [+0.0000,+0.0000] holm 1.0000 w0/l0
+dense_s1  - dense_s2  clean    Hit1: +0.0000 [+0.0000,+0.0000] holm 1.0000 w0/l0
+dense_s1  - dense_s2  typo     Mrr: +0.0000 [+0.0000,+0.0000] holm 1.0000 w0/l0
+dense_s1  - dense_s2  typo     Hit1: +0.0000 [+0.0000,+0.0000] holm 1.0000 w0/l0
+dense_s1  - bm25_raw  mix25    Mrr: +0.0195 [+0.0129,+0.0261] holm 0.0116* w8/l0
+dense_s1  - bm25_raw  mix25    Hit1: +0.0162 [+0.0067,+0.0257] holm 0.2090 w8/l0
+dense_s1  - bm25_raw  clean    Mrr: +0.0073 [-0.0003,+0.0148] holm 1.0000 w7/l1
+dense_s1  - bm25_raw  clean    Hit1: +0.0073 [-0.0030,+0.0176] holm 1.0000 w5/l2
+dense_s1  - bm25_raw  typo     Mrr: +0.0561 [+0.0496,+0.0627] holm 0.0000* w8/l0
+dense_s1  - bm25_raw  typo     Hit1: +0.0430 [+0.0339,+0.0520] holm 0.0007* w8/l0
+dense_s1  - bm25_s1   mix25    Mrr: +0.0056 [-0.0017,+0.0129] holm 1.0000 w7/l1
+dense_s1  - bm25_s1   mix25    Hit1: +0.0074 [-0.0030,+0.0177] holm 1.0000 w6/l2
+dense_s1  - bm25_s1   clean    Mrr: +0.0060 [-0.0016,+0.0135] holm 1.0000 w7/l1
+dense_s1  - bm25_s1   clean    Hit1: +0.0073 [-0.0030,+0.0176] holm 1.0000 w5/l2
+dense_s1  - bm25_s1   typo     Mrr: +0.0044 [-0.0026,+0.0114] holm 1.0000 w6/l2
+dense_s1  - bm25_s1   typo     Hit1: +0.0076 [-0.0042,+0.0193] holm 1.0000 w4/l2
+hyb_s1    - dense_s1  mix25    Mrr: +0.0381 [+0.0339,+0.0422] holm 0.0000* w8/l0
+hyb_s1    - dense_s1  mix25    Hit1: +0.0306 [+0.0242,+0.0370] holm 0.0007* w8/l0
+hyb_s1    - dense_s1  clean    Mrr: +0.0382 [+0.0337,+0.0427] holm 0.0000* w8/l0
+hyb_s1    - dense_s1  clean    Hit1: +0.0313 [+0.0251,+0.0374] holm 0.0005* w8/l0
+hyb_s1    - dense_s1  typo     Mrr: +0.0376 [+0.0336,+0.0417] holm 0.0000* w8/l0
+hyb_s1    - dense_s1  typo     Hit1: +0.0286 [+0.0205,+0.0367] holm 0.0039* w8/l0
+hyb_s1    - bm25_s1   mix25    Mrr: +0.0436 [+0.0382,+0.0491] holm 0.0000* w8/l0
+hyb_s1    - bm25_s1   mix25    Hit1: +0.0380 [+0.0286,+0.0473] holm 0.0018* w8/l0
+hyb_s1    - bm25_s1   clean    Mrr: +0.0442 [+0.0386,+0.0497] holm 0.0000* w8/l0
+hyb_s1    - bm25_s1   clean    Hit1: +0.0385 [+0.0287,+0.0484] holm 0.0021* w8/l0
+hyb_s1    - bm25_s1   typo     Mrr: +0.0421 [+0.0364,+0.0478] holm 0.0000* w8/l0
+hyb_s1    - bm25_s1   typo     Hit1: +0.0362 [+0.0277,+0.0447] holm 0.0013* w8/l0
+hyb_raw   - dense_raw mix25    Mrr: +0.0384 [+0.0347,+0.0422] holm 0.0000* w8/l0
+hyb_raw   - dense_raw mix25    Hit1: +0.0271 [+0.0217,+0.0326] holm 0.0005* w8/l0
+hyb_raw   - dense_raw clean    Mrr: +0.0358 [+0.0312,+0.0404] holm 0.0000* w8/l0
+hyb_raw   - dense_raw clean    Hit1: +0.0250 [+0.0180,+0.0320] holm 0.0036* w8/l0
+hyb_raw   - dense_raw typo     Mrr: +0.0463 [+0.0380,+0.0545] holm 0.0002* w8/l0
+hyb_raw   - dense_raw typo     Hit1: +0.0336 [+0.0226,+0.0446] holm 0.0097* w8/l0
+dense_raw - bm25_raw  mix25    Mrr: +0.0047 [-0.0013,+0.0107] holm 1.0000 w6/l2
+dense_raw - bm25_raw  mix25    Hit1: +0.0064 [-0.0014,+0.0143] holm 1.0000 w6/l2
+dense_raw - bm25_raw  clean    Mrr: +0.0082 [+0.0006,+0.0159] holm 1.0000 w7/l1
+dense_raw - bm25_raw  clean    Hit1: +0.0109 [+0.0006,+0.0213] holm 1.0000 w6/l1
+dense_raw - bm25_raw  typo     Mrr: -0.0059 [-0.0148,+0.0031] holm 1.0000 w2/l6
+dense_raw - bm25_raw  typo     Hit1: -0.0070 [-0.0173,+0.0032] holm 1.0000 w2/l5
+hyb_s1    - hyb_raw   mix25    Mrr: +0.0144 [+0.0126,+0.0162] holm 0.0000* w8/l0
+hyb_s1    - hyb_raw   mix25    Hit1: +0.0132 [+0.0114,+0.0150] holm 0.0000* w8/l0
+hyb_s1    - hyb_raw   clean    Mrr: +0.0014 [-0.0003,+0.0031] holm 1.0000 w5/l3
+hyb_s1    - hyb_raw   clean    Hit1: +0.0026 [+0.0008,+0.0044] holm 0.4705 w5/l0
+hyb_s1    - hyb_raw   typo     Mrr: +0.0534 [+0.0468,+0.0600] holm 0.0000* w8/l0
+hyb_s1    - hyb_raw   typo     Hit1: +0.0451 [+0.0377,+0.0524] holm 0.0001* w8/l0
+
+=== A held-out seeds 31-60: mean over 30 seeds (hit@1 / MRR / hit@5) ===
+dense_raw  | mix25 0.190/0.277 | clean 0.207/0.297 | typo 0.141/0.216 | mix25-H 0.227/0.303 | mix25-S 0.154/0.251
+dense_s1   | mix25 0.201/0.292 | clean 0.204/0.296 | typo 0.191/0.282 | mix25-H 0.245/0.327 | mix25-S 0.157/0.257
+dense_s2   | mix25 0.202/0.292 | clean 0.205/0.296 | typo 0.191/0.282 | mix25-H 0.246/0.328 | mix25-S 0.157/0.257
+bm25_raw   | mix25 0.183/0.267 | clean 0.198/0.288 | typo 0.135/0.204 | mix25-H 0.190/0.277 | mix25-S 0.175/0.257
+bm25_s1    | mix25 0.195/0.284 | clean 0.198/0.288 | typo 0.186/0.275 | mix25-H 0.212/0.307 | mix25-S 0.178/0.262
+hyb_raw    | mix25 0.214/0.315 | clean 0.230/0.335 | typo 0.168/0.257 | mix25-H 0.243/0.330 | mix25-S 0.186/0.300
+hyb_s1     | mix25 0.228/0.332 | clean 0.231/0.335 | typo 0.220/0.323 | mix25-H 0.265/0.357 | mix25-S 0.191/0.307
+hyb_s2     | mix25 0.228/0.332 | clean 0.231/0.336 | typo 0.220/0.323 | mix25-H 0.266/0.358 | mix25-S 0.191/0.307
+--- paired diffs (a-b), 95% t-CI over seeds, Holm over 100 tests; * Holm win, ! Holm loss ---
+dense_s1  - dense_raw mix25    Mrr: +0.0151 [+0.0137,+0.0165] holm 0.0000* w30/l0
+dense_s1  - dense_raw mix25    Hit1: +0.0108 [+0.0091,+0.0126] holm 0.0000* w29/l1
+dense_s1  - dense_raw clean    Mrr: -0.0016 [-0.0024,-0.0009] holm 0.0057! w5/l25
+dense_s1  - dense_raw clean    Hit1: -0.0024 [-0.0033,-0.0014] holm 0.0012! w0/l15
+dense_s1  - dense_raw typo     Mrr: +0.0653 [+0.0605,+0.0701] holm 0.0000* w30/l0
+dense_s1  - dense_raw typo     Hit1: +0.0503 [+0.0445,+0.0562] holm 0.0000* w30/l0
+dense_s2  - dense_raw mix25    Mrr: +0.0155 [+0.0141,+0.0168] holm 0.0000* w30/l0
+dense_s2  - dense_raw mix25    Hit1: +0.0112 [+0.0095,+0.0130] holm 0.0000* w29/l1
+dense_s2  - dense_raw clean    Mrr: -0.0012 [-0.0018,-0.0005] holm 0.0466! w6/l24
+dense_s2  - dense_raw clean    Hit1: -0.0018 [-0.0027,-0.0009] holm 0.0099! w0/l12
+dense_s2  - dense_raw typo     Mrr: +0.0653 [+0.0606,+0.0701] holm 0.0000* w30/l0
+dense_s2  - dense_raw typo     Hit1: +0.0503 [+0.0445,+0.0562] holm 0.0000* w30/l0
+dense_s1  - dense_s2  mix25    Mrr: -0.0003 [-0.0006,-0.0000] holm 0.7900 w0/l10
+dense_s1  - dense_s2  mix25    Hit1: -0.0004 [-0.0008,-0.0000] holm 0.8899 w0/l4
+dense_s1  - dense_s2  clean    Mrr: -0.0004 [-0.0008,-0.0000] holm 0.7990 w0/l10
+dense_s1  - dense_s2  clean    Hit1: -0.0006 [-0.0011,-0.0000] holm 0.8899 w0/l4
+dense_s1  - dense_s2  typo     Mrr: -0.0000 [-0.0000,-0.0000] holm 0.6763 w0/l8
+dense_s1  - dense_s2  typo     Hit1: +0.0000 [+0.0000,+0.0000] holm 1.0000 w0/l0
+dense_s1  - bm25_raw  mix25    Mrr: +0.0252 [+0.0183,+0.0321] holm 0.0000* w27/l3
+dense_s1  - bm25_raw  mix25    Hit1: +0.0186 [+0.0112,+0.0259] holm 0.0007* w25/l5
+dense_s1  - bm25_raw  clean    Mrr: +0.0078 [+0.0003,+0.0152] holm 0.8899 w21/l9
+dense_s1  - bm25_raw  clean    Hit1: +0.0058 [-0.0023,+0.0139] holm 1.0000 w17/l12
+dense_s1  - bm25_raw  typo     Mrr: +0.0775 [+0.0706,+0.0845] holm 0.0000* w30/l0
+dense_s1  - bm25_raw  typo     Hit1: +0.0567 [+0.0495,+0.0640] holm 0.0000* w30/l0
+dense_s1  - bm25_s1   mix25    Mrr: +0.0076 [-0.0000,+0.0153] holm 0.8899 w21/l9
+dense_s1  - bm25_s1   mix25    Hit1: +0.0061 [-0.0019,+0.0142] holm 1.0000 w17/l12
+dense_s1  - bm25_s1   clean    Mrr: +0.0078 [+0.0003,+0.0154] holm 0.8899 w20/l10
+dense_s1  - bm25_s1   clean    Hit1: +0.0064 [-0.0017,+0.0145] holm 1.0000 w16/l12
+dense_s1  - bm25_s1   typo     Mrr: +0.0070 [-0.0011,+0.0152] holm 0.9712 w21/l9
+dense_s1  - bm25_s1   typo     Hit1: +0.0053 [-0.0029,+0.0135] holm 1.0000 w18/l11
+hyb_s1    - dense_s1  mix25    Mrr: +0.0401 [+0.0354,+0.0448] holm 0.0000* w30/l0
+hyb_s1    - dense_s1  mix25    Hit1: +0.0268 [+0.0205,+0.0331] holm 0.0000* w30/l0
+hyb_s1    - dense_s1  clean    Mrr: +0.0397 [+0.0350,+0.0445] holm 0.0000* w30/l0
+hyb_s1    - dense_s1  clean    Hit1: +0.0263 [+0.0198,+0.0327] holm 0.0000* w30/l0
+hyb_s1    - dense_s1  typo     Mrr: +0.0413 [+0.0363,+0.0464] holm 0.0000* w30/l0
+hyb_s1    - dense_s1  typo     Hit1: +0.0285 [+0.0220,+0.0350] holm 0.0000* w29/l1
+hyb_s1    - bm25_s1   mix25    Mrr: +0.0477 [+0.0425,+0.0530] holm 0.0000* w30/l0
+hyb_s1    - bm25_s1   mix25    Hit1: +0.0329 [+0.0258,+0.0400] holm 0.0000* w28/l2
+hyb_s1    - bm25_s1   clean    Mrr: +0.0475 [+0.0422,+0.0528] holm 0.0000* w30/l0
+hyb_s1    - bm25_s1   clean    Hit1: +0.0326 [+0.0254,+0.0398] holm 0.0000* w28/l2
+hyb_s1    - bm25_s1   typo     Mrr: +0.0484 [+0.0431,+0.0536] holm 0.0000* w30/l0
+hyb_s1    - bm25_s1   typo     Hit1: +0.0338 [+0.0266,+0.0409] holm 0.0000* w28/l1
+hyb_raw   - dense_raw mix25    Mrr: +0.0383 [+0.0341,+0.0426] holm 0.0000* w30/l0
+hyb_raw   - dense_raw mix25    Hit1: +0.0242 [+0.0188,+0.0296] holm 0.0000* w30/l0
+hyb_raw   - dense_raw clean    Mrr: +0.0375 [+0.0331,+0.0420] holm 0.0000* w30/l0
+hyb_raw   - dense_raw clean    Hit1: +0.0235 [+0.0173,+0.0296] holm 0.0000* w30/l0
+hyb_raw   - dense_raw typo     Mrr: +0.0408 [+0.0354,+0.0463] holm 0.0000* w30/l0
+hyb_raw   - dense_raw typo     Hit1: +0.0264 [+0.0201,+0.0327] holm 0.0000* w29/l1
+dense_raw - bm25_raw  mix25    Mrr: +0.0101 [+0.0033,+0.0169] holm 0.1653 w23/l7
+dense_raw - bm25_raw  mix25    Hit1: +0.0077 [+0.0007,+0.0148] holm 0.7858 w20/l10
+dense_raw - bm25_raw  clean    Mrr: +0.0094 [+0.0019,+0.0168] holm 0.4396 w21/l9
+dense_raw - bm25_raw  clean    Hit1: +0.0082 [+0.0002,+0.0162] holm 0.8899 w19/l11
+dense_raw - bm25_raw  typo     Mrr: +0.0122 [+0.0055,+0.0189] holm 0.0313* w23/l7
+dense_raw - bm25_raw  typo     Hit1: +0.0064 [-0.0007,+0.0135] holm 0.9297 w20/l9
+hyb_s1    - hyb_raw   mix25    Mrr: +0.0169 [+0.0157,+0.0180] holm 0.0000* w30/l0
+hyb_s1    - hyb_raw   mix25    Hit1: +0.0134 [+0.0119,+0.0149] holm 0.0000* w30/l0
+hyb_s1    - hyb_raw   clean    Mrr: +0.0006 [+0.0000,+0.0012] holm 0.8899 w14/l16
+hyb_s1    - hyb_raw   clean    Hit1: +0.0004 [-0.0003,+0.0012] holm 1.0000 w5/l2
+hyb_s1    - hyb_raw   typo     Mrr: +0.0658 [+0.0615,+0.0702] holm 0.0000* w30/l0
+hyb_s1    - hyb_raw   typo     Hit1: +0.0524 [+0.0465,+0.0584] holm 0.0000* w30/l0
+
+=== A confirm seeds 61-90 (frozen): mean over 30 seeds (hit@1 / MRR / hit@5) ===
+dense_raw  | mix25 0.183/0.269 | clean 0.199/0.288 | typo 0.135/0.211 | mix25-H 0.224/0.299 | mix25-S 0.142/0.239
+dense_s1   | mix25 0.193/0.284 | clean 0.196/0.287 | typo 0.185/0.274 | mix25-H 0.243/0.324 | mix25-S 0.143/0.243
+dense_s2   | mix25 0.194/0.284 | clean 0.197/0.287 | typo 0.185/0.274 | mix25-H 0.244/0.325 | mix25-S 0.143/0.243
+bm25_raw   | mix25 0.182/0.265 | clean 0.200/0.288 | typo 0.129/0.199 | mix25-H 0.201/0.286 | mix25-S 0.163/0.244
+bm25_s1    | mix25 0.196/0.284 | clean 0.199/0.288 | typo 0.186/0.273 | mix25-H 0.226/0.319 | mix25-S 0.166/0.249
+hyb_raw    | mix25 0.215/0.315 | clean 0.232/0.335 | typo 0.162/0.252 | mix25-H 0.250/0.338 | mix25-S 0.179/0.292
+hyb_s1     | mix25 0.229/0.332 | clean 0.232/0.335 | typo 0.219/0.321 | mix25-H 0.275/0.366 | mix25-S 0.183/0.297
+hyb_s2     | mix25 0.229/0.332 | clean 0.233/0.336 | typo 0.219/0.321 | mix25-H 0.275/0.367 | mix25-S 0.183/0.297
+--- paired diffs (a-b), 95% t-CI over seeds, Holm over 100 tests; * Holm win, ! Holm loss ---
+dense_s1  - dense_raw mix25    Mrr: +0.0143 [+0.0131,+0.0155] holm 0.0000* w30/l0
+dense_s1  - dense_raw mix25    Hit1: +0.0103 [+0.0088,+0.0118] holm 0.0000* w30/l0
+dense_s1  - dense_raw clean    Mrr: -0.0020 [-0.0027,-0.0012] holm 0.0002! w5/l25
+dense_s1  - dense_raw clean    Hit1: -0.0028 [-0.0038,-0.0017] holm 0.0003! w0/l17
+dense_s1  - dense_raw typo     Mrr: +0.0631 [+0.0590,+0.0671] holm 0.0000* w30/l0
+dense_s1  - dense_raw typo     Hit1: +0.0495 [+0.0445,+0.0545] holm 0.0000* w30/l0
+dense_s2  - dense_raw mix25    Mrr: +0.0146 [+0.0135,+0.0157] holm 0.0000* w30/l0
+dense_s2  - dense_raw mix25    Hit1: +0.0107 [+0.0093,+0.0121] holm 0.0000* w30/l0
+dense_s2  - dense_raw clean    Mrr: -0.0015 [-0.0021,-0.0009] holm 0.0004! w6/l24
+dense_s2  - dense_raw clean    Hit1: -0.0022 [-0.0031,-0.0013] holm 0.0008! w0/l15
+dense_s2  - dense_raw typo     Mrr: +0.0631 [+0.0590,+0.0671] holm 0.0000* w30/l0
+dense_s2  - dense_raw typo     Hit1: +0.0495 [+0.0445,+0.0545] holm 0.0000* w30/l0
+dense_s1  - dense_s2  mix25    Mrr: -0.0003 [-0.0006,-0.0000] holm 1.0000 w0/l10
+dense_s1  - dense_s2  mix25    Hit1: -0.0004 [-0.0008,-0.0000] holm 1.0000 w0/l4
+dense_s1  - dense_s2  clean    Mrr: -0.0004 [-0.0008,-0.0000] holm 1.0000 w0/l10
+dense_s1  - dense_s2  clean    Hit1: -0.0006 [-0.0011,-0.0000] holm 1.0000 w0/l4
+dense_s1  - dense_s2  typo     Mrr: -0.0000 [-0.0000,-0.0000] holm 1.0000 w0/l7
+dense_s1  - dense_s2  typo     Hit1: +0.0000 [+0.0000,+0.0000] holm 1.0000 w0/l0
+dense_s1  - bm25_raw  mix25    Mrr: +0.0181 [+0.0115,+0.0248] holm 0.0002* w24/l6
+dense_s1  - bm25_raw  mix25    Hit1: +0.0113 [+0.0038,+0.0187] holm 0.1470 w20/l10
+dense_s1  - bm25_raw  clean    Mrr: -0.0011 [-0.0086,+0.0063] holm 1.0000 w14/l16
+dense_s1  - bm25_raw  clean    Hit1: -0.0036 [-0.0120,+0.0048] holm 1.0000 w10/l17
+dense_s1  - bm25_raw  typo     Mrr: +0.0759 [+0.0709,+0.0810] holm 0.0000* w30/l0
+dense_s1  - bm25_raw  typo     Hit1: +0.0560 [+0.0499,+0.0621] holm 0.0000* w30/l0
+dense_s1  - bm25_s1   mix25    Mrr: -0.0005 [-0.0078,+0.0067] holm 1.0000 w16/l14
+dense_s1  - bm25_s1   mix25    Hit1: -0.0029 [-0.0111,+0.0053] holm 1.0000 w12/l18
+dense_s1  - bm25_s1   clean    Mrr: -0.0012 [-0.0086,+0.0063] holm 1.0000 w13/l17
+dense_s1  - bm25_s1   clean    Hit1: -0.0033 [-0.0117,+0.0050] holm 1.0000 w10/l15
+dense_s1  - bm25_s1   typo     Mrr: +0.0013 [-0.0059,+0.0084] holm 1.0000 w16/l14
+dense_s1  - bm25_s1   typo     Hit1: -0.0016 [-0.0096,+0.0065] holm 1.0000 w12/l18
+hyb_s1    - dense_s1  mix25    Mrr: +0.0483 [+0.0426,+0.0541] holm 0.0000* w30/l0
+hyb_s1    - dense_s1  mix25    Hit1: +0.0356 [+0.0285,+0.0427] holm 0.0000* w29/l1
+hyb_s1    - dense_s1  clean    Mrr: +0.0490 [+0.0431,+0.0548] holm 0.0000* w30/l0
+hyb_s1    - dense_s1  clean    Hit1: +0.0363 [+0.0290,+0.0435] holm 0.0000* w29/l0
+hyb_s1    - dense_s1  typo     Mrr: +0.0465 [+0.0408,+0.0523] holm 0.0000* w30/l0
+hyb_s1    - dense_s1  typo     Hit1: +0.0338 [+0.0268,+0.0408] holm 0.0000* w28/l1
+hyb_s1    - bm25_s1   mix25    Mrr: +0.0478 [+0.0434,+0.0522] holm 0.0000* w30/l0
+hyb_s1    - bm25_s1   mix25    Hit1: +0.0327 [+0.0265,+0.0390] holm 0.0000* w30/l0
+hyb_s1    - bm25_s1   clean    Mrr: +0.0478 [+0.0434,+0.0522] holm 0.0000* w30/l0
+hyb_s1    - bm25_s1   clean    Hit1: +0.0329 [+0.0266,+0.0392] holm 0.0000* w30/l0
+hyb_s1    - bm25_s1   typo     Mrr: +0.0478 [+0.0434,+0.0521] holm 0.0000* w30/l0
+hyb_s1    - bm25_s1   typo     Hit1: +0.0322 [+0.0260,+0.0384] holm 0.0000* w29/l0
+hyb_raw   - dense_raw mix25    Mrr: +0.0454 [+0.0400,+0.0508] holm 0.0000* w30/l0
+hyb_raw   - dense_raw mix25    Hit1: +0.0318 [+0.0251,+0.0384] holm 0.0000* w29/l1
+hyb_raw   - dense_raw clean    Mrr: +0.0469 [+0.0408,+0.0530] holm 0.0000* w30/l0
+hyb_raw   - dense_raw clean    Hit1: +0.0333 [+0.0256,+0.0410] holm 0.0000* w27/l0
+hyb_raw   - dense_raw typo     Mrr: +0.0410 [+0.0368,+0.0452] holm 0.0000* w30/l0
+hyb_raw   - dense_raw typo     Hit1: +0.0271 [+0.0218,+0.0324] holm 0.0000* w29/l1
+dense_raw - bm25_raw  mix25    Mrr: +0.0038 [-0.0025,+0.0101] holm 1.0000 w18/l12
+dense_raw - bm25_raw  mix25    Hit1: +0.0010 [-0.0060,+0.0080] holm 1.0000 w14/l16
+dense_raw - bm25_raw  clean    Mrr: +0.0008 [-0.0067,+0.0084] holm 1.0000 w14/l16
+dense_raw - bm25_raw  clean    Hit1: -0.0008 [-0.0093,+0.0076] holm 1.0000 w12/l15
+dense_raw - bm25_raw  typo     Mrr: +0.0129 [+0.0085,+0.0172] holm 0.0001* w27/l3
+dense_raw - bm25_raw  typo     Hit1: +0.0065 [+0.0014,+0.0115] holm 0.4718 w21/l8
+hyb_s1    - hyb_raw   mix25    Mrr: +0.0172 [+0.0162,+0.0183] holm 0.0000* w30/l0
+hyb_s1    - hyb_raw   mix25    Hit1: +0.0142 [+0.0131,+0.0152] holm 0.0000* w30/l0
+hyb_s1    - hyb_raw   clean    Mrr: +0.0001 [-0.0004,+0.0007] holm 1.0000 w11/l19
+hyb_s1    - hyb_raw   clean    Hit1: +0.0001 [-0.0004,+0.0006] holm 1.0000 w2/l1
+hyb_s1    - hyb_raw   typo     Mrr: +0.0686 [+0.0650,+0.0723] holm 0.0000* w30/l0
+hyb_s1    - hyb_raw   typo     Hit1: +0.0563 [+0.0519,+0.0606] holm 0.0000* w30/l0
+
+=== B confirm seeds 61-90 (frozen, independent text): mean over 30 seeds (hit@1 / MRR / hit@5) ===
+dense_raw  | mix25 0.153/0.228 | clean 0.168/0.248 | typo 0.105/0.171 | mix25-H 0.205/0.287 | mix25-S 0.100/0.169
+dense_s1   | mix25 0.164/0.244 | clean 0.167/0.247 | typo 0.158/0.237 | mix25-H 0.228/0.315 | mix25-S 0.101/0.173
+dense_s2   | mix25 0.164/0.244 | clean 0.167/0.247 | typo 0.158/0.237 | mix25-H 0.228/0.315 | mix25-S 0.101/0.173
+bm25_raw   | mix25 0.136/0.206 | clean 0.151/0.224 | typo 0.092/0.152 | mix25-H 0.191/0.264 | mix25-S 0.081/0.149
+bm25_s1    | mix25 0.149/0.222 | clean 0.151/0.224 | typo 0.144/0.217 | mix25-H 0.216/0.293 | mix25-S 0.083/0.152
+hyb_raw    | mix25 0.172/0.257 | clean 0.187/0.275 | typo 0.130/0.205 | mix25-H 0.222/0.308 | mix25-S 0.123/0.206
+hyb_s1     | mix25 0.184/0.273 | clean 0.187/0.275 | typo 0.178/0.266 | mix25-H 0.243/0.335 | mix25-S 0.126/0.210
+hyb_s2     | mix25 0.184/0.273 | clean 0.187/0.275 | typo 0.178/0.266 | mix25-H 0.243/0.335 | mix25-S 0.126/0.210
+--- paired diffs (a-b), 95% t-CI over seeds, Holm over 100 tests; * Holm win, ! Holm loss ---
+dense_s1  - dense_raw mix25    Mrr: +0.0159 [+0.0148,+0.0170] holm 0.0000* w30/l0
+dense_s1  - dense_raw mix25    Hit1: +0.0119 [+0.0107,+0.0131] holm 0.0000* w30/l0
+dense_s1  - dense_raw clean    Mrr: -0.0009 [-0.0014,-0.0003] holm 0.0748 w8/l22
+dense_s1  - dense_raw clean    Hit1: -0.0017 [-0.0026,-0.0008] holm 0.0148! w0/l10
+dense_s1  - dense_raw typo     Mrr: +0.0661 [+0.0619,+0.0703] holm 0.0000* w30/l0
+dense_s1  - dense_raw typo     Hit1: +0.0527 [+0.0474,+0.0580] holm 0.0000* w30/l0
+dense_s2  - dense_raw mix25    Mrr: +0.0159 [+0.0148,+0.0170] holm 0.0000* w30/l0
+dense_s2  - dense_raw mix25    Hit1: +0.0119 [+0.0107,+0.0131] holm 0.0000* w30/l0
+dense_s2  - dense_raw clean    Mrr: -0.0008 [-0.0014,-0.0003] holm 0.0950 w9/l21
+dense_s2  - dense_raw clean    Hit1: -0.0017 [-0.0026,-0.0008] holm 0.0148! w0/l10
+dense_s2  - dense_raw typo     Mrr: +0.0661 [+0.0619,+0.0703] holm 0.0000* w30/l0
+dense_s2  - dense_raw typo     Hit1: +0.0527 [+0.0474,+0.0580] holm 0.0000* w30/l0
+dense_s1  - dense_s2  mix25    Mrr: -0.0000 [-0.0001,-0.0000] holm 0.3991 w4/l12
+dense_s1  - dense_s2  mix25    Hit1: +0.0000 [+0.0000,+0.0000] holm 1.0000 w0/l0
+dense_s1  - dense_s2  clean    Mrr: -0.0000 [-0.0001,-0.0000] holm 0.3732 w4/l12
+dense_s1  - dense_s2  clean    Hit1: +0.0000 [+0.0000,+0.0000] holm 1.0000 w0/l0
+dense_s1  - dense_s2  typo     Mrr: -0.0000 [-0.0000,+0.0000] holm 1.0000 w5/l6
+dense_s1  - dense_s2  typo     Hit1: +0.0000 [+0.0000,+0.0000] holm 1.0000 w0/l0
+dense_s1  - bm25_raw  mix25    Mrr: +0.0381 [+0.0329,+0.0434] holm 0.0000* w29/l1
+dense_s1  - bm25_raw  mix25    Hit1: +0.0283 [+0.0220,+0.0346] holm 0.0000* w29/l1
+dense_s1  - bm25_raw  clean    Mrr: +0.0226 [+0.0172,+0.0280] holm 0.0000* w29/l1
+dense_s1  - bm25_raw  clean    Hit1: +0.0158 [+0.0095,+0.0222] holm 0.0005* w25/l2
+dense_s1  - bm25_raw  typo     Mrr: +0.0846 [+0.0787,+0.0906] holm 0.0000* w30/l0
+dense_s1  - bm25_raw  typo     Hit1: +0.0658 [+0.0581,+0.0734] holm 0.0000* w30/l0
+dense_s1  - bm25_s1   mix25    Mrr: +0.0218 [+0.0165,+0.0271] holm 0.0000* w29/l1
+dense_s1  - bm25_s1   mix25    Hit1: +0.0154 [+0.0092,+0.0216] holm 0.0005* w26/l3
+dense_s1  - bm25_s1   clean    Mrr: +0.0224 [+0.0170,+0.0279] holm 0.0000* w29/l1
+dense_s1  - bm25_s1   clean    Hit1: +0.0158 [+0.0095,+0.0222] holm 0.0005* w25/l2
+dense_s1  - bm25_s1   typo     Mrr: +0.0200 [+0.0149,+0.0252] holm 0.0000* w29/l1
+dense_s1  - bm25_s1   typo     Hit1: +0.0141 [+0.0079,+0.0203] holm 0.0017* w24/l5
+hyb_s1    - dense_s1  mix25    Mrr: +0.0283 [+0.0235,+0.0331] holm 0.0000* w30/l0
+hyb_s1    - dense_s1  mix25    Hit1: +0.0200 [+0.0129,+0.0270] holm 0.0001* w25/l5
+hyb_s1    - dense_s1  clean    Mrr: +0.0281 [+0.0232,+0.0329] holm 0.0000* w30/l0
+hyb_s1    - dense_s1  clean    Hit1: +0.0200 [+0.0128,+0.0272] holm 0.0001* w24/l5
+hyb_s1    - dense_s1  typo     Mrr: +0.0292 [+0.0242,+0.0341] holm 0.0000* w29/l1
+hyb_s1    - dense_s1  typo     Hit1: +0.0199 [+0.0128,+0.0270] holm 0.0001* w25/l5
+hyb_s1    - bm25_s1   mix25    Mrr: +0.0502 [+0.0458,+0.0546] holm 0.0000* w30/l0
+hyb_s1    - bm25_s1   mix25    Hit1: +0.0354 [+0.0287,+0.0420] holm 0.0000* w29/l1
+hyb_s1    - bm25_s1   clean    Mrr: +0.0505 [+0.0459,+0.0551] holm 0.0000* w30/l0
+hyb_s1    - bm25_s1   clean    Hit1: +0.0358 [+0.0292,+0.0425] holm 0.0000* w29/l0
+hyb_s1    - bm25_s1   typo     Mrr: +0.0492 [+0.0450,+0.0534] holm 0.0000* w30/l0
+hyb_s1    - bm25_s1   typo     Hit1: +0.0340 [+0.0272,+0.0408] holm 0.0000* w29/l1
+hyb_raw   - dense_raw mix25    Mrr: +0.0289 [+0.0247,+0.0331] holm 0.0000* w30/l0
+hyb_raw   - dense_raw mix25    Hit1: +0.0199 [+0.0136,+0.0263] holm 0.0000* w25/l5
+hyb_raw   - dense_raw clean    Mrr: +0.0271 [+0.0222,+0.0320] holm 0.0000* w29/l1
+hyb_raw   - dense_raw clean    Hit1: +0.0183 [+0.0110,+0.0256] holm 0.0005* w24/l5
+hyb_raw   - dense_raw typo     Mrr: +0.0343 [+0.0308,+0.0379] holm 0.0000* w30/l0
+hyb_raw   - dense_raw typo     Hit1: +0.0247 [+0.0195,+0.0300] holm 0.0000* w29/l1
+dense_raw - bm25_raw  mix25    Mrr: +0.0223 [+0.0173,+0.0272] holm 0.0000* w29/l1
+dense_raw - bm25_raw  mix25    Hit1: +0.0164 [+0.0106,+0.0222] holm 0.0001* w27/l3
+dense_raw - bm25_raw  clean    Mrr: +0.0235 [+0.0180,+0.0290] holm 0.0000* w29/l1
+dense_raw - bm25_raw  clean    Hit1: +0.0175 [+0.0108,+0.0242] holm 0.0003* w25/l2
+dense_raw - bm25_raw  typo     Mrr: +0.0185 [+0.0137,+0.0233] holm 0.0000* w29/l1
+dense_raw - bm25_raw  typo     Hit1: +0.0131 [+0.0077,+0.0185] holm 0.0007* w24/l3
+hyb_s1    - hyb_raw   mix25    Mrr: +0.0153 [+0.0141,+0.0166] holm 0.0000* w30/l0
+hyb_s1    - hyb_raw   mix25    Hit1: +0.0120 [+0.0102,+0.0137] holm 0.0000* w30/l0
+hyb_s1    - hyb_raw   clean    Mrr: +0.0001 [-0.0001,+0.0004] holm 1.0000 w16/l14
+hyb_s1    - hyb_raw   clean    Hit1: +0.0000 [+0.0000,+0.0000] holm 1.0000 w0/l0
+hyb_s1    - hyb_raw   typo     Mrr: +0.0610 [+0.0558,+0.0661] holm 0.0000* w30/l0
+hyb_s1    - hyb_raw   typo     Hit1: +0.0478 [+0.0408,+0.0549] holm 0.0000* w30/l0
+
+=== query-cluster bootstrap (resample distinct queries, 2000 reps), mix25, diff [95% CI] ===
+A held 31-60     dense_s1  - dense_raw Mrr: +0.0148 [+0.0122,+0.0174] over 1566 distinct queries
+A held 31-60     dense_s1  - dense_raw Hit1: +0.0103 [+0.0070,+0.0134] over 1566 distinct queries
+A held 31-60     dense_s2  - dense_raw Mrr: +0.0152 [+0.0127,+0.0177] over 1566 distinct queries
+A held 31-60     dense_s2  - dense_raw Hit1: +0.0108 [+0.0076,+0.0138] over 1566 distinct queries
+A held 31-60     hyb_s1    - dense_s1  Mrr: +0.0459 [+0.0331,+0.0591] over 1566 distinct queries
+A held 31-60     hyb_s1    - dense_s1  Hit1: +0.0354 [+0.0182,+0.0519] over 1566 distinct queries
+A held 31-60     dense_s1  - bm25_s1   Mrr: +0.0026 [-0.0143,+0.0210] over 1566 distinct queries
+A held 31-60     dense_s1  - bm25_s1   Hit1: -0.0006 [-0.0205,+0.0207] over 1566 distinct queries
+A held 31-60     hyb_s1    - hyb_raw   Mrr: +0.0176 [+0.0152,+0.0200] over 1566 distinct queries
+A held 31-60     hyb_s1    - hyb_raw   Hit1: +0.0144 [+0.0114,+0.0175] over 1566 distinct queries
+A confirm 61-90  dense_s1  - dense_raw Mrr: +0.0145 [+0.0118,+0.0171] over 1557 distinct queries
+A confirm 61-90  dense_s1  - dense_raw Hit1: +0.0101 [+0.0067,+0.0134] over 1557 distinct queries
+A confirm 61-90  dense_s2  - dense_raw Mrr: +0.0149 [+0.0123,+0.0173] over 1557 distinct queries
+A confirm 61-90  dense_s2  - dense_raw Hit1: +0.0106 [+0.0073,+0.0137] over 1557 distinct queries
+A confirm 61-90  hyb_s1    - dense_s1  Mrr: +0.0447 [+0.0315,+0.0575] over 1557 distinct queries
+A confirm 61-90  hyb_s1    - dense_s1  Hit1: +0.0332 [+0.0159,+0.0500] over 1557 distinct queries
+A confirm 61-90  dense_s1  - bm25_s1   Mrr: +0.0044 [-0.0126,+0.0220] over 1557 distinct queries
+A confirm 61-90  dense_s1  - bm25_s1   Hit1: +0.0021 [-0.0179,+0.0230] over 1557 distinct queries
+A confirm 61-90  hyb_s1    - hyb_raw   Mrr: +0.0169 [+0.0145,+0.0194] over 1557 distinct queries
+A confirm 61-90  hyb_s1    - hyb_raw   Hit1: +0.0137 [+0.0106,+0.0170] over 1557 distinct queries
+B confirm 61-90  dense_s1  - dense_raw Mrr: +0.0190 [+0.0161,+0.0218] over 1029 distinct queries
+B confirm 61-90  dense_s1  - dense_raw Hit1: +0.0146 [+0.0110,+0.0182] over 1029 distinct queries
+B confirm 61-90  dense_s2  - dense_raw Mrr: +0.0190 [+0.0161,+0.0218] over 1029 distinct queries
+B confirm 61-90  dense_s2  - dense_raw Hit1: +0.0146 [+0.0110,+0.0182] over 1029 distinct queries
+B confirm 61-90  hyb_s1    - dense_s1  Mrr: +0.0270 [+0.0137,+0.0408] over 1029 distinct queries
+B confirm 61-90  hyb_s1    - dense_s1  Hit1: +0.0226 [+0.0048,+0.0411] over 1029 distinct queries
+B confirm 61-90  dense_s1  - bm25_s1   Mrr: +0.0217 [+0.0027,+0.0410] over 1029 distinct queries
+B confirm 61-90  dense_s1  - bm25_s1   Hit1: +0.0124 [-0.0108,+0.0375] over 1029 distinct queries
+B confirm 61-90  hyb_s1    - hyb_raw   Mrr: +0.0183 [+0.0155,+0.0211] over 1029 distinct queries
+B confirm 61-90  hyb_s1    - hyb_raw   Hit1: +0.0146 [+0.0114,+0.0180] over 1029 distinct queries
+A H: clean queries altered by S1 0.014 / S2 0.013; typo1 exactly restored by S1 0.833; typo2 exactly restored by S1 0.728
+A S: clean queries altered by S1 0.094 / S2 0.092; typo1 exactly restored by S1 0.738; typo2 exactly restored by S1 0.602
+B H: clean queries altered by S1 0.027 / S2 0.020; typo1 exactly restored by S1 0.846; typo2 exactly restored by S1 0.750
+B S: clean queries altered by S1 0.137 / S2 0.137; typo1 exactly restored by S1 0.680; typo2 exactly restored by S1 0.568
+
+=== REAL human misspellings: n=10 sentences (A); real = as written, fixed = typo corrected by hand ===
+dense_raw  real hit1 0.00 mrr 0.108 | fixed hit1 0.10 mrr 0.176
+dense_s1   real hit1 0.10 mrr 0.176 | fixed hit1 0.10 mrr 0.176
+dense_s2   real hit1 0.10 mrr 0.176 | fixed hit1 0.10 mrr 0.176
+bm25_raw   real hit1 0.00 mrr 0.019 | fixed hit1 0.00 mrr 0.065
+bm25_s1    real hit1 0.00 mrr 0.065 | fixed hit1 0.00 mrr 0.065
+hyb_raw    real hit1 0.00 mrr 0.055 | fixed hit1 0.10 mrr 0.138
+hyb_s1     real hit1 0.10 mrr 0.139 | fixed hit1 0.10 mrr 0.138
+hyb_s2     real hit1 0.10 mrr 0.139 | fixed hit1 0.10 mrr 0.138
+
+COST (single thread, 6831 docs): dense scan 1985 us/query, BM25 3 us/query

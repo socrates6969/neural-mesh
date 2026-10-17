@@ -1,0 +1,329 @@
+h5_equiv: 8 worlds x 420 seeds x (1 ref + 22 subjects), 2 workers
+  natural size sim-fixed                rows    32.0  vocab    32.0  (keyword ids pinned: 32)
+  natural size sim-random               rows    32.0  vocab    32.0  (keyword ids pinned: 32)
+  natural size sim-no-traps             rows    32.0  vocab    32.0  (keyword ids pinned: 32)
+  natural size big-32agents             rows   232.0  vocab   232.0  (keyword ids pinned: 192)
+  natural size big-32agents-longtail    rows  1840.0  vocab  1840.0  (keyword ids pinned: 192)
+  natural size big-32agents-open        rows  2583.1  vocab  2583.1  (keyword ids pinned: 192)
+  natural size big-64agents             rows   232.0  vocab   232.0  (keyword ids pinned: 192)
+  natural size big-128agents            rows   232.0  vocab   232.0  (keyword ids pinned: 192)
+  sim-fixed done (14.8s)
+  sim-random done (29.4s)
+  sim-no-traps done (44.1s)
+  big-32agents done (89.7s)
+  big-32agents-longtail done (142.7s)
+  big-32agents-open done (195.8s)
+  big-64agents done (252.3s)
+  big-128agents done (340.0s)
+
+=== MEAN BYTES PER TRAINED BRAIN (pooled seeds 31-90; owned = ids+rows+struct after shrink_to_fit; vocab = private vocab estimate) ===
+-- sim-fixed
+   compact-f64            owned     5770 B (276.9% of u16/q16)  vocab~    2862 B  rows    32.0  cells    183.4  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   u16/q16                owned     2084 B (100.0% of u16/q16)  vocab~    2862 B  rows    32.0  cells    183.3  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   u12/q16                owned     2001 B ( 96.0% of u16/q16)  vocab~    2862 B  rows    32.0  cells    183.5  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   u8/q16                 owned     1849 B ( 88.7% of u16/q16)  vocab~    2862 B  rows    32.0  cells    185.8  row-evictions     0.0  vocab ids    32.0   cert95 both splits: false
+   u16/q12                owned     1909 B ( 91.6% of u16/q16)  vocab~    2862 B  rows    32.0  cells    183.5  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   u12/q12                owned     1827 B ( 87.7% of u16/q16)  vocab~    2862 B  rows    32.0  cells    183.7  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   u8/q12                 owned     1671 B ( 80.2% of u16/q16)  vocab~    2862 B  rows    32.0  cells    185.8  row-evictions     0.0  vocab ids    32.0   cert95 both splits: false
+   rowcap0.75             owned     1589 B ( 76.3% of u16/q16)  vocab~    2862 B  rows    22.4  cells    121.7  row-evictions  1622.4  vocab ids    32.0   cert95 both splits: false
+   rowcap0.5              owned     1244 B ( 59.7% of u16/q16)  vocab~    2862 B  rows    14.8  cells     80.7  row-evictions  2949.4  vocab ids    32.0   cert95 both splits: false
+   rowcap0.25             owned      902 B ( 43.3% of u16/q16)  vocab~    2862 B  rows     7.2  cells     40.1  row-evictions  4263.1  vocab ids    32.0   cert95 both splits: false
+   rowcap0.125            owned      758 B ( 36.4% of u16/q16)  vocab~    2862 B  rows     4.0  cells     23.0  row-evictions  4811.5  vocab ids    32.0   cert95 both splits: false
+   rowcap0.5-hash         owned     1250 B ( 60.0% of u16/q16)  vocab~    2862 B  rows    15.0  cells     81.2  row-evictions  2941.7  vocab ids    32.0   cert95 both splits: false
+   rowcap0.25-hash        owned      904 B ( 43.4% of u16/q16)  vocab~    2862 B  rows     7.2  cells     40.4  row-evictions  4263.3  vocab ids    32.0   cert95 both splits: false
+   vocabcap0.75           owned     2084 B (100.0% of u16/q16)  vocab~    2958 B  rows    32.0  cells    183.3  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   vocabcap0.5            owned     2084 B (100.0% of u16/q16)  vocab~    2958 B  rows    32.0  cells    183.3  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   vocabcap0.25           owned     2084 B (100.0% of u16/q16)  vocab~    2958 B  rows    32.0  cells    183.3  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   vocabcap0.125          owned     2084 B (100.0% of u16/q16)  vocab~    2958 B  rows    32.0  cells    183.3  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   hash32                 owned     2084 B (100.0% of u16/q16)  vocab~       0 B  rows    32.0  cells    183.3  row-evictions     0.0  vocab ids     0.0   cert95 both splits: true
+   rows+vocab0.5          owned     1246 B ( 59.8% of u16/q16)  vocab~    2958 B  rows    14.9  cells     80.8  row-evictions  2947.8  vocab ids    32.0   cert95 both splits: false
+   hash32+rowcap0.5       owned     1247 B ( 59.8% of u16/q16)  vocab~       0 B  rows    14.8  cells     81.0  row-evictions  2939.2  vocab ids     0.0   cert95 both splits: false
+   rows+vocab0.25         owned      902 B ( 43.3% of u16/q16)  vocab~    2958 B  rows     7.1  cells     40.3  row-evictions  4267.6  vocab ids    32.0   cert95 both splits: false
+   hash32+rowcap0.25      owned      901 B ( 43.2% of u16/q16)  vocab~       0 B  rows     7.1  cells     40.2  row-evictions  4263.1  vocab ids     0.0   cert95 both splits: false
+-- sim-random
+   compact-f64            owned     5112 B (266.2% of u16/q16)  vocab~    2862 B  rows    32.0  cells    156.0  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   u16/q16                owned     1920 B (100.0% of u16/q16)  vocab~    2862 B  rows    32.0  cells    156.0  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   u12/q16                owned     1852 B ( 96.4% of u16/q16)  vocab~    2862 B  rows    32.0  cells    156.3  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   u8/q16                 owned     1766 B ( 92.0% of u16/q16)  vocab~    2862 B  rows    32.0  cells    169.2  row-evictions     0.0  vocab ids    32.0   cert95 both splits: false
+   u16/q12                owned     1773 B ( 92.3% of u16/q16)  vocab~    2862 B  rows    32.0  cells    156.2  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   u12/q12                owned     1706 B ( 88.8% of u16/q16)  vocab~    2862 B  rows    32.0  cells    156.8  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   u8/q12                 owned     1602 B ( 83.4% of u16/q16)  vocab~    2862 B  rows    32.0  cells    168.5  row-evictions     0.0  vocab ids    32.0   cert95 both splits: false
+   rowcap0.75             owned     1486 B ( 77.4% of u16/q16)  vocab~    2862 B  rows    22.4  cells    104.6  row-evictions  1630.4  vocab ids    32.0   cert95 both splits: false
+   rowcap0.5              owned     1178 B ( 61.4% of u16/q16)  vocab~    2862 B  rows    14.8  cells     69.5  row-evictions  2945.1  vocab ids    32.0   cert95 both splits: false
+   rowcap0.25             owned      865 B ( 45.0% of u16/q16)  vocab~    2862 B  rows     7.2  cells     33.9  row-evictions  4267.5  vocab ids    32.0   cert95 both splits: false
+   rowcap0.125            owned      735 B ( 38.3% of u16/q16)  vocab~    2862 B  rows     4.0  cells     19.1  row-evictions  4810.5  vocab ids    32.0   cert95 both splits: false
+   rowcap0.5-hash         owned     1175 B ( 61.2% of u16/q16)  vocab~    2862 B  rows    14.8  cells     69.1  row-evictions  2945.1  vocab ids    32.0   cert95 both splits: false
+   rowcap0.25-hash        owned      866 B ( 45.1% of u16/q16)  vocab~    2862 B  rows     7.1  cells     34.2  row-evictions  4265.8  vocab ids    32.0   cert95 both splits: false
+   vocabcap0.75           owned     1920 B (100.0% of u16/q16)  vocab~    2958 B  rows    32.0  cells    156.0  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   vocabcap0.5            owned     1920 B (100.0% of u16/q16)  vocab~    2958 B  rows    32.0  cells    156.0  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   vocabcap0.25           owned     1920 B (100.0% of u16/q16)  vocab~    2958 B  rows    32.0  cells    156.0  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   vocabcap0.125          owned     1920 B (100.0% of u16/q16)  vocab~    2958 B  rows    32.0  cells    156.0  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   hash32                 owned     1920 B (100.0% of u16/q16)  vocab~       0 B  rows    32.0  cells    156.0  row-evictions     0.0  vocab ids     0.0   cert95 both splits: true
+   rows+vocab0.5          owned     1179 B ( 61.4% of u16/q16)  vocab~    2958 B  rows    14.9  cells     69.6  row-evictions  2947.8  vocab ids    32.0   cert95 both splits: false
+   hash32+rowcap0.5       owned     1176 B ( 61.3% of u16/q16)  vocab~       0 B  rows    14.9  cells     69.0  row-evictions  2939.8  vocab ids     0.0   cert95 both splits: false
+   rows+vocab0.25         owned      864 B ( 45.0% of u16/q16)  vocab~    2958 B  rows     7.2  cells     33.9  row-evictions  4258.1  vocab ids    32.0   cert95 both splits: false
+   hash32+rowcap0.25      owned      864 B ( 45.0% of u16/q16)  vocab~       0 B  rows     7.1  cells     34.1  row-evictions  4263.6  vocab ids     0.0   cert95 both splits: false
+-- sim-no-traps
+   compact-f64            owned     5000 B (264.4% of u16/q16)  vocab~    2862 B  rows    32.0  cells    151.3  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   u16/q16                owned     1891 B (100.0% of u16/q16)  vocab~    2862 B  rows    32.0  cells    151.2  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   u12/q16                owned     1823 B ( 96.4% of u16/q16)  vocab~    2862 B  rows    32.0  cells    151.0  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   u8/q16                 owned     1718 B ( 90.9% of u16/q16)  vocab~    2862 B  rows    32.0  cells    159.6  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   u16/q12                owned     1744 B ( 92.2% of u16/q16)  vocab~    2862 B  rows    32.0  cells    150.4  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   u12/q12                owned     1677 B ( 88.7% of u16/q16)  vocab~    2862 B  rows    32.0  cells    150.5  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   u8/q12                 owned     1566 B ( 82.8% of u16/q16)  vocab~    2862 B  rows    32.0  cells    159.6  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   rowcap0.75             owned     1459 B ( 77.2% of u16/q16)  vocab~    2862 B  rows    22.2  cells    100.3  row-evictions  1625.9  vocab ids    32.0   cert95 both splits: true
+   rowcap0.5              owned     1157 B ( 61.2% of u16/q16)  vocab~    2862 B  rows    14.9  cells     65.8  row-evictions  2949.3  vocab ids    32.0   cert95 both splits: false
+   rowcap0.25             owned      858 B ( 45.4% of u16/q16)  vocab~    2862 B  rows     7.2  cells     32.8  row-evictions  4265.6  vocab ids    32.0   cert95 both splits: true
+   rowcap0.125            owned      731 B ( 38.7% of u16/q16)  vocab~    2862 B  rows     4.0  cells     18.6  row-evictions  4805.4  vocab ids    32.0   cert95 both splits: false
+   rowcap0.5-hash         owned     1157 B ( 61.2% of u16/q16)  vocab~    2862 B  rows    14.9  cells     66.0  row-evictions  2945.6  vocab ids    32.0   cert95 both splits: false
+   rowcap0.25-hash        owned      854 B ( 45.2% of u16/q16)  vocab~    2862 B  rows     7.1  cells     32.2  row-evictions  4263.9  vocab ids    32.0   cert95 both splits: true
+   vocabcap0.75           owned     1891 B (100.0% of u16/q16)  vocab~    2958 B  rows    32.0  cells    151.2  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   vocabcap0.5            owned     1891 B (100.0% of u16/q16)  vocab~    2958 B  rows    32.0  cells    151.2  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   vocabcap0.25           owned     1891 B (100.0% of u16/q16)  vocab~    2958 B  rows    32.0  cells    151.2  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   vocabcap0.125          owned     1891 B (100.0% of u16/q16)  vocab~    2958 B  rows    32.0  cells    151.2  row-evictions     0.0  vocab ids    32.0   cert95 both splits: true
+   hash32                 owned     1891 B (100.0% of u16/q16)  vocab~       0 B  rows    32.0  cells    151.2  row-evictions     0.0  vocab ids     0.0   cert95 both splits: true
+   rows+vocab0.5          owned     1159 B ( 61.3% of u16/q16)  vocab~    2958 B  rows    14.9  cells     66.2  row-evictions  2943.2  vocab ids    32.0   cert95 both splits: true
+   hash32+rowcap0.5       owned     1159 B ( 61.3% of u16/q16)  vocab~       0 B  rows    14.9  cells     66.3  row-evictions  2937.8  vocab ids     0.0   cert95 both splits: false
+   rows+vocab0.25         owned      858 B ( 45.4% of u16/q16)  vocab~    2958 B  rows     7.2  cells     32.8  row-evictions  4271.1  vocab ids    32.0   cert95 both splits: true
+   hash32+rowcap0.25      owned      854 B ( 45.2% of u16/q16)  vocab~       0 B  rows     7.1  cells     32.4  row-evictions  4262.2  vocab ids     0.0   cert95 both splits: true
+-- big-32agents
+   compact-f64            owned    50944 B (334.1% of u16/q16)  vocab~   21638 B  rows   232.0  cells   1828.3  row-evictions     0.0  vocab ids   232.0   cert95 both splits: true
+   u16/q16                owned    15250 B (100.0% of u16/q16)  vocab~   21638 B  rows   232.0  cells   1828.4  row-evictions     0.0  vocab ids   232.0   cert95 both splits: true
+   u12/q16                owned    14456 B ( 94.8% of u16/q16)  vocab~   21638 B  rows   232.0  cells   1848.7  row-evictions     0.0  vocab ids   232.0   cert95 both splits: false
+   u8/q16                 owned    13432 B ( 88.1% of u16/q16)  vocab~   21638 B  rows   232.0  cells   1923.1  row-evictions     0.0  vocab ids   232.0   cert95 both splits: false
+   u16/q12                owned    13456 B ( 88.2% of u16/q16)  vocab~   21638 B  rows   232.0  cells   1833.6  row-evictions     0.0  vocab ids   232.0   cert95 both splits: false
+   u12/q12                owned    12636 B ( 82.9% of u16/q16)  vocab~   21638 B  rows   232.0  cells   1853.2  row-evictions     0.0  vocab ids   232.0   cert95 both splits: false
+   u8/q12                 owned    11499 B ( 75.4% of u16/q16)  vocab~   21638 B  rows   232.0  cells   1918.8  row-evictions     0.0  vocab ids   232.0   cert95 both splits: false
+   rowcap0.75             owned    11076 B ( 72.6% of u16/q16)  vocab~   21638 B  rows   163.3  cells   1315.8  row-evictions  1559.6  vocab ids   232.0   cert95 both splits: false
+   rowcap0.5              owned     7986 B ( 52.4% of u16/q16)  vocab~   21638 B  rows   108.9  cells    945.8  row-evictions  3284.3  vocab ids   232.0   cert95 both splits: false
+   rowcap0.25             owned     4438 B ( 29.1% of u16/q16)  vocab~   21638 B  rows    54.0  cells    501.1  row-evictions  5693.2  vocab ids   232.0   cert95 both splits: false
+   rowcap0.125            owned     2630 B ( 17.2% of u16/q16)  vocab~   21638 B  rows    27.1  cells    271.2  row-evictions  7647.1  vocab ids   232.0   cert95 both splits: false
+   rowcap0.5-hash         owned     7243 B ( 47.5% of u16/q16)  vocab~   21638 B  rows   109.8  cells    819.9  row-evictions  5501.8  vocab ids   232.0   cert95 both splits: false
+   rowcap0.25-hash        owned     3873 B ( 25.4% of u16/q16)  vocab~   21638 B  rows    54.3  cells    406.1  row-evictions  8798.2  vocab ids   232.0   cert95 both splits: false
+   vocabcap0.75           owned    12161 B ( 79.7% of u16/q16)  vocab~   22190 B  rows   213.7  cells   1362.5  row-evictions     0.0  vocab ids   213.7   cert95 both splits: false
+   vocabcap0.5            owned    11837 B ( 77.6% of u16/q16)  vocab~   22004 B  rows   203.7  cells   1334.8  row-evictions     0.0  vocab ids   203.7   cert95 both splits: false
+   vocabcap0.25           owned    11681 B ( 76.6% of u16/q16)  vocab~   15757 B  rows   198.2  cells   1323.5  row-evictions     0.0  vocab ids   198.2   cert95 both splits: false
+   vocabcap0.125          owned    11624 B ( 76.2% of u16/q16)  vocab~   15345 B  rows   195.1  cells   1322.5  row-evictions     0.0  vocab ids   195.1   cert95 both splits: false
+   hash32                 owned    15250 B (100.0% of u16/q16)  vocab~       0 B  rows   232.0  cells   1828.4  row-evictions     0.0  vocab ids     0.0   cert95 both splits: true
+   rows+vocab0.5          owned     6916 B ( 45.4% of u16/q16)  vocab~   22004 B  rows   109.4  cells    766.3  row-evictions  3008.1  vocab ids   203.7   cert95 both splits: false
+   hash32+rowcap0.5       owned     7383 B ( 48.4% of u16/q16)  vocab~       0 B  rows   108.5  cells    846.3  row-evictions  3274.7  vocab ids     0.0   cert95 both splits: false
+   rows+vocab0.25         owned     3885 B ( 25.5% of u16/q16)  vocab~   15757 B  rows    54.3  cells    408.0  row-evictions  5191.5  vocab ids   198.2   cert95 both splits: false
+   hash32+rowcap0.25      owned     3921 B ( 25.7% of u16/q16)  vocab~       0 B  rows    53.7  cells    415.6  row-evictions  5701.4  vocab ids     0.0   cert95 both splits: false
+-- big-32agents-longtail
+   compact-f64            owned   139253 B (268.9% of u16/q16)  vocab~  173194 B  rows  1841.7  cells   3629.9  row-evictions     0.0  vocab ids  1841.7   cert95 both splits: true
+   u16/q16                owned    51793 B (100.0% of u16/q16)  vocab~  173194 B  rows  1841.7  cells   3626.4  row-evictions     0.0  vocab ids  1841.7   cert95 both splits: true
+   u12/q16                owned    50071 B ( 96.7% of u16/q16)  vocab~  173194 B  rows  1841.7  cells   3641.4  row-evictions     0.0  vocab ids  1841.7   cert95 both splits: false
+   u8/q16                 owned    44842 B ( 86.6% of u16/q16)  vocab~  173194 B  rows  1841.7  cells   3698.1  row-evictions     0.0  vocab ids  1841.7   cert95 both splits: false
+   u16/q12                owned    48164 B ( 93.0% of u16/q16)  vocab~  173194 B  rows  1841.7  cells   3624.4  row-evictions     0.0  vocab ids  1841.7   cert95 both splits: false
+   u12/q12                owned    46434 B ( 89.7% of u16/q16)  vocab~  173194 B  rows  1841.7  cells   3640.8  row-evictions     0.0  vocab ids  1841.7   cert95 both splits: false
+   u8/q12                 owned    41161 B ( 79.5% of u16/q16)  vocab~  173194 B  rows  1841.7  cells   3700.5  row-evictions     0.0  vocab ids  1841.7   cert95 both splits: false
+   rowcap0.75             owned    38455 B ( 74.2% of u16/q16)  vocab~  173194 B  rows  1258.8  cells   2957.7  row-evictions   680.5  vocab ids  1841.7   cert95 both splits: true
+   rowcap0.5              owned    28659 B ( 55.3% of u16/q16)  vocab~  173194 B  rows   859.8  cells   2388.9  row-evictions  1274.1  vocab ids  1841.7   cert95 both splits: true
+   rowcap0.25             owned    17676 B ( 34.1% of u16/q16)  vocab~  173194 B  rows   433.0  cells   1696.5  row-evictions  2091.9  vocab ids  1841.7   cert95 both splits: false
+   rowcap0.125            owned    11098 B ( 21.4% of u16/q16)  vocab~  173194 B  rows   215.7  cells   1179.9  row-evictions  3267.6  vocab ids  1841.7   cert95 both splits: false
+   rowcap0.5-hash         owned    24522 B ( 47.3% of u16/q16)  vocab~  173194 B  rows   873.8  cells   1662.1  row-evictions  2257.7  vocab ids  1841.7   cert95 both splits: false
+   rowcap0.25-hash        owned    12351 B ( 23.8% of u16/q16)  vocab~  173194 B  rows   431.6  cells    812.9  row-evictions  5582.0  vocab ids  1841.7   cert95 both splits: false
+   vocabcap0.75           owned    40703 B ( 78.6% of u16/q16)  vocab~  119596 B  rows  1377.9  cells   3014.7  row-evictions     0.0  vocab ids  1377.9   cert95 both splits: true
+   vocabcap0.5            owned    30009 B ( 57.9% of u16/q16)  vocab~   90680 B  rows   944.2  cells   2388.9  row-evictions     0.0  vocab ids   944.2   cert95 both splits: true
+   vocabcap0.25           owned    20706 B ( 40.0% of u16/q16)  vocab~   57201 B  rows   562.4  cells   1856.7  row-evictions     0.0  vocab ids   562.4   cert95 both splits: false
+   vocabcap0.125          owned    16026 B ( 30.9% of u16/q16)  vocab~   43335 B  rows   374.3  cells   1578.3  row-evictions     0.0  vocab ids   374.3   cert95 both splits: true
+   hash32                 owned    51793 B (100.0% of u16/q16)  vocab~       0 B  rows  1841.7  cells   3626.4  row-evictions     0.0  vocab ids     0.0   cert95 both splits: true
+   rows+vocab0.5          owned    25940 B ( 50.1% of u16/q16)  vocab~   90680 B  rows   773.2  cells   2166.7  row-evictions   464.0  vocab ids   944.2   cert95 both splits: true
+   hash32+rowcap0.5       owned    28678 B ( 55.4% of u16/q16)  vocab~       0 B  rows   860.4  cells   2390.4  row-evictions  1272.1  vocab ids     0.0   cert95 both splits: true
+   rows+vocab0.25         owned    16311 B ( 31.5% of u16/q16)  vocab~   57201 B  rows   391.0  cells   1581.2  row-evictions   506.2  vocab ids   562.4   cert95 both splits: false
+   hash32+rowcap0.25      owned    17779 B ( 34.3% of u16/q16)  vocab~       0 B  rows   431.2  cells   1718.5  row-evictions  1989.8  vocab ids     0.0   cert95 both splits: false
+-- big-32agents-open
+   compact-f64            owned   162420 B (252.5% of u16/q16)  vocab~  233968 B  rows  2588.4  cells   3724.1  row-evictions     0.0  vocab ids  2588.4   cert95 both splits: true
+   u16/q16                owned    64330 B (100.0% of u16/q16)  vocab~  233968 B  rows  2588.4  cells   3724.7  row-evictions     0.0  vocab ids  2588.4   cert95 both splits: true
+   u12/q16                owned    62571 B ( 97.3% of u16/q16)  vocab~  233968 B  rows  2588.4  cells   3741.9  row-evictions     0.0  vocab ids  2588.4   cert95 both splits: false
+   u8/q16                 owned    55751 B ( 86.7% of u16/q16)  vocab~  233968 B  rows  2588.4  cells   3789.1  row-evictions     0.0  vocab ids  2588.4   cert95 both splits: false
+   u16/q12                owned    60568 B ( 94.2% of u16/q16)  vocab~  233968 B  rows  2588.4  cells   3715.6  row-evictions     0.0  vocab ids  2588.4   cert95 both splits: false
+   u12/q12                owned    58829 B ( 91.4% of u16/q16)  vocab~  233968 B  rows  2588.4  cells   3740.2  row-evictions     0.0  vocab ids  2588.4   cert95 both splits: false
+   u8/q12                 owned    51962 B ( 80.8% of u16/q16)  vocab~  233968 B  rows  2588.4  cells   3787.2  row-evictions     0.0  vocab ids  2588.4   cert95 both splits: false
+   rowcap0.75             owned    48292 B ( 75.1% of u16/q16)  vocab~  233968 B  rows  1859.4  cells   2995.7  row-evictions   729.0  vocab ids  2588.4   cert95 both splits: false
+   rowcap0.5              owned    34156 B ( 53.1% of u16/q16)  vocab~  233968 B  rows  1216.8  cells   2353.0  row-evictions  1371.6  vocab ids  2588.4   cert95 both splits: false
+   rowcap0.25             owned    20706 B ( 32.2% of u16/q16)  vocab~  233968 B  rows   608.0  cells   1734.9  row-evictions  2010.3  vocab ids  2588.4   cert95 both splits: true
+   rowcap0.125            owned    13380 B ( 20.8% of u16/q16)  vocab~  233968 B  rows   303.3  cells   1326.6  row-evictions  2749.3  vocab ids  2588.4   cert95 both splits: false
+   rowcap0.5-hash         owned    30308 B ( 47.1% of u16/q16)  vocab~  233968 B  rows  1212.7  cells   1723.0  row-evictions  2067.0  vocab ids  2588.4   cert95 both splits: false
+   rowcap0.25-hash        owned    15487 B ( 24.1% of u16/q16)  vocab~  233968 B  rows   610.6  cells    858.2  row-evictions  4743.1  vocab ids  2588.4   cert95 both splits: false
+   vocabcap0.75           owned    47962 B ( 74.6% of u16/q16)  vocab~  189107 B  rows  1844.4  cells   2980.7  row-evictions     0.0  vocab ids  1844.4   cert95 both splits: false
+   vocabcap0.5            owned    36166 B ( 56.2% of u16/q16)  vocab~  124026 B  rows  1308.2  cells   2444.4  row-evictions     0.0  vocab ids  1308.2   cert95 both splits: false
+   vocabcap0.25           owned    23582 B ( 36.7% of u16/q16)  vocab~   89250 B  rows   736.2  cells   1872.5  row-evictions     0.0  vocab ids   736.2   cert95 both splits: false
+   vocabcap0.125          owned    17561 B ( 27.3% of u16/q16)  vocab~   46580 B  rows   462.5  cells   1598.8  row-evictions     0.0  vocab ids   462.5   cert95 both splits: false
+   hash32                 owned    64330 B (100.0% of u16/q16)  vocab~       0 B  rows  2588.4  cells   3724.7  row-evictions     0.0  vocab ids     0.0   cert95 both splits: true
+   rows+vocab0.5          owned    32602 B ( 50.7% of u16/q16)  vocab~  124026 B  rows  1146.2  cells   2282.4  row-evictions   486.0  vocab ids  1308.2   cert95 both splits: false
+   hash32+rowcap0.5       owned    34155 B ( 53.1% of u16/q16)  vocab~       0 B  rows  1216.8  cells   2353.1  row-evictions  1371.6  vocab ids     0.0   cert95 both splits: false
+   rows+vocab0.25         owned    19360 B ( 30.1% of u16/q16)  vocab~   89250 B  rows   545.5  cells   1677.3  row-evictions   405.1  vocab ids   736.2   cert95 both splits: false
+   hash32+rowcap0.25      owned    20861 B ( 32.4% of u16/q16)  vocab~       0 B  rows   613.0  cells   1747.4  row-evictions  1981.9  vocab ids     0.0   cert95 both splits: true
+-- big-64agents
+   compact-f64            owned    57309 B (325.6% of u16/q16)  vocab~   21638 B  rows   232.0  cells   2054.9  row-evictions     0.0  vocab ids   232.0   cert95 both splits: true
+   u16/q16                owned    17600 B (100.0% of u16/q16)  vocab~   21638 B  rows   232.0  cells   2065.4  row-evictions     0.0  vocab ids   232.0   cert95 both splits: false
+   u12/q16                owned    17182 B ( 97.6% of u16/q16)  vocab~   21638 B  rows   232.0  cells   2175.6  row-evictions     0.0  vocab ids   232.0   cert95 both splits: false
+   u8/q16                 owned    15302 B ( 86.9% of u16/q16)  vocab~   21638 B  rows   232.0  cells   2111.6  row-evictions     0.0  vocab ids   232.0   cert95 both splits: false
+   u16/q12                owned    15514 B ( 88.1% of u16/q16)  vocab~   21638 B  rows   232.0  cells   2059.6  row-evictions     0.0  vocab ids   232.0   cert95 both splits: false
+   u12/q12                owned    15029 B ( 85.4% of u16/q16)  vocab~   21638 B  rows   232.0  cells   2178.8  row-evictions     0.0  vocab ids   232.0   cert95 both splits: false
+   u8/q12                 owned    13206 B ( 75.0% of u16/q16)  vocab~   21638 B  rows   232.0  cells   2113.4  row-evictions     0.0  vocab ids   232.0   cert95 both splits: false
+   rowcap0.75             owned    12929 B ( 73.5% of u16/q16)  vocab~   21638 B  rows   164.0  cells   1513.5  row-evictions  1559.2  vocab ids   232.0   cert95 both splits: false
+   rowcap0.5              owned     9131 B ( 51.9% of u16/q16)  vocab~   21638 B  rows   109.1  cells   1063.5  row-evictions  3265.8  vocab ids   232.0   cert95 both splits: false
+   rowcap0.25             owned     5177 B ( 29.4% of u16/q16)  vocab~   21638 B  rows    54.2  cells    587.5  row-evictions  5726.2  vocab ids   232.0   cert95 both splits: false
+   rowcap0.125            owned     3040 B ( 17.3% of u16/q16)  vocab~   21638 B  rows    27.1  cells    321.6  row-evictions  7663.4  vocab ids   232.0   cert95 both splits: false
+   rowcap0.5-hash         owned     8223 B ( 46.7% of u16/q16)  vocab~   21638 B  rows   109.4  cells    911.1  row-evictions  5486.9  vocab ids   232.0   cert95 both splits: false
+   rowcap0.25-hash        owned     4395 B ( 25.0% of u16/q16)  vocab~   21638 B  rows    54.5  cells    456.2  row-evictions  8665.8  vocab ids   232.0   cert95 both splits: false
+   vocabcap0.75           owned    13967 B ( 79.4% of u16/q16)  vocab~   22159 B  rows   212.0  cells   1526.4  row-evictions     0.0  vocab ids   212.0   cert95 both splits: false
+   vocabcap0.5            owned    13535 B ( 76.9% of u16/q16)  vocab~   21972 B  rows   202.1  cells   1487.7  row-evictions     0.0  vocab ids   202.1   cert95 both splits: false
+   vocabcap0.25           owned    13426 B ( 76.3% of u16/q16)  vocab~   15856 B  rows   197.8  cells   1483.6  row-evictions     0.0  vocab ids   197.8   cert95 both splits: false
+   vocabcap0.125          owned    13345 B ( 75.8% of u16/q16)  vocab~   15347 B  rows   195.2  cells   1479.0  row-evictions     0.0  vocab ids   195.2   cert95 both splits: false
+   hash32                 owned    17600 B (100.0% of u16/q16)  vocab~       0 B  rows   232.0  cells   2065.4  row-evictions     0.0  vocab ids     0.0   cert95 both splits: false
+   rows+vocab0.5          owned     7911 B ( 44.9% of u16/q16)  vocab~   21972 B  rows   108.2  cells    863.2  row-evictions  3015.3  vocab ids   202.1   cert95 both splits: false
+   hash32+rowcap0.5       owned     8461 B ( 48.1% of u16/q16)  vocab~       0 B  rows   108.6  cells    953.5  row-evictions  3269.5  vocab ids     0.0   cert95 both splits: false
+   rows+vocab0.25         owned     4443 B ( 25.2% of u16/q16)  vocab~   15856 B  rows    54.2  cells    465.0  row-evictions  5222.9  vocab ids   197.8   cert95 both splits: false
+   hash32+rowcap0.25      owned     4515 B ( 25.7% of u16/q16)  vocab~       0 B  rows    54.5  cells    476.2  row-evictions  5737.5  vocab ids     0.0   cert95 both splits: false
+-- big-128agents
+   compact-f64            owned    63391 B (309.5% of u16/q16)  vocab~   21638 B  rows   232.0  cells   2230.9  row-evictions     0.0  vocab ids   232.0   cert95 both splits: true
+   u16/q16                owned    20479 B (100.0% of u16/q16)  vocab~   21638 B  rows   232.0  cells   2235.8  row-evictions     0.0  vocab ids   232.0   cert95 both splits: false
+   u12/q16                owned    19987 B ( 97.6% of u16/q16)  vocab~   21638 B  rows   232.0  cells   2348.2  row-evictions     0.0  vocab ids   232.0   cert95 both splits: false
+   u8/q16                 owned    17915 B ( 87.5% of u16/q16)  vocab~   21638 B  rows   232.0  cells   2263.0  row-evictions     0.0  vocab ids   232.0   cert95 both splits: false
+   u16/q12                owned    18300 B ( 89.4% of u16/q16)  vocab~   21638 B  rows   232.0  cells   2245.7  row-evictions     0.0  vocab ids   232.0   cert95 both splits: false
+   u12/q12                owned    17693 B ( 86.4% of u16/q16)  vocab~   21638 B  rows   232.0  cells   2358.3  row-evictions     0.0  vocab ids   232.0   cert95 both splits: false
+   u8/q12                 owned    15718 B ( 76.8% of u16/q16)  vocab~   21638 B  rows   232.0  cells   2277.5  row-evictions     0.0  vocab ids   232.0   cert95 both splits: false
+   rowcap0.75             owned    15039 B ( 73.4% of u16/q16)  vocab~   21638 B  rows   163.8  cells   1647.4  row-evictions  1567.1  vocab ids   232.0   cert95 both splits: false
+   rowcap0.5              owned    10759 B ( 52.5% of u16/q16)  vocab~   21638 B  rows   109.2  cells   1188.9  row-evictions  3305.2  vocab ids   232.0   cert95 both splits: false
+   rowcap0.25             owned     6038 B ( 29.5% of u16/q16)  vocab~   21638 B  rows    54.0  cells    659.4  row-evictions  5697.8  vocab ids   232.0   cert95 both splits: false
+   rowcap0.125            owned     3609 B ( 17.6% of u16/q16)  vocab~   21638 B  rows    27.2  cells    379.8  row-evictions  7626.8  vocab ids   232.0   cert95 both splits: false
+   rowcap0.5-hash         owned     9642 B ( 47.1% of u16/q16)  vocab~   21638 B  rows   109.2  cells   1002.7  row-evictions  5574.9  vocab ids   232.0   cert95 both splits: false
+   rowcap0.25-hash        owned     5141 B ( 25.1% of u16/q16)  vocab~   21638 B  rows    54.8  cells    506.4  row-evictions  8849.8  vocab ids   232.0   cert95 both splits: false
+   vocabcap0.75           owned    16393 B ( 80.0% of u16/q16)  vocab~   22138 B  rows   210.8  cells   1653.5  row-evictions     0.0  vocab ids   210.8   cert95 both splits: false
+   vocabcap0.5            owned    16074 B ( 78.5% of u16/q16)  vocab~   21993 B  rows   203.2  cells   1636.3  row-evictions     0.0  vocab ids   203.2   cert95 both splits: false
+   vocabcap0.25           owned    15884 B ( 77.6% of u16/q16)  vocab~   15754 B  rows   198.1  cells   1628.3  row-evictions     0.0  vocab ids   198.1   cert95 both splits: false
+   vocabcap0.125          owned    15762 B ( 77.0% of u16/q16)  vocab~   15345 B  rows   195.0  cells   1622.2  row-evictions     0.0  vocab ids   195.0   cert95 both splits: false
+   hash32                 owned    20479 B (100.0% of u16/q16)  vocab~       0 B  rows   232.0  cells   2235.8  row-evictions     0.0  vocab ids     0.0   cert95 both splits: false
+   rows+vocab0.5          owned     9366 B ( 45.7% of u16/q16)  vocab~   21993 B  rows   108.4  cells    960.3  row-evictions  3023.7  vocab ids   203.2   cert95 both splits: false
+   hash32+rowcap0.5       owned     9977 B ( 48.7% of u16/q16)  vocab~       0 B  rows   108.5  cells   1062.1  row-evictions  3289.3  vocab ids     0.0   cert95 both splits: false
+   rows+vocab0.25         owned     5347 B ( 26.1% of u16/q16)  vocab~   15754 B  rows    53.7  cells    545.8  row-evictions  5198.4  vocab ids   198.1   cert95 both splits: false
+   hash32+rowcap0.25      owned     5420 B ( 26.5% of u16/q16)  vocab~       0 B  rows    54.3  cells    555.1  row-evictions  5676.7  vocab ids     0.0   cert95 both splits: false
+
+=== PAIRED DIFF (subject - f64 reference) of mean expected success, split pooled, margin +-0.005: mean [95% CI] verdict ===
+compact-f64          | +0.0000[+0.0000,+0.0000]C95 | +0.0000[+0.0000,+0.0000]C95 | +0.0000[+0.0000,+0.0000]C95 | +0.0000[+0.0000,+0.0000]C95 | +0.0000[+0.0000,+0.0000]C95 | +0.0000[+0.0000,+0.0000]C95 | +0.0000[+0.0000,+0.0000]C95 | +0.0000[+0.0000,+0.0000]C95
+u16/q16              | -0.0001[-0.0003,+0.0001]C95 | +0.0004[-0.0010,+0.0017]C95 | +0.0001[-0.0001,+0.0004]C95 | +0.0005[-0.0028,+0.0038]C95 | +0.0003[-0.0016,+0.0022]C95 | +0.0019[-0.0009,+0.0046]C95 | +0.0014[-0.0020,+0.0047]C95 | +0.0010[-0.0043,+0.0063]inc
+u12/q16              | -0.0004[-0.0020,+0.0012]C95 | +0.0015[-0.0006,+0.0036]C95 | -0.0003[-0.0012,+0.0007]C95 | +0.0026[-0.0024,+0.0076]inc | +0.0024[-0.0037,+0.0085]inc | -0.0010[-0.0066,+0.0045]inc | +0.0044[-0.0005,+0.0093]inc | +0.0038[-0.0043,+0.0119]inc
+u8/q16               | -0.0105[-0.0127,-0.0082]NOT | -0.0048[-0.0089,-0.0006]inc | +0.0002[-0.0011,+0.0015]C95 | +0.0011[-0.0056,+0.0077]inc | +0.0079[+0.0008,+0.0150]inc | +0.0085[+0.0011,+0.0159]inc | +0.0023[-0.0060,+0.0105]inc | -0.0007[-0.0066,+0.0053]inc
+u16/q12              | +0.0005[-0.0011,+0.0021]C95 | +0.0008[-0.0010,+0.0025]C95 | -0.0005[-0.0015,+0.0004]C95 | -0.0011[-0.0059,+0.0037]inc | +0.0024[-0.0022,+0.0070]inc | +0.0030[-0.0013,+0.0073]inc | +0.0001[-0.0060,+0.0062]inc | -0.0011[-0.0060,+0.0038]inc
+u12/q12              | -0.0011[-0.0033,+0.0011]C95 | +0.0015[-0.0008,+0.0038]C95 | -0.0012[-0.0026,+0.0003]C95 | +0.0006[-0.0045,+0.0057]inc | +0.0032[-0.0032,+0.0096]inc | +0.0010[-0.0044,+0.0065]inc | +0.0060[+0.0002,+0.0119]inc | +0.0048[-0.0036,+0.0133]inc
+u8/q12               | -0.0110[-0.0140,-0.0079]NOT | -0.0044[-0.0084,-0.0004]inc | -0.0001[-0.0014,+0.0012]C95 | +0.0005[-0.0065,+0.0074]inc | +0.0071[-0.0009,+0.0151]inc | +0.0086[+0.0012,+0.0160]inc | +0.0033[-0.0052,+0.0118]inc | -0.0021[-0.0095,+0.0053]inc
+rowcap0.75           | -0.0163[-0.0198,-0.0128]NOT | -0.0228[-0.0294,-0.0162]NOT | -0.0016[-0.0034,+0.0002]C95 | +0.0003[-0.0058,+0.0064]inc | +0.0005[-0.0016,+0.0026]C95 | +0.0019[-0.0009,+0.0046]inc | -0.0048[-0.0119,+0.0024]inc | +0.0005[-0.0043,+0.0052]inc
+rowcap0.5            | -0.0304[-0.0356,-0.0253]NOT | -0.0455[-0.0528,-0.0381]NOT | -0.0026[-0.0046,-0.0006]inc | -0.0150[-0.0231,-0.0070]NOT | +0.0003[-0.0019,+0.0025]C95 | +0.0019[-0.0009,+0.0046]inc | -0.0021[-0.0094,+0.0053]inc | -0.0029[-0.0095,+0.0038]inc
+rowcap0.25           | -0.0463[-0.0513,-0.0414]NOT | -0.0674[-0.0763,-0.0585]NOT | -0.0024[-0.0044,-0.0004]C95 | -0.0133[-0.0219,-0.0047]NOT | +0.0011[-0.0035,+0.0056]inc | +0.0001[-0.0031,+0.0033]C95 | -0.0122[-0.0191,-0.0053]NOT | -0.0084[-0.0157,-0.0011]inc
+rowcap0.125          | -0.0531[-0.0571,-0.0492]NOT | -0.0751[-0.0843,-0.0659]NOT | -0.0027[-0.0047,-0.0007]inc | -0.0382[-0.0462,-0.0302]NOT | -0.0017[-0.0074,+0.0040]inc | +0.0023[-0.0026,+0.0073]inc | -0.0198[-0.0266,-0.0129]NOT | -0.0100[-0.0178,-0.0022]inc
+rowcap0.5-hash       | -0.0259[-0.0301,-0.0218]NOT | -0.0364[-0.0414,-0.0314]NOT | -0.0028[-0.0048,-0.0009]inc | -0.0356[-0.0430,-0.0283]NOT | -0.0127[-0.0162,-0.0092]NOT | -0.0087[-0.0122,-0.0052]NOT | -0.0166[-0.0244,-0.0088]NOT | -0.0122[-0.0191,-0.0054]NOT
+rowcap0.25-hash      | -0.0404[-0.0448,-0.0359]NOT | -0.0581[-0.0656,-0.0505]NOT | -0.0023[-0.0042,-0.0005]C95 | -0.0558[-0.0645,-0.0471]NOT | -0.0397[-0.0457,-0.0338]NOT | -0.0297[-0.0348,-0.0247]NOT | -0.0272[-0.0358,-0.0186]NOT | -0.0203[-0.0284,-0.0123]NOT
+vocabcap0.75         | -0.0001[-0.0003,+0.0001]C95 | +0.0004[-0.0010,+0.0017]C95 | +0.0001[-0.0001,+0.0004]C95 | +0.0006[-0.0054,+0.0066]inc | +0.0003[-0.0018,+0.0024]C95 | +0.0019[-0.0009,+0.0046]inc | +0.0016[-0.0036,+0.0069]inc | +0.0014[-0.0046,+0.0073]inc
+vocabcap0.5          | -0.0001[-0.0003,+0.0001]C95 | +0.0004[-0.0010,+0.0017]C95 | +0.0001[-0.0001,+0.0004]C95 | -0.0005[-0.0060,+0.0050]inc | +0.0001[-0.0022,+0.0024]C95 | +0.0019[-0.0009,+0.0046]inc | +0.0053[-0.0014,+0.0121]inc | +0.0026[-0.0045,+0.0097]inc
+vocabcap0.25         | -0.0001[-0.0003,+0.0001]C95 | +0.0004[-0.0010,+0.0017]C95 | +0.0001[-0.0001,+0.0004]C95 | +0.0005[-0.0048,+0.0059]inc | +0.0022[-0.0003,+0.0047]inc | +0.0019[-0.0009,+0.0046]inc | +0.0030[-0.0035,+0.0095]inc | +0.0017[-0.0043,+0.0077]inc
+vocabcap0.125        | -0.0001[-0.0003,+0.0001]C95 | +0.0004[-0.0010,+0.0017]C95 | +0.0001[-0.0001,+0.0004]C95 | -0.0018[-0.0073,+0.0037]inc | +0.0017[-0.0007,+0.0042]C95 | +0.0019[-0.0009,+0.0046]inc | +0.0072[+0.0006,+0.0138]inc | +0.0016[-0.0041,+0.0072]inc
+hash32               | -0.0001[-0.0003,+0.0001]C95 | +0.0004[-0.0010,+0.0017]C95 | +0.0001[-0.0001,+0.0004]C95 | +0.0005[-0.0028,+0.0038]C95 | +0.0003[-0.0016,+0.0022]C95 | +0.0019[-0.0009,+0.0046]C95 | +0.0014[-0.0020,+0.0047]C95 | +0.0010[-0.0043,+0.0063]inc
+rows+vocab0.5        | -0.0288[-0.0336,-0.0240]NOT | -0.0436[-0.0504,-0.0367]NOT | -0.0020[-0.0039,-0.0002]C95 | -0.0073[-0.0145,-0.0002]inc | +0.0007[-0.0018,+0.0032]C95 | +0.0019[-0.0009,+0.0046]inc | -0.0022[-0.0098,+0.0054]inc | -0.0003[-0.0070,+0.0065]inc
+hash32+rowcap0.5     | -0.0337[-0.0387,-0.0286]NOT | -0.0454[-0.0531,-0.0378]NOT | -0.0028[-0.0048,-0.0009]inc | -0.0104[-0.0164,-0.0044]NOT | +0.0006[-0.0018,+0.0030]C95 | +0.0019[-0.0009,+0.0046]inc | -0.0014[-0.0096,+0.0067]inc | -0.0048[-0.0105,+0.0009]inc
+rows+vocab0.25       | -0.0440[-0.0483,-0.0396]NOT | -0.0666[-0.0754,-0.0578]NOT | -0.0021[-0.0041,-0.0002]C95 | -0.0122[-0.0195,-0.0050]NOT | -0.0014[-0.0060,+0.0032]inc | -0.0014[-0.0048,+0.0021]inc | -0.0051[-0.0123,+0.0022]inc | -0.0058[-0.0138,+0.0023]inc
+hash32+rowcap0.25    | -0.0504[-0.0551,-0.0458]NOT | -0.0647[-0.0739,-0.0555]NOT | -0.0021[-0.0042,+0.0000]C95 | -0.0126[-0.0207,-0.0044]NOT | +0.0032[-0.0005,+0.0068]inc | +0.0009[-0.0018,+0.0035]C95 | -0.0090[-0.0157,-0.0023]inc | -0.0004[-0.0088,+0.0080]inc
+                     | worlds in order: sim-fixed | sim-random | sim-no-traps | big-32agents | big-32agents-longtail | big-32agents-open | big-64agents | big-128agents
+
+=== PAIRED DIFF (subject - f64 reference) of mean expected success, split power, margin +-0.005: mean [95% CI] verdict ===
+compact-f64          | +0.0000[+0.0000,+0.0000]C95 | +0.0000[+0.0000,+0.0000]C95 | +0.0000[+0.0000,+0.0000]C95 | +0.0000[+0.0000,+0.0000]C95 | +0.0000[+0.0000,+0.0000]C95 | +0.0000[+0.0000,+0.0000]C95 | +0.0000[+0.0000,+0.0000]C95 | +0.0000[+0.0000,+0.0000]C95
+u16/q16              | +0.0000[-0.0003,+0.0004]C95 | +0.0004[-0.0002,+0.0010]C95 | -0.0000[-0.0001,+0.0001]C95 | +0.0002[-0.0025,+0.0029]C95 | -0.0006[-0.0031,+0.0019]C95 | -0.0004[-0.0026,+0.0019]C95 | +0.0027[-0.0002,+0.0056]inc | +0.0004[-0.0020,+0.0029]C95
+u12/q16              | +0.0012[+0.0002,+0.0023]C95 | -0.0006[-0.0019,+0.0007]C95 | +0.0004[-0.0002,+0.0010]C95 | +0.0063[+0.0026,+0.0101]inc | +0.0064[+0.0027,+0.0101]inc | +0.0057[+0.0018,+0.0095]inc | +0.0153[+0.0099,+0.0207]NOT | +0.0091[+0.0045,+0.0137]NOT
+u8/q16               | -0.0108[-0.0124,-0.0092]NOT | -0.0076[-0.0098,-0.0053]NOT | -0.0001[-0.0010,+0.0007]C95 | +0.0078[+0.0031,+0.0125]inc | +0.0077[+0.0035,+0.0118]inc | +0.0101[+0.0059,+0.0144]NOT | +0.0062[+0.0014,+0.0111]inc | -0.0007[-0.0044,+0.0030]inc
+u16/q12              | +0.0007[-0.0003,+0.0017]C95 | -0.0004[-0.0015,+0.0006]C95 | -0.0001[-0.0006,+0.0004]C95 | -0.0010[-0.0048,+0.0028]inc | -0.0030[-0.0067,+0.0007]inc | -0.0024[-0.0054,+0.0006]inc | +0.0058[+0.0017,+0.0099]inc | -0.0014[-0.0042,+0.0014]C95
+u12/q12              | +0.0014[+0.0002,+0.0027]C95 | +0.0009[-0.0005,+0.0023]C95 | +0.0002[-0.0004,+0.0008]C95 | +0.0041[+0.0003,+0.0080]inc | +0.0059[+0.0023,+0.0095]inc | +0.0044[+0.0009,+0.0080]inc | +0.0153[+0.0100,+0.0206]NOT | +0.0068[+0.0025,+0.0111]inc
+u8/q12               | -0.0104[-0.0121,-0.0088]NOT | -0.0071[-0.0094,-0.0048]NOT | -0.0000[-0.0009,+0.0009]C95 | +0.0099[+0.0051,+0.0148]NOT | +0.0067[+0.0027,+0.0106]inc | +0.0089[+0.0048,+0.0131]NOT | +0.0033[-0.0017,+0.0084]inc | +0.0023[-0.0016,+0.0063]inc
+rowcap0.75           | -0.0197[-0.0224,-0.0171]NOT | -0.0273[-0.0311,-0.0235]NOT | -0.0013[-0.0023,-0.0002]C95 | -0.0018[-0.0057,+0.0020]inc | -0.0005[-0.0030,+0.0020]C95 | -0.0004[-0.0026,+0.0019]C95 | +0.0004[-0.0033,+0.0041]C95 | +0.0009[-0.0032,+0.0049]inc
+rowcap0.5            | -0.0339[-0.0367,-0.0310]NOT | -0.0469[-0.0518,-0.0420]NOT | -0.0022[-0.0033,-0.0011]C95 | -0.0064[-0.0102,-0.0025]inc | -0.0003[-0.0029,+0.0023]C95 | -0.0004[-0.0026,+0.0019]C95 | -0.0041[-0.0088,+0.0007]inc | -0.0001[-0.0047,+0.0044]inc
+rowcap0.25           | -0.0480[-0.0505,-0.0455]NOT | -0.0680[-0.0741,-0.0620]NOT | -0.0023[-0.0035,-0.0011]C95 | -0.0138[-0.0189,-0.0088]NOT | -0.0019[-0.0049,+0.0012]inc | +0.0003[-0.0020,+0.0025]C95 | -0.0103[-0.0156,-0.0050]NOT | -0.0025[-0.0068,+0.0018]inc
+rowcap0.125          | -0.0548[-0.0573,-0.0522]NOT | -0.0795[-0.0859,-0.0732]NOT | -0.0032[-0.0045,-0.0019]C95 | -0.0244[-0.0293,-0.0195]NOT | -0.0027[-0.0073,+0.0018]inc | -0.0023[-0.0055,+0.0010]inc | -0.0181[-0.0236,-0.0126]NOT | -0.0089[-0.0131,-0.0047]NOT
+rowcap0.5-hash       | -0.0275[-0.0301,-0.0249]NOT | -0.0373[-0.0417,-0.0330]NOT | -0.0017[-0.0029,-0.0005]C95 | -0.0290[-0.0346,-0.0235]NOT | -0.0137[-0.0165,-0.0109]NOT | -0.0097[-0.0120,-0.0073]NOT | -0.0172[-0.0220,-0.0124]NOT | -0.0109[-0.0148,-0.0071]NOT
+rowcap0.25-hash      | -0.0457[-0.0484,-0.0431]NOT | -0.0589[-0.0641,-0.0536]NOT | -0.0023[-0.0035,-0.0011]C95 | -0.0496[-0.0569,-0.0422]NOT | -0.0343[-0.0388,-0.0298]NOT | -0.0298[-0.0337,-0.0260]NOT | -0.0326[-0.0385,-0.0267]NOT | -0.0212[-0.0253,-0.0172]NOT
+vocabcap0.75         | +0.0000[-0.0003,+0.0004]C95 | +0.0004[-0.0002,+0.0010]C95 | -0.0000[-0.0001,+0.0001]C95 | -0.0001[-0.0040,+0.0038]C95 | -0.0005[-0.0030,+0.0021]C95 | -0.0004[-0.0026,+0.0019]C95 | +0.0010[-0.0033,+0.0053]C90 | +0.0015[-0.0015,+0.0045]C95
+vocabcap0.5          | +0.0000[-0.0003,+0.0004]C95 | +0.0004[-0.0002,+0.0010]C95 | -0.0000[-0.0001,+0.0001]C95 | +0.0002[-0.0041,+0.0044]C95 | -0.0007[-0.0033,+0.0018]C95 | -0.0004[-0.0026,+0.0019]C95 | +0.0018[-0.0027,+0.0063]inc | +0.0016[-0.0016,+0.0047]C95
+vocabcap0.25         | +0.0000[-0.0003,+0.0004]C95 | +0.0004[-0.0002,+0.0010]C95 | -0.0000[-0.0001,+0.0001]C95 | +0.0010[-0.0030,+0.0050]inc | -0.0005[-0.0033,+0.0023]C95 | -0.0004[-0.0026,+0.0019]C95 | +0.0023[-0.0025,+0.0071]inc | +0.0021[-0.0016,+0.0058]inc
+vocabcap0.125        | +0.0000[-0.0003,+0.0004]C95 | +0.0004[-0.0002,+0.0010]C95 | -0.0000[-0.0001,+0.0001]C95 | -0.0000[-0.0041,+0.0041]C95 | -0.0017[-0.0044,+0.0010]C95 | -0.0004[-0.0026,+0.0019]C95 | +0.0015[-0.0033,+0.0063]inc | +0.0019[-0.0016,+0.0054]inc
+hash32               | +0.0000[-0.0003,+0.0004]C95 | +0.0004[-0.0002,+0.0010]C95 | -0.0000[-0.0001,+0.0001]C95 | +0.0002[-0.0025,+0.0029]C95 | -0.0006[-0.0031,+0.0019]C95 | -0.0004[-0.0026,+0.0019]C95 | +0.0027[-0.0002,+0.0056]inc | +0.0004[-0.0020,+0.0029]C95
+rows+vocab0.5        | -0.0349[-0.0378,-0.0321]NOT | -0.0484[-0.0538,-0.0430]NOT | -0.0022[-0.0034,-0.0010]C95 | -0.0027[-0.0073,+0.0018]inc | -0.0009[-0.0035,+0.0017]C95 | -0.0004[-0.0026,+0.0019]C95 | -0.0007[-0.0052,+0.0037]inc | -0.0028[-0.0068,+0.0012]inc
+hash32+rowcap0.5     | -0.0370[-0.0399,-0.0342]NOT | -0.0493[-0.0545,-0.0442]NOT | -0.0020[-0.0032,-0.0009]C95 | -0.0026[-0.0072,+0.0019]inc | -0.0006[-0.0032,+0.0021]C95 | -0.0004[-0.0026,+0.0019]C95 | -0.0023[-0.0068,+0.0022]inc | +0.0020[-0.0023,+0.0063]inc
+rows+vocab0.25       | -0.0498[-0.0526,-0.0470]NOT | -0.0690[-0.0749,-0.0631]NOT | -0.0025[-0.0038,-0.0013]C95 | -0.0114[-0.0164,-0.0064]NOT | -0.0028[-0.0056,+0.0001]inc | -0.0000[-0.0022,+0.0022]C95 | -0.0046[-0.0100,+0.0008]inc | -0.0022[-0.0066,+0.0021]inc
+hash32+rowcap0.25    | -0.0544[-0.0569,-0.0518]NOT | -0.0719[-0.0778,-0.0661]NOT | -0.0024[-0.0036,-0.0011]C95 | -0.0140[-0.0187,-0.0092]NOT | +0.0006[-0.0020,+0.0031]C95 | -0.0005[-0.0026,+0.0015]C95 | -0.0070[-0.0125,-0.0014]inc | -0.0038[-0.0081,+0.0005]inc
+                     | worlds in order: sim-fixed | sim-random | sim-no-traps | big-32agents | big-32agents-longtail | big-32agents-open | big-64agents | big-128agents
+
+=== PAIRED DIFF (subject - f64 reference) of mean expected success, split fresh, margin +-0.005: mean [95% CI] verdict ===
+compact-f64          | +0.0000[+0.0000,+0.0000]C95 | +0.0000[+0.0000,+0.0000]C95 | +0.0000[+0.0000,+0.0000]C95 | +0.0000[+0.0000,+0.0000]C95 | +0.0000[+0.0000,+0.0000]C95 | +0.0000[+0.0000,+0.0000]C95 | +0.0000[+0.0000,+0.0000]C95 | +0.0000[+0.0000,+0.0000]C95
+u16/q16              | +0.0002[-0.0001,+0.0005]C95 | +0.0003[-0.0001,+0.0008]C95 | -0.0000[-0.0001,+0.0001]C95 | -0.0002[-0.0019,+0.0016]C95 | -0.0010[-0.0027,+0.0006]C95 | -0.0008[-0.0024,+0.0008]C95 | +0.0020[+0.0001,+0.0039]C95 | +0.0004[-0.0015,+0.0023]C95
+u12/q16              | +0.0004[-0.0002,+0.0011]C95 | -0.0003[-0.0011,+0.0006]C95 | +0.0003[-0.0001,+0.0007]C95 | +0.0044[+0.0020,+0.0068]inc | +0.0058[+0.0031,+0.0085]inc | +0.0054[+0.0026,+0.0082]inc | +0.0131[+0.0096,+0.0165]NOT | +0.0048[+0.0018,+0.0078]inc
+u8/q16               | -0.0105[-0.0116,-0.0094]NOT | -0.0062[-0.0076,-0.0047]inc | +0.0002[-0.0004,+0.0007]C95 | +0.0069[+0.0040,+0.0099]inc | +0.0053[+0.0023,+0.0082]inc | +0.0061[+0.0030,+0.0092]inc | +0.0062[+0.0030,+0.0093]inc | -0.0005[-0.0032,+0.0022]C95
+u16/q12              | +0.0008[+0.0001,+0.0014]C95 | -0.0001[-0.0008,+0.0006]C95 | -0.0001[-0.0004,+0.0002]C95 | -0.0000[-0.0024,+0.0024]C95 | -0.0027[-0.0050,-0.0005]inc | -0.0019[-0.0041,+0.0002]C95 | +0.0041[+0.0015,+0.0067]inc | -0.0003[-0.0024,+0.0019]C95
+u12/q12              | +0.0008[-0.0000,+0.0016]C95 | +0.0003[-0.0007,+0.0012]C95 | +0.0003[-0.0001,+0.0008]C95 | +0.0043[+0.0017,+0.0069]inc | +0.0042[+0.0016,+0.0068]inc | +0.0032[+0.0006,+0.0058]inc | +0.0120[+0.0087,+0.0152]NOT | +0.0053[+0.0025,+0.0082]inc
+u8/q12               | -0.0104[-0.0114,-0.0093]NOT | -0.0062[-0.0076,-0.0048]NOT | +0.0003[-0.0002,+0.0009]C95 | +0.0077[+0.0047,+0.0107]NOT | +0.0061[+0.0032,+0.0090]inc | +0.0075[+0.0047,+0.0104]NOT | +0.0040[+0.0008,+0.0073]inc | +0.0017[-0.0011,+0.0045]inc
+rowcap0.75           | -0.0204[-0.0222,-0.0186]NOT | -0.0258[-0.0283,-0.0233]NOT | -0.0007[-0.0014,-0.0000]C95 | -0.0024[-0.0049,+0.0000]inc | -0.0009[-0.0025,+0.0008]C95 | -0.0008[-0.0024,+0.0008]C95 | -0.0018[-0.0044,+0.0007]C95 | +0.0006[-0.0021,+0.0033]C95
+rowcap0.5            | -0.0348[-0.0367,-0.0328]NOT | -0.0455[-0.0487,-0.0423]NOT | -0.0017[-0.0024,-0.0010]C95 | -0.0086[-0.0115,-0.0057]NOT | -0.0012[-0.0028,+0.0004]C95 | -0.0008[-0.0024,+0.0008]C95 | -0.0045[-0.0077,-0.0013]inc | -0.0012[-0.0040,+0.0015]C95
+rowcap0.25           | -0.0483[-0.0500,-0.0465]NOT | -0.0669[-0.0709,-0.0630]NOT | -0.0019[-0.0027,-0.0011]C95 | -0.0155[-0.0187,-0.0124]NOT | -0.0009[-0.0030,+0.0011]C95 | -0.0004[-0.0021,+0.0013]C95 | -0.0101[-0.0135,-0.0066]NOT | -0.0054[-0.0083,-0.0025]inc
+rowcap0.125          | -0.0550[-0.0566,-0.0533]NOT | -0.0773[-0.0815,-0.0732]NOT | -0.0024[-0.0033,-0.0015]C95 | -0.0257[-0.0292,-0.0223]NOT | -0.0029[-0.0057,-0.0001]inc | -0.0015[-0.0039,+0.0008]C95 | -0.0171[-0.0205,-0.0137]NOT | -0.0098[-0.0127,-0.0069]NOT
+rowcap0.5-hash       | -0.0267[-0.0283,-0.0250]NOT | -0.0353[-0.0380,-0.0326]NOT | -0.0016[-0.0024,-0.0008]C95 | -0.0286[-0.0319,-0.0252]NOT | -0.0131[-0.0150,-0.0112]NOT | -0.0101[-0.0119,-0.0083]NOT | -0.0176[-0.0209,-0.0144]NOT | -0.0120[-0.0145,-0.0095]NOT
+rowcap0.25-hash      | -0.0438[-0.0457,-0.0420]NOT | -0.0574[-0.0609,-0.0540]NOT | -0.0020[-0.0028,-0.0012]C95 | -0.0465[-0.0506,-0.0423]NOT | -0.0331[-0.0360,-0.0301]NOT | -0.0291[-0.0317,-0.0266]NOT | -0.0315[-0.0351,-0.0280]NOT | -0.0208[-0.0235,-0.0181]NOT
+vocabcap0.75         | +0.0002[-0.0001,+0.0005]C95 | +0.0003[-0.0001,+0.0008]C95 | -0.0000[-0.0001,+0.0001]C95 | -0.0006[-0.0031,+0.0019]C95 | -0.0009[-0.0026,+0.0007]C95 | -0.0008[-0.0024,+0.0008]C95 | +0.0012[-0.0016,+0.0039]C95 | +0.0004[-0.0017,+0.0026]C95
+vocabcap0.5          | +0.0002[-0.0001,+0.0005]C95 | +0.0003[-0.0001,+0.0008]C95 | -0.0000[-0.0001,+0.0001]C95 | +0.0006[-0.0021,+0.0034]C95 | -0.0009[-0.0025,+0.0007]C95 | -0.0008[-0.0024,+0.0008]C95 | +0.0014[-0.0015,+0.0042]C95 | +0.0008[-0.0014,+0.0031]C95
+vocabcap0.25         | +0.0002[-0.0001,+0.0005]C95 | +0.0003[-0.0001,+0.0008]C95 | -0.0000[-0.0001,+0.0001]C95 | +0.0005[-0.0022,+0.0032]C95 | -0.0010[-0.0028,+0.0007]C95 | -0.0008[-0.0024,+0.0008]C95 | +0.0013[-0.0016,+0.0042]C95 | +0.0006[-0.0018,+0.0031]C95
+vocabcap0.125        | +0.0002[-0.0001,+0.0005]C95 | +0.0003[-0.0001,+0.0008]C95 | -0.0000[-0.0001,+0.0001]C95 | +0.0008[-0.0019,+0.0035]C95 | -0.0013[-0.0030,+0.0005]C95 | -0.0008[-0.0024,+0.0008]C95 | +0.0010[-0.0020,+0.0040]C95 | +0.0009[-0.0015,+0.0033]C95
+hash32               | +0.0002[-0.0001,+0.0005]C95 | +0.0003[-0.0001,+0.0008]C95 | -0.0000[-0.0001,+0.0001]C95 | -0.0002[-0.0019,+0.0016]C95 | -0.0010[-0.0027,+0.0006]C95 | -0.0008[-0.0024,+0.0008]C95 | +0.0020[+0.0001,+0.0039]C95 | +0.0004[-0.0015,+0.0023]C95
+rows+vocab0.5        | -0.0357[-0.0377,-0.0336]NOT | -0.0466[-0.0500,-0.0431]NOT | -0.0015[-0.0023,-0.0007]C95 | -0.0025[-0.0054,+0.0005]inc | -0.0014[-0.0030,+0.0003]C95 | -0.0008[-0.0024,+0.0008]C95 | -0.0016[-0.0047,+0.0014]inc | -0.0016[-0.0042,+0.0011]C95
+hash32+rowcap0.5     | -0.0375[-0.0396,-0.0355]NOT | -0.0466[-0.0500,-0.0432]NOT | -0.0014[-0.0021,-0.0007]C95 | -0.0019[-0.0049,+0.0011]inc | -0.0011[-0.0027,+0.0005]C95 | -0.0008[-0.0024,+0.0008]C95 | -0.0023[-0.0055,+0.0010]inc | +0.0002[-0.0026,+0.0030]C95
+rows+vocab0.25       | -0.0478[-0.0497,-0.0460]NOT | -0.0681[-0.0720,-0.0643]NOT | -0.0019[-0.0027,-0.0010]C95 | -0.0123[-0.0154,-0.0092]NOT | -0.0013[-0.0033,+0.0007]C95 | -0.0008[-0.0025,+0.0008]C95 | -0.0050[-0.0086,-0.0014]inc | -0.0043[-0.0071,-0.0016]inc
+hash32+rowcap0.25    | -0.0536[-0.0553,-0.0518]NOT | -0.0686[-0.0725,-0.0647]NOT | -0.0019[-0.0027,-0.0010]C95 | -0.0156[-0.0188,-0.0125]NOT | -0.0002[-0.0019,+0.0016]C95 | -0.0007[-0.0023,+0.0010]C95 | -0.0083[-0.0118,-0.0047]NOT | -0.0053[-0.0080,-0.0026]inc
+                     | worlds in order: sim-fixed | sim-random | sim-no-traps | big-32agents | big-32agents-longtail | big-32agents-open | big-64agents | big-128agents
+
+=== PASS TABLE STAGE 1 (declared): pooled 31-90 AND power 91-250: all 8 worlds, +-0.005, Holm p<.05 and 95% CI inside (CERT95) | TOST-only (CERT90) | +-0.003 TOST | non-inferior (one-sided, Holm, +-0.005) ===
+compact-f64            PASS95: true   CERT90: true   +-.003: true   NONINF: true   failing(95%): -   not-noninferior: -
+u16/q16                PASS95: false  CERT90: false  +-.003: false  NONINF: true   failing(95%): big-64agents, big-128agents   not-noninferior: -
+u12/q16                PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): big-32agents, big-32agents-longtail, big-32agents-open, big-64agents, big-128agents   not-noninferior: big-32agents-open
+u8/q16                 PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): sim-fixed, sim-random, big-32agents, big-32agents-longtail, big-32agents-open, big-64agents, big-128agents   not-noninferior: sim-fixed, sim-random, big-32agents, big-64agents, big-128agents
+u16/q12                PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): big-32agents, big-32agents-longtail, big-32agents-open, big-64agents, big-128agents   not-noninferior: big-32agents, big-32agents-longtail, big-32agents-open, big-64agents, big-128agents
+u12/q12                PASS95: false  CERT90: false  +-.003: false  NONINF: true   failing(95%): big-32agents, big-32agents-longtail, big-32agents-open, big-64agents, big-128agents   not-noninferior: -
+u8/q12                 PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): sim-fixed, sim-random, big-32agents, big-32agents-longtail, big-32agents-open, big-64agents, big-128agents   not-noninferior: sim-fixed, sim-random, big-32agents, big-64agents, big-128agents
+rowcap0.75             PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): sim-fixed, sim-random, big-32agents, big-32agents-open, big-64agents, big-128agents   not-noninferior: sim-fixed, sim-random, big-32agents, big-64agents, big-128agents
+rowcap0.5              PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): sim-fixed, sim-random, sim-no-traps, big-32agents, big-32agents-open, big-64agents, big-128agents   not-noninferior: sim-fixed, sim-random, sim-no-traps, big-32agents, big-64agents, big-128agents
+rowcap0.25             PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): sim-fixed, sim-random, big-32agents, big-32agents-longtail, big-64agents, big-128agents   not-noninferior: sim-fixed, sim-random, big-32agents, big-32agents-longtail, big-64agents, big-128agents
+rowcap0.125            PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): sim-fixed, sim-random, sim-no-traps, big-32agents, big-32agents-longtail, big-32agents-open, big-64agents, big-128agents   not-noninferior: sim-fixed, sim-random, sim-no-traps, big-32agents, big-32agents-longtail, big-32agents-open, big-64agents, big-128agents
+rowcap0.5-hash         PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): sim-fixed, sim-random, sim-no-traps, big-32agents, big-32agents-longtail, big-32agents-open, big-64agents, big-128agents   not-noninferior: sim-fixed, sim-random, sim-no-traps, big-32agents, big-32agents-longtail, big-32agents-open, big-64agents, big-128agents
+rowcap0.25-hash        PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): sim-fixed, sim-random, big-32agents, big-32agents-longtail, big-32agents-open, big-64agents, big-128agents   not-noninferior: sim-fixed, sim-random, big-32agents, big-32agents-longtail, big-32agents-open, big-64agents, big-128agents
+vocabcap0.75           PASS95: false  CERT90: false  +-.003: false  NONINF: true   failing(95%): big-32agents, big-32agents-open, big-64agents, big-128agents   not-noninferior: -
+vocabcap0.5            PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): big-32agents, big-32agents-open, big-64agents, big-128agents   not-noninferior: big-32agents
+vocabcap0.25           PASS95: false  CERT90: false  +-.003: false  NONINF: true   failing(95%): big-32agents, big-32agents-longtail, big-32agents-open, big-64agents, big-128agents   not-noninferior: -
+vocabcap0.125          PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): big-32agents, big-32agents-open, big-64agents, big-128agents   not-noninferior: big-32agents
+hash32                 PASS95: false  CERT90: false  +-.003: false  NONINF: true   failing(95%): big-64agents, big-128agents   not-noninferior: -
+rows+vocab0.5          PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): sim-fixed, sim-random, big-32agents, big-32agents-open, big-64agents, big-128agents   not-noninferior: sim-fixed, sim-random, big-32agents, big-64agents, big-128agents
+hash32+rowcap0.5       PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): sim-fixed, sim-random, sim-no-traps, big-32agents, big-32agents-open, big-64agents, big-128agents   not-noninferior: sim-fixed, sim-random, sim-no-traps, big-32agents, big-64agents, big-128agents
+rows+vocab0.25         PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): sim-fixed, sim-random, big-32agents, big-32agents-longtail, big-32agents-open, big-64agents, big-128agents   not-noninferior: sim-fixed, sim-random, big-32agents, big-32agents-longtail, big-32agents-open, big-64agents, big-128agents
+hash32+rowcap0.25      PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): sim-fixed, sim-random, big-32agents, big-32agents-longtail, big-64agents, big-128agents   not-noninferior: sim-fixed, sim-random, big-32agents, big-64agents, big-128agents
+
+=== PASS TABLE STAGE 2 (declared after stage 1, more fresh power): FRESH seeds 91-450 (n=360): all 8 worlds, +-0.005, Holm p<.05 and 95% CI inside (CERT95) | TOST-only (CERT90) | +-0.003 TOST | non-inferior (one-sided, Holm, +-0.005) ===
+compact-f64            PASS95: true   CERT90: true   +-.003: true   NONINF: true   failing(95%): -   not-noninferior: -
+u16/q16                PASS95: true   CERT90: true   +-.003: false  NONINF: true   failing(95%): -   not-noninferior: -
+u12/q16                PASS95: false  CERT90: false  +-.003: false  NONINF: true   failing(95%): big-32agents, big-32agents-longtail, big-32agents-open, big-64agents, big-128agents   not-noninferior: -
+u8/q16                 PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): sim-fixed, sim-random, big-32agents, big-32agents-longtail, big-32agents-open, big-64agents   not-noninferior: sim-fixed, sim-random
+u16/q12                PASS95: false  CERT90: false  +-.003: false  NONINF: true   failing(95%): big-32agents-longtail, big-64agents   not-noninferior: -
+u12/q12                PASS95: false  CERT90: false  +-.003: false  NONINF: true   failing(95%): big-32agents, big-32agents-longtail, big-32agents-open, big-64agents, big-128agents   not-noninferior: -
+u8/q12                 PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): sim-fixed, sim-random, big-32agents, big-32agents-longtail, big-32agents-open, big-64agents, big-128agents   not-noninferior: sim-fixed, sim-random
+rowcap0.75             PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): sim-fixed, sim-random, big-32agents   not-noninferior: sim-fixed, sim-random, big-32agents
+rowcap0.5              PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): sim-fixed, sim-random, big-32agents, big-64agents   not-noninferior: sim-fixed, sim-random, big-32agents, big-64agents
+rowcap0.25             PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): sim-fixed, sim-random, big-32agents, big-64agents, big-128agents   not-noninferior: sim-fixed, sim-random, big-32agents, big-64agents, big-128agents
+rowcap0.125            PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): sim-fixed, sim-random, big-32agents, big-32agents-longtail, big-64agents, big-128agents   not-noninferior: sim-fixed, sim-random, big-32agents, big-32agents-longtail, big-64agents, big-128agents
+rowcap0.5-hash         PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): sim-fixed, sim-random, big-32agents, big-32agents-longtail, big-32agents-open, big-64agents, big-128agents   not-noninferior: sim-fixed, sim-random, big-32agents, big-32agents-longtail, big-32agents-open, big-64agents, big-128agents
+rowcap0.25-hash        PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): sim-fixed, sim-random, big-32agents, big-32agents-longtail, big-32agents-open, big-64agents, big-128agents   not-noninferior: sim-fixed, sim-random, big-32agents, big-32agents-longtail, big-32agents-open, big-64agents, big-128agents
+vocabcap0.75           PASS95: true   CERT90: true   +-.003: false  NONINF: true   failing(95%): -   not-noninferior: -
+vocabcap0.5            PASS95: true   CERT90: true   +-.003: false  NONINF: true   failing(95%): -   not-noninferior: -
+vocabcap0.25           PASS95: true   CERT90: true   +-.003: false  NONINF: true   failing(95%): -   not-noninferior: -
+vocabcap0.125          PASS95: true   CERT90: true   +-.003: false  NONINF: true   failing(95%): -   not-noninferior: -
+hash32                 PASS95: true   CERT90: true   +-.003: false  NONINF: true   failing(95%): -   not-noninferior: -
+rows+vocab0.5          PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): sim-fixed, sim-random, big-32agents, big-64agents   not-noninferior: sim-fixed, sim-random, big-32agents, big-64agents
+hash32+rowcap0.5       PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): sim-fixed, sim-random, big-32agents, big-64agents   not-noninferior: sim-fixed, sim-random, big-32agents, big-64agents
+rows+vocab0.25         PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): sim-fixed, sim-random, big-32agents, big-64agents, big-128agents   not-noninferior: sim-fixed, sim-random, big-32agents, big-64agents, big-128agents
+hash32+rowcap0.25      PASS95: false  CERT90: false  +-.003: false  NONINF: false  failing(95%): sim-fixed, sim-random, big-32agents, big-64agents, big-128agents   not-noninferior: sim-fixed, sim-random, big-32agents, big-64agents, big-128agents
+
+compact-f64 (new sorted-row/u128-mask layout) vs reference: max |mean diff| / sd over every cell = 0e0 (must be 0 when present)
+wrote results/h5_equiv.json (340.4s)

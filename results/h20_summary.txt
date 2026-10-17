@@ -1,0 +1,71 @@
+### A. PERSONA/ROLE routing: H1000 mean quality diff vs BEST FAIR generic baseline, paired 95% CI (held 31-60 | confirm 61-90); * = Holm-significant over 10 worlds x 7 policies
+world      bestfair oracle_role                anchor_role                learned_role               joint                      gate_static                gate_ab                    gate_ab_agent             
+G1-mod     kweps   +0.038* | +0.045*         +0.025* | +0.031*         -0.021* | -0.021*         +0.018* | +0.008          +0.000= | +0.000=         +0.006  | +0.007          +0.007  | +0.008*         
+G1-zero    kweps   +0.000= | +0.000=         +0.000= | +0.000=         +0.000= | +0.000=         +0.007  | -0.002          +0.000= | +0.000=         +0.000= | +0.000=         +0.000= | +0.000=         
+G1-harm    kweps   -0.048* | -0.047*         -0.046* | -0.058*         -0.036* | -0.039*         -0.005  | -0.008          +0.000= | +0.001=         -0.004* | -0.001=         -0.004* | -0.001=         
+G1-strong  kweps   +0.105* | +0.104*         +0.072* | +0.076*         -0.020* | -0.028*         +0.038* | +0.039*         +0.000= | -0.000=         +0.018* | +0.028*         +0.018* | +0.027*         
+G1-hetero  kweps   +0.047* | +0.054*         +0.028* | +0.033*         -0.013* | -0.024*         +0.017  | +0.014          +0.000= | +0.000=         +0.002= | +0.006=         +0.002= | +0.006          
+G2-mod     kweps   +0.046* | +0.042*         +0.026* | +0.030*         -0.014* | -0.024*         +0.024  | +0.011          +0.003= | +0.002=         +0.007* | +0.007          +0.008* | +0.008          
+G2-zero    kweps   +0.000= | +0.000=         +0.000= | +0.000=         +0.000= | +0.000=         +0.010  | +0.006          +0.000= | +0.000=         +0.000= | +0.000=         +0.000= | +0.000=         
+G2-harm    kweps   -0.034* | -0.043*         -0.043* | -0.051*         -0.028* | -0.042*         +0.000  | -0.004          -0.002= | +0.000=         -0.001= | +0.002=         -0.001= | +0.001=         
+ctl-mod    kweps   +0.050* | +0.050*         +0.034* | +0.034*         -0.009* | -0.011*         +0.024* | +0.026*         +0.000= | -0.001=         +0.008* | +0.009*         +0.008* | +0.009*         
+ctl-zero   kweps   +0.000= | -0.001=         +0.000= | -0.001=         +0.000= | -0.001=         +0.000= | +0.001=         +0.000= | -0.001=         +0.000= | -0.001=         +0.000= | -0.001=         
+(= means TOST-equivalent within +-0.01 and not Holm-significant)
+
+baselines H (held):  {'G1-mod': {'eps': 0.582, 'pts': 0.578, 'kweps': 0.638, 'kwts': 0.574}, 'G2-mod': {'eps': 0.634, 'pts': 0.651, 'kweps': 0.656, 'kwts': 0.637}, 'ctl-mod': {'eps': 0.601, 'pts': 0.6, 'kweps': 0.601, 'kwts': 0.6}}
+ceilings (held):  {'G1-mod': (0.866, 0.916), 'G1-zero': (0.866, 0.866), 'G1-harm': (0.866, 0.816), 'G1-strong': (0.866, 0.986), 'G1-hetero': (0.866, 0.915), 'G2-mod': (0.819, 0.869), 'G2-zero': (0.819, 0.819), 'G2-harm': (0.819, 0.769), 'ctl-mod': (0.6, 0.65), 'ctl-zero': (0.6, 0.6)}
+role-prompted call fraction (confirm):  {'gate_ab': {'G1-mod': 0.11, 'G1-zero': 0.08, 'G1-harm': 0.04, 'G1-strong': 0.23, 'G2-harm': 0.04}, 'gate_ab_agent': {'G1-mod': 0.12, 'G1-zero': 0.08, 'G1-harm': 0.05, 'G1-strong': 0.22, 'G2-harm': 0.05}}
+early (first 250 tasks) gate_ab minus bestfair, confirm:  {'G1-mod': 0.0019, 'G1-zero': 0.0, 'G1-harm': -0.004, 'G1-strong': 0.0064, 'G1-hetero': 0.0044, 'G2-mod': 0.0028, 'G2-zero': 0.0, 'G2-harm': -0.0017, 'ctl-mod': 0.0066, 'ctl-zero': 0.0015}
+tuned: {'eps': 0.1, 'kweps': 0.05, 'gate_ab': 'gab|1|0.1|1.28', 'gate_ab_agent': 'gabA|1|0.1|1.28', 'gate_static': 'gs|4'}
+holm count confirm: 28 of 70  held: 32 of 70
+
+### B. DOMAIN-CORPUS RETRIEVAL (hybrid z(.7)+BM25+spell pooled = best fair pooled baseline; frozen domain arm = tune pick)
+-- held  frozen=P|knn|l16.0  families={'P': 'P|knn|l16.0', 'M': 'M|knn|m1|t0.2', 'H': 'H|knn|t0.2'}
+world         domOK   none    dense+sp hyb+sp  | frozen  oracleM nocheck | dq (frozen-hyb) [CI]     dhit5                    dmrr                     TOST.01   
+pydoc9        True    0.453   0.583   0.602   | 0.619   0.645   0.619   | +0.0167 [+0.0146,+0.0189]   +0.0067 [+0.0010,+0.0123]   -0.0053 [-0.0083,-0.0023]   False
+crates8       True    0.449   0.580   0.601   | 0.617   0.670   0.617   | +0.0161 [+0.0144,+0.0177]   -0.0089 [-0.0137,-0.0041]   -0.0068 [-0.0090,-0.0047]   False
+syn10         True    0.453   0.524   0.557   | 0.558   0.559   0.558   | +0.0001 [+0.0000,+0.0002]   +0.0000 [+0.0000,+0.0000]   +0.0002 [+0.0000,+0.0005]   True
+pydoc9+shuf   False   0.453   0.583   0.602   | 0.602   0.646   0.576   | +0.0000 [+0.0000,+0.0000]   +0.0000 [+0.0000,+0.0000]   +0.0000 [+0.0000,+0.0000]   True
+crates8+shuf  False   0.449   0.580   0.601   | 0.601   0.641   0.562   | +0.0000 [+0.0000,+0.0000]   +0.0000 [+0.0000,+0.0000]   +0.0000 [+0.0000,+0.0000]   True
+syn10+shuf    False   0.453   0.524   0.557   | 0.557   0.700   0.518   | +0.0000 [+0.0000,+0.0000]   +0.0000 [+0.0000,+0.0000]   +0.0000 [+0.0000,+0.0000]   True
+   retrieval metrics hit5/mrr/off5 (hyb+spell -> frozen -> oracleM):
+   pydoc9        hit5 0.591 -> 0.597 -> 0.641 | mrr 0.464 -> 0.458 -> 0.499 | off5 0.272 -> 0.124 -> 0.000 | dense_raw hit5 0.520 dense+sp 0.537 hyb_raw 0.583
+   crates8       hit5 0.647 -> 0.638 -> 0.736 | mrr 0.497 -> 0.491 -> 0.572 | off5 0.424 -> 0.235 -> 0.000 | dense_raw hit5 0.583 dense+sp 0.587 hyb_raw 0.626
+   syn10         hit5 0.351 -> 0.351 -> 0.353 | mrr 0.232 -> 0.232 -> 0.233 | off5 0.008 -> 0.007 -> 0.000 | dense_raw hit5 0.242 dense+sp 0.243 hyb_raw 0.354
+   pydoc9+shuf   hit5 0.591 -> 0.591 -> 0.766 | mrr 0.464 -> 0.464 -> 0.650 | off5 0.272 -> 0.272 -> 0.363 | dense_raw hit5 0.520 dense+sp 0.537 hyb_raw 0.583
+   crates8+shuf  hit5 0.647 -> 0.647 -> 0.816 | mrr 0.497 -> 0.497 -> 0.699 | off5 0.424 -> 0.424 -> 0.531 | dense_raw hit5 0.583 dense+sp 0.587 hyb_raw 0.626
+   syn10+shuf    hit5 0.351 -> 0.351 -> 0.834 | mrr 0.232 -> 0.232 -> 0.596 | off5 0.008 -> 0.008 -> 0.027 | dense_raw hit5 0.242 dense+sp 0.243 hyb_raw 0.354
+   subsets (frozen minus hyb+spell) q / hit5 for typo | clean | confusable-tertile:
+   pydoc9    q +0.0178 +0.0157 +0.0251 | hit5 +0.0091 +0.0042 +0.0106
+   crates8   q +0.0141 +0.0181 +0.0100 | hit5 -0.0134 -0.0043 -0.0388
+   syn10     q +0.0002 +0.0001 +0.0004 | hit5 +0.0000 +0.0000 +0.0000
+   Holm (frozen vs none/hyb_spell on q):  [('pydoc9', 'none', True), ('pydoc9', 'hyb_spell', True), ('crates8', 'none', True), ('crates8', 'hyb_spell', True), ('syn10', 'none', True), ('syn10', 'hyb_spell', False), ('pydoc9+shuf', 'none', True), ('pydoc9+shuf', 'hyb_spell', False), ('crates8+shuf', 'none', True), ('crates8+shuf', 'hyb_spell', False), ('syn10+shuf', 'none', True), ('syn10+shuf', 'hyb_spell', False)]
+-- confirm  frozen=P|knn|l16.0  families={'P': 'P|knn|l16.0', 'M': 'M|knn|m1|t0.2', 'H': 'H|knn|t0.2'}
+world         domOK   none    dense+sp hyb+sp  | frozen  oracleM nocheck | dq (frozen-hyb) [CI]     dhit5                    dmrr                     TOST.01   
+pydoc9        True    0.449   0.579   0.611   | 0.621   0.650   0.621   | +0.0098 [+0.0081,+0.0115]   -0.0111 [-0.0163,-0.0059]   +0.0002 [-0.0026,+0.0029]   False
+crates8       True    0.449   0.580   0.599   | 0.620   0.682   0.620   | +0.0206 [+0.0186,+0.0226]   +0.0007 [-0.0053,+0.0067]   +0.0032 [+0.0010,+0.0055]   False
+syn10         True    0.451   0.525   0.560   | 0.559   0.562   0.559   | -0.0009 [-0.0014,-0.0004]   -0.0033 [-0.0049,-0.0018]   -0.0033 [-0.0049,-0.0017]   True
+pydoc9+shuf   False   0.449   0.579   0.611   | 0.611   0.649   0.578   | +0.0000 [+0.0000,+0.0000]   +0.0000 [+0.0000,+0.0000]   +0.0000 [+0.0000,+0.0000]   True
+crates8+shuf  False   0.449   0.580   0.599   | 0.599   0.649   0.557   | +0.0000 [+0.0000,+0.0000]   +0.0000 [+0.0000,+0.0000]   +0.0000 [+0.0000,+0.0000]   True
+syn10+shuf    False   0.451   0.525   0.560   | 0.560   0.699   0.538   | +0.0000 [+0.0000,+0.0000]   +0.0000 [+0.0000,+0.0000]   +0.0000 [+0.0000,+0.0000]   True
+   retrieval metrics hit5/mrr/off5 (hyb+spell -> frozen -> oracleM):
+   pydoc9        hit5 0.632 -> 0.621 -> 0.672 | mrr 0.482 -> 0.482 -> 0.525 | off5 0.268 -> 0.136 -> 0.000 | dense_raw hit5 0.528 dense+sp 0.544 hyb_raw 0.625
+   crates8       hit5 0.638 -> 0.639 -> 0.779 | mrr 0.482 -> 0.485 -> 0.585 | off5 0.413 -> 0.208 -> 0.000 | dense_raw hit5 0.576 dense+sp 0.588 hyb_raw 0.616
+   syn10         hit5 0.366 -> 0.363 -> 0.368 | mrr 0.263 -> 0.260 -> 0.265 | off5 0.014 -> 0.012 -> 0.000 | dense_raw hit5 0.256 dense+sp 0.256 hyb_raw 0.357
+   pydoc9+shuf   hit5 0.632 -> 0.632 -> 0.792 | mrr 0.482 -> 0.482 -> 0.668 | off5 0.268 -> 0.268 -> 0.365 | dense_raw hit5 0.528 dense+sp 0.544 hyb_raw 0.625
+   crates8+shuf  hit5 0.638 -> 0.638 -> 0.851 | mrr 0.482 -> 0.482 -> 0.706 | off5 0.413 -> 0.413 -> 0.549 | dense_raw hit5 0.576 dense+sp 0.588 hyb_raw 0.616
+   syn10+shuf    hit5 0.366 -> 0.366 -> 0.836 | mrr 0.263 -> 0.263 -> 0.584 | off5 0.014 -> 0.014 -> 0.031 | dense_raw hit5 0.256 dense+sp 0.256 hyb_raw 0.357
+   subsets (frozen minus hyb+spell) q / hit5 for typo | clean | confusable-tertile:
+   pydoc9    q +0.0105 +0.0091 +0.0156 | hit5 -0.0093 -0.0131 -0.0155
+   crates8   q +0.0207 +0.0204 +0.0095 | hit5 +0.0030 -0.0019 -0.0460
+   syn10     q -0.0008 -0.0010 -0.0007 | hit5 -0.0030 -0.0037 -0.0045
+   Holm (frozen vs none/hyb_spell on q):  [('pydoc9', 'none', True), ('pydoc9', 'hyb_spell', True), ('crates8', 'none', True), ('crates8', 'hyb_spell', True), ('syn10', 'none', True), ('syn10', 'hyb_spell', True), ('pydoc9+shuf', 'none', True), ('pydoc9+shuf', 'hyb_spell', False), ('crates8+shuf', 'none', True), ('crates8+shuf', 'hyb_spell', False), ('syn10+shuf', 'none', True), ('syn10+shuf', 'hyb_spell', False)]
+
+sensitivity (held), frozen minus hyb+spell on q:
+  G.15  {'pydoc9': 0.0158, 'crates8': 0.0175, 'syn10': 0.0001}
+  G.45  {'pydoc9': 0.016, 'crates8': 0.0126, 'syn10': 0.0001}
+  H0    {'pydoc9': 0.002, 'crates8': -0.0027, 'syn10': 0.0}
+  H.20  {'pydoc9': 0.0315, 'crates8': 0.0348, 'syn10': 0.0002}
+  k3    {'pydoc9': 0.0081, 'crates8': 0.0145, 'syn10': 0.0001}
+  k8    {'pydoc9': 0.0198, 'crates8': 0.0181, 'syn10': -0.0}
+tune top: [['P|knn|l16.0', 0.010805482273967307, [0.016543739031027793, 0.016439374457540734, -0.0005666666666666043]], ['P|knn|l8.0', 0.010244371162856184, [0.016477072364361134, 0.014772707790874029, -0.0005166666666666098]], ['P|knn|l4.0', 0.009592178609289145, [0.012220494703659934, 0.01703937445754078, -0.0004833333333332801]], ['P|knn|l2.0', 0.009425119633673873, [0.009912099751866688, 0.018829925815821547, -0.00046666666666661527]], ['P|lrk|l2.0', 0.009098337866943917, [0.011481754451676762, 0.01629659248248827, -0.0004833333333332801]], ['M|knn|m1|t0.2', 0.008988815607300618, [0.012743739031027879, 0.014589374457540605, -0.0003666666666666263]]] best by family {'P': ['P|knn|l16.0', 0.010805482273967307, [0.016543739031027793, 0.016439374457540734, -0.0005666666666666043]], 'M': ['M|knn|m1|t0.2', 0.008988815607300618, [0.012743739031027879, 0.014589374457540605, -0.0003666666666666263]], 'H': ['H|knn|t0.2', 0.00758355487541118, [0.012743739031027879, 0.013839374457540687, -0.003832448862335025]]} pooled tune {'dense_raw': 0.5439649825083892, 'dense_spell': 0.5465962270997791, 'hyb_raw': 0.5716497160597821, 'hyb_spell': 0.5740933525698639}

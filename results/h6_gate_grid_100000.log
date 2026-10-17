@@ -1,0 +1,23 @@
+N=100000 dim=384 free RAM at start 3.47 GB, cold-disk=true
+data 1.2s, base 154 MB
+ground truth 0.8s
+config                                                            B/vec     +f32 recall@10    p50 us    p99 us fetch us
+flat f32 (AVX2)                                                    1536        0     1.000      5151      9458        0
+flat block-fp16                                                     816        0     1.000      3733     23338        0
+flat int8                                                           388        0     0.974      1672     17950        0
+int8 + f32 rerank 4x (f32 in RAM)                                   388     1536     1.000      1602      4755        0
+int8 + f32 rerank 10x (f32 in RAM)                                  388     1536     1.000      1899      4178        0
+int8 + f32 rerank 4x (f32 on disk, unbuffered)                      388     1536     1.000      6228     11744     4762
+turbovec-4bit                                                       196        0     0.848      1192      2139        0
+turbovec-4bit + f32 rerank 4x (f32 in RAM)                          196     1536     1.000      1185      1899        0
+turbovec-4bit + f32 rerank 4x (f32 on disk, unbuffered)             196     1536     1.000      5798      7526     3869
+turbovec-2bit                                                       100        0     0.553       970      2656        0
+turbovec-2bit + f32 rerank 4x (f32 in RAM)                          100     1536     0.957      1044      3390        0
+turbovec-2bit + f32 rerank 4x (f32 on disk, unbuffered)             100     1536     0.957      5296     11145     4262
+turbovec-2bit + f32 rerank 16x (f32 in RAM)                         100     1536     1.000      1304      5932        0
+turbovec-2bit + f32 rerank 16x (f32 on disk, unbuffered)            100     1536     1.000     20975     72167    19800
+RaBitQ-style 1-bit (own)                                             68        0     0.399      4239     15641        0
+RaBitQ-style 1-bit + f32 rerank 16x (f32 in RAM)                     68     1536     1.000      4414     21616        0
+RaBitQ-style 1-bit + f32 rerank 32x (f32 in RAM)                     68     1536     1.000      4597      9160        0
+RaBitQ-style 1-bit + f32 rerank 32x (f32 on disk, unbuffered)        68     1536     1.000     40398     80248    39890
+peak working set 301 MB (ws 155 MB); calib 2.21/2.32 ms

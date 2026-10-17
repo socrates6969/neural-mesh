@@ -1,0 +1,112 @@
+H22 existing worlds | held 31-60 | RAYON threads 2
+[tune casc low] seeds 1-8: best casc[tok+kw lr0.15 half100 rk0 G600 hmax8 dh256] obj 0.7191 [6s]
+    casc top: {"cfg":"casc[tok+kw lr0.15 half100 rk0 G600 hmax8 dh256]","objective":0.7190923022680915}
+    casc top: {"cfg":"casc[tok+kw lr0.05 half100 rk0 G600 hmax8 dh256]","objective":0.708594680417981}
+    casc top: {"cfg":"casc[tok+kw lr0.05 half100 rk0 G200 hmax8 dh256]","objective":0.7080782760454343}
+    casc top: {"cfg":"casc[tok+kw lr0.15 half100 rk0 G200 hmax8 dh256]","objective":0.7074207834907807}
+    casc top: {"cfg":"casc[tok+kw lr0.05 half100 rk3 G600 hmax8 dh256]","objective":0.7061505642657168}
+[tune casc mid6000] seeds 1-8: best casc[tok+kw lr0.15 half100 rk0 G600 hmax8 dh256] obj 0.7440 [12s]
+    casc top: {"cfg":"casc[tok+kw lr0.15 half100 rk0 G600 hmax8 dh256]","objective":0.7440298184085637}
+    casc top: {"cfg":"casc[tok+kw lr0.05 half100 rk0 G600 hmax8 dh256]","objective":0.7421544792467107}
+    casc top: {"cfg":"casc[tok+kw lr0.05 half100 rk0 G200 hmax8 dh256]","objective":0.7406120277152708}
+    casc top: {"cfg":"casc[tok+kw lr0.05 half100 rk3 G600 hmax8 dh256]","objective":0.7315848744308576}
+    casc top: {"cfg":"casc[tok+kw lr0.15 half100 rk0 G200 hmax8 dh256]","objective":0.731069143008627}
+[eval low] done in 6s | casc cfg casc[tok+kw lr0.15 half100 rk0 G600 hmax8 dh256]
+world                         T | keyw eps pts hebr warm safe | ann ann+kw casc lin-head | best-fair -> casc diff [CI] | late | oracle
+sim-fixed                  2000 | 0.7026 0.7397 0.7224 0.7445 0.7687 0.7661 | 0.7017 0.7319 0.7482 0.7488 | warm(hebr)=0.7687 -> casc -0.0205 [-0.0262,-0.0148] late -0.0007 | oracle 0.8314
+sim-random                 2000 | 0.6968 0.7419 0.7250 0.7584 0.7751 0.7758 | 0.7148 0.7352 0.7542 0.7545 | guarded-safe=0.7758 -> casc -0.0216 [-0.0270,-0.0162] late -0.0103 | oracle 0.8364
+sim-no-traps               2000 | 0.7927 0.7319 0.7253 0.7523 0.7857 0.7940 | 0.7212 0.7617 0.7676 0.7678 | guarded-safe=0.7940 -> casc -0.0264 [-0.0307,-0.0220] late -0.0048 | oracle 0.8354
+big-32agents               4000 | 0.6264 0.5449 0.5227 0.5754 0.6832 0.7132 | 0.5265 0.6465 0.6785 0.6805 | guarded-safe=0.7132 -> casc -0.0347 [-0.0453,-0.0242] late -0.0112 | oracle 0.8508
+big-32agents-longtail      4000 | 0.6260 0.5559 0.5232 0.5625 0.6814 0.6971 | 0.5114 0.6446 0.6773 0.6795 | guarded-safe=0.6971 -> casc -0.0198 [-0.0318,-0.0078] late +0.0075 | oracle 0.8508
+  F1 casc vs best fair (Holm over 10 tests, low):
+    sim-fixed                full     vs warm(hebr)       -0.0205 [-0.0262,-0.0148] w/l 2/28 holm 0.000 LOSS 
+    sim-fixed                late25%  vs warm(hebr)       -0.0007 [-0.0122,+0.0108] w/l 16/14 holm 1.000 ns 
+    sim-random               full     vs guarded-safe     -0.0216 [-0.0270,-0.0162] w/l 2/28 holm 0.000 LOSS 
+    sim-random               late25%  vs warm(hebr)       -0.0103 [-0.0257,+0.0052] w/l 13/17 holm 0.743 ns 
+    sim-no-traps             full     vs guarded-safe     -0.0264 [-0.0307,-0.0220] w/l 0/30 holm 0.000 LOSS 
+    sim-no-traps             late25%  vs warm(hebr)       -0.0048 [-0.0163,+0.0066] w/l 14/16 holm 1.000 ns 
+    big-32agents             full     vs guarded-safe     -0.0347 [-0.0453,-0.0242] w/l 4/26 holm 0.000 LOSS 
+    big-32agents             late25%  vs guarded-safe     -0.0112 [-0.0238,+0.0015] w/l 9/21 holm 0.404 ns 
+    big-32agents-longtail    full     vs guarded-safe     -0.0198 [-0.0318,-0.0078] w/l 6/24 holm 0.013 LOSS 
+    big-32agents-longtail    late25%  vs guarded-safe     +0.0075 [-0.0085,+0.0235] w/l 13/17 holm 1.000 ns 
+  F1 ann vs best fair (Holm over 10 tests, low):
+    sim-fixed                full     vs warm(hebr)       -0.0670 [-0.0770,-0.0570] w/l 0/30 holm 0.000 LOSS 
+    sim-fixed                late25%  vs warm(hebr)       -0.0373 [-0.0507,-0.0240] w/l 5/25 holm 0.000 LOSS 
+    sim-random               full     vs guarded-safe     -0.0609 [-0.0700,-0.0519] w/l 0/30 holm 0.000 LOSS 
+    sim-random               late25%  vs warm(hebr)       -0.0343 [-0.0490,-0.0196] w/l 4/26 holm 0.000 LOSS 
+    sim-no-traps             full     vs guarded-safe     -0.0727 [-0.0795,-0.0659] w/l 0/30 holm 0.000 LOSS 
+    sim-no-traps             late25%  vs warm(hebr)       -0.0289 [-0.0411,-0.0166] w/l 5/25 holm 0.000 LOSS 
+    big-32agents             full     vs guarded-safe     -0.1868 [-0.2005,-0.1731] w/l 0/30 holm 0.000 LOSS 
+    big-32agents             late25%  vs guarded-safe     -0.1412 [-0.1582,-0.1241] w/l 0/30 holm 0.000 LOSS 
+    big-32agents-longtail    full     vs guarded-safe     -0.1857 [-0.2057,-0.1657] w/l 0/30 holm 0.000 LOSS 
+    big-32agents-longtail    late25%  vs guarded-safe     -0.1396 [-0.1636,-0.1157] w/l 1/29 holm 0.000 LOSS 
+[eval mid6000] done in 11s | casc cfg casc[tok+kw lr0.15 half100 rk0 G600 hmax8 dh256]
+world                         T | keyw eps pts hebr warm safe | ann ann+kw casc lin-head | best-fair -> casc diff [CI] | late | oracle
+sim-fixed                  6000 | 0.7018 0.7674 0.7584 0.7665 0.7790 0.7896 | 0.7531 0.7583 0.7852 0.7884 | guarded-safe=0.7896 -> casc -0.0044 [-0.0079,-0.0010] late +0.0084 | oracle 0.8318
+sim-random                 6000 | 0.6932 0.7663 0.7565 0.7759 0.7853 0.7938 | 0.7507 0.7550 0.7866 0.7866 | guarded-safe=0.7938 -> casc -0.0072 [-0.0120,-0.0025] late +0.0078 | oracle 0.8353
+sim-no-traps               6000 | 0.7901 0.7599 0.7542 0.7663 0.7864 0.8034 | 0.7495 0.7614 0.7913 0.7904 | guarded-safe=0.8034 -> casc -0.0121 [-0.0155,-0.0086] late +0.0057 | oracle 0.8334
+big-32agents               6000 | 0.6265 0.5783 0.5596 0.6002 0.6974 0.7198 | 0.5533 0.6481 0.6954 0.7025 | guarded-safe=0.7198 -> casc -0.0244 [-0.0364,-0.0124] late -0.0018 | oracle 0.8509
+big-32agents-longtail      6000 | 0.6257 0.5833 0.5604 0.5909 0.6977 0.7079 | 0.5362 0.6441 0.6986 0.7019 | guarded-safe=0.7079 -> casc -0.0092 [-0.0195,+0.0011] late +0.0062 | oracle 0.8509
+  F1 casc vs best fair (Holm over 10 tests, mid6000):
+    sim-fixed                full     vs guarded-safe     -0.0044 [-0.0079,-0.0010] w/l 11/19 holm 0.077 ns TOST+-.01 ok
+    sim-fixed                late25%  vs guarded-safe     +0.0084 [+0.0027,+0.0141] w/l 23/7 holm 0.038 WIN 
+    sim-random               full     vs guarded-safe     -0.0072 [-0.0120,-0.0025] w/l 9/21 holm 0.034 LOSS 
+    sim-random               late25%  vs guarded-safe     +0.0078 [-0.0011,+0.0167] w/l 17/13 holm 0.384 ns 
+    sim-no-traps             full     vs guarded-safe     -0.0121 [-0.0155,-0.0086] w/l 4/26 holm 0.000 LOSS 
+    sim-no-traps             late25%  vs guarded-safe     +0.0057 [-0.0012,+0.0126] w/l 16/14 holm 0.384 ns 
+    big-32agents             full     vs guarded-safe     -0.0244 [-0.0364,-0.0124] w/l 5/25 holm 0.002 LOSS 
+    big-32agents             late25%  vs guarded-safe     -0.0018 [-0.0176,+0.0140] w/l 12/18 holm 0.815 ns 
+    big-32agents-longtail    full     vs guarded-safe     -0.0092 [-0.0195,+0.0011] w/l 8/22 holm 0.384 ns 
+    big-32agents-longtail    late25%  vs warm(hebr)       +0.0062 [-0.0052,+0.0177] w/l 16/14 holm 0.551 ns 
+  F1 ann vs best fair (Holm over 10 tests, mid6000):
+    sim-fixed                full     vs guarded-safe     -0.0365 [-0.0437,-0.0293] w/l 0/30 holm 0.000 LOSS 
+    sim-fixed                late25%  vs guarded-safe     -0.0143 [-0.0267,-0.0020] w/l 11/19 holm 0.025 LOSS 
+    sim-random               full     vs guarded-safe     -0.0431 [-0.0530,-0.0333] w/l 0/30 holm 0.000 LOSS 
+    sim-random               late25%  vs guarded-safe     -0.0348 [-0.0507,-0.0189] w/l 6/24 holm 0.000 LOSS 
+    sim-no-traps             full     vs guarded-safe     -0.0539 [-0.0655,-0.0424] w/l 0/30 holm 0.000 LOSS 
+    sim-no-traps             late25%  vs guarded-safe     -0.0399 [-0.0637,-0.0161] w/l 6/24 holm 0.004 LOSS 
+    big-32agents             full     vs guarded-safe     -0.1666 [-0.1779,-0.1553] w/l 0/30 holm 0.000 LOSS 
+    big-32agents             late25%  vs guarded-safe     -0.1147 [-0.1270,-0.1025] w/l 0/30 holm 0.000 LOSS 
+    big-32agents-longtail    full     vs guarded-safe     -0.1717 [-0.1891,-0.1542] w/l 0/30 holm 0.000 LOSS 
+    big-32agents-longtail    late25%  vs warm(hebr)       -0.1274 [-0.1454,-0.1094] w/l 0/30 holm 0.000 LOSS 
+[eval high20000] done in 38s | casc cfg casc[tok+kw lr0.15 half100 rk0 G600 hmax8 dh256]
+world                         T | keyw eps pts hebr warm safe | ann ann+kw casc lin-head | best-fair -> casc diff [CI] | late | oracle
+sim-fixed                 20000 | 0.7039 0.7890 0.7752 0.7567 0.7798 0.8011 | 0.7731 0.7741 0.7976 0.8064 | guarded-safe=0.8011 -> casc -0.0035 [-0.0052,-0.0018] late +0.0050 | oracle 0.8319
+    curve casc vs eps-greedy (late-best fair): tasks-to-parity Some(500), sustained diff>=0 Some(9500), sustained CI-lo>0 None
+    curve ann vs eps-greedy (late-best fair): tasks-to-parity None, sustained diff>=0 None, sustained CI-lo>0 None
+sim-random                20000 | 0.7007 0.7921 0.7740 0.7766 0.7838 0.8035 | 0.7820 0.7806 0.8037 0.8055 | guarded-safe=0.8035 -> casc +0.0003 [-0.0050,+0.0055] late +0.0136 | oracle 0.8366
+    curve casc vs eps-greedy (late-best fair): tasks-to-parity Some(500), sustained diff>=0 Some(7500), sustained CI-lo>0 Some(11000)
+    curve ann vs eps-greedy (late-best fair): tasks-to-parity None, sustained diff>=0 None, sustained CI-lo>0 None
+sim-no-traps              20000 | 0.7963 0.7932 0.7799 0.7784 0.7911 0.8188 | 0.7950 0.7973 0.8062 0.8110 | guarded-safe=0.8188 -> casc -0.0126 [-0.0161,-0.0091] late +0.0005 | oracle 0.8374
+    curve casc vs guarded-safe (late-best fair): tasks-to-parity Some(15500), sustained diff>=0 Some(19000), sustained CI-lo>0 None
+    curve ann vs guarded-safe (late-best fair): tasks-to-parity None, sustained diff>=0 None, sustained CI-lo>0 None
+big-32agents              20000 | 0.6268 0.6818 0.6607 0.6608 0.7357 0.7517 | 0.6285 0.6953 0.7364 0.7467 | guarded-safe=0.7517 -> casc -0.0153 [-0.0244,-0.0061] late +0.0002 | oracle 0.8509
+    curve casc vs warm(hebr) (late-best fair): tasks-to-parity Some(18500), sustained diff>=0 Some(20000), sustained CI-lo>0 None
+    curve ann vs warm(hebr) (late-best fair): tasks-to-parity None, sustained diff>=0 None, sustained CI-lo>0 None
+big-32agents-longtail     20000 | 0.6263 0.6832 0.6614 0.6595 0.7318 0.7462 | 0.6089 0.6933 0.7355 0.7515 | guarded-safe=0.7462 -> casc -0.0107 [-0.0193,-0.0021] late -0.0053 | oracle 0.8509
+    curve casc vs guarded-safe (late-best fair): tasks-to-parity Some(20000), sustained diff>=0 None, sustained CI-lo>0 None
+    curve ann vs guarded-safe (late-best fair): tasks-to-parity None, sustained diff>=0 None, sustained CI-lo>0 None
+  F1 casc vs best fair (Holm over 10 tests, high20000):
+    sim-fixed                full     vs guarded-safe     -0.0035 [-0.0052,-0.0018] w/l 4/26 holm 0.002 LOSS TOST+-.01 ok
+    sim-fixed                late25%  vs eps-greedy       +0.0050 [-0.0065,+0.0164] w/l 9/21 holm 1.000 ns 
+    sim-random               full     vs guarded-safe     +0.0003 [-0.0050,+0.0055] w/l 12/18 holm 1.000 ns TOST+-.01 ok
+    sim-random               late25%  vs eps-greedy       +0.0136 [+0.0052,+0.0220] w/l 17/13 holm 0.017 WIN 
+    sim-no-traps             full     vs guarded-safe     -0.0126 [-0.0161,-0.0091] w/l 3/27 holm 0.000 LOSS 
+    sim-no-traps             late25%  vs guarded-safe     +0.0005 [-0.0077,+0.0086] w/l 16/14 holm 1.000 ns TOST+-.01 ok
+    big-32agents             full     vs guarded-safe     -0.0153 [-0.0244,-0.0061] w/l 7/23 holm 0.015 LOSS 
+    big-32agents             late25%  vs warm(hebr)       +0.0002 [-0.0114,+0.0118] w/l 13/17 holm 1.000 ns TOST+-.01 ok
+    big-32agents-longtail    full     vs guarded-safe     -0.0107 [-0.0193,-0.0021] w/l 6/24 holm 0.097 ns 
+    big-32agents-longtail    late25%  vs guarded-safe     -0.0053 [-0.0164,+0.0058] w/l 9/21 holm 1.000 ns 
+  F1 ann vs best fair (Holm over 10 tests, high20000):
+    sim-fixed                full     vs guarded-safe     -0.0280 [-0.0334,-0.0225] w/l 2/28 holm 0.000 LOSS 
+    sim-fixed                late25%  vs eps-greedy       -0.0283 [-0.0452,-0.0115] w/l 8/22 holm 0.005 LOSS 
+    sim-random               full     vs guarded-safe     -0.0215 [-0.0327,-0.0104] w/l 7/23 holm 0.002 LOSS 
+    sim-random               late25%  vs eps-greedy       -0.0252 [-0.0486,-0.0017] w/l 13/17 holm 0.073 ns 
+    sim-no-traps             full     vs guarded-safe     -0.0239 [-0.0308,-0.0169] w/l 1/29 holm 0.000 LOSS 
+    sim-no-traps             late25%  vs guarded-safe     -0.0112 [-0.0233,+0.0009] w/l 13/17 holm 0.073 ns 
+    big-32agents             full     vs guarded-safe     -0.1231 [-0.1361,-0.1102] w/l 0/30 holm 0.000 LOSS 
+    big-32agents             late25%  vs warm(hebr)       -0.0777 [-0.0909,-0.0644] w/l 1/29 holm 0.000 LOSS 
+    big-32agents-longtail    full     vs guarded-safe     -0.1373 [-0.1518,-0.1227] w/l 0/30 holm 0.000 LOSS 
+    big-32agents-longtail    late25%  vs guarded-safe     -0.0975 [-0.1133,-0.0818] w/l 1/29 holm 0.000 LOSS 
+REPRODUCTION vs g12 json: 120 cells, max |diff| 0.000e0, cells differing > 1e-9: 0
+wrote results/h22_existing.json (72s)

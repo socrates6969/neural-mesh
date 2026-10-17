@@ -1,0 +1,151 @@
+warning: value assigned to `verdict_ok` is never read
+    --> src\cognition.rs:1020:17
+     |
+1020 |                 verdict_ok = None;
+     |                 ^^^^^^^^^^^^^^^^^ this value is reassigned later and never used
+...
+1033 |                     verdict_ok = Some(flagged == !correct1);
+     |                     --------------------------------------- `verdict_ok` is overwritten here before the previous value is read
+     |
+     = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: `neural-mesh` (lib) generated 1 warning
+   Compiling neural-mesh v0.1.0 (C:\Users\mariu\neural-mesh)
+    Finished `release` profile [optimized] target(s) in 2.89s
+     Running `C:/Users/mariu/nm-target-r3\release\g3_equiv.exe --out results/g3_equiv.json`
+g3_equiv: 5 worlds x 228 seeds x (1 ref + 4 subjects), 3 workers
+  sim-fixed done (1.0s)
+  sim-random done (1.9s)
+  sim-no-traps done (2.8s)
+  big-32agents done (6.6s)
+  big-32agents-longtail done (10.9s)
+smoke    compact-u16         +-0.005 sim-fixed                n=  8 ref 0.7685 subj 0.7717  +0.0032 90%[-0.0008,+0.0072] 95%[-0.0018,+0.0082] p_tost=0.2084  holm=0.4168  -> inconclusive
+smoke    compact-u16         +-0.005 sim-random               n=  8 ref 0.7671 subj 0.7662  -0.0009 90%[-0.0039,+0.0021] 95%[-0.0046,+0.0028] p_tost=0.0176  holm=0.0647  -> inconclusive
+smoke    compact-u16         +-0.005 sim-no-traps             n=  8 ref 0.7781 subj 0.7781  +0.0000 90%[-0.0002,+0.0002] 95%[-0.0002,+0.0003] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+smoke    compact-u16         +-0.005 big-32agents             n=  8 ref 0.6785 subj 0.6796  +0.0011 90%[-0.0017,+0.0039] 95%[-0.0024,+0.0046] p_tost=0.0162  holm=0.0647  -> inconclusive
+smoke    compact-u16         +-0.005 big-32agents-longtail    n=  8 ref 0.6914 subj 0.6868  -0.0047 90%[-0.0155,+0.0062] 95%[-0.0182,+0.0088] p_tost=0.4777  holm=0.4777  -> inconclusive
+smoke    compact-u16-hash32  +-0.005 sim-fixed                n=  8 ref 0.7685 subj 0.7717  +0.0032 90%[-0.0008,+0.0072] 95%[-0.0018,+0.0082] p_tost=0.2084  holm=0.4168  -> inconclusive
+smoke    compact-u16-hash32  +-0.005 sim-random               n=  8 ref 0.7671 subj 0.7662  -0.0009 90%[-0.0039,+0.0021] 95%[-0.0046,+0.0028] p_tost=0.0176  holm=0.0647  -> inconclusive
+smoke    compact-u16-hash32  +-0.005 sim-no-traps             n=  8 ref 0.7781 subj 0.7781  +0.0000 90%[-0.0002,+0.0002] 95%[-0.0002,+0.0003] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+smoke    compact-u16-hash32  +-0.005 big-32agents             n=  8 ref 0.6785 subj 0.6796  +0.0011 90%[-0.0017,+0.0039] 95%[-0.0024,+0.0046] p_tost=0.0162  holm=0.0647  -> inconclusive
+smoke    compact-u16-hash32  +-0.005 big-32agents-longtail    n=  8 ref 0.6914 subj 0.6868  -0.0047 90%[-0.0155,+0.0062] 95%[-0.0182,+0.0088] p_tost=0.4777  holm=0.4777  -> inconclusive
+smoke    compact-f32         +-0.005 sim-fixed                n=  8 ref 0.7685 subj 0.7685  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+smoke    compact-f32         +-0.005 sim-random               n=  8 ref 0.7671 subj 0.7671  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+smoke    compact-f32         +-0.005 sim-no-traps             n=  8 ref 0.7781 subj 0.7781  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+smoke    compact-f32         +-0.005 big-32agents             n=  8 ref 0.6785 subj 0.6785  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+smoke    compact-f32         +-0.005 big-32agents-longtail    n=  8 ref 0.6914 subj 0.6914  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+smoke    compact-f64         +-0.005 sim-fixed                n=  8 ref 0.7685 subj 0.7685  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+smoke    compact-f64         +-0.005 sim-random               n=  8 ref 0.7671 subj 0.7671  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+smoke    compact-f64         +-0.005 sim-no-traps             n=  8 ref 0.7781 subj 0.7781  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+smoke    compact-f64         +-0.005 big-32agents             n=  8 ref 0.6785 subj 0.6785  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+smoke    compact-f64         +-0.005 big-32agents-longtail    n=  8 ref 0.6914 subj 0.6914  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+held     compact-u16         +-0.005 sim-fixed                n= 30 ref 0.7661 subj 0.7661  -0.0000 90%[-0.0000,+0.0000] 95%[-0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+held     compact-u16         +-0.005 sim-random               n= 30 ref 0.7758 subj 0.7757  -0.0000 90%[-0.0008,+0.0007] 95%[-0.0009,+0.0009] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+held     compact-u16         +-0.005 sim-no-traps             n= 30 ref 0.7940 subj 0.7941  +0.0002 90%[-0.0001,+0.0004] 95%[-0.0001,+0.0004] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+held     compact-u16         +-0.005 big-32agents             n= 30 ref 0.7132 subj 0.7132  -0.0000 90%[-0.0047,+0.0046] 95%[-0.0056,+0.0055] p_tost=0.0391  holm=0.0391  -> CERTIFIED
+held     compact-u16         +-0.005 big-32agents-longtail    n= 30 ref 0.6971 subj 0.6974  +0.0004 90%[-0.0018,+0.0026] 95%[-0.0023,+0.0030] p_tost=0.0006  holm=0.0012  -> CERTIFIED
+held     compact-u16-hash32  +-0.005 sim-fixed                n= 30 ref 0.7661 subj 0.7661  -0.0000 90%[-0.0000,+0.0000] 95%[-0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+held     compact-u16-hash32  +-0.005 sim-random               n= 30 ref 0.7758 subj 0.7757  -0.0000 90%[-0.0008,+0.0007] 95%[-0.0009,+0.0009] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+held     compact-u16-hash32  +-0.005 sim-no-traps             n= 30 ref 0.7940 subj 0.7941  +0.0002 90%[-0.0001,+0.0004] 95%[-0.0001,+0.0004] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+held     compact-u16-hash32  +-0.005 big-32agents             n= 30 ref 0.7132 subj 0.7132  -0.0000 90%[-0.0047,+0.0046] 95%[-0.0056,+0.0055] p_tost=0.0391  holm=0.0391  -> CERTIFIED
+held     compact-u16-hash32  +-0.005 big-32agents-longtail    n= 30 ref 0.6971 subj 0.6974  +0.0004 90%[-0.0018,+0.0026] 95%[-0.0023,+0.0030] p_tost=0.0006  holm=0.0012  -> CERTIFIED
+held     compact-f32         +-0.005 sim-fixed                n= 30 ref 0.7661 subj 0.7661  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+held     compact-f32         +-0.005 sim-random               n= 30 ref 0.7758 subj 0.7758  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+held     compact-f32         +-0.005 sim-no-traps             n= 30 ref 0.7940 subj 0.7940  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+held     compact-f32         +-0.005 big-32agents             n= 30 ref 0.7132 subj 0.7132  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+held     compact-f32         +-0.005 big-32agents-longtail    n= 30 ref 0.6971 subj 0.6971  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+held     compact-f64         +-0.005 sim-fixed                n= 30 ref 0.7661 subj 0.7661  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+held     compact-f64         +-0.005 sim-random               n= 30 ref 0.7758 subj 0.7758  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+held     compact-f64         +-0.005 sim-no-traps             n= 30 ref 0.7940 subj 0.7940  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+held     compact-f64         +-0.005 big-32agents             n= 30 ref 0.7132 subj 0.7132  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+held     compact-f64         +-0.005 big-32agents-longtail    n= 30 ref 0.6971 subj 0.6971  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+confirm  compact-u16         +-0.005 sim-fixed                n= 30 ref 0.7680 subj 0.7679  -0.0002 90%[-0.0005,+0.0002] 95%[-0.0006,+0.0003] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+confirm  compact-u16         +-0.005 sim-random               n= 30 ref 0.7714 subj 0.7722  +0.0008 90%[-0.0014,+0.0030] 95%[-0.0018,+0.0034] p_tost=0.0013  holm=0.0039  -> CERTIFIED
+confirm  compact-u16         +-0.005 sim-no-traps             n= 30 ref 0.7896 subj 0.7898  +0.0001 90%[-0.0003,+0.0005] 95%[-0.0003,+0.0006] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+confirm  compact-u16         +-0.005 big-32agents             n= 30 ref 0.6950 subj 0.6961  +0.0011 90%[-0.0023,+0.0044] 95%[-0.0029,+0.0051] p_tost=0.0282  holm=0.0282  -> CERTIFIED
+confirm  compact-u16         +-0.005 big-32agents-longtail    n= 30 ref 0.6973 subj 0.6975  +0.0003 90%[-0.0022,+0.0027] 95%[-0.0027,+0.0032] p_tost=0.0013  holm=0.0039  -> CERTIFIED
+confirm  compact-u16-hash32  +-0.005 sim-fixed                n= 30 ref 0.7680 subj 0.7679  -0.0002 90%[-0.0005,+0.0002] 95%[-0.0006,+0.0003] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+confirm  compact-u16-hash32  +-0.005 sim-random               n= 30 ref 0.7714 subj 0.7722  +0.0008 90%[-0.0014,+0.0030] 95%[-0.0018,+0.0034] p_tost=0.0013  holm=0.0039  -> CERTIFIED
+confirm  compact-u16-hash32  +-0.005 sim-no-traps             n= 30 ref 0.7896 subj 0.7898  +0.0001 90%[-0.0003,+0.0005] 95%[-0.0003,+0.0006] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+confirm  compact-u16-hash32  +-0.005 big-32agents             n= 30 ref 0.6950 subj 0.6961  +0.0011 90%[-0.0023,+0.0044] 95%[-0.0029,+0.0051] p_tost=0.0282  holm=0.0282  -> CERTIFIED
+confirm  compact-u16-hash32  +-0.005 big-32agents-longtail    n= 30 ref 0.6973 subj 0.6975  +0.0003 90%[-0.0022,+0.0027] 95%[-0.0027,+0.0032] p_tost=0.0013  holm=0.0039  -> CERTIFIED
+confirm  compact-f32         +-0.005 sim-fixed                n= 30 ref 0.7680 subj 0.7680  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+confirm  compact-f32         +-0.005 sim-random               n= 30 ref 0.7714 subj 0.7714  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+confirm  compact-f32         +-0.005 sim-no-traps             n= 30 ref 0.7896 subj 0.7896  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+confirm  compact-f32         +-0.005 big-32agents             n= 30 ref 0.6950 subj 0.6950  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+confirm  compact-f32         +-0.005 big-32agents-longtail    n= 30 ref 0.6973 subj 0.6973  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+confirm  compact-f64         +-0.005 sim-fixed                n= 30 ref 0.7680 subj 0.7680  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+confirm  compact-f64         +-0.005 sim-random               n= 30 ref 0.7714 subj 0.7714  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+confirm  compact-f64         +-0.005 sim-no-traps             n= 30 ref 0.7896 subj 0.7896  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+confirm  compact-f64         +-0.005 big-32agents             n= 30 ref 0.6950 subj 0.6950  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+confirm  compact-f64         +-0.005 big-32agents-longtail    n= 30 ref 0.6973 subj 0.6973  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+pooled   compact-u16         +-0.005 sim-fixed                n= 60 ref 0.7671 subj 0.7670  -0.0001 90%[-0.0003,+0.0001] 95%[-0.0003,+0.0001] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+pooled   compact-u16         +-0.005 sim-random               n= 60 ref 0.7736 subj 0.7740  +0.0004 90%[-0.0007,+0.0015] 95%[-0.0010,+0.0017] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+pooled   compact-u16         +-0.005 sim-no-traps             n= 60 ref 0.7918 subj 0.7919  +0.0001 90%[-0.0001,+0.0004] 95%[-0.0001,+0.0004] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+pooled   compact-u16         +-0.005 big-32agents             n= 60 ref 0.7041 subj 0.7046  +0.0005 90%[-0.0023,+0.0033] 95%[-0.0028,+0.0038] p_tost=0.0046  holm=0.0046  -> CERTIFIED
+pooled   compact-u16         +-0.005 big-32agents-longtail    n= 60 ref 0.6972 subj 0.6975  +0.0003 90%[-0.0013,+0.0019] 95%[-0.0016,+0.0022] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+pooled   compact-u16-hash32  +-0.005 sim-fixed                n= 60 ref 0.7671 subj 0.7670  -0.0001 90%[-0.0003,+0.0001] 95%[-0.0003,+0.0001] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+pooled   compact-u16-hash32  +-0.005 sim-random               n= 60 ref 0.7736 subj 0.7740  +0.0004 90%[-0.0007,+0.0015] 95%[-0.0010,+0.0017] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+pooled   compact-u16-hash32  +-0.005 sim-no-traps             n= 60 ref 0.7918 subj 0.7919  +0.0001 90%[-0.0001,+0.0004] 95%[-0.0001,+0.0004] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+pooled   compact-u16-hash32  +-0.005 big-32agents             n= 60 ref 0.7041 subj 0.7046  +0.0005 90%[-0.0023,+0.0033] 95%[-0.0028,+0.0038] p_tost=0.0046  holm=0.0046  -> CERTIFIED
+pooled   compact-u16-hash32  +-0.005 big-32agents-longtail    n= 60 ref 0.6972 subj 0.6975  +0.0003 90%[-0.0013,+0.0019] 95%[-0.0016,+0.0022] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+pooled   compact-f32         +-0.005 sim-fixed                n= 60 ref 0.7671 subj 0.7671  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+pooled   compact-f32         +-0.005 sim-random               n= 60 ref 0.7736 subj 0.7736  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+pooled   compact-f32         +-0.005 sim-no-traps             n= 60 ref 0.7918 subj 0.7918  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+pooled   compact-f32         +-0.005 big-32agents             n= 60 ref 0.7041 subj 0.7041  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+pooled   compact-f32         +-0.005 big-32agents-longtail    n= 60 ref 0.6972 subj 0.6972  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+pooled   compact-f64         +-0.005 sim-fixed                n= 60 ref 0.7671 subj 0.7671  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+pooled   compact-f64         +-0.005 sim-random               n= 60 ref 0.7736 subj 0.7736  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+pooled   compact-f64         +-0.005 sim-no-traps             n= 60 ref 0.7918 subj 0.7918  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+pooled   compact-f64         +-0.005 big-32agents             n= 60 ref 0.7041 subj 0.7041  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+pooled   compact-f64         +-0.005 big-32agents-longtail    n= 60 ref 0.6972 subj 0.6972  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-u16         +-0.005 sim-fixed                n=160 ref 0.7680 subj 0.7680  +0.0000 90%[-0.0003,+0.0003] 95%[-0.0003,+0.0004] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-u16         +-0.005 sim-random               n=160 ref 0.7693 subj 0.7697  +0.0004 90%[-0.0001,+0.0009] 95%[-0.0002,+0.0010] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-u16         +-0.005 sim-no-traps             n=160 ref 0.7922 subj 0.7922  -0.0000 90%[-0.0001,+0.0001] 95%[-0.0001,+0.0001] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-u16         +-0.005 big-32agents             n=160 ref 0.6956 subj 0.6958  +0.0002 90%[-0.0021,+0.0025] 95%[-0.0025,+0.0029] p_tost=0.0003  holm=0.0007  -> CERTIFIED
+power    compact-u16         +-0.005 big-32agents-longtail    n=160 ref 0.6924 subj 0.6918  -0.0006 90%[-0.0027,+0.0015] 95%[-0.0031,+0.0019] p_tost=0.0004  holm=0.0007  -> CERTIFIED
+power    compact-u16         +-0.003 sim-fixed                n=160 ref 0.7680 subj 0.7680  +0.0000 90%[-0.0003,+0.0003] 95%[-0.0003,+0.0004] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-u16         +-0.003 sim-random               n=160 ref 0.7693 subj 0.7697  +0.0004 90%[-0.0001,+0.0009] 95%[-0.0002,+0.0010] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-u16         +-0.003 sim-no-traps             n=160 ref 0.7922 subj 0.7922  -0.0000 90%[-0.0001,+0.0001] 95%[-0.0001,+0.0001] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-u16         +-0.003 big-32agents             n=160 ref 0.6956 subj 0.6958  +0.0002 90%[-0.0021,+0.0025] 95%[-0.0025,+0.0029] p_tost=0.0226  holm=0.0452  -> CERTIFIED
+power    compact-u16         +-0.003 big-32agents-longtail    n=160 ref 0.6924 subj 0.6918  -0.0006 90%[-0.0027,+0.0015] 95%[-0.0031,+0.0019] p_tost=0.0306  holm=0.0452  -> CERTIFIED
+power    compact-u16-hash32  +-0.005 sim-fixed                n=160 ref 0.7680 subj 0.7680  +0.0000 90%[-0.0003,+0.0003] 95%[-0.0003,+0.0004] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-u16-hash32  +-0.005 sim-random               n=160 ref 0.7693 subj 0.7697  +0.0004 90%[-0.0001,+0.0009] 95%[-0.0002,+0.0010] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-u16-hash32  +-0.005 sim-no-traps             n=160 ref 0.7922 subj 0.7922  -0.0000 90%[-0.0001,+0.0001] 95%[-0.0001,+0.0001] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-u16-hash32  +-0.005 big-32agents             n=160 ref 0.6956 subj 0.6958  +0.0002 90%[-0.0021,+0.0025] 95%[-0.0025,+0.0029] p_tost=0.0003  holm=0.0007  -> CERTIFIED
+power    compact-u16-hash32  +-0.005 big-32agents-longtail    n=160 ref 0.6924 subj 0.6918  -0.0006 90%[-0.0027,+0.0015] 95%[-0.0031,+0.0019] p_tost=0.0004  holm=0.0007  -> CERTIFIED
+power    compact-u16-hash32  +-0.003 sim-fixed                n=160 ref 0.7680 subj 0.7680  +0.0000 90%[-0.0003,+0.0003] 95%[-0.0003,+0.0004] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-u16-hash32  +-0.003 sim-random               n=160 ref 0.7693 subj 0.7697  +0.0004 90%[-0.0001,+0.0009] 95%[-0.0002,+0.0010] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-u16-hash32  +-0.003 sim-no-traps             n=160 ref 0.7922 subj 0.7922  -0.0000 90%[-0.0001,+0.0001] 95%[-0.0001,+0.0001] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-u16-hash32  +-0.003 big-32agents             n=160 ref 0.6956 subj 0.6958  +0.0002 90%[-0.0021,+0.0025] 95%[-0.0025,+0.0029] p_tost=0.0226  holm=0.0452  -> CERTIFIED
+power    compact-u16-hash32  +-0.003 big-32agents-longtail    n=160 ref 0.6924 subj 0.6918  -0.0006 90%[-0.0027,+0.0015] 95%[-0.0031,+0.0019] p_tost=0.0306  holm=0.0452  -> CERTIFIED
+power    compact-f32         +-0.005 sim-fixed                n=160 ref 0.7680 subj 0.7680  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-f32         +-0.005 sim-random               n=160 ref 0.7693 subj 0.7693  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-f32         +-0.005 sim-no-traps             n=160 ref 0.7922 subj 0.7922  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-f32         +-0.005 big-32agents             n=160 ref 0.6956 subj 0.6956  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-f32         +-0.005 big-32agents-longtail    n=160 ref 0.6924 subj 0.6924  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-f32         +-0.003 sim-fixed                n=160 ref 0.7680 subj 0.7680  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-f32         +-0.003 sim-random               n=160 ref 0.7693 subj 0.7693  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-f32         +-0.003 sim-no-traps             n=160 ref 0.7922 subj 0.7922  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-f32         +-0.003 big-32agents             n=160 ref 0.6956 subj 0.6956  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-f32         +-0.003 big-32agents-longtail    n=160 ref 0.6924 subj 0.6924  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-f64         +-0.005 sim-fixed                n=160 ref 0.7680 subj 0.7680  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-f64         +-0.005 sim-random               n=160 ref 0.7693 subj 0.7693  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-f64         +-0.005 sim-no-traps             n=160 ref 0.7922 subj 0.7922  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-f64         +-0.005 big-32agents             n=160 ref 0.6956 subj 0.6956  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-f64         +-0.005 big-32agents-longtail    n=160 ref 0.6924 subj 0.6924  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-f64         +-0.003 sim-fixed                n=160 ref 0.7680 subj 0.7680  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-f64         +-0.003 sim-random               n=160 ref 0.7693 subj 0.7693  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-f64         +-0.003 sim-no-traps             n=160 ref 0.7922 subj 0.7922  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-f64         +-0.003 big-32agents             n=160 ref 0.6956 subj 0.6956  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+power    compact-f64         +-0.003 big-32agents-longtail    n=160 ref 0.6924 subj 0.6924  +0.0000 90%[+0.0000,+0.0000] 95%[+0.0000,+0.0000] p_tost=0.0000  holm=0.0000  -> CERTIFIED
+
+=== PRIMARY: compact-u16 vs f64 recommended_router, pooled seeds 31-90, margin +-0.005 ===
+sim-fixed                diff -0.0001  90%CI [-0.0003,+0.0001]  95%CI [-0.0003,+0.0001]  holm p=0.0000  CERTIFIED
+sim-random               diff +0.0004  90%CI [-0.0007,+0.0015]  95%CI [-0.0010,+0.0017]  holm p=0.0000  CERTIFIED
+sim-no-traps             diff +0.0001  90%CI [-0.0001,+0.0004]  95%CI [-0.0001,+0.0004]  holm p=0.0000  CERTIFIED
+big-32agents             diff +0.0005  90%CI [-0.0023,+0.0033]  95%CI [-0.0028,+0.0038]  holm p=0.0046  CERTIFIED
+big-32agents-longtail    diff +0.0003  90%CI [-0.0013,+0.0019]  95%CI [-0.0016,+0.0022]  holm p=0.0000  CERTIFIED
+
+compact-f64 vs reference: max |mean diff| / sd over every cell = 0e0 (must be 0)
+wrote results/g3_equiv.json (10.9s)

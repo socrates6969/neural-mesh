@@ -1,0 +1,13 @@
+h8_vectors mode=ssd rayon=2 free=5.15GB
+ssd raw direct, ONE shared handle threads 1: 70.5 us/row (wall/rows), 14176 rows/s
+ssd raw direct, ONE shared handle threads 2: 72.5 us/row (wall/rows), 13798 rows/s
+ssd raw direct, ONE shared handle threads 4: 72.4 us/row (wall/rows), 13809 rows/s
+ssd raw direct, ONE shared handle threads 8: 72.7 us/row (wall/rows), 13755 rows/s
+ssd raw direct, one handle per thread threads 1: 71.3 us/row (wall/rows), 14019 rows/s
+ssd raw direct, one handle per thread threads 2: 35.5 us/row (wall/rows), 28150 rows/s
+ssd raw direct, one handle per thread threads 4: 17.4 us/row (wall/rows), 57497 rows/s
+ssd raw direct, one handle per thread threads 8: 8.9 us/row (wall/rows), 112770 rows/s
+tv4 + rerank4x, f32 rows on SSD (direct I/O) fetched by 1 thread(s): recall 1.000 p50 6193 us p99 8504 us (index heap 217 B/vec)
+tv4 + rerank4x, f32 rows on SSD (direct I/O) fetched by 2 thread(s): recall 1.000 p50 4416 us p99 5223 us (index heap 217 B/vec)
+tv4 + rerank4x, f32 rows on SSD (direct I/O) fetched by 4 thread(s): recall 1.000 p50 3943 us p99 5416 us (index heap 217 B/vec)
+wrote results/h8_ssd.json

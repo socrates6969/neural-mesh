@@ -1,0 +1,431 @@
+corpus A: 780 docs, 2120 queries; fixtures + similarity + rankings built in 4.1s
+TUNING (seeds 1-8, panel of 6 worlds, mean util(.03)): D0 util 0.6433 succ 0.8255 cost 9197
+  k0             util 0.6462 succ 0.7283 cost 4860
+  k1             util 0.7232 succ 0.8382 cost 6285
+  k2             util 0.6878 succ 0.8378 cost 7801
+  k3             util 0.6433 succ 0.8255 cost 9197
+  k4             util 0.5978 succ 0.8111 cost 10543
+  k5             util 0.5467 succ 0.7947 cost 12046
+  -> best context size k: k1 (util 0.7232, +0.0799 vs ref)
+  dedup          util 0.6433 succ 0.8255 cost 9197
+  -> best dedup: dedup (util 0.6433, +0.0000 vs ref)
+  vg1            util 0.6172 succ 0.7541 cost 7234
+  vg2            util 0.6176 succ 0.7547 cost 7239
+  vg3            util 0.6223 succ 0.7660 cost 7527
+  vg5            util 0.6345 succ 0.7942 cost 8219
+  vg8            util 0.6399 succ 0.8096 cost 8653
+  vg12           util 0.6424 succ 0.8185 cost 8933
+  vg20           util 0.6430 succ 0.8231 cost 9105
+  vg40           util 0.6433 succ 0.8254 cost 9191
+  -> best verify gate: vg40 (util 0.6433, +0.0001 vs ref)
+  memo-ex        util 0.8540 succ 0.9115 cost 3791
+  memo-sem0.8    util 0.8359 succ 0.8976 cost 3971
+  memo-sem0.9    util 0.8452 succ 0.9041 cost 3849
+  memo-sem0.95   util 0.8456 succ 0.9055 cost 3894
+  -> best memo: memo-ex (util 0.8540, +0.2108 vs ref)
+  gate0.25@k1    util 0.7236 succ 0.8345 cost 6105
+  gate0.5@k1     util 0.7220 succ 0.8326 cost 6096
+  gate0.75@k1    util 0.7182 succ 0.8261 cost 5974
+  gate1@k1       util 0.7145 succ 0.8207 cost 5903
+  gate1.5@k1     util 0.7033 succ 0.8050 cost 5706
+  gate2@k1       util 0.6873 succ 0.7818 cost 5398
+  -> best score gate on k*: gate0.25@k1 (util 0.7236, +0.0004 vs ref)
+  bandit@k1      util 0.7138 succ 0.8225 cost 6012
+  -> best context bandit on k*: bandit@k1 (util 0.7138, -0.0094 vs ref)
+  => picks Picks { k: 1, zmin: 0.25, rv: 40.0, tau: 0.9, use_gate: false, use_bandit: false, use_dedup: false, use_vg: false, use_memo: true, memo_kind: 3 }
+
+evaluated 37 arms x 10 worlds x 30 seeds in 28s (held 31-60)
+measured: D0 session loop (anchor scan + retrieval + routing bookkeeping, single thread, noisy box) 1.8 us/task vs an assumed 2600 us/task encode
+
+=== 1. COST DECOMPOSITION of the default session D0 (TE per task, default prices; doc context x4) and the stack S ===
+  sib16           D0   9086 TE [gen base prompt 11%, gen injected ctx 48%, gen completion 35%, verifier 6%, retrieval/encoder ms 0%, rerank+tools 0%] | S   1468 (-83.8%)
+  rand16          D0   9063 TE [gen base prompt 11%, gen injected ctx 48%, gen completion 35%, verifier 6%, retrieval/encoder ms 0%, rerank+tools 0%] | S   1508 (-83.4%)
+  sib16-mixed50   D0   8568 TE [gen base prompt 11%, gen injected ctx 45%, gen completion 37%, verifier 6%, retrieval/encoder ms 0%, rerank+tools 0%] | S   1907 (-77.7%)
+  sib16-weakid50  D0   9363 TE [gen base prompt 11%, gen injected ctx 49%, gen completion 35%, verifier 6%, retrieval/encoder ms 0%, rerank+tools 0%] | S   4085 (-56.4%)
+  sib16-drift     D0   9140 TE [gen base prompt 11%, gen injected ctx 48%, gen completion 35%, verifier 6%, retrieval/encoder ms 0%, rerank+tools 0%] | S   1822 (-80.1%)
+  ctl-none        D0   9056 TE [gen base prompt 11%, gen injected ctx 48%, gen completion 36%, verifier 6%, retrieval/encoder ms 0%, rerank+tools 0%] | S   1321 (-85.4%)
+  sib64           D0   9236 TE [gen base prompt 11%, gen injected ctx 48%, gen completion 35%, verifier 6%, retrieval/encoder ms 0%, rerank+tools 0%] | S   2323 (-74.9%)
+  ctl-oneoff      D0   8271 TE [gen base prompt 12%, gen injected ctx 42%, gen completion 40%, verifier 6%, retrieval/encoder ms 0%, rerank+tools 0%] | S   1570 (-81.0%)
+  sib16-dups30    D0   9129 TE [gen base prompt 11%, gen injected ctx 48%, gen completion 35%, verifier 6%, retrieval/encoder ms 0%, rerank+tools 0%] | S   1468 (-83.9%)
+  ctl-uniq        D0   9587 TE [gen base prompt 11%, gen injected ctx 48%, gen completion 36%, verifier 5%, retrieval/encoder ms 0%, rerank+tools 0%] | S   5157 (-46.2%)
+
+=== 2. every arm vs D0 (success rate of the DELIVERED answer; cost TE; util(.03)); per group means; EQ = worlds TOST-equivalent within +-.01 (Holm | raw) ===
+arm                                  treatment worlds (7)                                  controls (3)                   
+                            dS  EQ  cost-cut%  W/L  dU(mu) dU(alt)            dS  EQ  cost-cut%  W/L  dU(mu) dU(alt)      
+glob                  +0.0089 0|1|7/7   -6.1% 0/7 -0.0039 -0.0337   +0.0037 0|2|3/3   -3.1% 0/2 -0.0026 -0.0173   
+route-CA              -0.0411 0|0|0/7   18.9% 7/0 -0.0015 +0.0909   -0.0503 0|0|0/3   21.5% 3/0 -0.0052 +0.1000   
+route-CA01            -0.0149 0|0|0/7    6.5% 5/0 -0.0012 +0.0307   -0.0195 0|0|0/3    8.2% 2/0 -0.0023 +0.0380   
+route-CA10            -0.1500 0|0|0/7   56.5% 7/0 -0.0317 +0.2445   -0.1568 0|0|0/3   56.3% 3/0 -0.0399 +0.2329   
+or-util10             -0.2319 0|0|0/7   82.5% 7/0 -0.0590 +0.3444   -0.2266 0|0|0/3   81.2% 3/0 -0.0583 +0.3344   
+or-q                  -0.0677 0|0|0/7   28.1% 7/0 -0.0087 +0.1290   -0.0610 0|0|0/3   28.9% 3/0 -0.0010 +0.1390   
+or-util               -0.0870 0|0|0/7   43.4% 7/0 +0.0041 +0.2169   -0.0773 0|0|0/3   41.8% 3/0 +0.0097 +0.2126   
+k0                    -0.1300 0|0|0/7   47.3% 7/0 -0.0309 +0.2005   -0.0227 0|0|2/3   45.6% 3/0 +0.0719 +0.2926   
+k1                    +0.0120 0|1|7/7   31.7% 7/0 +0.0785 +0.2337   +0.0253 0|0|3/3   30.6% 3/0 +0.0888 +0.2370   
+k2                    +0.0101 0|0|7/7   15.9% 7/0 +0.0435 +0.1213   +0.0162 0|0|3/3   14.9% 3/0 +0.0471 +0.1192   
+k3                    +0.0000 7|7|7/7   -0.0% 0/0 +0.0000 +0.0000   +0.0000 3|3|3/3   -0.0% 0/0 +0.0000 +0.0000   
+k4                    -0.0119 0|0|0/7  -16.7% 0/7 -0.0470 -0.1287   -0.0144 0|0|0/3  -16.3% 0/3 -0.0484 -0.1275   
+k5                    -0.0271 0|0|0/7  -32.0% 0/7 -0.0940 -0.2503   -0.0312 0|0|0/3  -32.8% 0/3 -0.0992 -0.2579   
+k2+dedup              +0.0098 0|1|7/7   16.1% 7/0 +0.0436 +0.1223   +0.0162 0|0|3/3   14.9% 3/0 +0.0471 +0.1192   
+k3+dedup              -0.0006 6|7|7/7    0.1% 0/0 -0.0005 -0.0001   +0.0000 3|3|3/3   -0.0% 0/0 +0.0000 +0.0000   
+k5+dedup              -0.0273 0|0|0/7  -32.1% 0/7 -0.0945 -0.2514   -0.0312 0|0|0/3  -32.8% 0/3 -0.0992 -0.2579   
+Kstar                 +0.0120 0|1|7/7   31.7% 7/0 +0.0785 +0.2337   +0.0253 0|0|3/3   30.6% 3/0 +0.0888 +0.2370   
+gate(k*)              +0.0073 0|4|7/7   33.6% 7/0 +0.0777 +0.2421   +0.0282 0|1|3/3   34.4% 3/0 +0.0992 +0.2650   
+bandit(k*)            -0.0097 0|0|1/7   34.6% 7/0 +0.0628 +0.2320   +0.0222 0|0|2/3   35.8% 3/0 +0.0963 +0.2692   
+Kstar+dedup           +0.0120 0|1|7/7   31.7% 7/0 +0.0785 +0.2337   +0.0253 0|0|3/3   30.6% 3/0 +0.0888 +0.2370   
+gate(k3)              -0.0038 1|2|2/7    4.7% 4/0 +0.0058 +0.0282   +0.0087 1|1|2/3   12.4% 3/0 +0.0332 +0.0904   
+bandit(k3)            -0.0238 0|0|0/7   11.1% 7/0 -0.0006 +0.0535   +0.0126 0|0|2/3   21.2% 3/0 +0.0552 +0.1546   
+v-never               -0.1231 0|0|0/7   35.2% 7/0 -0.0493 +0.1229   -0.1145 0|0|0/3   33.5% 3/0 -0.0452 +0.1166   
+v-gate                -0.0000 7|7|7/7    0.0% 0/0 +0.0000 +0.0001   -0.0002 3|3|3/3    0.1% 1/0 -0.0000 +0.0004   
+memo-ex-all           +0.0494 0|0|6/7   83.2% 7/0 +0.2236 +0.6299   +0.0759 1|1|3/3   61.7% 3/0 +0.1996 +0.4882   
+memo-ex-all-noevict   -0.1496 0|0|0/7   90.2% 7/0 +0.0396 +0.4811   -0.0167 1|1|1/3   63.0% 3/0 +0.1096 +0.4044   
+memo-ex-ver           +0.0586 0|0|6/7   82.6% 7/0 +0.2315 +0.6350   +0.0800 1|1|3/3   61.5% 3/0 +0.2034 +0.4913   
+memo-ex-ver+rv        +0.0944 0|0|6/7   58.5% 7/0 +0.2167 +0.5021   +0.0749 1|1|3/3   47.0% 3/0 +0.1691 +0.3889   
+memo-sem-ver+rv       +0.0891 0|0|6/7   58.4% 7/0 +0.2113 +0.4962   +0.0341 0|0|2/3   41.7% 3/0 +0.1194 +0.3183   
+memo-sem-all          +0.0340 0|0|5/7   84.5% 7/0 +0.2109 +0.6237   -0.0301 0|0|2/3   62.5% 3/0 +0.0967 +0.3926   
+S                     +0.0833 0|0|6/7   77.2% 7/0 +0.2449 +0.6218   +0.0592 0|0|2/3   70.9% 3/0 +0.2043 +0.5430   
+S-CA                  +0.1000 0|0|6/7   73.7% 7/0 +0.2542 +0.6139   +0.0830 0|0|3/3   65.2% 3/0 +0.2158 +0.5256   
+S-ctx                 +0.0746 0|0|6/7   64.4% 7/0 +0.2094 +0.5239   +0.0440 0|0|2/3   57.9% 3/0 +0.1619 +0.4370   
+S+gate                +0.0823 0|0|6/7   77.5% 7/0 +0.2446 +0.6232   +0.0584 0|0|2/3   71.8% 3/0 +0.2054 +0.5485   
+S-Vg                  +0.0833 0|0|6/7   77.2% 7/0 +0.2449 +0.6218   +0.0592 0|0|2/3   70.9% 3/0 +0.2043 +0.5430   
+S-memo                -0.0182 0|0|0/7   41.8% 7/0 +0.0695 +0.2739   -0.0098 0|0|1/3   41.4% 3/0 +0.0763 +0.2772   
+
+=== 3. key arms per world (mean): succ | cost TE | util(.03) | cache hit rate / wrong-served rate ===
+world                      D0                        k0                        k2                     gate(k3)                 bandit(k3)                  v-gate                memo-ex-ver+rv               route-CA                     S                      or-util          
+sib16          0.833  9086 0.6536 0.00/0.00  0.672  4730 0.5929 0.00/0.00  0.842  7571 0.6971 0.00/0.00  0.827  8901 0.6512 0.00/0.00  0.810  8424 0.6457 0.00/0.00  0.833  9084 0.6537 0.00/0.00  0.964  2734 0.9308 0.83/0.00  0.790  7274 0.6524 0.00/0.00  0.954  1468 0.9497 0.82/0.00  0.747  5219 0.6567 0.00/0.00  
+rand16         0.822  9063 0.6431 0.00/0.00  0.664  4759 0.5839 0.00/0.00  0.832  7601 0.6867 0.00/0.00  0.817  8818 0.6433 0.00/0.00  0.791  8131 0.6333 0.00/0.00  0.822  9062 0.6432 0.00/0.00  0.960  2774 0.9260 0.83/0.00  0.786  7512 0.6424 0.00/0.00  0.955  1508 0.9498 0.82/0.00  0.738  5289 0.6458 0.00/0.00  
+sib16-mixed50  0.822  8568 0.6546 0.00/0.00  0.777  4845 0.6950 0.00/0.00  0.839  7330 0.6999 0.00/0.00  0.837  7268 0.6995 0.00/0.00  0.812  7095 0.6786 0.00/0.00  0.822  8568 0.6546 0.00/0.00  0.943  3338 0.8960 0.72/0.00  0.786  7201 0.6498 0.00/0.00  0.938  1907 0.9243 0.72/0.00  0.750  5150 0.6607 0.00/0.00  
+sib16-weakid50 0.736  9363 0.5501 0.00/0.00  0.670  4783 0.5901 0.00/0.00  0.742  7771 0.5928 0.00/0.00  0.732  9031 0.5536 0.00/0.00  0.711  7546 0.5670 0.00/0.00  0.736  9363 0.5501 0.00/0.00  0.676  7254 0.5382 0.31/0.13  0.691  7408 0.5496 0.00/0.00  0.662  4085 0.5980 0.31/0.12  0.628  4655 0.5508 0.00/0.00  
+sib16-drift    0.828  9140 0.6471 0.00/0.00  0.666  4726 0.5868 0.00/0.00  0.838  7621 0.6918 0.00/0.00  0.821  8957 0.6442 0.00/0.00  0.805  8487 0.6387 0.00/0.00  0.828  9138 0.6471 0.00/0.00  0.933  3355 0.8852 0.76/0.02  0.784  7315 0.6448 0.00/0.00  0.920  1822 0.9078 0.75/0.02  0.742  5223 0.6518 0.00/0.00  
+ctl-none       0.885  9056 0.7056 0.00/0.00  0.916  4729 0.8364 0.00/0.00  0.900  7630 0.7541 0.00/0.00  0.886  8762 0.7142 0.00/0.00  0.903  6452 0.7844 0.00/0.00  0.884  9030 0.7055 0.00/0.00  0.977  2669 0.9452 0.84/0.00  0.839  7202 0.7027 0.00/0.00  0.966  1321 0.9654 0.83/0.00  0.820  5438 0.7249 0.00/0.00  
+sib64          0.827  9236 0.6441 0.00/0.00  0.676  4937 0.5918 0.00/0.00  0.841  7880 0.6892 0.00/0.00  0.818  8865 0.6432 0.00/0.00  0.800  8440 0.6355 0.00/0.00  0.827  9236 0.6441 0.00/0.00  0.927  4285 0.8581 0.63/0.00  0.786  7412 0.6447 0.00/0.00  0.908  2323 0.8846 0.62/0.00  0.742  5173 0.6527 0.00/0.00  
+ctl-oneoff     0.825  8271 0.6642 0.00/0.00  0.879  4757 0.7996 0.00/0.00  0.845  7129 0.7107 0.00/0.00  0.863  5902 0.7570 0.00/0.00  0.859  5793 0.7558 0.00/0.00  0.825  8271 0.6642 0.00/0.00  0.954  2647 0.9230 0.79/0.00  0.782  6864 0.6539 0.00/0.00  0.953  1570 0.9463 0.79/0.00  0.751  5070 0.6643 0.00/0.00  
+sib16-dups30   0.837  9129 0.6568 0.00/0.00  0.672  4730 0.5929 0.00/0.00  0.844  7696 0.6964 0.00/0.00  0.829  8832 0.6552 0.00/0.00  0.811  8430 0.6467 0.00/0.00  0.837  9126 0.6568 0.00/0.00  0.965  2742 0.9321 0.83/0.00  0.797  7450 0.6550 0.00/0.00  0.954  1468 0.9497 0.82/0.00  0.750  5215 0.6601 0.00/0.00  
+ctl-uniq       0.836  9587 0.6445 0.00/0.00  0.682  5132 0.5939 0.00/0.00  0.848  8136 0.6907 0.00/0.00  0.822  9068 0.6428 0.00/0.00  0.820  9131 0.6398 0.00/0.00  0.836  9587 0.6445 0.00/0.00  0.839  9352 0.6535 0.03/0.00  0.773  6987 0.6420 0.00/0.00  0.805  5157 0.7155 0.03/0.00  0.742  5104 0.6541 0.00/0.00  
+
+=== 4. context-size curve (k = 0..5 docs, no gate; treatment worlds mean): success, cost, util(.03) by doc-length scale; the utility-optimal k is the knee ===
+  ctx x1           k0: 0.685/4787/0.6048  k1: 0.827/5107/0.7394  k2: 0.825/5459/0.7294  k3: 0.815/5815/0.7111  k4: 0.803/6218/0.6898  k5: 0.788/6534/0.6674   => knee k=1
+  ctx x4 (default) k0: 0.685/4787/0.6048  k1: 0.827/6201/0.7141  k2: 0.825/7638/0.6791  k3: 0.815/9083/0.6357  k4: 0.803/10602/0.5887  k5: 0.788/11985/0.5416   => knee k=1
+  ctx x8           k0: 0.685/4787/0.6048  k1: 0.827/7661/0.6804  k2: 0.825/10544/0.6121  k3: 0.815/13442/0.5351  k4: 0.803/16447/0.4538  k5: 0.788/19254/0.3739   => knee k=1
+  sib16          k0: 0.672/0.5929  k1: 0.843/0.7298  k2: 0.842/0.6971  k3: 0.833/0.6536  k4: 0.822/0.6049  k5: 0.806/0.5573    (succ/util)
+  rand16         k0: 0.664/0.5839  k1: 0.836/0.7225  k2: 0.832/0.6867  k3: 0.822/0.6431  k4: 0.815/0.5981  k5: 0.801/0.5498    (succ/util)
+  sib16-mixed50  k0: 0.777/0.6950  k1: 0.852/0.7408  k2: 0.839/0.6999  k3: 0.822/0.6546  k4: 0.809/0.6081  k5: 0.792/0.5622    (succ/util)
+  sib16-weakid50 k0: 0.670/0.5901  k1: 0.748/0.6324  k2: 0.742/0.5928  k3: 0.736/0.5501  k4: 0.724/0.5052  k5: 0.710/0.4613    (succ/util)
+  sib16-drift    k0: 0.666/0.5868  k1: 0.836/0.7227  k2: 0.838/0.6918  k3: 0.828/0.6471  k4: 0.817/0.5992  k5: 0.801/0.5525    (succ/util)
+  ctl-none       k0: 0.916/0.8364  k1: 0.915/0.8017  k2: 0.900/0.7541  k3: 0.885/0.7056  k4: 0.869/0.6544  k5: 0.851/0.6031    (succ/util)
+  sib64          k0: 0.676/0.5918  k1: 0.834/0.7208  k2: 0.841/0.6892  k3: 0.827/0.6441  k4: 0.813/0.5962  k5: 0.799/0.5476    (succ/util)
+  ctl-oneoff     k0: 0.879/0.7996  k1: 0.863/0.7553  k2: 0.845/0.7107  k3: 0.825/0.6642  k4: 0.809/0.6193  k5: 0.789/0.5694    (succ/util)
+  sib16-dups30   k0: 0.672/0.5929  k1: 0.843/0.7298  k2: 0.844/0.6964  k3: 0.837/0.6568  k4: 0.825/0.6091  k5: 0.808/0.5608    (succ/util)
+  ctl-uniq       k0: 0.682/0.5939  k1: 0.844/0.7237  k2: 0.848/0.6907  k3: 0.836/0.6445  k4: 0.823/0.5955  k5: 0.811/0.5441    (succ/util)
+
+=== 4b. ANALYTIC knee sensitivity (real rank-relevance profile over all 1920 concept queries; mid-price agent, base .8; knee = argmax_k utility) ===
+   profile: mean tokens/doc 81.6; E[#relevant in top-k] k=1..5: 0.94 1.20 1.30 1.38 1.44
+   mu 0: knee k by (rho, eta) rows x doc-length scale columns [x1 x4 x8], d = .15 / .35 / .6
+      rho 0.5 eta 0   : d.15 [555]  d.35 [555]  d.6 [555]
+      rho 0.5 eta 0.01: d.15 [222]  d.35 [333]  d.6 [555]
+      rho 0.5 eta 0.03: d.15 [111]  d.35 [222]  d.6 [222]
+      rho 0.5 eta 0.06: d.15 [111]  d.35 [111]  d.6 [222]
+      rho 0.7 eta 0   : d.15 [555]  d.35 [555]  d.6 [555]
+      rho 0.7 eta 0.01: d.15 [222]  d.35 [333]  d.6 [555]
+      rho 0.7 eta 0.03: d.15 [111]  d.35 [222]  d.6 [222]
+      rho 0.7 eta 0.06: d.15 [111]  d.35 [111]  d.6 [222]
+      rho 0.9 eta 0   : d.15 [555]  d.35 [555]  d.6 [555]
+      rho 0.9 eta 0.01: d.15 [111]  d.35 [222]  d.6 [333]
+      rho 0.9 eta 0.03: d.15 [111]  d.35 [111]  d.6 [222]
+      rho 0.9 eta 0.06: d.15 [111]  d.35 [111]  d.6 [111]
+   mu 0.03: knee k by (rho, eta) rows x doc-length scale columns [x1 x4 x8], d = .15 / .35 / .6
+      rho 0.5 eta 0   : d.15 [521]  d.35 [532]  d.6 [552]
+      rho 0.5 eta 0.01: d.15 [211]  d.35 [221]  d.6 [432]
+      rho 0.5 eta 0.03: d.15 [111]  d.35 [211]  d.6 [222]
+      rho 0.5 eta 0.06: d.15 [111]  d.35 [111]  d.6 [221]
+      rho 0.7 eta 0   : d.15 [421]  d.35 [532]  d.6 [542]
+      rho 0.7 eta 0.01: d.15 [211]  d.35 [221]  d.6 [422]
+      rho 0.7 eta 0.03: d.15 [111]  d.35 [211]  d.6 [222]
+      rho 0.7 eta 0.06: d.15 [111]  d.35 [111]  d.6 [211]
+      rho 0.9 eta 0   : d.15 [311]  d.35 [521]  d.6 [532]
+      rho 0.9 eta 0.01: d.15 [111]  d.35 [211]  d.6 [321]
+      rho 0.9 eta 0.03: d.15 [111]  d.35 [111]  d.6 [211]
+      rho 0.9 eta 0.06: d.15 [111]  d.35 [111]  d.6 [111]
+   mu 0.1: knee k by (rho, eta) rows x doc-length scale columns [x1 x4 x8], d = .15 / .35 / .6
+      rho 0.5 eta 0   : d.15 [211]  d.35 [311]  d.6 [521]
+      rho 0.5 eta 0.01: d.15 [111]  d.35 [211]  d.6 [321]
+      rho 0.5 eta 0.03: d.15 [111]  d.35 [111]  d.6 [211]
+      rho 0.5 eta 0.06: d.15 [111]  d.35 [111]  d.6 [211]
+      rho 0.7 eta 0   : d.15 [211]  d.35 [311]  d.6 [521]
+      rho 0.7 eta 0.01: d.15 [111]  d.35 [211]  d.6 [321]
+      rho 0.7 eta 0.03: d.15 [111]  d.35 [111]  d.6 [211]
+      rho 0.7 eta 0.06: d.15 [111]  d.35 [111]  d.6 [111]
+      rho 0.9 eta 0   : d.15 [111]  d.35 [211]  d.6 [311]
+      rho 0.9 eta 0.01: d.15 [111]  d.35 [111]  d.6 [211]
+      rho 0.9 eta 0.03: d.15 [111]  d.35 [111]  d.6 [111]
+      rho 0.9 eta 0.06: d.15 [111]  d.35 [111]  d.6 [111]
+   knee histogram over all 324 parameter cells: k0 0 k1 183 k2 74 k3 20 k4 4 k5 43
+
+=== 5. result cache: hit rate, wrong-served rate, success and cost vs D0 (treatment | controls means) ===
+  memo-ex-all          treat: hit 0.823 wrong-served 0.096 dS +0.0494 cost -83.1% | ctl: hit 0.612 wrong-served 0.011 dS +0.0759 cost -59.7%
+      sib16           hit 0.919 wrong 0.014 dS +0.1363 [+0.1294,+0.1432] tost_p 1.000 cost -92.7%
+      rand16          hit 0.918 wrong 0.013 dS +0.1466 [+0.1394,+0.1537] tost_p 1.000 cost -92.5%
+      sib16-mixed50   hit 0.802 wrong 0.026 dS +0.1127 [+0.1056,+0.1198] tost_p 1.000 cost -81.2%
+      sib16-weakid50  hit 0.648 wrong 0.444 dS -0.2771 [-0.2850,-0.2692] tost_p 1.000 cost -66.3%
+      sib16-drift     hit 0.844 wrong 0.135 dS +0.0059 [-0.0011,+0.0129] tost_p 0.120 cost -85.4%
+      ctl-none        hit 0.925 wrong 0.009 dS +0.0955 [+0.0875,+0.1035] tost_p 1.000 cost -93.1%
+      sib64           hit 0.707 wrong 0.029 dS +0.0893 [+0.0844,+0.0943] tost_p 1.000 cost -71.2%
+      ctl-oneoff      hit 0.875 wrong 0.019 dS +0.1304 [+0.1249,+0.1358] tost_p 1.000 cost -88.4%
+      sib16-dups30    hit 0.920 wrong 0.014 dS +0.1324 [+0.1251,+0.1396] tost_p 1.000 cost -92.8%
+      ctl-uniq        hit 0.035 wrong 0.004 dS +0.0017 [+0.0009,+0.0024] tost_p 0.000 cost -3.5%
+  memo-ex-all-noevict  treat: hit 0.895 wrong-served 0.313 dS -0.1496 cost -90.3% | ctl: hit 0.625 wrong-served 0.106 dS -0.0167 cost -61.0%
+      sib16           hit 0.936 wrong 0.184 dS -0.0301 [-0.0477,-0.0125] tost_p 0.987 cost -94.3%
+      rand16          hit 0.936 wrong 0.201 dS -0.0365 [-0.0508,-0.0222] tost_p 1.000 cost -94.2%
+      sib16-mixed50   hit 0.837 wrong 0.156 dS -0.0086 [-0.0199,+0.0026] tost_p 0.403 cost -84.4%
+      sib16-weakid50  hit 0.936 wrong 0.745 dS -0.5001 [-0.5106,-0.4896] tost_p 1.000 cost -94.4%
+      sib16-drift     hit 0.936 wrong 0.586 dS -0.4264 [-0.4370,-0.4158] tost_p 1.000 cost -94.3%
+      ctl-none        hit 0.936 wrong 0.129 dS -0.0227 [-0.0348,-0.0106] tost_p 0.980 cost -94.2%
+      sib64           hit 0.749 wrong 0.140 dS -0.0138 [-0.0244,-0.0033] tost_p 0.768 cost -75.7%
+      ctl-oneoff      hit 0.900 wrong 0.181 dS -0.0254 [-0.0372,-0.0135] tost_p 0.994 cost -90.8%
+      sib16-dups30    hit 0.936 wrong 0.182 dS -0.0313 [-0.0484,-0.0143] tost_p 0.992 cost -94.3%
+      ctl-uniq        hit 0.040 wrong 0.008 dS -0.0020 [-0.0030,-0.0011] tost_p 0.000 cost -4.0%
+  memo-ex-ver          treat: hit 0.817 wrong-served 0.086 dS +0.0586 cost -82.5% | ctl: hit 0.610 wrong-served 0.006 dS +0.0800 cost -59.6%
+      sib16           hit 0.918 wrong 0.008 dS +0.1425 [+0.1356,+0.1494] tost_p 1.000 cost -92.6%
+      rand16          hit 0.916 wrong 0.008 dS +0.1510 [+0.1433,+0.1588] tost_p 1.000 cost -92.2%
+      sib16-mixed50   hit 0.796 wrong 0.014 dS +0.1231 [+0.1164,+0.1299] tost_p 1.000 cost -80.6%
+      sib16-weakid50  hit 0.632 wrong 0.423 dS -0.2600 [-0.2679,-0.2522] tost_p 1.000 cost -64.6%
+      sib16-drift     hit 0.842 wrong 0.126 dS +0.0155 [+0.0091,+0.0218] tost_p 0.955 cost -84.9%
+      ctl-none        hit 0.924 wrong 0.005 dS +0.0994 [+0.0911,+0.1076] tost_p 1.000 cost -93.0%
+      sib64           hit 0.698 wrong 0.017 dS +0.0993 [+0.0937,+0.1050] tost_p 1.000 cost -70.5%
+      ctl-oneoff      hit 0.872 wrong 0.011 dS +0.1379 [+0.1328,+0.1431] tost_p 1.000 cost -88.2%
+      sib16-dups30    hit 0.918 wrong 0.007 dS +0.1388 [+0.1313,+0.1462] tost_p 1.000 cost -92.6%
+      ctl-uniq        hit 0.033 wrong 0.002 dS +0.0027 [+0.0020,+0.0034] tost_p 0.000 cost -3.3%
+  memo-ex-ver+rv       treat: hit 0.701 wrong-served 0.023 dS +0.0944 cost -58.4% | ctl: hit 0.552 wrong-served 0.002 dS +0.0749 cost -45.5%
+      sib16           hit 0.829 wrong 0.002 dS +0.1306 [+0.1236,+0.1376] tost_p 1.000 cost -69.9%
+      rand16          hit 0.826 wrong 0.003 dS +0.1378 [+0.1309,+0.1447] tost_p 1.000 cost -69.4%
+      sib16-mixed50   hit 0.722 wrong 0.003 dS +0.1207 [+0.1145,+0.1269] tost_p 1.000 cost -61.0%
+      sib16-weakid50  hit 0.313 wrong 0.125 dS -0.0606 [-0.0674,-0.0539] tost_p 1.000 cost -22.5%
+      sib16-drift     hit 0.759 wrong 0.020 dS +0.1046 [+0.0985,+0.1107] tost_p 1.000 cost -63.3%
+      ctl-none        hit 0.840 wrong 0.002 dS +0.0922 [+0.0843,+0.1001] tost_p 1.000 cost -70.5%
+      sib64           hit 0.631 wrong 0.003 dS +0.0997 [+0.0952,+0.1041] tost_p 1.000 cost -53.6%
+      ctl-oneoff      hit 0.787 wrong 0.003 dS +0.1290 [+0.1244,+0.1336] tost_p 1.000 cost -68.0%
+      sib16-dups30    hit 0.830 wrong 0.002 dS +0.1279 [+0.1208,+0.1350] tost_p 1.000 cost -70.0%
+      ctl-uniq        hit 0.029 wrong 0.001 dS +0.0036 [+0.0030,+0.0042] tost_p 0.000 cost -2.5%
+  memo-sem-ver+rv      treat: hit 0.702 wrong-served 0.029 dS +0.0891 cost -58.3% | ctl: hit 0.502 wrong-served 0.032 dS +0.0341 cost -41.2%
+      sib16           hit 0.840 wrong 0.002 dS +0.1338 [+0.1265,+0.1412] tost_p 1.000 cost -70.6%
+      rand16          hit 0.838 wrong 0.003 dS +0.1412 [+0.1342,+0.1483] tost_p 1.000 cost -70.8%
+      sib16-mixed50   hit 0.626 wrong 0.046 dS +0.0603 [+0.0540,+0.0667] tost_p 1.000 cost -52.0%
+      sib16-weakid50  hit 0.319 wrong 0.127 dS -0.0613 [-0.0682,-0.0545] tost_p 1.000 cost -22.7%
+      sib16-drift     hit 0.780 wrong 0.017 dS +0.1126 [+0.1058,+0.1194] tost_p 1.000 cost -64.9%
+      ctl-none        hit 0.849 wrong 0.002 dS +0.0929 [+0.0847,+0.1011] tost_p 1.000 cost -71.4%
+      sib64           hit 0.671 wrong 0.003 dS +0.1069 [+0.1020,+0.1118] tost_p 1.000 cost -56.8%
+      ctl-oneoff      hit 0.508 wrong 0.092 dS -0.0099 [-0.0152,-0.0046] tost_p 0.485 cost -40.7%
+      sib16-dups30    hit 0.841 wrong 0.002 dS +0.1304 [+0.1231,+0.1377] tost_p 1.000 cost -70.8%
+      ctl-uniq        hit 0.149 wrong 0.002 dS +0.0194 [+0.0176,+0.0211] tost_p 1.000 cost -13.0%
+  memo-sem-all         treat: hit 0.835 wrong-served 0.115 dS +0.0340 cost -84.4% | ctl: hit 0.618 wrong-served 0.116 dS -0.0301 cost -61.3%
+      sib16           hit 0.931 wrong 0.013 dS +0.1391 [+0.1319,+0.1463] tost_p 1.000 cost -93.9%
+      rand16          hit 0.931 wrong 0.012 dS +0.1508 [+0.1426,+0.1590] tost_p 1.000 cost -93.9%
+      sib16-mixed50   hit 0.780 wrong 0.167 dS -0.0321 [-0.0402,-0.0239] tost_p 1.000 cost -79.2%
+      sib16-weakid50  hit 0.658 wrong 0.452 dS -0.2797 [-0.2877,-0.2717] tost_p 1.000 cost -66.7%
+      sib16-drift     hit 0.867 wrong 0.118 dS +0.0274 [+0.0199,+0.0349] tost_p 1.000 cost -87.7%
+      ctl-none        hit 0.936 wrong 0.009 dS +0.0973 [+0.0888,+0.1057] tost_p 1.000 cost -94.2%
+      sib64           hit 0.749 wrong 0.028 dS +0.0968 [+0.0915,+0.1020] tost_p 1.000 cost -75.8%
+      ctl-oneoff      hit 0.744 wrong 0.328 dS -0.2011 [-0.2076,-0.1945] tost_p 1.000 cost -75.7%
+      sib16-dups30    hit 0.931 wrong 0.013 dS +0.1356 [+0.1283,+0.1430] tost_p 1.000 cost -93.9%
+      ctl-uniq        hit 0.173 wrong 0.013 dS +0.0136 [+0.0114,+0.0158] tost_p 0.999 cost -17.7%
+
+=== 6. routing: global price-blind router / anchor router (mu 0) / cost-aware anchor router (mu .03) / hindsight oracles (no verification) ===
+  sib16           glob 0.839/ 9590/0.6477 | anchor 0.833/ 9086/0.6536 | CA 0.790/ 7274/0.6524 | or-q 0.765/ 6533/0.6444 | or-util 0.747/ 5219/0.6567   (succ/cost/util)
+      CA vs anchor(mu0): dS -0.0431 [-0.0541,-0.0321] tost_p 1.000; cost -1812 TE [-2200,-1425]
+  rand16          glob 0.832/ 9716/0.6377 | anchor 0.822/ 9063/0.6431 | CA 0.786/ 7512/0.6424 | or-q 0.756/ 6629/0.6332 | or-util 0.738/ 5289/0.6458   (succ/cost/util)
+      CA vs anchor(mu0): dS -0.0365 [-0.0462,-0.0267] tost_p 1.000; cost -1550 TE [-1883,-1217]
+  sib16-mixed50   glob 0.839/ 9277/0.6548 | anchor 0.822/ 8568/0.6546 | CA 0.786/ 7201/0.6498 | or-q 0.766/ 6271/0.6508 | or-util 0.750/ 5150/0.6607   (succ/cost/util)
+      CA vs anchor(mu0): dS -0.0363 [-0.0463,-0.0263] tost_p 1.000; cost -1366 TE [-1701,-1032]
+  sib16-weakid50  glob 0.747/ 9950/0.5474 | anchor 0.736/ 9363/0.5501 | CA 0.691/ 7408/0.5496 | or-q 0.655/ 6533/0.5346 | or-util 0.628/ 4655/0.5508   (succ/cost/util)
+      CA vs anchor(mu0): dS -0.0457 [-0.0565,-0.0349] tost_p 1.000; cost -1955 TE [-2327,-1584]
+  sib16-drift     glob 0.836/ 9625/0.6435 | anchor 0.828/ 9140/0.6471 | CA 0.784/ 7315/0.6448 | or-q 0.761/ 6608/0.6389 | or-util 0.742/ 5223/0.6518   (succ/cost/util)
+      CA vs anchor(mu0): dS -0.0444 [-0.0548,-0.0340] tost_p 1.000; cost -1825 TE [-2221,-1429]
+  ctl-none        glob 0.887/ 9465/0.6983 | anchor 0.885/ 9056/0.7056 | CA 0.839/ 7202/0.7027 | or-q 0.836/ 6533/0.7148 | or-util 0.820/ 5438/0.7249   (succ/cost/util)
+      CA vs anchor(mu0): dS -0.0457 [-0.0548,-0.0365] tost_p 1.000; cost -1854 TE [-2217,-1491]
+  sib64           glob 0.834/ 9681/0.6408 | anchor 0.827/ 9236/0.6441 | CA 0.786/ 7412/0.6447 | or-q 0.761/ 6581/0.6391 | or-util 0.742/ 5173/0.6527   (succ/cost/util)
+      CA vs anchor(mu0): dS -0.0415 [-0.0539,-0.0292] tost_p 1.000; cost -1825 TE [-2363,-1286]
+  ctl-oneoff      glob 0.832/ 8599/0.6639 | anchor 0.825/ 8271/0.6642 | CA 0.782/ 6864/0.6539 | or-q 0.765/ 6007/0.6563 | or-util 0.751/ 5070/0.6643   (succ/cost/util)
+      CA vs anchor(mu0): dS -0.0429 [-0.0517,-0.0340] tost_p 1.000; cost -1408 TE [-1729,-1087]
+  sib16-dups30    glob 0.843/ 9619/0.6506 | anchor 0.837/ 9129/0.6568 | CA 0.797/ 7450/0.6550 | or-q 0.769/ 6534/0.6478 | or-util 0.750/ 5215/0.6601   (succ/cost/util)
+      CA vs anchor(mu0): dS -0.0405 [-0.0490,-0.0320] tost_p 1.000; cost -1678 TE [-2006,-1350]
+  ctl-uniq        glob 0.837/ 9670/0.6442 | anchor 0.836/ 9587/0.6445 | CA 0.773/ 6987/0.6420 | or-q 0.762/ 6577/0.6401 | or-util 0.742/ 5104/0.6541   (succ/cost/util)
+      CA vs anchor(mu0): dS -0.0625 [-0.0767,-0.0483] tost_p 1.000; cost -2600 TE [-3191,-2008]
+
+  cost-aware routing frontier vs D0 (mean over treatment | controls): dS, cost %, dU(.03), dU(.10)
+    global price-blind     treat: dS +0.0089 cost   +6.1% dU03 -0.0039 dU10 -0.0337 | ctl: dS +0.0037 cost   +3.1% dU03 -0.0026 dU10 -0.0173
+    anchor mu_c=.03        treat: dS -0.0411 cost  -18.9% dU03 -0.0015 dU10 +0.0909 | ctl: dS -0.0503 cost  -21.5% dU03 -0.0052 dU10 +0.1000
+    anchor mu_c=.01        treat: dS -0.0149 cost   -6.5% dU03 -0.0012 dU10 +0.0307 | ctl: dS -0.0195 cost   -8.2% dU03 -0.0023 dU10 +0.0380
+    anchor mu_c=.10        treat: dS -0.1500 cost  -56.5% dU03 -0.0317 dU10 +0.2445 | ctl: dS -0.1568 cost  -56.3% dU03 -0.0399 dU10 +0.2329
+    oracle util(.03)       treat: dS -0.0870 cost  -43.4% dU03 +0.0041 dU10 +0.2169 | ctl: dS -0.0773 cost  -41.8% dU03 +0.0097 dU10 +0.2126
+    oracle util(.10)       treat: dS -0.2319 cost  -82.5% dU03 -0.0590 dU10 +0.3444 | ctl: dS -0.2266 cost  -81.2% dU03 -0.0583 dU10 +0.3344
+    oracle quality         treat: dS -0.0677 cost  -28.1% dU03 -0.0087 dU10 +0.1290 | ctl: dS -0.0610 cost  -28.9% dU03 -0.0010 dU10 +0.1390
+
+=== 7. stack S vs best fair incumbent per world (best of D0 / v-gate / memo-ex-ver+rv(no-stack fair cache) by held-out util(.03)) and leave-one-out ===
+  sib16           best fair memo-ex-ver+rv | dU(.03) +0.0189 [+0.0165,+0.0213] WIN | dS -0.0103 [-0.0134,-0.0072] tost_p 0.577 | cost -46.3%
+  rand16          best fair memo-ex-ver+rv | dU(.03) +0.0237 [+0.0202,+0.0272] WIN | dS -0.0055 [-0.0092,-0.0018] tost_p 0.009 | cost -45.6%
+  sib16-mixed50   best fair memo-ex-ver+rv | dU(.03) +0.0283 [+0.0241,+0.0326] WIN | dS -0.0047 [-0.0108,+0.0013] tost_p 0.042 | cost -42.9%
+  sib16-weakid50  best fair k2             | dU(.03) +0.0052 [+0.0009,+0.0094] WIN | dS -0.0799 [-0.0873,-0.0725] tost_p 1.000 | cost -47.4%
+  sib16-drift     best fair memo-ex-ver+rv | dU(.03) +0.0226 [+0.0195,+0.0258] WIN | dS -0.0127 [-0.0169,-0.0086] tost_p 0.908 | cost -45.7%
+  ctl-none        best fair memo-ex-ver+rv | dU(.03) +0.0203 [+0.0177,+0.0228] WIN | dS -0.0109 [-0.0139,-0.0078] tost_p 0.714 | cost -50.5%
+  sib64           best fair memo-ex-ver+rv | dU(.03) +0.0265 [+0.0223,+0.0307] WIN | dS -0.0188 [-0.0254,-0.0121] tost_p 0.994 | cost -45.8%
+  ctl-oneoff      best fair memo-ex-ver+rv | dU(.03) +0.0233 [+0.0208,+0.0258] WIN | dS -0.0015 [-0.0049,+0.0019] tost_p 0.000 | cost -40.7%
+  sib16-dups30    best fair memo-ex-ver+rv | dU(.03) +0.0176 [+0.0155,+0.0198] WIN | dS -0.0118 [-0.0146,-0.0089] tost_p 0.893 | cost -46.5%
+  ctl-uniq        best fair k2             | dU(.03) +0.0248 [+0.0200,+0.0296] WIN | dS -0.0439 [-0.0579,-0.0300] tost_p 1.000 | cost -36.6%
+  lever contribution (mean over treatment | controls): d success, d cost %, d util(.03)
+    S                vs D0   | treat dS +0.0833 cost  -77.2% dU +0.2449 | ctl dS +0.0592 cost  -70.9% dU +0.2043
+    S-CA             vs S    | treat dS +0.0166 cost  +14.6% dU +0.0093 | ctl dS +0.0238 cost  +17.6% dU +0.0114
+    S-ctx            vs S    | treat dS -0.0087 cost  +57.8% dU -0.0355 | ctl dS -0.0152 cost  +54.3% dU -0.0424
+    S-Vg             vs S    | treat dS +0.0000 cost   +0.0% dU +0.0000 | ctl dS +0.0000 cost   +0.0% dU +0.0000
+    S-memo           vs S    | treat dS -0.1015 cost +185.2% dU -0.1754 | ctl dS -0.0690 cost +176.4% dU -0.1280
+    v-gate           vs D0   | treat dS -0.0000 cost   -0.0% dU +0.0000 | ctl dS -0.0002 cost   -0.1% dU -0.0000
+    v-never          vs D0   | treat dS -0.1231 cost  -35.2% dU -0.0493 | ctl dS -0.1145 cost  -33.5% dU -0.0452
+    route-CA         vs D0   | treat dS -0.0411 cost  -18.9% dU -0.0015 | ctl dS -0.0503 cost  -21.5% dU -0.0052
+    glob             vs D0   | treat dS +0.0089 cost   +6.1% dU -0.0039 | ctl dS +0.0037 cost   +3.1% dU -0.0026
+    k0               vs D0   | treat dS -0.1300 cost  -47.3% dU -0.0309 | ctl dS -0.0227 cost  -45.6% dU +0.0719
+    k2               vs D0   | treat dS +0.0101 cost  -15.9% dU +0.0435 | ctl dS +0.0162 cost  -14.9% dU +0.0471
+    k5               vs D0   | treat dS -0.0271 cost  +32.0% dU -0.0940 | ctl dS -0.0312 cost  +32.8% dU -0.0992
+    k3+dedup         vs D0   | treat dS -0.0006 cost   -0.1% dU -0.0005 | ctl dS +0.0000 cost   +0.0% dU +0.0000
+    k5+dedup         vs k5   | treat dS -0.0002 cost   +0.1% dU -0.0005 | ctl dS +0.0000 cost   +0.0% dU +0.0000
+    gate(k3)         vs D0   | treat dS -0.0038 cost   -4.7% dU +0.0058 | ctl dS +0.0087 cost  -12.4% dU +0.0332
+    bandit(k3)       vs D0   | treat dS -0.0238 cost  -11.1% dU -0.0006 | ctl dS +0.0126 cost  -21.2% dU +0.0552
+    memo-ex-ver+rv   vs D0   | treat dS +0.0944 cost  -58.5% dU +0.2167 | ctl dS +0.0749 cost  -47.0% dU +0.1691
+
+=== 8. Pareto success vs cost (default prices; * = non-dominated) ===
+  [sib16]
+    memo-ex-all-noevict    cost    520 TE  succ 0.8033 *
+    memo-sem-all           cost    555 TE  succ 0.9724 *
+    memo-ex-all            cost    661 TE  succ 0.9696 
+    memo-ex-ver            cost    673 TE  succ 0.9758 *
+    S                      cost   1468 TE  succ 0.9536 
+    S-Vg                   cost   1468 TE  succ 0.9536 
+    S+gate                 cost   1469 TE  succ 0.9528 
+    or-util10              cost   1633 TE  succ 0.6004 
+    S-CA                   cost   1662 TE  succ 0.9662 
+    S-ctx                  cost   2398 TE  succ 0.9485 
+    memo-sem-ver+rv        cost   2671 TE  succ 0.9672 
+    memo-ex-ver+rv         cost   2734 TE  succ 0.9639 
+    route-CA10             cost   3989 TE  succ 0.6865 
+    k0                     cost   4730 TE  succ 0.6721 
+    or-util                cost   5219 TE  succ 0.7472 
+    S-memo                 cost   5242 TE  succ 0.8123 
+    v-never                cost   5955 TE  succ 0.7144 
+    bandit(k*)             cost   5996 TE  succ 0.8201 
+    gate(k*)               cost   6057 TE  succ 0.8358 
+    k1                     cost   6188 TE  succ 0.8426 
+    Kstar                  cost   6188 TE  succ 0.8426 
+    Kstar+dedup            cost   6188 TE  succ 0.8426 
+    or-q                   cost   6533 TE  succ 0.7652 
+    route-CA               cost   7274 TE  succ 0.7902 
+    k2                     cost   7571 TE  succ 0.8418 
+    k2+dedup               cost   7571 TE  succ 0.8418 
+    bandit(k3)             cost   8424 TE  succ 0.8101 
+    route-CA01             cost   8496 TE  succ 0.8185 
+    gate(k3)               cost   8901 TE  succ 0.8266 
+    v-gate                 cost   9084 TE  succ 0.8333 
+    D0                     cost   9086 TE  succ 0.8333 
+    k3                     cost   9086 TE  succ 0.8333 
+    k3+dedup               cost   9086 TE  succ 0.8333 
+    glob                   cost   9590 TE  succ 0.8390 
+    k4                     cost  10695 TE  succ 0.8217 
+    k5                     cost  12099 TE  succ 0.8065 
+    k5+dedup               cost  12099 TE  succ 0.8065 
+  [treatment mean]
+    memo-ex-all-noevict    cost    885 TE  succ 0.6657 *
+    memo-sem-all           cost   1417 TE  succ 0.8493 *
+    memo-ex-all            cost   1537 TE  succ 0.8647 *
+    memo-ex-ver            cost   1590 TE  succ 0.8739 *
+    or-util10              cost   1590 TE  succ 0.5833 
+    S+gate                 cost   2052 TE  succ 0.8976 *
+    S                      cost   2083 TE  succ 0.8986 *
+    S-Vg                   cost   2083 TE  succ 0.8986 *
+    S-CA                   cost   2402 TE  succ 0.9153 *
+    S-ctx                  cost   3242 TE  succ 0.8899 
+    memo-ex-ver+rv         cost   3783 TE  succ 0.9096 
+    memo-sem-ver+rv        cost   3791 TE  succ 0.9044 
+    route-CA10             cost   3955 TE  succ 0.6652 
+    k0                     cost   4787 TE  succ 0.6853 
+    or-util                cost   5132 TE  succ 0.7282 
+    S-memo                 cost   5286 TE  succ 0.7971 
+    v-never                cost   5886 TE  succ 0.6922 
+    bandit(k*)             cost   5942 TE  succ 0.8056 
+    gate(k*)               cost   6031 TE  succ 0.8226 
+    k1                     cost   6201 TE  succ 0.8272 
+    Kstar                  cost   6201 TE  succ 0.8272 
+    Kstar+dedup            cost   6201 TE  succ 0.8272 
+    or-q                   cost   6527 TE  succ 0.7476 
+    route-CA               cost   7367 TE  succ 0.7741 
+    k2+dedup               cost   7621 TE  succ 0.8251 
+    k2                     cost   7638 TE  succ 0.8254 
+    bandit(k3)             cost   8079 TE  succ 0.7915 
+    route-CA01             cost   8491 TE  succ 0.8004 
+    gate(k3)               cost   8668 TE  succ 0.8115 
+    k3+dedup               cost   9077 TE  succ 0.8147 
+    v-gate                 cost   9082 TE  succ 0.8153 
+    D0                     cost   9083 TE  succ 0.8153 
+    k3                     cost   9083 TE  succ 0.8153 
+    glob                   cost   9637 TE  succ 0.8242 
+    k4                     cost  10602 TE  succ 0.8033 
+    k5                     cost  11985 TE  succ 0.7882 
+    k5+dedup               cost  11997 TE  succ 0.7880 
+  [controls mean]
+    or-util10              cost   1679 TE  succ 0.6219 *
+    S+gate                 cost   2600 TE  succ 0.9068 *
+    S                      cost   2683 TE  succ 0.9077 *
+    S-Vg                   cost   2683 TE  succ 0.9077 *
+    S-CA                   cost   3218 TE  succ 0.9315 *
+    memo-sem-all           cost   3476 TE  succ 0.8184 
+    memo-ex-all-noevict    cost   3497 TE  succ 0.8318 
+    memo-ex-all            cost   3611 TE  succ 0.9243 
+    memo-ex-ver            cost   3625 TE  succ 0.9285 
+    S-ctx                  cost   3862 TE  succ 0.8925 
+    route-CA10             cost   3906 TE  succ 0.6917 
+    k0                     cost   4873 TE  succ 0.8258 
+    memo-ex-ver+rv         cost   4890 TE  succ 0.9234 
+    or-util                cost   5204 TE  succ 0.7712 
+    S-memo                 cost   5240 TE  succ 0.8386 
+    memo-sem-ver+rv        cost   5277 TE  succ 0.8826 
+    bandit(k*)             cost   5762 TE  succ 0.8707 
+    gate(k*)               cost   5894 TE  succ 0.8767 
+    v-never                cost   5967 TE  succ 0.7339 
+    k1                     cost   6219 TE  succ 0.8737 
+    Kstar                  cost   6219 TE  succ 0.8737 
+    Kstar+dedup            cost   6219 TE  succ 0.8737 
+    or-q                   cost   6372 TE  succ 0.7875 
+    route-CA               cost   7018 TE  succ 0.7981 
+    bandit(k3)             cost   7125 TE  succ 0.8611 
+    k2                     cost   7632 TE  succ 0.8646 
+    k2+dedup               cost   7632 TE  succ 0.8646 
+    gate(k3)               cost   7911 TE  succ 0.8572 
+    route-CA01             cost   8223 TE  succ 0.8289 
+    v-gate                 cost   8963 TE  succ 0.8482 
+    D0                     cost   8972 TE  succ 0.8485 
+    k3                     cost   8972 TE  succ 0.8485 
+    k3+dedup               cost   8972 TE  succ 0.8485 
+    glob                   cost   9245 TE  succ 0.8521 
+    k4                     cost  10442 TE  succ 0.8340 
+    k5                     cost  11919 TE  succ 0.8173 
+    k5+dedup               cost  11919 TE  succ 0.8173 
+
+=== 9. price sensitivity (treatment worlds): cost % vs D0 under other price vectors (arms were NOT re-tuned) ===
+scenario                                       k0             k2       gate(k3)     bandit(k3)         v-gate memo-ex-ver+rv       route-CA              Sbest-util
+default                                    -47.3%         -15.9%          -4.7%         -11.1%          -0.0%         -58.5%         -18.9%         -77.2%        S
+r_out=1 (flat in/out)                      -66.3%         -22.3%          -6.7%         -15.5%          -0.0%         -55.0%         -17.4%         -78.7%        S
+r_out=2                                    -58.5%         -19.7%          -5.9%         -13.7%          -0.0%         -56.5%         -18.0%         -78.1%        S
+r_out=8                                    -34.0%         -11.5%          -3.3%          -8.0%          -0.0%         -61.0%         -19.8%         -76.1%        S
+lam_ms=0.1 (GPU-priced encoder)            -47.3%         -15.9%          -4.7%         -11.1%          -0.0%         -58.5%         -18.9%         -77.2%        S
+lam_ms=1                                   -47.2%         -15.9%          -4.7%         -11.1%          -0.0%         -58.5%         -18.9%         -77.2%        S
+lam_ms=10 (pathological)                   -47.1%         -15.8%          -4.7%         -11.1%          -0.0%         -58.6%         -18.8%         -77.1%        S
+prompt-cache base x0.1                     -52.3%         -17.6%          -5.2%         -12.3%          -0.0%         -57.2%         -18.3%         -77.1%        S
+ctx x1 (short docs/notes)                  -17.6%          -6.1%          -1.6%          -4.2%          -0.0%         -61.9%         -20.2%         -72.5%        S
+ctx x8 (long docs)                         -64.3%         -21.5%          -6.5%         -15.1%          -0.0%         -56.6%         -18.1%         -79.9%        S
+verifier x0.25 (cheap model)               -49.8%         -16.6%          -4.9%         -11.7%          -0.0%         -61.0%         -19.8%         -80.5%        S
+verifier x2                                -44.2%         -15.1%          -4.4%         -10.4%          -0.0%         -55.6%         -17.7%         -73.2%        S
+embed compute-once                         -47.3%         -15.9%          -4.7%         -11.1%          -0.0%         -58.5%         -18.9%         -77.2%        S
+
+  exchange rate mu: util by arm, treatment worlds mean
+    mu 0     D0 0.8153  k0 0.6853  k2 0.8254  v-gate 0.8153  memo-ex-ver+rv 0.9096  S 0.8986
+    mu 0.01  D0 0.7554  k0 0.6584  k2 0.7766  v-gate 0.7554  memo-ex-ver+rv 0.8905  S 0.8926
+    mu 0.03  D0 0.6357  k0 0.6048  k2 0.6791  v-gate 0.6357  memo-ex-ver+rv 0.8523  S 0.8805
+    mu 0.1   D0 0.2165  k0 0.4170  k2 0.3378  v-gate 0.2166  memo-ex-ver+rv 0.7186  S 0.8384
+    mu 0.3   D0 -0.9809  k0 -0.1195  k2 -0.6373  v-gate -0.9807  memo-ex-ver+rv 0.3366  S 0.7179
+
+wrote results/h11_doc.json in 28s

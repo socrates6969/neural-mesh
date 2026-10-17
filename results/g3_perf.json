@@ -1,0 +1,481 @@
+{
+  "bin": "g3_perf",
+  "criteria": {
+    "latency_regression_margin": 1.1,
+    "quick": false,
+    "reps": 31
+  },
+  "notes": [
+    "ns is min/median of interleaved repetitions on a shared box (+-30% noise)",
+    "compact ns includes string->id work",
+    "outcome table precomputed: env cost excluded for both"
+  ],
+  "runtime_s": 333.0390277,
+  "worlds": [
+    {
+      "agents": 6,
+      "agents_per_gib": [
+        {
+          "agents_per_gib": 66826.27240058602,
+          "commit_bytes_per_brain": 22548,
+          "k": 400,
+          "lib_accounted_bytes_per_brain": 0,
+          "live_bytes_per_brain": 16067.66,
+          "variant": "ref f64 guarded(hebr) [shipped]"
+        },
+        {
+          "agents_per_gib": 162249.34442454876,
+          "commit_bytes_per_brain": 7178,
+          "k": 400,
+          "lib_accounted_bytes_per_brain": 5386,
+          "live_bytes_per_brain": 6617.85,
+          "variant": "compact u16/q16, private vocab+kw"
+        },
+        {
+          "agents_per_gib": 189412.54304261925,
+          "commit_bytes_per_brain": 7577,
+          "k": 400,
+          "lib_accounted_bytes_per_brain": 5386,
+          "live_bytes_per_brain": 5668.8,
+          "variant": "compact u16/q16, private, shrink_to_fit"
+        },
+        {
+          "agents_per_gib": 449448.65425990574,
+          "commit_bytes_per_brain": 3594,
+          "k": 400,
+          "lib_accounted_bytes_per_brain": 2275,
+          "live_bytes_per_brain": 2389.02,
+          "variant": "compact u16/q16, SHARED vocab+kw, shrink_to_fit"
+        }
+      ],
+      "allocs_per_decision_warm": {
+        "compact": 0.0,
+        "reference": 12.755
+      },
+      "bg_cpu_pct": 65.63106796116504,
+      "latency_ns": {
+        "compact": {
+          "fresh_median": 673.75,
+          "fresh_min": 600.95,
+          "select_only_median": 260.2,
+          "select_only_min": 245.8,
+          "warm_median": 605.2,
+          "warm_min": 571.3
+        },
+        "ratio_fresh_min": 0.5091286482822892,
+        "ratio_warm_min": 0.4896297565992458,
+        "reference": {
+          "fresh_median": 1264.0,
+          "fresh_min": 1180.35,
+          "select_only_median": 645.25,
+          "select_only_min": 607.0,
+          "warm_median": 1334.6,
+          "warm_min": 1166.8
+        },
+        "reps": 31,
+        "within_declared_margin_10pct": true
+      },
+      "memory_reduction_private": 2.834402342647474,
+      "memory_reduction_shared": 6.725628081807603,
+      "one_brain_live_bytes": {
+        "compact_json_state_bytes": 4320,
+        "compact_private_as_built": 6084,
+        "lib_report": {
+          "index_bytes": 256,
+          "reserved_bytes": 2796,
+          "row_bytes": 1610,
+          "rows": 32,
+          "shared_kw_bytes": 256,
+          "shared_vocab_bytes": 2862,
+          "struct_bytes": 400,
+          "touched_cells": 183
+        },
+        "lib_report_after_shrink": {
+          "index_bytes": 256,
+          "reserved_bytes": 1866,
+          "row_bytes": 1610,
+          "rows": 32,
+          "shared_kw_bytes": 256,
+          "shared_vocab_bytes": 2862,
+          "struct_bytes": 400,
+          "touched_cells": 183
+        },
+        "reference": 16504
+      },
+      "tasks": 2000,
+      "world": "sim-fixed"
+    },
+    {
+      "agents": 6,
+      "agents_per_gib": [
+        {
+          "agents_per_gib": 66826.27240058602,
+          "commit_bytes_per_brain": 20817,
+          "k": 400,
+          "lib_accounted_bytes_per_brain": 0,
+          "live_bytes_per_brain": 16067.66,
+          "variant": "ref f64 guarded(hebr) [shipped]"
+        },
+        {
+          "agents_per_gib": 157966.74456564515,
+          "commit_bytes_per_brain": 9431,
+          "k": 400,
+          "lib_accounted_bytes_per_brain": 5336,
+          "live_bytes_per_brain": 6797.265,
+          "variant": "compact u16/q16, private vocab+kw"
+        },
+        {
+          "agents_per_gib": 191114.2242572297,
+          "commit_bytes_per_brain": 8028,
+          "k": 400,
+          "lib_accounted_bytes_per_brain": 5336,
+          "live_bytes_per_brain": 5618.325,
+          "variant": "compact u16/q16, private, shrink_to_fit"
+        },
+        {
+          "agents_per_gib": 459149.52416994324,
+          "commit_bytes_per_brain": 3563,
+          "k": 400,
+          "lib_accounted_bytes_per_brain": 2225,
+          "live_bytes_per_brain": 2338.545,
+          "variant": "compact u16/q16, SHARED vocab+kw, shrink_to_fit"
+        }
+      ],
+      "allocs_per_decision_warm": {
+        "compact": 0.0,
+        "reference": 12.755
+      },
+      "bg_cpu_pct": 49.51456310679612,
+      "latency_ns": {
+        "compact": {
+          "fresh_median": 572.65,
+          "fresh_min": 552.0,
+          "select_only_median": 241.2,
+          "select_only_min": 229.95,
+          "warm_median": 559.45,
+          "warm_min": 531.5
+        },
+        "ratio_fresh_min": 0.4750225893894411,
+        "ratio_warm_min": 0.47636119202330274,
+        "reference": {
+          "fresh_median": 1220.7,
+          "fresh_min": 1162.05,
+          "select_only_median": 586.05,
+          "select_only_min": 568.15,
+          "warm_median": 1167.55,
+          "warm_min": 1115.75
+        },
+        "reps": 31,
+        "within_declared_margin_10pct": true
+      },
+      "memory_reduction_private": 2.85986659725096,
+      "memory_reduction_shared": 6.870793591741873,
+      "one_brain_live_bytes": {
+        "compact_json_state_bytes": 3916,
+        "compact_private_as_built": 5616,
+        "lib_report": {
+          "index_bytes": 256,
+          "reserved_bytes": 2328,
+          "row_bytes": 1406,
+          "rows": 32,
+          "shared_kw_bytes": 256,
+          "shared_vocab_bytes": 2862,
+          "struct_bytes": 400,
+          "touched_cells": 149
+        },
+        "lib_report_after_shrink": {
+          "index_bytes": 256,
+          "reserved_bytes": 1662,
+          "row_bytes": 1406,
+          "rows": 32,
+          "shared_kw_bytes": 256,
+          "shared_vocab_bytes": 2862,
+          "struct_bytes": 400,
+          "touched_cells": 149
+        },
+        "reference": 16504
+      },
+      "tasks": 2000,
+      "world": "sim-random"
+    },
+    {
+      "agents": 6,
+      "agents_per_gib": [
+        {
+          "agents_per_gib": 66826.27240058602,
+          "commit_bytes_per_brain": 19578,
+          "k": 400,
+          "lib_accounted_bytes_per_brain": 0,
+          "live_bytes_per_brain": 16067.66,
+          "variant": "ref f64 guarded(hebr) [shipped]"
+        },
+        {
+          "agents_per_gib": 157873.02780350816,
+          "commit_bytes_per_brain": 9123,
+          "k": 400,
+          "lib_accounted_bytes_per_brain": 5343,
+          "live_bytes_per_brain": 6801.3,
+          "variant": "compact u16/q16, private vocab+kw"
+        },
+        {
+          "agents_per_gib": 190851.80970663254,
+          "commit_bytes_per_brain": 7864,
+          "k": 400,
+          "lib_accounted_bytes_per_brain": 5343,
+          "live_bytes_per_brain": 5626.05,
+          "variant": "compact u16/q16, private, shrink_to_fit"
+        },
+        {
+          "agents_per_gib": 457637.7927518998,
+          "commit_bytes_per_brain": 3665,
+          "k": 400,
+          "lib_accounted_bytes_per_brain": 2232,
+          "live_bytes_per_brain": 2346.27,
+          "variant": "compact u16/q16, SHARED vocab+kw, shrink_to_fit"
+        }
+      ],
+      "allocs_per_decision_warm": {
+        "compact": 0.0,
+        "reference": 11.919
+      },
+      "bg_cpu_pct": 81.25,
+      "latency_ns": {
+        "compact": {
+          "fresh_median": 900.6,
+          "fresh_min": 635.4,
+          "select_only_median": 407.8,
+          "select_only_min": 292.6,
+          "warm_median": 913.0,
+          "warm_min": 685.35
+        },
+        "ratio_fresh_min": 0.4266720386784851,
+        "ratio_warm_min": 0.44643845878252936,
+        "reference": {
+          "fresh_median": 1973.25,
+          "fresh_min": 1489.2,
+          "select_only_median": 944.25,
+          "select_only_min": 662.85,
+          "warm_median": 1982.6,
+          "warm_min": 1535.15
+        },
+        "reps": 31,
+        "within_declared_margin_10pct": true
+      },
+      "memory_reduction_private": 2.855939780129931,
+      "memory_reduction_shared": 6.848171779036513,
+      "one_brain_live_bytes": {
+        "compact_json_state_bytes": 4082,
+        "compact_private_as_built": 7224,
+        "lib_report": {
+          "index_bytes": 256,
+          "reserved_bytes": 3936,
+          "row_bytes": 1490,
+          "rows": 32,
+          "shared_kw_bytes": 256,
+          "shared_vocab_bytes": 2862,
+          "struct_bytes": 400,
+          "touched_cells": 163
+        },
+        "lib_report_after_shrink": {
+          "index_bytes": 256,
+          "reserved_bytes": 1746,
+          "row_bytes": 1490,
+          "rows": 32,
+          "shared_kw_bytes": 256,
+          "shared_vocab_bytes": 2862,
+          "struct_bytes": 400,
+          "touched_cells": 163
+        },
+        "reference": 16504
+      },
+      "tasks": 2000,
+      "world": "sim-no-traps"
+    },
+    {
+      "agents": 32,
+      "agents_per_gib": [
+        {
+          "agents_per_gib": 4362.542497615735,
+          "commit_bytes_per_brain": 266513,
+          "k": 120,
+          "lib_accounted_bytes_per_brain": 0,
+          "live_bytes_per_brain": 246127.53333333333,
+          "variant": "ref f64 guarded(hebr) [shipped]"
+        },
+        {
+          "agents_per_gib": 17138.544724959178,
+          "commit_bytes_per_brain": 72738,
+          "k": 120,
+          "lib_accounted_bytes_per_brain": 43800,
+          "live_bytes_per_brain": 62650.7,
+          "variant": "compact u16/q16, private vocab+kw"
+        },
+        {
+          "agents_per_gib": 24019.96830123003,
+          "commit_bytes_per_brain": 54169,
+          "k": 120,
+          "lib_accounted_bytes_per_brain": 43800,
+          "live_bytes_per_brain": 44702.05,
+          "variant": "compact u16/q16, private, shrink_to_fit"
+        },
+        {
+          "agents_per_gib": 51487.41990318613,
+          "commit_bytes_per_brain": 42461,
+          "k": 120,
+          "lib_accounted_bytes_per_brain": 20806,
+          "live_bytes_per_brain": 20854.45,
+          "variant": "compact u16/q16, SHARED vocab+kw, shrink_to_fit"
+        }
+      ],
+      "allocs_per_decision_warm": {
+        "compact": 0.0005,
+        "reference": 14.043
+      },
+      "bg_cpu_pct": 69.7265625,
+      "latency_ns": {
+        "compact": {
+          "fresh_median": 1650.65,
+          "fresh_min": 1265.25,
+          "select_only_median": 848.75,
+          "select_only_min": 644.975,
+          "warm_median": 1831.4,
+          "warm_min": 1456.525
+        },
+        "ratio_fresh_min": 0.3639410043074622,
+        "ratio_warm_min": 0.3981616265163164,
+        "reference": {
+          "fresh_median": 5005.125,
+          "fresh_min": 3476.525,
+          "select_only_median": 4077.775,
+          "select_only_min": 2543.925,
+          "warm_median": 5401.225,
+          "warm_min": 3658.125
+        },
+        "reps": 31,
+        "within_declared_margin_10pct": true
+      },
+      "memory_reduction_private": 5.505956289103818,
+      "memory_reduction_shared": 11.80215893170682,
+      "one_brain_live_bytes": {
+        "compact_json_state_bytes": 35045,
+        "compact_private_as_built": 69744,
+        "lib_report": {
+          "index_bytes": 1856,
+          "reserved_bytes": 45696,
+          "row_bytes": 15004,
+          "rows": 232,
+          "shared_kw_bytes": 1536,
+          "shared_vocab_bytes": 21638,
+          "struct_bytes": 400,
+          "touched_cells": 1882
+        },
+        "lib_report_after_shrink": {
+          "index_bytes": 1856,
+          "reserved_bytes": 16860,
+          "row_bytes": 15004,
+          "rows": 232,
+          "shared_kw_bytes": 1536,
+          "shared_vocab_bytes": 21638,
+          "struct_bytes": 400,
+          "touched_cells": 1882
+        },
+        "reference": 247722
+      },
+      "tasks": 4000,
+      "world": "big-32agents"
+    },
+    {
+      "agents": 32,
+      "agents_per_gib": [
+        {
+          "agents_per_gib": 571.7906456015526,
+          "commit_bytes_per_brain": 2063564,
+          "k": 40,
+          "lib_accounted_bytes_per_brain": 0,
+          "live_bytes_per_brain": 1877858.325,
+          "variant": "ref f64 guarded(hebr) [shipped]"
+        },
+        {
+          "agents_per_gib": 3712.2007753243165,
+          "commit_bytes_per_brain": 394342,
+          "k": 40,
+          "lib_accounted_bytes_per_brain": 244208,
+          "live_bytes_per_brain": 289246.7,
+          "variant": "compact u16/q16, private vocab+kw"
+        },
+        {
+          "agents_per_gib": 4283.679799727717,
+          "commit_bytes_per_brain": 305254,
+          "k": 40,
+          "lib_accounted_bytes_per_brain": 244208,
+          "live_bytes_per_brain": 250658.75,
+          "variant": "compact u16/q16, private, shrink_to_fit"
+        },
+        {
+          "agents_per_gib": 14141.216002381143,
+          "commit_bytes_per_brain": 166707,
+          "k": 40,
+          "lib_accounted_bytes_per_brain": 75379,
+          "live_bytes_per_brain": 75929.95,
+          "variant": "compact u16/q16, SHARED vocab+kw, shrink_to_fit"
+        }
+      ],
+      "allocs_per_decision_warm": {
+        "compact": 0.0005,
+        "reference": 15.48625
+      },
+      "bg_cpu_pct": 50.687622789783894,
+      "latency_ns": {
+        "compact": {
+          "fresh_median": 1814.825,
+          "fresh_min": 1301.65,
+          "select_only_median": 944.325,
+          "select_only_min": 670.75,
+          "warm_median": 1925.35,
+          "warm_min": 1434.45
+        },
+        "ratio_fresh_min": 0.275700291236431,
+        "ratio_warm_min": 0.3198898354221489,
+        "reference": {
+          "fresh_median": 6514.5,
+          "fresh_min": 4721.25,
+          "select_only_median": 5140.65,
+          "select_only_min": 3248.7,
+          "warm_median": 6928.925,
+          "warm_min": 4484.2
+        },
+        "reps": 31,
+        "within_declared_margin_10pct": true
+      },
+      "memory_reduction_private": 7.491692689762476,
+      "memory_reduction_shared": 24.7314574156838,
+      "one_brain_live_bytes": {
+        "compact_json_state_bytes": 123518,
+        "compact_private_as_built": 265116,
+        "lib_report": {
+          "index_bytes": 14704,
+          "reserved_bytes": 84252,
+          "row_bytes": 51746,
+          "rows": 1838,
+          "shared_kw_bytes": 1536,
+          "shared_vocab_bytes": 173123,
+          "struct_bytes": 400,
+          "touched_cells": 3723
+        },
+        "lib_report_after_shrink": {
+          "index_bytes": 14704,
+          "reserved_bytes": 66450,
+          "row_bytes": 51746,
+          "rows": 1838,
+          "shared_kw_bytes": 1536,
+          "shared_vocab_bytes": 173123,
+          "struct_bytes": 400,
+          "touched_cells": 3723
+        },
+        "reference": 1878161
+      },
+      "tasks": 4000,
+      "world": "big-32agents-longtail"
+    }
+  ]
+}

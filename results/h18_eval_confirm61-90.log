@@ -1,0 +1,133 @@
+
+=== world A (confirm61-90; seeds 61-90, 600 tasks/seed) ===
+  plain keyword          correct 0.8481 [0.8382,0.8580]  cost 10.00
+  plain eps-greedy       correct 0.8206 [0.8130,0.8281]  cost 10.00
+  plain pooled-thompson  correct 0.8196 [0.8127,0.8265]  cost 10.00
+  plain hebbian-robust   correct 0.8204 [0.8100,0.8308]  cost 10.00
+  plain warm(hebr)       correct 0.8429 [0.8342,0.8517]  cost 10.00
+  plain guarded-safe     correct 0.8481 [0.8380,0.8581]  cost 10.00
+  best fair baseline (chosen on the evaluated seeds): keyword  correct 0.8481
+  ungated model P(correct), mean over agents: by difficulty tercile 0.863/0.803/0.733; by steps (<=3 / 4-6 / >=7) 0.897/0.776/0.625  (ASSUMPTION: error rises with difficulty and steps)
+  arm                                             correct diff vs best baseline (CI) w/l/t     cost toolrate  max Holm p over the 6 plain baselines
+  plain-guarded-safe(ref)                          0.8481 -0.0001 [-0.0009,+0.0008] w/l/t 5/5/20 p=8.89e-1   10.00   0.000   1.00e0
+  vote3                                            0.9279 +0.0798 [+0.0728,+0.0869] w/l/t 30/0/0 p=3.24e-20   30.00   0.000   9.59e-20
+  V-only(indep verifier on direct answers)         0.9196 +0.0715 [+0.0635,+0.0795] w/l/t 30/0/0 p=1.59e-17   14.24   0.000   3.19e-17
+  XC clean-spec ceiling (canonical spec, tool)     0.9851 +0.1370 [+0.1275,+0.1465] w/l/t 30/0/0 p=3.57e-23   10.90   1.000   7.14e-23
+  T tool(extracted spec), no verifier              0.8602 +0.0121 [+0.0011,+0.0232] w/l/t 18/12/0 p=3.29e-2   11.19   0.968   6.59e-2
+  TV-shared (T + re-run verifier)                  0.8602 +0.0121 [+0.0011,+0.0232] w/l/t 18/12/0 p=3.29e-2   12.07   0.968   6.59e-2
+  TV-indep (T + independent verifier)              0.8603 +0.0122 [+0.0011,+0.0232] w/l/t 18/12/0 p=3.23e-2   12.96   0.968   6.47e-2
+  R rule(conf>=theta)+indep                        0.9296 +0.0814 [+0.0736,+0.0892] w/l/t 30/0/0 p=2.77e-19   12.31   0.743   5.55e-19
+  H learned selection+indep (headline)             0.8918 +0.0437 [+0.0341,+0.0533] w/l/t 30/0/0 p=3.07e-10   13.43   0.779   6.15e-10
+  S tiered (post-hoc): conf>=hi tool+indep | lo..hi V-only | else plain   0.9385 +0.0904 [+0.0821,+0.0987] w/l/t 30/0/0 p=9.76e-20   13.19   0.743   1.95e-19
+  TX tool + model cross-check                      0.9448 +0.0967 [+0.0886,+0.1047] w/l/t 30/0/0 p=5.42e-21   24.03   0.968   1.08e-20
+  H+cache                                          0.8918 +0.0437 [+0.0341,+0.0533] w/l/t 30/0/0 p=3.07e-10   13.17   0.779   6.15e-10
+  HEADLINE H - best baseline (keyword): +0.0437 [+0.0341,+0.0533] w/l/t 30/0/0 p=3.07e-10 holm=6.15e-10   max Holm p over the 6 baselines 6.15e-10; cost/task 13.43 vs plain 10.00 (1.34x)
+  decomposition (correctness diff [95% CI] w/l/t over seeds):
+    offload: T - plain(best)                                                       +0.0121 [+0.0011,+0.0232] w/l/t 18/12/0 p=3.29e-2
+    verification of tool outputs (clean evaluator): TV-indep - T                   +0.0001 [-0.0001,+0.0002] w/l/t 1/0/29 p=3.26e-1
+    independent vs shared verifier (clean evaluator): TV-indep - TV-shared         +0.0001 [-0.0001,+0.0002] w/l/t 1/0/29 p=3.26e-1
+    verification of direct answers: V-only - plain(best)                           +0.0715 [+0.0635,+0.0795] w/l/t 30/0/0 p=1.59e-17
+    cost of extraction errors: T - XC(clean spec)                                  -0.1249 [-0.1310,-0.1187] w/l/t 0/30/0 p=2.26e-27
+    learned selection vs rule: H - R(theta)                                        -0.0377 [-0.0427,-0.0328] w/l/t 0/30/0 p=1.15e-15
+    learned selection vs always-tool: H - TV-indep                                 +0.0316 [+0.0254,+0.0377] w/l/t 29/1/0 p=1.88e-11
+    model cross-check: TX - TV-indep                                               +0.0845 [+0.0789,+0.0901] w/l/t 30/0/0 p=9.57e-24
+    cache (identical correctness): H+cache - H                                     +0.0000 [+0.0000,+0.0000] w/l/t 0/0/30 p=1.00e0
+    H - vote3                                                                      -0.0361 [-0.0430,-0.0292] w/l/t 1/29/0 p=1.28e-11
+    POST-HOC tiered: S - best baseline                                             +0.0904 [+0.0821,+0.0987] w/l/t 30/0/0 p=9.76e-20
+    POST-HOC tiered vs cost-reference: S - vote3 (cost 30)                         +0.0106 [+0.0056,+0.0156] w/l/t 24/6/0 p=1.69e-4
+    POST-HOC tiered vs headline: S - H                                             +0.0467 [+0.0414,+0.0519] w/l/t 30/0/0 p=1.86e-17
+    POST-HOC tiered vs V-only: S - V-only                                          +0.0189 [+0.0145,+0.0233] w/l/t 30/0/0 p=9.62e-10
+    cost/task: plain 10.00 | T 11.19 | TV-indep 12.96 | H 13.43 | H+cache 13.17 | TX 24.03 | vote3 30.00
+    cost/task: R 12.31 | S tiered 13.19 | V-only 14.24 | XC 10.90
+  per-domain correctness (fin / biz / sci / prose): best baseline vs H, R (rule), S (tiered, post-hoc)
+    finance   baseline 0.8030  H 0.8770  diff +0.0740 [+0.0564,+0.0916] w/l/t 29/1/0 p=1.73e-9
+    finance   baseline 0.8030  R 0.8975  diff +0.0944 [+0.0809,+0.1080] w/l/t 30/0/0 p=1.31e-14
+    finance   baseline 0.8030  S 0.9205  diff +0.1174 [+0.1019,+0.1330] w/l/t 30/0/0 p=1.68e-15
+    business  baseline 0.9085  H 0.9228  diff +0.0143 [+0.0044,+0.0242] w/l/t 21/8/1 p=6.12e-3
+    business  baseline 0.9085  R 0.9617  diff +0.0532 [+0.0458,+0.0607] w/l/t 30/0/0 p=6.18e-15
+    business  baseline 0.9085  S 0.9660  diff +0.0576 [+0.0493,+0.0658] w/l/t 30/0/0 p=1.12e-14
+    science   baseline 0.8345  H 0.8928  diff +0.0583 [+0.0358,+0.0808] w/l/t 26/4/0 p=1.13e-5
+    science   baseline 0.8345  R 0.9624  diff +0.1279 [+0.1077,+0.1481] w/l/t 30/0/0 p=1.40e-13
+    science   baseline 0.8345  S 0.9614  diff +0.1269 [+0.1065,+0.1473] w/l/t 30/0/0 p=2.14e-13
+    prose     baseline 0.8463  H 0.8379  diff -0.0083 [-0.0160,-0.0006] w/l/t 4/14/12 p=3.47e-2
+    prose     baseline 0.8463  R 0.8463  diff +0.0000 [+0.0000,+0.0000] w/l/t 0/0/30 p=1.00e0
+    prose     baseline 0.8463  S 0.8497  diff +0.0035 [-0.0034,+0.0103] w/l/t 10/6/14 p=3.10e-1
+  learned tool selection (H): tool used on 0.779 of math tasks, 0.052 of prose tasks; right op+tool among tool-used 0.791; independent verifier rejection rate 0.0000; silent wrong (tool answer accepted but wrong) 0.0352 of math tasks (R 0.0057, S 0.0057)
+  H vs best baseline by task group (pooled, descriptive; n = tasks):
+    bank:seen      n=12936  baseline 0.851  H 0.939  lift +0.088
+    bank:unseen    n=3277   baseline 0.834  H 0.733  lift -0.101
+    level:L0       n=4879   baseline 0.862  H 0.925  lift +0.063
+    level:L1       n=4851   baseline 0.863  H 0.914  lift +0.052
+    level:L2       n=3585   baseline 0.860  H 0.912  lift +0.053
+    level:L3       n=2082   baseline 0.858  H 0.911  lift +0.053
+    level:L4       n=816    baseline 0.602  H 0.533  lift -0.069
+    steps:4-6      n=5252   baseline 0.831  H 0.880  lift +0.049
+    steps:<=3      n=7486   baseline 0.921  H 0.930  lift +0.009
+    steps:>=7      n=3475   baseline 0.716  H 0.853  lift +0.137
+
+=== world B (confirm61-90; seeds 61-90, 600 tasks/seed) ===
+  plain keyword          correct 0.8196 [0.8061,0.8332]  cost 10.00
+  plain eps-greedy       correct 0.7990 [0.7865,0.8115]  cost 10.00
+  plain pooled-thompson  correct 0.7937 [0.7832,0.8042]  cost 10.00
+  plain hebbian-robust   correct 0.7975 [0.7821,0.8129]  cost 10.00
+  plain warm(hebr)       correct 0.8323 [0.8212,0.8434]  cost 10.00
+  plain guarded-safe     correct 0.8278 [0.8167,0.8389]  cost 10.00
+  best fair baseline (chosen on the evaluated seeds): warm(hebr)  correct 0.8323
+  ungated model P(correct), mean over agents: by difficulty tercile 0.822/0.762/0.708; by steps (<=3 / 4-6 / >=7) 0.868/0.727/0.559  (ASSUMPTION: error rises with difficulty and steps)
+  arm                                             correct diff vs best baseline (CI) w/l/t     cost toolrate  max Holm p over the 6 plain baselines
+  plain-guarded-safe(ref)                          0.8278 -0.0044 [-0.0097,+0.0008] w/l/t 11/19/0 p=9.15e-2   10.00   0.000   1.00e0
+  vote3                                            0.9055 +0.0732 [+0.0665,+0.0800] w/l/t 30/0/0 p=9.25e-20   30.00   0.000   2.23e-17
+  V-only(indep verifier on direct answers)         0.8906 +0.0583 [+0.0494,+0.0672] w/l/t 30/0/0 p=5.74e-14   14.66   0.000   8.04e-14
+  XC clean-spec ceiling (canonical spec, tool)     0.9852 +0.1529 [+0.1418,+0.1640] w/l/t 30/0/0 p=1.32e-22   10.83   1.000   5.01e-21
+  T tool(extracted spec), no verifier              0.7844 -0.0479 [-0.0612,-0.0345] w/l/t 1/29/0 p=4.40e-8   11.10   0.934   2.47e-1
+  TV-shared (T + re-run verifier)                  0.7844 -0.0479 [-0.0612,-0.0345] w/l/t 1/29/0 p=4.40e-8   11.90   0.934   2.47e-1
+  TV-indep (T + independent verifier)              0.7844 -0.0479 [-0.0612,-0.0345] w/l/t 1/29/0 p=4.40e-8   12.70   0.934   2.47e-1
+  R rule(conf>=theta)+indep                        0.9046 +0.0723 [+0.0627,+0.0819] w/l/t 30/0/0 p=1.61e-15   11.92   0.648   2.76e-15
+  H learned selection+indep (headline)             0.8697 +0.0374 [+0.0275,+0.0473] w/l/t 29/1/0 p=1.59e-8   12.81   0.650   1.59e-8
+  S tiered (post-hoc): conf>=hi tool+indep | lo..hi V-only | else plain   0.9126 +0.0803 [+0.0703,+0.0904] w/l/t 30/0/0 p=3.41e-16   13.01   0.648   6.81e-16
+  TX tool + model cross-check                      0.9168 +0.0846 [+0.0747,+0.0944] w/l/t 30/0/0 p=5.83e-17   23.56   0.934   1.17e-16
+  H+cache                                          0.8697 +0.0374 [+0.0275,+0.0473] w/l/t 29/1/0 p=1.59e-8   12.55   0.650   1.59e-8
+  HEADLINE H - best baseline (warm(hebr)): +0.0374 [+0.0275,+0.0473] w/l/t 29/1/0 p=1.59e-8 holm=1.59e-8   max Holm p over the 6 baselines 1.59e-8; cost/task 12.81 vs plain 10.00 (1.28x)
+  decomposition (correctness diff [95% CI] w/l/t over seeds):
+    offload: T - plain(best)                                                       -0.0479 [-0.0612,-0.0345] w/l/t 1/29/0 p=4.40e-8
+    verification of tool outputs (clean evaluator): TV-indep - T                   +0.0000 [+0.0000,+0.0000] w/l/t 0/0/30 p=1.00e0
+    independent vs shared verifier (clean evaluator): TV-indep - TV-shared         +0.0000 [+0.0000,+0.0000] w/l/t 0/0/30 p=1.00e0
+    verification of direct answers: V-only - plain(best)                           +0.0583 [+0.0494,+0.0672] w/l/t 30/0/0 p=5.74e-14
+    cost of extraction errors: T - XC(clean spec)                                  -0.2008 [-0.2086,-0.1930] w/l/t 0/30/0 p=2.53e-30
+    learned selection vs rule: H - R(theta)                                        -0.0349 [-0.0407,-0.0291] w/l/t 1/29/0 p=5.52e-13
+    learned selection vs always-tool: H - TV-indep                                 +0.0853 [+0.0775,+0.0930] w/l/t 30/0/0 p=6.94e-20
+    model cross-check: TX - TV-indep                                               +0.1324 [+0.1264,+0.1385] w/l/t 30/0/0 p=3.04e-28
+    cache (identical correctness): H+cache - H                                     +0.0000 [+0.0000,+0.0000] w/l/t 0/0/30 p=1.00e0
+    H - vote3                                                                      -0.0358 [-0.0450,-0.0267] w/l/t 2/28/0 p=8.35e-9
+    POST-HOC tiered: S - best baseline                                             +0.0803 [+0.0703,+0.0904] w/l/t 30/0/0 p=3.41e-16
+    POST-HOC tiered vs cost-reference: S - vote3 (cost 30)                         +0.0071 [+0.0003,+0.0139] w/l/t 16/13/1 p=4.00e-2
+    POST-HOC tiered vs headline: S - H                                             +0.0429 [+0.0363,+0.0496] w/l/t 30/0/0 p=9.19e-14
+    POST-HOC tiered vs V-only: S - V-only                                          +0.0220 [+0.0173,+0.0267] w/l/t 30/0/0 p=2.13e-10
+    cost/task: plain 10.00 | T 11.10 | TV-indep 12.70 | H 12.81 | H+cache 12.55 | TX 23.56 | vote3 30.00
+    cost/task: R 11.92 | S tiered 13.01 | V-only 14.66 | XC 10.83
+  per-domain correctness (fin / biz / sci / prose): best baseline vs H, R (rule), S (tiered, post-hoc)
+    finance   baseline 0.7316  H 0.7881  diff +0.0564 [+0.0340,+0.0789] w/l/t 23/7/0 p=1.67e-5
+    finance   baseline 0.7316  R 0.8177  diff +0.0861 [+0.0704,+0.1018] w/l/t 28/1/1 p=4.61e-12
+    finance   baseline 0.7316  S 0.8519  diff +0.1203 [+0.1040,+0.1365] w/l/t 30/0/0 p=2.63e-15
+    business  baseline 0.8873  H 0.8906  diff +0.0033 [-0.0079,+0.0145] w/l/t 15/13/2 p=5.50e-1
+    business  baseline 0.8873  R 0.9372  diff +0.0499 [+0.0385,+0.0613] w/l/t 28/1/1 p=8.13e-10
+    business  baseline 0.8873  S 0.9465  diff +0.0592 [+0.0463,+0.0721] w/l/t 28/2/0 p=2.68e-10
+    science   baseline 0.8098  H 0.8815  diff +0.0717 [+0.0529,+0.0906] w/l/t 28/1/1 p=1.44e-8
+    science   baseline 0.8098  R 0.9263  diff +0.1165 [+0.0986,+0.1344] w/l/t 30/0/0 p=6.83e-14
+    science   baseline 0.8098  S 0.9243  diff +0.1145 [+0.0957,+0.1332] w/l/t 30/0/0 p=3.40e-13
+    prose     baseline 0.9266  H 0.9102  diff -0.0164 [-0.0265,-0.0063] w/l/t 7/19/4 p=2.38e-3
+    prose     baseline 0.9266  R 0.9111  diff -0.0155 [-0.0254,-0.0055] w/l/t 7/19/4 p=3.44e-3
+    prose     baseline 0.9266  S 0.9099  diff -0.0167 [-0.0273,-0.0061] w/l/t 6/21/3 p=3.13e-3
+  learned tool selection (H): tool used on 0.650 of math tasks, 0.015 of prose tasks; right op+tool among tool-used 0.759; independent verifier rejection rate 0.0000; silent wrong (tool answer accepted but wrong) 0.0403 of math tasks (R 0.0104, S 0.0104)
+  H vs best baseline by task group (pooled, descriptive; n = tasks):
+    bank:seen      n=9838   baseline 0.812  H 0.916  lift +0.104
+    bank:unseen    n=5175   baseline 0.817  H 0.759  lift -0.058
+    level:L0       n=1758   baseline 0.848  H 0.903  lift +0.055
+    level:L1       n=3486   baseline 0.831  H 0.896  lift +0.066
+    level:L2       n=3906   baseline 0.842  H 0.885  lift +0.044
+    level:L3       n=4417   baseline 0.842  H 0.890  lift +0.048
+    level:L4       n=1446   baseline 0.566  H 0.577  lift +0.011
+    steps:4-6      n=5261   baseline 0.799  H 0.855  lift +0.056
+    steps:<=3      n=6459   baseline 0.904  H 0.904  lift -0.000
+    steps:>=7      n=3293   baseline 0.660  H 0.790  lift +0.130
+wrote results/h18_eval_confirm61-90.json

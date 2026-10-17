@@ -1,0 +1,83 @@
+h8_vectors mode=sweep rayon=2 free=4.48GB
+[sweep] synth384-n30000 n=30000 dim=384
+  M=16 efc=100 build 12.8s heap 5981 B/vec; self-recall not-top1 8/15000 absent-top10 8
+  M=16 efc=200 build 29.7s heap 6120 B/vec; self-recall not-top1 0/15000 absent-top10 0
+  M=16 efc=400 build 62.3s heap 6422 B/vec; self-recall not-top1 0/15000 absent-top10 0
+  M=24 efc=100 build 12.2s heap 6486 B/vec; self-recall not-top1 1/15000 absent-top10 1
+  M=24 efc=200 build 29.8s heap 6697 B/vec; self-recall not-top1 0/15000 absent-top10 0
+  M=24 efc=400 build 82.0s heap 7130 B/vec; self-recall not-top1 0/15000 absent-top10 0
+  M=32 efc=100 build 11.6s heap 6782 B/vec; self-recall not-top1 0/15000 absent-top10 0
+  M=32 efc=200 build 31.6s heap 7089 B/vec; self-recall not-top1 0/15000 absent-top10 0
+  M=32 efc=400 build 63.3s heap 7546 B/vec; self-recall not-top1 0/15000 absent-top10 0
+  M=48 efc=100 build 7.7s heap 7268 B/vec; self-recall not-top1 0/15000 absent-top10 0
+  M=48 efc=200 build 19.4s heap 7492 B/vec; self-recall not-top1 0/15000 absent-top10 0
+  M=48 efc=400 build 50.5s heap 8100 B/vec; self-recall not-top1 0/15000 absent-top10 0
+  M=64 efc=100 build 16.3s heap 12230 B/vec; self-recall not-top1 3447/15000 absent-top10 3447
+  M=64 efc=200 build 22.7s heap 7836 B/vec; self-recall not-top1 0/15000 absent-top10 0
+  M=64 efc=400 build 60.0s heap 8433 B/vec; self-recall not-top1 0/15000 absent-top10 0
+wrote results/h8_hnsw_sweep_synth384-n30000.json
+
+#### HNSW (fixed crate) Pareto synth384-n30000 (n=30000, dim=384)
+| recall@10 | p99 us | M | efc | ef |
+|---|---|---|---|---|
+| 0.983 | 244.6 | 24 | 200 | 10 |
+| 0.988 | 279.4 | 48 | 100 | 16 |
+| 0.998 | 298.8 | 24 | 200 | 16 |
+| 1.000 | 343.4 | 48 | 100 | 24 |
+[sweep] real-mini n=23153 dim=384
+  M=16 efc=100 build 2.9s heap 5869 B/vec; self-recall not-top1 5/23153 absent-top10 5
+  M=16 efc=200 build 8.1s heap 5960 B/vec; self-recall not-top1 0/23153 absent-top10 0
+  M=16 efc=400 build 21.4s heap 6124 B/vec; self-recall not-top1 0/23153 absent-top10 0
+  M=24 efc=100 build 3.2s heap 6255 B/vec; self-recall not-top1 2/23153 absent-top10 2
+  M=24 efc=200 build 8.6s heap 6422 B/vec; self-recall not-top1 0/23153 absent-top10 0
+  M=24 efc=400 build 20.5s heap 6611 B/vec; self-recall not-top1 0/23153 absent-top10 0
+  M=32 efc=100 build 2.7s heap 6531 B/vec; self-recall not-top1 5/23153 absent-top10 5
+  M=32 efc=200 build 6.7s heap 6754 B/vec; self-recall not-top1 0/23153 absent-top10 0
+  M=32 efc=400 build 16.0s heap 6878 B/vec; self-recall not-top1 0/23153 absent-top10 0
+  M=48 efc=100 build 2.3s heap 6981 B/vec; self-recall not-top1 3/23153 absent-top10 3
+  M=48 efc=200 build 5.8s heap 7115 B/vec; self-recall not-top1 0/23153 absent-top10 0
+  M=48 efc=400 build 15.2s heap 7328 B/vec; self-recall not-top1 0/23153 absent-top10 0
+  M=64 efc=100 build 7.6s heap 12242 B/vec; self-recall not-top1 286/23153 absent-top10 286
+  M=64 efc=200 build 6.8s heap 7454 B/vec; self-recall not-top1 0/23153 absent-top10 0
+  M=64 efc=400 build 17.3s heap 7630 B/vec; self-recall not-top1 0/23153 absent-top10 0
+wrote results/h8_hnsw_sweep_real-mini.json
+
+#### HNSW (fixed crate) Pareto real-mini (n=23153, dim=384)
+| recall@10 | p99 us | M | efc | ef |
+|---|---|---|---|---|
+| 0.978 | 105.4 | 48 | 100 | 10 |
+| 0.989 | 144.7 | 32 | 200 | 10 |
+| 0.994 | 157.7 | 32 | 100 | 16 |
+| 0.995 | 218.2 | 24 | 400 | 16 |
+| 0.996 | 218.8 | 24 | 100 | 24 |
+| 0.999 | 241.2 | 32 | 100 | 32 |
+| 1.000 | 303.2 | 32 | 100 | 48 |
+| 1.000 | 424.5 | 64 | 400 | 48 |
+[sweep] real-bge n=23453 dim=768
+  M=16 efc=100 build 3.4s heap 7399 B/vec; self-recall not-top1 147/23453 absent-top10 147
+  M=16 efc=200 build 11.8s heap 7512 B/vec; self-recall not-top1 31/23453 absent-top10 31
+  M=16 efc=400 build 27.3s heap 7661 B/vec; self-recall not-top1 13/23453 absent-top10 13
+  M=24 efc=100 build 5.1s heap 7804 B/vec; self-recall not-top1 26/23453 absent-top10 26
+  M=24 efc=200 build 14.6s heap 7998 B/vec; self-recall not-top1 10/23453 absent-top10 10
+  M=24 efc=400 build 33.6s heap 8102 B/vec; self-recall not-top1 8/23453 absent-top10 8
+  M=32 efc=100 build 4.6s heap 8115 B/vec; self-recall not-top1 27/23453 absent-top10 27
+  M=32 efc=200 build 13.4s heap 8268 B/vec; self-recall not-top1 4/23453 absent-top10 4
+  M=32 efc=400 build 35.8s heap 8414 B/vec; self-recall not-top1 6/23453 absent-top10 6
+  M=48 efc=100 build 5.3s heap 8557 B/vec; self-recall not-top1 13/23453 absent-top10 13
+  M=48 efc=200 build 15.4s heap 8706 B/vec; self-recall not-top1 1/23453 absent-top10 1
+  M=48 efc=400 build 43.7s heap 8861 B/vec; self-recall not-top1 1/23453 absent-top10 1
+[ram] free 2.82 GB < 3.0 GB, pausing before hnsw build
+  M=64 efc=100 build 23.7s heap 13788 B/vec; self-recall not-top1 523/23453 absent-top10 523
+  M=64 efc=200 build 15.4s heap 9021 B/vec; self-recall not-top1 0/23453 absent-top10 0
+  M=64 efc=400 build 38.3s heap 9184 B/vec; self-recall not-top1 0/23453 absent-top10 0
+wrote results/h8_hnsw_sweep_real-bge.json
+
+#### HNSW (fixed crate) Pareto real-bge (n=23453, dim=768)
+| recall@10 | p99 us | M | efc | ef |
+|---|---|---|---|---|
+| 0.970 | 178.5 | 16 | 100 | 10 |
+| 0.995 | 189.0 | 64 | 400 | 10 |
+| 0.999 | 247.2 | 64 | 400 | 16 |
+| 0.999 | 276.5 | 24 | 100 | 16 |
+| 0.999 | 321.5 | 16 | 400 | 24 |
+| 1.000 | 355.1 | 24 | 100 | 32 |

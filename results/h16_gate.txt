@@ -1,0 +1,49 @@
+worlds 11 ; cal seeds 101-130 ; test seeds 31-60
+
+== P1 evidence verifier (g9 claim_verdict / task_verdict) ==
+  P1 G-A1-mixed               claim verdicts    72000 task verdicts   72000 mismatches 0 (Bad seen 21495, Unverifiable seen 2205)
+  P1 G-A2-stale-heavy         claim verdicts    72000 task verdicts   72000 mismatches 0 (Bad seen 21456, Unverifiable seen 2295)
+  P1 G-A9-rare-errors         claim verdicts    72000 task verdicts   72000 mismatches 0 (Bad seen 11469, Unverifiable seen 2430)
+  P1 G-A7-weak-retrieval      claim verdicts    72000 task verdicts   72000 mismatches 0 (Bad seen 29214, Unverifiable seen 17370)
+  P1 G-A8-poisoned            claim verdicts    72000 task verdicts   72000 mismatches 0 (Bad seen 31174, Unverifiable seen 1665)
+  P1 G-B1-report              claim verdicts   288000 task verdicts   72000 mismatches 0 (Bad seen 65625, Unverifiable seen 10170)
+  P1 G-A1-weaksig(sep.7)      claim verdicts    72000 task verdicts   72000 mismatches 0 (Bad seen 20994, Unverifiable seen 2340)
+  P1 NEG-A1-uninformative     claim verdicts    72000 task verdicts   72000 mismatches 0 (Bad seen 22012, Unverifiable seen 2520)
+  P1 NEG-A9-uninformative     claim verdicts    72000 task verdicts   72000 mismatches 0 (Bad seen 12383, Unverifiable seen 2250)
+  P1 CTL-A10-zero-errors      claim verdicts    72000 task verdicts   72000 mismatches 0 (Bad seen 10430, Unverifiable seen 2520)
+  P1 CTL-B3-report-zero       claim verdicts   288000 task verdicts   72000 mismatches 0 (Bad seen 38500, Unverifiable seen 8460)
+  P1 PASS: 1224000 claim verdicts + 792000 task verdicts, 0 mismatches
+
+== P2 FixedGate (h3 r1/r2 thresholds, decisions, stats) ==
+  P2 G-A1-mixed             h3 R1 threshold     0.850452 | library fit     0.850452 | cal AUROC 0.842, wrong 4449, err 0.099 | guard -> ENABLED (gate 0.8504515468302913)
+  P2 G-A2-stale-heavy       h3 R1 threshold     0.864082 | library fit     0.864082 | cal AUROC 0.844, wrong 5765, err 0.128 | guard -> ENABLED (gate 0.8640820917600341)
+  P2 G-A9-rare-errors       h3 R1 threshold     0.717664 | library fit     0.717664 | cal AUROC 0.826, wrong 722, err 0.016 | guard -> ENABLED (gate 0.7176643981317403)
+  P2 G-A7-weak-retrieval    h3 R1 threshold     0.650866 | library fit     0.650866 | cal AUROC 0.836, wrong 4546, err 0.101 | guard -> ENABLED (gate 0.6508664663853314)
+  P2 G-A8-poisoned          h3 R1 threshold     0.723951 | library fit     0.723951 | cal AUROC 0.840, wrong 3584, err 0.080 | guard -> ENABLED (gate 0.7239508340763476)
+  P2 G-B1-report            h3 R1 threshold     0.724581 | library fit     0.724581 | cal AUROC 0.838, wrong 10240, err 0.228 | guard -> ENABLED (gate 0.7245812767442799)
+  P2 G-A1-weaksig(sep.7)    h3 R1 threshold 1000000000.000000 | library fit 1000000000.000000 | cal AUROC 0.680, wrong 4640, err 0.103 | guard -> ENABLED (gate 1000000000.0)
+  P2 NEG-A1-uninformative   h3 R1 threshold 1000000000.000000 | library fit 1000000000.000000 | cal AUROC 0.495, wrong 4549, err 0.101 | guard -> WeakSignal => always-verify (gate 1000000000.0)
+  P2 NEG-A9-uninformative   h3 R1 threshold 1000000000.000000 | library fit 1000000000.000000 | cal AUROC 0.504, wrong 675, err 0.015 | guard -> WeakSignal => always-verify (gate 1000000000.0)
+  P2 CTL-A10-zero-errors    h3 R1 threshold -1000000000.000000 | library fit -1000000000.000000 | cal AUROC NaN, wrong 0, err 0.000 | guard -> TooFewWrong => always-verify (gate 1000000000.0)
+  P2 CTL-B3-report-zero     h3 R1 threshold -1000000000.000000 | library fit -1000000000.000000 | cal AUROC NaN, wrong 0, err 0.000 | guard -> TooFewWrong => always-verify (gate 1000000000.0)
+  P2 PASS: thresholds 198 (bit mismatches 0), per-record decisions 5940000 (mismatches 0), eval_g runs 5940 (mismatches 0), AUROC/ECE/bins 363 (mismatches 0)
+
+== P3 precision gate / evidence critic (h3 auto_g, g9 run_critic_arm Auto) ==
+  P3a record level: 660 (world,seed) runs of h3 auto_g vs library PrecisionGate, 0 mismatches (131659 reroutes taken in total)
+  P3b full loop G-A1-mixed             6 seeds: g9 run_critic_arm(Auto) vs EvidenceCritic mismatches 0 (acc 0.9674, reroute calls/task 0.1290)
+  P3b full loop G-A2-stale-heavy       6 seeds: g9 run_critic_arm(Auto) vs EvidenceCritic mismatches 0 (acc 0.9482, reroute calls/task 0.1614)
+  P3b full loop G-A9-rare-errors       6 seeds: g9 run_critic_arm(Auto) vs EvidenceCritic mismatches 0 (acc 0.9954, reroute calls/task 0.0548)
+  P3b full loop G-A7-weak-retrieval    6 seeds: g9 run_critic_arm(Auto) vs EvidenceCritic mismatches 0 (acc 0.9001, reroute calls/task 0.1473)
+  P3b full loop G-A8-poisoned          6 seeds: g9 run_critic_arm(Auto) vs EvidenceCritic mismatches 0 (acc 0.9540, reroute calls/task 0.2073)
+  P3b full loop G-B1-report            6 seeds: g9 run_critic_arm(Auto) vs EvidenceCritic mismatches 0 (acc 0.9689, reroute calls/task 0.3279)
+  P3b full loop G-A1-weaksig(sep.7)    6 seeds: g9 run_critic_arm(Auto) vs EvidenceCritic mismatches 0 (acc 0.9691, reroute calls/task 0.1400)
+  P3b full loop NEG-A1-uninformative   6 seeds: g9 run_critic_arm(Auto) vs EvidenceCritic mismatches 0 (acc 0.9671, reroute calls/task 0.1411)
+  P3b full loop NEG-A9-uninformative   6 seeds: g9 run_critic_arm(Auto) vs EvidenceCritic mismatches 0 (acc 0.9957, reroute calls/task 0.0578)
+  P3b full loop CTL-A10-zero-errors    6 seeds: g9 run_critic_arm(Auto) vs EvidenceCritic mismatches 0 (acc 1.0000, reroute calls/task 0.0286)
+  P3b full loop CTL-B3-report-zero     6 seeds: g9 run_critic_arm(Auto) vs EvidenceCritic mismatches 0 (acc 1.0000, reroute calls/task 0.0287)
+  P3 PASS: record level 660 runs (0 mismatches), full loop 66 runs (0 mismatches)
+
+== P4 posterior gate (h11) ==
+  P4 PASS: 664000 (rv, cv, nmin, s, n) points vs the h11 expression (394679 verify), mismatches 0
+
+OVERALL PASS (3.1s)

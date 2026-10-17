@@ -1,0 +1,157 @@
+G4 robustness v1 Alt { floor: 0.5, window: 5, scale: 1.2, mean_mode: true }  eval set confirm
+-- C1-multistyle                      best fair (tuned) = pooled-ts(g=1)                           value overall 0.7164  plain-ucb 0.6739
+-- C2-star-plus-diverse               best fair (tuned) = pooled-ts(g=1)                           value overall 0.6782  plain-ucb 0.6414
+-- C3-clustered-drift                 best fair (tuned) = pooled-ts(g=1)                           value overall 0.5271  plain-ucb 0.4889
+-- K1-multistyle-correct              best fair (tuned) = warm(hebR,k=10,Mean)                     value overall 0.7954  plain-ucb 0.8083
+-- K2-star-correct                    best fair (tuned) = eps-greedy(g=0.9,e=0.02)                 value overall 0.8761  plain-ucb 0.8999
+-- K3-clustered-drift-correct         best fair (tuned) = warm(hebR,k=3,Mean)                      value overall 0.6684  plain-ucb 0.6670
+-- M1-mixed-3of6-creative             best fair (tuned) = eps-greedy(g=0.9,e=0.02)                 value overall 0.7468  plain-ucb 0.7421
+-- M2-mixed-1of6-creative-star        best fair (tuned) = eps-greedy(g=0.99,e=0.02)                value overall 0.8346  plain-ucb 0.8525
+-- R1-rigged-hidden-novelty-dims      best fair (tuned) = eps-greedy(g=1,e=0.02)                   value overall 0.6248  plain-ucb 0.5993
+
+132 tests, Holm over all
+
+## nbucb(b=0.4,c=0.05)|declared
+   winG   C1-multistyle                      +0.0198 [+0.0180,+0.0216] w/l 30/0 holm 0.000
+   winG   C2-star-plus-diverse               +0.0177 [+0.0156,+0.0197] w/l 30/0 holm 0.000
+   winG   C3-clustered-drift                 +0.0155 [+0.0135,+0.0174] w/l 30/0 holm 0.000
+   winG   M1-mixed-3of6-creative             +0.0384 [+0.0345,+0.0422] w/l 30/0 holm 0.000
+   winG   M2-mixed-1of6-creative-star        +0.0205 [+0.0120,+0.0291] w/l 25/5 holm 0.002
+   winG   R1-rigged-hidden-novelty-dims      +0.0134 [+0.0091,+0.0177] w/l 27/3 holm 0.000
+   winU   C1-multistyle                      +0.0624 [+0.0604,+0.0643] w/l 30/0 holm 0.000
+   winU   C2-star-plus-diverse               +0.0544 [+0.0525,+0.0563] w/l 30/0 holm 0.000
+   winU   C3-clustered-drift                 +0.0537 [+0.0474,+0.0600] w/l 30/0 holm 0.000
+   winU   M1-mixed-3of6-creative             +0.0559 [+0.0532,+0.0587] w/l 30/0 holm 0.000
+   winU   M2-mixed-1of6-creative-star        +0.0498 [+0.0433,+0.0562] w/l 30/0 holm 0.000
+   winU   R1-rigged-hidden-novelty-dims      +0.0390 [+0.0357,+0.0422] w/l 30/0 holm 0.000
+   harmG  K1-multistyle-correct              +0.0129 [+0.0067,+0.0192] w/l 24/6 holm 0.012
+   harmG  K2-star-correct                    +0.0238 [+0.0194,+0.0282] w/l 30/0 holm 0.000
+   harmG  K3-clustered-drift-correct         -0.0014 [-0.0036,+0.0008] w/l 11/19 holm 1.000
+   harmG  M1-mixed-3of6-creative             +0.0083 [+0.0057,+0.0109] w/l 27/3 holm 0.000
+   harmG  M2-mixed-1of6-creative-star        +0.0273 [+0.0224,+0.0322] w/l 30/0 holm 0.000
+   harmU  K1-multistyle-correct              +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.000
+   harmU  K2-star-correct                    +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.000
+   harmU  K3-clustered-drift-correct         +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.000
+   harmU  M1-mixed-3of6-creative             +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.000
+   harmU  M2-mixed-1of6-creative-star        +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.000
+
+## nbucb(b=0.8,c=0.05)|learned
+   winG   C1-multistyle                      +0.0024 [+0.0006,+0.0043] w/l 20/10 holm 0.406
+   winG   C2-star-plus-diverse               -0.0090 [-0.0111,-0.0069] w/l 1/29 holm 0.000
+   winG   C3-clustered-drift                 -0.0038 [-0.0072,-0.0005] w/l 10/20 holm 0.944
+   winG   M1-mixed-3of6-creative             +0.0179 [+0.0146,+0.0212] w/l 29/1 holm 0.000
+   winG   M2-mixed-1of6-creative-star        -0.0121 [-0.0215,-0.0027] w/l 9/21 holm 0.517
+   winG   R1-rigged-hidden-novelty-dims      -0.0017 [-0.0070,+0.0036] w/l 12/18 holm 1.000
+   winU   C1-multistyle                      +0.0450 [+0.0430,+0.0470] w/l 30/0 holm 0.000
+   winU   C2-star-plus-diverse               +0.0278 [+0.0256,+0.0300] w/l 30/0 holm 0.000
+   winU   C3-clustered-drift                 +0.0344 [+0.0290,+0.0397] w/l 30/0 holm 0.000
+   winU   M1-mixed-3of6-creative             +0.0354 [+0.0330,+0.0379] w/l 30/0 holm 0.000
+   winU   M2-mixed-1of6-creative-star        +0.0171 [+0.0115,+0.0228] w/l 25/3 holm 0.000
+   winU   R1-rigged-hidden-novelty-dims      +0.0239 [+0.0202,+0.0276] w/l 30/0 holm 0.000
+   harmG  K1-multistyle-correct              +0.0122 [+0.0062,+0.0182] w/l 23/7 holm 0.013
+   harmG  K2-star-correct                    +0.0238 [+0.0194,+0.0282] w/l 30/0 holm 0.000
+   harmG  K3-clustered-drift-correct         -0.0013 [-0.0033,+0.0008] w/l 11/19 holm 1.000
+   harmG  M1-mixed-3of6-creative             +0.0082 [+0.0057,+0.0108] w/l 27/3 holm 0.000
+   harmG  M2-mixed-1of6-creative-star        +0.0273 [+0.0224,+0.0322] w/l 30/0 holm 0.000
+   harmU  K1-multistyle-correct              -0.0007 [-0.0015,+0.0001] w/l 0/4 holm 1.000
+   harmU  K2-star-correct                    +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.000
+   harmU  K3-clustered-drift-correct         +0.0002 [-0.0004,+0.0007] w/l 1/2 holm 1.000
+   harmU  M1-mixed-3of6-creative             -0.0000 [-0.0001,+0.0001] w/l 1/1 holm 1.000
+   harmU  M2-mixed-1of6-creative-star        +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.000
+
+## novfilter(k=2)/warm(hebR,k=10,Mean)|declared
+   winG   C1-multistyle                      -0.0000 [-0.0022,+0.0022] w/l 12/18 holm 1.000
+   winG   C2-star-plus-diverse               -0.0253 [-0.0277,-0.0230] w/l 0/30 holm 0.000
+   winG   C3-clustered-drift                 -0.0154 [-0.0229,-0.0079] w/l 7/23 holm 0.012
+   winG   M1-mixed-3of6-creative             +0.0162 [+0.0118,+0.0207] w/l 29/1 holm 0.000
+   winG   M2-mixed-1of6-creative-star        -0.0243 [-0.0339,-0.0147] w/l 6/24 holm 0.001
+   winG   R1-rigged-hidden-novelty-dims      -0.0166 [-0.0242,-0.0090] w/l 4/26 holm 0.006
+   winU   C1-multistyle                      +0.0425 [+0.0400,+0.0451] w/l 30/0 holm 0.000
+   winU   C2-star-plus-diverse               +0.0114 [+0.0090,+0.0139] w/l 29/1 holm 0.000
+   winU   C3-clustered-drift                 +0.0228 [+0.0164,+0.0292] w/l 28/2 holm 0.000
+   winU   M1-mixed-3of6-creative             +0.0338 [+0.0302,+0.0375] w/l 30/0 holm 0.000
+   winU   M2-mixed-1of6-creative-star        +0.0049 [-0.0025,+0.0124] w/l 15/15 holm 1.000
+   winU   R1-rigged-hidden-novelty-dims      +0.0090 [+0.0030,+0.0150] w/l 20/10 holm 0.197
+   harmG  K1-multistyle-correct              +0.0000 [+0.0000,+0.0000] w/l 0/0 holm 1.000
+   harmG  K2-star-correct                    -0.0450 [-0.0620,-0.0279] w/l 4/26 holm 0.001
+   harmG  K3-clustered-drift-correct         -0.0005 [-0.0019,+0.0009] w/l 10/20 holm 1.000
+   harmG  M1-mixed-3of6-creative             +0.0019 [-0.0050,+0.0088] w/l 20/10 holm 1.000
+   harmG  M2-mixed-1of6-creative-star        -0.0330 [-0.0531,-0.0129] w/l 10/20 holm 0.103
+   harmU  K1-multistyle-correct              -0.0129 [-0.0192,-0.0067] w/l 6/24 holm 0.012
+   harmU  K2-star-correct                    -0.0688 [-0.0851,-0.0524] w/l 1/29 holm 0.000
+   harmU  K3-clustered-drift-correct         +0.0009 [-0.0020,+0.0038] w/l 15/15 holm 1.000
+   harmU  M1-mixed-3of6-creative             -0.0064 [-0.0132,+0.0005] w/l 16/14 holm 1.000
+   harmU  M2-mixed-1of6-creative-star        -0.0603 [-0.0796,-0.0410] w/l 7/23 holm 0.000
+
+## novfilter(k=2)/warm(hebR,k=10,Mean)|learned
+   winG   C1-multistyle                      -0.0197 [-0.0228,-0.0167] w/l 0/30 holm 0.000
+   winG   C2-star-plus-diverse               -0.0359 [-0.0390,-0.0328] w/l 0/30 holm 0.000
+   winG   C3-clustered-drift                 -0.0191 [-0.0255,-0.0126] w/l 4/26 holm 0.000
+   winG   M1-mixed-3of6-creative             -0.0139 [-0.0192,-0.0086] w/l 4/26 holm 0.001
+   winG   M2-mixed-1of6-creative-star        -0.0311 [-0.0418,-0.0204] w/l 2/28 holm 0.000
+   winG   R1-rigged-hidden-novelty-dims      -0.0197 [-0.0256,-0.0139] w/l 2/28 holm 0.000
+   winU   C1-multistyle                      +0.0228 [+0.0197,+0.0260] w/l 30/0 holm 0.000
+   winU   C2-star-plus-diverse               +0.0009 [-0.0017,+0.0035] w/l 17/13 holm 1.000
+   winU   C3-clustered-drift                 +0.0191 [+0.0138,+0.0245] w/l 26/4 holm 0.000
+   winU   M1-mixed-3of6-creative             +0.0036 [-0.0014,+0.0087] w/l 20/10 holm 1.000
+   winU   M2-mixed-1of6-creative-star        -0.0019 [-0.0115,+0.0077] w/l 15/15 holm 1.000
+   winU   R1-rigged-hidden-novelty-dims      +0.0059 [+0.0009,+0.0108] w/l 20/10 holm 0.780
+   harmG  K1-multistyle-correct              -0.0001 [-0.0002,+0.0001] w/l 0/1 holm 1.000
+   harmG  K2-star-correct                    -0.0456 [-0.0626,-0.0287] w/l 4/26 holm 0.000
+   harmG  K3-clustered-drift-correct         -0.0009 [-0.0024,+0.0005] w/l 9/21 holm 1.000
+   harmG  M1-mixed-3of6-creative             +0.0005 [-0.0073,+0.0083] w/l 19/11 holm 1.000
+   harmG  M2-mixed-1of6-creative-star        -0.0330 [-0.0536,-0.0124] w/l 8/22 holm 0.125
+   harmU  K1-multistyle-correct              -0.0130 [-0.0192,-0.0068] w/l 6/24 holm 0.011
+   harmU  K2-star-correct                    -0.0694 [-0.0856,-0.0533] w/l 1/29 holm 0.000
+   harmU  K3-clustered-drift-correct         +0.0005 [-0.0024,+0.0034] w/l 14/16 holm 1.000
+   harmU  M1-mixed-3of6-creative             -0.0078 [-0.0154,-0.0001] w/l 16/14 holm 1.000
+   harmU  M2-mixed-1of6-creative-star        -0.0603 [-0.0801,-0.0405] w/l 7/23 holm 0.000
+
+## nbreg(c=0.05)|declared
+   winG   C1-multistyle                      +0.0195 [+0.0175,+0.0214] w/l 30/0 holm 0.000
+   winG   C2-star-plus-diverse               +0.0016 [-0.0008,+0.0040] w/l 18/12 holm 1.000
+   winG   C3-clustered-drift                 +0.0103 [+0.0071,+0.0135] w/l 26/4 holm 0.000
+   winG   M1-mixed-3of6-creative             +0.0334 [+0.0305,+0.0363] w/l 30/0 holm 0.000
+   winG   M2-mixed-1of6-creative-star        +0.0048 [-0.0039,+0.0134] w/l 16/14 holm 1.000
+   winG   R1-rigged-hidden-novelty-dims      +0.0175 [+0.0134,+0.0216] w/l 29/1 holm 0.000
+   winU   C1-multistyle                      +0.0620 [+0.0603,+0.0637] w/l 30/0 holm 0.000
+   winU   C2-star-plus-diverse               +0.0384 [+0.0365,+0.0403] w/l 30/0 holm 0.000
+   winU   C3-clustered-drift                 +0.0485 [+0.0430,+0.0541] w/l 30/0 holm 0.000
+   winU   M1-mixed-3of6-creative             +0.0509 [+0.0484,+0.0535] w/l 30/0 holm 0.000
+   winU   M2-mixed-1of6-creative-star        +0.0340 [+0.0293,+0.0387] w/l 30/0 holm 0.000
+   winU   R1-rigged-hidden-novelty-dims      +0.0431 [+0.0408,+0.0454] w/l 30/0 holm 0.000
+   harmG  K1-multistyle-correct              +0.0118 [+0.0056,+0.0180] w/l 21/9 holm 0.026
+   harmG  K2-star-correct                    +0.0238 [+0.0194,+0.0282] w/l 30/0 holm 0.000
+   harmG  K3-clustered-drift-correct         -0.0031 [-0.0051,-0.0011] w/l 7/23 holm 0.145
+   harmG  M1-mixed-3of6-creative             +0.0061 [+0.0035,+0.0088] w/l 25/5 holm 0.003
+   harmG  M2-mixed-1of6-creative-star        +0.0272 [+0.0224,+0.0321] w/l 30/0 holm 0.000
+   harmU  K1-multistyle-correct              -0.0011 [-0.0020,-0.0002] w/l 10/20 holm 0.831
+   harmU  K2-star-correct                    -0.0001 [-0.0001,+0.0000] w/l 1/5 holm 1.000
+   harmU  K3-clustered-drift-correct         -0.0017 [-0.0025,-0.0008] w/l 5/25 holm 0.030
+   harmU  M1-mixed-3of6-creative             -0.0021 [-0.0030,-0.0012] w/l 5/25 holm 0.003
+   harmU  M2-mixed-1of6-creative-star        -0.0001 [-0.0001,-0.0000] w/l 1/9 holm 0.285
+
+## nbreg(c=0.05)|learned
+   winG   C1-multistyle                      +0.0181 [+0.0159,+0.0203] w/l 30/0 holm 0.000
+   winG   C2-star-plus-diverse               +0.0011 [-0.0012,+0.0034] w/l 15/15 holm 1.000
+   winG   C3-clustered-drift                 +0.0088 [+0.0056,+0.0120] w/l 25/5 holm 0.000
+   winG   M1-mixed-3of6-creative             +0.0307 [+0.0270,+0.0345] w/l 29/1 holm 0.000
+   winG   M2-mixed-1of6-creative-star        +0.0023 [-0.0066,+0.0112] w/l 14/16 holm 1.000
+   winG   R1-rigged-hidden-novelty-dims      +0.0140 [+0.0096,+0.0184] w/l 27/3 holm 0.000
+   winU   C1-multistyle                      +0.0607 [+0.0586,+0.0627] w/l 30/0 holm 0.000
+   winU   C2-star-plus-diverse               +0.0379 [+0.0361,+0.0397] w/l 30/0 holm 0.000
+   winU   C3-clustered-drift                 +0.0470 [+0.0412,+0.0529] w/l 30/0 holm 0.000
+   winU   M1-mixed-3of6-creative             +0.0483 [+0.0452,+0.0515] w/l 30/0 holm 0.000
+   winU   M2-mixed-1of6-creative-star        +0.0315 [+0.0260,+0.0371] w/l 30/0 holm 0.000
+   winU   R1-rigged-hidden-novelty-dims      +0.0396 [+0.0370,+0.0422] w/l 30/0 holm 0.000
+   harmG  K1-multistyle-correct              +0.0114 [+0.0052,+0.0176] w/l 21/9 holm 0.035
+   harmG  K2-star-correct                    +0.0238 [+0.0194,+0.0282] w/l 30/0 holm 0.000
+   harmG  K3-clustered-drift-correct         -0.0031 [-0.0050,-0.0011] w/l 7/23 holm 0.145
+   harmG  M1-mixed-3of6-creative             +0.0062 [+0.0035,+0.0088] w/l 25/5 holm 0.003
+   harmG  M2-mixed-1of6-creative-star        +0.0272 [+0.0224,+0.0321] w/l 30/0 holm 0.000
+   harmU  K1-multistyle-correct              -0.0015 [-0.0025,-0.0004] w/l 8/22 holm 0.285
+   harmU  K2-star-correct                    -0.0001 [-0.0001,+0.0000] w/l 1/5 holm 1.000
+   harmU  K3-clustered-drift-correct         -0.0016 [-0.0025,-0.0007] w/l 5/25 holm 0.034
+   harmU  M1-mixed-3of6-creative             -0.0021 [-0.0030,-0.0012] w/l 5/25 holm 0.003
+   harmU  M2-mixed-1of6-creative-star        -0.0001 [-0.0001,-0.0000] w/l 1/9 holm 0.285
+wrote results/g4_robust_v1_confirm.json

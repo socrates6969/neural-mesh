@@ -1,0 +1,6 @@
+selftest ok (PopTs(empty)==pooled-ts bit-identical; shrinkage + trust behave)
+guarded-safe                       1718 ns/task (select+update, incl. build 0.00 ms / 2000 tasks)
+warm(hebr,k1)                      3052 ns/task (select+update, incl. build 0.00 ms / 2000 tasks)
+pooled-ts                          3566 ns/task (select+update, incl. build 0.00 ms / 2000 tasks)
+pop-guard+conf (default pick)      3327 ns/task (select+update, incl. build 0.07 ms / 2000 tasks)
+state: guarded row = n_agents*(s,f) f64 = 16 B*n; pop-guard row = data+prior = 32 B*n (+16 B trust/feature); pool prior table (shared, static) = features*n_agents*32 B

@@ -1,0 +1,294 @@
+TUNING (seeds 1-8, all 15 worlds, mean util(mu=0.1) in TE):  base L3: util 0.6687 q 0.7438 cost 14560
+  verify-gate R 0.3   util 0.7276 q 0.7300 cost 8422
+  verify-gate R 0.4   util 0.7279 q 0.7304 cost 8430
+  verify-gate R 0.5   util 0.7292 q 0.7321 cost 8462
+  verify-gate R 0.6   util 0.7275 q 0.7335 cost 8724
+  verify-gate R 0.75  util 0.7177 q 0.7388 cost 10047
+  verify-gate R 1     util 0.7106 q 0.7430 cost 11029
+  verify-gate R 1.5   util 0.6947 q 0.7435 cost 12399
+  verify-gate R 2     util 0.6834 q 0.7435 cost 13324
+  verify-gate R 3     util 0.6760 q 0.7438 cost 13937
+  retr-gate theta 0.4   util 0.6696 q 0.7443 cost 14525
+  retr-gate theta 0.5   util 0.6693 q 0.7438 cost 14509
+  retr-gate theta 0.55  util 0.6663 q 0.7412 cost 14540
+  retr-gate theta 0.6   util 0.6611 q 0.7366 cost 14601
+  retr-gate theta 0.65  util 0.6508 q 0.7279 cost 14739
+  retr-gate theta 0.7   util 0.6360 q 0.7157 cost 14966
+  => R* 0.5 (gain +0.0605; in stack: true), theta* 0.4 (gain +0.0009; in stack: false)
+tuning done in 24s
+
+evaluated 27 arms x 15 worlds x 30 seeds in 102s
+
+=== 1. COST DECOMPOSITION of the always-verify session L3 (TE per task, default prices) and the stack S; share of the L3 cost ===
+  pipe-main           L3   10261 TE [gen base prompt 19%, gen injected ctx 4%, gen completion 48%, verifier 29%, retrieval/encoder ms 0%, rerank+tools 0%]  | S    6445 TE (-37.2%)
+  pipe-chain          L3   10439 TE [gen base prompt 19%, gen injected ctx 4%, gen completion 48%, verifier 29%, retrieval/encoder ms 0%, rerank+tools 0%]  | S    6505 TE (-37.7%)
+  pipe-wide           L3    9936 TE [gen base prompt 19%, gen injected ctx 4%, gen completion 48%, verifier 29%, retrieval/encoder ms 0%, rerank+tools 0%]  | S    6362 TE (-36.0%)
+  pipe-weakctx        L3    9642 TE [gen base prompt 19%, gen injected ctx 4%, gen completion 48%, verifier 29%, retrieval/encoder ms 0%, rerank+tools 0%]  | S    6384 TE (-33.8%)
+  pipe-lowrec         L3   10867 TE [gen base prompt 19%, gen injected ctx 3%, gen completion 49%, verifier 29%, retrieval/encoder ms 0%, rerank+tools 0%]  | S    6455 TE (-40.6%)
+  pipe-badver         L3   12108 TE [gen base prompt 19%, gen injected ctx 4%, gen completion 48%, verifier 29%, retrieval/encoder ms 0%, rerank+tools 0%]  | S    6495 TE (-46.4%)
+  lat-main            L3   17899 TE [gen base prompt 21%, gen injected ctx 4%, gen completion 54%, verifier 21%, retrieval/encoder ms 0%, rerank+tools 0%]  | S   10480 TE (-41.4%)
+  lat-highprop        L3   20961 TE [gen base prompt 21%, gen injected ctx 4%, gen completion 53%, verifier 21%, retrieval/encoder ms 0%, rerank+tools 0%]  | S   10529 TE (-49.8%)
+  lat-noisyag         L3   18405 TE [gen base prompt 21%, gen injected ctx 4%, gen completion 53%, verifier 21%, retrieval/encoder ms 0%, rerank+tools 0%]  | S   10120 TE (-45.0%)
+  lat-pricever        L3   24491 TE [gen base prompt 16%, gen injected ctx 3%, gen completion 40%, verifier 41%, retrieval/encoder ms 0%, rerank+tools 0%]  | S   10768 TE (-56.0%)
+  ctl-single-step     L3    2102 TE [gen base prompt 18%, gen injected ctx 4%, gen completion 49%, verifier 29%, retrieval/encoder ms 0%, rerank+tools 0%]  | S    1408 TE (-33.0%)
+  ctl-indep-dominant  L3   16414 TE [gen base prompt 21%, gen injected ctx 5%, gen completion 58%, verifier 17%, retrieval/encoder ms 0%, rerank+tools 0%]  | S   12961 TE (-21.0%)
+  ctl-indep-spec      L3    9298 TE [gen base prompt 18%, gen injected ctx 4%, gen completion 49%, verifier 30%, retrieval/encoder ms 0%, rerank+tools 0%]  | S    6201 TE (-33.3%)
+  ctl-rare-pricever   L3   23268 TE [gen base prompt 17%, gen injected ctx 3%, gen completion 42%, verifier 37%, retrieval/encoder ms 0%, rerank+tools 0%]  | S   14600 TE (-37.3%)
+  ctl-equal-agents    L3   21972 TE [gen base prompt 21%, gen injected ctx 4%, gen completion 53%, verifier 22%, retrieval/encoder ms 0%, rerank+tools 0%]  | S    9811 TE (-55.3%)
+
+=== 2. every arm vs the always-verify session L3 (graded quality q, all-correct ok; cost in TE at default prices; util(.03)); held 31-60 ===
+legend: dq = q(arm)-q(L3); EQ = number of worlds TOST-equivalent within +-.01 on q (Holm over 390 tests | raw p<.05 | NI = non-inferior: CI lower bound > -.01); cost cut% = 1 - cost(arm)/cost(L3) (Holm WIN = cheaper); dU = util(.03) diff
+arm                           generator A (6 worlds)                        generator B (4 worlds)                             controls (5)                 
+                   dq  EQ  dok  cost-cut%  W/L  dU(mu) dU(alt)   dq  EQ  dok  cost-cut%  W/L  dU(mu) dU(alt)   dq  EQ  dok  cost-cut%  W/L  dU(mu) dU(alt)  
+L2                -0.0257 1|1|1/6 -0.089(0)   39.5% 6/0 +0.0229 -0.0111   -0.0391 0|0|0/4 -0.085(0)   50.4% 4/0 +0.0804 -0.0032   -0.0219 1|1|1/5 -0.053(1)   36.8% 5/0 +0.0511 +0.0000   
+L4                +0.0008 4|4|5/6 +0.019(0)   34.0% 6/0 +0.0427 +0.0133   -0.0076 3|3|3/4 -0.024(0)   21.8% 3/0 +0.0479 +0.0090   -0.0022 4|4|4/5 +0.000(2)   22.0% 5/0 +0.0361 +0.0093   
+L3+Vg             -0.0031 4|4|5/6 +0.004(0)   37.9% 6/0 +0.0437 +0.0109   -0.0258 0|0|0/4 -0.066(0)   47.7% 4/0 +0.0875 +0.0082   -0.0109 3|3|3/5 -0.009(2)   35.0% 5/0 +0.0585 +0.0099   
+L3+BO3            -0.0138 1|2|2/6 -0.065(0) -167.2% 0/6 -0.2184 -0.0752   +0.0139 0|1|4/4 +0.035(0)  -88.4% 0/4 -0.1999 -0.0502   +0.0030 2|2|4/5 -0.014(2) -151.3% 0/5 -0.2636 -0.0770   
+L3+Rg             +0.0003 6|6|6/6 +0.003(6)    0.1% 1/0 +0.0005 +0.0004   +0.0005 4|4|4/4 +0.001(4)    0.2% 0/0 +0.0008 +0.0006   +0.0002 5|5|5/5 +0.002(5)    0.1% 1/0 +0.0003 +0.0002   
+L3+Rskip(oracle)  -0.0209 0|0|0/6 -0.048(0)   -0.9% 0/4 -0.0219 -0.0212   -0.0109 0|0|0/4 -0.024(0)   -0.9% 0/1 -0.0129 -0.0115   -0.0170 0|1|1/5 -0.010(2)    1.0% 4/1 -0.0151 -0.0164   
+L3+C50k.3         -0.0208 0|1|0/6 -0.053(0)   -0.9% 1/5 -0.0218 -0.0211   -0.0148 0|0|0/4 -0.035(0)   -0.7% 0/2 -0.0163 -0.0152   -0.0145 1|1|1/5 -0.012(2)    0.9% 4/1 -0.0130 -0.0141   
+L3+C50k1          -0.0528 0|0|0/6 -0.161(0)   -6.5% 0/6 -0.0607 -0.0551   -0.0382 0|0|0/4 -0.089(0)   -5.3% 0/4 -0.0506 -0.0419   -0.0379 0|0|0/5 -0.042(1)   -1.3% 1/2 -0.0409 -0.0388   
+L3+C25k.3         -0.0367 0|0|0/6 -0.104(0)   -2.4% 1/5 -0.0397 -0.0376   -0.0267 0|0|0/4 -0.063(0)   -1.9% 0/4 -0.0312 -0.0280   -0.0259 0|0|0/5 -0.024(2)    1.1% 4/1 -0.0243 -0.0254   
+L3+C25k1          -0.0766 0|0|0/6 -0.254(0)  -11.1% 0/6 -0.0901 -0.0806   -0.0564 0|0|0/4 -0.126(0)   -8.4% 0/4 -0.0761 -0.0623   -0.0555 0|0|0/5 -0.078(1)   -2.5% 1/3 -0.0606 -0.0570   
+L3+CA0            +0.0016 5|5|6/6 +0.006(4)   -0.4% 0/1 +0.0011 +0.0015   +0.0054 2|3|4/4 +0.016(0)   -0.4% 0/0 +0.0047 +0.0052   +0.0021 4|5|5/5 +0.003(4)    0.2% 0/0 +0.0023 +0.0021   
+L3+CA             +0.0024 5|5|6/6 +0.009(4)    0.0% 1/1 +0.0024 +0.0024   +0.0009 3|4|4/4 +0.005(1)    0.5% 1/0 +0.0021 +0.0013   +0.0023 4|5|5/5 +0.001(3)    0.5% 1/0 +0.0028 +0.0024   
+L3+casc           -0.2622 0|0|0/6 -0.636(0)  -83.1% 0/6 -0.3628 -0.2924   -0.1671 0|0|0/4 -0.232(0)  -17.2% 0/4 -0.2098 -0.1799   -0.1428 1|1|1/5 -0.416(2)  -33.5% 1/3 -0.1797 -0.1538   
+L2+CA             -0.0189 1|2|2/6 -0.026(0)   40.1% 6/0 +0.0306 -0.0040   -0.0352 0|0|0/4 -0.071(0)   51.1% 4/0 +0.0860 +0.0011   -0.0136 1|3|3/5 -0.024(2)   37.7% 5/0 +0.0605 +0.0086   
+L4+CA             +0.0019 4|4|5/6 +0.027(0)   34.0% 6/0 +0.0437 +0.0145   -0.0087 1|2|2/4 -0.026(0)   22.1% 3/0 +0.0475 +0.0081   +0.0009 4|5|5/5 +0.005(3)   22.5% 4/0 +0.0396 +0.0125   
+L3+CA01           +0.0015 5|5|6/6 +0.005(3)   -0.4% 1/1 +0.0010 +0.0014   +0.0047 3|4|4/4 +0.015(0)   -0.4% 0/0 +0.0040 +0.0045   +0.0024 4|5|5/5 +0.003(4)    0.4% 2/0 +0.0028 +0.0025   
+L3+CA10           +0.0024 5|5|6/6 +0.009(4)    0.0% 1/1 +0.0024 +0.0024   +0.0009 3|4|4/4 +0.005(1)    0.5% 1/0 +0.0021 +0.0013   +0.0023 4|5|5/5 +0.001(3)    0.5% 1/0 +0.0028 +0.0024   
+or-util10         +0.0152 0|0|5/6 +0.091(0)   38.6% 6/0 +0.0628 +0.0295   +0.0700 0|0|4/4 +0.257(0)   53.8% 4/0 +0.1974 +0.1082   +0.0453 1|1|5/5 +0.111(1)   38.3% 5/0 +0.1213 +0.0681   
+or-q              +0.0157 0|0|5/6 +0.093(0)   38.0% 6/0 +0.0626 +0.0298   +0.0731 0|0|4/4 +0.271(0)   51.7% 4/0 +0.1957 +0.1099   +0.0468 1|1|5/5 +0.118(1)   36.8% 5/0 +0.1200 +0.0688   
+or-cheap          -0.0161 0|0|1/6 +0.054(0)   40.4% 6/0 +0.0338 -0.0011   -0.0244 0|0|0/4 +0.092(0)   58.1% 4/0 +0.1135 +0.0170   -0.0308 0|0|1/5 +0.086(1)   44.2% 5/0 +0.0555 -0.0049   
+or-util           +0.0152 0|0|5/6 +0.091(0)   38.6% 6/0 +0.0628 +0.0295   +0.0700 0|0|4/4 +0.257(0)   53.8% 4/0 +0.1974 +0.1082   +0.0453 1|1|5/5 +0.111(1)   38.3% 5/0 +0.1213 +0.0681   
+S                 +0.0011 4|4|5/6 +0.026(0)   38.6% 6/0 +0.0487 +0.0154   -0.0212 0|0|0/4 -0.058(0)   48.1% 4/0 +0.0927 +0.0129   -0.0077 2|3|3/5 -0.009(2)   36.0% 5/0 +0.0633 +0.0136   
+S-Vg              +0.0024 5|5|6/6 +0.009(4)    0.0% 1/1 +0.0024 +0.0024   +0.0009 3|4|4/4 +0.005(1)    0.5% 1/0 +0.0021 +0.0013   +0.0023 4|5|5/5 +0.001(3)    0.5% 1/0 +0.0028 +0.0024   
+S-Rg              +0.0011 4|4|5/6 +0.026(0)   38.6% 6/0 +0.0487 +0.0154   -0.0212 0|0|0/4 -0.058(0)   48.1% 4/0 +0.0927 +0.0129   -0.0077 2|3|3/5 -0.009(2)   36.0% 5/0 +0.0633 +0.0136   
+S-CA              -0.0031 4|4|5/6 +0.004(0)   37.9% 6/0 +0.0437 +0.0109   -0.0258 0|0|0/4 -0.066(0)   47.7% 4/0 +0.0875 +0.0082   -0.0109 3|3|3/5 -0.009(2)   35.0% 5/0 +0.0585 +0.0099   
+S+C50k.3          -0.0175 1|2|2/6 -0.023(0)   40.0% 6/0 +0.0318 -0.0027   -0.0339 0|0|0/4 -0.082(0)   49.3% 4/0 +0.0829 +0.0011   -0.0221 1|1|1/5 -0.017(3)   37.7% 5/0 +0.0519 +0.0001   
+
+=== 3. key arms per world (mean over seeds): q | ok | cost TE | util(.03) ===
+world                              L2                                L3                                L4                              L3+Vg                             L3+CA                               S                              or-util              
+pipe-main          0.744 0.598   6358 0.7702   0.770 0.692  10261 0.7502   0.769 0.703   6838 0.7896   0.766 0.689   6534 0.7898   0.770 0.696  10252 0.7511   0.771 0.711   6445 0.7954   0.783 0.774   6462 0.8078   
+pipe-chain         0.729 0.546   6387 0.7541   0.759 0.657  10439 0.7380   0.759 0.667   6879 0.7787   0.756 0.649   6535 0.7793   0.759 0.655  10503 0.7367   0.759 0.668   6505 0.7828   0.774 0.742   6455 0.7987   
+pipe-wide          0.769 0.631   6368 0.7943   0.795 0.741   9936 0.7795   0.794 0.747   6760 0.8151   0.791 0.736   6502 0.8154   0.796 0.746   9905 0.7808   0.796 0.759   6362 0.8213   0.808 0.813   6424 0.8331   
+pipe-weakctx       0.782 0.731   6364 0.8074   0.806 0.830   9642 0.7935   0.804 0.835   6761 0.8253   0.804 0.833   6496 0.8277   0.808 0.839   9583 0.7959   0.808 0.853   6384 0.8329   0.824 0.920   6480 0.8478   
+pipe-lowrec        0.686 0.391   6198 0.7139   0.736 0.577  10867 0.7093   0.718 0.507   7131 0.7348   0.707 0.460   6392 0.7326   0.737 0.576  10922 0.7093   0.710 0.473   6455 0.7345   0.724 0.538   6327 0.7496   
+pipe-badver        0.732 0.556   6402 0.7573   0.730 0.491  12108 0.6891   0.757 0.646   7237 0.7721   0.754 0.644   6602 0.7769   0.741 0.526  12066 0.7004   0.761 0.677   6495 0.7848   0.775 0.746   6478 0.7995   
+lat-main           0.646 0.221  10195 0.6268   0.675 0.306  17899 0.5680   0.672 0.291  14816 0.6001   0.657 0.245  10656 0.6322   0.674 0.305  17738 0.5688   0.657 0.243  10480 0.6349   0.733 0.553   9616 0.7207   
+lat-highprop       0.571 0.097   9867 0.5555   0.609 0.148  20961 0.4678   0.607 0.144  19980 0.4772   0.589 0.116  10558 0.5660   0.610 0.147  21151 0.4670   0.594 0.121  10529 0.5712   0.678 0.300   9376 0.6687   
+lat-noisyag        0.610 0.131   9699 0.5968   0.671 0.259  18405 0.5574   0.664 0.234  16207 0.5761   0.626 0.153  10175 0.6067   0.675 0.277  18145 0.5644   0.635 0.172  10120 0.6164   0.770 0.667   8825 0.7667   
+lat-pricever       0.638 0.191  10226 0.6182   0.666 0.266  24491 0.4824   0.647 0.214  11394 0.6138   0.646 0.202  10734 0.6207   0.666 0.269  24326 0.4839   0.650 0.211  10768 0.6241   0.720 0.485   9445 0.7092   
+ctl-single-step    0.806 0.909   1404 0.8326   0.836 0.959   2102 0.8257   0.830 0.953   1507 0.8505   0.824 0.944   1448 0.8479   0.840 0.962   2068 0.8308   0.837 0.962   1408 0.8632   0.850 0.979   1402 0.8766   
+ctl-indep-dominant 0.810 0.737  12803 0.7600   0.823 0.801  16414 0.7312   0.822 0.816  13516 0.7641   0.821 0.806  13182 0.7668   0.821 0.793  16403 0.7295   0.813 0.764  12961 0.7611   0.824 0.844  11498 0.7896   
+ctl-indep-spec     0.814 0.721   6222 0.8409   0.838 0.842   9298 0.8298   0.835 0.838   6589 0.8576   0.835 0.839   6308 0.8614   0.840 0.853   9229 0.8321   0.839 0.859   6201 0.8664   0.849 0.904   6281 0.8760   
+ctl-rare-pricever  0.863 0.992  14451 0.7940   0.862 0.994  23268 0.6900   0.863 0.991  15334 0.7836   0.864 0.991  14887 0.7896   0.870 0.995  23237 0.6983   0.869 0.994  14600 0.7986   0.946 1.000  14380 0.8777   
+ctl-equal-agents   0.535 0.019   9276 0.5260   0.577 0.049  21972 0.4215   0.576 0.047  21798 0.4231   0.538 0.020   9674 0.5251   0.577 0.049  21997 0.4215   0.540 0.021   9811 0.5254   0.694 0.473   9300 0.6849   
+
+=== 4. stack S vs the best fair cost-conscious incumbent per world (best of L2/L3/L4 by held-out util(.03); conservative) ===
+  pipe-main           best fair L4  | dU(.03) +0.0057 [+0.0043,+0.0072] WIN | dq +0.0012 [+0.0001,+0.0023] tost_p 0.000 | cost -5.7% WIN
+  pipe-chain          best fair L4  | dU(.03) +0.0041 [+0.0010,+0.0072] ns | dq -0.0002 [-0.0027,+0.0023] tost_p 0.000 | cost -5.4% WIN
+  pipe-wide           best fair L4  | dU(.03) +0.0062 [+0.0038,+0.0086] WIN | dq +0.0016 [-0.0003,+0.0035] tost_p 0.000 | cost -5.9% WIN
+  pipe-weakctx        best fair L4  | dU(.03) +0.0076 [+0.0042,+0.0110] WIN | dq +0.0032 [+0.0003,+0.0062] tost_p 0.000 | cost -5.6% WIN
+  pipe-lowrec         best fair L4  | dU(.03) -0.0003 [-0.0023,+0.0017] ns | dq -0.0080 [-0.0099,-0.0062] tost_p 0.018 | cost -9.5% WIN
+  pipe-badver         best fair L4  | dU(.03) +0.0127 [+0.0111,+0.0143] WIN | dq +0.0041 [+0.0031,+0.0051] tost_p 0.000 | cost -10.2% WIN
+  lat-main            best fair L2  | dU(.03) +0.0081 [+0.0039,+0.0123] WIN | dq +0.0113 [+0.0058,+0.0169] tost_p 0.687 | cost +2.8% LOSS
+  lat-highprop        best fair L2  | dU(.03) +0.0157 [+0.0107,+0.0206] WIN | dq +0.0233 [+0.0179,+0.0288] tost_p 1.000 | cost +6.7% LOSS
+  lat-noisyag         best fair L2  | dU(.03) +0.0197 [+0.0163,+0.0230] WIN | dq +0.0245 [+0.0207,+0.0284] tost_p 1.000 | cost +4.3% LOSS
+  lat-pricever        best fair L2  | dU(.03) +0.0059 [+0.0008,+0.0111] ns | dq +0.0122 [+0.0049,+0.0195] tost_p 0.728 | cost +5.3% LOSS
+  ctl-single-step     best fair L4  | dU(.03) +0.0127 [+0.0068,+0.0186] WIN | dq +0.0075 [+0.0028,+0.0122] tost_p 0.142 | cost -6.6% WIN
+  ctl-indep-dominant  best fair L4  | dU(.03) -0.0030 [-0.0089,+0.0030] ns | dq -0.0094 [-0.0178,-0.0010] tost_p 0.445 | cost -4.1% WIN
+  ctl-indep-spec      best fair L4  | dU(.03) +0.0088 [+0.0054,+0.0123] WIN | dq +0.0043 [+0.0015,+0.0071] tost_p 0.000 | cost -5.9% WIN
+  ctl-rare-pricever   best fair L2  | dU(.03) +0.0046 [+0.0029,+0.0062] WIN | dq +0.0063 [+0.0045,+0.0081] tost_p 0.000 | cost +1.0% LOSS
+  ctl-equal-agents    best fair L2  | dU(.03) -0.0007 [-0.0016,+0.0002] ns | dq +0.0056 [+0.0047,+0.0065] tost_p 0.000 | cost +5.8% LOSS
+
+=== 5. which lever contributes what: S minus one lever (S-X): dq and cost change of REMOVING the lever, mean over treatment worlds A+B (10) and controls (5) ===
+  S-Vg               vs S       | treat: dq +0.0097 cost +75.7% dU -0.0640 | controls: dq +0.0099 cost +61.1% dU -0.0605
+  S-Rg               vs S       | treat: dq +0.0000 cost +0.0% dU +0.0000 | controls: dq +0.0000 cost +0.0% dU +0.0000
+  S-CA               vs S       | treat: dq -0.0043 cost +0.9% dU -0.0051 | controls: dq -0.0032 cost +1.4% dU -0.0048
+  S+C50k.3           vs S       | treat: dq -0.0162 cost -2.3% dU -0.0140 | controls: dq -0.0144 cost -2.6% dU -0.0113
+  S                  vs L3      | treat: dq -0.0078 cost -42.4% dU +0.0663 | controls: dq -0.0077 cost -36.0% dU +0.0633
+  L4                 vs L3      | treat: dq -0.0026 cost -29.1% dU +0.0447 | controls: dq -0.0022 cost -22.0% dU +0.0361
+  L2                 vs L3      | treat: dq -0.0311 cost -43.8% dU +0.0459 | controls: dq -0.0219 cost -36.8% dU +0.0511
+  L3+Vg              vs L3      | treat: dq -0.0122 cost -41.9% dU +0.0612 | controls: dq -0.0109 cost -35.0% dU +0.0585
+  L3+CA              vs L3      | treat: dq +0.0018 cost -0.2% dU +0.0023 | controls: dq +0.0023 cost -0.5% dU +0.0028
+  L3+CA0             vs L3      | treat: dq +0.0031 cost +0.4% dU +0.0025 | controls: dq +0.0021 cost -0.2% dU +0.0023
+  L3+CA              vs L3+CA0  | treat: dq -0.0013 cost -0.6% dU -0.0002 | controls: dq +0.0002 cost -0.3% dU +0.0005
+  L3+BO3             vs L3      | treat: dq -0.0027 cost +135.7% dU -0.2110 | controls: dq +0.0030 cost +151.3% dU -0.2636
+  L3+Rg              vs L3      | treat: dq +0.0004 cost -0.1% dU +0.0006 | controls: dq +0.0002 cost -0.1% dU +0.0003
+  L3+Rskip(oracle)   vs L3      | treat: dq -0.0169 cost +0.9% dU -0.0183 | controls: dq -0.0170 cost -1.0% dU -0.0151
+
+=== 6. Pareto of quality vs cost (default prices; * = non-dominated within the arm set) ===
+  [pipe-main]
+    or-cheap           cost    6285 TE  q 0.7539 *
+    S+C50k.3           cost    6290 TE  q 0.7468 
+    L2+CA              cost    6326 TE  q 0.7464 
+    L2                 cost    6358 TE  q 0.7444 
+    S                  cost    6445 TE  q 0.7705 *
+    S-Rg               cost    6445 TE  q 0.7705 *
+    or-util10          cost    6462 TE  q 0.7832 *
+    or-util            cost    6462 TE  q 0.7832 *
+    or-q               cost    6523 TE  q 0.7837 *
+    L3+Vg              cost    6534 TE  q 0.7660 
+    S-CA               cost    6534 TE  q 0.7660 
+    L4                 cost    6838 TE  q 0.7693 
+    L4+CA              cost    6844 TE  q 0.7700 
+    L3+Rg              cost   10235 TE  q 0.7700 
+    L3+CA              cost   10252 TE  q 0.7704 
+    L3+CA10            cost   10252 TE  q 0.7704 
+    S-Vg               cost   10252 TE  q 0.7704 
+    L3                 cost   10261 TE  q 0.7696 
+    L3+CA01            cost   10304 TE  q 0.7696 
+    L3+CA0             cost   10326 TE  q 0.7689 
+    L3+Rskip(oracle)   cost   10365 TE  q 0.7493 
+    L3+C50k.3          cost   10391 TE  q 0.7450 
+    L3+C25k.3          cost   10627 TE  q 0.7261 
+    L3+C50k1           cost   11153 TE  q 0.7072 
+    L3+C25k1           cost   11822 TE  q 0.6794 
+    L3+casc            cost   19891 TE  q 0.4948 
+    L3+BO3             cost   28079 TE  q 0.7581 
+  [lat-main]
+    or-cheap           cost    8662 TE  q 0.6390 *
+    or-util10          cost    9616 TE  q 0.7331 *
+    or-util            cost    9616 TE  q 0.7331 *
+    or-q               cost    9982 TE  q 0.7358 *
+    L2+CA              cost   10004 TE  q 0.6446 
+    L2                 cost   10195 TE  q 0.6460 
+    S+C50k.3           cost   10248 TE  q 0.6455 
+    S                  cost   10480 TE  q 0.6573 
+    S-Rg               cost   10480 TE  q 0.6573 
+    L3+Vg              cost   10656 TE  q 0.6567 
+    S-CA               cost   10656 TE  q 0.6567 
+    L4+CA              cost   14741 TE  q 0.6672 
+    L4                 cost   14816 TE  q 0.6723 
+    L3+CA              cost   17738 TE  q 0.6744 
+    L3+CA10            cost   17738 TE  q 0.6744 
+    S-Vg               cost   17738 TE  q 0.6744 
+    L3+Rg              cost   17891 TE  q 0.6753 
+    L3                 cost   17899 TE  q 0.6753 
+    L3+CA01            cost   17932 TE  q 0.6778 
+    L3+CA0             cost   17977 TE  q 0.6780 
+    L3+C50k.3          cost   18013 TE  q 0.6602 
+    L3+Rskip(oracle)   cost   18059 TE  q 0.6644 
+    L3+C25k.3          cost   18214 TE  q 0.6479 
+    L3+C50k1           cost   18924 TE  q 0.6356 
+    L3+C25k1           cost   19485 TE  q 0.6170 
+    L3+casc            cost   21784 TE  q 0.5072 
+    L3+BO3             cost   35880 TE  q 0.6835 
+  [treatment mean (10)]
+    or-cheap           cost    7130 TE  q 0.7023 *
+    or-util10          cost    7589 TE  q 0.7589 *
+    or-util            cost    7589 TE  q 0.7589 *
+    L2+CA              cost    7706 TE  q 0.6963 
+    or-q               cost    7791 TE  q 0.7604 *
+    L2                 cost    7807 TE  q 0.6907 
+    S+C50k.3           cost    7869 TE  q 0.6977 
+    S                  cost    8054 TE  q 0.7139 
+    S-Rg               cost    8054 TE  q 0.7139 
+    L3+Vg              cost    8118 TE  q 0.7096 
+    S-CA               cost    8118 TE  q 0.7096 
+    L4+CA              cost   10383 TE  q 0.7194 
+    L4                 cost   10400 TE  q 0.7192 
+    L3+CA              cost   14459 TE  q 0.7236 
+    L3+CA10            cost   14459 TE  q 0.7236 
+    S-Vg               cost   14459 TE  q 0.7236 
+    L3+Rg              cost   14479 TE  q 0.7221 
+    L3                 cost   14501 TE  q 0.7218 
+    L3+CA0             cost   14555 TE  q 0.7249 
+    L3+CA01            cost   14556 TE  q 0.7246 
+    L3+C50k.3          cost   14615 TE  q 0.7034 
+    L3+Rskip(oracle)   cost   14630 TE  q 0.7049 
+    L3+C25k.3          cost   14825 TE  q 0.6891 
+    L3+C50k1           cost   15362 TE  q 0.6748 
+    L3+C25k1           cost   15911 TE  q 0.6533 
+    L3+casc            cost   21127 TE  q 0.4976 
+    L3+BO3             cost   32208 TE  q 0.7190 
+  [controls mean (5)]
+    or-cheap           cost    7739 TE  q 0.7566 *
+    or-util10          cost    8572 TE  q 0.8327 *
+    or-util            cost    8572 TE  q 0.8327 *
+    L2+CA              cost    8761 TE  q 0.7737 
+    S+C50k.3           cost    8762 TE  q 0.7653 
+    or-q               cost    8801 TE  q 0.8342 *
+    L2                 cost    8831 TE  q 0.7655 
+    S                  cost    8996 TE  q 0.7797 
+    S-Rg               cost    8996 TE  q 0.7797 
+    L3+Vg              cost    9100 TE  q 0.7765 
+    S-CA               cost    9100 TE  q 0.7765 
+    L4+CA              cost   11739 TE  q 0.7883 
+    L4                 cost   11749 TE  q 0.7852 
+    L3+Rskip(oracle)   cost   14472 TE  q 0.7704 
+    L3+C50k.3          cost   14507 TE  q 0.7728 
+    L3+C25k.3          cost   14512 TE  q 0.7615 
+    L3+CA              cost   14587 TE  q 0.7896 
+    L3+CA10            cost   14587 TE  q 0.7896 
+    S-Vg               cost   14587 TE  q 0.7896 
+    L3+CA01            cost   14591 TE  q 0.7898 
+    L3+CA0             cost   14600 TE  q 0.7894 
+    L3+Rg              cost   14602 TE  q 0.7876 
+    L3                 cost   14611 TE  q 0.7874 
+    L3+C50k1           cost   14865 TE  q 0.7495 
+    L3+C25k1           cost   15033 TE  q 0.7319 
+    L3+casc            cost   16558 TE  q 0.6446 
+    L3+BO3             cost   34547 TE  q 0.7903 
+
+=== 7. price sensitivity: cost of each arm vs L3 under other price vectors (treatment worlds, mean %; quality unchanged except where prices enter the RUN, i.e. CA/oracle) ===
+scenario                                   L2         L4      L3+Vg     L3+BO3  L3+C50k.3      L3+CA          S   S+C50k.3best-util
+default                                -43.8%     -29.1%     -41.9%     135.7%       0.8%      -0.2%     -42.4%     -43.7%        S
+r_out=1 (flat in/out)                  -52.4%     -35.6%     -50.2%     134.8%      -0.6%      -0.3%     -50.6%     -53.0%        S
+r_out=2                                -48.4%     -32.6%     -46.3%     135.2%       0.0%      -0.3%     -46.8%     -48.7%        S
+r_out=8                                -39.6%     -25.8%     -37.7%     136.1%       1.5%      -0.2%     -38.3%     -39.1%        S
+lam_ms=0.1 (GPU-priced encoder)        -43.8%     -29.1%     -41.9%     135.7%       0.8%      -0.2%     -42.4%     -43.7%        S
+lam_ms=1                               -43.8%     -29.1%     -41.8%     135.6%       0.8%      -0.2%     -42.3%     -43.7%        S
+lam_ms=10 (pathological)               -43.5%     -28.9%     -41.5%     134.4%       0.8%      -0.2%     -42.0%     -43.4%        S
+prompt-cache base x0.1                 -48.3%     -32.6%     -46.2%     135.5%       0.4%      -0.3%     -46.7%     -48.4%        S
+ctx x1 (short docs/notes)              -43.8%     -29.1%     -41.9%     135.7%       0.8%      -0.2%     -42.4%     -43.7%        S
+ctx x4 (longer notes)                  -42.0%     -27.6%     -39.9%     136.3%      -4.2%      -0.2%     -40.5%     -45.6%        S
+verifier x0.25 (cheap model)           -29.0%     -17.6%     -27.3%     137.1%       0.3%      -0.0%     -28.1%     -29.8%        S
+verifier x2                            -55.9%     -38.3%     -53.7%     134.5%       1.2%      -0.4%     -54.0%     -55.1%        S
+embed compute-once                     -43.8%     -29.1%     -41.9%     135.7%       0.8%      -0.2%     -42.4%     -43.7%        S
+
+  exchange rate mu (quality points per extra reference step-call of cost): util by arm, treatment worlds mean
+    mu 0     L2 0.6907  L3 0.7218  L4 0.7192  L3+Vg 0.7096  S 0.7139
+    mu 0.01  L2 0.6915  L3 0.7149  L4 0.7171  L3+Vg 0.7101  S 0.7145
+    mu 0.03  L2 0.6933  L3 0.7013  L4 0.7129  L3+Vg 0.7111  S 0.7157
+    mu 0.1   L2 0.6994  L3 0.6535  L4 0.6983  L3+Vg 0.7147  S 0.7198
+    mu 0.3   L2 0.7170  L3 0.5171  L4 0.6565  L3+Vg 0.7251  S 0.7316
+
+=== 8. cost-aware routing: util(.03) of Warm(L3) / CA0 (price-blind own-table router) / CA / cascade / hindsight oracles; 'gap closed' = (U-U_L3)/(U_orUtil-U_L3) ===
+  pipe-main           L3 0.7502 CA0 -0.0014 CA +0.0009 casc -0.3870 | or-q +0.0574 or-cheap +0.0305 or-util +0.0577 | gap closed: CA 0.02 CA0 -0.03
+  pipe-chain          L3 0.7380 CA0 -0.0042 CA -0.0013 casc -0.3743 | or-q +0.0606 or-cheap +0.0335 or-util +0.0608 | gap closed: CA -0.02 CA0 -0.07
+  pipe-wide           L3 0.7795 CA0 +0.0013 CA +0.0013 casc -0.3408 | or-q +0.0533 or-cheap +0.0219 or-util +0.0535 | gap closed: CA 0.02 CA0 0.02
+  pipe-weakctx        L3 0.7935 CA0 +0.0012 CA +0.0024 casc -0.3738 | or-q +0.0540 or-cheap +0.0125 or-util +0.0543 | gap closed: CA 0.04 CA0 0.02
+  pipe-lowrec         L3 0.7093 CA0 -0.0012 CA -0.0001 casc -0.3585 | or-q +0.0401 or-cheap +0.0222 or-util +0.0403 | gap closed: CA -0.00 CA0 -0.03
+  pipe-badver         L3 0.6891 CA0 +0.0108 CA +0.0113 casc -0.3425 | or-q +0.1102 or-cheap +0.0822 or-util +0.1104 | gap closed: CA 0.10 CA0 0.10
+  lat-main            L3 0.5680 CA0 +0.0017 CA +0.0008 casc -0.2133 | or-q +0.1511 or-cheap +0.0701 or-util +0.1527 | gap closed: CA 0.01 CA0 0.01
+  lat-highprop        L3 0.4678 CA0 +0.0046 CA -0.0008 casc -0.1928 | or-q +0.1994 or-cheap +0.1143 or-util +0.2008 | gap closed: CA -0.00 CA0 0.02
+  lat-noisyag         L3 0.5574 CA0 +0.0063 CA +0.0070 casc -0.1716 | or-q +0.2073 or-cheap +0.1188 or-util +0.2092 | gap closed: CA 0.03 CA0 0.03
+  lat-pricever        L3 0.4824 CA0 +0.0060 CA +0.0015 casc -0.2613 | or-q +0.2250 or-cheap +0.1509 or-util +0.2268 | gap closed: CA 0.01 CA0 0.03
+  ctl-single-step     L3 0.8257 CA0 +0.0014 CA +0.0051 casc -0.3181 | or-q +0.0505 or-cheap +0.0154 or-util +0.0509 | gap closed: CA 0.10 CA0 0.03
+  ctl-indep-dominant  L3 0.7312 CA0 +0.0004 CA -0.0017 casc -0.2459 | or-q +0.0531 or-cheap -0.0445 or-util +0.0583 | gap closed: CA -0.03 CA0 0.01
+  ctl-indep-spec      L3 0.8298 CA0 +0.0012 CA +0.0023 casc -0.3221 | or-q +0.0459 or-cheap +0.0111 or-util +0.0462 | gap closed: CA 0.05 CA0 0.03
+  ctl-rare-pricever   L3 0.6900 CA0 +0.0083 CA +0.0082 casc -0.0133 | or-q +0.1870 or-cheap +0.0897 or-util +0.1877 | gap closed: CA 0.04 CA0 0.04
+  ctl-equal-agents    L3 0.4215 CA0 -0.0000 CA -0.0000 casc +0.0009 | or-q +0.2634 or-cheap +0.2059 or-util +0.2634 | gap closed: CA -0.00 CA0 -0.00
+
+  cost-aware routing frontier (router mu_c vs L3, mean over treatment worlds | controls): dq, cost %, dU(.03), dU(.10); or-util rows use the matching mu
+    mu_c=0 (price-blind own table) treat: dq +0.0031 cost   +0.4% dU03 +0.0029 dU10 +0.0025 | ctl: dq +0.0021 cost   -0.2% dU03 +0.0021 dU10 +0.0023
+    mu_c=.01                       treat: dq +0.0028 cost   +0.4% dU03 +0.0026 dU10 +0.0022 | ctl: dq +0.0024 cost   -0.4% dU03 +0.0025 dU10 +0.0028
+    mu_c=.03                       treat: dq +0.0018 cost   -0.2% dU03 +0.0020 dU10 +0.0023 | ctl: dq +0.0023 cost   -0.5% dU03 +0.0024 dU10 +0.0028
+    mu_c=.10                       treat: dq +0.0018 cost   -0.2% dU03 +0.0020 dU10 +0.0023 | ctl: dq +0.0023 cost   -0.5% dU03 +0.0024 dU10 +0.0028
+    oracle util(mu=.03)            treat: dq +0.0371 cost  -44.7% dU03 +0.0610 dU10 +0.1166 | ctl: dq +0.0453 cost  -38.3% dU03 +0.0681 dU10 +0.1213
+    oracle util(mu=.10)            treat: dq +0.0371 cost  -44.7% dU03 +0.0610 dU10 +0.1166 | ctl: dq +0.0453 cost  -38.3% dU03 +0.0681 dU10 +0.1213
+    oracle quality                 treat: dq +0.0387 cost  -43.5% dU03 +0.0618 dU10 +0.1158 | ctl: dq +0.0468 cost  -36.8% dU03 +0.0688 dU10 +0.1200
+
+=== 9. price-structure sensitivity (held 31-60): util(.03) minus L3 ===
+  pipe-main-pricerand    L3 q 0.7696 cost 14830 U 0.6970 | dU: L2 +0.0277 L4 +0.0435 CA0 +0.0010 CA +0.0001 casc -0.2724 S +0.0445 | or-q +0.0659 or-cheap +0.0058 or-util +0.0701
+      CA vs CA0 (price effect alone): dq -0.0089 [-0.0146,-0.0032] tost_p 0.343; cost -682 TE [-1013,-350]
+  lat-main-pricerand     L3 q 0.6697 cost 19472 U 0.5455 | dU: L2 +0.0714 L4 +0.0311 CA0 +0.0103 CA +0.0393 casc -0.0463 S +0.1081 | or-q +0.1618 or-cheap +0.1198 or-util +0.1760
+      CA vs CA0 (price effect alone): dq -0.0088 [-0.0132,-0.0045] tost_p 0.292; cost -3271 TE [-4316,-2226]
+  pipe-main-priceflat    L3 q 0.7663 cost 13801 U 0.7056 | dU: L2 +0.0236 L4 +0.0434 CA0 +0.0016 CA +0.0016 casc -0.3719 S +0.0456 | or-q +0.0665 or-cheap -0.0071 or-util +0.0665
+      CA vs CA0 (price effect alone): dq +0.0000 [+0.0000,+0.0000] tost_p 0.000; cost +0 TE [+0,+0]
+  lat-main-priceflat     L3 q 0.6766 cost 17066 U 0.5792 | dU: L2 +0.0584 L4 +0.0337 CA0 +0.0107 CA +0.0107 casc -0.1689 S +0.0793 | or-q +0.1497 or-cheap +0.0726 or-util +0.1497
+      CA vs CA0 (price effect alone): dq +0.0000 [+0.0000,+0.0000] tost_p 0.000; cost +0 TE [+0,+0]
+
+wrote results/h11_pipe_mu0.1.json in 109s

@@ -1,0 +1,1234 @@
+g19_sona_a: 2000 tasks/run, tune seeds 1-8, held-out 31-60
+[tune 1-8] guarded-rt (retuned guarded(hebr), no anchors): 80 configs, best obj -0.00046
+    GuardConfig { tau: 0.75, z: 1.0, kw_a: 4.0, kw_b: 1.0, discount: 1.0, challenge: false }
+      runner-up -0.00053: GuardConfig { tau: 0.75, z: 1.0, kw_a: 4.0, kw_b: 1.0, discount: 1.0, challenge: true }
+      runner-up -0.00105: GuardConfig { tau: 0.65, z: 1.0, kw_a: 2.0, kw_b: 1.0, discount: 1.0, challenge: false }
+[tune 1-8] K-full (learned anchors + keyed memory) stage1 (guard tau/discount + anchor lift/min_count): 40 configs, best obj -0.02563
+    Stage1 { tau: 0.55, disc: 0.97, lift: 3.0, minc: 3 }
+      runner-up -0.02907: Stage1 { tau: 0.55, disc: 0.97, lift: 8.0, minc: 3 }
+      runner-up -0.02954: Stage1 { tau: 0.55, disc: 0.97, lift: 3.0, minc: 6 }
+[tune 1-8] K-full (learned anchors + keyed memory) stage2 (memory): 48 configs, best obj -0.01568
+    MemCfg { init: 0.7, c0: 1.0, temp: 0.03, eps: 0.0, use_sets: true, knn_k: 0, s_min: 0.3, gamma: 1.0, kappa: 2.0, lam_u: 1.0, spread: 0.0, key_sel: false, key_n: 20.0, key_theta: 0.12, cap: 0, evict: ImportanceMerge }
+      runner-up -0.01625: MemCfg { init: 0.7, c0: 1.0, temp: 0.03, eps: 0.0, use_sets: true, knn_k: 0, s_min: 0.3, gamma: 1.0, kappa: 6.0, lam_u: 1.0, spread: 0.0, key_sel: false, key_n: 20.0, key_theta: 0.12, cap: 0, evict: ImportanceMerge }
+      runner-up -0.01626: MemCfg { init: 0.7, c0: 1.0, temp: 0.03, eps: 0.0, use_sets: true, knn_k: 3, s_min: 0.3, gamma: 1.0, kappa: 6.0, lam_u: 1.0, spread: 0.5, key_sel: true, key_n: 20.0, key_theta: 0.12, cap: 0, evict: ImportanceMerge }
+[tune 1-8] K-full (learned anchors + keyed memory) stage3 (similarity): 8 configs, best obj -0.01375
+    MemCfg { init: 0.6, c0: 1.0, temp: 0.03, eps: 0.0, use_sets: true, knn_k: 0, s_min: 0.3, gamma: 1.0, kappa: 2.0, lam_u: 1.0, spread: 0.0, key_sel: false, key_n: 20.0, key_theta: 0.12, cap: 0, evict: ImportanceMerge }
+      runner-up -0.01375: MemCfg { init: 0.6, c0: 1.0, temp: 0.03, eps: 0.0, use_sets: true, knn_k: 0, s_min: 0.3, gamma: 3.0, kappa: 2.0, lam_u: 1.0, spread: 0.0, key_sel: false, key_n: 20.0, key_theta: 0.12, cap: 0, evict: ImportanceMerge }
+      runner-up -0.01375: MemCfg { init: 0.6, c0: 1.0, temp: 0.03, eps: 0.0, use_sets: true, knn_k: 0, s_min: 0.6, gamma: 1.0, kappa: 2.0, lam_u: 1.0, spread: 0.0, key_sel: false, key_n: 20.0, key_theta: 0.12, cap: 0, evict: ImportanceMerge }
+[tune 1-8] K[no anchors] (keyed memory only) stage1 (guard tau/discount): 10 configs, best obj -0.03169
+    Stage1 { tau: 0.55, disc: 0.97, lift: 3.0, minc: 3 }
+      runner-up -0.03290: Stage1 { tau: 0.65, disc: 1.0, lift: 3.0, minc: 3 }
+      runner-up -0.03329: Stage1 { tau: 0.65, disc: 0.97, lift: 3.0, minc: 3 }
+[tune 1-8] K[no anchors] (keyed memory only) stage2 (memory): 48 configs, best obj -0.01970
+    MemCfg { init: 0.7, c0: 1.0, temp: 0.03, eps: 0.0, use_sets: true, knn_k: 3, s_min: 0.3, gamma: 1.0, kappa: 6.0, lam_u: 1.0, spread: 0.5, key_sel: true, key_n: 20.0, key_theta: 0.12, cap: 0, evict: ImportanceMerge }
+      runner-up -0.01979: MemCfg { init: 0.7, c0: 1.0, temp: 0.03, eps: 0.0, use_sets: true, knn_k: 3, s_min: 0.3, gamma: 1.0, kappa: 6.0, lam_u: 1.0, spread: 0.5, key_sel: false, key_n: 20.0, key_theta: 0.12, cap: 0, evict: ImportanceMerge }
+      runner-up -0.02016: MemCfg { init: 0.7, c0: 1.0, temp: 0.03, eps: 0.0, use_sets: true, knn_k: 3, s_min: 0.3, gamma: 1.0, kappa: 2.0, lam_u: 1.0, spread: 0.5, key_sel: true, key_n: 20.0, key_theta: 0.12, cap: 0, evict: ImportanceMerge }
+[tune 1-8] K[no anchors] (keyed memory only) stage3 (similarity): 8 configs, best obj -0.01410
+    MemCfg { init: 0.6, c0: 1.0, temp: 0.03, eps: 0.0, use_sets: true, knn_k: 3, s_min: 0.3, gamma: 3.0, kappa: 6.0, lam_u: 1.0, spread: 0.5, key_sel: true, key_n: 20.0, key_theta: 0.12, cap: 0, evict: ImportanceMerge }
+      runner-up -0.01432: MemCfg { init: 0.6, c0: 1.0, temp: 0.03, eps: 0.0, use_sets: true, knn_k: 3, s_min: 0.3, gamma: 1.0, kappa: 6.0, lam_u: 1.0, spread: 0.5, key_sel: true, key_n: 20.0, key_theta: 0.12, cap: 0, evict: ImportanceMerge }
+      runner-up -0.01462: MemCfg { init: 0.6, c0: 1.0, temp: 0.03, eps: 0.0, use_sets: true, knn_k: 3, s_min: 0.6, gamma: 1.0, kappa: 6.0, lam_u: 1.0, spread: 0.5, key_sel: true, key_n: 20.0, key_theta: 0.12, cap: 0, evict: ImportanceMerge }
+[tune 1-8] K[unigram memory] (anchors, no set patterns) stage1 (guard tau/discount + anchor lift/min_count): 40 configs, best obj -0.02153
+    Stage1 { tau: 0.55, disc: 0.97, lift: 3.0, minc: 3 }
+      runner-up -0.02393: Stage1 { tau: 0.55, disc: 0.97, lift: 8.0, minc: 3 }
+      runner-up -0.02494: Stage1 { tau: 0.55, disc: 0.97, lift: 8.0, minc: 6 }
+[tune 1-8] K[unigram memory] (anchors, no set patterns) stage2 (memory): 8 configs, best obj -0.01752
+    MemCfg { init: 0.7, c0: 1.0, temp: 0.03, eps: 0.0, use_sets: false, knn_k: 0, s_min: 0.3, gamma: 1.0, kappa: 2.0, lam_u: 0.3, spread: 0.0, key_sel: false, key_n: 20.0, key_theta: 0.12, cap: 0, evict: ImportanceMerge }
+      runner-up -0.01752: MemCfg { init: 0.7, c0: 1.0, temp: 0.03, eps: 0.0, use_sets: false, knn_k: 0, s_min: 0.3, gamma: 1.0, kappa: 2.0, lam_u: 1.0, spread: 0.0, key_sel: false, key_n: 20.0, key_theta: 0.12, cap: 0, evict: ImportanceMerge }
+      runner-up -0.01772: MemCfg { init: 0.7, c0: 1.0, temp: 0.03, eps: 0.0, use_sets: false, knn_k: 0, s_min: 0.3, gamma: 1.0, kappa: 6.0, lam_u: 0.3, spread: 0.0, key_sel: false, key_n: 20.0, key_theta: 0.12, cap: 0, evict: ImportanceMerge }
+[tune 1-8] K[anchors+hebbian] (anchor keying, no pattern memory) stage1 (guard tau/discount + anchor lift/min_count): 40 configs, best obj -0.01262
+    Stage1 { tau: 0.65, disc: 0.97, lift: 8.0, minc: 6 }
+      runner-up -0.01352: Stage1 { tau: 0.55, disc: 0.97, lift: 8.0, minc: 6 }
+      runner-up -0.01370: Stage1 { tau: 0.65, disc: 0.97, lift: 8.0, minc: 3 }
+[tune 1-8] K[oracle anchors] (diagnostic upper bound) stage1 (guard tau/discount): 10 configs, best obj -0.00516
+    Stage1 { tau: 0.55, disc: 0.97, lift: 3.0, minc: 3 }
+      runner-up -0.00708: Stage1 { tau: 0.55, disc: 1.0, lift: 3.0, minc: 3 }
+      runner-up -0.00892: Stage1 { tau: 0.65, disc: 0.97, lift: 3.0, minc: 3 }
+[tune 1-8] K[oracle anchors] (diagnostic upper bound) stage2 (memory): 48 configs, best obj +0.00589
+    MemCfg { init: 0.7, c0: 1.0, temp: 0.03, eps: 0.0, use_sets: true, knn_k: 0, s_min: 0.3, gamma: 1.0, kappa: 6.0, lam_u: 0.3, spread: 0.0, key_sel: false, key_n: 20.0, key_theta: 0.12, cap: 0, evict: ImportanceMerge }
+      runner-up +0.00588: MemCfg { init: 0.7, c0: 1.0, temp: 0.03, eps: 0.0, use_sets: true, knn_k: 3, s_min: 0.3, gamma: 1.0, kappa: 2.0, lam_u: 1.0, spread: 0.5, key_sel: true, key_n: 20.0, key_theta: 0.12, cap: 0, evict: ImportanceMerge }
+      runner-up +0.00587: MemCfg { init: 0.7, c0: 1.0, temp: 0.03, eps: 0.0, use_sets: true, knn_k: 3, s_min: 0.3, gamma: 1.0, kappa: 6.0, lam_u: 0.3, spread: 0.5, key_sel: true, key_n: 20.0, key_theta: 0.12, cap: 0, evict: ImportanceMerge }
+[tune 1-8] K[oracle anchors] (diagnostic upper bound) stage3 (similarity): 8 configs, best obj +0.00912
+    MemCfg { init: 0.6, c0: 1.0, temp: 0.03, eps: 0.0, use_sets: true, knn_k: 0, s_min: 0.3, gamma: 1.0, kappa: 6.0, lam_u: 0.3, spread: 0.0, key_sel: false, key_n: 20.0, key_theta: 0.12, cap: 0, evict: ImportanceMerge }
+      runner-up +0.00912: MemCfg { init: 0.6, c0: 1.0, temp: 0.03, eps: 0.0, use_sets: true, knn_k: 0, s_min: 0.3, gamma: 3.0, kappa: 6.0, lam_u: 0.3, spread: 0.0, key_sel: false, key_n: 20.0, key_theta: 0.12, cap: 0, evict: ImportanceMerge }
+      runner-up +0.00912: MemCfg { init: 0.6, c0: 1.0, temp: 0.03, eps: 0.0, use_sets: true, knn_k: 0, s_min: 0.6, gamma: 1.0, kappa: 6.0, lam_u: 0.3, spread: 0.0, key_sel: false, key_n: 20.0, key_theta: 0.12, cap: 0, evict: ImportanceMerge }
+
+FROZEN configs: K-full KSpec { guard: GuardConfig { tau: 0.55, z: 0.5, kw_a: 2.0, kw_b: 1.0, discount: 0.97, challenge: true }, anchors: Learned(AnchorCfg { enabled: true, lift_min: 3.0, min_count: 3, period: 25 }), inner: Mem(MemCfg { init: 0.6, c0: 1.0, temp: 0.03, eps: 0.0, use_sets: true, knn_k: 0, s_min: 0.3, gamma: 1.0, kappa: 2.0, lam_u: 1.0, spread: 0.0, key_sel: false, key_n: 20.0, key_theta: 0.12, cap: 0, evict: ImportanceMerge }), delayed_mult: 1, fail_reward: 0.0 }
+  guard-rt KSpec { guard: GuardConfig { tau: 0.75, z: 1.0, kw_a: 4.0, kw_b: 1.0, discount: 1.0, challenge: false }, anchors: Off, inner: Heb, delayed_mult: 1, fail_reward: 0.0 }
+
+=== world var-traps | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword                                       0.5392  0.5413  0.5461  0.5447  0.5450
+eps-greedy                                    0.4373  0.4867  0.5564  0.6517  0.7245
+pooled-ts                                     0.4420  0.4840  0.5417  0.6128  0.6788
+hebbian-robust                                0.4859  0.5715  0.6581  0.7308  0.7776
+warm(hebr)                                    0.5586  0.6128  0.6780  0.7395  0.7791
+guarded-safe                                  0.5995  0.6420  0.6938  0.7426  0.7746
+guarded-rt(retuned)                           0.5997  0.6407  0.6917  0.7406  0.7734
+K-full                                        0.6046  0.6486  0.7087  0.7472  0.7656
+K[no anchors]                                 0.6040  0.6364  0.6783  0.7245  0.7621
+K[unigram mem]                                0.5984  0.6356  0.6971  0.7385  0.7589
+K[anchors+hebbian]                            0.6049  0.6579  0.7094  0.7551  0.7816
+K[oracle anchors]                             0.6387  0.6927  0.7332  0.7581  0.7718
+
+=== world var-clean | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword                                       0.6316  0.6322  0.6315  0.6296  0.6280
+eps-greedy                                    0.4389  0.4852  0.5551  0.6515  0.7252
+pooled-ts                                     0.4541  0.4884  0.5429  0.6129  0.6771
+hebbian-robust                                0.4851  0.5658  0.6551  0.7296  0.7769
+warm(hebr)                                    0.6247  0.6661  0.7169  0.7627  0.7910
+guarded-safe                                  0.6962  0.7385  0.7693  0.7913  0.8032
+guarded-rt(retuned)                           0.6962  0.7385  0.7694  0.7911  0.8023
+K-full                                        0.7029  0.7318  0.7575  0.7786  0.7895
+K[no anchors]                                 0.7024  0.7296  0.7481  0.7688  0.7853
+K[unigram mem]                                0.6933  0.7140  0.7423  0.7693  0.7836
+K[anchors+hebbian]                            0.6937  0.7332  0.7657  0.7901  0.8022
+K[oracle anchors]                             0.7306  0.7609  0.7790  0.7918  0.7969
+
+=== world var-single(ctl) | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword                                       0.4922  0.4922  0.4934  0.4917  0.4926
+eps-greedy                                    0.4093  0.4510  0.5001  0.5622  0.6350
+pooled-ts                                     0.4181  0.4334  0.4582  0.5023  0.5708
+hebbian-robust                                0.4358  0.4682  0.5185  0.5931  0.6727
+warm(hebr)                                    0.4996  0.5132  0.5503  0.6090  0.6806
+guarded-safe                                  0.5165  0.5430  0.5837  0.6409  0.7023
+guarded-rt(retuned)                           0.5165  0.5430  0.5837  0.6409  0.7018
+K-full                                        0.5092  0.5417  0.5860  0.6472  0.7099
+K[no anchors]                                 0.5092  0.5417  0.5860  0.6472  0.7099
+K[unigram mem]                                0.5080  0.5402  0.5826  0.6392  0.7011
+K[anchors+hebbian]                            0.5112  0.5350  0.5751  0.6337  0.6976
+K[oracle anchors]                             0.6764  0.7509  0.7880  0.8099  0.8208
+
+=== world conj-clean | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword                                       0.6408  0.6444  0.6504  0.6491  0.6485
+eps-greedy                                    0.4876  0.5443  0.5764  0.6017  0.6241
+pooled-ts                                     0.4483  0.4810  0.5162  0.5518  0.5811
+hebbian-robust                                0.4860  0.5323  0.5596  0.5798  0.5838
+warm(hebr)                                    0.5257  0.5491  0.5754  0.5935  0.5949
+guarded-safe                                  0.6421  0.6455  0.6571  0.6615  0.6623
+guarded-rt(retuned)                           0.6408  0.6472  0.6556  0.6629  0.6626
+K-full                                        0.6253  0.6318  0.6399  0.6390  0.6418
+K[no anchors]                                 0.6249  0.6303  0.6389  0.6397  0.6398
+K[unigram mem]                                0.6246  0.6307  0.6388  0.6389  0.6400
+K[anchors+hebbian]                            0.6222  0.6322  0.6431  0.6492  0.6509
+K[oracle anchors]                             0.6265  0.6336  0.6423  0.6424  0.6441
+
+=== world conj-noisy | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword                                       0.6408  0.6454  0.6438  0.6490  0.6484
+eps-greedy                                    0.4831  0.5196  0.5510  0.5826  0.6142
+pooled-ts                                     0.4432  0.4817  0.5099  0.5452  0.5786
+hebbian-robust                                0.4768  0.5146  0.5444  0.5712  0.5837
+warm(hebr)                                    0.5262  0.5519  0.5730  0.5939  0.6034
+guarded-safe                                  0.6418  0.6510  0.6558  0.6629  0.6635
+guarded-rt(retuned)                           0.6434  0.6583  0.6699  0.6788  0.6817
+K-full                                        0.6313  0.6359  0.6359  0.6395  0.6390
+K[no anchors]                                 0.6309  0.6362  0.6368  0.6401  0.6394
+K[unigram mem]                                0.6312  0.6352  0.6356  0.6386  0.6374
+K[anchors+hebbian]                            0.6364  0.6463  0.6487  0.6551  0.6548
+K[oracle anchors]                             0.6308  0.6362  0.6366  0.6401  0.6395
+
+=== world traps(main) | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword                                       0.6671  0.6557  0.6558  0.6545  0.6541
+eps-greedy                                    0.4971  0.5723  0.6493  0.7061  0.7431
+pooled-ts                                     0.4744  0.5409  0.6105  0.6745  0.7227
+hebbian-robust                                0.5636  0.6467  0.7064  0.7508  0.7725
+warm(hebr)                                    0.6506  0.6921  0.7318  0.7623  0.7783
+guarded-safe                                  0.6835  0.7113  0.7442  0.7674  0.7821
+guarded-rt(retuned)                           0.6829  0.7082  0.7396  0.7654  0.7842
+K-full                                        0.6906  0.7278  0.7534  0.7687  0.7774
+K[no anchors]                                 0.6869  0.7172  0.7497  0.7734  0.7868
+K[unigram mem]                                0.6903  0.7266  0.7510  0.7651  0.7733
+K[anchors+hebbian]                            0.6896  0.7242  0.7548  0.7742  0.7848
+K[oracle anchors]                             0.6952  0.7266  0.7492  0.7642  0.7748
+
+=== world correct-keywords | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword                                       0.8212  0.8184  0.8191  0.8173  0.8168
+eps-greedy                                    0.5072  0.5903  0.6624  0.7147  0.7468
+pooled-ts                                     0.4826  0.5489  0.6113  0.6739  0.7213
+hebbian-robust                                0.5574  0.6414  0.7016  0.7477  0.7718
+warm(hebr)                                    0.7427  0.7582  0.7769  0.7894  0.7898
+guarded-safe                                  0.8177  0.8149  0.8166  0.8159  0.8158
+guarded-rt(retuned)                           0.8185  0.8152  0.8161  0.8158  0.8157
+K-full                                        0.8166  0.8123  0.8140  0.8133  0.8133
+K[no anchors]                                 0.8186  0.8166  0.8179  0.8164  0.8161
+K[unigram mem]                                0.8168  0.8122  0.8138  0.8131  0.8133
+K[anchors+hebbian]                            0.7982  0.8014  0.8086  0.8121  0.8139
+K[oracle anchors]                             0.8122  0.8118  0.8135  0.8133  0.8135
+
+=== world many-topics(16) | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword                                       0.7259  0.7213  0.7190  0.7178  0.7170
+eps-greedy                                    0.4718  0.5137  0.5791  0.6575  0.7140
+pooled-ts                                     0.4542  0.4928  0.5450  0.6099  0.6726
+hebbian-robust                                0.4891  0.5598  0.6284  0.6925  0.7438
+warm(hebr)                                    0.6783  0.6823  0.7131  0.7470  0.7713
+guarded-safe                                  0.7255  0.7292  0.7479  0.7700  0.7843
+guarded-rt(retuned)                           0.7253  0.7279  0.7459  0.7690  0.7867
+K-full                                        0.7258  0.7360  0.7563  0.7723  0.7812
+K[no anchors]                                 0.7255  0.7351  0.7569  0.7751  0.7883
+K[unigram mem]                                0.7264  0.7357  0.7547  0.7705  0.7801
+K[anchors+hebbian]                            0.7122  0.7251  0.7467  0.7688  0.7820
+K[oracle anchors]                             0.7280  0.7404  0.7590  0.7737  0.7837
+
+=== world sim-random | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword                                       0.7476  0.7454  0.7409  0.7201  0.6968
+eps-greedy                                    0.5307  0.6213  0.6898  0.7224  0.7438
+pooled-ts                                     0.5314  0.6062  0.6663  0.7034  0.7250
+hebbian-robust                                0.5679  0.6510  0.7142  0.7458  0.7584
+warm(hebr)                                    0.7163  0.7537  0.7797  0.7796  0.7757
+guarded-safe                                  0.7509  0.7693  0.7882  0.7865  0.7758
+guarded-rt(retuned)                           0.7523  0.7733  0.7936  0.7877  0.7738
+K-full                                        0.7533  0.7757  0.7875  0.7805  0.7703
+K[no anchors]                                 0.7532  0.7732  0.7903  0.7878  0.7776
+K[unigram mem]                                0.7537  0.7756  0.7870  0.7791  0.7682
+K[anchors+hebbian]                            0.7473  0.7706  0.7896  0.7858  0.7765
+K[oracle anchors]                             0.7531  0.7725  0.7896  0.7864  0.7776
+
+=== world sim-notraps | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword                                       0.8447  0.8442  0.8406  0.8164  0.7927
+eps-greedy                                    0.5377  0.6279  0.6943  0.7243  0.7363
+pooled-ts                                     0.5356  0.6124  0.6727  0.7080  0.7253
+hebbian-robust                                0.6085  0.6739  0.7235  0.7435  0.7523
+warm(hebr)                                    0.7704  0.7903  0.8021  0.7905  0.7787
+guarded-safe                                  0.8409  0.8398  0.8372  0.8169  0.7940
+guarded-rt(retuned)                           0.8419  0.8414  0.8383  0.8156  0.7848
+K-full                                        0.8337  0.8307  0.8306  0.8115  0.7909
+K[no anchors]                                 0.8433  0.8427  0.8393  0.8165  0.7916
+K[unigram mem]                                0.8336  0.8307  0.8305  0.8121  0.7907
+K[anchors+hebbian]                            0.8302  0.8331  0.8323  0.8138  0.7925
+K[oracle anchors]                             0.8433  0.8427  0.8393  0.8165  0.7919
+
+### NORMAL worlds: candidates vs best-of-7 (incl. retuned guarded)  (Holm over 250 tests)
+world              candidate                              H      diff               95% CI  wins   Holm p  best baseline
+var-traps          K-full                               100   +0.0049 [ -0.0038, +0.0135]    17   1.0000  guarded-rt(retuned)
+var-traps          K-full                               250   +0.0066 [ -0.0012, +0.0144]    17   1.0000  guarded-safe
+var-traps          K-full                               500   +0.0149 [ +0.0079, +0.0219]    24   0.0233  guarded-safe WIN
+var-traps          K-full                              1000   +0.0046 [ -0.0005, +0.0098]    19   1.0000  guarded-safe
+var-traps          K-full                              2000   -0.0134 [ -0.0176, -0.0093]     5   0.0001  warm(hebr) LOSS
+var-clean          K-full                               100   +0.0068 [ +0.0003, +0.0132]    19   1.0000  guarded-rt(retuned)
+var-clean          K-full                               250   -0.0067 [ -0.0115, -0.0019]    10   1.0000  guarded-safe
+var-clean          K-full                               500   -0.0119 [ -0.0150, -0.0088]     3   0.0000  guarded-rt(retuned) LOSS
+var-clean          K-full                              1000   -0.0127 [ -0.0157, -0.0098]     1   0.0000  guarded-safe LOSS
+var-clean          K-full                              2000   -0.0137 [ -0.0162, -0.0111]     0   0.0000  guarded-safe LOSS
+var-single(ctl)    K-full                               100   -0.0073 [ -0.0210, +0.0064]    13   1.0000  guarded-rt(retuned)
+var-single(ctl)    K-full                               250   -0.0013 [ -0.0094, +0.0067]    17   1.0000  guarded-rt(retuned)
+var-single(ctl)    K-full                               500   +0.0023 [ -0.0057, +0.0102]    21   1.0000  guarded-rt(retuned)
+var-single(ctl)    K-full                              1000   +0.0063 [ -0.0024, +0.0150]    19   1.0000  guarded-rt(retuned)
+var-single(ctl)    K-full                              2000   +0.0077 [ +0.0004, +0.0149]    20   1.0000  guarded-safe
+conj-clean         K-full                               100   -0.0168 [ -0.0249, -0.0087]     5   0.0346  guarded-safe LOSS
+conj-clean         K-full                               250   -0.0154 [ -0.0313, +0.0006]     6   1.0000  guarded-rt(retuned)
+conj-clean         K-full                               500   -0.0172 [ -0.0243, -0.0100]     3   0.0057  guarded-safe LOSS
+conj-clean         K-full                              1000   -0.0239 [ -0.0438, -0.0040]     7   1.0000  guarded-rt(retuned)
+conj-clean         K-full                              2000   -0.0208 [ -0.0417, +0.0002]     6   1.0000  guarded-rt(retuned)
+conj-noisy         K-full                               100   -0.0120 [ -0.0165, -0.0075]     3   0.0012  guarded-rt(retuned) LOSS
+conj-noisy         K-full                               250   -0.0224 [ -0.0305, -0.0142]     2   0.0009  guarded-rt(retuned) LOSS
+conj-noisy         K-full                               500   -0.0339 [ -0.0441, -0.0238]     2   0.0000  guarded-rt(retuned) LOSS
+conj-noisy         K-full                              1000   -0.0393 [ -0.0504, -0.0283]     2   0.0000  guarded-rt(retuned) LOSS
+conj-noisy         K-full                              2000   -0.0427 [ -0.0546, -0.0309]     2   0.0000  guarded-rt(retuned) LOSS
+traps(main)        K-full                               100   +0.0071 [ +0.0020, +0.0121]    23   1.0000  guarded-safe
+traps(main)        K-full                               250   +0.0166 [ +0.0088, +0.0243]    24   0.0228  guarded-safe WIN
+traps(main)        K-full                               500   +0.0092 [ -0.0003, +0.0186]    20   1.0000  guarded-safe
+traps(main)        K-full                              1000   +0.0013 [ -0.0069, +0.0095]    15   1.0000  guarded-safe
+traps(main)        K-full                              2000   -0.0069 [ -0.0118, -0.0019]     8   1.0000  guarded-rt(retuned)
+correct-keywords   K-full                               100   -0.0046 [ -0.0077, -0.0015]     3   0.6764  keyword
+correct-keywords   K-full                               250   -0.0061 [ -0.0084, -0.0038]     3   0.0017  keyword LOSS
+correct-keywords   K-full                               500   -0.0051 [ -0.0064, -0.0038]     2   0.0000  keyword LOSS
+correct-keywords   K-full                              1000   -0.0039 [ -0.0049, -0.0030]     1   0.0000  keyword LOSS
+correct-keywords   K-full                              2000   -0.0035 [ -0.0042, -0.0027]     1   0.0000  keyword LOSS
+many-topics(16)    K-full                               100   -0.0001 [ -0.0042, +0.0039]    13   1.0000  keyword
+many-topics(16)    K-full                               250   +0.0068 [ +0.0015, +0.0120]    22   1.0000  guarded-safe
+many-topics(16)    K-full                               500   +0.0084 [ +0.0038, +0.0130]    22   0.1290  guarded-safe
+many-topics(16)    K-full                              1000   +0.0023 [ -0.0018, +0.0064]    20   1.0000  guarded-safe
+many-topics(16)    K-full                              2000   -0.0055 [ -0.0095, -0.0015]     8   1.0000  guarded-rt(retuned)
+sim-random         K-full                               100   +0.0010 [ -0.0046, +0.0067]    15   1.0000  guarded-rt(retuned)
+sim-random         K-full                               250   +0.0025 [ -0.0079, +0.0128]    14   1.0000  guarded-rt(retuned)
+sim-random         K-full                               500   -0.0062 [ -0.0157, +0.0034]    12   1.0000  guarded-rt(retuned)
+sim-random         K-full                              1000   -0.0072 [ -0.0153, +0.0008]     9   1.0000  guarded-rt(retuned)
+sim-random         K-full                              2000   -0.0055 [ -0.0109, -0.0000]    10   1.0000  guarded-safe
+sim-notraps        K-full                               100   -0.0111 [ -0.0153, -0.0069]     0   0.0017  keyword LOSS
+sim-notraps        K-full                               250   -0.0135 [ -0.0182, -0.0088]     0   0.0004  keyword LOSS
+sim-notraps        K-full                               500   -0.0099 [ -0.0125, -0.0073]     0   0.0000  keyword LOSS
+sim-notraps        K-full                              1000   -0.0054 [ -0.0079, -0.0029]     5   0.0234  guarded-safe LOSS
+sim-notraps        K-full                              2000   -0.0030 [ -0.0066, +0.0005]    10   1.0000  guarded-safe
+--> Holm tally per candidate (wins, losses): {"K-full": (2, 19), "K[anchors+hebbian]": (4, 11), "K[no anchors]": (1, 13), "K[oracle anchors]": (14, 11), "K[unigram mem]": (1, 20)}
+
+### NORMAL worlds: candidates vs best-of-6 (spec set)  (Holm over 250 tests)
+world              candidate                              H      diff               95% CI  wins   Holm p  best baseline
+var-traps          K-full                               100   +0.0051 [ -0.0039, +0.0141]    18   1.0000  guarded-safe
+var-traps          K-full                               250   +0.0066 [ -0.0012, +0.0144]    17   1.0000  guarded-safe
+var-traps          K-full                               500   +0.0149 [ +0.0079, +0.0219]    24   0.0223  guarded-safe WIN
+var-traps          K-full                              1000   +0.0046 [ -0.0005, +0.0098]    19   1.0000  guarded-safe
+var-traps          K-full                              2000   -0.0134 [ -0.0176, -0.0093]     5   0.0001  warm(hebr) LOSS
+var-clean          K-full                               100   +0.0068 [ +0.0003, +0.0132]    19   1.0000  guarded-safe
+var-clean          K-full                               250   -0.0067 [ -0.0115, -0.0019]    10   0.9160  guarded-safe
+var-clean          K-full                               500   -0.0118 [ -0.0151, -0.0086]     4   0.0000  guarded-safe LOSS
+var-clean          K-full                              1000   -0.0127 [ -0.0157, -0.0098]     1   0.0000  guarded-safe LOSS
+var-clean          K-full                              2000   -0.0137 [ -0.0162, -0.0111]     0   0.0000  guarded-safe LOSS
+var-single(ctl)    K-full                               100   -0.0073 [ -0.0210, +0.0064]    13   1.0000  guarded-safe
+var-single(ctl)    K-full                               250   -0.0013 [ -0.0094, +0.0067]    17   1.0000  guarded-safe
+var-single(ctl)    K-full                               500   +0.0023 [ -0.0057, +0.0102]    21   1.0000  guarded-safe
+var-single(ctl)    K-full                              1000   +0.0064 [ -0.0022, +0.0149]    19   1.0000  guarded-safe
+var-single(ctl)    K-full                              2000   +0.0077 [ +0.0004, +0.0149]    20   1.0000  guarded-safe
+conj-clean         K-full                               100   -0.0168 [ -0.0249, -0.0087]     5   0.0331  guarded-safe LOSS
+conj-clean         K-full                               250   -0.0137 [ -0.0223, -0.0052]     6   0.3529  guarded-safe
+conj-clean         K-full                               500   -0.0172 [ -0.0243, -0.0100]     3   0.0054  guarded-safe LOSS
+conj-clean         K-full                              1000   -0.0226 [ -0.0283, -0.0168]     3   0.0000  guarded-safe LOSS
+conj-clean         K-full                              2000   -0.0204 [ -0.0253, -0.0156]     2   0.0000  guarded-safe LOSS
+conj-noisy         K-full                               100   -0.0104 [ -0.0149, -0.0060]     3   0.0079  guarded-safe LOSS
+conj-noisy         K-full                               250   -0.0151 [ -0.0201, -0.0100]     2   0.0002  guarded-safe LOSS
+conj-noisy         K-full                               500   -0.0199 [ -0.0245, -0.0153]     1   0.0000  guarded-safe LOSS
+conj-noisy         K-full                              1000   -0.0235 [ -0.0280, -0.0189]     1   0.0000  guarded-safe LOSS
+conj-noisy         K-full                              2000   -0.0246 [ -0.0281, -0.0210]     0   0.0000  guarded-safe LOSS
+traps(main)        K-full                               100   +0.0071 [ +0.0020, +0.0121]    23   0.9649  guarded-safe
+traps(main)        K-full                               250   +0.0166 [ +0.0088, +0.0243]    24   0.0218  guarded-safe WIN
+traps(main)        K-full                               500   +0.0092 [ -0.0003, +0.0186]    20   1.0000  guarded-safe
+traps(main)        K-full                              1000   +0.0013 [ -0.0069, +0.0095]    15   1.0000  guarded-safe
+traps(main)        K-full                              2000   -0.0047 [ -0.0101, +0.0006]     9   1.0000  guarded-safe
+correct-keywords   K-full                               100   -0.0046 [ -0.0077, -0.0015]     3   0.6274  keyword
+correct-keywords   K-full                               250   -0.0061 [ -0.0084, -0.0038]     3   0.0017  keyword LOSS
+correct-keywords   K-full                               500   -0.0051 [ -0.0064, -0.0038]     2   0.0000  keyword LOSS
+correct-keywords   K-full                              1000   -0.0039 [ -0.0049, -0.0030]     1   0.0000  keyword LOSS
+correct-keywords   K-full                              2000   -0.0035 [ -0.0042, -0.0027]     1   0.0000  keyword LOSS
+many-topics(16)    K-full                               100   -0.0001 [ -0.0042, +0.0039]    13   1.0000  keyword
+many-topics(16)    K-full                               250   +0.0068 [ +0.0015, +0.0120]    22   1.0000  guarded-safe
+many-topics(16)    K-full                               500   +0.0084 [ +0.0038, +0.0130]    22   0.1239  guarded-safe
+many-topics(16)    K-full                              1000   +0.0023 [ -0.0018, +0.0064]    20   1.0000  guarded-safe
+many-topics(16)    K-full                              2000   -0.0031 [ -0.0073, +0.0011]    10   1.0000  guarded-safe
+sim-random         K-full                               100   +0.0024 [ -0.0027, +0.0076]    18   1.0000  guarded-safe
+sim-random         K-full                               250   +0.0065 [ -0.0041, +0.0171]    16   1.0000  guarded-safe
+sim-random         K-full                               500   -0.0007 [ -0.0107, +0.0094]    15   1.0000  guarded-safe
+sim-random         K-full                              1000   -0.0060 [ -0.0135, +0.0015]    11   1.0000  guarded-safe
+sim-random         K-full                              2000   -0.0055 [ -0.0109, -0.0000]    10   1.0000  guarded-safe
+sim-notraps        K-full                               100   -0.0111 [ -0.0153, -0.0069]     0   0.0016  keyword LOSS
+sim-notraps        K-full                               250   -0.0135 [ -0.0182, -0.0088]     0   0.0004  keyword LOSS
+sim-notraps        K-full                               500   -0.0099 [ -0.0125, -0.0073]     0   0.0000  keyword LOSS
+sim-notraps        K-full                              1000   -0.0054 [ -0.0079, -0.0029]     5   0.0224  guarded-safe LOSS
+sim-notraps        K-full                              2000   -0.0030 [ -0.0066, +0.0005]    10   1.0000  guarded-safe
+--> Holm tally per candidate (wins, losses): {"K-full": (2, 21), "K[anchors+hebbian]": (4, 12), "K[no anchors]": (1, 15), "K[oracle anchors]": (14, 13), "K[unigram mem]": (1, 22)}
+
+### NORMAL worlds: candidates vs keyword only  (Holm over 250 tests)
+world              candidate                              H      diff               95% CI  wins   Holm p  best baseline
+var-traps          K-full                               100   +0.0654 [ +0.0555, +0.0754]    30   0.0000  keyword WIN
+var-traps          K-full                               250   +0.1072 [ +0.0988, +0.1157]    30   0.0000  keyword WIN
+var-traps          K-full                               500   +0.1626 [ +0.1558, +0.1695]    30   0.0000  keyword WIN
+var-traps          K-full                              1000   +0.2025 [ +0.1966, +0.2083]    30   0.0000  keyword WIN
+var-traps          K-full                              2000   +0.2206 [ +0.2158, +0.2254]    30   0.0000  keyword WIN
+var-clean          K-full                               100   +0.0714 [ +0.0607, +0.0820]    30   0.0000  keyword WIN
+var-clean          K-full                               250   +0.0996 [ +0.0914, +0.1078]    30   0.0000  keyword WIN
+var-clean          K-full                               500   +0.1260 [ +0.1204, +0.1316]    30   0.0000  keyword WIN
+var-clean          K-full                              1000   +0.1490 [ +0.1446, +0.1534]    30   0.0000  keyword WIN
+var-clean          K-full                              2000   +0.1616 [ +0.1585, +0.1646]    30   0.0000  keyword WIN
+var-single(ctl)    K-full                               100   +0.0170 [ +0.0049, +0.0291]    22   0.3091  keyword
+var-single(ctl)    K-full                               250   +0.0495 [ +0.0422, +0.0568]    30   0.0000  keyword WIN
+var-single(ctl)    K-full                               500   +0.0926 [ +0.0847, +0.1005]    30   0.0000  keyword WIN
+var-single(ctl)    K-full                              1000   +0.1555 [ +0.1479, +0.1632]    30   0.0000  keyword WIN
+var-single(ctl)    K-full                              2000   +0.2173 [ +0.2112, +0.2235]    30   0.0000  keyword WIN
+conj-clean         K-full                               100   -0.0155 [ -0.0228, -0.0082]     4   0.0100  keyword LOSS
+conj-clean         K-full                               250   -0.0126 [ -0.0170, -0.0082]     5   0.0003  keyword LOSS
+conj-clean         K-full                               500   -0.0105 [ -0.0151, -0.0059]     3   0.0052  keyword LOSS
+conj-clean         K-full                              1000   -0.0101 [ -0.0137, -0.0066]     4   0.0003  keyword LOSS
+conj-clean         K-full                              2000   -0.0066 [ -0.0100, -0.0033]     5   0.0203  keyword LOSS
+conj-noisy         K-full                               100   -0.0095 [ -0.0134, -0.0055]     4   0.0027  keyword LOSS
+conj-noisy         K-full                               250   -0.0095 [ -0.0138, -0.0052]     6   0.0070  keyword LOSS
+conj-noisy         K-full                               500   -0.0079 [ -0.0127, -0.0030]     6   0.1261  keyword
+conj-noisy         K-full                              1000   -0.0095 [ -0.0136, -0.0054]     4   0.0045  keyword LOSS
+conj-noisy         K-full                              2000   -0.0095 [ -0.0123, -0.0066]     4   0.0000  keyword LOSS
+traps(main)        K-full                               100   +0.0234 [ +0.0148, +0.0321]    27   0.0006  keyword WIN
+traps(main)        K-full                               250   +0.0722 [ +0.0613, +0.0830]    30   0.0000  keyword WIN
+traps(main)        K-full                               500   +0.0976 [ +0.0869, +0.1084]    30   0.0000  keyword WIN
+traps(main)        K-full                              1000   +0.1142 [ +0.1048, +0.1237]    30   0.0000  keyword WIN
+traps(main)        K-full                              2000   +0.1233 [ +0.1144, +0.1322]    30   0.0000  keyword WIN
+correct-keywords   K-full                               100   -0.0046 [ -0.0077, -0.0015]     3   0.2206  keyword
+correct-keywords   K-full                               250   -0.0061 [ -0.0084, -0.0038]     3   0.0008  keyword LOSS
+correct-keywords   K-full                               500   -0.0051 [ -0.0064, -0.0038]     2   0.0000  keyword LOSS
+correct-keywords   K-full                              1000   -0.0039 [ -0.0049, -0.0030]     1   0.0000  keyword LOSS
+correct-keywords   K-full                              2000   -0.0035 [ -0.0042, -0.0027]     1   0.0000  keyword LOSS
+many-topics(16)    K-full                               100   -0.0001 [ -0.0042, +0.0039]    13   1.0000  keyword
+many-topics(16)    K-full                               250   +0.0147 [ +0.0078, +0.0215]    27   0.0089  keyword WIN
+many-topics(16)    K-full                               500   +0.0373 [ +0.0305, +0.0442]    29   0.0000  keyword WIN
+many-topics(16)    K-full                              1000   +0.0545 [ +0.0478, +0.0612]    30   0.0000  keyword WIN
+many-topics(16)    K-full                              2000   +0.0642 [ +0.0571, +0.0713]    30   0.0000  keyword WIN
+sim-random         K-full                               100   +0.0057 [ -0.0016, +0.0130]    17   1.0000  keyword
+sim-random         K-full                               250   +0.0304 [ +0.0195, +0.0412]    24   0.0003  keyword WIN
+sim-random         K-full                               500   +0.0465 [ +0.0341, +0.0590]    28   0.0000  keyword WIN
+sim-random         K-full                              1000   +0.0604 [ +0.0482, +0.0727]    30   0.0000  keyword WIN
+sim-random         K-full                              2000   +0.0735 [ +0.0608, +0.0862]    30   0.0000  keyword WIN
+sim-notraps        K-full                               100   -0.0111 [ -0.0153, -0.0069]     0   0.0008  keyword LOSS
+sim-notraps        K-full                               250   -0.0135 [ -0.0182, -0.0088]     0   0.0002  keyword LOSS
+sim-notraps        K-full                               500   -0.0099 [ -0.0125, -0.0073]     0   0.0000  keyword LOSS
+sim-notraps        K-full                              1000   -0.0049 [ -0.0071, -0.0027]     4   0.0061  keyword LOSS
+sim-notraps        K-full                              2000   -0.0018 [ -0.0042, +0.0006]     8   1.0000  keyword
+--> Holm tally per candidate (wins, losses): {"K-full": (27, 17), "K[anchors+hebbian]": (25, 8), "K[no anchors]": (27, 9), "K[oracle anchors]": (28, 10), "K[unigram mem]": (27, 16)}
+
+--- direct: K-full - K[no anchors] (normal worlds) (Holm over 50) ---
+var-traps          H100    +0.0006 [ -0.0010, +0.0021] w 9 Holm 1.0000
+var-traps          H250    +0.0122 [ +0.0082, +0.0161] w26 Holm 0.0000 WIN
+var-traps          H500    +0.0304 [ +0.0249, +0.0358] w30 Holm 0.0000 WIN
+var-traps          H1000   +0.0227 [ +0.0178, +0.0276] w30 Holm 0.0000 WIN
+var-traps          H2000   +0.0036 [ -0.0001, +0.0072] w23 Holm 1.0000
+var-clean          H100    +0.0005 [ -0.0014, +0.0025] w11 Holm 1.0000
+var-clean          H250    +0.0022 [ -0.0001, +0.0046] w19 Holm 1.0000
+var-clean          H500    +0.0094 [ +0.0061, +0.0127] w28 Holm 0.0001 WIN
+var-clean          H1000   +0.0098 [ +0.0069, +0.0126] w25 Holm 0.0000 WIN
+var-clean          H2000   +0.0042 [ +0.0015, +0.0070] w23 Holm 0.1149
+var-single(ctl)    H100    +0.0000 [ +0.0000, +0.0000] w 0 Holm 1.0000
+var-single(ctl)    H250    +0.0000 [ +0.0000, +0.0000] w 0 Holm 1.0000
+var-single(ctl)    H500    +0.0000 [ +0.0000, +0.0000] w 0 Holm 1.0000
+var-single(ctl)    H1000   +0.0000 [ +0.0000, +0.0000] w 0 Holm 1.0000
+var-single(ctl)    H2000   +0.0000 [ +0.0000, +0.0000] w 0 Holm 1.0000
+conj-clean         H100    +0.0004 [ -0.0011, +0.0020] w 5 Holm 1.0000
+conj-clean         H250    +0.0015 [ -0.0010, +0.0040] w12 Holm 1.0000
+conj-clean         H500    +0.0010 [ -0.0010, +0.0030] w13 Holm 1.0000
+conj-clean         H1000   -0.0007 [ -0.0026, +0.0011] w12 Holm 1.0000
+conj-clean         H2000   +0.0020 [ -0.0001, +0.0041] w17 Holm 1.0000
+conj-noisy         H100    +0.0004 [ -0.0013, +0.0022] w 5 Holm 1.0000
+conj-noisy         H250    -0.0002 [ -0.0029, +0.0024] w16 Holm 1.0000
+conj-noisy         H500    -0.0009 [ -0.0037, +0.0020] w15 Holm 1.0000
+conj-noisy         H1000   -0.0006 [ -0.0025, +0.0013] w14 Holm 1.0000
+conj-noisy         H2000   -0.0004 [ -0.0017, +0.0009] w10 Holm 1.0000
+traps(main)        H100    +0.0037 [ -0.0005, +0.0079] w15 Holm 1.0000
+traps(main)        H250    +0.0106 [ +0.0046, +0.0167] w21 Holm 0.0388 WIN
+traps(main)        H500    +0.0037 [ -0.0028, +0.0103] w19 Holm 1.0000
+traps(main)        H1000   -0.0047 [ -0.0100, +0.0006] w12 Holm 1.0000
+traps(main)        H2000   -0.0095 [ -0.0126, -0.0063] w 2 Holm 0.0000 LOSS
+correct-keywords   H100    -0.0019 [ -0.0041, +0.0002] w 4 Holm 1.0000
+correct-keywords   H250    -0.0043 [ -0.0059, -0.0026] w 2 Holm 0.0004 LOSS
+correct-keywords   H500    -0.0040 [ -0.0052, -0.0027] w 0 Holm 0.0000 LOSS
+correct-keywords   H1000   -0.0030 [ -0.0039, -0.0022] w 2 Holm 0.0000 LOSS
+correct-keywords   H2000   -0.0028 [ -0.0034, -0.0022] w 1 Holm 0.0000 LOSS
+many-topics(16)    H100    +0.0002 [ -0.0015, +0.0020] w 7 Holm 1.0000
+many-topics(16)    H250    +0.0009 [ -0.0031, +0.0048] w16 Holm 1.0000
+many-topics(16)    H500    -0.0006 [ -0.0044, +0.0032] w12 Holm 1.0000
+many-topics(16)    H1000   -0.0027 [ -0.0063, +0.0008] w11 Holm 1.0000
+many-topics(16)    H2000   -0.0071 [ -0.0103, -0.0039] w 4 Holm 0.0034 LOSS
+sim-random         H100    +0.0001 [ -0.0044, +0.0046] w15 Holm 1.0000
+sim-random         H250    +0.0025 [ -0.0030, +0.0080] w16 Holm 1.0000
+sim-random         H500    -0.0028 [ -0.0077, +0.0021] w12 Holm 1.0000
+sim-random         H1000   -0.0073 [ -0.0118, -0.0029] w 7 Holm 0.0690
+sim-random         H2000   -0.0073 [ -0.0110, -0.0037] w 5 Holm 0.0109 LOSS
+sim-notraps        H100    -0.0096 [ -0.0132, -0.0060] w 0 Holm 0.0003 LOSS
+sim-notraps        H250    -0.0121 [ -0.0165, -0.0076] w 1 Holm 0.0002 LOSS
+sim-notraps        H500    -0.0087 [ -0.0111, -0.0063] w 0 Holm 0.0000 LOSS
+sim-notraps        H1000   -0.0050 [ -0.0067, -0.0033] w 2 Holm 0.0001 LOSS
+sim-notraps        H2000   -0.0007 [ -0.0030, +0.0016] w12 Holm 1.0000
+--> direct Holm wins 6, losses 11
+
+--- direct: K-full - K[unigram mem] (normal worlds) (Holm over 50) ---
+var-traps          H100    +0.0062 [ +0.0033, +0.0091] w23 Holm 0.0053 WIN
+var-traps          H250    +0.0130 [ +0.0084, +0.0175] w27 Holm 0.0001 WIN
+var-traps          H500    +0.0116 [ +0.0065, +0.0168] w29 Holm 0.0032 WIN
+var-traps          H1000   +0.0087 [ +0.0048, +0.0126] w27 Holm 0.0040 WIN
+var-traps          H2000   +0.0067 [ +0.0029, +0.0105] w29 Holm 0.0420 WIN
+var-clean          H100    +0.0096 [ +0.0060, +0.0133] w26 Holm 0.0004 WIN
+var-clean          H250    +0.0178 [ +0.0147, +0.0208] w30 Holm 0.0000 WIN
+var-clean          H500    +0.0152 [ +0.0126, +0.0178] w30 Holm 0.0000 WIN
+var-clean          H1000   +0.0093 [ +0.0078, +0.0108] w30 Holm 0.0000 WIN
+var-clean          H2000   +0.0059 [ +0.0050, +0.0069] w30 Holm 0.0000 WIN
+var-single(ctl)    H100    +0.0012 [ -0.0001, +0.0025] w 8 Holm 1.0000
+var-single(ctl)    H250    +0.0015 [ -0.0005, +0.0035] w17 Holm 1.0000
+var-single(ctl)    H500    +0.0034 [ +0.0006, +0.0061] w20 Holm 0.6403
+var-single(ctl)    H1000   +0.0080 [ +0.0045, +0.0115] w24 Holm 0.0025 WIN
+var-single(ctl)    H2000   +0.0089 [ +0.0052, +0.0125] w24 Holm 0.0012 WIN
+conj-clean         H100    +0.0007 [ -0.0001, +0.0015] w 9 Holm 1.0000
+conj-clean         H250    +0.0011 [ -0.0014, +0.0036] w11 Holm 1.0000
+conj-clean         H500    +0.0011 [ -0.0011, +0.0032] w12 Holm 1.0000
+conj-clean         H1000   +0.0000 [ -0.0015, +0.0015] w13 Holm 1.0000
+conj-clean         H2000   +0.0019 [ +0.0001, +0.0037] w20 Holm 1.0000
+conj-noisy         H100    +0.0001 [ -0.0006, +0.0008] w 3 Holm 1.0000
+conj-noisy         H250    +0.0007 [ -0.0006, +0.0020] w12 Holm 1.0000
+conj-noisy         H500    +0.0003 [ -0.0017, +0.0024] w13 Holm 1.0000
+conj-noisy         H1000   +0.0009 [ -0.0004, +0.0023] w15 Holm 1.0000
+conj-noisy         H2000   +0.0015 [ +0.0004, +0.0026] w22 Holm 0.3010
+traps(main)        H100    +0.0003 [ -0.0016, +0.0021] w 7 Holm 1.0000
+traps(main)        H250    +0.0013 [ -0.0041, +0.0067] w13 Holm 1.0000
+traps(main)        H500    +0.0024 [ -0.0043, +0.0091] w17 Holm 1.0000
+traps(main)        H1000   +0.0036 [ -0.0026, +0.0098] w19 Holm 1.0000
+traps(main)        H2000   +0.0041 [ -0.0009, +0.0091] w20 Holm 1.0000
+correct-keywords   H100    -0.0002 [ -0.0010, +0.0006] w 2 Holm 1.0000
+correct-keywords   H250    +0.0001 [ -0.0002, +0.0004] w 6 Holm 1.0000
+correct-keywords   H500    +0.0002 [ -0.0002, +0.0005] w11 Holm 1.0000
+correct-keywords   H1000   +0.0002 [ -0.0002, +0.0005] w17 Holm 1.0000
+correct-keywords   H2000   -0.0000 [ -0.0003, +0.0003] w15 Holm 1.0000
+many-topics(16)    H100    -0.0006 [ -0.0020, +0.0008] w 3 Holm 1.0000
+many-topics(16)    H250    +0.0003 [ -0.0016, +0.0022] w17 Holm 1.0000
+many-topics(16)    H500    +0.0017 [ -0.0009, +0.0042] w18 Holm 1.0000
+many-topics(16)    H1000   +0.0018 [ -0.0007, +0.0043] w19 Holm 1.0000
+many-topics(16)    H2000   +0.0011 [ -0.0013, +0.0034] w19 Holm 1.0000
+sim-random         H100    -0.0004 [ -0.0025, +0.0017] w 8 Holm 1.0000
+sim-random         H250    +0.0001 [ -0.0026, +0.0029] w11 Holm 1.0000
+sim-random         H500    +0.0005 [ -0.0033, +0.0042] w13 Holm 1.0000
+sim-random         H1000   +0.0014 [ -0.0028, +0.0056] w14 Holm 1.0000
+sim-random         H2000   +0.0021 [ -0.0011, +0.0053] w17 Holm 1.0000
+sim-notraps        H100    +0.0000 [ -0.0000, +0.0001] w 1 Holm 1.0000
+sim-notraps        H250    -0.0001 [ -0.0002, +0.0001] w 1 Holm 1.0000
+sim-notraps        H500    +0.0001 [ -0.0001, +0.0002] w 2 Holm 1.0000
+sim-notraps        H1000   -0.0006 [ -0.0012, +0.0001] w 5 Holm 1.0000
+sim-notraps        H2000   +0.0002 [ -0.0014, +0.0019] w13 Holm 1.0000
+--> direct Holm wins 12, losses 0
+
+--- direct: K-full - K[anchors+hebbian] (normal worlds) (Holm over 50) ---
+var-traps          H100    -0.0003 [ -0.0106, +0.0100] w16 Holm 1.0000
+var-traps          H250    -0.0093 [ -0.0185, -0.0001] w16 Holm 1.0000
+var-traps          H500    -0.0006 [ -0.0088, +0.0075] w17 Holm 1.0000
+var-traps          H1000   -0.0079 [ -0.0147, -0.0012] w 9 Holm 0.6681
+var-traps          H2000   -0.0159 [ -0.0198, -0.0121] w 2 Holm 0.0000 LOSS
+var-clean          H100    +0.0092 [ +0.0017, +0.0168] w20 Holm 0.5423
+var-clean          H250    -0.0014 [ -0.0075, +0.0047] w10 Holm 1.0000
+var-clean          H500    -0.0082 [ -0.0118, -0.0046] w 6 Holm 0.0025 LOSS
+var-clean          H1000   -0.0115 [ -0.0142, -0.0087] w 2 Holm 0.0000 LOSS
+var-clean          H2000   -0.0127 [ -0.0151, -0.0103] w 0 Holm 0.0000 LOSS
+var-single(ctl)    H100    -0.0020 [ -0.0144, +0.0105] w13 Holm 1.0000
+var-single(ctl)    H250    +0.0067 [ -0.0024, +0.0157] w19 Holm 1.0000
+var-single(ctl)    H500    +0.0109 [ +0.0006, +0.0212] w20 Holm 1.0000
+var-single(ctl)    H1000   +0.0135 [ +0.0036, +0.0235] w20 Holm 0.2929
+var-single(ctl)    H2000   +0.0124 [ +0.0055, +0.0192] w22 Holm 0.0326 WIN
+conj-clean         H100    +0.0031 [ -0.0109, +0.0172] w10 Holm 1.0000
+conj-clean         H250    -0.0004 [ -0.0112, +0.0104] w11 Holm 1.0000
+conj-clean         H500    -0.0032 [ -0.0112, +0.0047] w10 Holm 1.0000
+conj-clean         H1000   -0.0102 [ -0.0147, -0.0058] w 7 Holm 0.0023 LOSS
+conj-clean         H2000   -0.0091 [ -0.0128, -0.0054] w 6 Holm 0.0012 LOSS
+conj-noisy         H100    -0.0051 [ -0.0107, +0.0005] w10 Holm 1.0000
+conj-noisy         H250    -0.0103 [ -0.0157, -0.0050] w 7 Holm 0.0178 LOSS
+conj-noisy         H500    -0.0127 [ -0.0183, -0.0071] w 4 Holm 0.0027 LOSS
+conj-noisy         H1000   -0.0156 [ -0.0200, -0.0111] w 2 Holm 0.0000 LOSS
+conj-noisy         H2000   -0.0158 [ -0.0192, -0.0125] w 1 Holm 0.0000 LOSS
+traps(main)        H100    +0.0010 [ -0.0092, +0.0111] w15 Holm 1.0000
+traps(main)        H250    +0.0036 [ -0.0060, +0.0132] w16 Holm 1.0000
+traps(main)        H500    -0.0014 [ -0.0098, +0.0069] w13 Holm 1.0000
+traps(main)        H1000   -0.0055 [ -0.0116, +0.0005] w 7 Holm 1.0000
+traps(main)        H2000   -0.0074 [ -0.0125, -0.0024] w 5 Holm 0.1833
+correct-keywords   H100    +0.0184 [ +0.0112, +0.0256] w23 Holm 0.0007 WIN
+correct-keywords   H250    +0.0109 [ +0.0051, +0.0167] w24 Holm 0.0238 WIN
+correct-keywords   H500    +0.0054 [ +0.0013, +0.0095] w19 Holm 0.3724
+correct-keywords   H1000   +0.0012 [ -0.0008, +0.0033] w14 Holm 1.0000
+correct-keywords   H2000   -0.0006 [ -0.0017, +0.0005] w 9 Holm 1.0000
+many-topics(16)    H100    +0.0135 [ +0.0061, +0.0210] w20 Holm 0.0317 WIN
+many-topics(16)    H250    +0.0109 [ +0.0049, +0.0169] w22 Holm 0.0326 WIN
+many-topics(16)    H500    +0.0096 [ +0.0034, +0.0159] w20 Holm 0.1280
+many-topics(16)    H1000   +0.0035 [ -0.0023, +0.0093] w18 Holm 1.0000
+many-topics(16)    H2000   -0.0008 [ -0.0053, +0.0037] w15 Holm 1.0000
+sim-random         H100    +0.0060 [ -0.0020, +0.0140] w18 Holm 1.0000
+sim-random         H250    +0.0051 [ -0.0044, +0.0146] w14 Holm 1.0000
+sim-random         H500    -0.0021 [ -0.0127, +0.0084] w11 Holm 1.0000
+sim-random         H1000   -0.0054 [ -0.0142, +0.0034] w 9 Holm 1.0000
+sim-random         H2000   -0.0062 [ -0.0103, -0.0021] w 7 Holm 0.1533
+sim-notraps        H100    +0.0034 [ -0.0018, +0.0087] w14 Holm 1.0000
+sim-notraps        H250    -0.0025 [ -0.0077, +0.0028] w10 Holm 1.0000
+sim-notraps        H500    -0.0017 [ -0.0050, +0.0016] w13 Holm 1.0000
+sim-notraps        H1000   -0.0023 [ -0.0044, -0.0002] w12 Holm 0.9405
+sim-notraps        H2000   -0.0016 [ -0.0038, +0.0007] w13 Holm 1.0000
+--> direct Holm wins 5, losses 10
+
+--- direct: K-full - guarded-rt (normal worlds) (Holm over 50) ---
+var-traps          H100    +0.0049 [ -0.0038, +0.0135] w17 Holm 1.0000
+var-traps          H250    +0.0079 [ +0.0000, +0.0158] w16 Holm 0.9449
+var-traps          H500    +0.0171 [ +0.0103, +0.0238] w24 Holm 0.0007 WIN
+var-traps          H1000   +0.0066 [ +0.0004, +0.0128] w19 Holm 0.7639
+var-traps          H2000   -0.0078 [ -0.0125, -0.0031] w 5 Holm 0.0637
+var-clean          H100    +0.0068 [ +0.0003, +0.0132] w19 Holm 0.8085
+var-clean          H250    -0.0067 [ -0.0114, -0.0019] w10 Holm 0.2005
+var-clean          H500    -0.0119 [ -0.0150, -0.0088] w 3 Holm 0.0000 LOSS
+var-clean          H1000   -0.0125 [ -0.0154, -0.0096] w 1 Holm 0.0000 LOSS
+var-clean          H2000   -0.0127 [ -0.0152, -0.0103] w 0 Holm 0.0000 LOSS
+var-single(ctl)    H100    -0.0073 [ -0.0210, +0.0064] w13 Holm 1.0000
+var-single(ctl)    H250    -0.0013 [ -0.0094, +0.0067] w17 Holm 1.0000
+var-single(ctl)    H500    +0.0023 [ -0.0057, +0.0102] w21 Holm 1.0000
+var-single(ctl)    H1000   +0.0063 [ -0.0024, +0.0150] w19 Holm 1.0000
+var-single(ctl)    H2000   +0.0082 [ -0.0001, +0.0165] w18 Holm 0.9449
+conj-clean         H100    -0.0155 [ -0.0264, -0.0047] w 5 Holm 0.1925
+conj-clean         H250    -0.0154 [ -0.0313, +0.0006] w 6 Holm 0.9449
+conj-clean         H500    -0.0157 [ -0.0349, +0.0035] w 7 Holm 1.0000
+conj-clean         H1000   -0.0239 [ -0.0438, -0.0040] w 7 Holm 0.4443
+conj-clean         H2000   -0.0208 [ -0.0417, +0.0002] w 6 Holm 0.9449
+conj-noisy         H100    -0.0120 [ -0.0165, -0.0075] w 3 Holm 0.0002 LOSS
+conj-noisy         H250    -0.0224 [ -0.0305, -0.0142] w 2 Holm 0.0002 LOSS
+conj-noisy         H500    -0.0339 [ -0.0441, -0.0238] w 2 Holm 0.0000 LOSS
+conj-noisy         H1000   -0.0393 [ -0.0504, -0.0283] w 2 Holm 0.0000 LOSS
+conj-noisy         H2000   -0.0427 [ -0.0546, -0.0309] w 2 Holm 0.0000 LOSS
+traps(main)        H100    +0.0076 [ +0.0031, +0.0122] w24 Holm 0.0614
+traps(main)        H250    +0.0196 [ +0.0130, +0.0263] w26 Holm 0.0001 WIN
+traps(main)        H500    +0.0138 [ +0.0063, +0.0213] w24 Holm 0.0259 WIN
+traps(main)        H1000   +0.0033 [ -0.0036, +0.0102] w17 Holm 1.0000
+traps(main)        H2000   -0.0069 [ -0.0118, -0.0019] w 8 Holm 0.2103
+correct-keywords   H100    -0.0018 [ -0.0044, +0.0007] w 9 Holm 1.0000
+correct-keywords   H250    -0.0029 [ -0.0050, -0.0009] w 7 Holm 0.1925
+correct-keywords   H500    -0.0021 [ -0.0037, -0.0005] w 8 Holm 0.3137
+correct-keywords   H1000   -0.0024 [ -0.0035, -0.0014] w 5 Holm 0.0022 LOSS
+correct-keywords   H2000   -0.0024 [ -0.0031, -0.0018] w 1 Holm 0.0000 LOSS
+many-topics(16)    H100    +0.0004 [ -0.0019, +0.0028] w13 Holm 1.0000
+many-topics(16)    H250    +0.0081 [ +0.0028, +0.0134] w22 Holm 0.1190
+many-topics(16)    H500    +0.0105 [ +0.0057, +0.0153] w24 Holm 0.0040 WIN
+many-topics(16)    H1000   +0.0034 [ -0.0012, +0.0079] w21 Holm 1.0000
+many-topics(16)    H2000   -0.0055 [ -0.0095, -0.0015] w 8 Holm 0.2179
+sim-random         H100    +0.0010 [ -0.0046, +0.0067] w15 Holm 1.0000
+sim-random         H250    +0.0025 [ -0.0079, +0.0128] w14 Holm 1.0000
+sim-random         H500    -0.0062 [ -0.0157, +0.0034] w12 Holm 1.0000
+sim-random         H1000   -0.0072 [ -0.0153, +0.0008] w 9 Holm 1.0000
+sim-random         H2000   -0.0035 [ -0.0107, +0.0037] w11 Holm 1.0000
+sim-notraps        H100    -0.0083 [ -0.0117, -0.0049] w 2 Holm 0.0009 LOSS
+sim-notraps        H250    -0.0107 [ -0.0148, -0.0067] w 3 Holm 0.0003 LOSS
+sim-notraps        H500    -0.0076 [ -0.0104, -0.0049] w 1 Holm 0.0002 LOSS
+sim-notraps        H1000   -0.0041 [ -0.0066, -0.0015] w 5 Holm 0.0833
+sim-notraps        H2000   +0.0061 [ +0.0014, +0.0109] w17 Holm 0.3137
+--> direct Holm wins 4, losses 13
+
+--- direct: K-full - guarded-safe (normal worlds) (Holm over 50) ---
+var-traps          H100    +0.0051 [ -0.0039, +0.0141] w18 Holm 1.0000
+var-traps          H250    +0.0066 [ -0.0012, +0.0144] w17 Holm 1.0000
+var-traps          H500    +0.0149 [ +0.0079, +0.0219] w24 Holm 0.0050 WIN
+var-traps          H1000   +0.0046 [ -0.0005, +0.0098] w19 Holm 1.0000
+var-traps          H2000   -0.0089 [ -0.0125, -0.0054] w 4 Holm 0.0007 LOSS
+var-clean          H100    +0.0068 [ +0.0003, +0.0132] w19 Holm 0.8829
+var-clean          H250    -0.0067 [ -0.0115, -0.0019] w10 Holm 0.1985
+var-clean          H500    -0.0118 [ -0.0151, -0.0086] w 4 Holm 0.0000 LOSS
+var-clean          H1000   -0.0127 [ -0.0157, -0.0098] w 1 Holm 0.0000 LOSS
+var-clean          H2000   -0.0137 [ -0.0162, -0.0111] w 0 Holm 0.0000 LOSS
+var-single(ctl)    H100    -0.0073 [ -0.0210, +0.0064] w13 Holm 1.0000
+var-single(ctl)    H250    -0.0013 [ -0.0094, +0.0067] w17 Holm 1.0000
+var-single(ctl)    H500    +0.0023 [ -0.0057, +0.0102] w21 Holm 1.0000
+var-single(ctl)    H1000   +0.0064 [ -0.0022, +0.0149] w19 Holm 1.0000
+var-single(ctl)    H2000   +0.0077 [ +0.0004, +0.0149] w20 Holm 0.8829
+conj-clean         H100    -0.0168 [ -0.0249, -0.0087] w 5 Holm 0.0072 LOSS
+conj-clean         H250    -0.0137 [ -0.0223, -0.0052] w 6 Holm 0.0764
+conj-clean         H500    -0.0172 [ -0.0243, -0.0100] w 3 Holm 0.0012 LOSS
+conj-clean         H1000   -0.0226 [ -0.0283, -0.0168] w 3 Holm 0.0000 LOSS
+conj-clean         H2000   -0.0204 [ -0.0253, -0.0156] w 2 Holm 0.0000 LOSS
+conj-noisy         H100    -0.0104 [ -0.0149, -0.0060] w 3 Holm 0.0018 LOSS
+conj-noisy         H250    -0.0151 [ -0.0201, -0.0100] w 2 Holm 0.0000 LOSS
+conj-noisy         H500    -0.0199 [ -0.0245, -0.0153] w 1 Holm 0.0000 LOSS
+conj-noisy         H1000   -0.0235 [ -0.0280, -0.0189] w 1 Holm 0.0000 LOSS
+conj-noisy         H2000   -0.0246 [ -0.0281, -0.0210] w 0 Holm 0.0000 LOSS
+traps(main)        H100    +0.0071 [ +0.0020, +0.0121] w23 Holm 0.2044
+traps(main)        H250    +0.0166 [ +0.0088, +0.0243] w24 Holm 0.0050 WIN
+traps(main)        H500    +0.0092 [ -0.0003, +0.0186] w20 Holm 1.0000
+traps(main)        H1000   +0.0013 [ -0.0069, +0.0095] w15 Holm 1.0000
+traps(main)        H2000   -0.0047 [ -0.0101, +0.0006] w 9 Holm 1.0000
+correct-keywords   H100    -0.0011 [ -0.0035, +0.0014] w11 Holm 1.0000
+correct-keywords   H250    -0.0026 [ -0.0047, -0.0004] w 8 Holm 0.4685
+correct-keywords   H500    -0.0026 [ -0.0042, -0.0009] w 6 Holm 0.1008
+correct-keywords   H1000   -0.0025 [ -0.0036, -0.0015] w 4 Holm 0.0009 LOSS
+correct-keywords   H2000   -0.0025 [ -0.0031, -0.0019] w 1 Holm 0.0000 LOSS
+many-topics(16)    H100    +0.0003 [ -0.0026, +0.0031] w13 Holm 1.0000
+many-topics(16)    H250    +0.0068 [ +0.0015, +0.0120] w22 Holm 0.3316
+many-topics(16)    H500    +0.0084 [ +0.0038, +0.0130] w22 Holm 0.0275 WIN
+many-topics(16)    H1000   +0.0023 [ -0.0018, +0.0064] w20 Holm 1.0000
+many-topics(16)    H2000   -0.0031 [ -0.0073, +0.0011] w10 Holm 1.0000
+sim-random         H100    +0.0024 [ -0.0027, +0.0076] w18 Holm 1.0000
+sim-random         H250    +0.0065 [ -0.0041, +0.0171] w16 Holm 1.0000
+sim-random         H500    -0.0007 [ -0.0107, +0.0094] w15 Holm 1.0000
+sim-random         H1000   -0.0060 [ -0.0135, +0.0015] w11 Holm 1.0000
+sim-random         H2000   -0.0055 [ -0.0109, -0.0000] w10 Holm 0.9833
+sim-notraps        H100    -0.0073 [ -0.0114, -0.0031] w 2 Holm 0.0351 LOSS
+sim-notraps        H250    -0.0091 [ -0.0150, -0.0033] w 4 Holm 0.0946
+sim-notraps        H500    -0.0066 [ -0.0102, -0.0030] w 3 Holm 0.0276 LOSS
+sim-notraps        H1000   -0.0054 [ -0.0079, -0.0029] w 5 Holm 0.0050 LOSS
+sim-notraps        H2000   -0.0030 [ -0.0066, +0.0005] w10 Holm 1.0000
+--> direct Holm wins 3, losses 18
+
+--- direct: K[oracle anchors] - K-full (headroom of better anchors) (Holm over 50) ---
+var-traps          H100    +0.0341 [ +0.0199, +0.0483] w24 Holm 0.0011 WIN
+var-traps          H250    +0.0441 [ +0.0303, +0.0579] w26 Holm 0.0000 WIN
+var-traps          H500    +0.0245 [ +0.0145, +0.0344] w25 Holm 0.0008 WIN
+var-traps          H1000   +0.0109 [ +0.0029, +0.0188] w22 Holm 0.2796
+var-traps          H2000   +0.0062 [ +0.0006, +0.0119] w24 Holm 0.8968
+var-clean          H100    +0.0276 [ +0.0160, +0.0393] w25 Holm 0.0013 WIN
+var-clean          H250    +0.0291 [ +0.0203, +0.0379] w26 Holm 0.0000 WIN
+var-clean          H500    +0.0215 [ +0.0157, +0.0273] w28 Holm 0.0000 WIN
+var-clean          H1000   +0.0132 [ +0.0099, +0.0165] w27 Holm 0.0000 WIN
+var-clean          H2000   +0.0074 [ +0.0050, +0.0098] w27 Holm 0.0000 WIN
+var-single(ctl)    H100    +0.1672 [ +0.1490, +0.1854] w30 Holm 0.0000 WIN
+var-single(ctl)    H250    +0.2092 [ +0.1952, +0.2232] w30 Holm 0.0000 WIN
+var-single(ctl)    H500    +0.2020 [ +0.1891, +0.2149] w30 Holm 0.0000 WIN
+var-single(ctl)    H1000   +0.1627 [ +0.1516, +0.1737] w30 Holm 0.0000 WIN
+var-single(ctl)    H2000   +0.1109 [ +0.1014, +0.1203] w30 Holm 0.0000 WIN
+conj-clean         H100    +0.0012 [ -0.0001, +0.0024] w 6 Holm 1.0000
+conj-clean         H250    +0.0018 [ -0.0010, +0.0047] w15 Holm 1.0000
+conj-clean         H500    +0.0023 [ +0.0005, +0.0041] w19 Holm 0.3732
+conj-clean         H1000   +0.0034 [ +0.0017, +0.0051] w23 Holm 0.0081 WIN
+conj-clean         H2000   +0.0022 [ -0.0001, +0.0045] w20 Holm 1.0000
+conj-noisy         H100    -0.0006 [ -0.0024, +0.0012] w 7 Holm 1.0000
+conj-noisy         H250    +0.0003 [ -0.0025, +0.0031] w13 Holm 1.0000
+conj-noisy         H500    +0.0006 [ -0.0018, +0.0031] w18 Holm 1.0000
+conj-noisy         H1000   +0.0006 [ -0.0013, +0.0025] w18 Holm 1.0000
+conj-noisy         H2000   +0.0006 [ -0.0007, +0.0019] w18 Holm 1.0000
+traps(main)        H100    +0.0046 [ -0.0032, +0.0124] w16 Holm 1.0000
+traps(main)        H250    -0.0012 [ -0.0113, +0.0089] w15 Holm 1.0000
+traps(main)        H500    -0.0042 [ -0.0149, +0.0064] w13 Holm 1.0000
+traps(main)        H1000   -0.0046 [ -0.0124, +0.0033] w11 Holm 1.0000
+traps(main)        H2000   -0.0026 [ -0.0080, +0.0028] w11 Holm 1.0000
+correct-keywords   H100    -0.0044 [ -0.0090, +0.0001] w 7 Holm 1.0000
+correct-keywords   H250    -0.0005 [ -0.0031, +0.0020] w14 Holm 1.0000
+correct-keywords   H500    -0.0005 [ -0.0019, +0.0010] w11 Holm 1.0000
+correct-keywords   H1000   -0.0000 [ -0.0008, +0.0008] w13 Holm 1.0000
+correct-keywords   H2000   +0.0002 [ -0.0004, +0.0007] w13 Holm 1.0000
+many-topics(16)    H100    +0.0022 [ -0.0026, +0.0070] w21 Holm 1.0000
+many-topics(16)    H250    +0.0044 [ -0.0009, +0.0097] w19 Holm 1.0000
+many-topics(16)    H500    +0.0026 [ -0.0026, +0.0079] w17 Holm 1.0000
+many-topics(16)    H1000   +0.0013 [ -0.0034, +0.0061] w17 Holm 1.0000
+many-topics(16)    H2000   +0.0025 [ -0.0018, +0.0069] w17 Holm 1.0000
+sim-random         H100    -0.0002 [ -0.0047, +0.0043] w12 Holm 1.0000
+sim-random         H250    -0.0032 [ -0.0097, +0.0033] w15 Holm 1.0000
+sim-random         H500    +0.0021 [ -0.0043, +0.0084] w14 Holm 1.0000
+sim-random         H1000   +0.0059 [ +0.0012, +0.0107] w21 Holm 0.4557
+sim-random         H2000   +0.0073 [ +0.0034, +0.0111] w24 Holm 0.0182 WIN
+sim-notraps        H100    +0.0096 [ +0.0060, +0.0132] w22 Holm 0.0003 WIN
+sim-notraps        H250    +0.0121 [ +0.0076, +0.0165] w27 Holm 0.0002 WIN
+sim-notraps        H500    +0.0087 [ +0.0063, +0.0110] w30 Holm 0.0000 WIN
+sim-notraps        H1000   +0.0050 [ +0.0032, +0.0068] w28 Holm 0.0001 WIN
+sim-notraps        H2000   +0.0009 [ -0.0018, +0.0036] w18 Holm 1.0000
+--> direct Holm wins 19, losses 0
+[tune 1-8] weak guarded-rt (delayed_mult, fail_reward): 4 configs, best obj -0.02395
+    (1, 0.3)
+      runner-up -0.03015: (1, 0.0)
+      runner-up -0.06172: (3, 0.3)
+[tune 1-8] weak K-full (delayed_mult, fail_reward): 4 configs, best obj -0.00383
+    (1, 0.3)
+      runner-up -0.00505: (1, 0.0)
+      runner-up -0.03362: (3, 0.3)
+[tune 1-8] weak K[no anchors] (delayed_mult, fail_reward): 4 configs, best obj -0.01836
+    (1, 0.0)
+      runner-up -0.01953: (1, 0.3)
+      runner-up -0.04060: (3, 0.3)
+[tune 1-8] weak K[anchors+hebbian] (delayed_mult, fail_reward): 4 configs, best obj -0.02725
+    (1, 0.3)
+      runner-up -0.03542: (1, 0.0)
+      runner-up -0.08339: (3, 0.3)
+
+=== world weak-var-traps | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword [raw]                                 0.5392  0.5413  0.5461  0.5447  0.5450
+eps-greedy [raw]                              0.3799  0.3894  0.3958  0.4056  0.4197
+pooled-ts [raw]                               0.4057  0.4103  0.4127  0.4180  0.4259
+hebbian-robust [raw]                          0.4056  0.4095  0.4077  0.4116  0.4141
+warm(hebr) [raw]                              0.5276  0.5428  0.5633  0.5778  0.5901
+guarded-safe [raw]                            0.5832  0.6049  0.6282  0.6416  0.6512
+eps-greedy [reuse]                            0.3902  0.4178  0.4432  0.4753  0.5470
+pooled-ts [reuse]                             0.4144  0.4261  0.4441  0.4737  0.5229
+hebbian-robust [reuse]                        0.4143  0.4481  0.4865  0.5472  0.6294
+warm(hebr) [reuse]                            0.5297  0.5319  0.5493  0.5887  0.6525
+guarded-safe [reuse]                          0.5545  0.5694  0.5934  0.6285  0.6778
+guarded-rt [reuse]                            0.5540  0.5702  0.5937  0.6251  0.6758
+K-full [reuse]                                0.5544  0.5772  0.6150  0.6603  0.7044
+K[no anchors] [reuse]                         0.5538  0.5716  0.5916  0.6140  0.6493
+K[anchors+hebbian] [reuse]                    0.5532  0.5685  0.5923  0.6324  0.6901
+
+=== world weak-conj-noisy | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword [raw]                                 0.6408  0.6454  0.6438  0.6490  0.6484
+eps-greedy [raw]                              0.4067  0.4238  0.4313  0.4352  0.4428
+pooled-ts [raw]                               0.4122  0.4164  0.4193  0.4258  0.4337
+hebbian-robust [raw]                          0.3980  0.4035  0.4084  0.4115  0.4128
+warm(hebr) [raw]                              0.5019  0.4960  0.4873  0.4851  0.4786
+guarded-safe [raw]                            0.6408  0.6454  0.6438  0.6490  0.6484
+eps-greedy [reuse]                            0.4151  0.4314  0.4593  0.4897  0.5260
+pooled-ts [reuse]                             0.4110  0.4305  0.4491  0.4762  0.5078
+hebbian-robust [reuse]                        0.4226  0.4495  0.4773  0.5054  0.5271
+warm(hebr) [reuse]                            0.5563  0.5256  0.5250  0.5397  0.5603
+guarded-safe [reuse]                          0.6357  0.6314  0.6302  0.6256  0.6181
+guarded-rt [reuse]                            0.6380  0.6356  0.6349  0.6281  0.6133
+K-full [reuse]                                0.6351  0.6332  0.6298  0.6341  0.6337
+K[no anchors] [reuse]                         0.6363  0.6331  0.6303  0.6353  0.6373
+K[anchors+hebbian] [reuse]                    0.6259  0.6206  0.6241  0.6309  0.6307
+
+=== world weak-traps(ctl) | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword [raw]                                 0.6671  0.6557  0.6558  0.6545  0.6541
+eps-greedy [raw]                              0.4085  0.4147  0.4263  0.4338  0.4418
+pooled-ts [raw]                               0.4106  0.4135  0.4199  0.4272  0.4441
+hebbian-robust [raw]                          0.4295  0.4298  0.4324  0.4344  0.4385
+warm(hebr) [raw]                              0.6422  0.6385  0.6421  0.6425  0.6385
+guarded-safe [raw]                            0.6679  0.6559  0.6564  0.6554  0.6559
+eps-greedy [reuse]                            0.4273  0.4471  0.4793  0.5530  0.6307
+pooled-ts [reuse]                             0.4280  0.4442  0.4794  0.5268  0.5888
+hebbian-robust [reuse]                        0.4345  0.4753  0.5292  0.5954  0.6639
+warm(hebr) [reuse]                            0.6307  0.6112  0.6238  0.6549  0.6993
+guarded-safe [reuse]                          0.6657  0.6564  0.6676  0.6859  0.7160
+guarded-rt [reuse]                            0.6667  0.6587  0.6678  0.6878  0.7195
+K-full [reuse]                                0.6628  0.6668  0.6840  0.7030  0.7250
+K[no anchors] [reuse]                         0.6649  0.6618  0.6751  0.6959  0.7246
+K[anchors+hebbian] [reuse]                    0.6587  0.6579  0.6730  0.7001  0.7309
+
+### WEAK worlds: candidates vs STRICT pool: raw-fed + every baseline also fed the reuse signal  (Holm over 45 tests)
+world              candidate                              H      diff               95% CI  wins   Holm p  best baseline
+weak-var-traps     K-full [reuse]                       100   -0.0288 [ -0.0383, -0.0193]     5   0.0000  guarded-safe [raw] LOSS
+weak-var-traps     K-full [reuse]                       250   -0.0277 [ -0.0388, -0.0166]     4   0.0005  guarded-safe [raw] LOSS
+weak-var-traps     K-full [reuse]                       500   -0.0133 [ -0.0261, -0.0005]    13   0.4676  guarded-safe [raw]
+weak-var-traps     K-full [reuse]                      1000   +0.0187 [ +0.0029, +0.0345]    21   0.2867  guarded-safe [raw]
+weak-var-traps     K-full [reuse]                      2000   +0.0266 [ +0.0162, +0.0370]    24   0.0004  guarded-safe [reuse] WIN
+weak-conj-noisy    K-full [reuse]                       100   -0.0057 [ -0.0089, -0.0024]     1   0.0255  guarded-safe [raw] LOSS
+weak-conj-noisy    K-full [reuse]                       250   -0.0123 [ -0.0166, -0.0079]     4   0.0001  guarded-safe [raw] LOSS
+weak-conj-noisy    K-full [reuse]                       500   -0.0140 [ -0.0188, -0.0091]     3   0.0001  guarded-safe [raw] LOSS
+weak-conj-noisy    K-full [reuse]                      1000   -0.0149 [ -0.0182, -0.0117]     1   0.0000  guarded-safe [raw] LOSS
+weak-conj-noisy    K-full [reuse]                      2000   -0.0147 [ -0.0173, -0.0122]     0   0.0000  guarded-safe [raw] LOSS
+weak-traps(ctl)    K-full [reuse]                       100   -0.0051 [ -0.0102, +0.0001]     9   0.5279  guarded-safe [raw]
+weak-traps(ctl)    K-full [reuse]                       250   +0.0080 [ +0.0019, +0.0142]    24   0.2110  guarded-rt [reuse]
+weak-traps(ctl)    K-full [reuse]                       500   +0.0162 [ +0.0068, +0.0257]    24   0.0298  guarded-rt [reuse] WIN
+weak-traps(ctl)    K-full [reuse]                      1000   +0.0152 [ +0.0035, +0.0269]    22   0.2110  guarded-rt [reuse]
+weak-traps(ctl)    K-full [reuse]                      2000   +0.0056 [ -0.0076, +0.0188]    17   1.0000  guarded-rt [reuse]
+--> Holm tally per candidate (wins, losses): {"K-full [reuse]": (2, 7), "K[anchors+hebbian] [reuse]": (1, 8), "K[no anchors] [reuse]": (0, 10)}
+
+### WEAK worlds: candidates vs raw-fed baselines only (x3 convention)  (Holm over 45 tests)
+world              candidate                              H      diff               95% CI  wins   Holm p  best baseline
+weak-var-traps     K-full [reuse]                       100   +0.0153 [ +0.0064, +0.0242]    20   0.0165  keyword [raw] WIN
+weak-var-traps     K-full [reuse]                       250   +0.0345 [ +0.0184, +0.0505]    23   0.0025  warm(hebr) [raw] WIN
+weak-var-traps     K-full [reuse]                       500   +0.0517 [ +0.0332, +0.0702]    26   0.0001  warm(hebr) [raw] WIN
+weak-var-traps     K-full [reuse]                      1000   +0.0825 [ +0.0603, +0.1047]    27   0.0000  warm(hebr) [raw] WIN
+weak-var-traps     K-full [reuse]                      2000   +0.1143 [ +0.0930, +0.1356]    30   0.0000  warm(hebr) [raw] WIN
+weak-conj-noisy    K-full [reuse]                       100   -0.0057 [ -0.0089, -0.0024]     1   0.0146  keyword [raw] LOSS
+weak-conj-noisy    K-full [reuse]                       250   -0.0123 [ -0.0166, -0.0079]     4   0.0001  keyword [raw] LOSS
+weak-conj-noisy    K-full [reuse]                       500   -0.0140 [ -0.0188, -0.0091]     3   0.0001  keyword [raw] LOSS
+weak-conj-noisy    K-full [reuse]                      1000   -0.0149 [ -0.0182, -0.0117]     1   0.0000  keyword [raw] LOSS
+weak-conj-noisy    K-full [reuse]                      2000   -0.0147 [ -0.0173, -0.0122]     0   0.0000  keyword [raw] LOSS
+weak-traps(ctl)    K-full [reuse]                       100   -0.0043 [ -0.0092, +0.0007]     8   0.2625  keyword [raw]
+weak-traps(ctl)    K-full [reuse]                       250   +0.0111 [ +0.0031, +0.0191]    24   0.0571  keyword [raw]
+weak-traps(ctl)    K-full [reuse]                       500   +0.0283 [ +0.0191, +0.0374]    27   0.0000  keyword [raw] WIN
+weak-traps(ctl)    K-full [reuse]                      1000   +0.0485 [ +0.0388, +0.0582]    29   0.0000  keyword [raw] WIN
+weak-traps(ctl)    K-full [reuse]                      2000   +0.0709 [ +0.0607, +0.0812]    30   0.0000  keyword [raw] WIN
+--> Holm tally per candidate (wins, losses): {"K-full [reuse]": (8, 5), "K[anchors+hebbian] [reuse]": (7, 5), "K[no anchors] [reuse]": (8, 5)}
+
+### WEAK worlds: candidates vs keyword only  (Holm over 45 tests)
+world              candidate                              H      diff               95% CI  wins   Holm p  best baseline
+weak-var-traps     K-full [reuse]                       100   +0.0153 [ +0.0064, +0.0242]    20   0.0165  keyword [raw] WIN
+weak-var-traps     K-full [reuse]                       250   +0.0359 [ +0.0277, +0.0441]    29   0.0000  keyword [raw] WIN
+weak-var-traps     K-full [reuse]                       500   +0.0689 [ +0.0567, +0.0810]    30   0.0000  keyword [raw] WIN
+weak-var-traps     K-full [reuse]                      1000   +0.1156 [ +0.0999, +0.1312]    30   0.0000  keyword [raw] WIN
+weak-var-traps     K-full [reuse]                      2000   +0.1594 [ +0.1472, +0.1716]    30   0.0000  keyword [raw] WIN
+weak-conj-noisy    K-full [reuse]                       100   -0.0057 [ -0.0089, -0.0024]     1   0.0146  keyword [raw] LOSS
+weak-conj-noisy    K-full [reuse]                       250   -0.0123 [ -0.0166, -0.0079]     4   0.0001  keyword [raw] LOSS
+weak-conj-noisy    K-full [reuse]                       500   -0.0140 [ -0.0188, -0.0091]     3   0.0000  keyword [raw] LOSS
+weak-conj-noisy    K-full [reuse]                      1000   -0.0149 [ -0.0182, -0.0117]     1   0.0000  keyword [raw] LOSS
+weak-conj-noisy    K-full [reuse]                      2000   -0.0147 [ -0.0173, -0.0122]     0   0.0000  keyword [raw] LOSS
+weak-traps(ctl)    K-full [reuse]                       100   -0.0043 [ -0.0092, +0.0007]     8   0.2625  keyword [raw]
+weak-traps(ctl)    K-full [reuse]                       250   +0.0111 [ +0.0031, +0.0191]    24   0.0571  keyword [raw]
+weak-traps(ctl)    K-full [reuse]                       500   +0.0283 [ +0.0191, +0.0374]    27   0.0000  keyword [raw] WIN
+weak-traps(ctl)    K-full [reuse]                      1000   +0.0485 [ +0.0388, +0.0582]    29   0.0000  keyword [raw] WIN
+weak-traps(ctl)    K-full [reuse]                      2000   +0.0709 [ +0.0607, +0.0812]    30   0.0000  keyword [raw] WIN
+--> Holm tally per candidate (wins, losses): {"K-full [reuse]": (8, 5), "K[anchors+hebbian] [reuse]": (7, 5), "K[no anchors] [reuse]": (8, 5)}
+
+--- direct: K-full[reuse] - guarded-rt[reuse] (weak worlds) (Holm over 15) ---
+weak-var-traps     H100    +0.0004 [ -0.0066, +0.0073] w16 Holm 1.0000
+weak-var-traps     H250    +0.0071 [ -0.0004, +0.0145] w20 Holm 0.4407
+weak-var-traps     H500    +0.0213 [ +0.0103, +0.0323] w24 Holm 0.0059 WIN
+weak-var-traps     H1000   +0.0352 [ +0.0230, +0.0474] w25 Holm 0.0000 WIN
+weak-var-traps     H2000   +0.0286 [ +0.0185, +0.0388] w26 Holm 0.0000 WIN
+weak-conj-noisy    H100    -0.0029 [ -0.0050, -0.0008] w 3 Holm 0.1059
+weak-conj-noisy    H250    -0.0024 [ -0.0076, +0.0028] w11 Holm 1.0000
+weak-conj-noisy    H500    -0.0050 [ -0.0143, +0.0043] w11 Holm 1.0000
+weak-conj-noisy    H1000   +0.0060 [ -0.0059, +0.0179] w15 Holm 1.0000
+weak-conj-noisy    H2000   +0.0203 [ +0.0049, +0.0357] w19 Holm 0.1149
+weak-traps(ctl)    H100    -0.0038 [ -0.0079, +0.0003] w 9 Holm 0.4407
+weak-traps(ctl)    H250    +0.0080 [ +0.0019, +0.0142] w24 Holm 0.1149
+weak-traps(ctl)    H500    +0.0162 [ +0.0068, +0.0257] w24 Holm 0.0179 WIN
+weak-traps(ctl)    H1000   +0.0152 [ +0.0035, +0.0269] w22 Holm 0.1149
+weak-traps(ctl)    H2000   +0.0056 [ -0.0076, +0.0188] w17 Holm 1.0000
+--> direct Holm wins 4, losses 0
+
+--- direct: K-full[reuse] - K[no anchors][reuse] (Holm over 15) ---
+weak-var-traps     H100    +0.0006 [ -0.0001, +0.0013] w 6 Holm 0.6964
+weak-var-traps     H250    +0.0056 [ +0.0008, +0.0105] w20 Holm 0.2685
+weak-var-traps     H500    +0.0234 [ +0.0147, +0.0321] w25 Holm 0.0001 WIN
+weak-var-traps     H1000   +0.0463 [ +0.0349, +0.0577] w27 Holm 0.0000 WIN
+weak-var-traps     H2000   +0.0551 [ +0.0449, +0.0653] w29 Holm 0.0000 WIN
+weak-conj-noisy    H100    -0.0012 [ -0.0031, +0.0008] w 6 Holm 1.0000
+weak-conj-noisy    H250    +0.0001 [ -0.0040, +0.0042] w14 Holm 1.0000
+weak-conj-noisy    H500    -0.0005 [ -0.0044, +0.0034] w16 Holm 1.0000
+weak-conj-noisy    H1000   -0.0012 [ -0.0039, +0.0015] w12 Holm 1.0000
+weak-conj-noisy    H2000   -0.0036 [ -0.0065, -0.0008] w11 Holm 0.1776
+weak-traps(ctl)    H100    -0.0020 [ -0.0061, +0.0020] w 7 Holm 1.0000
+weak-traps(ctl)    H250    +0.0049 [ -0.0006, +0.0104] w23 Holm 0.6964
+weak-traps(ctl)    H500    +0.0090 [ -0.0004, +0.0184] w21 Holm 0.6105
+weak-traps(ctl)    H1000   +0.0071 [ -0.0028, +0.0171] w21 Holm 1.0000
+weak-traps(ctl)    H2000   +0.0005 [ -0.0099, +0.0109] w16 Holm 1.0000
+--> direct Holm wins 3, losses 0
+
+--- direct: K-full[reuse] - K[anchors+hebbian][reuse] (Holm over 15) ---
+weak-var-traps     H100    +0.0013 [ -0.0077, +0.0102] w15 Holm 1.0000
+weak-var-traps     H250    +0.0088 [ +0.0015, +0.0161] w19 Holm 0.1812
+weak-var-traps     H500    +0.0227 [ +0.0131, +0.0322] w23 Holm 0.0006 WIN
+weak-var-traps     H1000   +0.0279 [ +0.0161, +0.0396] w22 Holm 0.0006 WIN
+weak-var-traps     H2000   +0.0143 [ +0.0039, +0.0247] w20 Holm 0.0871
+weak-conj-noisy    H100    +0.0092 [ +0.0038, +0.0147] w20 Holm 0.0227 WIN
+weak-conj-noisy    H250    +0.0125 [ +0.0049, +0.0202] w20 Holm 0.0267 WIN
+weak-conj-noisy    H500    +0.0057 [ -0.0023, +0.0138] w19 Holm 1.0000
+weak-conj-noisy    H1000   +0.0031 [ -0.0034, +0.0097] w15 Holm 1.0000
+weak-conj-noisy    H2000   +0.0029 [ -0.0039, +0.0098] w15 Holm 1.0000
+weak-traps(ctl)    H100    +0.0041 [ -0.0021, +0.0103] w17 Holm 1.0000
+weak-traps(ctl)    H250    +0.0089 [ +0.0026, +0.0152] w21 Holm 0.0810
+weak-traps(ctl)    H500    +0.0111 [ +0.0018, +0.0203] w21 Holm 0.1812
+weak-traps(ctl)    H1000   +0.0029 [ -0.0086, +0.0143] w15 Holm 1.0000
+weak-traps(ctl)    H2000   -0.0059 [ -0.0183, +0.0066] w11 Holm 1.0000
+--> direct Holm wins 4, losses 0
+[tune 1-8] session guarded-rt[credit-uniest] (tau, discount): 6 configs, best obj +0.02918
+    (0.55, 1.0)
+      runner-up +0.02505: (0.55, 0.97)
+      runner-up +0.02438: (0.45, 1.0)
+[tune 1-8] session K-full[credit-own] (tau, discount): 6 configs, best obj +0.01275
+    (0.35, 0.97)
+      runner-up +0.01144: (0.55, 0.97)
+      runner-up +0.01055: (0.45, 0.97)
+
+=== world sess-traps | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword [broadcast]                           0.6671  0.6557  0.6558  0.6545  0.6541
+eps-greedy [broadcast]                        0.4131  0.4400  0.4645  0.4929  0.5377
+pooled-ts [broadcast]                         0.4199  0.4254  0.4389  0.4676  0.5285
+hebbian-robust [broadcast]                    0.4304  0.4397  0.4789  0.5392  0.6086
+warm(hebr) [broadcast]                        0.4851  0.4530  0.4641  0.5018  0.5681
+guarded-safe [broadcast]                      0.5364  0.4585  0.4365  0.4642  0.5351
+eps-greedy [credit-uniest]                    0.4155  0.4525  0.5020  0.5568  0.6180
+pooled-ts [credit-uniest]                     0.4130  0.4264  0.4359  0.4582  0.4983
+hebbian-robust [credit-uniest]                0.4511  0.4869  0.5244  0.5808  0.6400
+warm(hebr) [credit-uniest]                    0.5606  0.5653  0.5812  0.6071  0.6531
+guarded-safe [credit-uniest]                  0.6645  0.6567  0.6649  0.6807  0.7120
+guarded-rt [broadcast]                        0.6582  0.6085  0.5348  0.4832  0.4807
+guarded-rt [credit-uniest]                    0.6679  0.6569  0.6626  0.6696  0.6869
+K-full [credit-own]                           0.6681  0.6558  0.6627  0.6796  0.7013
+K-full [broadcast]                            0.6405  0.6060  0.6099  0.6392  0.6703
+K-full [credit-uniest]                        0.6713  0.6732  0.6842  0.6982  0.7166
+K[no anchors] [credit-own]                    0.6697  0.6656  0.6721  0.6843  0.7069
+K[anchors+hebbian] [credit-uniest]            0.6698  0.6653  0.6787  0.6968  0.7206
+
+=== world sess-var-traps | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword [broadcast]                           0.5392  0.5413  0.5461  0.5447  0.5450
+eps-greedy [broadcast]                        0.4055  0.4184  0.4468  0.5111  0.5904
+pooled-ts [broadcast]                         0.4166  0.4219  0.4279  0.4393  0.4683
+hebbian-robust [broadcast]                    0.4207  0.4299  0.4383  0.4666  0.5419
+warm(hebr) [broadcast]                        0.4776  0.4567  0.4473  0.4610  0.5233
+guarded-safe [broadcast]                      0.5372  0.4939  0.4534  0.4451  0.5002
+eps-greedy [credit-uniest]                    0.4055  0.4223  0.4647  0.5338  0.6183
+pooled-ts [credit-uniest]                     0.4114  0.4188  0.4263  0.4416  0.4698
+hebbian-robust [credit-uniest]                0.4274  0.4507  0.4876  0.5483  0.6267
+warm(hebr) [credit-uniest]                    0.5005  0.5096  0.5354  0.5843  0.6491
+guarded-safe [credit-uniest]                  0.5708  0.5879  0.6150  0.6498  0.6894
+guarded-rt [broadcast]                        0.5511  0.5468  0.5402  0.5125  0.5020
+guarded-rt [credit-uniest]                    0.5720  0.5904  0.6171  0.6425  0.6715
+K-full [credit-own]                           0.5592  0.5668  0.5724  0.5987  0.6341
+K-full [broadcast]                            0.5475  0.5372  0.5489  0.5903  0.6423
+K-full [credit-uniest]                        0.5622  0.5748  0.6046  0.6391  0.6791
+K[no anchors] [credit-own]                    0.5588  0.5719  0.5831  0.5963  0.6265
+K[anchors+hebbian] [credit-uniest]            0.5720  0.5905  0.6178  0.6520  0.6980
+
+=== world sess-sim-random | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword [broadcast]                           0.7476  0.7454  0.7409  0.7201  0.6968
+eps-greedy [broadcast]                        0.4544  0.4920  0.5287  0.5528  0.5977
+pooled-ts [broadcast]                         0.4476  0.4648  0.4912  0.5206  0.5925
+hebbian-robust [broadcast]                    0.4559  0.4827  0.5205  0.5521  0.5980
+warm(hebr) [broadcast]                        0.5462  0.4975  0.5009  0.5357  0.6028
+guarded-safe [broadcast]                      0.6355  0.5284  0.4903  0.4989  0.5623
+eps-greedy [credit-uniest]                    0.4616  0.5078  0.5460  0.5707  0.6232
+pooled-ts [credit-uniest]                     0.4529  0.4627  0.4767  0.4998  0.5477
+hebbian-robust [credit-uniest]                0.4753  0.5121  0.5498  0.5888  0.6404
+warm(hebr) [credit-uniest]                    0.6403  0.6398  0.6489  0.6580  0.6781
+guarded-safe [credit-uniest]                  0.7463  0.7490  0.7532  0.7437  0.7400
+guarded-rt [broadcast]                        0.7464  0.7306  0.6981  0.6229  0.5983
+guarded-rt [credit-uniest]                    0.7476  0.7454  0.7422  0.7248  0.7130
+K-full [credit-own]                           0.7377  0.7319  0.7369  0.7323  0.7238
+K-full [broadcast]                            0.7191  0.7149  0.7272  0.7208  0.7129
+K-full [credit-uniest]                        0.7439  0.7469  0.7510  0.7409  0.7290
+K[no anchors] [credit-own]                    0.7473  0.7466  0.7461  0.7346  0.7239
+K[anchors+hebbian] [credit-uniest]            0.7473  0.7458  0.7472  0.7364  0.7254
+
+### SESSION worlds: candidates vs STRICT pool: every baseline broadcast AND credit-fed  (Holm over 75 tests)
+world              candidate                              H      diff               95% CI  wins   Holm p  best baseline
+sess-traps         K-full [credit-own]                  100   +0.0001 [ -0.0082, +0.0085]    18   1.0000  guarded-rt [credit-uniest]
+sess-traps         K-full [credit-own]                  250   -0.0011 [ -0.0151, +0.0128]    17   1.0000  guarded-rt [credit-uniest]
+sess-traps         K-full [credit-own]                  500   -0.0022 [ -0.0150, +0.0105]    19   1.0000  guarded-safe [credit-uniest]
+sess-traps         K-full [credit-own]                 1000   -0.0011 [ -0.0173, +0.0151]    13   1.0000  guarded-safe [credit-uniest]
+sess-traps         K-full [credit-own]                 2000   -0.0106 [ -0.0271, +0.0058]    10   1.0000  guarded-safe [credit-uniest]
+sess-var-traps     K-full [credit-own]                  100   -0.0128 [ -0.0257, +0.0001]     9   1.0000  guarded-rt [credit-uniest]
+sess-var-traps     K-full [credit-own]                  250   -0.0236 [ -0.0364, -0.0108]     7   0.0402  guarded-rt [credit-uniest] LOSS
+sess-var-traps     K-full [credit-own]                  500   -0.0447 [ -0.0631, -0.0262]     5   0.0020  guarded-rt [credit-uniest] LOSS
+sess-var-traps     K-full [credit-own]                 1000   -0.0511 [ -0.0749, -0.0274]     4   0.0083  guarded-safe [credit-uniest] LOSS
+sess-var-traps     K-full [credit-own]                 2000   -0.0553 [ -0.0793, -0.0313]     4   0.0037  guarded-safe [credit-uniest] LOSS
+sess-sim-random    K-full [credit-own]                  100   -0.0099 [ -0.0162, -0.0036]     5   0.1512  guarded-rt [credit-uniest]
+sess-sim-random    K-full [credit-own]                  250   -0.0171 [ -0.0286, -0.0056]     9   0.2288  guarded-safe [credit-uniest]
+sess-sim-random    K-full [credit-own]                  500   -0.0164 [ -0.0303, -0.0024]     9   0.9414  guarded-safe [credit-uniest]
+sess-sim-random    K-full [credit-own]                 1000   -0.0114 [ -0.0219, -0.0010]    10   1.0000  guarded-safe [credit-uniest]
+sess-sim-random    K-full [credit-own]                 2000   -0.0162 [ -0.0260, -0.0065]     4   0.0969  guarded-safe [credit-uniest]
+--> Holm tally per candidate (wins, losses): {"K-full [broadcast]": (0, 11), "K-full [credit-own]": (0, 4), "K-full [credit-uniest]": (1, 0), "K[anchors+hebbian] [credit-uniest]": (0, 1), "K[no anchors] [credit-own]": (0, 5)}
+
+### SESSION worlds: candidates vs broadcast baselines only  (Holm over 75 tests)
+world              candidate                              H      diff               95% CI  wins   Holm p  best baseline
+sess-traps         K-full [credit-own]                  100   +0.0009 [ -0.0074, +0.0093]    19   1.0000  keyword [broadcast]
+sess-traps         K-full [credit-own]                  250   +0.0001 [ -0.0142, +0.0144]    18   1.0000  keyword [broadcast]
+sess-traps         K-full [credit-own]                  500   +0.0069 [ -0.0088, +0.0227]    18   1.0000  keyword [broadcast]
+sess-traps         K-full [credit-own]                 1000   +0.0251 [ +0.0101, +0.0401]    24   0.0611  keyword [broadcast]
+sess-traps         K-full [credit-own]                 2000   +0.0472 [ +0.0339, +0.0606]    28   0.0000  keyword [broadcast] WIN
+sess-var-traps     K-full [credit-own]                  100   +0.0200 [ +0.0125, +0.0275]    26   0.0004  keyword [broadcast] WIN
+sess-var-traps     K-full [credit-own]                  250   +0.0255 [ +0.0125, +0.0385]    23   0.0155  keyword [broadcast] WIN
+sess-var-traps     K-full [credit-own]                  500   +0.0263 [ +0.0060, +0.0467]    21   0.3789  keyword [broadcast]
+sess-var-traps     K-full [credit-own]                 1000   +0.0540 [ +0.0312, +0.0768]    25   0.0018  keyword [broadcast] WIN
+sess-var-traps     K-full [credit-own]                 2000   +0.0437 [ +0.0102, +0.0773]    20   0.3696  eps-greedy [broadcast]
+sess-sim-random    K-full [credit-own]                  100   -0.0099 [ -0.0162, -0.0036]     5   0.0997  keyword [broadcast]
+sess-sim-random    K-full [credit-own]                  250   -0.0135 [ -0.0249, -0.0021]     8   0.5811  keyword [broadcast]
+sess-sim-random    K-full [credit-own]                  500   -0.0041 [ -0.0159, +0.0078]    10   1.0000  keyword [broadcast]
+sess-sim-random    K-full [credit-own]                 1000   +0.0122 [ +0.0011, +0.0232]    18   0.6940  keyword [broadcast]
+sess-sim-random    K-full [credit-own]                 2000   +0.0270 [ +0.0151, +0.0388]    24   0.0030  keyword [broadcast] WIN
+--> Holm tally per candidate (wins, losses): {"K-full [broadcast]": (3, 5), "K-full [credit-own]": (5, 0), "K-full [credit-uniest]": (11, 0), "K[anchors+hebbian] [credit-uniest]": (11, 0), "K[no anchors] [credit-own]": (7, 0)}
+
+--- direct: K-full[credit-own] - K-full[broadcast] (credit effect) (Holm over 15) ---
+sess-traps         H100    +0.0276 [ +0.0174, +0.0377] w26 Holm 0.0001 WIN
+sess-traps         H250    +0.0497 [ +0.0307, +0.0687] w25 Holm 0.0001 WIN
+sess-traps         H500    +0.0528 [ +0.0307, +0.0749] w26 Holm 0.0004 WIN
+sess-traps         H1000   +0.0404 [ +0.0196, +0.0612] w24 Holm 0.0048 WIN
+sess-traps         H2000   +0.0310 [ +0.0128, +0.0492] w22 Holm 0.0143 WIN
+sess-var-traps     H100    +0.0117 [ +0.0042, +0.0191] w20 Holm 0.0259 WIN
+sess-var-traps     H250    +0.0296 [ +0.0181, +0.0411] w25 Holm 0.0002 WIN
+sess-var-traps     H500    +0.0236 [ +0.0025, +0.0447] w18 Holm 0.2096
+sess-var-traps     H1000   +0.0084 [ -0.0176, +0.0344] w16 Holm 0.9478
+sess-var-traps     H2000   -0.0082 [ -0.0313, +0.0149] w14 Holm 0.9478
+sess-sim-random    H100    +0.0186 [ +0.0078, +0.0294] w20 Holm 0.0143 WIN
+sess-sim-random    H250    +0.0170 [ +0.0004, +0.0335] w17 Holm 0.2671
+sess-sim-random    H500    +0.0097 [ -0.0058, +0.0252] w14 Holm 0.6346
+sess-sim-random    H1000   +0.0114 [ -0.0035, +0.0263] w18 Holm 0.5152
+sess-sim-random    H2000   +0.0109 [ -0.0018, +0.0236] w18 Holm 0.4435
+--> direct Holm wins 8, losses 0
+
+--- direct: K-full[credit-own] - K-full[credit-uniest] (SONA-estimator vs plain estimator) (Holm over 15) ---
+sess-traps         H100    -0.0033 [ -0.0094, +0.0028] w13 Holm 0.5610
+sess-traps         H250    -0.0174 [ -0.0277, -0.0071] w 9 Holm 0.0207 LOSS
+sess-traps         H500    -0.0215 [ -0.0343, -0.0088] w 6 Holm 0.0207 LOSS
+sess-traps         H1000   -0.0186 [ -0.0306, -0.0066] w 5 Holm 0.0356 LOSS
+sess-traps         H2000   -0.0152 [ -0.0256, -0.0048] w 8 Holm 0.0518
+sess-var-traps     H100    -0.0031 [ -0.0097, +0.0036] w15 Holm 0.5610
+sess-var-traps     H250    -0.0080 [ -0.0182, +0.0023] w14 Holm 0.4926
+sess-var-traps     H500    -0.0322 [ -0.0501, -0.0143] w 8 Holm 0.0122 LOSS
+sess-var-traps     H1000   -0.0404 [ -0.0627, -0.0182] w 8 Holm 0.0119 LOSS
+sess-var-traps     H2000   -0.0450 [ -0.0665, -0.0235] w 6 Holm 0.0028 LOSS
+sess-sim-random    H100    -0.0062 [ -0.0108, -0.0015] w 5 Holm 0.0813
+sess-sim-random    H250    -0.0150 [ -0.0261, -0.0038] w10 Holm 0.0813
+sess-sim-random    H500    -0.0141 [ -0.0256, -0.0027] w 9 Holm 0.1033
+sess-sim-random    H1000   -0.0086 [ -0.0178, +0.0005] w 8 Holm 0.3181
+sess-sim-random    H2000   -0.0052 [ -0.0130, +0.0026] w 7 Holm 0.5510
+--> direct Holm wins 0, losses 6
+
+--- direct: K-full[credit-own] - guarded-rt[credit-uniest] (Holm over 15) ---
+sess-traps         H100    +0.0001 [ -0.0082, +0.0085] w18 Holm 1.0000
+sess-traps         H250    -0.0011 [ -0.0151, +0.0128] w17 Holm 1.0000
+sess-traps         H500    +0.0001 [ -0.0149, +0.0151] w17 Holm 1.0000
+sess-traps         H1000   +0.0100 [ -0.0043, +0.0243] w21 Holm 0.8230
+sess-traps         H2000   +0.0144 [ +0.0015, +0.0274] w16 Holm 0.2410
+sess-var-traps     H100    -0.0128 [ -0.0257, +0.0001] w 9 Holm 0.3632
+sess-var-traps     H250    -0.0236 [ -0.0364, -0.0108] w 7 Holm 0.0097 LOSS
+sess-var-traps     H500    -0.0447 [ -0.0631, -0.0262] w 5 Holm 0.0004 LOSS
+sess-var-traps     H1000   -0.0438 [ -0.0654, -0.0222] w 5 Holm 0.0037 LOSS
+sess-var-traps     H2000   -0.0374 [ -0.0587, -0.0160] w 8 Holm 0.0151 LOSS
+sess-sim-random    H100    -0.0099 [ -0.0162, -0.0036] w 5 Holm 0.0354 LOSS
+sess-sim-random    H250    -0.0135 [ -0.0249, -0.0021] w 8 Holm 0.2184
+sess-sim-random    H500    -0.0053 [ -0.0169, +0.0063] w10 Holm 1.0000
+sess-sim-random    H1000   +0.0075 [ -0.0024, +0.0174] w17 Holm 0.7990
+sess-sim-random    H2000   +0.0108 [ +0.0017, +0.0198] w21 Holm 0.2184
+--> direct Holm wins 0, losses 5
+
+--- direct: K-full[credit-own] - K[no anchors][credit-own] (Holm over 15) ---
+sess-traps         H100    -0.0016 [ -0.0066, +0.0034] w13 Holm 1.0000
+sess-traps         H250    -0.0098 [ -0.0174, -0.0022] w14 Holm 0.1697
+sess-traps         H500    -0.0094 [ -0.0169, -0.0019] w 9 Holm 0.1906
+sess-traps         H1000   -0.0047 [ -0.0123, +0.0029] w10 Holm 1.0000
+sess-traps         H2000   -0.0056 [ -0.0122, +0.0010] w 9 Holm 0.7837
+sess-var-traps     H100    +0.0003 [ -0.0022, +0.0028] w13 Holm 1.0000
+sess-var-traps     H250    -0.0051 [ -0.0111, +0.0008] w10 Holm 0.7837
+sess-var-traps     H500    -0.0106 [ -0.0216, +0.0003] w14 Holm 0.5683
+sess-var-traps     H1000   +0.0023 [ -0.0100, +0.0147] w14 Holm 1.0000
+sess-var-traps     H2000   +0.0076 [ -0.0037, +0.0188] w16 Holm 1.0000
+sess-sim-random    H100    -0.0096 [ -0.0154, -0.0038] w 5 Holm 0.0308 LOSS
+sess-sim-random    H250    -0.0148 [ -0.0249, -0.0046] w 8 Holm 0.0825
+sess-sim-random    H500    -0.0092 [ -0.0185, +0.0000] w 7 Holm 0.5595
+sess-sim-random    H1000   -0.0024 [ -0.0100, +0.0052] w13 Holm 1.0000
+sess-sim-random    H2000   -0.0001 [ -0.0058, +0.0057] w12 Holm 1.0000
+--> direct Holm wins 0, losses 1
+
+=== world mem-conj48 | held mean expected success over first H ===
+arm                                              100     250     500    1000    2000
+keyword                                       0.5075  0.5102  0.5164  0.5180  0.5180
+eps-greedy                                    0.4343  0.4568  0.4763  0.5037  0.5306
+pooled-ts                                     0.4214  0.4324  0.4506  0.4720  0.4968
+hebbian-robust                                0.4422  0.4656  0.4818  0.5014  0.5177
+warm(hebr)                                    0.4598  0.4734  0.4887  0.5045  0.5195
+guarded-safe                                  0.5191  0.5352  0.5402  0.5456  0.5507
+guarded-rt(retuned)                           0.5188  0.5392  0.5529  0.5608  0.5655
+K-full uncapped                               0.5110  0.5187  0.5257  0.5304  0.5361
+K-full cap8 importance-merge                  0.5117  0.5186  0.5247  0.5283  0.5309
+K-full cap8 importance-drop                   0.5117  0.5185  0.5249  0.5291  0.5317
+K-full cap8 LRU                               0.5117  0.5186  0.5247  0.5289  0.5319
+K-full cap8 FIFO                              0.5117  0.5186  0.5247  0.5289  0.5319
+K-full cap8 count-drop                        0.5112  0.5184  0.5248  0.5288  0.5315
+K-full cap16 importance-merge                 0.5117  0.5187  0.5252  0.5293  0.5326
+K-full cap16 importance-drop                  0.5117  0.5186  0.5250  0.5292  0.5322
+K-full cap16 LRU                              0.5117  0.5185  0.5250  0.5289  0.5316
+K-full cap16 FIFO                             0.5117  0.5185  0.5248  0.5288  0.5314
+K-full cap16 count-drop                       0.5113  0.5185  0.5249  0.5287  0.5313
+K-full cap32 importance-merge                 0.5112  0.5189  0.5256  0.5293  0.5321
+K-full cap32 importance-drop                  0.5117  0.5186  0.5250  0.5294  0.5325
+K-full cap32 LRU                              0.5115  0.5184  0.5254  0.5294  0.5326
+K-full cap32 FIFO                             0.5115  0.5186  0.5255  0.5292  0.5325
+K-full cap32 count-drop                       0.5113  0.5185  0.5251  0.5296  0.5330
+
+### MEMORY world: candidates vs best-of-7  (Holm over 80 tests)
+world              candidate                              H      diff               95% CI  wins   Holm p  best baseline
+mem-conj48         K-full uncapped                      500   -0.0272 [ -0.0346, -0.0199]     3   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap8 importance-merge         500   -0.0283 [ -0.0353, -0.0213]     2   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap8 importance-drop          500   -0.0281 [ -0.0351, -0.0210]     2   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap8 LRU                      500   -0.0282 [ -0.0352, -0.0212]     2   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap8 FIFO                     500   -0.0282 [ -0.0352, -0.0212]     2   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap8 count-drop               500   -0.0281 [ -0.0352, -0.0210]     2   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap16 importance-merge        500   -0.0278 [ -0.0345, -0.0210]     2   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap16 importance-drop         500   -0.0279 [ -0.0351, -0.0208]     2   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap16 LRU                     500   -0.0279 [ -0.0350, -0.0209]     2   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap16 FIFO                    500   -0.0281 [ -0.0353, -0.0210]     2   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap16 count-drop              500   -0.0281 [ -0.0350, -0.0211]     2   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap32 importance-merge        500   -0.0273 [ -0.0339, -0.0207]     2   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap32 importance-drop         500   -0.0279 [ -0.0351, -0.0208]     2   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap32 LRU                     500   -0.0275 [ -0.0344, -0.0206]     2   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap32 FIFO                    500   -0.0274 [ -0.0344, -0.0205]     2   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap32 count-drop              500   -0.0278 [ -0.0345, -0.0211]     2   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full uncapped                     2000   -0.0294 [ -0.0399, -0.0189]     5   0.0001  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap8 importance-merge        2000   -0.0345 [ -0.0451, -0.0240]     4   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap8 importance-drop         2000   -0.0338 [ -0.0440, -0.0236]     4   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap8 LRU                     2000   -0.0336 [ -0.0436, -0.0235]     4   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap8 FIFO                    2000   -0.0335 [ -0.0436, -0.0235]     4   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap8 count-drop              2000   -0.0340 [ -0.0444, -0.0235]     4   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap16 importance-merge       2000   -0.0329 [ -0.0427, -0.0231]     5   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap16 importance-drop        2000   -0.0333 [ -0.0436, -0.0229]     5   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap16 LRU                    2000   -0.0339 [ -0.0442, -0.0236]     5   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap16 FIFO                   2000   -0.0340 [ -0.0444, -0.0237]     5   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap16 count-drop             2000   -0.0342 [ -0.0443, -0.0240]     4   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap32 importance-merge       2000   -0.0334 [ -0.0435, -0.0232]     4   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap32 importance-drop        2000   -0.0330 [ -0.0433, -0.0227]     5   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap32 LRU                    2000   -0.0328 [ -0.0430, -0.0227]     5   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap32 FIFO                   2000   -0.0330 [ -0.0431, -0.0229]     5   0.0000  guarded-rt(retuned) LOSS
+mem-conj48         K-full cap32 count-drop             2000   -0.0325 [ -0.0429, -0.0221]     5   0.0000  guarded-rt(retuned) LOSS
+--> Holm tally per candidate (wins, losses): {"K-full cap16 FIFO": (0, 4), "K-full cap16 LRU": (0, 4), "K-full cap16 count-drop": (0, 4), "K-full cap16 importance-drop": (0, 4), "K-full cap16 importance-merge": (0, 4), "K-full cap32 FIFO": (0, 4), "K-full cap32 LRU": (0, 4), "K-full cap32 count-drop": (0, 4), "K-full cap32 importance-drop": (0, 4), "K-full cap32 importance-merge": (0, 4), "K-full cap8 FIFO": (0, 4), "K-full cap8 LRU": (0, 4), "K-full cap8 count-drop": (0, 4), "K-full cap8 importance-drop": (0, 4), "K-full cap8 importance-merge": (0, 4), "K-full uncapped": (0, 4)}
+
+--- direct: K-full cap8 importance-merge - K-full cap8 importance-drop (Holm over 5) ---
+mem-conj48         H100    +0.0000 [ +0.0000, +0.0000] w 0 Holm 1.0000
+mem-conj48         H250    +0.0001 [ -0.0000, +0.0002] w 2 Holm 0.8913
+mem-conj48         H500    -0.0002 [ -0.0010, +0.0005] w 5 Holm 1.0000
+mem-conj48         H1000   -0.0008 [ -0.0018, +0.0001] w 8 Holm 0.4491
+mem-conj48         H2000   -0.0007 [ -0.0020, +0.0005] w13 Holm 0.8913
+--> direct Holm wins 0, losses 0
+
+--- direct: K-full cap8 importance-merge - K-full cap8 LRU (Holm over 5) ---
+mem-conj48         H100    +0.0000 [ +0.0000, +0.0000] w 0 Holm 1.0000
+mem-conj48         H250    -0.0001 [ -0.0003, +0.0002] w 2 Holm 1.0000
+mem-conj48         H500    -0.0001 [ -0.0006, +0.0005] w 7 Holm 1.0000
+mem-conj48         H1000   -0.0006 [ -0.0014, +0.0001] w11 Holm 0.4684
+mem-conj48         H2000   -0.0010 [ -0.0024, +0.0004] w13 Holm 0.6549
+--> direct Holm wins 0, losses 0
+
+--- direct: K-full cap8 importance-merge - K-full cap8 FIFO (Holm over 5) ---
+mem-conj48         H100    +0.0000 [ +0.0000, +0.0000] w 0 Holm 1.0000
+mem-conj48         H250    -0.0001 [ -0.0003, +0.0002] w 2 Holm 1.0000
+mem-conj48         H500    -0.0001 [ -0.0006, +0.0005] w 7 Holm 1.0000
+mem-conj48         H1000   -0.0006 [ -0.0014, +0.0001] w11 Holm 0.4684
+mem-conj48         H2000   -0.0010 [ -0.0024, +0.0004] w13 Holm 0.6304
+--> direct Holm wins 0, losses 0
+
+--- direct: K-full cap8 importance-merge - K-full cap8 count-drop (Holm over 5) ---
+mem-conj48         H100    +0.0005 [ -0.0005, +0.0016] w 1 Holm 0.8968
+mem-conj48         H250    +0.0002 [ -0.0000, +0.0004] w 4 Holm 0.2850
+mem-conj48         H500    -0.0002 [ -0.0011, +0.0007] w 6 Holm 0.8968
+mem-conj48         H1000   -0.0005 [ -0.0014, +0.0003] w 9 Holm 0.8968
+mem-conj48         H2000   -0.0006 [ -0.0016, +0.0005] w12 Holm 0.8968
+--> direct Holm wins 0, losses 0
+
+--- direct: K-full cap8 importance-merge - K-full uncapped (Holm over 5) ---
+mem-conj48         H100    +0.0007 [ -0.0004, +0.0018] w 4 Holm 0.5796
+mem-conj48         H250    -0.0001 [ -0.0019, +0.0016] w 6 Holm 0.8841
+mem-conj48         H500    -0.0010 [ -0.0031, +0.0010] w12 Holm 0.6281
+mem-conj48         H1000   -0.0021 [ -0.0037, -0.0005] w11 Holm 0.0517
+mem-conj48         H2000   -0.0051 [ -0.0066, -0.0037] w 3 Holm 0.0000 LOSS
+--> direct Holm wins 0, losses 1
+
+--- direct: K-full cap16 importance-merge - K-full cap16 importance-drop (Holm over 5) ---
+mem-conj48         H100    +0.0000 [ +0.0000, +0.0000] w 0 Holm 1.0000
+mem-conj48         H250    +0.0001 [ -0.0002, +0.0004] w 2 Holm 1.0000
+mem-conj48         H500    +0.0002 [ -0.0006, +0.0010] w 8 Holm 1.0000
+mem-conj48         H1000   +0.0001 [ -0.0015, +0.0016] w10 Holm 1.0000
+mem-conj48         H2000   +0.0004 [ -0.0012, +0.0020] w14 Holm 1.0000
+--> direct Holm wins 0, losses 0
+
+--- direct: K-full cap16 importance-merge - K-full cap16 LRU (Holm over 5) ---
+mem-conj48         H100    +0.0000 [ -0.0000, +0.0001] w 1 Holm 1.0000
+mem-conj48         H250    +0.0002 [ -0.0003, +0.0006] w 3 Holm 1.0000
+mem-conj48         H500    +0.0002 [ -0.0006, +0.0009] w11 Holm 1.0000
+mem-conj48         H1000   +0.0004 [ -0.0010, +0.0017] w16 Holm 1.0000
+mem-conj48         H2000   +0.0010 [ -0.0006, +0.0026] w16 Holm 1.0000
+--> direct Holm wins 0, losses 0
+
+--- direct: K-full cap16 importance-merge - K-full cap16 FIFO (Holm over 5) ---
+mem-conj48         H100    +0.0000 [ -0.0000, +0.0001] w 1 Holm 1.0000
+mem-conj48         H250    +0.0002 [ -0.0003, +0.0006] w 3 Holm 1.0000
+mem-conj48         H500    +0.0003 [ -0.0005, +0.0012] w10 Holm 1.0000
+mem-conj48         H1000   +0.0005 [ -0.0008, +0.0019] w17 Holm 1.0000
+mem-conj48         H2000   +0.0011 [ -0.0005, +0.0028] w15 Holm 0.7902
+--> direct Holm wins 0, losses 0
+
+--- direct: K-full cap16 importance-merge - K-full cap16 count-drop (Holm over 5) ---
+mem-conj48         H100    +0.0005 [ -0.0006, +0.0015] w 1 Holm 1.0000
+mem-conj48         H250    +0.0003 [ -0.0001, +0.0006] w 4 Holm 0.8606
+mem-conj48         H500    +0.0003 [ -0.0007, +0.0013] w 9 Holm 1.0000
+mem-conj48         H1000   +0.0006 [ -0.0010, +0.0023] w13 Holm 1.0000
+mem-conj48         H2000   +0.0013 [ -0.0007, +0.0032] w16 Holm 0.8606
+--> direct Holm wins 0, losses 0
+
+--- direct: K-full cap16 importance-merge - K-full uncapped (Holm over 5) ---
+mem-conj48         H100    +0.0007 [ -0.0004, +0.0018] w 4 Holm 0.7728
+mem-conj48         H250    -0.0000 [ -0.0017, +0.0017] w 7 Holm 1.0000
+mem-conj48         H500    -0.0005 [ -0.0028, +0.0017] w14 Holm 1.0000
+mem-conj48         H1000   -0.0011 [ -0.0031, +0.0010] w12 Holm 0.9044
+mem-conj48         H2000   -0.0035 [ -0.0055, -0.0015] w 4 Holm 0.0059 LOSS
+--> direct Holm wins 0, losses 1
+
+--- direct: K-full cap32 importance-merge - K-full cap32 importance-drop (Holm over 5) ---
+mem-conj48         H100    -0.0005 [ -0.0016, +0.0005] w 0 Holm 1.0000
+mem-conj48         H250    +0.0003 [ -0.0005, +0.0011] w 6 Holm 1.0000
+mem-conj48         H500    +0.0006 [ -0.0008, +0.0020] w12 Holm 1.0000
+mem-conj48         H1000   -0.0001 [ -0.0013, +0.0012] w14 Holm 1.0000
+mem-conj48         H2000   -0.0004 [ -0.0020, +0.0012] w16 Holm 1.0000
+--> direct Holm wins 0, losses 0
+
+--- direct: K-full cap32 importance-merge - K-full cap32 LRU (Holm over 5) ---
+mem-conj48         H100    -0.0003 [ -0.0014, +0.0009] w 3 Holm 1.0000
+mem-conj48         H250    +0.0005 [ -0.0010, +0.0019] w13 Holm 1.0000
+mem-conj48         H500    +0.0002 [ -0.0016, +0.0019] w12 Holm 1.0000
+mem-conj48         H1000   -0.0001 [ -0.0013, +0.0011] w16 Holm 1.0000
+mem-conj48         H2000   -0.0006 [ -0.0020, +0.0008] w14 Holm 1.0000
+--> direct Holm wins 0, losses 0
+
+--- direct: K-full cap32 importance-merge - K-full cap32 FIFO (Holm over 5) ---
+mem-conj48         H100    -0.0003 [ -0.0014, +0.0009] w 3 Holm 1.0000
+mem-conj48         H250    +0.0003 [ -0.0011, +0.0017] w10 Holm 1.0000
+mem-conj48         H500    +0.0001 [ -0.0016, +0.0018] w13 Holm 1.0000
+mem-conj48         H1000   +0.0002 [ -0.0009, +0.0013] w18 Holm 1.0000
+mem-conj48         H2000   -0.0004 [ -0.0018, +0.0010] w13 Holm 1.0000
+--> direct Holm wins 0, losses 0
+
+--- direct: K-full cap32 importance-merge - K-full cap32 count-drop (Holm over 5) ---
+mem-conj48         H100    -0.0000 [ -0.0001, +0.0000] w 0 Holm 1.0000
+mem-conj48         H250    +0.0004 [ -0.0005, +0.0012] w 9 Holm 1.0000
+mem-conj48         H500    +0.0005 [ -0.0006, +0.0016] w11 Holm 1.0000
+mem-conj48         H1000   -0.0003 [ -0.0019, +0.0013] w11 Holm 1.0000
+mem-conj48         H2000   -0.0009 [ -0.0025, +0.0007] w11 Holm 1.0000
+--> direct Holm wins 0, losses 0
+
+--- direct: K-full cap32 importance-merge - K-full uncapped (Holm over 5) ---
+mem-conj48         H100    +0.0002 [ -0.0001, +0.0006] w 2 Holm 0.9497
+mem-conj48         H250    +0.0002 [ -0.0015, +0.0019] w 9 Holm 1.0000
+mem-conj48         H500    -0.0001 [ -0.0026, +0.0025] w13 Holm 1.0000
+mem-conj48         H1000   -0.0010 [ -0.0030, +0.0009] w14 Holm 0.9497
+mem-conj48         H2000   -0.0040 [ -0.0056, -0.0024] w 5 Holm 0.0001 LOSS
+--> direct Holm wins 0, losses 1
+mem-conj48 seed 31 uncapped: final patterns 884, evictions 0
+mem-conj48 seed 31 cap16: final patterns 16, evictions 1888
+
+wrote results/g19a_sona_a.json

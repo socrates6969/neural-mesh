@@ -1,0 +1,83 @@
+g5_study: 11 worlds, tune seeds 1-8, held-out 31-60
+  tune eps(1,0)                           obj 0.5657   <== picked
+  tune eps(1,0.05)                        obj 0.5628
+  tune eps(0.97,0.05)                     obj 0.5628
+  tune eps(0.9,0)                         obj 0.5655
+  tune pts(1)                             obj 0.5840   <== picked
+  tune pts(0.98)                          obj 0.5688
+  tune warm(k=1)                          obj 0.6788   <== picked
+  tune warm(k=3)                          obj 0.6777
+  tune warm(k=10)                         obj 0.6737
+  tune hier(md2,ms6,xi0.2,kw3)            obj 0.6807
+  tune hier(md2,ms6,xi0.2,kw8)            obj 0.6835   <== picked
+  tune hier(md2,ms6,xi0.5,kw3)            obj 0.6745
+  tune hier(md2,ms6,xi0.5,kw8)            obj 0.6799
+  tune hier(md2,ms12,xi0.2,kw3)           obj 0.6744
+  tune hier(md2,ms12,xi0.2,kw8)           obj 0.6823
+  tune hier(md2,ms12,xi0.5,kw3)           obj 0.6675
+  tune hier(md2,ms12,xi0.5,kw8)           obj 0.6801
+  tune hier(md4,ms6,xi0.2,kw3)            obj 0.6783
+  tune hier(md4,ms6,xi0.2,kw8)            obj 0.6819
+  tune hier(md4,ms6,xi0.5,kw3)            obj 0.6712
+  tune hier(md4,ms6,xi0.5,kw8)            obj 0.6767
+  tune hier(md4,ms12,xi0.2,kw3)           obj 0.6709
+  tune hier(md4,ms12,xi0.2,kw8)           obj 0.6795
+  tune hier(md4,ms12,xi0.5,kw3)           obj 0.6634
+  tune hier(md4,ms12,xi0.5,kw8)           obj 0.6770
+  tune retrieval store_min 0.55 sim_min 0.55: obj 0.6932
+  tune retrieval store_min 0.55 sim_min 0.65: obj 0.7096
+  tune retrieval store_min 0.55 sim_min 0.75: obj 0.7106
+  tune retrieval store_min 0.55 sim_min 0.85: obj 0.6987
+  tune retrieval store_min 0.65 sim_min 0.55: obj 0.6920
+  tune retrieval store_min 0.65 sim_min 0.65: obj 0.7055
+  tune retrieval store_min 0.65 sim_min 0.75: obj 0.7041
+  tune retrieval store_min 0.65 sim_min 0.85: obj 0.6930
+  tune retrieval store_min 0.75 sim_min 0.55: obj 0.6873
+  tune retrieval store_min 0.75 sim_min 0.65: obj 0.6960
+  tune retrieval store_min 0.75 sim_min 0.75: obj 0.6915
+  tune retrieval store_min 0.75 sim_min 0.85: obj 0.6846
+  PICKED: eps (1.0, 0.0) pts_gamma 1 warm_k 1 hier HierParams { m_g: 2.0, m_d: 2.0, m_s: 6.0, xi: 0.2, kw_w: 8.0, use_dom: true } retrieval RetrParams { store_min: 0.55, sim_min: 0.75 }   (tuning 22s)
+
+=== SENSITIVITY (one-at-a-time from `agency`; held 31-60; H1500 paired diff [95% CI], raw, no multiplicity correction) ===
+variant                                          retr|warm                 retr|safe                 retr|hier                 hier-warm  ctxhit pur
+base(agency)                       +0.1006 [+0.097,+0.105]   +0.0966 [+0.092,+0.101]   +0.1005 [+0.097,+0.104]   +0.0062 [+0.004,+0.009]  0.89   0.98
+wrong-brief penalty mis=0          +0.0988 [+0.094,+0.104]   +0.0927 [+0.088,+0.097]   +0.0994 [+0.097,+0.102]   +0.0070 [+0.001,+0.013]  0.88   0.98
+wrong-brief penalty mis=1          +0.1011 [+0.097,+0.106]   +0.1019 [+0.098,+0.106]   +0.1027 [+0.100,+0.105]   +0.0119 [+0.007,+0.017]  0.88   0.99
+context size dscale=0.25           +0.0272 [+0.026,+0.029]   +0.0309 [+0.030,+0.032]   +0.0258 [+0.024,+0.027]   +0.0026 [-0.005,+0.010]  0.91   0.98
+context size dscale=0.5            +0.0524 [+0.050,+0.055]   +0.0549 [+0.052,+0.058]   +0.0512 [+0.050,+0.053]   +0.0021 [-0.002,+0.006]  0.91   0.97
+context size dscale=1.5            +0.1088 [+0.102,+0.115]   +0.1072 [+0.101,+0.114]   +0.1107 [+0.106,+0.115]   +0.0149 [+0.010,+0.020]  0.72   0.99
+project id tokens=1/3              -0.0075 [-0.011,-0.004]   -0.0073 [-0.009,-0.005]   -0.0056 [-0.007,-0.004]   +0.0137 [+0.010,+0.018]  0.79   0.47
+project id tokens=2/3              +0.0456 [+0.041,+0.051]   +0.0476 [+0.044,+0.052]   +0.0489 [+0.045,+0.053]   +0.0087 [+0.006,+0.012]  0.79   0.79
+projects=4                         +0.1161 [+0.111,+0.121]   +0.1129 [+0.109,+0.117]   +0.1166 [+0.114,+0.119]   +0.0065 [+0.003,+0.010]  0.94   1.00
+projects=6                         +0.1081 [+0.104,+0.113]   +0.1095 [+0.106,+0.113]   +0.1107 [+0.108,+0.114]   +0.0082 [+0.003,+0.013]  0.92   1.00
+projects=24                        +0.0854 [+0.082,+0.089]   +0.0832 [+0.078,+0.088]   +0.0850 [+0.082,+0.088]   +0.0083 [+0.004,+0.013]  0.80   0.94
+projects=60                        +0.0253 [+0.022,+0.029]   +0.0221 [+0.020,+0.024]   +0.0243 [+0.023,+0.026]   +0.0116 [+0.007,+0.016]  0.66   0.71
+projects=200                       +0.0009 [-0.000,+0.002]   +0.0008 [-0.001,+0.002]   +0.0012 [+0.000,+0.002]   +0.0088 [+0.006,+0.011]  0.42   0.48
+keyword decoy=0                    +0.1023 [+0.097,+0.107]   +0.1126 [+0.109,+0.116]   +0.0983 [+0.095,+0.102]   +0.0054 [+0.003,+0.007]  0.90   0.98
+keyword decoy=0.6                  +0.0970 [+0.093,+0.101]   +0.0796 [+0.074,+0.086]   +0.0987 [+0.095,+0.102]   +0.0111 [+0.006,+0.016]  0.87   0.98
+context used equally by all agents (u=1)   +0.1100 [+0.105,+0.115]   +0.1059 [+0.101,+0.111]   +0.1063 [+0.102,+0.110]   +0.0096 [+0.005,+0.015]  0.88   0.98
+context helps only strong agents (u=c^2)   +0.0717 [+0.067,+0.076]   +0.0774 [+0.073,+0.081]   +0.0783 [+0.076,+0.081]   +0.0116 [+0.006,+0.017]  0.88   0.98
+briefs given (ingested)            +0.1002 [+0.096,+0.104]   +0.1008 [+0.096,+0.106]   +0.1028 [+0.100,+0.105]   +0.0085 [+0.005,+0.012]  0.90   0.99
+briefs given + id tokens=1/3       -0.0088 [-0.011,-0.007]   -0.0084 [-0.010,-0.007]   -0.0068 [-0.008,-0.006]   +0.0122 [+0.007,+0.017]  0.81   0.46
+
+H500 retrieval effect on warm / hier+retr vs best of (warm, hier):
+  base(agency)                     retr|warm +0.0739 [+0.070,+0.078]   retr|hier +0.0718 [+0.068,+0.076]
+  wrong-brief penalty mis=0        retr|warm +0.0708 [+0.066,+0.075]   retr|hier +0.0704 [+0.067,+0.074]
+  wrong-brief penalty mis=1        retr|warm +0.0706 [+0.066,+0.075]   retr|hier +0.0721 [+0.069,+0.075]
+  context size dscale=0.25         retr|warm +0.0212 [+0.020,+0.023]   retr|hier +0.0205 [+0.019,+0.022]
+  context size dscale=0.5          retr|warm +0.0414 [+0.040,+0.043]   retr|hier +0.0393 [+0.037,+0.042]
+  context size dscale=1.5          retr|warm +0.0538 [+0.049,+0.059]   retr|hier +0.0549 [+0.051,+0.059]
+  project id tokens=1/3            retr|warm -0.0044 [-0.007,-0.002]   retr|hier -0.0029 [-0.005,-0.001]
+  project id tokens=2/3            retr|warm +0.0296 [+0.026,+0.033]   retr|hier +0.0301 [+0.027,+0.033]
+  projects=4                       retr|warm +0.0995 [+0.095,+0.104]   retr|hier +0.0997 [+0.096,+0.103]
+  projects=6                       retr|warm +0.0854 [+0.081,+0.090]   retr|hier +0.0878 [+0.084,+0.091]
+  projects=24                      retr|warm +0.0489 [+0.045,+0.052]   retr|hier +0.0465 [+0.043,+0.050]
+  projects=60                      retr|warm +0.0105 [+0.009,+0.012]   retr|hier +0.0106 [+0.009,+0.012]
+  projects=200                     retr|warm +0.0008 [-0.000,+0.002]   retr|hier +0.0001 [-0.001,+0.001]
+  keyword decoy=0                  retr|warm +0.0761 [+0.072,+0.080]   retr|hier +0.0668 [+0.064,+0.070]
+  keyword decoy=0.6                retr|warm +0.0653 [+0.062,+0.069]   retr|hier +0.0702 [+0.066,+0.075]
+  context used equally by all agents (u=1) retr|warm +0.0773 [+0.073,+0.082]   retr|hier +0.0744 [+0.071,+0.078]
+  context helps only strong agents (u=c^2) retr|warm +0.0521 [+0.048,+0.056]   retr|hier +0.0557 [+0.053,+0.058]
+  briefs given (ingested)          retr|warm +0.0755 [+0.072,+0.079]   retr|hier +0.0754 [+0.073,+0.078]
+  briefs given + id tokens=1/3     retr|warm -0.0067 [-0.009,-0.005]   retr|hier -0.0037 [-0.005,-0.003]
+wrote results/g5_sens.json (total 39s)

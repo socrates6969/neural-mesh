@@ -1,0 +1,50 @@
+verification mode: strict
+verifier gazetteer: 1 of 3 surface forms per detail, detection noise 0
+corpus C: env built in 4.6s (7880 queries incl. 5760 follow-ups)
+gazetteer reads 478/480 topical docs (478 correct)
+
+=== world default (held 31-60) ===
+arm                           sess    step   step1   later    cond  stuck    P@3    R@3  repair   harm   help
+mini-hybrid/none            0.7799  0.8592  0.9387  0.8322  0.9386  0.035  0.394  0.591   0.000  0.000  0.000
+mini-hybrid/local           0.8220  0.8877  0.9457  0.8679  0.9532  0.025  0.411  0.616   0.271  0.018  0.068
+mini-hybrid/pin             0.8467  0.9077  0.9457  0.8948  0.9619  0.016  0.422  0.633   0.454  0.046  0.125
+mini-hybrid/none/indep      0.7839  0.9298  0.9387  0.9267  0.9343  0.000  0.414  0.622   0.000  0.000  0.000
+mini-hybrid/local/indep     0.8112  0.9420  0.9457  0.9409  0.9445  0.000  0.427  0.640   0.259  0.021  0.070
+bge/none                    0.7703  0.8459  0.9097  0.8243  0.9450  0.031  0.453  0.679   0.000  0.000  0.000
+bge/local                   0.8159  0.8733  0.9126  0.8602  0.9628  0.022  0.464  0.696   0.266  0.014  0.072
+bge/pin                     0.8378  0.8890  0.9126  0.8812  0.9704  0.015  0.473  0.709   0.425  0.032  0.116
+bge/none/indep              0.7807  0.9263  0.9097  0.9324  0.9428  0.000  0.481  0.721   0.000  0.000  0.000
+bge/local/indep             0.8080  0.9407  0.9126  0.9508  0.9561  0.000  0.488  0.733   0.247  0.020  0.078
+bge-final/none              0.8050  0.8721  0.9379  0.8498  0.9495  0.032  0.410  0.614   0.000  0.000  0.000
+bge-final/local             0.8432  0.8963  0.9444  0.8802  0.9623  0.020  0.424  0.635   0.284  0.013  0.063
+bge-final/pin               0.8651  0.9135  0.9444  0.9030  0.9699  0.012  0.434  0.652   0.458  0.038  0.112
+bge-final/none/indep        0.8134  0.9373  0.9379  0.9368  0.9463  0.000  0.430  0.645   0.000  0.000  0.000
+bge-final/local/indep       0.8314  0.9487  0.9444  0.9501  0.9547  0.000  0.441  0.662   0.262  0.021  0.067
+best fair baseline in default: bge-final/none (0.8050)
+
+=== Holm tests (only significant shown, plus the claim rows)
+M1-policy-vs-none(same system)   default      mini-hybrid/local      vs mini-hybrid/none       +0.0421 [+0.0352,+0.0491] holm 0.0000 WIN
+M2-vs-bestfair                   default      mini-hybrid/local      vs bge-final/none         +0.0170 [+0.0094,+0.0246] holm 0.0003 WIN
+M1-policy-vs-none(same system)   default      mini-hybrid/pin        vs mini-hybrid/none       +0.0668 [+0.0594,+0.0741] holm 0.0000 WIN
+M2-vs-bestfair                   default      mini-hybrid/pin        vs bge-final/none         +0.0417 [+0.0340,+0.0493] holm 0.0000 WIN
+M2-vs-bestfair                   default      mini-hybrid/none       vs bge-final/none         -0.0251 [-0.0336,-0.0167] holm 0.0000 LOSS
+M3-pin-vs-local                  default      mini-hybrid/pin        vs mini-hybrid/local      +0.0247 [+0.0202,+0.0291] holm 0.0000 WIN
+M4-propagation(indep-dep)        default      mini-hybrid/none/indep vs mini-hybrid/none       +0.0705 [+0.0670,+0.0741] holm 0.0000 WIN
+M1-policy-vs-none(same system)   default      bge/local              vs bge/none               +0.0456 [+0.0399,+0.0513] holm 0.0000 WIN
+M2-vs-bestfair                   default      bge/local              vs bge-final/none         +0.0109 [+0.0025,+0.0192] holm 0.0247 WIN
+M1-policy-vs-none(same system)   default      bge/pin                vs bge/none               +0.0674 [+0.0604,+0.0745] holm 0.0000 WIN
+M2-vs-bestfair                   default      bge/pin                vs bge-final/none         +0.0328 [+0.0244,+0.0412] holm 0.0000 WIN
+M2-vs-bestfair                   default      bge/none               vs bge-final/none         -0.0347 [-0.0411,-0.0282] holm 0.0000 LOSS
+M3-pin-vs-local                  default      bge/pin                vs bge/local              +0.0219 [+0.0173,+0.0265] holm 0.0000 WIN
+M4-propagation(indep-dep)        default      bge/none/indep         vs bge/none               +0.0804 [+0.0758,+0.0851] holm 0.0000 WIN
+M1-policy-vs-none(same system)   default      bge-final/local        vs bge-final/none         +0.0382 [+0.0325,+0.0439] holm 0.0000 WIN
+M2-vs-bestfair                   default      bge-final/local        vs bge-final/none         +0.0382 [+0.0325,+0.0439] holm 0.0000 WIN
+M1-policy-vs-none(same system)   default      bge-final/pin          vs bge-final/none         +0.0601 [+0.0539,+0.0663] holm 0.0000 WIN
+M2-vs-bestfair                   default      bge-final/pin          vs bge-final/none         +0.0601 [+0.0539,+0.0663] holm 0.0000 WIN
+M3-pin-vs-local                  default      bge-final/pin          vs bge-final/local        +0.0219 [+0.0168,+0.0270] holm 0.0000 WIN
+M4-propagation(indep-dep)        default      bge-final/none/indep   vs bge-final/none         +0.0652 [+0.0611,+0.0693] holm 0.0000 WIN
+M1-policy-vs-none(same system): WIN 6 LOSS 0 of 6
+M2-vs-bestfair: WIN 6 LOSS 2 of 9
+M3-pin-vs-local: WIN 3 LOSS 0 of 3
+M4-propagation(indep-dep): WIN 3 LOSS 0 of 3
+wrote results/g9_multistep_C_31-60_gk1_noise0.json in 15.7s

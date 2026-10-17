@@ -1,0 +1,251 @@
+G7 quantum-inspired classical optimizers. eval set confirm (30 seeds); optimizer config tuning: PER WORLD (as generous as the baselines); all tuning on seeds 1-8
+note: iteration sweep and holm family cover only the arms listed below
+[tune A:A-sep] q-sa300 config (mean success 0.6552): QCfg { lr: 0.1, l2: 0.0005, eps: 0.02, c1: 0.1, c2: 0.05, rho: 0.15, pair: true }
+[tune A:A-sep] additive (no-J) greedy config (mean success 0.6611): QCfg { lr: 0.1, l2: 0.0005, eps: 0.08, c1: 0.1, c2: 0.0, rho: 0.15, pair: false }
+
+=== A-sep (N=8, K=3, T=1500, C(N,K)=56) refs[seed 61]: oracle p 0.850, random-team p 0.405
+policy                              overall     late  evals/d     ns/dec
+seq:eps-greedy(g=0.9,e=0.05)         0.6344   0.6990      0.0       3798
+seq:pooled-ts(g=1)                   0.6488   0.7376      0.0       5123   <- best fair
+seq:warm(hebR,k=100,Mean)            0.6437   0.6764      0.0       4016
+seq:hebbian-robust                   0.5924   0.6161      0.0       3192
+seq:keyword                          0.5115   0.5124      0.0        288
+seq:guarded-safe                     0.6435   0.6765      0.0       3573
+mesh(guarded-safe)                   0.5230   0.5299      0.0       1719
+mesh(hebbian-robust)                 0.5055   0.5156      0.0       1552
+q-sa300                              0.6208   0.6532    300.0      12476
+q-pt300                              0.6256   0.6601    288.0      13935
+q-qaoa300                            0.6225   0.6636    302.8      11703
+q-greedy                             0.6292   0.6639     37.4        596
+qadd-greedy                          0.6358   0.6876     36.0        429
+q-exact                              0.6305   0.6692     56.0        991
+[tune A:A-cover] q-sa300 config (mean success 0.8187): QCfg { lr: 0.1, l2: 0.0005, eps: 0.02, c1: 0.1, c2: 0.05, rho: 0.15, pair: true }
+[tune A:A-cover] additive (no-J) greedy config (mean success 0.8267): QCfg { lr: 0.1, l2: 0.0005, eps: 0.02, c1: 0.0, c2: 0.0, rho: 0.15, pair: false }
+
+=== A-cover (N=10, K=3, T=1500, C(N,K)=120) refs[seed 61]: oracle p 0.888, random-team p 0.625
+policy                              overall     late  evals/d     ns/dec
+seq:eps-greedy(g=0.95,e=0.02)        0.7740   0.8046      0.0       5197
+seq:pooled-ts(g=1)                   0.7438   0.7788      0.0       6281
+seq:warm(hebR,k=100,Mean)            0.7678   0.7706      0.0       4176
+seq:hebbian-robust                   0.7455   0.7451      0.0       3458
+seq:keyword                          0.7158   0.7134      0.0        295
+seq:guarded-safe                     0.7927   0.7960      0.0       3736   <- best fair
+mesh(guarded-safe)                   0.7633   0.7657      0.0       1738
+mesh(hebbian-robust)                 0.7234   0.7315      0.0       1752
+q-sa300                              0.7970   0.8068    300.0      11704
+q-pt300                              0.8000   0.8122    288.0      13840
+q-qaoa300                            0.8022   0.8146    302.8      11556
+q-greedy                             0.8027   0.8161     49.3        783
+qadd-greedy                          0.8081   0.8177     48.0        510
+q-exact                              0.7981   0.8053    120.0       1563
+[tune A:A-cover-L] q-sa300 config (mean success 0.8028): QCfg { lr: 0.1, l2: 0.0005, eps: 0.02, c1: 0.0, c2: 0.0, rho: 0.15, pair: true }
+[tune A:A-cover-L] additive (no-J) greedy config (mean success 0.8096): QCfg { lr: 0.1, l2: 0.0005, eps: 0.02, c1: 0.1, c2: 0.0, rho: 0.15, pair: false }
+
+=== A-cover-L (N=24, K=5, T=3000, C(N,K)=42504) refs[seed 61]: oracle p NaN, random-team p 0.549
+policy                              overall     late  evals/d     ns/dec
+seq:eps-greedy(g=0.99,e=0.05)        0.7744   0.8109      0.0      21566   <- best fair
+seq:pooled-ts(g=1)                   0.7323   0.7785      0.0      24727
+seq:warm(hebR,k=100,Mean)            0.7384   0.7338      0.0      11034
+seq:hebbian-robust                   0.6958   0.7006      0.0       9021
+seq:keyword                          0.6820   0.6807      0.0        507
+seq:guarded-safe                     0.7603   0.7589      0.0       9755
+mesh(guarded-safe)                   0.7275   0.7322      0.0       3239
+mesh(hebbian-robust)                 0.6810   0.6832      0.0       3101
+q-sa300                              0.7872   0.8085    300.0      13967
+q-pt300                              0.7879   0.8077    288.0      16972
+q-qaoa300                            0.7882   0.8056    302.8      14330
+q-greedy                             0.7892   0.8091    216.3       2594
+qadd-greedy                          0.8009   0.8185    205.0       1005
+[tune A:A-syn] q-sa300 config (mean success 0.8565): QCfg { lr: 0.1, l2: 0.0005, eps: 0.02, c1: 0.0, c2: 0.05, rho: 0.0, pair: true }
+[tune A:A-syn] additive (no-J) greedy config (mean success 0.8273): QCfg { lr: 0.1, l2: 0.0005, eps: 0.02, c1: 0.1, c2: 0.0, rho: 0.15, pair: false }
+
+=== A-syn (N=12, K=4, T=2000, C(N,K)=495) refs[seed 61]: oracle p 0.942, random-team p 0.361
+policy                              overall     late  evals/d     ns/dec
+seq:eps-greedy(g=0.95,e=0.05)        0.6659   0.7719      0.0      11712
+seq:pooled-ts(g=1)                   0.6536   0.7891      0.0       9835
+seq:warm(hebR,k=3,Mean)              0.6495   0.7189      0.0       6870
+seq:hebbian-robust                   0.6410   0.7227      0.0       5467
+seq:keyword                          0.4584   0.4626      0.0        347
+seq:guarded-safe                     0.6338   0.6668      0.0       6064
+mesh(guarded-safe)                   0.6676   0.6691      0.0       2013   <- best fair
+mesh(hebbian-robust)                 0.6564   0.6665      0.0       1940
+q-sa300                              0.8126   0.8565    300.0      12624
+q-pt300                              0.8055   0.8441    288.0      14748
+q-qaoa300                            0.7951   0.8573    302.8      12517
+q-greedy                             0.8050   0.8411     75.2        918
+qadd-greedy                          0.7909   0.8405     74.0        541
+q-exact                              0.8037   0.8712    495.0       4658
+[tune A:A-syn-drift] q-sa300 config (mean success 0.8106): QCfg { lr: 0.1, l2: 0.0005, eps: 0.02, c1: 0.1, c2: 0.05, rho: 0.15, pair: true }
+[tune A:A-syn-drift] additive (no-J) greedy config (mean success 0.7751): QCfg { lr: 0.3, l2: 0.0005, eps: 0.08, c1: 0.1, c2: 0.0, rho: 0.15, pair: false }
+
+=== A-syn-drift (N=12, K=4, T=2000, C(N,K)=495) refs[seed 61]: oracle p 0.927, random-team p 0.363
+policy                              overall     late  evals/d     ns/dec
+seq:eps-greedy(g=0.9,e=0.05)         0.6180   0.6881      0.0      10482
+seq:pooled-ts(g=1)                   0.5494   0.5816      0.0      12757
+seq:warm(hebR,k=3,Mean)              0.6320   0.7137      0.0       7034
+seq:hebbian-robust                   0.6192   0.7001      0.0       7266
+seq:keyword                          0.4555   0.4568      0.0        364
+seq:guarded-safe                     0.6154   0.6477      0.0       8336
+mesh(guarded-safe)                   0.6629   0.6710      0.0       3404   <- best fair
+mesh(hebbian-robust)                 0.6526   0.6603      0.0       3143
+q-sa300                              0.7948   0.8307    300.0      13055
+q-pt300                              0.7968   0.8319    288.0      16056
+q-qaoa300                            0.7935   0.8306    302.8      12870
+q-greedy                             0.7957   0.8151     87.2       1003
+qadd-greedy                          0.7324   0.7903     74.0        564
+q-exact                              0.8070   0.8355    495.0       5154
+[tune A:A-syn-L] q-sa300 config (mean success 0.8500): QCfg { lr: 0.3, l2: 0.0005, eps: 0.02, c1: 0.0, c2: 0.0, rho: 0.15, pair: true }
+[tune A:A-syn-L] additive (no-J) greedy config (mean success 0.8580): QCfg { lr: 0.3, l2: 0.0005, eps: 0.02, c1: 0.1, c2: 0.0, rho: 0.15, pair: false }
+
+=== A-syn-L (N=30, K=6, T=3000, C(N,K)=593775) refs[seed 61]: oracle p NaN, random-team p 0.172
+policy                              overall     late  evals/d     ns/dec
+seq:eps-greedy(g=0.9,e=0.05)         0.6814   0.7946      0.0      24802   <- best fair
+seq:pooled-ts(g=1)                   0.5849   0.7654      0.0      35344
+seq:warm(hebR,k=10,Mean)             0.4623   0.4824      0.0      16375
+seq:hebbian-robust                   0.4513   0.4697      0.0      12495
+seq:keyword                          0.2800   0.2782      0.0        603
+seq:guarded-safe                     0.4781   0.4920      0.0      14018
+mesh(guarded-safe)                   0.5153   0.5304      0.0       3647
+mesh(hebbian-robust)                 0.5035   0.5140      0.0       3239
+q-sa300                              0.8183   0.8655    300.0      14868
+q-pt300                              0.7376   0.7783    288.0      19191
+q-qaoa300                            0.7155   0.7475    302.8      17114
+q-greedy                             0.7525   0.8230    365.6       4875
+qadd-greedy                          0.8196   0.8825    309.0       1622
+[tune B:B-sep] z-sa400 config (mean success 0.8029): ZCfg { period: 20, lam: 10.0, cap: 0.4, c: 0.1, rho: 6.0, eps: 0.02, gamma: 1.0, pm_other: 0.5 }
+[tune B:B-sep] z-argmax (no load term) config (mean success 0.8153): ZCfg { period: 20, lam: 0.0, cap: 0.3, c: 0.1, rho: 6.0, eps: 0.02, gamma: 1.0, pm_other: 0.5 }
+
+=== B-sep (feature->agent, F=32, A=8, T=1500, kappa=0) ref[seed 61]: best-single no-congestion quality 0.850
+policy                              overall     late  evals/d     ns/dec
+eps-greedy(g=0.99,e=0.02)            0.7588   0.8099      0.0       2858
+pooled-ts(g=1)                       0.7401   0.8008      0.0       3593
+warm(hebR,k=3,Mean)                  0.7886   0.8047      0.0       3351
+hebbian-robust                       0.7767   0.8080      0.0       2332
+keyword                              0.6886   0.6920      0.0        256
+guarded-safe                         0.7920   0.8082      0.0       2099   <- best fair
+z-sa400                              0.7924   0.8264     20.3       1117
+z-pt400                              0.8157   0.8372     20.1       1217
+z-qaoa400                            0.8006   0.8335     21.1       1356
+z-greedy                             0.8201   0.8396     17.2        464
+z-argmax                             0.8158   0.8365      0.0        381
+[tune B:B-cong] z-sa400 config (mean success 0.6793): ZCfg { period: 20, lam: 3.0, cap: 0.3, c: 0.1, rho: 2.0, eps: 0.02, gamma: 1.0, pm_other: 0.5 }
+[tune B:B-cong] z-argmax (no load term) config (mean success 0.6706): ZCfg { period: 20, lam: 0.0, cap: 0.3, c: 0.1, rho: 2.0, eps: 0.02, gamma: 1.0, pm_other: 0.5 }
+
+=== B-cong (feature->agent, F=32, A=8, T=1500, kappa=0.15) ref[seed 61]: best-single no-congestion quality 0.850
+policy                              overall     late  evals/d     ns/dec
+eps-greedy(g=1,e=0.02)               0.6659   0.6940      0.0       1987
+pooled-ts(g=1)                       0.6532   0.6797      0.0       2391
+warm(hebR,k=3,Mean)                  0.6465   0.6743      0.0       2526
+hebbian-robust                       0.6706   0.6797      0.0       1255   <- best fair
+keyword                              0.4294   0.4240      0.0        143
+guarded-safe                         0.6388   0.6612      0.0       1312
+z-sa400                              0.6642   0.6962     20.3        956
+z-pt400                              0.6588   0.6816     20.1       1135
+z-qaoa400                            0.6530   0.6860     21.1       1242
+z-greedy                             0.6678   0.6916     25.2        431
+z-argmax                             0.6590   0.6908      0.0        356
+[tune B:B-cong-drift] z-sa400 config (mean success 0.6729): ZCfg { period: 20, lam: 10.0, cap: 0.3, c: 0.0, rho: 2.0, eps: 0.02, gamma: 0.99, pm_other: 0.5 }
+[tune B:B-cong-drift] z-argmax (no load term) config (mean success 0.6692): ZCfg { period: 20, lam: 0.0, cap: 0.3, c: 0.0, rho: 2.0, eps: 0.02, gamma: 0.99, pm_other: 0.5 }
+
+=== B-cong-drift (feature->agent, F=32, A=8, T=1500, kappa=0.15) ref[seed 61]: best-single no-congestion quality 0.850
+policy                              overall     late  evals/d     ns/dec
+eps-greedy(g=0.9,e=0.05)             0.6656   0.7107      0.0       2508
+pooled-ts(g=1)                       0.6467   0.6966      0.0       3249
+warm(hebR,k=3,Mean)                  0.6596   0.7311      0.0       2849
+hebbian-robust                       0.6819   0.7260      0.0       2033   <- best fair
+keyword                              0.3926   0.3548      0.0        245
+guarded-safe                         0.6502   0.7097      0.0       2383
+z-sa400                              0.6549   0.7023     20.3       1158
+z-pt400                              0.6597   0.7239     20.1       1341
+z-qaoa400                            0.6526   0.7201     21.1      18203
+z-greedy                             0.6602   0.7238     30.6        506
+z-argmax                             0.6518   0.7319      0.0        375
+
+=== Ceiling diagnostic (NOT a competitor: knows the hidden quality table and task type): static balanced assignment
+B-sep          oracle-static 0.8523
+B-cong         oracle-static 0.7741
+B-cong-drift   oracle-static 0.7738
+
+=== SA iteration sweep (frozen surrogate config), held seeds: success vs move-evaluations/decision
+A-cover best fair 0.7927
+  q-sa10       success 0.7218  evals/dec    10.0  ns/dec      2450
+  q-sa30       success 0.7536  evals/dec    30.0  ns/dec      3492
+  q-sa100      success 0.7639  evals/dec   100.0  ns/dec      6277
+  q-sa300      success 0.7646  evals/dec   300.0  ns/dec     13238
+  q-sa1000     success 0.7618  evals/dec  1000.0  ns/dec     53751
+  q-sa3000     success 0.7503  evals/dec  3000.0  ns/dec    105969
+  q-greedy     success 0.7664  evals/dec    50.0  ns/dec       995
+  q-exact      success 0.7622  evals/dec   120.0  ns/dec      2000
+A-syn best fair 0.6676
+  q-sa10       success 0.5900  evals/dec    10.0  ns/dec      2336
+  q-sa30       success 0.6976  evals/dec    30.0  ns/dec      2544
+  q-sa100      success 0.7984  evals/dec   100.0  ns/dec      5265
+  q-sa300      success 0.7979  evals/dec   300.0  ns/dec     12867
+  q-sa1000     success 0.7917  evals/dec  1000.0  ns/dec     38005
+  q-sa3000     success 0.7861  evals/dec  3000.0  ns/dec    107534
+  q-greedy     success 0.8072  evals/dec    80.9  ns/dec      1411
+  q-exact      success 0.7906  evals/dec   495.0  ns/dec      5020
+A-syn-L best fair 0.6814
+  q-sa10       success 0.3533  evals/dec    10.0  ns/dec      5658
+  q-sa30       success 0.5201  evals/dec    30.0  ns/dec      7119
+  q-sa100      success 0.6993  evals/dec   100.0  ns/dec      9650
+  q-sa300      success 0.8024  evals/dec   300.0  ns/dec     18527
+  q-sa1000     success 0.7601  evals/dec  1000.0  ns/dec     38344
+  q-sa3000     success 0.7661  evals/dec  3000.0  ns/dec    106940
+  q-greedy     success 0.7702  evals/dec   368.6  ns/dec      4814
+
+=== Optimizer arms vs best fair baseline per world (overall success; paired 95% t-CI; Holm over 49 cells)
+world          arm                     diff               95% CI    win/loss          p    Holm | late diff (Holm)
+A-sep          q-sa300              -0.0280 [ -0.0415, -0.0145]      6/24       0.0002  0.0059 LOSS |  -0.0844 (0.0000)
+A-sep          q-pt300              -0.0233 [ -0.0408, -0.0057]     10/20       0.0113  0.1712 n.s. |  -0.0775 (0.0000)
+A-sep          q-qaoa300            -0.0263 [ -0.0415, -0.0111]     10/19       0.0014  0.0344 LOSS |  -0.0740 (0.0000)
+A-sep          q-greedy             -0.0196 [ -0.0344, -0.0048]     10/19       0.0113  0.1712 n.s. |  -0.0737 (0.0000)
+A-sep          qadd-greedy          -0.0130 [ -0.0297, +0.0037]     12/18       0.1227  0.8694 n.s. |  -0.0500 (0.0007)
+A-sep          q-exact              -0.0183 [ -0.0291, -0.0075]     11/19       0.0017  0.0399 LOSS |  -0.0684 (0.0000)
+A-cover        q-sa300              +0.0044 [ -0.0040, +0.0127]     14/14       0.2930  1.0000 n.s. |  +0.0021 (1.0000)
+A-cover        q-pt300              +0.0073 [ -0.0037, +0.0182]     15/14       0.1840  0.9200 n.s. |  +0.0076 (1.0000)
+A-cover        q-qaoa300            +0.0095 [ -0.0012, +0.0202]     18/12       0.0790  0.8694 n.s. |  +0.0100 (1.0000)
+A-cover        q-greedy             +0.0100 [ +0.0035, +0.0166]     21/9        0.0040  0.0848 n.s. |  +0.0115 (0.6012)
+A-cover        qadd-greedy          +0.0154 [ +0.0033, +0.0275]     19/11       0.0147  0.1812 n.s. |  +0.0131 (0.5153)
+A-cover        q-exact              +0.0054 [ -0.0012, +0.0121]     19/10       0.1056  0.8694 n.s. |  +0.0007 (1.0000)
+A-cover-L      q-sa300              +0.0128 [ +0.0033, +0.0223]     23/7        0.0101  0.1712 n.s. |  -0.0024 (1.0000)
+A-cover-L      q-pt300              +0.0134 [ +0.0029, +0.0239]     22/8        0.0139  0.1812 n.s. |  -0.0032 (1.0000)
+A-cover-L      q-qaoa300            +0.0138 [ +0.0046, +0.0230]     21/9        0.0047  0.0933 n.s. |  -0.0053 (1.0000)
+A-cover-L      q-greedy             +0.0148 [ +0.0041, +0.0255]     20/10       0.0084  0.1506 n.s. |  -0.0019 (1.0000)
+A-cover-L      qadd-greedy          +0.0265 [ +0.0206, +0.0324]     28/1        0.0000  0.0000 WIN |  +0.0076 (1.0000)
+A-syn          q-sa300              +0.1449 [ +0.1168, +0.1731]     29/1        0.0000  0.0000 WIN |  +0.0674 (0.0000)
+A-syn          q-pt300              +0.1378 [ +0.1077, +0.1679]     27/3        0.0000  0.0000 WIN |  +0.0550 (0.0123)
+A-syn          q-qaoa300            +0.1275 [ +0.0999, +0.1550]     27/3        0.0000  0.0000 WIN |  +0.0683 (0.0000)
+A-syn          q-greedy             +0.1374 [ +0.1076, +0.1671]     28/2        0.0000  0.0000 WIN |  +0.0521 (0.0776)
+A-syn          qadd-greedy          +0.1233 [ +0.1024, +0.1442]     29/1        0.0000  0.0000 WIN |  +0.0515 (0.0127)
+A-syn          q-exact              +0.1360 [ +0.1152, +0.1568]     30/0        0.0000  0.0000 WIN |  +0.0821 (0.0000)
+A-syn-drift    q-sa300              +0.1319 [ +0.1142, +0.1497]     30/0        0.0000  0.0000 WIN |  +0.1171 (0.0001)
+A-syn-drift    q-pt300              +0.1339 [ +0.1114, +0.1564]     29/1        0.0000  0.0000 WIN |  +0.1182 (0.0000)
+A-syn-drift    q-qaoa300            +0.1306 [ +0.1092, +0.1521]     29/1        0.0000  0.0000 WIN |  +0.1169 (0.0000)
+A-syn-drift    q-greedy             +0.1328 [ +0.1169, +0.1486]     30/0        0.0000  0.0000 WIN |  +0.1014 (0.0005)
+A-syn-drift    qadd-greedy          +0.0696 [ +0.0470, +0.0921]     27/3        0.0000  0.0000 WIN |  +0.0766 (0.0330)
+A-syn-drift    q-exact              +0.1441 [ +0.1267, +0.1615]     30/0        0.0000  0.0000 WIN |  +0.1219 (0.0000)
+A-syn-L        q-sa300              +0.1369 [ +0.1098, +0.1640]     29/1        0.0000  0.0000 WIN |  +0.0709 (0.0007)
+A-syn-L        q-pt300              +0.0563 [ +0.0345, +0.0780]     24/6        0.0000  0.0004 WIN |  -0.0163 (1.0000)
+A-syn-L        q-qaoa300            +0.0342 [ +0.0113, +0.0571]     20/10       0.0048  0.0933 n.s. |  -0.0471 (0.0195)
+A-syn-L        q-greedy             +0.0712 [ +0.0379, +0.1045]     23/7        0.0001  0.0043 WIN |  +0.0284 (1.0000)
+A-syn-L        qadd-greedy          +0.1382 [ +0.1083, +0.1682]     29/1        0.0000  0.0000 WIN |  +0.0879 (0.0043)
+B-sep          z-sa400              +0.0004 [ -0.0091, +0.0098]     17/13       0.9395  1.0000 n.s. |  +0.0165 (0.0841)
+B-sep          z-pt400              +0.0236 [ +0.0133, +0.0340]     22/6        0.0001  0.0021 WIN |  +0.0274 (0.0017)
+B-sep          z-qaoa400            +0.0086 [ -0.0023, +0.0194]     19/11       0.1163  0.8694 n.s. |  +0.0236 (0.0002)
+B-sep          z-greedy             +0.0280 [ +0.0176, +0.0385]     23/7        0.0000  0.0002 WIN |  +0.0297 (0.0001)
+B-sep          z-argmax             +0.0237 [ +0.0115, +0.0359]     21/9        0.0004  0.0115 WIN |  +0.0267 (0.0008)
+B-cong         z-sa400              -0.0064 [ -0.0181, +0.0052]     16/14       0.2661  1.0000 n.s. |  +0.0022 (1.0000)
+B-cong         z-pt400              -0.0119 [ -0.0256, +0.0019]     10/20       0.0877  0.8694 n.s. |  -0.0124 (1.0000)
+B-cong         z-qaoa400            -0.0176 [ -0.0308, -0.0045]     10/20       0.0103  0.1712 n.s. |  -0.0079 (1.0000)
+B-cong         z-greedy             -0.0028 [ -0.0162, +0.0106]     13/17       0.6674  1.0000 n.s. |  -0.0024 (1.0000)
+B-cong         z-argmax             -0.0117 [ -0.0249, +0.0015]      9/21       0.0808  0.8694 n.s. |  -0.0032 (1.0000)
+B-cong-drift   z-sa400              -0.0270 [ -0.0406, -0.0134]      5/25       0.0003  0.0089 LOSS |  -0.0288 (0.0120)
+B-cong-drift   z-pt400              -0.0222 [ -0.0361, -0.0083]      8/22       0.0028  0.0627 n.s. |  -0.0072 (1.0000)
+B-cong-drift   z-qaoa400            -0.0293 [ -0.0416, -0.0170]      6/22       0.0000  0.0011 LOSS |  -0.0110 (1.0000)
+B-cong-drift   z-greedy             -0.0217 [ -0.0349, -0.0084]      6/23       0.0023  0.0528 n.s. |  -0.0073 (1.0000)
+B-cong-drift   z-argmax             -0.0301 [ -0.0452, -0.0150]      6/24       0.0003  0.0089 LOSS |  +0.0008 (1.0000)
+
+Headline (SA/PT/QAOA arms): worlds with a Holm WIN:
+  ["A-syn", "A-syn-drift", "A-syn-L", "B-sep"]
+wrote results/g7_qinspired_perworld_confirm61-90.json

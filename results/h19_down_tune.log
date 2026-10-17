@@ -1,0 +1,55 @@
+# h19_down eval tag=tune seeds 1..8 (8 seeds) n/world/seed=80 unseen share 0.40 tau 0.50 repair true noise x1
+# SYNTHETIC. Reader-noise model is an ASSUMPTION (see h19_common/down.rs); extraction/verification arms run the real hand-written extractor + verifier on generated text.
+
+## plain reader, accuracy by router (mean over seeds): keyword=0.8057  eps-greedy=0.8021  pooled-thompson=0.8031  hebbian-robust=0.8016  warm(hebr)=0.8031  guarded-safe=0.8047
+best fair baseline (picked on eval seeds -> favours baseline): plain + keyword
+
+## accuracy and cost per arm (cost in full-document reads; plain = 1.0)
+arm                ALL     paper financial  business |   cALL  c_pap  c_fin  c_biz
+plain/keyword    0.8057    0.7172    0.8297    0.8703 |  1.000  1.000  1.000  1.000
+plain           0.8016    0.7078    0.8281    0.8688 |  1.000  1.000  1.000  1.000
+plain+R         0.7990    0.7688    0.7625    0.8656 |  1.010  1.010  1.010  1.010
+ext             0.9177    0.8969    0.9281    0.9281 |  0.355  0.219  0.414  0.431
+ext+R           0.9068    0.8969    0.8922    0.9313 |  0.418  0.258  0.555  0.441
+ext+ver         0.9312    0.9234    0.9359    0.9344 |  0.394  0.297  0.434  0.451
+ext+ver+R       0.9141    0.9125    0.8953    0.9344 |  0.452  0.318  0.575  0.461
+
+## paired 95% t-CI of (arm - best plain baseline), accuracy; Holm over 15 comparisons (arms x worlds)
+plain+R    paper      +0.0516 [+0.0335,+0.0696] W/L/T 8/0/0  p=2.64e-4 holm=1.58e-3 WIN*
+plain+R    financial  -0.0672 [-0.0939,-0.0404] W/L/T 0/8/0  p=5.77e-4 holm=2.88e-3 LOSS!
+plain+R    business   -0.0047 [-0.0101,+0.0007] W/L/T 0/3/5  p=7.96e-2 holm=7.96e-2 tie
+ext        paper      +0.1797 [+0.1282,+0.2312] W/L/T 8/0/0  p=7.46e-5 holm=6.72e-4 WIN*
+ext        financial  +0.0984 [+0.0843,+0.1126] W/L/T 8/0/0  p=7.57e-7 holm=1.13e-5 WIN*
+ext        business   +0.0578 [+0.0402,+0.0754] W/L/T 8/0/0  p=1.10e-4 holm=8.24e-4 WIN*
+ext+R      paper      +0.1797 [+0.1255,+0.2338] W/L/T 8/0/0  p=1.03e-4 holm=8.24e-4 WIN*
+ext+R      financial  +0.0625 [+0.0369,+0.0881] W/L/T 7/0/1  p=6.82e-4 holm=2.88e-3 WIN*
+ext+R      business   +0.0609 [+0.0351,+0.0868] W/L/T 8/0/0  p=8.41e-4 holm=2.88e-3 WIN*
+ext+ver    paper      +0.2062 [+0.1572,+0.2553] W/L/T 8/0/0  p=2.21e-5 holm=2.87e-4 WIN*
+ext+ver    financial  +0.1062 [+0.0886,+0.1239] W/L/T 8/0/0  p=2.02e-6 holm=2.82e-5 WIN*
+ext+ver    business   +0.0641 [+0.0469,+0.0812] W/L/T 8/0/0  p=4.84e-5 holm=4.84e-4 WIN*
+ext+ver+R  paper      +0.1953 [+0.1438,+0.2468] W/L/T 8/0/0  p=4.36e-5 holm=4.79e-4 WIN*
+ext+ver+R  financial  +0.0656 [+0.0384,+0.0928] W/L/T 7/0/1  p=7.35e-4 holm=2.88e-3 WIN*
+ext+ver+R  business   +0.0641 [+0.0478,+0.0803] W/L/T 8/0/0  p=3.36e-5 holm=4.03e-4 WIN*
+plain+R    ALL        -0.0068 [-0.0168,+0.0032] W/L/T 1/6/1  p=1.54e-1
+ext        ALL        +0.1120 [+0.0955,+0.1285] W/L/T 8/0/0  p=8.83e-7
+ext+R      ALL        +0.1010 [+0.0803,+0.1218] W/L/T 8/0/0  p=8.29e-6
+ext+ver    ALL        +0.1255 [+0.1084,+0.1426] W/L/T 8/0/0  p=5.20e-7
+ext+ver+R  ALL        +0.1083 [+0.0937,+0.1230] W/L/T 8/0/0  p=4.95e-7
+
+## which part moves quality (paired over seeds, accuracy, mixed worlds)
+EXTRACTION  (ext - plain, no retrieval)         ALL +0.1161[+0.0972,+0.1351]  paper +0.1891[+0.1325,+0.2456]  financial +0.1000[+0.0875,+0.1125]  business +0.0594[+0.0438,+0.0749]
+VERIFICATION (ext+ver - ext)                    ALL +0.0135[+0.0066,+0.0204]  paper +0.0266[+0.0148,+0.0383]  financial +0.0078[-0.0018,+0.0174]  business +0.0062[-0.0016,+0.0141]
+RETRIEVAL on plain (plain+R - plain)            ALL -0.0026[-0.0164,+0.0112]  paper +0.0609[+0.0405,+0.0814]  financial -0.0656[-0.0911,-0.0402]  business -0.0031[-0.0124,+0.0061]
+RETRIEVAL on ext (ext+R - ext)                  ALL -0.0109[-0.0218,-0.0001]  paper +0.0000[-0.0193,+0.0193]  financial -0.0359[-0.0522,-0.0197]  business +0.0031[-0.0077,+0.0139]
+RETRIEVAL on ext+ver (ext+ver+R - ext+ver)      ALL -0.0172[-0.0240,-0.0104]  paper -0.0109[-0.0197,-0.0022]  financial -0.0406[-0.0621,-0.0192]  business +0.0000[-0.0097,+0.0097]
+
+## what the extraction arms did with each question (share of questions): exact&right / exact&WRONG(silent) / fell back to full read / flagged-field re-read
+ext         paper: 0.881/0.050/0.069/0.000  financial: 0.723/0.013/0.264/0.000  business: 0.708/0.011/0.281/0.000
+ext+R       paper: 0.864/0.037/0.098/0.000  financial: 0.584/0.020/0.395/0.000  business: 0.708/0.011/0.281/0.000
+ext+ver     paper: 0.872/0.000/0.127/0.002  financial: 0.733/0.003/0.264/0.000  business: 0.711/0.006/0.281/0.002
+ext+ver+R   paper: 0.861/0.000/0.138/0.002  financial: 0.588/0.017/0.395/0.000  business: 0.711/0.006/0.281/0.002
+retrieval recall (needed spans inside the retrieved blocks):  paper 0.997  financial 0.845  business 1.000
+
+## router value (best router - keyword) for plain vs ext+ver arms: routing matters less once the answer is computed exactly
+plain: 0.8057 (best router) vs keyword 0.8057 -> +0.0000 [+0.0000,+0.0000] W/L/T 0/0/8
+ext+ver (hebbian-robust) 0.9312

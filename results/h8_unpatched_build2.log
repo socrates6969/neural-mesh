@@ -1,0 +1,40 @@
+warning: value assigned to `verdict_ok` is never read
+    --> src\cognition.rs:1020:17
+     |
+1020 |                 verdict_ok = None;
+     |                 ^^^^^^^^^^^^^^^^^ this value is reassigned later and never used
+...
+1033 |                     verdict_ok = Some(flagged == !correct1);
+     |                     --------------------------------------- `verdict_ok` is overwritten here before the previous value is read
+     |
+     = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: `neural-mesh` (lib) generated 1 warning
+   Compiling neural-mesh v0.1.0 (C:\Users\mariu\nm-target-r8\unpatched_ws)
+warning: unnecessary `unsafe` block
+   --> src\bin\h8_common\mod.rs:124:5
+    |
+124 |     unsafe {
+    |     ^^^^^^ unnecessary `unsafe` block
+    |
+    = note: `#[warn(unused_unsafe)]` (part of `#[warn(unused)]`) on by default
+
+warning: unnecessary `unsafe` block
+   --> src\bin\h8_common\mod.rs:136:5
+    |
+136 |     unsafe {
+    |     ^^^^^^ unnecessary `unsafe` block
+
+warning: method `n` is never used
+   --> src\bin\h8_vectors.rs:441:8
+    |
+425 | impl Src<'_> {
+    | ------------ method in this implementation
+...
+441 |     fn n(&self, dim: usize) -> usize {
+    |        ^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `neural-mesh` (bin "h8_vectors") generated 3 warnings
+    Finished `release` profile [optimized] target(s) in 8.74s

@@ -1,0 +1,76 @@
+h1_cache: memory N=2532 d=384, 4000 queries/stream, k=5; encoder cost model 2.4 ms/text; synthetic corpus
+--- index Flat, writes: none
+stream                     arm                      enc/q  emb hit  res hit   srch/q meas us/q model ms/q     saved%   cacheKB
+repeat-heavy(12 concepts)  none                     1.000    0.000    0.000    1.000     83.97     2.4840        0.0         0
+repeat-heavy(12 concepts)  emb-cache                0.072    0.928    0.000    1.000     80.99     0.2538       89.8       478
+repeat-heavy(12 concepts)  emb+result-cache         0.072    0.928    0.928    0.072      6.42     0.1792       92.8       960
+repeat-heavy(12 concepts)  emb+result(selective)    0.072    0.928    0.928    0.072      6.68     0.1795       92.8      1392
+zipf(s=1.1)                none                     1.000    0.000    0.000    1.000    102.45     2.5024        0.0         0
+zipf(s=1.1)                emb-cache                0.210    0.789    0.000    1.000     95.86     0.6011       76.0      1383
+zipf(s=1.1)                emb+result-cache         0.210    0.789    0.789    0.210     17.18     0.5224       79.1      2791
+zipf(s=1.1)                emb+result(selective)    0.210    0.789    0.789    0.210     23.45     0.5286       78.9      4054
+mixed50                    none                     1.000    0.000    0.000    1.000    129.00     2.5290        0.0         0
+mixed50                    emb-cache                0.556    0.444    0.000    1.000    122.81     1.4584       42.3      3644
+mixed50                    emb+result-cache         0.556    0.444    0.436    0.564     57.18     1.3928       44.9      7068
+mixed50                    emb+result(selective)    0.556    0.444    0.436    0.564     61.91     1.3975       44.7     10140
+NO-REPEAT(unique)          none                     1.000    0.000    0.000    1.000    106.74     2.5067        0.0         0
+NO-REPEAT(unique)          emb-cache                1.000    0.000    0.000    1.000    106.63     2.5066        0.0      3431
+NO-REPEAT(unique)          emb+result-cache         1.000    0.000    0.000    1.000    107.81     2.5078       -0.0      6855
+NO-REPEAT(unique)          emb+result(selective)    1.000    0.000    0.000    1.000    106.79     2.5068       -0.0      9927
+--- index Flat, writes: 1 per 50 queries (~80 writes)
+stream                     arm                      enc/q  emb hit  res hit   srch/q meas us/q model ms/q     saved%   cacheKB
+repeat-heavy(12 concepts)  none                     1.000    0.000    0.000    1.000    101.98     2.5020        0.0         0
+repeat-heavy(12 concepts)  emb-cache                0.072    0.928    0.000    1.000    113.33     0.2861       88.6       478
+repeat-heavy(12 concepts)  emb+result-cache         0.072    0.928    0.083    0.917    104.66     0.2775       88.9       552
+repeat-heavy(12 concepts)  emb+result(selective)    0.072    0.928    0.928    0.072      7.36     0.1802       92.8      1392
+zipf(s=1.1)                none                     1.000    0.000    0.000    1.000    103.70     2.5037        0.0         0
+zipf(s=1.1)                emb-cache                0.210    0.789    0.000    1.000    109.68     0.6149       75.4      1383
+zipf(s=1.1)                emb+result-cache         0.210    0.789    0.337    0.663     59.69     0.5649       77.4      1443
+zipf(s=1.1)                emb+result(selective)    0.210    0.789    0.788    0.212     26.46     0.5317       78.8      3949
+mixed50                    none                     1.000    0.000    0.000    1.000    105.52     2.5055        0.0         0
+mixed50                    emb-cache                0.556    0.444    0.000    1.000    106.04     1.4416       42.5      3644
+mixed50                    emb+result-cache         0.556    0.444    0.020    0.980    103.13     1.4387       42.6      3726
+mixed50                    emb+result(selective)    0.556    0.444    0.443    0.557     57.51     1.3931       44.4     10140
+NO-REPEAT(unique)          none                     1.000    0.000    0.000    1.000    107.07     2.5071        0.0         0
+NO-REPEAT(unique)          emb-cache                1.000    0.000    0.000    1.000    105.07     2.5051        0.1      3431
+NO-REPEAT(unique)          emb+result-cache         1.000    0.000    0.000    1.000    108.40     2.5084       -0.1      3514
+NO-REPEAT(unique)          emb+result(selective)    1.000    0.000    0.000    1.000    109.02     2.5090       -0.1      9740
+--- index HNSW(patched), writes: none
+stream                     arm                      enc/q  emb hit  res hit   srch/q meas us/q model ms/q     saved%   cacheKB
+repeat-heavy(12 concepts)  none                     1.000    0.000    0.000    1.000     90.98     2.4910        0.0         0
+repeat-heavy(12 concepts)  emb-cache                0.072    0.928    0.000    1.000     64.72     0.2375       90.5       478
+repeat-heavy(12 concepts)  emb+result-cache         0.072    0.928    0.928    0.072      5.28     0.1781       92.9       960
+repeat-heavy(12 concepts)  emb+result(selective)    0.072    0.928    0.928    0.072      5.30     0.1781       92.9      1392
+zipf(s=1.1)                none                     1.000    0.000    0.000    1.000    112.74     2.5127        0.0         0
+zipf(s=1.1)                emb-cache                0.210    0.789    0.000    1.000     88.79     0.5940       76.4      1383
+zipf(s=1.1)                emb+result-cache         0.210    0.789    0.789    0.210     30.09     0.5353       78.7      2791
+zipf(s=1.1)                emb+result(selective)    0.210    0.789    0.789    0.210     25.63     0.5308       78.9      4054
+mixed50                    none                     1.000    0.000    0.000    1.000    128.00     2.5280        0.0         0
+mixed50                    emb-cache                0.556    0.444    0.000    1.000    109.83     1.4454       42.8      3644
+mixed50                    emb+result-cache         0.556    0.444    0.436    0.564     82.68     1.4183       43.9      7068
+mixed50                    emb+result(selective)    0.556    0.444    0.436    0.564     71.28     1.4069       44.3     10140
+NO-REPEAT(unique)          none                     1.000    0.000    0.000    1.000    129.67     2.5297        0.0         0
+NO-REPEAT(unique)          emb-cache                1.000    0.000    0.000    1.000    129.32     2.5293        0.0      3431
+NO-REPEAT(unique)          emb+result-cache         1.000    0.000    0.000    1.000    145.92     2.5459       -0.6      6855
+NO-REPEAT(unique)          emb+result(selective)    1.000    0.000    0.000    1.000    110.49     2.5105        0.8      9927
+--- index HNSW(patched), writes: 1 per 50 queries (~80 writes)
+stream                     arm                      enc/q  emb hit  res hit   srch/q meas us/q model ms/q     saved%   cacheKB
+repeat-heavy(12 concepts)  none                     1.000    0.000    0.000    1.000     80.13     2.4801        0.0         0
+repeat-heavy(12 concepts)  emb-cache                0.072    0.928    0.000    1.000     71.28     0.2441       90.2       478
+repeat-heavy(12 concepts)  emb+result-cache         0.072    0.928    0.083    0.917     71.41     0.2442       90.2       552
+repeat-heavy(12 concepts)  emb+result(selective)    0.072    0.928    0.928    0.072     15.88     0.1887       92.4      1392
+zipf(s=1.1)                none                     1.000    0.000    0.000    1.000    119.03     2.5190        0.0         0
+zipf(s=1.1)                emb-cache                0.210    0.789    0.000    1.000    111.77     0.6170       75.5      1383
+zipf(s=1.1)                emb+result-cache         0.210    0.789    0.337    0.663     70.99     0.5762       77.1      1443
+zipf(s=1.1)                emb+result(selective)    0.210    0.789    0.788    0.212     37.76     0.5430       78.4      3949
+mixed50                    none                     1.000    0.000    0.000    1.000    168.05     2.5681        0.0         0
+mixed50                    emb-cache                0.556    0.444    0.000    1.000    156.26     1.4919       41.9      3644
+mixed50                    emb+result-cache         0.556    0.444    0.020    0.980    158.04     1.4936       41.8      3726
+mixed50                    emb+result(selective)    0.556    0.444    0.443    0.557     95.30     1.4309       44.3     10140
+NO-REPEAT(unique)          none                     1.000    0.000    0.000    1.000    157.32     2.5573        0.0         0
+NO-REPEAT(unique)          emb-cache                1.000    0.000    0.000    1.000    145.34     2.5453        0.5      3431
+NO-REPEAT(unique)          emb+result-cache         1.000    0.000    0.000    1.000    116.59     2.5166        1.6      3514
+NO-REPEAT(unique)          emb+result(selective)    1.000    0.000    0.000    1.000    156.33     2.5563        0.0      9740
+Flat: all arms return identical (id, score-bits) lists on every query (incl. interleaved writes): true
+HNSW: worst (cached-answer recall@5 minus inner-answer recall@5) over streams/arms = +0.0000 (vs exact flat truth at the same write state)
+verification pass (cached result vs inner index answer, every query, both indexes, with/without writes): 0 stale/mismatching results

@@ -1,0 +1,140 @@
+
+================ WORLD A (n=600, qv=0.9, misuse=0.3, dup=0.2) seeds 31-60 ================
+arm                                           correct        compute           qual cost/task   tools/t
+keyword                        0.6791 [0.6695,0.6887]         0.6290         0.8789     10.00     0.000
+eps-greedy                     0.6298 [0.6210,0.6387]         0.5880         0.7977     10.00     0.000
+pooled-thompson                0.6296 [0.6200,0.6393]         0.5882         0.7955     10.00     0.000
+hebbian-robust                 0.6346 [0.6240,0.6452]         0.5922         0.8039     10.00     0.000
+warm(hebr)                     0.6592 [0.6518,0.6666]         0.6111         0.8505     10.00     0.000
+guarded-safe                   0.6742 [0.6637,0.6847]         0.6235         0.8763     10.00     0.000
+T-always(noverify)             0.7535 [0.7453,0.7617]         0.7722         0.6786     21.41     1.311
+T-always(verify)               0.8284 [0.8211,0.8357]         0.8662         0.6778     23.51     1.392
+T-static(noverify)             0.7899 [0.7818,0.7979]         0.7704         0.8672     19.65     1.102
+T-static(verify) [S0]          0.8629 [0.8557,0.8701]         0.8619         0.8670     21.70     1.182
+V-only(plain+verify+retry)     0.7961 [0.7876,0.8046]         0.7755         0.8789     13.82     0.000
+vote3(plain, 3x cost)          0.7489 [0.7412,0.7567]         0.7023         0.9357     30.00     0.000
+T-oracle(verify)               0.9472 [0.9426,0.9519]         0.9646         0.8775     15.17     0.949
+T-learned(noverify)            0.7867 [0.7783,0.7952]         0.7667         0.8654     16.55     0.876
+T-learned(verify) [S1]         0.8869 [0.8804,0.8935]         0.8931         0.8621     18.55     1.027
+T-learned+cache [S2a]          0.8869 [0.8804,0.8935]         0.8931         0.8621     17.31     1.027
+T-learned+cache+memo [S2b]     0.8937 [0.8879,0.8994]         0.9016         0.8617     15.68     0.888
+T-wrongtool(verify)            0.6656 [0.6545,0.6766]         0.6239         0.8318     41.27     1.966
+best fair baseline on these seeds: keyword (0.6791)
+-- S0_vs_baselines: correctness diff (T-static(verify) [S0] - baseline), Holm over 6
+   vs keyword            +0.1838 [+0.1764,+0.1912] w/l/t 30/0/0 p=6.15e-30 holm=3.08e-29
+   vs eps-greedy         +0.2331 [+0.2233,+0.2428] w/l/t 30/0/0 p=2.29e-29 holm=9.14e-29
+   vs pooled-thompson    +0.2333 [+0.2218,+0.2448] w/l/t 30/0/0 p=2.24e-27 holm=2.24e-27
+   vs hebbian-robust     +0.2283 [+0.2177,+0.2389] w/l/t 30/0/0 p=3.80e-28 holm=7.61e-28
+   vs warm(hebr)         +0.2037 [+0.1969,+0.2104] w/l/t 30/0/0 p=2.25e-32 holm=1.35e-31
+   vs guarded-safe       +0.1887 [+0.1803,+0.1971] w/l/t 30/0/0 p=1.28e-28 holm=3.84e-28
+-- S1_vs_baselines: correctness diff (T-learned(verify) [S1] - baseline), Holm over 6
+   vs keyword            +0.2078 [+0.1984,+0.2173] w/l/t 30/0/0 p=2.35e-28 holm=7.05e-28
+   vs eps-greedy         +0.2571 [+0.2468,+0.2674] w/l/t 30/0/0 p=5.40e-30 holm=2.70e-29
+   vs pooled-thompson    +0.2573 [+0.2462,+0.2685] w/l/t 30/0/0 p=5.57e-29 holm=2.23e-28
+   vs hebbian-robust     +0.2523 [+0.2407,+0.2640] w/l/t 30/0/0 p=3.18e-28 holm=7.05e-28
+   vs warm(hebr)         +0.2277 [+0.2198,+0.2356] w/l/t 30/0/0 p=8.90e-32 holm=5.34e-31
+   vs guarded-safe       +0.2127 [+0.2025,+0.2229] w/l/t 30/0/0 p=1.05e-27 holm=1.05e-27
+-- S2b_vs_baselines: correctness diff (T-learned+cache+memo [S2b] - baseline), Holm over 6
+   vs keyword            +0.2146 [+0.2062,+0.2229] w/l/t 30/0/0 p=2.87e-30 holm=1.15e-29
+   vs eps-greedy         +0.2638 [+0.2546,+0.2730] w/l/t 30/0/0 p=1.11e-31 holm=5.55e-31
+   vs pooled-thompson    +0.2641 [+0.2530,+0.2751] w/l/t 30/0/0 p=2.01e-29 holm=6.03e-29
+   vs hebbian-robust     +0.2591 [+0.2479,+0.2702] w/l/t 30/0/0 p=4.66e-29 holm=9.32e-29
+   vs warm(hebr)         +0.2344 [+0.2277,+0.2412] w/l/t 30/0/0 p=4.54e-34 holm=2.72e-33
+   vs guarded-safe       +0.2194 [+0.2099,+0.2289] w/l/t 30/0/0 p=5.47e-29 holm=9.32e-29
+-- S0 - best baseline  (correctness): +0.1838 [+0.1764,+0.1912] w/l/t 30/0/0 p=6.15e-30
+-- S0 - best baseline  (cost/task): +11.6952 [+11.4194,+11.9711] w/l/t 30/0/0 p=1.39e-36
+-- S1 - best baseline  (correctness): +0.2078 [+0.1984,+0.2173] w/l/t 30/0/0 p=2.35e-28
+-- S1 - best baseline  (cost/task): +8.5543 [+8.2694,+8.8392] w/l/t 30/0/0 p=2.92e-32
+-- STEP 1 learned selection: S1 - S0 (correctness): +0.0241 [+0.0181,+0.0300] w/l/t 29/1/0 p=3.96e-9
+-- STEP 1 learned selection: S1 - S0 (cost/task): -3.1409 [-3.5510,-2.7309] w/l/t 0/30/0 p=1.09e-15
+-- S1 - T-always(verify) (correctness): +0.0586 [+0.0518,+0.0653] w/l/t 30/0/0 p=4.37e-17
+-- S1 - T-always(verify) (cost/task): -4.9548 [-5.3551,-4.5545] w/l/t 0/30/0 p=2.53e-21
+-- S1 - oracle selection (correctness): -0.0603 [-0.0648,-0.0558] w/l/t 0/30/0 p=2.91e-22
+-- STEP 2a tool cache: S2a - S1 (correctness; must be exactly 0): +0.0000 [+0.0000,+0.0000] w/l/t 0/0/30 p=1.00e0
+-- STEP 2a tool cache: S2a - S1 (cost/task): -1.2429 [-1.3328,-1.1531] w/l/t 0/30/0 p=1.13e-22
+-- STEP 2b verified-answer memo: S2b - S2a (correctness): +0.0067 [+0.0031,+0.0103] w/l/t 21/6/3 p=6.83e-4
+-- STEP 2b verified-answer memo: S2b - S2a (cost/task): -1.6332 [-1.7647,-1.5018] w/l/t 0/30/0 p=2.30e-21
+-- verification: T-static(verify) - T-static(noverify) (correctness): +0.0730 [+0.0691,+0.0769] w/l/t 30/0/0 p=1.63e-26
+-- verification: S1 - T-learned(noverify) (correctness): +0.1002 [+0.0937,+0.1067] w/l/t 30/0/0 p=4.97e-24
+-- offload: S1 - V-only (correctness): +0.0908 [+0.0815,+0.1002] w/l/t 30/0/0 p=2.16e-18
+-- cost-matched reference: S1 - vote3 (correctness): +0.1380 [+0.1287,+0.1473] w/l/t 30/0/0 p=1.77e-23
+-- cost-matched reference: S1 - vote3 (cost/task): -11.4457 [-11.7306,-11.1608] w/l/t 0/30/0 p=6.60e-36
+-- vote3 - best baseline (correctness): +0.0698 [+0.0615,+0.0782] w/l/t 30/0/0 p=1.14e-16
+-- verify+retry without tools: V-only - guarded-safe plain (correctness): +0.1219 [+0.1160,+0.1277] w/l/t 30/0/0 p=1.01e-27
+-- tool misuse (always wrong tool, verified): T-wrongtool - guarded-safe plain (correctness): -0.0087 [-0.0150,-0.0024] w/l/t 9/20/1 p=8.58e-3
+-- tool misuse: T-wrongtool - guarded-safe plain (cost/task): +31.2722 [+30.9588,+31.5856] w/l/t 30/0/0 p=2.41e-47
+-- cache never changes a result: S1 vs S2a per-task correctness vectors identical on all 30 seeds: true
+-- learned selector: right tool on compute tasks 0.771, skipped tool on qual tasks 0.805, tool used on compute 0.916; static: right 0.692, skip 0.709
+-- cache: hit rate 0.214 (tool+verifier calls), tool cost saved/task 1.243 of 18.554 nominal/task; memo hit rate 0.118
+-- verifier: reject rate among verified calls (S1) 0.169
+
+================ WORLD B (n=600, qv=0.8, misuse=0.25, dup=0.3) seeds 31-60 ================
+arm                                           correct        compute           qual cost/task   tools/t
+keyword                        0.6065 [0.5864,0.6266]         0.5421         0.8988     10.00     0.000
+eps-greedy                     0.5939 [0.5765,0.6114]         0.5390         0.8455     10.00     0.000
+pooled-thompson                0.5939 [0.5771,0.6108]         0.5385         0.8478     10.00     0.000
+hebbian-robust                 0.6138 [0.5938,0.6339]         0.5589         0.8652     10.00     0.000
+warm(hebr)                     0.6173 [0.5990,0.6355]         0.5588         0.8838     10.00     0.000
+guarded-safe                   0.6181 [0.5989,0.6372]         0.5569         0.8962     10.00     0.000
+T-always(noverify)             0.7841 [0.7729,0.7953]         0.8062         0.6809     20.60     1.257
+T-always(verify)               0.8331 [0.8246,0.8416]         0.8656         0.6824     23.03     1.310
+T-static(noverify)             0.8201 [0.8096,0.8307]         0.8050         0.8882     18.89     1.059
+T-static(verify) [S0]          0.8683 [0.8600,0.8766]         0.8637         0.8883     21.28     1.112
+V-only(plain+verify+retry)     0.7432 [0.7250,0.7613]         0.7100         0.8932     14.66     0.000
+vote3(plain, 3x cost)          0.6976 [0.6811,0.7142]         0.6415         0.9542     30.00     0.000
+T-oracle(verify)               0.9546 [0.9499,0.9593]         0.9662         0.9000     16.33     0.920
+T-learned(noverify)            0.8321 [0.8198,0.8444]         0.8192         0.8893     17.15     0.942
+T-learned(verify) [S1]         0.8962 [0.8888,0.9036]         0.8974         0.8887     19.48     1.020
+T-learned+cache [S2a]          0.8962 [0.8888,0.9036]         0.8974         0.8887     17.72     1.020
+T-learned+cache+memo [S2b]     0.9030 [0.8966,0.9094]         0.9055         0.8892     15.41     0.810
+T-wrongtool(verify)            0.6142 [0.5956,0.6329]         0.5613         0.8547     40.14     1.971
+best fair baseline on these seeds: guarded-safe (0.6181)
+-- S0_vs_baselines: correctness diff (T-static(verify) [S0] - baseline), Holm over 6
+   vs keyword            +0.2618 [+0.2471,+0.2764] w/l/t 30/0/0 p=8.03e-26 holm=2.41e-25
+   vs eps-greedy         +0.2743 [+0.2605,+0.2882] w/l/t 30/0/0 p=4.69e-27 holm=2.35e-26
+   vs pooled-thompson    +0.2743 [+0.2609,+0.2877] w/l/t 30/0/0 p=1.76e-27 holm=1.06e-26
+   vs hebbian-robust     +0.2544 [+0.2383,+0.2705] w/l/t 30/0/0 p=2.69e-24 holm=2.69e-24
+   vs warm(hebr)         +0.2510 [+0.2373,+0.2647] w/l/t 30/0/0 p=3.95e-26 holm=1.58e-25
+   vs guarded-safe       +0.2502 [+0.2361,+0.2643] w/l/t 30/0/0 p=1.05e-25 holm=2.41e-25
+-- S1_vs_baselines: correctness diff (T-learned(verify) [S1] - baseline), Holm over 6
+   vs keyword            +0.2897 [+0.2733,+0.3060] w/l/t 30/0/0 p=1.03e-25 holm=3.09e-25
+   vs eps-greedy         +0.3022 [+0.2856,+0.3189] w/l/t 30/0/0 p=5.48e-26 holm=2.74e-25
+   vs pooled-thompson    +0.3022 [+0.2880,+0.3164] w/l/t 30/0/0 p=5.40e-28 holm=3.24e-27
+   vs hebbian-robust     +0.2823 [+0.2646,+0.3001] w/l/t 30/0/0 p=2.15e-24 holm=2.15e-24
+   vs warm(hebr)         +0.2789 [+0.2633,+0.2944] w/l/t 30/0/0 p=7.35e-26 holm=2.94e-25
+   vs guarded-safe       +0.2781 [+0.2619,+0.2943] w/l/t 30/0/0 p=2.68e-25 holm=5.35e-25
+-- S2b_vs_baselines: correctness diff (T-learned+cache+memo [S2b] - baseline), Holm over 6
+   vs keyword            +0.2965 [+0.2798,+0.3132] w/l/t 30/0/0 p=1.04e-25 holm=3.12e-25
+   vs eps-greedy         +0.3091 [+0.2929,+0.3253] w/l/t 30/0/0 p=1.28e-26 holm=6.40e-26
+   vs pooled-thompson    +0.3091 [+0.2946,+0.3236] w/l/t 30/0/0 p=5.49e-28 holm=3.29e-27
+   vs hebbian-robust     +0.2892 [+0.2711,+0.3072] w/l/t 30/0/0 p=1.77e-24 holm=1.77e-24
+   vs warm(hebr)         +0.2857 [+0.2699,+0.3016] w/l/t 30/0/0 p=6.24e-26 holm=2.50e-25
+   vs guarded-safe       +0.2849 [+0.2687,+0.3012] w/l/t 30/0/0 p=1.41e-25 holm=3.12e-25
+-- S0 - best baseline  (correctness): +0.2502 [+0.2361,+0.2643] w/l/t 30/0/0 p=1.05e-25
+-- S0 - best baseline  (cost/task): +11.2752 [+10.7803,+11.7701] w/l/t 30/0/0 p=8.11e-29
+-- S1 - best baseline  (correctness): +0.2781 [+0.2619,+0.2943] w/l/t 30/0/0 p=2.68e-25
+-- S1 - best baseline  (cost/task): +9.4777 [+9.0000,+9.9554] w/l/t 30/0/0 p=4.22e-27
+-- STEP 1 learned selection: S1 - S0 (correctness): +0.0279 [+0.0217,+0.0341] w/l/t 28/2/0 p=3.88e-10
+-- STEP 1 learned selection: S1 - S0 (cost/task): -1.7976 [-2.2944,-1.3007] w/l/t 5/25/0 p=3.74e-8
+-- S1 - T-always(verify) (correctness): +0.0631 [+0.0563,+0.0698] w/l/t 30/0/0 p=4.87e-18
+-- S1 - T-always(verify) (cost/task): -3.5502 [-4.0564,-3.0440] w/l/t 0/30/0 p=1.06e-14
+-- S1 - oracle selection (correctness): -0.0584 [-0.0639,-0.0530] w/l/t 0/30/0 p=1.23e-19
+-- STEP 2a tool cache: S2a - S1 (correctness; must be exactly 0): +0.0000 [+0.0000,+0.0000] w/l/t 0/0/30 p=1.00e0
+-- STEP 2a tool cache: S2a - S1 (cost/task): -1.7577 [-1.9149,-1.6004] w/l/t 0/30/0 p=4.27e-20
+-- STEP 2b verified-answer memo: S2b - S2a (correctness): +0.0068 [+0.0033,+0.0103] w/l/t 22/7/1 p=3.97e-4
+-- STEP 2b verified-answer memo: S2b - S2a (cost/task): -2.3073 [-2.4659,-2.1488] w/l/t 0/30/0 p=2.73e-23
+-- verification: T-static(verify) - T-static(noverify) (correctness): +0.0482 [+0.0434,+0.0530] w/l/t 30/0/0 p=8.78e-19
+-- verification: S1 - T-learned(noverify) (correctness): +0.0641 [+0.0563,+0.0718] w/l/t 30/0/0 p=1.42e-16
+-- offload: S1 - V-only (correctness): +0.1530 [+0.1373,+0.1687] w/l/t 30/0/0 p=1.91e-18
+-- cost-matched reference: S1 - vote3 (correctness): +0.1986 [+0.1844,+0.2127] w/l/t 30/0/0 p=8.30e-23
+-- cost-matched reference: S1 - vote3 (cost/task): -10.5223 [-11.0000,-10.0446] w/l/t 0/30/0 p=2.13e-28
+-- vote3 - best baseline (correctness): +0.0796 [+0.0717,+0.0874] w/l/t 30/0/0 p=5.39e-19
+-- verify+retry without tools: V-only - guarded-safe plain (correctness): +0.1251 [+0.1183,+0.1319] w/l/t 30/0/0 p=3.14e-26
+-- tool misuse (always wrong tool, verified): T-wrongtool - guarded-safe plain (correctness): -0.0038 [-0.0116,+0.0040] w/l/t 12/15/3 p=3.24e-1
+-- tool misuse: T-wrongtool - guarded-safe plain (cost/task): +30.1405 [+29.8449,+30.4361] w/l/t 30/0/0 p=1.30e-47
+-- cache never changes a result: S1 vs S2a per-task correctness vectors identical on all 30 seeds: true
+-- learned selector: right tool on compute tasks 0.820, skipped tool on qual tasks 0.818, tool used on compute 0.946; static: right 0.756, skip 0.748
+-- cache: hit rate 0.276 (tool+verifier calls), tool cost saved/task 1.758 of 19.478 nominal/task; memo hit rate 0.173
+-- verifier: reject rate among verified calls (S1) 0.115
+
+wrote results/g13_held.json

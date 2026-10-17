@@ -1,0 +1,96 @@
+
+================ CONTROL noncompute on generator A ================
+arm                                           correct        compute           qual cost/task   tools/t
+guarded-safe                   0.8781 [0.8671,0.8890]            NaN         0.8781     10.00     0.000
+hebbian-robust                 0.8244 [0.8113,0.8376]            NaN         0.8244     10.00     0.000
+T-always(noverify)             0.6768 [0.6658,0.6879]            NaN         0.6768     24.22     1.248
+T-always(verify)               0.6768 [0.6658,0.6879]            NaN         0.6768     24.22     1.248
+T-static(noverify)             0.8625 [0.8515,0.8735]            NaN         0.8625     18.60     0.548
+T-static(verify) [S0]          0.8625 [0.8515,0.8735]            NaN         0.8625     18.60     0.548
+V-only(plain+verify+retry)     0.8781 [0.8671,0.8890]            NaN         0.8781     10.00     0.000
+vote3(plain, 3x cost)          0.9436 [0.9383,0.9488]            NaN         0.9436     30.00     0.000
+T-oracle(verify)               0.8781 [0.8671,0.8890]            NaN         0.8781     10.00     0.000
+T-learned(noverify)            0.8734 [0.8619,0.8850]            NaN         0.8734     11.22     0.081
+T-learned(verify) [S1]         0.8734 [0.8619,0.8850]            NaN         0.8734     11.22     0.081
+T-learned+cache [S2a]          0.8734 [0.8619,0.8850]            NaN         0.8734     10.99     0.081
+T-learned+cache+memo [S2b]     0.8734 [0.8619,0.8850]            NaN         0.8734     10.99     0.081
+T-wrongtool(verify)            0.8308 [0.8189,0.8427]            NaN         0.8308     39.02     1.837
+   T-always(verify)               correct vs plain: -0.2012 [-0.2076,-0.1948] w/l/t 0/30/0 p=8.65e-33   cost vs plain: +14.2176 [+13.9718,+14.4633] w/l/t 30/0/0 p=1.75e-40
+   T-static(verify) [S0]          correct vs plain: -0.0156 [-0.0190,-0.0121] w/l/t 1/29/0 p=4.50e-10   cost vs plain: +8.6024 [+8.3104,+8.8945] w/l/t 30/0/0 p=5.08e-32
+   T-oracle(verify)               correct vs plain: +0.0000 [+0.0000,+0.0000] w/l/t 0/0/30 p=1.00e0   cost vs plain: +0.0000 [+0.0000,+0.0000] w/l/t 0/0/30 p=1.00e0
+   T-learned(verify) [S1]         correct vs plain: -0.0046 [-0.0067,-0.0025] w/l/t 1/24/5 p=1.23e-4   cost vs plain: +1.2199 [+1.0625,+1.3773] w/l/t 30/0/0 p=8.05e-16
+   T-learned+cache+memo [S2b]     correct vs plain: -0.0046 [-0.0067,-0.0025] w/l/t 1/24/5 p=1.23e-4   cost vs plain: +0.9908 [+0.8618,+1.1198] w/l/t 30/0/0 p=1.01e-15
+   T-wrongtool(verify)            correct vs plain: -0.0473 [-0.0519,-0.0427] w/l/t 0/30/0 p=4.57e-19   cost vs plain: +29.0162 [+28.6861,+29.3463] w/l/t 30/0/0 p=9.54e-46
+   TOST-style: S1 correctness diff CI inside +-0.01 (harmless): true; skip rate on qual tasks 0.951
+
+================ CONTROL misuse_heavy on generator A ================
+arm                                           correct        compute           qual cost/task   tools/t
+guarded-safe                   0.6772 [0.6677,0.6868]         0.6260         0.8707     10.00     0.000
+hebbian-robust                 0.6422 [0.6339,0.6506]         0.5942         0.8233     10.00     0.000
+T-always(noverify)             0.7219 [0.7132,0.7307]         0.7157         0.7444     28.94     1.572
+T-always(verify)               0.7651 [0.7566,0.7736]         0.7718         0.7389     30.19     1.621
+T-static(noverify)             0.7407 [0.7332,0.7481]         0.7113         0.8510     27.06     1.359
+T-static(verify) [S0]          0.7812 [0.7738,0.7887]         0.7628         0.8501     28.21     1.403
+V-only(plain+verify+retry)     0.7938 [0.7871,0.8006]         0.7715         0.8782     13.73     0.000
+vote3(plain, 3x cost)          0.7494 [0.7418,0.7570]         0.6995         0.9376     30.00     0.000
+T-oracle(verify)               0.9461 [0.9419,0.9503]         0.9651         0.8745     15.03     0.938
+T-learned(noverify)            0.7791 [0.7710,0.7872]         0.7586         0.8571     17.31     0.865
+T-learned(verify) [S1]         0.8715 [0.8647,0.8783]         0.8753         0.8577     18.92     1.013
+T-learned+cache [S2a]          0.8715 [0.8647,0.8783]         0.8753         0.8577     17.63     1.013
+T-learned+cache+memo [S2b]     0.8714 [0.8639,0.8789]         0.8752         0.8578     16.18     0.879
+T-wrongtool(verify)            0.6693 [0.6587,0.6799]         0.6261         0.8319     40.89     1.967
+   T-always(verify)               correct vs plain: +0.0879 [+0.0789,+0.0969] w/l/t 30/0/0 p=1.87e-18   cost vs plain: +20.1866 [+19.8254,+20.5477] w/l/t 30/0/0 p=4.72e-40
+   T-static(verify) [S0]          correct vs plain: +0.1040 [+0.0967,+0.1113] w/l/t 30/0/0 p=5.76e-23   cost vs plain: +18.2134 [+17.8329,+18.5940] w/l/t 30/0/0 p=4.20e-38
+   T-oracle(verify)               correct vs plain: +0.2689 [+0.2595,+0.2782] w/l/t 30/0/0 p=1.03e-31   cost vs plain: +5.0281 [+4.9052,+5.1509] w/l/t 30/0/0 p=3.87e-36
+   T-learned(verify) [S1]         correct vs plain: +0.1943 [+0.1855,+0.2031] w/l/t 30/0/0 p=1.92e-28   cost vs plain: +8.9179 [+8.5997,+9.2362] w/l/t 30/0/0 p=2.14e-31
+   T-learned+cache+memo [S2b]     correct vs plain: +0.1942 [+0.1855,+0.2030] w/l/t 30/0/0 p=1.84e-28   cost vs plain: +6.1786 [+5.9118,+6.4455] w/l/t 30/0/0 p=5.08e-29
+   T-wrongtool(verify)            correct vs plain: -0.0079 [-0.0133,-0.0025] w/l/t 8/20/2 p=5.58e-3   cost vs plain: +30.8910 [+30.6477,+31.1343] w/l/t 30/0/0 p=2.24e-50
+
+================ CONTROL noncompute on generator B ================
+arm                                           correct        compute           qual cost/task   tools/t
+guarded-safe                   0.8984 [0.8855,0.9114]            NaN         0.8984     10.00     0.000
+hebbian-robust                 0.8592 [0.8392,0.8792]            NaN         0.8592     10.00     0.000
+T-always(noverify)             0.6851 [0.6740,0.6961]            NaN         0.6851     23.26     1.209
+T-always(verify)               0.6851 [0.6740,0.6961]            NaN         0.6851     23.26     1.209
+T-static(noverify)             0.8807 [0.8672,0.8942]            NaN         0.8807     17.23     0.459
+T-static(verify) [S0]          0.8807 [0.8672,0.8942]            NaN         0.8807     17.23     0.459
+V-only(plain+verify+retry)     0.8984 [0.8855,0.9114]            NaN         0.8984     10.00     0.000
+vote3(plain, 3x cost)          0.9622 [0.9557,0.9686]            NaN         0.9622     30.00     0.000
+T-oracle(verify)               0.8984 [0.8855,0.9114]            NaN         0.8984     10.00     0.000
+T-learned(noverify)            0.8918 [0.8771,0.9065]            NaN         0.8918     11.12     0.075
+T-learned(verify) [S1]         0.8918 [0.8771,0.9065]            NaN         0.8918     11.12     0.075
+T-learned+cache [S2a]          0.8918 [0.8771,0.9065]            NaN         0.8918     10.91     0.075
+T-learned+cache+memo [S2b]     0.8918 [0.8771,0.9065]            NaN         0.8918     10.91     0.075
+T-wrongtool(verify)            0.8541 [0.8427,0.8655]            NaN         0.8541     38.69     1.830
+   T-always(verify)               correct vs plain: -0.2134 [-0.2233,-0.2035] w/l/t 0/30/0 p=3.71e-28   cost vs plain: +13.2560 [+12.9671,+13.5449] w/l/t 30/0/0 p=1.41e-37
+   T-static(verify) [S0]          correct vs plain: -0.0177 [-0.0222,-0.0133] w/l/t 0/30/0 p=5.64e-9   cost vs plain: +7.2328 [+6.9079,+7.5576] w/l/t 30/0/0 p=1.57e-28
+   T-oracle(verify)               correct vs plain: +0.0000 [+0.0000,+0.0000] w/l/t 0/0/30 p=1.00e0   cost vs plain: +0.0000 [+0.0000,+0.0000] w/l/t 0/0/30 p=1.00e0
+   T-learned(verify) [S1]         correct vs plain: -0.0067 [-0.0091,-0.0042] w/l/t 0/28/2 p=6.10e-6   cost vs plain: +1.1152 [+0.9136,+1.3167] w/l/t 30/0/0 p=3.71e-12
+   T-learned+cache+memo [S2b]     correct vs plain: -0.0067 [-0.0091,-0.0042] w/l/t 0/28/2 p=6.10e-6   cost vs plain: +0.9089 [+0.7462,+1.0716] w/l/t 30/0/0 p=2.97e-12
+   T-wrongtool(verify)            correct vs plain: -0.0443 [-0.0511,-0.0376] w/l/t 1/29/0 p=5.49e-14   cost vs plain: +28.6941 [+28.4613,+28.9269] w/l/t 30/0/0 p=5.30e-50
+   TOST-style: S1 correctness diff CI inside +-0.01 (harmless): true; skip rate on qual tasks 0.954
+
+================ CONTROL misuse_heavy on generator B ================
+arm                                           correct        compute           qual cost/task   tools/t
+guarded-safe                   0.6221 [0.5980,0.6462]         0.5679         0.8787     10.00     0.000
+hebbian-robust                 0.6079 [0.5880,0.6278]         0.5563         0.8531     10.00     0.000
+T-always(noverify)             0.7042 [0.6879,0.7205]         0.6956         0.7463     29.17     1.583
+T-always(verify)               0.7289 [0.7127,0.7451]         0.7254         0.7463     30.40     1.609
+T-static(noverify)             0.7193 [0.7018,0.7368]         0.6907         0.8556     27.10     1.364
+T-static(verify) [S0]          0.7447 [0.7271,0.7623]         0.7209         0.8593     28.30     1.390
+V-only(plain+verify+retry)     0.7476 [0.7278,0.7673]         0.7180         0.8868     14.69     0.000
+vote3(plain, 3x cost)          0.6971 [0.6770,0.7171]         0.6425         0.9570     30.00     0.000
+T-oracle(verify)               0.9530 [0.9477,0.9583]         0.9664         0.8899     16.64     0.925
+T-learned(noverify)            0.8156 [0.8043,0.8268]         0.8046         0.8666     18.59     0.982
+T-learned(verify) [S1]         0.8706 [0.8605,0.8806]         0.8717         0.8642     20.76     1.044
+T-learned+cache [S2a]          0.8706 [0.8605,0.8806]         0.8717         0.8642     18.72     1.044
+T-learned+cache+memo [S2b]     0.8798 [0.8704,0.8891]         0.8828         0.8642     16.45     0.862
+T-wrongtool(verify)            0.6188 [0.5950,0.6426]         0.5715         0.8446     40.02     1.969
+   T-always(verify)               correct vs plain: +0.1068 [+0.0935,+0.1200] w/l/t 30/0/0 p=2.87e-16   cost vs plain: +20.3980 [+19.8912,+20.9048] w/l/t 30/0/0 p=6.27e-36
+   T-static(verify) [S0]          correct vs plain: +0.1226 [+0.1114,+0.1338] w/l/t 30/0/0 p=8.17e-20   cost vs plain: +18.2972 [+17.7466,+18.8479] w/l/t 30/0/0 p=1.58e-33
+   T-oracle(verify)               correct vs plain: +0.3309 [+0.3086,+0.3532] w/l/t 30/0/0 p=1.63e-23   cost vs plain: +6.6379 [+6.2582,+7.0177] w/l/t 30/0/0 p=1.55e-25
+   T-learned(verify) [S1]         correct vs plain: +0.2484 [+0.2260,+0.2709] w/l/t 30/0/0 p=5.47e-20   cost vs plain: +10.7598 [+10.2466,+11.2729] w/l/t 30/0/0 p=8.71e-28
+   T-learned+cache+memo [S2b]     correct vs plain: +0.2577 [+0.2341,+0.2812] w/l/t 30/0/0 p=7.88e-20   cost vs plain: +6.4544 [+6.0740,+6.8349] w/l/t 30/0/0 p=3.61e-25
+   T-wrongtool(verify)            correct vs plain: -0.0033 [-0.0105,+0.0039] w/l/t 11/17/2 p=3.58e-1   cost vs plain: +30.0188 [+29.7465,+30.2910] w/l/t 30/0/0 p=1.34e-48
+
+wrote results/g13_controls_held.json

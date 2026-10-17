@@ -1,0 +1,24 @@
+h8_vectors mode=conc rayon=2 free=6.31GB
+[conc] building HNSW M32 efc100 n=100000
+ setting number of points 50000 
+ setting number of points 100000 
+  build 21.2s
+  recall@10 0.969 (ef 32)
+ setting number of points 150000 
+
+#### concurrency (n=100000, dim=384, 4s windows x3)
+| index | scenario | threads | qps mean [min-max] | p50 us | p99 us | writer ops/s |
+|---|---|---|---|---|---|---|
+| hnsw M32 efc100 ef32 (fixed crate) | read-only, shared Arc, no lock | 1 | 4657 [4255-4888] | 198 | 455 | 0 |
+| hnsw M32 efc100 ef32 (fixed crate) | read-only, shared Arc, no lock | 2 | 9150 [8614-10124] | 204 | 442 | 0 |
+| hnsw M32 efc100 ef32 (fixed crate) | read-only, shared Arc, no lock | 4 | 18349 [16905-19461] | 203 | 438 | 0 |
+| hnsw M32 efc100 ef32 (fixed crate) | readers + 1 concurrent insert thread (insert_slice on &self, no external lock) | 1 | 4772 [4228-5109] | 194 | 444 | 2248 |
+| hnsw M32 efc100 ef32 (fixed crate) | readers + 1 concurrent insert thread (insert_slice on &self, no external lock) | 2 | 9748 [9057-10230] | 191 | 421 | 2311 |
+| flat int8 + rerank4x (RAM f32) | read-only | 1 | 748 [719-786] | 1195 | 2274 | 0 |
+| flat int8 + rerank4x (RAM f32) | read-only | 2 | 1254 [1073-1364] | 1548 | 2533 | 0 |
+| flat int8 + rerank4x (RAM f32) | read-only | 4 | 1522 [1483-1541] | 2503 | 5005 | 0 |
+| turbovec-4bit + rerank4x (RAM f32), RwLock, per-reader 1-thread rayon pool | read-only | 1 | 948 [862-1008] | 1022 | 1810 | 0 |
+| turbovec-4bit + rerank4x (RAM f32), RwLock, per-reader 1-thread rayon pool | read-only | 2 | 1780 [1725-1820] | 1039 | 2346 | 0 |
+| turbovec-4bit + rerank4x (RAM f32), RwLock, per-reader 1-thread rayon pool | read-only | 4 | 3051 [2961-3146] | 1027 | 4002 | 0 |
+| turbovec-4bit + rerank4x, RwLock | 2 readers + writer adding 64 vecs/50ms (new vectors not in rerank store: skipped by rerank filter only for the file variant; RAM variant would index OOB so ids >= n are filtered by rerank_f32 callers: see note) | 2 | 1557 [1350-1810] | 1155 | 4144 | 1173 |
+wrote results/h8_conc.json

@@ -1,0 +1,66 @@
+A taxonomy built {'0.25': 21, '0.5': 41, '1.0': 83, '2.0': 165}
+B taxonomy built {'0.25': 16, '0.5': 32, '1.0': 65, '2.0': 129}
+pydoc9 taxonomy built {'0.25': 13, '0.5': 27, '1.0': 54, '2.0': 107}
+crates8 taxonomy built {'0.25': 7, '0.5': 14, '1.0': 29, '2.0': 58}
+tune flat {'mrr': 0.29994770998677245, 'hit1': 0.221875, 'hit3': 0.3364583333333333, 'hit8': 0.47187500000000004, 'f1@3': 0.15845858134920637, 'cost': 1.0, 'gate': 0.0} 
+ pick tree|k0.50|g16|mg2|t0.08 {'ts': 'ts|k2.00|cent|m2|mask|t0.08', 'tree': 'tree|k0.50|g16|mg2|t0.08'} gated pick tree|k0.50|g16|mg2|t0.08
+held A done 199s
+held pydoc9 done 233s
+held crates8 done 242s
+confirm A done 245s
+confirm B done 248s
+confirm pydoc9 done 249s
+confirm crates8 done 249s
+k4-1 TAXONOMY + TWO-STAGE RETRIEVAL  (real text; typos synthetic)  tune pick=tree|k0.50|g16|mg2|t0.08 ; by kind={'ts': 'ts|k2.00|cent|m2|mask|t0.08', 'tree': 'tree|k0.50|g16|mg2|t0.08'} ; cheapest gated=tree|k0.50|g16|mg2|t0.08
+tune flat: {'mrr': 0.29994770998677245, 'hit1': 0.221875, 'hit3': 0.3364583333333333, 'hit8': 0.47187500000000004, 'f1@3': 0.15845858134920637, 'cost': 1.0, 'gate': 0.0}
+
+== held|A
+  flat                                         mrr 0.3224 hit1 0.2268 hit8 0.5199 f1@3 0.1828 cost 1.000 gate_on 0.00
+  tree|k0.50|g16|mg2|t0.08                     mrr 0.3169 hit1 0.2239 hit8 0.5078 f1@3 0.1805 cost 0.840 gate_on 0.20
+  ts|k2.00|cent|m2|mask|t0.08                  mrr 0.3164 hit1 0.2239 hit8 0.5086 f1@3 0.1793 cost 0.896 gate_on 0.13
+  d vs flat  tree|k0.50|g16|mg2|t0.08                 mrr -0.0055 [-0.0077,-0.0034] boot[-0.0108,-0.0005] TOST.01=True | hit8 -0.0121 [-0.0153,-0.0089] boot[-0.0207,-0.0036] TOST.02=True | hit1 -0.0029
+  d vs flat  ts|k2.00|cent|m2|mask|t0.08              mrr -0.0060 [-0.0076,-0.0043] boot[-0.0101,-0.0023] TOST.01=True | hit8 -0.0113 [-0.0144,-0.0081] boot[-0.0187,-0.0041] TOST.02=True | hit1 -0.0029
+== held|pydoc9
+  flat                                         mrr 0.4638 hit1 0.3542 hit8 0.6584 f1@3 0.2691 cost 1.000 gate_on 0.00
+  tree|k0.50|g16|mg2|t0.08                     mrr 0.4596 hit1 0.3536 hit8 0.6524 f1@3 0.2628 cost 0.869 gate_on 0.17
+  ts|k2.00|cent|m2|mask|t0.08                  mrr 0.4583 hit1 0.3538 hit8 0.6482 f1@3 0.2642 cost 0.949 gate_on 0.09
+  d vs flat  tree|k0.50|g16|mg2|t0.08                 mrr -0.0042 [-0.0063,-0.0022] boot[-0.0105,+0.0021] TOST.01=True | hit8 -0.0060 [-0.0093,-0.0027] boot[-0.0150,+0.0036] TOST.02=True | hit1 -0.0007
+  d vs flat  ts|k2.00|cent|m2|mask|t0.08              mrr -0.0055 [-0.0075,-0.0035] boot[-0.0108,-0.0007] TOST.01=True | hit8 -0.0102 [-0.0142,-0.0063] boot[-0.0210,-0.0009] TOST.02=True | hit1 -0.0004
+  e2e dq (SYNTHETIC) tree|k0.50|g16|mg2|t0.08                 -0.0030 [-0.0040,-0.0020]  offdomain5 flat 0.272 arm 0.276
+  e2e dq (SYNTHETIC) ts|k2.00|cent|m2|mask|t0.08              -0.0036 [-0.0048,-0.0024]  offdomain5 flat 0.272 arm 0.275
+== held|crates8
+  flat                                         mrr 0.4974 hit1 0.3880 hit8 0.6967 f1@3 0.2846 cost 1.000 gate_on 0.00
+  tree|k0.50|g16|mg2|t0.08                     mrr 0.4939 hit1 0.3880 hit8 0.6878 f1@3 0.2802 cost 0.890 gate_on 0.15
+  ts|k2.00|cent|m2|mask|t0.08                  mrr 0.4974 hit1 0.3880 hit8 0.6967 f1@3 0.2846 cost 0.988 gate_on 0.08
+  d vs flat  tree|k0.50|g16|mg2|t0.08                 mrr -0.0035 [-0.0043,-0.0027] boot[-0.0106,+0.0021] TOST.01=True | hit8 -0.0089 [-0.0111,-0.0067] boot[-0.0287,+0.0101] TOST.02=True | hit1 +0.0000
+  d vs flat  ts|k2.00|cent|m2|mask|t0.08              mrr +0.0000 [+0.0000,+0.0000] boot[+0.0000,+0.0000] TOST.01=True | hit8 +0.0000 [+0.0000,+0.0000] boot[+0.0000,+0.0000] TOST.02=True | hit1 +0.0000
+  e2e dq (SYNTHETIC) tree|k0.50|g16|mg2|t0.08                 -0.0027 [-0.0034,-0.0020]  offdomain5 flat 0.424 arm 0.423
+  e2e dq (SYNTHETIC) ts|k2.00|cent|m2|mask|t0.08              -0.0002 [-0.0002,-0.0001]  offdomain5 flat 0.424 arm 0.425
+== confirm|A
+  flat                                         mrr 0.3207 hit1 0.2278 hit8 0.5121 f1@3 0.1820 cost 1.000 gate_on 0.00
+  tree|k0.50|g16|mg2|t0.08                     mrr 0.3157 hit1 0.2247 hit8 0.5011 f1@3 0.1791 cost 0.842 gate_on 0.20
+  ts|k2.00|cent|m2|mask|t0.08                  mrr 0.3149 hit1 0.2249 hit8 0.5013 f1@3 0.1777 cost 0.896 gate_on 0.13
+  d vs flat  tree|k0.50|g16|mg2|t0.08                 mrr -0.0049 [-0.0070,-0.0029] boot[-0.0095,-0.0003] TOST.01=True | hit8 -0.0110 [-0.0139,-0.0080] boot[-0.0185,-0.0037] TOST.02=True | hit1 -0.0031
+  d vs flat  ts|k2.00|cent|m2|mask|t0.08              mrr -0.0058 [-0.0077,-0.0039] boot[-0.0099,-0.0019] TOST.01=True | hit8 -0.0108 [-0.0142,-0.0074] boot[-0.0180,-0.0036] TOST.02=True | hit1 -0.0029
+== confirm|B
+  flat                                         mrr 0.2641 hit1 0.1852 hit8 0.4345 f1@3 0.1464 cost 1.000 gate_on 0.00
+  tree|k0.50|g16|mg2|t0.08                     mrr 0.2608 hit1 0.1857 hit8 0.4260 f1@3 0.1457 cost 0.874 gate_on 0.16
+  ts|k2.00|cent|m2|mask|t0.08                  mrr 0.2631 hit1 0.1860 hit8 0.4292 f1@3 0.1464 cost 0.932 gate_on 0.10
+  d vs flat  tree|k0.50|g16|mg2|t0.08                 mrr -0.0032 [-0.0046,-0.0019] boot[-0.0081,+0.0007] TOST.01=True | hit8 -0.0085 [-0.0106,-0.0064] boot[-0.0162,-0.0015] TOST.02=True | hit1 +0.0005
+  d vs flat  ts|k2.00|cent|m2|mask|t0.08              mrr -0.0010 [-0.0022,+0.0002] boot[-0.0043,+0.0023] TOST.01=True | hit8 -0.0053 [-0.0085,-0.0021] boot[-0.0135,+0.0024] TOST.02=True | hit1 +0.0008
+== confirm|pydoc9
+  flat                                         mrr 0.4816 hit1 0.3616 hit8 0.6922 f1@3 0.2841 cost 1.000 gate_on 0.00
+  tree|k0.50|g16|mg2|t0.08                     mrr 0.4687 hit1 0.3542 hit8 0.6756 f1@3 0.2760 cost 0.867 gate_on 0.17
+  ts|k2.00|cent|m2|mask|t0.08                  mrr 0.4739 hit1 0.3562 hit8 0.6829 f1@3 0.2790 cost 0.957 gate_on 0.08
+  d vs flat  tree|k0.50|g16|mg2|t0.08                 mrr -0.0129 [-0.0158,-0.0100] boot[-0.0216,-0.0053] TOST.01=False | hit8 -0.0167 [-0.0212,-0.0121] boot[-0.0307,-0.0034] TOST.02=False | hit1 -0.0073
+  d vs flat  ts|k2.00|cent|m2|mask|t0.08              mrr -0.0078 [-0.0097,-0.0058] boot[-0.0142,-0.0024] TOST.01=True | hit8 -0.0093 [-0.0123,-0.0064] boot[-0.0190,-0.0018] TOST.02=True | hit1 -0.0053
+  e2e dq (SYNTHETIC) tree|k0.50|g16|mg2|t0.08                 -0.0061 [-0.0074,-0.0047]  offdomain5 flat 0.268 arm 0.269
+  e2e dq (SYNTHETIC) ts|k2.00|cent|m2|mask|t0.08              -0.0032 [-0.0039,-0.0026]  offdomain5 flat 0.268 arm 0.269
+== confirm|crates8
+  flat                                         mrr 0.4821 hit1 0.3690 hit8 0.6937 f1@3 0.2774 cost 1.000 gate_on 0.00
+  tree|k0.50|g16|mg2|t0.08                     mrr 0.4631 hit1 0.3487 hit8 0.6776 f1@3 0.2723 cost 0.880 gate_on 0.17
+  ts|k2.00|cent|m2|mask|t0.08                  mrr 0.4724 hit1 0.3571 hit8 0.6893 f1@3 0.2741 cost 0.925 gate_on 0.15
+  d vs flat  tree|k0.50|g16|mg2|t0.08                 mrr -0.0190 [-0.0214,-0.0166] boot[-0.0436,+0.0006] TOST.01=False | hit8 -0.0161 [-0.0188,-0.0134] boot[-0.0395,+0.0019] TOST.02=True | hit1 -0.0203
+  d vs flat  ts|k2.00|cent|m2|mask|t0.08              mrr -0.0097 [-0.0110,-0.0083] boot[-0.0276,+0.0035] TOST.01=False | hit8 -0.0044 [-0.0065,-0.0023] boot[-0.0244,+0.0150] TOST.02=True | hit1 -0.0119
+  e2e dq (SYNTHETIC) tree|k0.50|g16|mg2|t0.08                 -0.0063 [-0.0070,-0.0057]  offdomain5 flat 0.413 arm 0.417
+  e2e dq (SYNTHETIC) ts|k2.00|cent|m2|mask|t0.08              -0.0014 [-0.0020,-0.0007]  offdomain5 flat 0.413 arm 0.415

@@ -1,0 +1,486 @@
+selftest ok: MiniHeb(f64) == crate Warm<Hebbian>; compact f64 == crate guarded; bf16 packed state round-trips exactly
+workers 3 (G2_THREADS to change), systems 11, worlds 5
+
+--- accuracy runs (228 seeds x 5 worlds x 11 systems) ---
+  sim-fixed done (3s)
+  sim-random done (6s)
+  sim-no-traps done (9s)
+  big-32agents done (19s)
+  big-32agents-longtail done (32s)
+
+=== TOST vs f64 router, margin +-0.005, split tune 1-8 (info only, n=8) ===
+system                             world                           dQ(full) [95% CI]    Holm EQUIV
+A bf16-sr (block-float16)          sim-fixed                +0.0000 [-0.0001,+0.0001]   0.000   YES
+A f16+u16base (IEEE binary16)      sim-fixed                -0.0007 [-0.0024,+0.0010]   0.010   YES
+A bf12-sr                          sim-fixed                -0.0047 [-0.0112,+0.0017]   1.000    no
+A bf8-sr+u8base                    sim-fixed                -0.0100 [-0.0191,-0.0010]   1.000    no
+B dense f32/f32                    sim-fixed                +0.0000 [+0.0000,+0.0000]   0.000   YES
+B dense u16/q16                    sim-fixed                +0.0032 [-0.0018,+0.0082]   1.000    no
+B SPARSE u16/q16                   sim-fixed                +0.0032 [-0.0018,+0.0082]   1.000    no
+B SPARSE f16/q16                   sim-fixed                +0.0017 [-0.0014,+0.0048]   0.511    no
+B SPARSE f16/f16                   sim-fixed                +0.0016 [-0.0014,+0.0047]   0.503    no
+A bf16-sr (block-float16)          sim-random               +0.0022 [-0.0030,+0.0074]   1.000    no
+A f16+u16base (IEEE binary16)      sim-random               -0.0017 [-0.0054,+0.0019]   0.889    no
+A bf12-sr                          sim-random               +0.0046 [-0.0024,+0.0116]   1.000    no
+A bf8-sr+u8base                    sim-random               -0.0007 [-0.0124,+0.0111]   1.000    no
+B dense f32/f32                    sim-random               +0.0000 [+0.0000,+0.0000]   0.000   YES
+B dense u16/q16                    sim-random               -0.0009 [-0.0046,+0.0028]   0.503    no
+B SPARSE u16/q16                   sim-random               -0.0009 [-0.0046,+0.0028]   0.503    no
+B SPARSE f16/q16                   sim-random               +0.0010 [-0.0066,+0.0087]   1.000    no
+B SPARSE f16/f16                   sim-random               +0.0023 [-0.0064,+0.0111]   1.000    no
+A bf16-sr (block-float16)          sim-no-traps             -0.0010 [-0.0035,+0.0014]   0.109    no
+A f16+u16base (IEEE binary16)      sim-no-traps             +0.0057 [-0.0024,+0.0137]   1.000    no
+A bf12-sr                          sim-no-traps             -0.0009 [-0.0149,+0.0130]   1.000    no
+A bf8-sr+u8base                    sim-no-traps             +0.0104 [-0.0031,+0.0238]   1.000    no
+B dense f32/f32                    sim-no-traps             +0.0000 [+0.0000,+0.0000]   0.000   YES
+B dense u16/q16                    sim-no-traps             +0.0000 [-0.0002,+0.0003]   0.000   YES
+B SPARSE u16/q16                   sim-no-traps             +0.0000 [-0.0002,+0.0003]   0.000   YES
+B SPARSE f16/q16                   sim-no-traps             -0.0001 [-0.0002,+0.0001]   0.000   YES
+B SPARSE f16/f16                   sim-no-traps             -0.0002 [-0.0006,+0.0002]   0.000   YES
+A bf16-sr (block-float16)          big-32agents             +0.0011 [-0.0018,+0.0040]   0.257    no
+A f16+u16base (IEEE binary16)      big-32agents             -0.0027 [-0.0139,+0.0086]   1.000    no
+A bf12-sr                          big-32agents             -0.0013 [-0.0130,+0.0103]   1.000    no
+A bf8-sr+u8base                    big-32agents             -0.0062 [-0.0282,+0.0157]   1.000    no
+B dense f32/f32                    big-32agents             +0.0000 [+0.0000,+0.0000]   0.000   YES
+B dense u16/q16                    big-32agents             +0.0011 [-0.0024,+0.0046]   0.501    no
+B SPARSE u16/q16                   big-32agents             +0.0011 [-0.0024,+0.0046]   0.501    no
+B SPARSE f16/q16                   big-32agents             -0.0010 [-0.0064,+0.0044]   1.000    no
+B SPARSE f16/f16                   big-32agents             -0.0049 [-0.0152,+0.0054]   1.000    no
+A bf16-sr (block-float16)          big-32agents-longtail    +0.0004 [-0.0008,+0.0015]   0.001   YES
+A f16+u16base (IEEE binary16)      big-32agents-longtail    -0.0006 [-0.0154,+0.0141]   1.000    no
+A bf12-sr                          big-32agents-longtail    +0.0066 [-0.0042,+0.0174]   1.000    no
+A bf8-sr+u8base                    big-32agents-longtail    +0.0095 [-0.0109,+0.0298]   1.000    no
+B dense f32/f32                    big-32agents-longtail    +0.0000 [+0.0000,+0.0000]   0.000   YES
+B dense u16/q16                    big-32agents-longtail    -0.0047 [-0.0182,+0.0088]   1.000    no
+B SPARSE u16/q16                   big-32agents-longtail    -0.0047 [-0.0182,+0.0088]   1.000    no
+B SPARSE f16/q16                   big-32agents-longtail    -0.0035 [-0.0207,+0.0138]   1.000    no
+B SPARSE f16/f16                   big-32agents-longtail    +0.0002 [-0.0101,+0.0106]   1.000    no
+
+=== TOST vs f64 router, margin +-0.005, split held-out 31-60 ===
+system                             world                           dQ(full) [95% CI]    Holm EQUIV
+A bf16-sr (block-float16)          sim-fixed                -0.0000 [-0.0001,+0.0000]   0.000   YES
+A f16+u16base (IEEE binary16)      sim-fixed                +0.0021 [-0.0013,+0.0056]   0.662    no
+A bf12-sr                          sim-fixed                +0.0001 [-0.0025,+0.0026]   0.006   YES
+A bf8-sr+u8base                    sim-fixed                -0.0011 [-0.0063,+0.0040]   0.676    no
+B dense f32/f32                    sim-fixed                +0.0000 [+0.0000,+0.0000]   0.000   YES
+B dense u16/q16                    sim-fixed                -0.0000 [-0.0000,+0.0000]   0.000   YES
+B SPARSE u16/q16                   sim-fixed                -0.0000 [-0.0000,+0.0000]   0.000   YES
+B SPARSE f16/q16                   sim-fixed                -0.0001 [-0.0003,+0.0001]   0.000   YES
+B SPARSE f16/f16                   sim-fixed                -0.0003 [-0.0010,+0.0004]   0.000   YES
+A bf16-sr (block-float16)          sim-random               +0.0000 [-0.0000,+0.0000]   0.000   YES
+A f16+u16base (IEEE binary16)      sim-random               -0.0003 [-0.0028,+0.0022]   0.008   YES
+A bf12-sr                          sim-random               -0.0002 [-0.0014,+0.0011]   0.000   YES
+A bf8-sr+u8base                    sim-random               -0.0033 [-0.0089,+0.0022]   1.000    no
+B dense f32/f32                    sim-random               +0.0000 [+0.0000,+0.0000]   0.000   YES
+B dense u16/q16                    sim-random               -0.0000 [-0.0009,+0.0009]   0.000   YES
+B SPARSE u16/q16                   sim-random               -0.0000 [-0.0009,+0.0009]   0.000   YES
+B SPARSE f16/q16                   sim-random               -0.0004 [-0.0012,+0.0005]   0.000   YES
+B SPARSE f16/f16                   sim-random               -0.0003 [-0.0012,+0.0006]   0.000   YES
+A bf16-sr (block-float16)          sim-no-traps             -0.0004 [-0.0014,+0.0005]   0.000   YES
+A f16+u16base (IEEE binary16)      sim-no-traps             -0.0011 [-0.0036,+0.0015]   0.034   YES
+A bf12-sr                          sim-no-traps             -0.0006 [-0.0022,+0.0011]   0.000   YES
+A bf8-sr+u8base                    sim-no-traps             -0.0080 [-0.0125,-0.0036]   1.000    no
+B dense f32/f32                    sim-no-traps             +0.0000 [+0.0000,+0.0000]   0.000   YES
+B dense u16/q16                    sim-no-traps             +0.0002 [-0.0001,+0.0004]   0.000   YES
+B SPARSE u16/q16                   sim-no-traps             +0.0002 [-0.0001,+0.0004]   0.000   YES
+B SPARSE f16/q16                   sim-no-traps             -0.0000 [-0.0002,+0.0002]   0.000   YES
+B SPARSE f16/f16                   sim-no-traps             -0.0000 [-0.0005,+0.0005]   0.000   YES
+A bf16-sr (block-float16)          big-32agents             -0.0017 [-0.0054,+0.0021]   0.622    no
+A f16+u16base (IEEE binary16)      big-32agents             +0.0011 [-0.0056,+0.0078]   1.000    no
+A bf12-sr                          big-32agents             -0.0088 [-0.0163,-0.0013]   1.000    no
+A bf8-sr+u8base                    big-32agents             -0.0032 [-0.0128,+0.0064]   1.000    no
+B dense f32/f32                    big-32agents             +0.0000 [+0.0000,+0.0000]   0.000   YES
+B dense u16/q16                    big-32agents             -0.0000 [-0.0056,+0.0055]   0.622    no
+B SPARSE u16/q16                   big-32agents             -0.0000 [-0.0056,+0.0055]   0.622    no
+B SPARSE f16/q16                   big-32agents             -0.0073 [-0.0156,+0.0010]   1.000    no
+B SPARSE f16/f16                   big-32agents             -0.0071 [-0.0157,+0.0014]   1.000    no
+A bf16-sr (block-float16)          big-32agents-longtail    -0.0012 [-0.0036,+0.0012]   0.033   YES
+A f16+u16base (IEEE binary16)      big-32agents-longtail    +0.0017 [-0.0054,+0.0088]   1.000    no
+A bf12-sr                          big-32agents-longtail    -0.0014 [-0.0052,+0.0025]   0.550    no
+A bf8-sr+u8base                    big-32agents-longtail    -0.0053 [-0.0183,+0.0077]   1.000    no
+B dense f32/f32                    big-32agents-longtail    +0.0000 [+0.0000,+0.0000]   0.000   YES
+B dense u16/q16                    big-32agents-longtail    +0.0004 [-0.0023,+0.0030]   0.013   YES
+B SPARSE u16/q16                   big-32agents-longtail    +0.0004 [-0.0023,+0.0030]   0.013   YES
+B SPARSE f16/q16                   big-32agents-longtail    -0.0012 [-0.0061,+0.0036]   0.676    no
+B SPARSE f16/f16                   big-32agents-longtail    -0.0012 [-0.0059,+0.0035]   0.662    no
+
+=== TOST vs f64 router, margin +-0.005, split confirm 61-90 ===
+system                             world                           dQ(full) [95% CI]    Holm EQUIV
+A bf16-sr (block-float16)          sim-fixed                +0.0001 [-0.0004,+0.0006]   0.000   YES
+A f16+u16base (IEEE binary16)      sim-fixed                -0.0016 [-0.0056,+0.0023]   0.590    no
+A bf12-sr                          sim-fixed                +0.0005 [-0.0021,+0.0031]   0.016   YES
+A bf8-sr+u8base                    sim-fixed                -0.0016 [-0.0076,+0.0043]   1.000    no
+B dense f32/f32                    sim-fixed                +0.0000 [+0.0000,+0.0000]   0.000   YES
+B dense u16/q16                    sim-fixed                -0.0002 [-0.0006,+0.0003]   0.000   YES
+B SPARSE u16/q16                   sim-fixed                -0.0002 [-0.0006,+0.0003]   0.000   YES
+B SPARSE f16/q16                   sim-fixed                -0.0005 [-0.0026,+0.0017]   0.003   YES
+B SPARSE f16/f16                   sim-fixed                -0.0001 [-0.0025,+0.0024]   0.005   YES
+A bf16-sr (block-float16)          sim-random               -0.0008 [-0.0021,+0.0004]   0.000   YES
+A f16+u16base (IEEE binary16)      sim-random               -0.0006 [-0.0034,+0.0023]   0.036   YES
+A bf12-sr                          sim-random               +0.0002 [-0.0020,+0.0024]   0.002   YES
+A bf8-sr+u8base                    sim-random               -0.0021 [-0.0090,+0.0049]   1.000    no
+B dense f32/f32                    sim-random               +0.0000 [+0.0000,+0.0000]   0.000   YES
+B dense u16/q16                    sim-random               +0.0008 [-0.0018,+0.0034]   0.031   YES
+B SPARSE u16/q16                   sim-random               +0.0008 [-0.0018,+0.0034]   0.031   YES
+B SPARSE f16/q16                   sim-random               -0.0002 [-0.0031,+0.0027]   0.027   YES
+B SPARSE f16/f16                   sim-random               -0.0002 [-0.0024,+0.0021]   0.002   YES
+A bf16-sr (block-float16)          sim-no-traps             -0.0000 [-0.0002,+0.0001]   0.000   YES
+A f16+u16base (IEEE binary16)      sim-no-traps             +0.0004 [-0.0025,+0.0033]   0.031   YES
+A bf12-sr                          sim-no-traps             -0.0016 [-0.0048,+0.0016]   0.355    no
+A bf8-sr+u8base                    sim-no-traps             -0.0030 [-0.0081,+0.0021]   1.000    no
+B dense f32/f32                    sim-no-traps             +0.0000 [+0.0000,+0.0000]   0.000   YES
+B dense u16/q16                    sim-no-traps             +0.0001 [-0.0003,+0.0006]   0.000   YES
+B SPARSE u16/q16                   sim-no-traps             +0.0001 [-0.0003,+0.0006]   0.000   YES
+B SPARSE f16/q16                   sim-no-traps             -0.0001 [-0.0003,+0.0001]   0.000   YES
+B SPARSE f16/f16                   sim-no-traps             -0.0009 [-0.0017,-0.0001]   0.000   YES
+A bf16-sr (block-float16)          big-32agents             -0.0024 [-0.0053,+0.0006]   0.550    no
+A f16+u16base (IEEE binary16)      big-32agents             +0.0037 [-0.0029,+0.0104]   1.000    no
+A bf12-sr                          big-32agents             +0.0011 [-0.0057,+0.0078]   1.000    no
+A bf8-sr+u8base                    big-32agents             +0.0071 [-0.0048,+0.0190]   1.000    no
+B dense f32/f32                    big-32agents             +0.0000 [+0.0000,+0.0000]   0.000   YES
+B dense u16/q16                    big-32agents             +0.0011 [-0.0029,+0.0051]   0.479    no
+B SPARSE u16/q16                   big-32agents             +0.0011 [-0.0029,+0.0051]   0.479    no
+B SPARSE f16/q16                   big-32agents             +0.0042 [-0.0011,+0.0096]   1.000    no
+B SPARSE f16/f16                   big-32agents             +0.0034 [-0.0018,+0.0087]   1.000    no
+A bf16-sr (block-float16)          big-32agents-longtail    +0.0002 [-0.0010,+0.0015]   0.000   YES
+A f16+u16base (IEEE binary16)      big-32agents-longtail    -0.0034 [-0.0105,+0.0038]   1.000    no
+A bf12-sr                          big-32agents-longtail    +0.0005 [-0.0045,+0.0054]   0.520    no
+A bf8-sr+u8base                    big-32agents-longtail    +0.0026 [-0.0084,+0.0135]   1.000    no
+B dense f32/f32                    big-32agents-longtail    +0.0000 [+0.0000,+0.0000]   0.000   YES
+B dense u16/q16                    big-32agents-longtail    +0.0003 [-0.0027,+0.0032]   0.031   YES
+B SPARSE u16/q16                   big-32agents-longtail    +0.0003 [-0.0027,+0.0032]   0.031   YES
+B SPARSE f16/q16                   big-32agents-longtail    +0.0036 [-0.0060,+0.0132]   1.000    no
+B SPARSE f16/f16                   big-32agents-longtail    +0.0031 [-0.0083,+0.0145]   1.000    no
+
+=== TOST vs f64 router, margin +-0.005, split pooled 31-90 (n=60) ===
+system                             world                           dQ(full) [95% CI]    Holm EQUIV
+A bf16-sr (block-float16)          sim-fixed                +0.0000 [-0.0002,+0.0003]   0.000   YES
+A f16+u16base (IEEE binary16)      sim-fixed                +0.0003 [-0.0023,+0.0028]   0.005   YES
+A bf12-sr                          sim-fixed                +0.0003 [-0.0015,+0.0020]   0.000   YES
+A bf8-sr+u8base                    sim-fixed                -0.0014 [-0.0052,+0.0024]   0.373    no
+B dense f32/f32                    sim-fixed                +0.0000 [+0.0000,+0.0000]   0.000   YES
+B dense u16/q16                    sim-fixed                -0.0001 [-0.0003,+0.0001]   0.000   YES
+B SPARSE u16/q16                   sim-fixed                -0.0001 [-0.0003,+0.0001]   0.000   YES
+B SPARSE f16/q16                   sim-fixed                -0.0003 [-0.0014,+0.0008]   0.000   YES
+B SPARSE f16/f16                   sim-fixed                -0.0002 [-0.0014,+0.0011]   0.000   YES
+A bf16-sr (block-float16)          sim-random               -0.0004 [-0.0011,+0.0002]   0.000   YES
+A f16+u16base (IEEE binary16)      sim-random               -0.0004 [-0.0023,+0.0014]   0.000   YES
+A bf12-sr                          sim-random               +0.0000 [-0.0012,+0.0012]   0.000   YES
+A bf8-sr+u8base                    sim-random               -0.0027 [-0.0070,+0.0016]   0.781    no
+B dense f32/f32                    sim-random               +0.0000 [+0.0000,+0.0000]   0.000   YES
+B dense u16/q16                    sim-random               +0.0004 [-0.0010,+0.0017]   0.000   YES
+B SPARSE u16/q16                   sim-random               +0.0004 [-0.0010,+0.0017]   0.000   YES
+B SPARSE f16/q16                   sim-random               -0.0003 [-0.0018,+0.0012]   0.000   YES
+B SPARSE f16/f16                   sim-random               -0.0002 [-0.0014,+0.0009]   0.000   YES
+A bf16-sr (block-float16)          sim-no-traps             -0.0002 [-0.0007,+0.0002]   0.000   YES
+A f16+u16base (IEEE binary16)      sim-no-traps             -0.0003 [-0.0022,+0.0015]   0.000   YES
+A bf12-sr                          sim-no-traps             -0.0011 [-0.0028,+0.0007]   0.000   YES
+A bf8-sr+u8base                    sim-no-traps             -0.0055 [-0.0089,-0.0022]   0.781    no
+B dense f32/f32                    sim-no-traps             +0.0000 [+0.0000,+0.0000]   0.000   YES
+B dense u16/q16                    sim-no-traps             +0.0001 [-0.0001,+0.0004]   0.000   YES
+B SPARSE u16/q16                   sim-no-traps             +0.0001 [-0.0001,+0.0004]   0.000   YES
+B SPARSE f16/q16                   sim-no-traps             -0.0001 [-0.0002,+0.0001]   0.000   YES
+B SPARSE f16/f16                   sim-no-traps             -0.0004 [-0.0009,+0.0000]   0.000   YES
+A bf16-sr (block-float16)          big-32agents             -0.0020 [-0.0043,+0.0003]   0.080    no
+A f16+u16base (IEEE binary16)      big-32agents             +0.0024 [-0.0022,+0.0070]   0.781    no
+A bf12-sr                          big-32agents             -0.0039 [-0.0089,+0.0012]   0.781    no
+A bf8-sr+u8base                    big-32agents             +0.0020 [-0.0056,+0.0095]   0.781    no
+B dense f32/f32                    big-32agents             +0.0000 [+0.0000,+0.0000]   0.000   YES
+B dense u16/q16                    big-32agents             +0.0005 [-0.0028,+0.0038]   0.069    no
+B SPARSE u16/q16                   big-32agents             +0.0005 [-0.0028,+0.0038]   0.069    no
+B SPARSE f16/q16                   big-32agents             -0.0015 [-0.0065,+0.0035]   0.766    no
+B SPARSE f16/f16                   big-32agents             -0.0019 [-0.0069,+0.0032]   0.769    no
+A bf16-sr (block-float16)          big-32agents-longtail    -0.0005 [-0.0018,+0.0009]   0.000   YES
+A f16+u16base (IEEE binary16)      big-32agents-longtail    -0.0008 [-0.0057,+0.0041]   0.522    no
+A bf12-sr                          big-32agents-longtail    -0.0005 [-0.0035,+0.0026]   0.033   YES
+A bf8-sr+u8base                    big-32agents-longtail    -0.0014 [-0.0097,+0.0069]   0.781    no
+B dense f32/f32                    big-32agents-longtail    +0.0000 [+0.0000,+0.0000]   0.000   YES
+B dense u16/q16                    big-32agents-longtail    +0.0003 [-0.0016,+0.0022]   0.000   YES
+B SPARSE u16/q16                   big-32agents-longtail    +0.0003 [-0.0016,+0.0022]   0.000   YES
+B SPARSE f16/q16                   big-32agents-longtail    +0.0012 [-0.0041,+0.0064]   0.760    no
+B SPARSE f16/f16                   big-32agents-longtail    +0.0010 [-0.0050,+0.0070]   0.766    no
+
+=== TOST vs f64 router, margin +-0.005, split power extension 91-250 (n=160) ===
+system                             world                           dQ(full) [95% CI]    Holm EQUIV
+A bf16-sr (block-float16)          sim-fixed                +0.0000 [-0.0003,+0.0004]   0.000   YES
+A f16+u16base (IEEE binary16)      sim-fixed                +0.0008 [-0.0004,+0.0020]   0.000   YES
+A bf12-sr                          sim-fixed                -0.0001 [-0.0014,+0.0013]   0.000   YES
+A bf8-sr+u8base                    sim-fixed                -0.0017 [-0.0040,+0.0007]   0.017   YES
+B dense f32/f32                    sim-fixed                +0.0000 [+0.0000,+0.0000]   0.000   YES
+B dense u16/q16                    sim-fixed                +0.0000 [-0.0003,+0.0004]   0.000   YES
+B SPARSE u16/q16                   sim-fixed                +0.0000 [-0.0003,+0.0004]   0.000   YES
+B SPARSE f16/q16                   sim-fixed                +0.0002 [-0.0004,+0.0008]   0.000   YES
+B SPARSE f16/f16                   sim-fixed                +0.0003 [-0.0003,+0.0009]   0.000   YES
+A bf16-sr (block-float16)          sim-random               -0.0004 [-0.0010,+0.0001]   0.000   YES
+A f16+u16base (IEEE binary16)      sim-random               +0.0002 [-0.0014,+0.0017]   0.000   YES
+A bf12-sr                          sim-random               +0.0002 [-0.0010,+0.0014]   0.000   YES
+A bf8-sr+u8base                    sim-random               +0.0015 [-0.0007,+0.0036]   0.007   YES
+B dense f32/f32                    sim-random               +0.0000 [+0.0000,+0.0000]   0.000   YES
+B dense u16/q16                    sim-random               +0.0004 [-0.0002,+0.0010]   0.000   YES
+B SPARSE u16/q16                   sim-random               +0.0004 [-0.0002,+0.0010]   0.000   YES
+B SPARSE f16/q16                   sim-random               -0.0000 [-0.0009,+0.0008]   0.000   YES
+B SPARSE f16/f16                   sim-random               -0.0003 [-0.0012,+0.0006]   0.000   YES
+A bf16-sr (block-float16)          sim-no-traps             +0.0005 [-0.0001,+0.0010]   0.000   YES
+A f16+u16base (IEEE binary16)      sim-no-traps             +0.0004 [-0.0011,+0.0018]   0.000   YES
+A bf12-sr                          sim-no-traps             +0.0009 [-0.0005,+0.0022]   0.000   YES
+A bf8-sr+u8base                    sim-no-traps             -0.0015 [-0.0036,+0.0006]   0.007   YES
+B dense f32/f32                    sim-no-traps             +0.0000 [+0.0000,+0.0000]   0.000   YES
+B dense u16/q16                    sim-no-traps             -0.0000 [-0.0001,+0.0001]   0.000   YES
+B SPARSE u16/q16                   sim-no-traps             -0.0000 [-0.0001,+0.0001]   0.000   YES
+B SPARSE f16/q16                   sim-no-traps             +0.0001 [-0.0001,+0.0003]   0.000   YES
+B SPARSE f16/f16                   sim-no-traps             +0.0001 [-0.0003,+0.0005]   0.000   YES
+A bf16-sr (block-float16)          big-32agents             -0.0004 [-0.0010,+0.0001]   0.000   YES
+A f16+u16base (IEEE binary16)      big-32agents             -0.0004 [-0.0033,+0.0025]   0.009   YES
+A bf12-sr                          big-32agents             -0.0031 [-0.0057,-0.0004]   0.231    no
+A bf8-sr+u8base                    big-32agents             +0.0021 [-0.0030,+0.0072]   0.261    no
+B dense f32/f32                    big-32agents             +0.0000 [+0.0000,+0.0000]   0.000   YES
+B dense u16/q16                    big-32agents             +0.0002 [-0.0025,+0.0029]   0.005   YES
+B SPARSE u16/q16                   big-32agents             +0.0002 [-0.0025,+0.0029]   0.005   YES
+B SPARSE f16/q16                   big-32agents             +0.0001 [-0.0027,+0.0028]   0.005   YES
+B SPARSE f16/f16                   big-32agents             -0.0000 [-0.0028,+0.0028]   0.005   YES
+A bf16-sr (block-float16)          big-32agents-longtail    -0.0003 [-0.0009,+0.0003]   0.000   YES
+A f16+u16base (IEEE binary16)      big-32agents-longtail    -0.0006 [-0.0037,+0.0025]   0.017   YES
+A bf12-sr                          big-32agents-longtail    -0.0016 [-0.0041,+0.0008]   0.017   YES
+A bf8-sr+u8base                    big-32agents-longtail    -0.0027 [-0.0073,+0.0018]   0.261    no
+B dense f32/f32                    big-32agents-longtail    +0.0000 [+0.0000,+0.0000]   0.000   YES
+B dense u16/q16                    big-32agents-longtail    -0.0006 [-0.0031,+0.0019]   0.005   YES
+B SPARSE u16/q16                   big-32agents-longtail    -0.0006 [-0.0031,+0.0019]   0.005   YES
+B SPARSE f16/q16                   big-32agents-longtail    +0.0000 [-0.0028,+0.0029]   0.005   YES
+B SPARSE f16/f16                   big-32agents-longtail    +0.0006 [-0.0023,+0.0035]   0.012   YES
+
+=== VERDICT (rule: equivalent in held-out AND confirm, per world) ===
+   (!) A bf16-sr (block-float16) NOT certified in big-32agents: held -0.0017 [-0.0054,+0.0021] (holm 0.622) | confirm -0.0024 [-0.0053,+0.0006] (holm 0.550) | pooled -0.0020 [-0.0043,+0.0003] | ext -0.0004 [-0.0010,+0.0001] -> ext EQUIV
+  A bf16-sr (block-float16)          primary rule 4/5 worlds; pooled-60 4/5; ext(160 fresh seeds) 5/5 (worst CI [-0.0010,+0.0010]); worst CI over held+confirm [-0.0054,+0.0021]  <- headline candidate
+   (!) A f16+u16base (IEEE binary16) NOT certified in sim-fixed: held +0.0021 [-0.0013,+0.0056] (holm 0.662) | confirm -0.0016 [-0.0056,+0.0023] (holm 0.590) | pooled +0.0003 [-0.0023,+0.0028] | ext +0.0008 [-0.0004,+0.0020] -> ext EQUIV
+   (!) A f16+u16base (IEEE binary16) NOT certified in big-32agents: held +0.0011 [-0.0056,+0.0078] (holm 1.000) | confirm +0.0037 [-0.0029,+0.0104] (holm 1.000) | pooled +0.0024 [-0.0022,+0.0070] | ext -0.0004 [-0.0033,+0.0025] -> ext EQUIV
+   (!) A f16+u16base (IEEE binary16) NOT certified in big-32agents-longtail: held +0.0017 [-0.0054,+0.0088] (holm 1.000) | confirm -0.0034 [-0.0105,+0.0038] (holm 1.000) | pooled -0.0008 [-0.0057,+0.0041] | ext -0.0006 [-0.0037,+0.0025] -> ext EQUIV
+  A f16+u16base (IEEE binary16)      primary rule 2/5 worlds; pooled-60 3/5; ext(160 fresh seeds) 5/5 (worst CI [-0.0037,+0.0025]); worst CI over held+confirm [-0.0105,+0.0104]  <- headline candidate
+   (!) A bf12-sr NOT certified in sim-no-traps: held -0.0006 [-0.0022,+0.0011] (holm 0.000) | confirm -0.0016 [-0.0048,+0.0016] (holm 0.355) | pooled -0.0011 [-0.0028,+0.0007] | ext +0.0009 [-0.0005,+0.0022] -> ext EQUIV
+   (!) A bf12-sr NOT certified in big-32agents: held -0.0088 [-0.0163,-0.0013] (holm 1.000) | confirm +0.0011 [-0.0057,+0.0078] (holm 1.000) | pooled -0.0039 [-0.0089,+0.0012] | ext -0.0031 [-0.0057,-0.0004] -> ext not equiv
+   (!) A bf12-sr NOT certified in big-32agents-longtail: held -0.0014 [-0.0052,+0.0025] (holm 0.550) | confirm +0.0005 [-0.0045,+0.0054] (holm 0.520) | pooled -0.0005 [-0.0035,+0.0026] | ext -0.0016 [-0.0041,+0.0008] -> ext EQUIV
+  A bf12-sr                          primary rule 2/5 worlds; pooled-60 4/5; ext(160 fresh seeds) 4/5 (worst CI [-0.0057,+0.0022]); worst CI over held+confirm [-0.0163,+0.0078]
+   (!) A bf8-sr+u8base NOT certified in sim-fixed: held -0.0011 [-0.0063,+0.0040] (holm 0.676) | confirm -0.0016 [-0.0076,+0.0043] (holm 1.000) | pooled -0.0014 [-0.0052,+0.0024] | ext -0.0017 [-0.0040,+0.0007] -> ext EQUIV
+   (!) A bf8-sr+u8base NOT certified in sim-random: held -0.0033 [-0.0089,+0.0022] (holm 1.000) | confirm -0.0021 [-0.0090,+0.0049] (holm 1.000) | pooled -0.0027 [-0.0070,+0.0016] | ext +0.0015 [-0.0007,+0.0036] -> ext EQUIV
+   (!) A bf8-sr+u8base NOT certified in sim-no-traps: held -0.0080 [-0.0125,-0.0036] (holm 1.000) | confirm -0.0030 [-0.0081,+0.0021] (holm 1.000) | pooled -0.0055 [-0.0089,-0.0022] | ext -0.0015 [-0.0036,+0.0006] -> ext EQUIV
+   (!) A bf8-sr+u8base NOT certified in big-32agents: held -0.0032 [-0.0128,+0.0064] (holm 1.000) | confirm +0.0071 [-0.0048,+0.0190] (holm 1.000) | pooled +0.0020 [-0.0056,+0.0095] | ext +0.0021 [-0.0030,+0.0072] -> ext not equiv
+   (!) A bf8-sr+u8base NOT certified in big-32agents-longtail: held -0.0053 [-0.0183,+0.0077] (holm 1.000) | confirm +0.0026 [-0.0084,+0.0135] (holm 1.000) | pooled -0.0014 [-0.0097,+0.0069] | ext -0.0027 [-0.0073,+0.0018] -> ext not equiv
+  A bf8-sr+u8base                    primary rule 0/5 worlds; pooled-60 0/5; ext(160 fresh seeds) 3/5 (worst CI [-0.0073,+0.0072]); worst CI over held+confirm [-0.0183,+0.0190]
+  B dense f32/f32                    primary rule 5/5 worlds; pooled-60 5/5; ext(160 fresh seeds) 5/5 (worst CI [+0.0000,+0.0000]); worst CI over held+confirm [+0.0000,+0.0000]
+   (!) B dense u16/q16 NOT certified in big-32agents: held -0.0000 [-0.0056,+0.0055] (holm 0.622) | confirm +0.0011 [-0.0029,+0.0051] (holm 0.479) | pooled +0.0005 [-0.0028,+0.0038] | ext +0.0002 [-0.0025,+0.0029] -> ext EQUIV
+  B dense u16/q16                    primary rule 4/5 worlds; pooled-60 4/5; ext(160 fresh seeds) 5/5 (worst CI [-0.0031,+0.0029]); worst CI over held+confirm [-0.0056,+0.0055]
+   (!) B SPARSE u16/q16 NOT certified in big-32agents: held -0.0000 [-0.0056,+0.0055] (holm 0.622) | confirm +0.0011 [-0.0029,+0.0051] (holm 0.479) | pooled +0.0005 [-0.0028,+0.0038] | ext +0.0002 [-0.0025,+0.0029] -> ext EQUIV
+  B SPARSE u16/q16                   primary rule 4/5 worlds; pooled-60 4/5; ext(160 fresh seeds) 5/5 (worst CI [-0.0031,+0.0029]); worst CI over held+confirm [-0.0056,+0.0055]  <- headline candidate
+   (!) B SPARSE f16/q16 NOT certified in big-32agents: held -0.0073 [-0.0156,+0.0010] (holm 1.000) | confirm +0.0042 [-0.0011,+0.0096] (holm 1.000) | pooled -0.0015 [-0.0065,+0.0035] | ext +0.0001 [-0.0027,+0.0028] -> ext EQUIV
+   (!) B SPARSE f16/q16 NOT certified in big-32agents-longtail: held -0.0012 [-0.0061,+0.0036] (holm 0.676) | confirm +0.0036 [-0.0060,+0.0132] (holm 1.000) | pooled +0.0012 [-0.0041,+0.0064] | ext +0.0000 [-0.0028,+0.0029] -> ext EQUIV
+  B SPARSE f16/q16                   primary rule 3/5 worlds; pooled-60 3/5; ext(160 fresh seeds) 5/5 (worst CI [-0.0028,+0.0029]); worst CI over held+confirm [-0.0156,+0.0132]  <- headline candidate
+   (!) B SPARSE f16/f16 NOT certified in big-32agents: held -0.0071 [-0.0157,+0.0014] (holm 1.000) | confirm +0.0034 [-0.0018,+0.0087] (holm 1.000) | pooled -0.0019 [-0.0069,+0.0032] | ext -0.0000 [-0.0028,+0.0028] -> ext EQUIV
+   (!) B SPARSE f16/f16 NOT certified in big-32agents-longtail: held -0.0012 [-0.0059,+0.0035] (holm 0.662) | confirm +0.0031 [-0.0083,+0.0145] (holm 1.000) | pooled +0.0010 [-0.0050,+0.0070] | ext +0.0006 [-0.0023,+0.0035] -> ext EQUIV
+  B SPARSE f16/f16                   primary rule 3/5 worlds; pooled-60 3/5; ext(160 fresh seeds) 5/5 (worst CI [-0.0028,+0.0035]); worst CI over held+confirm [-0.0157,+0.0145]  <- headline candidate
+
+=== BYTES (seed 31, end of run) ===
+sim-fixed: crate Warm<Hebbian> f64: json weights+baselines 5287 B (full serde 5744 B), live heap 88453 B, dense-f64 estimate 6620 B; packed f64 2132 B
+   A bf16-sr (block-float16)        packed     916 B (0.17x of crate JSON, 0.43x of packed f64); in-memory live heap   87099 B (not compact in memory: Vec<f64>/Vec<u16> per row)
+   A f16+u16base (IEEE binary16)    packed     788 B (0.15x of crate JSON, 0.37x of packed f64); in-memory live heap   88443 B (not compact in memory: Vec<f64>/Vec<u16> per row)
+   A bf12-sr                        packed     820 B (0.16x of crate JSON, 0.38x of packed f64); in-memory live heap   87213 B (not compact in memory: Vec<f64>/Vec<u16> per row)
+   A bf8-sr+u8base                  packed     692 B (0.13x of crate JSON, 0.32x of packed f64); in-memory live heap   87057 B (not compact in memory: Vec<f64>/Vec<u16> per row)
+   B ref crate guarded(hebr) f64: live heap 16504 B
+   B dense f64/f64 (layout only) live heap    9163 B (0.56x of crate), brain-only heap    6656 B (used 5120 B), rows 32
+   B SPARSE f64/f64 (layout only) live heap   11852 B (0.72x of crate), brain-only heap    9264 B (used 5544 B), rows 32
+   B dense f32/f32        live heap    5949 B (0.36x of crate), brain-only heap    3456 B (used 2688 B), rows 32
+   B dense u16/q16        live heap    4349 B (0.26x of crate), brain-only heap    1856 B (used 1472 B), rows 32
+   B SPARSE u16/q16       live heap    5370 B (0.33x of crate), brain-only heap    2796 B (used 1866 B), rows 32
+   B SPARSE f16/q16       live heap    5370 B (0.33x of crate), brain-only heap    2796 B (used 1866 B), rows 32
+   B SPARSE f16/f16       live heap    5370 B (0.33x of crate), brain-only heap    2796 B (used 1866 B), rows 32
+sim-random: crate Warm<Hebbian> f64: json weights+baselines 5295 B (full serde 5752 B), live heap 87462 B, dense-f64 estimate 6620 B; packed f64 2126 B
+   A bf16-sr (block-float16)        packed     916 B (0.17x of crate JSON, 0.43x of packed f64); in-memory live heap   86125 B (not compact in memory: Vec<f64>/Vec<u16> per row)
+   A f16+u16base (IEEE binary16)    packed     788 B (0.15x of crate JSON, 0.37x of packed f64); in-memory live heap   87095 B (not compact in memory: Vec<f64>/Vec<u16> per row)
+   A bf12-sr                        packed     820 B (0.15x of crate JSON, 0.39x of packed f64); in-memory live heap   85783 B (not compact in memory: Vec<f64>/Vec<u16> per row)
+   A bf8-sr+u8base                  packed     692 B (0.13x of crate JSON, 0.33x of packed f64); in-memory live heap   86416 B (not compact in memory: Vec<f64>/Vec<u16> per row)
+   B ref crate guarded(hebr) f64: live heap 16504 B
+   B dense f64/f64 (layout only) live heap    9163 B (0.56x of crate), brain-only heap    6656 B (used 5120 B), rows 32
+   B SPARSE f64/f64 (layout only) live heap    9836 B (0.60x of crate), brain-only heap    7248 B (used 4728 B), rows 32
+   B dense f32/f32        live heap    5949 B (0.36x of crate), brain-only heap    3456 B (used 2688 B), rows 32
+   B dense u16/q16        live heap    4349 B (0.26x of crate), brain-only heap    1856 B (used 1472 B), rows 32
+   B SPARSE u16/q16       live heap    4902 B (0.30x of crate), brain-only heap    2328 B (used 1662 B), rows 32
+   B SPARSE f16/q16       live heap    6414 B (0.39x of crate), brain-only heap    3840 B (used 1722 B), rows 32
+   B SPARSE f16/f16       live heap    6390 B (0.39x of crate), brain-only heap    3816 B (used 1722 B), rows 32
+sim-no-traps: crate Warm<Hebbian> f64: json weights+baselines 5312 B (full serde 5769 B), live heap 90810 B, dense-f64 estimate 6620 B; packed f64 2132 B
+   A bf16-sr (block-float16)        packed     916 B (0.17x of crate JSON, 0.43x of packed f64); in-memory live heap   89473 B (not compact in memory: Vec<f64>/Vec<u16> per row)
+   A f16+u16base (IEEE binary16)    packed     788 B (0.15x of crate JSON, 0.37x of packed f64); in-memory live heap   90564 B (not compact in memory: Vec<f64>/Vec<u16> per row)
+   A bf12-sr                        packed     820 B (0.15x of crate JSON, 0.38x of packed f64); in-memory live heap   89507 B (not compact in memory: Vec<f64>/Vec<u16> per row)
+   A bf8-sr+u8base                  packed     692 B (0.13x of crate JSON, 0.32x of packed f64); in-memory live heap   89733 B (not compact in memory: Vec<f64>/Vec<u16> per row)
+   B ref crate guarded(hebr) f64: live heap 16504 B
+   B dense f64/f64 (layout only) live heap    9163 B (0.56x of crate), brain-only heap    6656 B (used 5120 B), rows 32
+   B SPARSE f64/f64 (layout only) live heap   16412 B (0.99x of crate), brain-only heap   13824 B (used 5064 B), rows 32
+   B dense f32/f32        live heap    5949 B (0.36x of crate), brain-only heap    3456 B (used 2688 B), rows 32
+   B dense u16/q16        live heap    4349 B (0.26x of crate), brain-only heap    1856 B (used 1472 B), rows 32
+   B SPARSE u16/q16       live heap    6510 B (0.39x of crate), brain-only heap    3936 B (used 1746 B), rows 32
+   B SPARSE f16/q16       live heap    6510 B (0.39x of crate), brain-only heap    3936 B (used 1746 B), rows 32
+   B SPARSE f16/f16       live heap    6510 B (0.39x of crate), brain-only heap    3936 B (used 1746 B), rows 32
+big-32agents: crate Warm<Hebbian> f64: json weights+baselines 160170 B (full serde 160628 B), live heap 401020 B, dense-f64 estimate 94860 B; packed f64 26871 B
+   A bf16-sr (block-float16)        packed   10866 B (0.07x of crate JSON, 0.40x of packed f64); in-memory live heap  368067 B (not compact in memory: Vec<f64>/Vec<u16> per row)
+   A f16+u16base (IEEE binary16)    packed    9944 B (0.06x of crate JSON, 0.37x of packed f64); in-memory live heap  411970 B (not compact in memory: Vec<f64>/Vec<u16> per row)
+   A bf12-sr                        packed    9732 B (0.06x of crate JSON, 0.36x of packed f64); in-memory live heap  365795 B (not compact in memory: Vec<f64>/Vec<u16> per row)
+   A bf8-sr+u8base                  packed    7898 B (0.05x of crate JSON, 0.29x of packed f64); in-memory live heap  368351 B (not compact in memory: Vec<f64>/Vec<u16> per row)
+   B ref crate guarded(hebr) f64: live heap 247722 B
+   B dense f64/f64 (layout only) live heap  216483 B (0.87x of crate), brain-only heap  200704 B (used 181888 B), rows 232
+   B SPARSE f64/f64 (layout only) live heap  183188 B (0.74x of crate), brain-only heap  167328 B (used 53424 B), rows 232
+   B dense f32/f32        live heap  117141 B (0.47x of crate), brain-only heap  101376 B (used 91872 B), rows 232
+   B dense u16/q16        live heap   67477 B (0.27x of crate), brain-only heap   51712 B (used 46864 B), rows 232
+   B SPARSE u16/q16       live heap   61542 B (0.25x of crate), brain-only heap   45696 B (used 16860 B), rows 232
+   B SPARSE f16/q16       live heap   61470 B (0.25x of crate), brain-only heap   45624 B (used 16794 B), rows 232
+   B SPARSE f16/f16       live heap   44490 B (0.18x of crate), brain-only heap   28644 B (used 16926 B), rows 232
+big-32agents-longtail: crate Warm<Hebbian> f64: json weights+baselines 1265313 B (full serde 1265771 B), live heap 1236283 B, dense-f64 estimate 752294 B; packed f64 81934 B
+   A bf16-sr (block-float16)        packed   42816 B (0.03x of crate JSON, 0.52x of packed f64); in-memory live heap 1000754 B (not compact in memory: Vec<f64>/Vec<u16> per row)
+   A f16+u16base (IEEE binary16)    packed   35532 B (0.03x of crate JSON, 0.43x of packed f64); in-memory live heap 1426283 B (not compact in memory: Vec<f64>/Vec<u16> per row)
+   A bf12-sr                        packed   40144 B (0.03x of crate JSON, 0.49x of packed f64); in-memory live heap 1073240 B (not compact in memory: Vec<f64>/Vec<u16> per row)
+   A bf8-sr+u8base                  packed   35083 B (0.03x of crate JSON, 0.43x of packed f64); in-memory live heap  999654 B (not compact in memory: Vec<f64>/Vec<u16> per row)
+   B ref crate guarded(hebr) f64: live heap 1878161 B
+   B dense f64/f64 (layout only) live heap 1718528 B (0.92x of crate), brain-only heap 1605632 B (used 1440992 B), rows 1838
+   B SPARSE f64/f64 (layout only) live heap  465969 B (0.25x of crate), brain-only heap  352992 B (used 156144 B), rows 1838
+   B dense f32/f32        live heap  923890 B (0.49x of crate), brain-only heap  811008 B (used 727848 B), rows 1838
+   B dense u16/q16        live heap  526578 B (0.28x of crate), brain-only heap  413696 B (used 371276 B), rows 1838
+   B SPARSE u16/q16       live heap  197215 B (0.11x of crate), brain-only heap   84252 B (used 66450 B), rows 1838
+   B SPARSE f16/q16       live heap  230107 B (0.12x of crate), brain-only heap  117144 B (used 66408 B), rows 1838
+   B SPARSE f16/f16       live heap  196111 B (0.10x of crate), brain-only heap   83148 B (used 66318 B), rows 1838
+
+=== STATE SAVE/LOAD (big-32agents, seed 31) ===
+crate JSON (160628 B): save 173.4 us, load 348.2 us
+packed f64 (packed)                     26871 B: save   898.9 us, load (decode)   213.1 us
+packed bf16-sr (block-float16)          10866 B: save   450.3 us, load (decode)   115.8 us
+packed f16+u16base (IEEE binary16)       9944 B: save  1152.5 us, load (decode)   182.3 us
+packed bf12-sr                           9732 B: save   592.8 us, load (decode)   126.3 us
+packed bf8-sr+u8base                     7898 B: save   470.7 us, load (decode)   123.2 us
+
+=== LATENCY: ns per decision (select+update), single thread, median of 15 interleaved reps over 2 seeds ===
+
+sim-fixed (2000 tasks, 6 agents)
+system                                              ns med    ns min  decisions/s    vs ref vs f64-cells
+A ref: crate Warm<Hebbian> f64                        3086      1911       324034     1.00x           -
+A MiniHeb f64 (layout only)                           2124      1329       470754     1.45x           -
+A bf16-sr (block-float16)                             2231      1363       448290     1.38x       0.95x
+A f16+u16base (IEEE binary16)                         2793      1686       358051     1.10x       0.76x
+A bf12-sr                                             2246      1337       445286     1.37x       0.95x
+A bf8-sr+u8base                                       2220      1319       450542     1.39x       0.96x
+B ref: crate guarded(hebr) f64                        2031      1235       492308     1.00x           -
+B compact f64/f64 string-API (layout only)             518       329      1929571     3.92x           -
+B compact f64/f64 ids-API (layout only)                364       253      2744237     5.57x           -
+B dense f32/f32 string-API                             506       330      1974919     4.01x       1.02x
+B dense f32/f32 ids-API                                367       252      2724053     5.53x       0.99x
+B dense u16/q16 string-API                             742       502      1347437     2.74x       0.70x
+B dense u16/q16 ids-API                                598       414      1671263     3.39x       0.61x
+B SPARSE u16/q16 string-API                            804       571      1243394     2.53x       0.64x
+B SPARSE u16/q16 ids-API                               648       485      1542615     3.13x       0.56x
+B SPARSE f16/q16 string-API                            857       593      1166929     2.37x       0.60x
+B SPARSE f16/q16 ids-API                               699       493      1430922     2.91x       0.52x
+B SPARSE f16/f16 string-API                            934       657      1070549     2.17x       0.55x
+B SPARSE f16/f16 ids-API                               774       550      1291572     2.62x       0.47x
+
+sim-random (2000 tasks, 6 agents)
+system                                              ns med    ns min  decisions/s    vs ref vs f64-cells
+A ref: crate Warm<Hebbian> f64                        2650      1803       377380     1.00x           -
+A MiniHeb f64 (layout only)                           1733      1239       577051     1.53x           -
+A bf16-sr (block-float16)                             1991      1276       502336     1.33x       0.87x
+A f16+u16base (IEEE binary16)                         2560      1604       390648     1.04x       0.68x
+A bf12-sr                                             1994      1263       501630     1.33x       0.87x
+A bf8-sr+u8base                                       2057      1260       486204     1.29x       0.84x
+B ref: crate guarded(hebr) f64                        1958      1254       510803     1.00x           -
+B compact f64/f64 string-API (layout only)             501       320      1995809     3.91x           -
+B compact f64/f64 ids-API (layout only)                351       245      2848191     5.58x           -
+B dense f32/f32 string-API                             490       317      2038736     3.99x       1.02x
+B dense f32/f32 ids-API                                362       246      2760524     5.40x       0.97x
+B dense u16/q16 string-API                             674       479      1482580     2.90x       0.74x
+B dense u16/q16 ids-API                                573       394      1744744     3.42x       0.61x
+B SPARSE u16/q16 string-API                            696       527      1436782     2.81x       0.72x
+B SPARSE u16/q16 ids-API                               571       431      1751774     3.43x       0.62x
+B SPARSE f16/q16 string-API                            738       558      1355748     2.65x       0.68x
+B SPARSE f16/q16 ids-API                               642       456      1556905     3.05x       0.55x
+B SPARSE f16/f16 string-API                            877       611      1140771     2.23x       0.57x
+B SPARSE f16/f16 ids-API                               674       511      1484671     2.91x       0.52x
+
+sim-no-traps (2000 tasks, 6 agents)
+system                                              ns med    ns min  decisions/s    vs ref vs f64-cells
+A ref: crate Warm<Hebbian> f64                        2071      1917       482963     1.00x           -
+A MiniHeb f64 (layout only)                           1472      1337       679440     1.41x           -
+A bf16-sr (block-float16)                             1554      1391       643563     1.33x       0.95x
+A f16+u16base (IEEE binary16)                         2222      1721       450025     0.93x       0.66x
+A bf12-sr                                             1685      1365       593437     1.23x       0.87x
+A bf8-sr+u8base                                       1630      1374       613497     1.27x       0.90x
+B ref: crate guarded(hebr) f64                        1247      1152       802085     1.00x           -
+B compact f64/f64 string-API (layout only)             333       299      3002552     3.74x           -
+B compact f64/f64 ids-API (layout only)                238       220      4201681     5.24x           -
+B dense f32/f32 string-API                             326       297      3067485     3.82x       1.02x
+B dense f32/f32 ids-API                                262       222      3821169     4.76x       0.91x
+B dense u16/q16 string-API                             491       445      2034795     2.54x       0.68x
+B dense u16/q16 ids-API                                398       371      2512563     3.13x       0.60x
+B SPARSE u16/q16 string-API                            543       474      1841621     2.30x       0.61x
+B SPARSE u16/q16 ids-API                               454       399      2202401     2.75x       0.52x
+B SPARSE f16/q16 string-API                            575       492      1737921     2.17x       0.58x
+B SPARSE f16/q16 ids-API                               470       399      2128792     2.65x       0.51x
+B SPARSE f16/f16 string-API                            625       552      1598849     1.99x       0.53x
+B SPARSE f16/f16 ids-API                               515       456      1941182     2.42x       0.46x
+
+big-32agents (4000 tasks, 32 agents)
+system                                              ns med    ns min  decisions/s    vs ref vs f64-cells
+A ref: crate Warm<Hebbian> f64                        5655      4446       176832     1.00x           -
+A MiniHeb f64 (layout only)                           1831      1543       546068     3.09x           -
+A bf16-sr (block-float16)                             1924      1654       519771     2.94x       0.95x
+A f16+u16base (IEEE binary16)                         4306      3664       232245     1.31x       0.43x
+A bf12-sr                                             1906      1626       524735     2.97x       0.96x
+A bf8-sr+u8base                                       1916      1687       521873     2.95x       0.96x
+B ref: crate guarded(hebr) f64                        3770      3287       265222     1.00x           -
+B compact f64/f64 string-API (layout only)             806       671      1241118     4.68x           -
+B compact f64/f64 ids-API (layout only)                686       576      1457567     5.50x           -
+B dense f32/f32 string-API                             759       632      1318305     4.97x       1.06x
+B dense f32/f32 ids-API                                662       578      1509776     5.69x       1.04x
+B dense u16/q16 string-API                            1481      1328       675128     2.55x       0.54x
+B dense u16/q16 ids-API                               1428      1254       700501     2.64x       0.48x
+B SPARSE u16/q16 string-API                           1198       977       834568     3.15x       0.67x
+B SPARSE u16/q16 ids-API                              1022       896       978474     3.69x       0.67x
+B SPARSE f16/q16 string-API                           1240       986       806452     3.04x       0.65x
+B SPARSE f16/q16 ids-API                              1025       888       975753     3.68x       0.67x
+B SPARSE f16/f16 string-API                           1281      1032       780671     2.94x       0.63x
+B SPARSE f16/f16 ids-API                              1117       954       895215     3.38x       0.61x
+
+big-32agents-longtail (4000 tasks, 32 agents)
+system                                              ns med    ns min  decisions/s    vs ref vs f64-cells
+A ref: crate Warm<Hebbian> f64                        7742      6612       129169     1.00x           -
+A MiniHeb f64 (layout only)                           2360      1782       423810     3.28x           -
+A bf16-sr (block-float16)                             2500      1900       400040     3.10x       0.94x
+A f16+u16base (IEEE binary16)                         4997      4016       200119     1.55x       0.47x
+A bf12-sr                                             2588      1836       386373     2.99x       0.91x
+A bf8-sr+u8base                                       2632      1832       379936     2.94x       0.90x
+B ref: crate guarded(hebr) f64                        5109      4502       195721     1.00x           -
+B compact f64/f64 string-API (layout only)            1107       910       903281     4.62x           -
+B compact f64/f64 ids-API (layout only)                911       762      1097665     5.61x           -
+B dense f32/f32 string-API                            1030       827       970685     4.96x       1.07x
+B dense f32/f32 ids-API                                807       682      1239004     6.33x       1.13x
+B dense u16/q16 string-API                            1792      1536       557950     2.85x       0.62x
+B dense u16/q16 ids-API                               1732      1426       577242     2.95x       0.53x
+B SPARSE u16/q16 string-API                           1260      1124       793604     4.05x       0.88x
+B SPARSE u16/q16 ids-API                              1096       975       912159     4.66x       0.83x
+B SPARSE f16/q16 string-API                           1302      1126       768256     3.93x       0.85x
+B SPARSE f16/q16 ids-API                              1082      1014       924236     4.72x       0.84x
+B SPARSE f16/f16 string-API                           1311      1178       762646     3.90x       0.84x
+B SPARSE f16/f16 ids-API                              1160      1055       861735     4.40x       0.79x
+
+=== LATENCY VERDICT (NOT HURT iff speed-vs-ref >= 0.9 in every world) ===
+  A MiniHeb f64 (layout only)                      vs crate f64: worst 1.41x best 3.28x [not hurt]   vs same-layout f64 cells (decode cost): worst NaNx best NaNx
+  A bf16-sr (block-float16)                        vs crate f64: worst 1.33x best 3.10x [not hurt]   vs same-layout f64 cells (decode cost): worst 0.87x best 0.95x  <- decode cost >10% slower in >=1 world
+  A f16+u16base (IEEE binary16)                    vs crate f64: worst 0.93x best 1.55x [not hurt]   vs same-layout f64 cells (decode cost): worst 0.43x best 0.76x  <- decode cost >10% slower in >=1 world
+  A bf12-sr                                        vs crate f64: worst 1.23x best 2.99x [not hurt]   vs same-layout f64 cells (decode cost): worst 0.87x best 0.96x  <- decode cost >10% slower in >=1 world
+  A bf8-sr+u8base                                  vs crate f64: worst 1.27x best 2.95x [not hurt]   vs same-layout f64 cells (decode cost): worst 0.84x best 0.96x  <- decode cost >10% slower in >=1 world
+  B compact f64/f64 string-API (layout only)       vs crate f64: worst 3.74x best 4.68x [not hurt]   vs same-layout f64 cells (decode cost): worst NaNx best NaNx
+  B compact f64/f64 ids-API (layout only)          vs crate f64: worst 5.24x best 5.61x [not hurt]   vs same-layout f64 cells (decode cost): worst NaNx best NaNx
+  B dense f32/f32 string-API                       vs crate f64: worst 3.82x best 4.97x [not hurt]   vs same-layout f64 cells (decode cost): worst 1.02x best 1.07x
+  B dense f32/f32 ids-API                          vs crate f64: worst 4.76x best 6.33x [not hurt]   vs same-layout f64 cells (decode cost): worst 0.91x best 1.13x
+  B dense u16/q16 string-API                       vs crate f64: worst 2.54x best 2.90x [not hurt]   vs same-layout f64 cells (decode cost): worst 0.54x best 0.74x  <- decode cost >10% slower in >=1 world
+  B dense u16/q16 ids-API                          vs crate f64: worst 2.64x best 3.42x [not hurt]   vs same-layout f64 cells (decode cost): worst 0.48x best 0.61x  <- decode cost >10% slower in >=1 world
+  B SPARSE u16/q16 string-API                      vs crate f64: worst 2.30x best 4.05x [not hurt]   vs same-layout f64 cells (decode cost): worst 0.61x best 0.88x  <- decode cost >10% slower in >=1 world
+  B SPARSE u16/q16 ids-API                         vs crate f64: worst 2.75x best 4.66x [not hurt]   vs same-layout f64 cells (decode cost): worst 0.52x best 0.83x  <- decode cost >10% slower in >=1 world
+  B SPARSE f16/q16 string-API                      vs crate f64: worst 2.17x best 3.93x [not hurt]   vs same-layout f64 cells (decode cost): worst 0.58x best 0.85x  <- decode cost >10% slower in >=1 world
+  B SPARSE f16/q16 ids-API                         vs crate f64: worst 2.65x best 4.72x [not hurt]   vs same-layout f64 cells (decode cost): worst 0.51x best 0.84x  <- decode cost >10% slower in >=1 world
+  B SPARSE f16/f16 string-API                      vs crate f64: worst 1.99x best 3.90x [not hurt]   vs same-layout f64 cells (decode cost): worst 0.53x best 0.84x  <- decode cost >10% slower in >=1 world
+  B SPARSE f16/f16 ids-API                         vs crate f64: worst 2.42x best 4.40x [not hurt]   vs same-layout f64 cells (decode cost): worst 0.46x best 0.79x  <- decode cost >10% slower in >=1 world
+wrote results/g2_memory_tost.json
+runtime 48.3s

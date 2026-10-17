@@ -1,0 +1,498 @@
+tune exist-flat(weak) gate cost: picked exist-flat c=0.1 ; grid ["exist-flat c=0.02=0.8677", "exist-flat c=0.05=0.8880", "exist-flat c=0.1=0.8996"]
+tune exist-hier(weak) gate cost: picked exist-hier c=0.1 ; grid ["exist-hier c=0.02=0.8673", "exist-hier c=0.05=0.8873", "exist-hier c=0.1=0.8989"]
+tune exist-flat(strong) gate cost: picked exist-flat-strong c=0.1 ; grid ["exist-flat-strong c=0.02=0.8902", "exist-flat-strong c=0.05=0.8965", "exist-flat-strong c=0.1=0.9003"]
+tune self-consistency k: picked sc k=3 ; grid ["sc k=3=0.8400", "sc k=5=0.7536"]
+tune support-entity: picked support-entity unv_flag=false ; grid ["support-entity unv_flag=false=0.9246", "support-entity unv_flag=true=0.9168"]
+tune latest: picked latest unv_flag=false ; grid ["latest unv_flag=false=0.9480", "latest unv_flag=true=0.9401"]
+tune agree: picked agree th=0.5 unv_flag=false ; grid ["agree th=0.5 unv_flag=false=0.9476", "agree th=0.5 unv_flag=true=0.9397", "agree th=0.67 unv_flag=false=0.9420", "agree th=0.67 unv_flag=true=0.9343", "agree th=1 unv_flag=false=0.9420", "agree th=1 unv_flag=true=0.9343"]
+tune cascade theta: picked cascade th=0.5 ; grid ["cascade th=0.5=0.9436", "cascade th=0.67=0.9382", "cascade th=1=0.9382"]
+tune auto (online-gated agree): picked auto th=0.5 unv=false c=0.02 ; grid ["auto th=0.5 unv=false c=0.02=0.9476", "auto th=0.5 unv=true c=0.02=0.9397", "auto th=0.5 unv=false c=0.05=0.9476", "auto th=0.5 unv=true c=0.05=0.9397", "auto th=0.5 unv=false c=0.1=0.9474", "auto th=0.5 unv=true c=0.1=0.9392"]
+tune gate+evidence cost: picked gate-ev c=0.05 ; grid ["gate-ev c=0.02=0.9058", "gate-ev c=0.05=0.9066", "gate-ev c=0.1=0.9012"]
+tuning done in 4.7s
+evaluation done in 17.4s
+
+=== A1-mixed (family A, eps 0.20, m 1) best fair (net@.05): exist-flat(weak)
+arm                    acc1   accF  calls   tool |   recl   prec    ffr silent | net.02 net.05 net.10   harm
+none                  0.897  0.897  0.000  0.000 |  0.000  0.000  0.000  0.103 |  0.897  0.897  0.897  0.000
+exist-flat(weak)      0.897  0.897  0.009  0.000 |  0.005  0.375  0.000  0.103 |  0.897  0.897  0.896  0.000
+exist-hier(weak)      0.897  0.898  0.048  0.000 |  0.021  0.423  0.002  0.102 |  0.897  0.896  0.894  0.000
+exist-flat(strong)    0.897  0.898  0.009  0.000 |  0.008  0.622  0.000  0.102 |  0.897  0.897  0.897  0.000
+self-consistency      0.897  0.934  2.000  0.000 |  0.731  0.464  0.097  0.057 |  0.894  0.834  0.734  0.000
+support-any(naive)    0.897  0.901  0.402  1.402 |  0.899  0.231  0.345  0.013 |  0.891  0.874  0.847  0.068
+support-entity        0.897  0.945  0.184  1.184 |  0.866  0.484  0.106  0.018 |  0.939  0.930  0.915  0.021
+latest                0.897  0.964  0.140  1.140 |  0.948  0.696  0.047  0.006 |  0.959  0.951  0.938  0.009
+agree                 0.897  0.963  0.139  1.139 |  0.944  0.698  0.047  0.007 |  0.958  0.951  0.938  0.009
+cascade               0.897  0.966  0.231  1.139 |  0.981  0.687  0.051  0.004 |  0.959  0.948  0.931  0.009
+auto                  0.897  0.963  0.139  1.139 |  0.944  0.698  0.047  0.007 |  0.958  0.951  0.938  0.009
+gate+evidence         0.897  0.943  0.709  0.000 |  0.602  0.700  0.029  0.057 |  0.929  0.908  0.872  0.005
+ev-substitute         0.897  0.947  0.000  1.000 |  0.944  0.698  0.047  0.053 |  0.945  0.942  0.937  0.042
+oracle(ceiling)       0.897  0.978  0.103  1.103 |  1.000  1.000  0.000  0.000 |  0.973  0.967  0.956  0.000
+
+=== A2-stale-heavy (family A, eps 0.25, m 1) best fair (net@.05): exist-flat(weak)
+arm                    acc1   accF  calls   tool |   recl   prec    ffr silent | net.02 net.05 net.10   harm
+none                  0.867  0.867  0.000  0.000 |  0.000  0.000  0.000  0.133 |  0.867  0.867  0.867  0.000
+exist-flat(weak)      0.867  0.868  0.012  0.000 |  0.007  0.483  0.001  0.132 |  0.868  0.868  0.867  0.000
+exist-hier(weak)      0.867  0.869  0.039  0.000 |  0.016  0.474  0.002  0.131 |  0.868  0.867  0.865  0.000
+exist-flat(strong)    0.867  0.869  0.012  0.000 |  0.012  0.669  0.000  0.131 |  0.868  0.868  0.867  0.000
+self-consistency      0.867  0.909  2.000  0.000 |  0.686  0.454  0.126  0.077 |  0.869  0.809  0.709  0.001
+support-any(naive)    0.867  0.889  0.324  1.324 |  0.813  0.333  0.249  0.030 |  0.880  0.866  0.843  0.057
+support-entity        0.867  0.924  0.173  1.173 |  0.773  0.592  0.081  0.038 |  0.918  0.909  0.895  0.019
+latest                0.867  0.951  0.161  1.161 |  0.951  0.783  0.040  0.009 |  0.946  0.937  0.923  0.009
+agree                 0.867  0.950  0.161  1.161 |  0.942  0.778  0.041  0.010 |  0.944  0.936  0.922  0.010
+cascade               0.867  0.952  0.245  1.161 |  0.973  0.765  0.046  0.007 |  0.945  0.934  0.916  0.010
+auto                  0.867  0.950  0.160  1.160 |  0.942  0.778  0.041  0.010 |  0.944  0.936  0.922  0.010
+gate+evidence         0.867  0.939  0.930  0.000 |  0.767  0.782  0.033  0.061 |  0.920  0.892  0.846  0.007
+ev-substitute         0.867  0.951  0.000  1.000 |  0.942  0.778  0.041  0.049 |  0.949  0.946  0.941  0.035
+oracle(ceiling)       0.867  0.965  0.133  1.133 |  1.000  1.000  0.000  0.000 |  0.960  0.953  0.940  0.000
+
+=== A3-halluc-heavy (family A, eps 0.25, m 1) best fair (net@.05): exist-flat(weak)
+arm                    acc1   accF  calls   tool |   recl   prec    ffr silent | net.02 net.05 net.10   harm
+none                  0.866  0.866  0.000  0.000 |  0.000  0.000  0.000  0.134 |  0.866  0.866  0.866  0.000
+exist-flat(weak)      0.866  0.867  0.013  0.000 |  0.010  0.583  0.000  0.133 |  0.867  0.867  0.866  0.000
+exist-hier(weak)      0.866  0.870  0.070  0.000 |  0.038  0.624  0.003  0.130 |  0.868  0.866  0.863  0.001
+exist-flat(strong)    0.866  0.868  0.014  0.000 |  0.015  0.728  0.000  0.132 |  0.868  0.867  0.867  0.000
+self-consistency      0.866  0.934  2.000  0.000 |  0.905  0.535  0.121  0.041 |  0.894  0.834  0.734  0.000
+support-any(naive)    0.866  0.884  0.429  1.429 |  0.973  0.303  0.345  0.005 |  0.872  0.855  0.826  0.079
+support-entity        0.866  0.935  0.216  1.216 |  0.936  0.579  0.105  0.011 |  0.928  0.918  0.901  0.024
+latest                0.866  0.951  0.168  1.168 |  0.956  0.761  0.046  0.006 |  0.945  0.936  0.922  0.010
+agree                 0.866  0.951  0.166  1.166 |  0.955  0.767  0.045  0.006 |  0.945  0.937  0.923  0.010
+cascade               0.866  0.954  0.258  1.166 |  0.994  0.753  0.050  0.002 |  0.947  0.935  0.917  0.010
+auto                  0.866  0.951  0.166  1.166 |  0.955  0.767  0.045  0.006 |  0.945  0.937  0.923  0.010
+gate+evidence         0.866  0.940  0.944  0.000 |  0.775  0.769  0.036  0.060 |  0.921  0.893  0.846  0.007
+ev-substitute         0.866  0.948  0.000  1.000 |  0.955  0.767  0.045  0.052 |  0.946  0.943  0.938  0.039
+oracle(ceiling)       0.866  0.965  0.134  1.134 |  1.000  1.000  0.000  0.000 |  0.960  0.953  0.941  0.000
+
+=== A4-arith-heavy (family A, eps 0.25, m 1) best fair (net@.05): exist-flat(weak)
+arm                    acc1   accF  calls   tool |   recl   prec    ffr silent | net.02 net.05 net.10   harm
+none                  0.868  0.868  0.000  0.000 |  0.000  0.000  0.000  0.132 |  0.868  0.868  0.868  0.000
+exist-flat(weak)      0.868  0.869  0.013  0.000 |  0.006  0.465  0.001  0.131 |  0.868  0.868  0.867  0.000
+exist-hier(weak)      0.868  0.870  0.054  0.000 |  0.023  0.473  0.003  0.130 |  0.869  0.867  0.864  0.001
+exist-flat(strong)    0.868  0.869  0.014  0.000 |  0.013  0.691  0.000  0.131 |  0.869  0.869  0.868  0.000
+self-consistency      0.868  0.926  2.000  0.000 |  0.867  0.509  0.127  0.055 |  0.886  0.826  0.726  0.000
+support-any(naive)    0.868  0.778  0.838  1.838 |  0.972  0.153  0.818  0.005 |  0.758  0.727  0.676  0.185
+support-entity        0.868  0.904  0.325  1.325 |  0.908  0.368  0.237  0.016 |  0.895  0.881  0.858  0.053
+latest                0.868  0.943  0.187  1.187 |  0.935  0.656  0.074  0.009 |  0.937  0.928  0.913  0.016
+agree                 0.868  0.943  0.187  1.187 |  0.934  0.657  0.074  0.009 |  0.937  0.928  0.913  0.016
+cascade               0.868  0.947  0.310  1.187 |  0.991  0.646  0.082  0.004 |  0.939  0.926  0.905  0.016
+auto                  0.868  0.943  0.187  1.187 |  0.934  0.657  0.074  0.009 |  0.937  0.928  0.913  0.016
+gate+evidence         0.868  0.932  0.924  0.000 |  0.734  0.661  0.057  0.068 |  0.913  0.885  0.839  0.012
+ev-substitute         0.868  0.918  0.000  1.000 |  0.934  0.657  0.074  0.082 |  0.916  0.913  0.908  0.064
+oracle(ceiling)       0.868  0.966  0.132  1.132 |  1.000  1.000  0.000  0.000 |  0.961  0.954  0.942  0.000
+
+=== A5-persistent (family A, eps 0.20, m 1) best fair (net@.05): exist-flat(weak)
+arm                    acc1   accF  calls   tool |   recl   prec    ffr silent | net.02 net.05 net.10   harm
+none                  0.893  0.893  0.000  0.000 |  0.000  0.000  0.000  0.107 |  0.893  0.893  0.893  0.000
+exist-flat(weak)      0.893  0.893  0.012  0.000 |  0.009  0.569  0.001  0.107 |  0.893  0.893  0.892  0.000
+exist-hier(weak)      0.893  0.895  0.051  0.000 |  0.023  0.476  0.002  0.105 |  0.893  0.892  0.889  0.000
+exist-flat(strong)    0.893  0.894  0.014  0.000 |  0.015  0.804  0.000  0.106 |  0.894  0.893  0.893  0.000
+self-consistency      0.893  0.893  2.000  0.000 |  0.095  0.522  0.010  0.107 |  0.853  0.793  0.693  0.000
+support-any(naive)    0.893  0.902  0.406  1.406 |  0.907  0.239  0.346  0.013 |  0.891  0.874  0.847  0.067
+support-entity        0.893  0.946  0.190  1.190 |  0.878  0.495  0.107  0.018 |  0.939  0.930  0.915  0.021
+latest                0.893  0.963  0.144  1.144 |  0.952  0.707  0.047  0.007 |  0.958  0.950  0.938  0.010
+agree                 0.893  0.963  0.143  1.143 |  0.946  0.706  0.047  0.007 |  0.958  0.950  0.937  0.010
+cascade               0.893  0.963  0.234  1.143 |  0.950  0.705  0.048  0.007 |  0.956  0.946  0.928  0.010
+auto                  0.893  0.963  0.143  1.143 |  0.946  0.706  0.047  0.007 |  0.957  0.950  0.937  0.010
+gate+evidence         0.893  0.938  0.682  0.000 |  0.568  0.713  0.027  0.062 |  0.924  0.904  0.870  0.005
+ev-substitute         0.893  0.947  0.000  1.000 |  0.946  0.706  0.047  0.053 |  0.945  0.942  0.937  0.042
+oracle(ceiling)       0.893  0.977  0.107  1.107 |  1.000  1.000  0.000  0.000 |  0.973  0.966  0.955  0.000
+
+=== A6-random-slips (family A, eps 0.20, m 1) best fair (net@.05): exist-flat(weak)
+arm                    acc1   accF  calls   tool |   recl   prec    ffr silent | net.02 net.05 net.10   harm
+none                  0.894  0.894  0.000  0.000 |  0.000  0.000  0.000  0.106 |  0.894  0.894  0.894  0.000
+exist-flat(weak)      0.894  0.895  0.011  0.000 |  0.011  0.544  0.000  0.105 |  0.895  0.894  0.894  0.000
+exist-hier(weak)      0.894  0.895  0.046  0.000 |  0.025  0.513  0.002  0.105 |  0.895  0.893  0.891  0.000
+exist-flat(strong)    0.894  0.895  0.013  0.000 |  0.016  0.654  0.000  0.105 |  0.895  0.895  0.894  0.000
+self-consistency      0.894  0.976  2.000  0.000 |  1.000  0.373  0.199  0.003 |  0.936  0.876  0.776  0.001
+support-any(naive)    0.894  0.899  0.404  1.404 |  0.898  0.236  0.346  0.014 |  0.888  0.871  0.844  0.069
+support-entity        0.894  0.944  0.187  1.187 |  0.870  0.494  0.106  0.018 |  0.938  0.929  0.913  0.021
+latest                0.894  0.962  0.142  1.142 |  0.951  0.710  0.046  0.006 |  0.957  0.950  0.937  0.009
+agree                 0.894  0.962  0.141  1.141 |  0.946  0.711  0.045  0.007 |  0.957  0.949  0.937  0.009
+cascade               0.894  0.966  0.230  1.141 |  0.988  0.681  0.055  0.003 |  0.959  0.948  0.931  0.009
+auto                  0.894  0.962  0.141  1.141 |  0.946  0.711  0.045  0.007 |  0.957  0.949  0.937  0.009
+gate+evidence         0.894  0.932  0.588  0.000 |  0.491  0.702  0.023  0.068 |  0.920  0.902  0.873  0.005
+ev-substitute         0.894  0.948  0.000  1.000 |  0.946  0.711  0.045  0.052 |  0.946  0.943  0.938  0.041
+oracle(ceiling)       0.894  0.976  0.106  1.106 |  1.000  1.000  0.000  0.000 |  0.971  0.965  0.954  0.000
+
+=== A7-weak-retrieval (family A, eps 0.20, m 1) best fair (net@.05): exist-flat(weak)
+arm                    acc1   accF  calls   tool |   recl   prec    ffr silent | net.02 net.05 net.10   harm
+none                  0.895  0.895  0.000  0.000 |  0.000  0.000  0.000  0.105 |  0.895  0.895  0.895  0.000
+exist-flat(weak)      0.895  0.896  0.012  0.000 |  0.011  0.705  0.000  0.104 |  0.896  0.896  0.895  0.000
+exist-hier(weak)      0.895  0.897  0.053  0.000 |  0.026  0.487  0.002  0.103 |  0.896  0.895  0.892  0.000
+exist-flat(strong)    0.895  0.897  0.012  0.000 |  0.015  0.829  0.000  0.103 |  0.896  0.896  0.895  0.000
+self-consistency      0.895  0.934  2.000  0.000 |  0.739  0.461  0.101  0.057 |  0.894  0.834  0.734  0.000
+support-any(naive)    0.895  0.850  0.647  1.647 |  0.876  0.142  0.621  0.026 |  0.834  0.810  0.769  0.118
+support-entity        0.895  0.896  0.272  1.272 |  0.554  0.214  0.239  0.060 |  0.888  0.876  0.856  0.046
+latest                0.895  0.907  0.251  1.251 |  0.613  0.256  0.208  0.052 |  0.900  0.888  0.870  0.039
+agree                 0.895  0.906  0.249  1.249 |  0.601  0.253  0.208  0.054 |  0.899  0.887  0.869  0.039
+cascade               0.895  0.922  0.897  1.249 |  0.872  0.297  0.242  0.034 |  0.901  0.870  0.819  0.040
+auto                  0.895  0.904  0.175  1.175 |  0.601  0.253  0.208  0.050 |  0.898  0.890  0.875  0.027
+gate+evidence         0.895  0.902  0.391  0.000 |  0.198  0.265  0.065  0.098 |  0.894  0.883  0.863  0.010
+ev-substitute         0.895  0.756  0.000  1.000 |  0.601  0.253  0.208  0.244 |  0.754  0.751  0.746  0.187
+oracle(ceiling)       0.895  0.979  0.105  1.105 |  1.000  1.000  0.000  0.000 |  0.975  0.969  0.958  0.000
+
+=== A8-poisoned-evidence (family A, eps 0.15, m 1) best fair (net@.05): none
+arm                    acc1   accF  calls   tool |   recl   prec    ffr silent | net.02 net.05 net.10   harm
+none                  0.919  0.919  0.000  0.000 |  0.000  0.000  0.000  0.081 |  0.919  0.919  0.919  0.000
+exist-flat(weak)      0.919  0.920  0.011  0.000 |  0.008  0.391  0.001  0.080 |  0.919  0.919  0.919  0.000
+exist-hier(weak)      0.919  0.921  0.053  0.000 |  0.027  0.392  0.003  0.079 |  0.920  0.918  0.915  0.000
+exist-flat(strong)    0.919  0.920  0.011  0.000 |  0.012  0.649  0.000  0.080 |  0.920  0.919  0.919  0.000
+self-consistency      0.919  0.951  2.000  0.000 |  0.735  0.458  0.077  0.044 |  0.911  0.851  0.751  0.000
+support-any(naive)    0.919  0.929  0.388  1.388 |  0.902  0.188  0.343  0.010 |  0.919  0.903  0.877  0.051
+support-entity        0.919  0.952  0.237  1.237 |  0.889  0.303  0.179  0.011 |  0.945  0.934  0.916  0.028
+latest                0.919  0.911  0.529  1.529 |  0.970  0.148  0.490  0.003 |  0.897  0.877  0.843  0.074
+agree                 0.919  0.958  0.238  1.238 |  0.966  0.327  0.174  0.003 |  0.951  0.940  0.922  0.026
+cascade               0.919  0.959  0.290  1.238 |  0.986  0.330  0.176  0.002 |  0.951  0.938  0.918  0.026
+auto                  0.919  0.957  0.230  1.230 |  0.966  0.327  0.174  0.003 |  0.950  0.939  0.922  0.025
+gate+evidence         0.919  0.936  0.396  0.000 |  0.339  0.358  0.054  0.064 |  0.928  0.916  0.896  0.008
+ev-substitute         0.919  0.812  0.000  1.000 |  0.966  0.327  0.174  0.188 |  0.810  0.807  0.802  0.160
+oracle(ceiling)       0.919  0.987  0.081  1.081 |  1.000  1.000  0.000  0.000 |  0.983  0.977  0.968  0.000
+
+=== A9-rare-errors (family A, eps 0.03, m 1) best fair (net@.05): none
+arm                    acc1   accF  calls   tool |   recl   prec    ffr silent | net.02 net.05 net.10   harm
+none                  0.984  0.984  0.000  0.000 |  0.000  0.000  0.000  0.016 |  0.984  0.984  0.984  0.000
+exist-flat(weak)      0.984  0.984  0.005  0.000 |  0.001  0.017  0.000  0.016 |  0.984  0.984  0.984  0.000
+exist-hier(weak)      0.984  0.984  0.036  0.000 |  0.013  0.078  0.002  0.016 |  0.984  0.983  0.981  0.000
+exist-flat(strong)    0.984  0.984  0.005  0.000 |  0.003  0.067  0.000  0.016 |  0.984  0.984  0.984  0.000
+self-consistency      0.984  0.991  2.000  0.000 |  0.747  0.426  0.016  0.008 |  0.951  0.891  0.791  0.000
+support-any(naive)    0.984  0.987  0.353  1.353 |  0.905  0.040  0.344  0.002 |  0.978  0.963  0.939  0.011
+support-entity        0.984  0.994  0.118  1.118 |  0.862  0.114  0.106  0.003 |  0.990  0.983  0.971  0.003
+latest                0.984  0.997  0.060  1.060 |  0.938  0.244  0.046  0.001 |  0.994  0.989  0.980  0.002
+agree                 0.984  0.997  0.060  1.060 |  0.932  0.242  0.046  0.001 |  0.994  0.989  0.980  0.001
+cascade               0.984  0.997  0.150  1.060 |  0.974  0.247  0.047  0.001 |  0.992  0.984  0.972  0.001
+auto                  0.984  0.997  0.059  1.059 |  0.932  0.242  0.046  0.001 |  0.993  0.989  0.980  0.001
+gate+evidence         0.984  0.986  0.095  0.000 |  0.103  0.281  0.004  0.014 |  0.984  0.981  0.976  0.000
+ev-substitute         0.984  0.953  0.000  1.000 |  0.932  0.242  0.046  0.047 |  0.951  0.948  0.943  0.045
+oracle(ceiling)       0.984  0.999  0.016  1.016 |  1.000  1.000  0.000  0.000 |  0.997  0.994  0.988  0.000
+
+=== A10-ctl-zero-errors (family A, eps 0.00, m 1) best fair (net@.05): none
+arm                    acc1   accF  calls   tool |   recl   prec    ffr silent | net.02 net.05 net.10   harm
+none                  1.000  1.000  0.000  0.000 |  0.000  0.000  0.000  0.000 |  1.000  1.000  1.000  0.000
+exist-flat(weak)      1.000  1.000  0.006  0.000 |  0.000  0.000  0.000  0.000 |  1.000  1.000  0.999  0.000
+exist-hier(weak)      1.000  1.000  0.037  0.000 |  0.000  0.000  0.002  0.000 |  0.999  0.998  0.996  0.000
+exist-flat(strong)    1.000  1.000  0.006  0.000 |  0.000  0.000  0.000  0.000 |  1.000  1.000  0.999  0.000
+self-consistency      1.000  1.000  2.000  0.000 |  0.000  0.000  0.000  0.000 |  0.960  0.900  0.800  0.000
+support-any(naive)    1.000  1.000  0.344  1.344 |  0.000  0.000  0.344  0.000 |  0.990  0.976  0.952  0.000
+support-entity        1.000  1.000  0.106  1.106 |  0.000  0.000  0.106  0.000 |  0.996  0.989  0.978  0.000
+latest                1.000  1.000  0.046  1.046 |  0.000  0.000  0.046  0.000 |  0.997  0.992  0.985  0.000
+agree                 1.000  1.000  0.046  1.046 |  0.000  0.000  0.046  0.000 |  0.997  0.992  0.985  0.000
+cascade               1.000  1.000  0.132  1.046 |  0.000  0.000  0.046  0.000 |  0.995  0.988  0.976  0.000
+auto                  1.000  1.000  0.029  1.029 |  0.000  0.000  0.046  0.000 |  0.997  0.993  0.987  0.000
+gate+evidence         1.000  1.000  0.068  0.000 |  0.000  0.000  0.003  0.000 |  0.999  0.997  0.993  0.000
+ev-substitute         1.000  0.954  0.000  1.000 |  0.000  0.000  0.046  0.046 |  0.952  0.949  0.944  0.046
+oracle(ceiling)       1.000  1.000  0.000  1.000 |  0.000  0.000  0.000  0.000 |  0.998  0.995  0.990  0.000
+
+=== B1-report-mixed (family B, eps 0.12, m 4) best fair (net@.05): none
+arm                    acc1   accF  calls   tool |   recl   prec    ffr silent | net.02 net.05 net.10   harm
+none                  0.937  0.937  0.000  0.000 |  0.000  0.000  0.000  0.227 |  0.937  0.937  0.937  0.000
+exist-flat(weak)      0.937  0.938  0.038  0.000 |  0.018  0.538  0.005  0.226 |  0.937  0.936  0.934  0.001
+exist-hier(weak)      0.937  0.938  0.087  0.000 |  0.034  0.385  0.012  0.225 |  0.936  0.933  0.929  0.004
+exist-flat(strong)    0.937  0.939  0.046  0.000 |  0.032  0.792  0.003  0.222 |  0.938  0.936  0.934  0.000
+self-consistency      0.937  0.962  2.000  0.000 |  0.804  0.517  0.221  0.126 |  0.922  0.862  0.762  0.000
+support-any(naive)    0.937  0.936  0.845  1.845 |  0.965  0.260  0.810  0.012 |  0.916  0.885  0.833  0.126
+support-entity        0.937  0.960  0.480  1.480 |  0.915  0.434  0.351  0.028 |  0.948  0.929  0.898  0.038
+latest                0.937  0.970  0.343  1.343 |  0.962  0.638  0.160  0.012 |  0.960  0.946  0.922  0.013
+agree                 0.937  0.970  0.343  1.343 |  0.959  0.635  0.162  0.013 |  0.960  0.946  0.922  0.014
+cascade               0.937  0.971  0.565  1.343 |  0.988  0.604  0.190  0.009 |  0.957  0.936  0.901  0.014
+auto                  0.937  0.970  0.343  1.343 |  0.959  0.635  0.162  0.013 |  0.960  0.946  0.922  0.014
+gate+evidence         0.937  0.961  1.328  0.000 |  0.950  0.636  0.160  0.133 |  0.934  0.894  0.828  0.044
+ev-substitute         0.937  0.951  0.000  1.000 |  0.959  0.635  0.162  0.173 |  0.949  0.946  0.941  0.125
+oracle(ceiling)       0.937  0.971  0.227  1.227 |  1.000  1.000  0.000  0.000 |  0.964  0.953  0.935  0.000
+
+=== B2-report-rare (family B, eps 0.03, m 4) best fair (net@.05): none
+arm                    acc1   accF  calls   tool |   recl   prec    ffr silent | net.02 net.05 net.10   harm
+none                  0.985  0.985  0.000  0.000 |  0.000  0.000  0.000  0.060 |  0.985  0.985  0.985  0.000
+exist-flat(weak)      0.985  0.985  0.010  0.000 |  0.009  0.242  0.001  0.060 |  0.985  0.984  0.984  0.000
+exist-hier(weak)      0.985  0.985  0.042  0.000 |  0.014  0.095  0.007  0.060 |  0.984  0.983  0.980  0.001
+exist-flat(strong)    0.985  0.985  0.010  0.000 |  0.013  0.522  0.001  0.059 |  0.985  0.984  0.984  0.000
+self-consistency      0.985  0.992  2.000  0.000 |  0.752  0.432  0.063  0.032 |  0.952  0.892  0.792  0.000
+support-any(naive)    0.985  0.985  0.822  1.822 |  0.961  0.070  0.813  0.003 |  0.965  0.935  0.885  0.047
+support-entity        0.985  0.993  0.382  1.382 |  0.916  0.144  0.348  0.007 |  0.983  0.967  0.941  0.015
+latest                0.985  0.996  0.205  1.205 |  0.965  0.282  0.157  0.003 |  0.990  0.980  0.964  0.005
+agree                 0.985  0.996  0.205  1.205 |  0.961  0.281  0.157  0.003 |  0.990  0.980  0.964  0.005
+cascade               0.985  0.997  0.467  1.205 |  0.988  0.276  0.165  0.002 |  0.985  0.967  0.938  0.005
+auto                  0.985  0.996  0.205  1.205 |  0.961  0.281  0.157  0.003 |  0.990  0.980  0.964  0.005
+gate+evidence         0.985  0.986  0.196  0.000 |  0.168  0.284  0.025  0.053 |  0.982  0.977  0.967  0.003
+ev-substitute         0.985  0.955  0.000  1.000 |  0.961  0.281  0.157  0.160 |  0.953  0.950  0.945  0.148
+oracle(ceiling)       0.985  0.998  0.060  1.060 |  1.000  1.000  0.000  0.000 |  0.995  0.990  0.981  0.000
+
+=== B3-ctl-report-zero (family B, eps 0.00, m 4) best fair (net@.05): none
+arm                    acc1   accF  calls   tool |   recl   prec    ffr silent | net.02 net.05 net.10   harm
+none                  1.000  1.000  0.000  0.000 |  0.000  0.000  0.000  0.000 |  1.000  1.000  1.000  0.000
+exist-flat(weak)      1.000  1.000  0.006  0.000 |  0.000  0.000  0.001  0.000 |  1.000  1.000  0.999  0.000
+exist-hier(weak)      1.000  1.000  0.046  0.000 |  0.000  0.000  0.008  0.000 |  0.999  0.998  0.995  0.000
+exist-flat(strong)    1.000  1.000  0.006  0.000 |  0.000  0.000  0.000  0.000 |  1.000  1.000  0.999  0.000
+self-consistency      1.000  1.000  2.000  0.000 |  0.000  0.000  0.000  0.000 |  0.960  0.900  0.800  0.000
+support-any(naive)    1.000  1.000  0.812  1.812 |  0.000  0.000  0.812  0.000 |  0.980  0.950  0.901  0.000
+support-entity        1.000  1.000  0.344  1.344 |  0.000  0.000  0.344  0.000 |  0.990  0.976  0.952  0.000
+latest                1.000  1.000  0.156  1.156 |  0.000  0.000  0.156  0.000 |  0.995  0.986  0.973  0.000
+agree                 1.000  1.000  0.157  1.157 |  0.000  0.000  0.157  0.000 |  0.995  0.986  0.973  0.000
+cascade               1.000  1.000  0.426  1.157 |  0.000  0.000  0.157  0.000 |  0.989  0.973  0.946  0.000
+auto                  1.000  1.000  0.028  1.028 |  0.000  0.000  0.157  0.000 |  0.997  0.993  0.987  0.000
+gate+evidence         1.000  1.000  0.097  0.000 |  0.000  0.000  0.013  0.000 |  0.998  0.995  0.990  0.000
+ev-substitute         1.000  0.956  0.000  1.000 |  0.000  0.000  0.157  0.157 |  0.954  0.951  0.946  0.157
+oracle(ceiling)       1.000  1.000  0.000  1.000 |  0.000  0.000  0.000  0.000 |  0.998  0.995  0.990  0.000
+
+=== A11-single-source-poisoned (family A, eps 0.15, m 1) best fair (net@.05): exist-flat(weak)
+arm                    acc1   accF  calls   tool |   recl   prec    ffr silent | net.02 net.05 net.10   harm
+none                  0.926  0.926  0.000  0.000 |  0.000  0.000  0.000  0.074 |  0.926  0.926  0.926  0.000
+exist-flat(weak)      0.926  0.926  0.010  0.000 |  0.008  0.413  0.000  0.074 |  0.926  0.926  0.926  0.000
+exist-hier(weak)      0.926  0.927  0.042  0.000 |  0.020  0.394  0.002  0.073 |  0.926  0.925  0.923  0.000
+exist-flat(strong)    0.926  0.927  0.010  0.000 |  0.011  0.572  0.000  0.073 |  0.927  0.926  0.926  0.000
+self-consistency      0.926  0.953  2.000  0.000 |  0.726  0.461  0.068  0.042 |  0.913  0.853  0.753  0.000
+support-any(naive)    0.926  0.889  0.615  1.615 |  0.897  0.108  0.593  0.016 |  0.874  0.850  0.812  0.091
+support-entity        0.926  0.914  0.398  1.398 |  0.740  0.137  0.371  0.027 |  0.903  0.887  0.860  0.057
+latest                0.926  0.883  0.607  1.607 |  0.810  0.099  0.590  0.017 |  0.868  0.845  0.806  0.092
+agree                 0.926  0.914  0.418  1.418 |  0.794  0.140  0.388  0.021 |  0.903  0.886  0.858  0.060
+cascade               0.926  0.920  0.774  1.418 |  0.928  0.156  0.400  0.015 |  0.902  0.874  0.828  0.060
+auto                  0.926  0.925  0.057  1.057 |  0.794  0.140  0.388  0.016 |  0.921  0.916  0.908  0.008
+gate+evidence         0.926  0.927  0.218  0.000 |  0.139  0.157  0.059  0.073 |  0.922  0.916  0.905  0.008
+ev-substitute         0.926  0.584  0.000  1.000 |  0.794  0.140  0.388  0.416 |  0.582  0.579  0.574  0.359
+oracle(ceiling)       0.926  0.986  0.074  1.074 |  1.000  1.000  0.000  0.000 |  0.983  0.977  0.968  0.000
+
+=== Holm tests (family-wise)
+F1-net05-vs-bestfair   A1-mixed               support-entity       vs exist-flat(weak)     +0.0332 [+0.0294,+0.0370] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A1-mixed               support-entity       vs none                 +0.0333 [+0.0294,+0.0371] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A1-mixed               latest               vs exist-flat(weak)     +0.0543 [+0.0512,+0.0574] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A1-mixed               latest               vs none                 +0.0543 [+0.0512,+0.0575] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A1-mixed               agree                vs exist-flat(weak)     +0.0539 [+0.0508,+0.0570] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A1-mixed               agree                vs none                 +0.0539 [+0.0508,+0.0571] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A1-mixed               cascade              vs exist-flat(weak)     +0.0514 [+0.0483,+0.0545] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A1-mixed               cascade              vs none                 +0.0514 [+0.0483,+0.0546] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A1-mixed               auto                 vs exist-flat(weak)     +0.0539 [+0.0508,+0.0570] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A1-mixed               auto                 vs none                 +0.0539 [+0.0508,+0.0571] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A1-mixed               gate+evidence        vs exist-flat(weak)     +0.0106 [+0.0070,+0.0143] w/l 27/3 holm 0.0000 WIN
+F2-net05-vs-none       A1-mixed               gate+evidence        vs none                 +0.0107 [+0.0069,+0.0144] w/l 27/3 holm 0.0001 WIN
+F1-net05-vs-bestfair   A1-mixed               exist-flat(strong)   vs exist-flat(weak)     +0.0003 [+0.0001,+0.0004] w/l 13/2 holm 0.0426 WIN
+F1-net05-vs-bestfair   A1-mixed               ev-substitute        vs exist-flat(weak)     +0.0454 [+0.0413,+0.0495] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A1-mixed               exist-hier(weak)     vs none                 -0.0008 [-0.0011,-0.0005] w/l 6/24 holm 0.0019 LOSS
+F2-net05-vs-none       A1-mixed               self-consistency     vs none                 -0.0631 [-0.0652,-0.0611] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A1-mixed               support-any(naive)   vs none                 -0.0225 [-0.0277,-0.0174] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   A2-stale-heavy         support-entity       vs exist-flat(weak)     +0.0416 [+0.0376,+0.0456] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A2-stale-heavy         support-entity       vs none                 +0.0419 [+0.0379,+0.0459] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A2-stale-heavy         latest               vs exist-flat(weak)     +0.0696 [+0.0659,+0.0734] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A2-stale-heavy         latest               vs none                 +0.0699 [+0.0662,+0.0736] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A2-stale-heavy         agree                vs exist-flat(weak)     +0.0683 [+0.0646,+0.0720] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A2-stale-heavy         agree                vs none                 +0.0685 [+0.0648,+0.0722] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A2-stale-heavy         cascade              vs exist-flat(weak)     +0.0662 [+0.0624,+0.0699] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A2-stale-heavy         cascade              vs none                 +0.0664 [+0.0627,+0.0701] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A2-stale-heavy         auto                 vs exist-flat(weak)     +0.0683 [+0.0645,+0.0720] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A2-stale-heavy         auto                 vs none                 +0.0685 [+0.0648,+0.0722] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A2-stale-heavy         gate+evidence        vs exist-flat(weak)     +0.0248 [+0.0205,+0.0291] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A2-stale-heavy         gate+evidence        vs none                 +0.0250 [+0.0208,+0.0293] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A2-stale-heavy         exist-flat(strong)   vs exist-flat(weak)     +0.0005 [+0.0002,+0.0007] w/l 17/2 holm 0.0055 WIN
+F2-net05-vs-none       A2-stale-heavy         exist-flat(strong)   vs none                 +0.0007 [+0.0004,+0.0011] w/l 20/7 holm 0.0094 WIN
+F1-net05-vs-bestfair   A2-stale-heavy         ev-substitute        vs exist-flat(weak)     +0.0789 [+0.0736,+0.0842] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A2-stale-heavy         self-consistency     vs none                 -0.0586 [-0.0607,-0.0564] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   A3-halluc-heavy        support-entity       vs exist-flat(weak)     +0.0513 [+0.0455,+0.0572] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A3-halluc-heavy        support-entity       vs none                 +0.0518 [+0.0459,+0.0577] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A3-halluc-heavy        latest               vs exist-flat(weak)     +0.0698 [+0.0646,+0.0749] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A3-halluc-heavy        latest               vs none                 +0.0702 [+0.0650,+0.0754] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A3-halluc-heavy        agree                vs exist-flat(weak)     +0.0703 [+0.0651,+0.0755] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A3-halluc-heavy        agree                vs none                 +0.0708 [+0.0655,+0.0760] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A3-halluc-heavy        cascade              vs exist-flat(weak)     +0.0687 [+0.0633,+0.0740] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A3-halluc-heavy        cascade              vs none                 +0.0691 [+0.0637,+0.0745] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A3-halluc-heavy        auto                 vs exist-flat(weak)     +0.0703 [+0.0651,+0.0755] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A3-halluc-heavy        auto                 vs none                 +0.0707 [+0.0655,+0.0760] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A3-halluc-heavy        gate+evidence        vs exist-flat(weak)     +0.0263 [+0.0203,+0.0322] w/l 28/2 holm 0.0000 WIN
+F2-net05-vs-none       A3-halluc-heavy        gate+evidence        vs none                 +0.0267 [+0.0208,+0.0327] w/l 28/2 holm 0.0000 WIN
+F1-net05-vs-bestfair   A3-halluc-heavy        exist-flat(strong)   vs exist-flat(weak)     +0.0006 [+0.0003,+0.0009] w/l 19/1 holm 0.0013 WIN
+F2-net05-vs-none       A3-halluc-heavy        exist-flat(strong)   vs none                 +0.0010 [+0.0007,+0.0014] w/l 23/6 holm 0.0001 WIN
+F1-net05-vs-bestfair   A3-halluc-heavy        ev-substitute        vs exist-flat(weak)     +0.0760 [+0.0703,+0.0817] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A3-halluc-heavy        exist-flat(weak)     vs none                 +0.0005 [+0.0002,+0.0007] w/l 19/10 holm 0.0365 WIN
+F2-net05-vs-none       A3-halluc-heavy        self-consistency     vs none                 -0.0319 [-0.0351,-0.0287] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   A4-arith-heavy         support-entity       vs exist-flat(weak)     +0.0130 [+0.0059,+0.0202] w/l 24/6 holm 0.0104 WIN
+F2-net05-vs-none       A4-arith-heavy         support-entity       vs none                 +0.0131 [+0.0060,+0.0202] w/l 24/6 holm 0.0216 WIN
+F1-net05-vs-bestfair   A4-arith-heavy         latest               vs exist-flat(weak)     +0.0600 [+0.0539,+0.0661] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A4-arith-heavy         latest               vs none                 +0.0601 [+0.0540,+0.0662] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A4-arith-heavy         agree                vs exist-flat(weak)     +0.0600 [+0.0540,+0.0660] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A4-arith-heavy         agree                vs none                 +0.0600 [+0.0540,+0.0660] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A4-arith-heavy         cascade              vs exist-flat(weak)     +0.0578 [+0.0516,+0.0640] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A4-arith-heavy         cascade              vs none                 +0.0579 [+0.0517,+0.0641] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A4-arith-heavy         auto                 vs exist-flat(weak)     +0.0599 [+0.0539,+0.0659] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A4-arith-heavy         auto                 vs none                 +0.0599 [+0.0540,+0.0659] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A4-arith-heavy         gate+evidence        vs exist-flat(weak)     +0.0173 [+0.0113,+0.0232] w/l 28/2 holm 0.0000 WIN
+F2-net05-vs-none       A4-arith-heavy         gate+evidence        vs none                 +0.0173 [+0.0114,+0.0232] w/l 28/2 holm 0.0001 WIN
+F1-net05-vs-bestfair   A4-arith-heavy         exist-flat(strong)   vs exist-flat(weak)     +0.0006 [+0.0002,+0.0010] w/l 17/5 holm 0.0466 WIN
+F1-net05-vs-bestfair   A4-arith-heavy         ev-substitute        vs exist-flat(weak)     +0.0450 [+0.0389,+0.0512] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A4-arith-heavy         exist-hier(weak)     vs none                 -0.0009 [-0.0015,-0.0004] w/l 7/23 holm 0.0392 LOSS
+F2-net05-vs-none       A4-arith-heavy         self-consistency     vs none                 -0.0420 [-0.0450,-0.0390] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A4-arith-heavy         support-any(naive)   vs none                 -0.1412 [-0.1534,-0.1289] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   A5-persistent          support-entity       vs exist-flat(weak)     +0.0373 [+0.0334,+0.0413] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A5-persistent          support-entity       vs none                 +0.0374 [+0.0334,+0.0413] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A5-persistent          latest               vs exist-flat(weak)     +0.0577 [+0.0540,+0.0614] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A5-persistent          latest               vs none                 +0.0578 [+0.0540,+0.0615] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A5-persistent          agree                vs exist-flat(weak)     +0.0572 [+0.0535,+0.0609] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A5-persistent          agree                vs none                 +0.0573 [+0.0536,+0.0610] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A5-persistent          cascade              vs exist-flat(weak)     +0.0527 [+0.0490,+0.0564] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A5-persistent          cascade              vs none                 +0.0528 [+0.0491,+0.0565] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A5-persistent          auto                 vs exist-flat(weak)     +0.0570 [+0.0534,+0.0606] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A5-persistent          auto                 vs none                 +0.0570 [+0.0534,+0.0607] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A5-persistent          gate+evidence        vs exist-flat(weak)     +0.0111 [+0.0070,+0.0152] w/l 25/5 holm 0.0001 WIN
+F2-net05-vs-none       A5-persistent          gate+evidence        vs none                 +0.0111 [+0.0070,+0.0152] w/l 26/4 holm 0.0002 WIN
+F1-net05-vs-bestfair   A5-persistent          exist-flat(strong)   vs exist-flat(weak)     +0.0005 [+0.0002,+0.0009] w/l 14/1 holm 0.0391 WIN
+F1-net05-vs-bestfair   A5-persistent          ev-substitute        vs exist-flat(weak)     +0.0488 [+0.0448,+0.0527] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A5-persistent          exist-hier(weak)     vs none                 -0.0008 [-0.0012,-0.0004] w/l 4/26 holm 0.0187 LOSS
+F2-net05-vs-none       A5-persistent          self-consistency     vs none                 -0.0997 [-0.0999,-0.0996] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A5-persistent          support-any(naive)   vs none                 -0.0184 [-0.0246,-0.0123] w/l 4/26 holm 0.0000 LOSS
+F1-net05-vs-bestfair   A6-random-slips        support-entity       vs exist-flat(weak)     +0.0344 [+0.0301,+0.0386] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A6-random-slips        support-entity       vs none                 +0.0347 [+0.0305,+0.0390] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A6-random-slips        latest               vs exist-flat(weak)     +0.0554 [+0.0515,+0.0594] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A6-random-slips        latest               vs none                 +0.0558 [+0.0519,+0.0598] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A6-random-slips        agree                vs exist-flat(weak)     +0.0553 [+0.0515,+0.0590] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A6-random-slips        agree                vs none                 +0.0556 [+0.0519,+0.0594] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A6-random-slips        cascade              vs exist-flat(weak)     +0.0542 [+0.0503,+0.0582] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A6-random-slips        cascade              vs none                 +0.0546 [+0.0507,+0.0585] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A6-random-slips        auto                 vs exist-flat(weak)     +0.0553 [+0.0515,+0.0590] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A6-random-slips        auto                 vs none                 +0.0556 [+0.0519,+0.0594] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A6-random-slips        gate+evidence        vs exist-flat(weak)     +0.0083 [+0.0046,+0.0120] w/l 25/5 holm 0.0013 WIN
+F2-net05-vs-none       A6-random-slips        gate+evidence        vs none                 +0.0087 [+0.0050,+0.0124] w/l 25/5 holm 0.0015 WIN
+F1-net05-vs-bestfair   A6-random-slips        exist-flat(strong)   vs exist-flat(weak)     +0.0004 [+0.0001,+0.0006] w/l 16/1 holm 0.0426 WIN
+F1-net05-vs-bestfair   A6-random-slips        ev-substitute        vs exist-flat(weak)     +0.0489 [+0.0447,+0.0532] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A6-random-slips        self-consistency     vs none                 -0.0178 [-0.0211,-0.0145] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A6-random-slips        support-any(naive)   vs none                 -0.0224 [-0.0278,-0.0170] w/l 1/29 holm 0.0000 LOSS
+F1-net05-vs-bestfair   A7-weak-retrieval      support-entity       vs exist-flat(weak)     -0.0198 [-0.0241,-0.0155] w/l 2/28 holm 0.0000 LOSS
+F2-net05-vs-none       A7-weak-retrieval      support-entity       vs none                 -0.0194 [-0.0236,-0.0151] w/l 2/28 holm 0.0000 LOSS
+F1-net05-vs-bestfair   A7-weak-retrieval      latest               vs exist-flat(weak)     -0.0072 [-0.0112,-0.0032] w/l 7/23 holm 0.0109 LOSS
+F2-net05-vs-none       A7-weak-retrieval      latest               vs none                 -0.0068 [-0.0108,-0.0029] w/l 6/24 holm 0.0371 LOSS
+F1-net05-vs-bestfair   A7-weak-retrieval      agree                vs exist-flat(weak)     -0.0082 [-0.0121,-0.0043] w/l 6/24 holm 0.0031 LOSS
+F2-net05-vs-none       A7-weak-retrieval      agree                vs none                 -0.0078 [-0.0117,-0.0039] w/l 5/25 holm 0.0097 LOSS
+F1-net05-vs-bestfair   A7-weak-retrieval      cascade              vs exist-flat(weak)     -0.0251 [-0.0293,-0.0209] w/l 1/29 holm 0.0000 LOSS
+F2-net05-vs-none       A7-weak-retrieval      cascade              vs none                 -0.0247 [-0.0288,-0.0206] w/l 1/29 holm 0.0000 LOSS
+F1-net05-vs-bestfair   A7-weak-retrieval      auto                 vs exist-flat(weak)     -0.0060 [-0.0088,-0.0032] w/l 5/25 holm 0.0022 LOSS
+F2-net05-vs-none       A7-weak-retrieval      auto                 vs none                 -0.0056 [-0.0083,-0.0029] w/l 4/26 holm 0.0062 LOSS
+F1-net05-vs-bestfair   A7-weak-retrieval      gate+evidence        vs exist-flat(weak)     -0.0129 [-0.0155,-0.0104] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A7-weak-retrieval      gate+evidence        vs none                 -0.0125 [-0.0150,-0.0101] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   A7-weak-retrieval      exist-flat(strong)   vs exist-flat(weak)     +0.0004 [+0.0001,+0.0007] w/l 11/2 holm 0.0466 WIN
+F2-net05-vs-none       A7-weak-retrieval      exist-flat(strong)   vs none                 +0.0008 [+0.0004,+0.0011] w/l 22/8 holm 0.0031 WIN
+F1-net05-vs-bestfair   A7-weak-retrieval      ev-substitute        vs exist-flat(weak)     -0.1443 [-0.1517,-0.1370] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A7-weak-retrieval      self-consistency     vs none                 -0.0616 [-0.0635,-0.0597] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A7-weak-retrieval      support-any(naive)   vs none                 -0.0855 [-0.0922,-0.0787] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   A8-poisoned-evidence   support-entity       vs none                 +0.0147 [+0.0109,+0.0184] w/l 29/1 holm 0.0000 WIN
+F2-net05-vs-none       A8-poisoned-evidence   support-entity       vs none                 +0.0147 [+0.0109,+0.0184] w/l 29/1 holm 0.0000 WIN
+F1-net05-vs-bestfair   A8-poisoned-evidence   latest               vs none                 -0.0421 [-0.0478,-0.0365] w/l 1/29 holm 0.0000 LOSS
+F2-net05-vs-none       A8-poisoned-evidence   latest               vs none                 -0.0421 [-0.0478,-0.0365] w/l 1/29 holm 0.0000 LOSS
+F1-net05-vs-bestfair   A8-poisoned-evidence   agree                vs none                 +0.0210 [+0.0168,+0.0251] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       A8-poisoned-evidence   agree                vs none                 +0.0210 [+0.0168,+0.0251] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   A8-poisoned-evidence   cascade              vs none                 +0.0192 [+0.0151,+0.0233] w/l 29/1 holm 0.0000 WIN
+F2-net05-vs-none       A8-poisoned-evidence   cascade              vs none                 +0.0192 [+0.0151,+0.0233] w/l 29/1 holm 0.0000 WIN
+F1-net05-vs-bestfair   A8-poisoned-evidence   auto                 vs none                 +0.0200 [+0.0155,+0.0245] w/l 29/1 holm 0.0000 WIN
+F2-net05-vs-none       A8-poisoned-evidence   auto                 vs none                 +0.0200 [+0.0155,+0.0245] w/l 29/1 holm 0.0000 WIN
+F1-net05-vs-bestfair   A8-poisoned-evidence   gate+evidence        vs none                 -0.0028 [-0.0043,-0.0013] w/l 4/26 holm 0.0076 LOSS
+F2-net05-vs-none       A8-poisoned-evidence   gate+evidence        vs none                 -0.0028 [-0.0043,-0.0013] w/l 4/26 holm 0.0169 LOSS
+F1-net05-vs-bestfair   A8-poisoned-evidence   exist-flat(strong)   vs none                 +0.0002 [-0.0001,+0.0005] w/l 16/14 holm 0.3374 ns
+F1-net05-vs-bestfair   A8-poisoned-evidence   ev-substitute        vs none                 -0.1119 [-0.1167,-0.1071] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A8-poisoned-evidence   exist-hier(weak)     vs none                 -0.0012 [-0.0017,-0.0007] w/l 7/23 holm 0.0020 LOSS
+F2-net05-vs-none       A8-poisoned-evidence   self-consistency     vs none                 -0.0684 [-0.0702,-0.0666] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A8-poisoned-evidence   support-any(naive)   vs none                 -0.0162 [-0.0211,-0.0113] w/l 2/28 holm 0.0000 LOSS
+F1-net05-vs-bestfair   A9-rare-errors         support-entity       vs none                 -0.0016 [-0.0029,-0.0003] w/l 10/20 holm 0.0728 ns
+F1-net05-vs-bestfair   A9-rare-errors         latest               vs none                 +0.0044 [+0.0029,+0.0058] w/l 25/5 holm 0.0000 WIN
+F2-net05-vs-none       A9-rare-errors         latest               vs none                 +0.0044 [+0.0029,+0.0058] w/l 25/5 holm 0.0000 WIN
+F1-net05-vs-bestfair   A9-rare-errors         agree                vs none                 +0.0043 [+0.0029,+0.0057] w/l 24/6 holm 0.0000 WIN
+F2-net05-vs-none       A9-rare-errors         agree                vs none                 +0.0043 [+0.0029,+0.0057] w/l 24/6 holm 0.0000 WIN
+F1-net05-vs-bestfair   A9-rare-errors         cascade              vs none                 +0.0001 [-0.0013,+0.0015] w/l 17/13 holm 0.8387 ns
+F1-net05-vs-bestfair   A9-rare-errors         auto                 vs none                 +0.0042 [+0.0028,+0.0057] w/l 24/6 holm 0.0000 WIN
+F2-net05-vs-none       A9-rare-errors         auto                 vs none                 +0.0042 [+0.0028,+0.0057] w/l 24/6 holm 0.0001 WIN
+F1-net05-vs-bestfair   A9-rare-errors         gate+evidence        vs none                 -0.0033 [-0.0039,-0.0027] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A9-rare-errors         gate+evidence        vs none                 -0.0033 [-0.0039,-0.0027] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   A9-rare-errors         exist-flat(strong)   vs none                 -0.0002 [-0.0003,-0.0001] w/l 2/24 holm 0.0000 LOSS
+F2-net05-vs-none       A9-rare-errors         exist-flat(strong)   vs none                 -0.0002 [-0.0003,-0.0001] w/l 2/24 holm 0.0000 LOSS
+F1-net05-vs-bestfair   A9-rare-errors         ev-substitute        vs none                 -0.0364 [-0.0386,-0.0341] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A9-rare-errors         exist-flat(weak)     vs none                 -0.0002 [-0.0003,-0.0002] w/l 1/25 holm 0.0000 LOSS
+F2-net05-vs-none       A9-rare-errors         exist-hier(weak)     vs none                 -0.0017 [-0.0020,-0.0013] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A9-rare-errors         self-consistency     vs none                 -0.0931 [-0.0938,-0.0924] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A9-rare-errors         support-any(naive)   vs none                 -0.0214 [-0.0226,-0.0202] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   A10-ctl-zero-errors    support-entity       vs none                 -0.0108 [-0.0110,-0.0106] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A10-ctl-zero-errors    support-entity       vs none                 -0.0108 [-0.0110,-0.0106] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   A10-ctl-zero-errors    latest               vs none                 -0.0075 [-0.0076,-0.0074] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A10-ctl-zero-errors    latest               vs none                 -0.0075 [-0.0076,-0.0074] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   A10-ctl-zero-errors    agree                vs none                 -0.0075 [-0.0076,-0.0074] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A10-ctl-zero-errors    agree                vs none                 -0.0075 [-0.0076,-0.0074] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   A10-ctl-zero-errors    cascade              vs none                 -0.0119 [-0.0120,-0.0117] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A10-ctl-zero-errors    cascade              vs none                 -0.0119 [-0.0120,-0.0117] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   A10-ctl-zero-errors    auto                 vs none                 -0.0066 [-0.0067,-0.0065] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A10-ctl-zero-errors    auto                 vs none                 -0.0066 [-0.0067,-0.0065] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   A10-ctl-zero-errors    gate+evidence        vs none                 -0.0034 [-0.0039,-0.0030] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A10-ctl-zero-errors    gate+evidence        vs none                 -0.0034 [-0.0039,-0.0030] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   A10-ctl-zero-errors    exist-flat(strong)   vs none                 -0.0003 [-0.0004,-0.0002] w/l 0/27 holm 0.0000 LOSS
+F2-net05-vs-none       A10-ctl-zero-errors    exist-flat(strong)   vs none                 -0.0003 [-0.0004,-0.0002] w/l 0/27 holm 0.0000 LOSS
+F1-net05-vs-bestfair   A10-ctl-zero-errors    ev-substitute        vs none                 -0.0506 [-0.0528,-0.0484] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A10-ctl-zero-errors    exist-flat(weak)     vs none                 -0.0003 [-0.0004,-0.0002] w/l 0/27 holm 0.0000 LOSS
+F2-net05-vs-none       A10-ctl-zero-errors    exist-hier(weak)     vs none                 -0.0019 [-0.0021,-0.0016] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A10-ctl-zero-errors    self-consistency     vs none                 -0.1000 [-0.1000,-0.1000] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A10-ctl-zero-errors    support-any(naive)   vs none                 -0.0239 [-0.0241,-0.0237] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   B1-report-mixed        support-entity       vs none                 -0.0081 [-0.0103,-0.0060] w/l 2/28 holm 0.0000 LOSS
+F2-net05-vs-none       B1-report-mixed        support-entity       vs none                 -0.0081 [-0.0103,-0.0060] w/l 2/28 holm 0.0000 LOSS
+F1-net05-vs-bestfair   B1-report-mixed        latest               vs none                 +0.0090 [+0.0072,+0.0108] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       B1-report-mixed        latest               vs none                 +0.0090 [+0.0072,+0.0108] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   B1-report-mixed        agree                vs none                 +0.0089 [+0.0071,+0.0106] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       B1-report-mixed        agree                vs none                 +0.0089 [+0.0071,+0.0106] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   B1-report-mixed        cascade              vs none                 -0.0014 [-0.0032,+0.0004] w/l 10/20 holm 0.3374 ns
+F1-net05-vs-bestfair   B1-report-mixed        auto                 vs none                 +0.0089 [+0.0071,+0.0106] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       B1-report-mixed        auto                 vs none                 +0.0089 [+0.0071,+0.0106] w/l 30/0 holm 0.0000 WIN
+F1-net05-vs-bestfair   B1-report-mixed        gate+evidence        vs none                 -0.0428 [-0.0451,-0.0405] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       B1-report-mixed        gate+evidence        vs none                 -0.0428 [-0.0451,-0.0405] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   B1-report-mixed        exist-flat(strong)   vs none                 -0.0008 [-0.0014,-0.0002] w/l 6/24 holm 0.0466 LOSS
+F1-net05-vs-bestfair   B1-report-mixed        ev-substitute        vs none                 +0.0089 [+0.0065,+0.0113] w/l 30/0 holm 0.0000 WIN
+F2-net05-vs-none       B1-report-mixed        exist-flat(weak)     vs none                 -0.0013 [-0.0020,-0.0006] w/l 0/29 holm 0.0250 LOSS
+F2-net05-vs-none       B1-report-mixed        exist-hier(weak)     vs none                 -0.0039 [-0.0051,-0.0027] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       B1-report-mixed        self-consistency     vs none                 -0.0747 [-0.0756,-0.0738] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       B1-report-mixed        support-any(naive)   vs none                 -0.0525 [-0.0556,-0.0493] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   B2-report-rare         support-entity       vs none                 -0.0174 [-0.0184,-0.0164] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       B2-report-rare         support-entity       vs none                 -0.0174 [-0.0184,-0.0164] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   B2-report-rare         latest               vs none                 -0.0045 [-0.0053,-0.0037] w/l 1/29 holm 0.0000 LOSS
+F2-net05-vs-none       B2-report-rare         latest               vs none                 -0.0045 [-0.0053,-0.0037] w/l 1/29 holm 0.0000 LOSS
+F1-net05-vs-bestfair   B2-report-rare         agree                vs none                 -0.0046 [-0.0054,-0.0039] w/l 1/29 holm 0.0000 LOSS
+F2-net05-vs-none       B2-report-rare         agree                vs none                 -0.0046 [-0.0054,-0.0039] w/l 1/29 holm 0.0000 LOSS
+F1-net05-vs-bestfair   B2-report-rare         cascade              vs none                 -0.0174 [-0.0182,-0.0166] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       B2-report-rare         cascade              vs none                 -0.0174 [-0.0182,-0.0166] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   B2-report-rare         auto                 vs none                 -0.0046 [-0.0054,-0.0038] w/l 1/29 holm 0.0000 LOSS
+F2-net05-vs-none       B2-report-rare         auto                 vs none                 -0.0046 [-0.0054,-0.0038] w/l 1/29 holm 0.0000 LOSS
+F1-net05-vs-bestfair   B2-report-rare         gate+evidence        vs none                 -0.0080 [-0.0103,-0.0057] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       B2-report-rare         gate+evidence        vs none                 -0.0080 [-0.0103,-0.0057] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   B2-report-rare         exist-flat(strong)   vs none                 -0.0003 [-0.0004,-0.0002] w/l 0/24 holm 0.0000 LOSS
+F2-net05-vs-none       B2-report-rare         exist-flat(strong)   vs none                 -0.0003 [-0.0004,-0.0002] w/l 0/24 holm 0.0001 LOSS
+F1-net05-vs-bestfair   B2-report-rare         ev-substitute        vs none                 -0.0348 [-0.0365,-0.0331] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       B2-report-rare         exist-flat(weak)     vs none                 -0.0004 [-0.0005,-0.0003] w/l 0/27 holm 0.0000 LOSS
+F2-net05-vs-none       B2-report-rare         exist-hier(weak)     vs none                 -0.0021 [-0.0025,-0.0017] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       B2-report-rare         self-consistency     vs none                 -0.0930 [-0.0935,-0.0926] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       B2-report-rare         support-any(naive)   vs none                 -0.0494 [-0.0504,-0.0485] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   B3-ctl-report-zero     support-entity       vs none                 -0.0239 [-0.0243,-0.0236] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       B3-ctl-report-zero     support-entity       vs none                 -0.0239 [-0.0243,-0.0236] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   B3-ctl-report-zero     latest               vs none                 -0.0136 [-0.0138,-0.0134] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       B3-ctl-report-zero     latest               vs none                 -0.0136 [-0.0138,-0.0134] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   B3-ctl-report-zero     agree                vs none                 -0.0136 [-0.0138,-0.0134] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       B3-ctl-report-zero     agree                vs none                 -0.0136 [-0.0138,-0.0134] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   B3-ctl-report-zero     cascade              vs none                 -0.0271 [-0.0274,-0.0268] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       B3-ctl-report-zero     cascade              vs none                 -0.0271 [-0.0274,-0.0268] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   B3-ctl-report-zero     auto                 vs none                 -0.0065 [-0.0066,-0.0065] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       B3-ctl-report-zero     auto                 vs none                 -0.0065 [-0.0066,-0.0065] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   B3-ctl-report-zero     gate+evidence        vs none                 -0.0049 [-0.0057,-0.0040] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       B3-ctl-report-zero     gate+evidence        vs none                 -0.0049 [-0.0057,-0.0040] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   B3-ctl-report-zero     exist-flat(strong)   vs none                 -0.0003 [-0.0003,-0.0002] w/l 0/27 holm 0.0000 LOSS
+F2-net05-vs-none       B3-ctl-report-zero     exist-flat(strong)   vs none                 -0.0003 [-0.0003,-0.0002] w/l 0/27 holm 0.0000 LOSS
+F1-net05-vs-bestfair   B3-ctl-report-zero     ev-substitute        vs none                 -0.0492 [-0.0503,-0.0481] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       B3-ctl-report-zero     exist-flat(weak)     vs none                 -0.0003 [-0.0004,-0.0002] w/l 0/27 holm 0.0000 LOSS
+F2-net05-vs-none       B3-ctl-report-zero     exist-hier(weak)     vs none                 -0.0023 [-0.0026,-0.0019] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       B3-ctl-report-zero     self-consistency     vs none                 -0.1000 [-0.1000,-0.1000] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       B3-ctl-report-zero     support-any(naive)   vs none                 -0.0496 [-0.0498,-0.0494] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   A11-single-source-poisoned support-entity       vs exist-flat(weak)     -0.0391 [-0.0416,-0.0367] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A11-single-source-poisoned support-entity       vs none                 -0.0391 [-0.0416,-0.0367] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   A11-single-source-poisoned latest               vs exist-flat(weak)     -0.0813 [-0.0853,-0.0773] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A11-single-source-poisoned latest               vs none                 -0.0812 [-0.0853,-0.0772] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   A11-single-source-poisoned agree                vs exist-flat(weak)     -0.0395 [-0.0422,-0.0368] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A11-single-source-poisoned agree                vs none                 -0.0395 [-0.0422,-0.0368] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   A11-single-source-poisoned cascade              vs exist-flat(weak)     -0.0520 [-0.0548,-0.0492] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A11-single-source-poisoned cascade              vs none                 -0.0520 [-0.0548,-0.0491] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   A11-single-source-poisoned auto                 vs exist-flat(weak)     -0.0095 [-0.0112,-0.0079] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A11-single-source-poisoned auto                 vs none                 -0.0095 [-0.0111,-0.0079] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   A11-single-source-poisoned gate+evidence        vs exist-flat(weak)     -0.0101 [-0.0118,-0.0084] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A11-single-source-poisoned gate+evidence        vs none                 -0.0101 [-0.0117,-0.0084] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair   A11-single-source-poisoned exist-flat(strong)   vs exist-flat(weak)     +0.0002 [+0.0000,+0.0004] w/l 15/2 holm 0.0728 ns
+F1-net05-vs-bestfair   A11-single-source-poisoned ev-substitute        vs exist-flat(weak)     -0.3474 [-0.3517,-0.3432] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A11-single-source-poisoned exist-hier(weak)     vs none                 -0.0012 [-0.0015,-0.0008] w/l 3/27 holm 0.0000 LOSS
+F2-net05-vs-none       A11-single-source-poisoned self-consistency     vs none                 -0.0727 [-0.0742,-0.0711] w/l 0/30 holm 0.0000 LOSS
+F2-net05-vs-none       A11-single-source-poisoned support-any(naive)   vs none                 -0.0756 [-0.0800,-0.0712] w/l 0/30 holm 0.0000 LOSS
+F1-net05-vs-bestfair: WIN 60 LOSS 47 of 112
+F2-net05-vs-none: WIN 57 LOSS 87 of 168
+F3-acc-vs-none: WIN 82 LOSS 12 of 112
+wrote results/g9_critic.json in 17.4s

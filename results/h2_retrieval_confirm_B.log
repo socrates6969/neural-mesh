@@ -1,0 +1,56 @@
+warning: value assigned to `verdict_ok` is never read
+    --> src\cognition.rs:1020:17
+     |
+1020 |                 verdict_ok = None;
+     |                 ^^^^^^^^^^^^^^^^^ this value is reassigned later and never used
+...
+1033 |                     verdict_ok = Some(flagged == !correct1);
+     |                     --------------------------------------- `verdict_ok` is overwritten here before the previous value is read
+     |
+     = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: `neural-mesh` (lib) generated 1 warning
+    Finished `release` profile [optimized] target(s) in 0.91s
+     Running `C:/Users/mariu/nm-target-r2\release\h2_retrieval.exe --corpus B --confirm`
+corpus B: 2120 queries (1536 held-out-concept, 384 tune-concept), 780 docs
+
+system (held-out concepts)                 hit1    mrr    P@3    R@3   F1@3 calls/q
+dense+spell                               0.915  0.947  0.517  0.776  0.621       0
+BM25(spell)                               0.835  0.882  0.326  0.489  0.391       0
+hybrid-z(a=0.8)                           0.930  0.956  0.466  0.699  0.559       0
+RRF(k=60)                                 0.881  0.926  0.389  0.583  0.466       0
+RSF(a=0.7)                                0.927  0.954  0.469  0.704  0.563       0
+rerank20-overlap(a=0.8,g=0.5)             0.930  0.956  0.414  0.620  0.496      20
+rerank20-bm25(a=0.8,g=0.5)                0.930  0.956  0.426  0.639  0.512      20
+rerank20-logit(a=0.8)                     0.928  0.957  0.539  0.808  0.646      20
+
+paired (a - b), 95% CI, Holm verdict (* win, ! loss):
+  hybrid-z(a=0.8)                        - dense+spell                    mrr   +0.0095 [+0.0073,+0.0117] wins 29/30 *
+  hybrid-z(a=0.8)                        - dense+spell                    f13   -0.0614 [-0.0641,-0.0587] wins  0/30 !
+  RRF(k=60)                              - dense+spell                    mrr   -0.0206 [-0.0245,-0.0168] wins  1/30 !
+  RRF(k=60)                              - dense+spell                    f13   -0.1544 [-0.1586,-0.1501] wins  0/30 !
+  RSF(a=0.7)                             - dense+spell                    mrr   +0.0073 [+0.0051,+0.0095] wins 28/30 *
+  RSF(a=0.7)                             - dense+spell                    f13   -0.0578 [-0.0602,-0.0554] wins  0/30 !
+  RRF(k=60)                              - hybrid-z(a=0.8)                mrr   -0.0302 [-0.0337,-0.0266] wins  0/30 !
+  RRF(k=60)                              - hybrid-z(a=0.8)                f13   -0.0929 [-0.0962,-0.0896] wins  0/30 !
+  RSF(a=0.7)                             - hybrid-z(a=0.8)                mrr   -0.0022 [-0.0028,-0.0017] wins  0/30 !
+  RSF(a=0.7)                             - hybrid-z(a=0.8)                f13   +0.0036 [+0.0024,+0.0048] wins 26/30 *
+  rerank20-overlap(a=0.8,g=0.5)          - hybrid-z(a=0.8)                mrr   -0.0006 [-0.0023,+0.0011] wins 12/30 
+  rerank20-overlap(a=0.8,g=0.5)          - hybrid-z(a=0.8)                f13   -0.0630 [-0.0658,-0.0603] wins  0/30 !
+  rerank20-bm25(a=0.8,g=0.5)             - hybrid-z(a=0.8)                mrr   -0.0002 [-0.0020,+0.0015] wins 11/30 
+  rerank20-bm25(a=0.8,g=0.5)             - hybrid-z(a=0.8)                f13   -0.0479 [-0.0508,-0.0449] wins  0/30 !
+  rerank20-logit(a=0.8)                  - hybrid-z(a=0.8)                mrr   +0.0004 [-0.0000,+0.0009] wins 19/30 
+  rerank20-logit(a=0.8)                  - hybrid-z(a=0.8)                f13   +0.0869 [+0.0836,+0.0902] wins 30/30 *
+  rerank20-logit(a=0.8)                  - dense+spell                    mrr   +0.0100 [+0.0078,+0.0121] wins 30/30 *
+  rerank20-logit(a=0.8)                  - dense+spell                    f13   +0.0255 [+0.0226,+0.0283] wins 30/30 *
+  rerank20-overlap(a=0.8,g=0.5)          - dense+spell                    mrr   +0.0089 [+0.0063,+0.0114] wins 27/30 *
+  rerank20-overlap(a=0.8,g=0.5)          - dense+spell                    f13   -0.1244 [-0.1282,-0.1206] wins  0/30 !
+  rerank20-bm25(a=0.8,g=0.5)             - dense+spell                    mrr   +0.0093 [+0.0066,+0.0120] wins 29/30 *
+  rerank20-bm25(a=0.8,g=0.5)             - dense+spell                    f13   -0.1093 [-0.1134,-0.1052] wins  0/30 !
+  BM25(spell)                            - dense+spell                    mrr   -0.0645 [-0.0695,-0.0595] wins  0/30 !
+  BM25(spell)                            - dense+spell                    f13   -0.2295 [-0.2359,-0.2232] wins  0/30 !
+
+latency (us/query, single thread, live computation, 780 docs): dense scan 217.7 | BM25 3.7 | z-hybrid fuse 3.1 | RRF fuse (2 rankings) 10.4 | RSF fuse 6.7
+rerank scorers on 20 candidates (us/query; per call = /20): overlap 2.8 (0.14/call) | bm25 subset 4.2 (0.21/call) | logistic incl. features 4.1 (0.21/call)
+bytes: dense doc vectors 1198080 B, BM25 index 184908 B, RRF/RSF transient 2400 B/query, logistic weights 48 B, rerank extra index 0
+wrote results/h2_retrieval_confirm_B.json

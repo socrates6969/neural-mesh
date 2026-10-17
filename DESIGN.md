@@ -6,7 +6,7 @@ current routers before anything is wired into ruflo or howler-agents.
 
 ## Ground rules
 - The Hebbian rule is implemented INDEPENDENTLY from the published description
-  in qScaleg/hebbian-router's README (no license; do not copy its code).
+  in qScaleg/hebbian-router's README
 - No change ships unless the benchmark shows a statistically significant win
   (95% paired t-CI over >= 30 seeds excludes 0) AND all tests pass.
 - Deterministic: every stochastic component takes a seed.

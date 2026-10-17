@@ -1,0 +1,324 @@
+H12 online-adaptation layers | held seeds 61-90 | tune seeds 1-8 | RAYON threads 2 | T=6000 all worlds
+[tune A] eps (0.99, 0.0) (0.6584) pts 1 (0.6415) warm k=6 (0.6667) [46s]
+[tune B] warm 0.6667 safe 0.6699 | resid-warm res H8 lr0.05 nmin100 m0.08 e0=0.05 gated (0.7007) | resid-safe res H8 lr0.05 nmin300 m0.08 e0=0 gated (0.7048) [274s]
+[tune C] cfg-bandit gamma=1 agree=false (0.6710) | meta gamma=0.998 agree=false prior_n=0 (0.7043) [368s]
+[eval T=6000] done in 72s
+
+world          |   keyw    eps    pts   hebr   warm   safe | r-warm r-safe  cfgbd   meta nogate | oracle
+sim-fixed      | 0.7038 0.7640 0.7563 0.7667 0.7810 0.7901 | 0.7786 0.7844 0.7871 0.7796 0.7778 | 0.8317  (best fair guarded-safe 0.7901)
+sim-random     | 0.6817 0.7647 0.7617 0.7768 0.7822 0.7921 | 0.7788 0.7867 0.7890 0.7881 0.7787 | 0.8370  (best fair guarded-safe 0.7921)
+sim-no-traps   | 0.7860 0.7664 0.7511 0.7668 0.7835 0.8050 | 0.7842 0.7998 0.7883 0.7908 0.7699 | 0.8322  (best fair guarded-safe 0.8050)
+big-32agents   | 0.6220 0.5755 0.5569 0.5860 0.6884 0.7066 | 0.6871 0.7044 0.6894 0.6927 0.6408 | 0.8497  (best fair guarded-safe 0.7066)
+lin-cont       | 0.6740 0.7104 0.7106 0.6600 0.6767 0.6921 | 0.6831 0.7057 0.6972 0.6886 0.7271 | 0.8224  (best fair pooled-thompson 0.7106)
+xor-cont       | 0.5377 0.5292 0.5113 0.5180 0.5225 0.5234 | 0.6242 0.6393 0.5214 0.6359 0.6785 | 0.7772  (best fair keyword 0.5377)
+xor-cont-drift | 0.5343 0.5238 0.5118 0.5194 0.5225 0.5213 | 0.5825 0.6164 0.5205 0.6019 0.5787 | 0.7772  (best fair keyword 0.5343)
+xor-tok        | 0.5416 0.5734 0.5160 0.5268 0.5308 0.5421 | 0.7955 0.7911 0.5324 0.7835 0.8003 | 0.8800  (best fair eps-greedy 0.5734)
+rich-cont      | 0.5292 0.5700 0.5587 0.5242 0.5361 0.5371 | 0.5373 0.5396 0.5464 0.5359 0.5803 | 0.7215  (best fair eps-greedy 0.5700)
+kw-drift4      | 0.6333 0.6811 0.6822 0.7632 0.7747 0.7535 | 0.7688 0.7485 0.7684 0.7607 0.7031 | 0.8507  (best fair warm(hebr) 0.7747)
+xor-drift3     | 0.5319 0.5194 0.5108 0.5193 0.5203 0.5222 | 0.5309 0.5514 0.5188 0.5441 0.5133 | 0.7777  (best fair keyword 0.5319)
+ctl-noinfo     | 0.4829 0.7439 0.7329 0.7400 0.7341 0.6737 | 0.7345 0.6753 0.7323 0.7221 0.7402 | 0.7500  (best fair eps-greedy 0.7439)
+ctl-static     | 0.8495 0.7956 0.7858 0.7943 0.8176 0.8485 | 0.8163 0.8377 0.8261 0.8374 0.7965 | 0.8495  (best fair keyword 0.8495)
+
+=== F1: candidate vs BEST FAIR baseline (Holm over 104 tests) ===
+  sim-fixed      resid-warm  full     vs guarded-safe     -0.0115 [-0.0165,-0.0065] w/l 7/23 holm 0.002 LOSS
+  sim-fixed      resid-warm  late25%  vs guarded-safe     -0.0211 [-0.0329,-0.0094] w/l 9/21 holm 0.029 LOSS
+  sim-fixed      resid-safe  full     vs guarded-safe     -0.0057 [-0.0087,-0.0027] w/l 7/23 holm 0.018 LOSS
+  sim-fixed      resid-safe  late25%  vs guarded-safe     -0.0108 [-0.0171,-0.0044] w/l 9/21 holm 0.049 LOSS
+  sim-fixed      cfg-bandit  full     vs guarded-safe     -0.0031 [-0.0070,+0.0009] w/l 14/16 holm 1.000 ns
+  sim-fixed      cfg-bandit  late25%  vs guarded-safe     -0.0016 [-0.0103,+0.0071] w/l 16/14 holm 1.000 ns
+  sim-fixed      meta        full     vs guarded-safe     -0.0105 [-0.0145,-0.0065] w/l 4/26 holm 0.000 LOSS
+  sim-fixed      meta        late25%  vs guarded-safe     -0.0100 [-0.0188,-0.0013] w/l 9/21 holm 0.589 ns
+  sim-random     resid-warm  full     vs guarded-safe     -0.0132 [-0.0185,-0.0080] w/l 6/24 holm 0.001 LOSS
+  sim-random     resid-warm  late25%  vs guarded-safe     -0.0169 [-0.0291,-0.0047] w/l 9/21 holm 0.212 ns
+  sim-random     resid-safe  full     vs guarded-safe     -0.0054 [-0.0104,-0.0004] w/l 4/26 holm 0.761 ns
+  sim-random     resid-safe  late25%  vs guarded-safe     -0.0057 [-0.0161,+0.0048] w/l 13/17 holm 1.000 ns
+  sim-random     cfg-bandit  full     vs guarded-safe     -0.0030 [-0.0087,+0.0026] w/l 13/17 holm 1.000 ns
+  sim-random     cfg-bandit  late25%  vs guarded-safe     +0.0029 [-0.0094,+0.0153] w/l 17/13 holm 1.000 ns
+  sim-random     meta        full     vs guarded-safe     -0.0040 [-0.0087,+0.0007] w/l 11/19 holm 1.000 ns
+  sim-random     meta        late25%  vs guarded-safe     +0.0017 [-0.0064,+0.0098] w/l 12/18 holm 1.000 ns
+  sim-no-traps   resid-warm  full     vs guarded-safe     -0.0208 [-0.0246,-0.0170] w/l 0/30 holm 0.000 LOSS
+  sim-no-traps   resid-warm  late25%  vs guarded-safe     -0.0240 [-0.0332,-0.0148] w/l 5/25 holm 0.000 LOSS
+  sim-no-traps   resid-safe  full     vs guarded-safe     -0.0051 [-0.0076,-0.0027] w/l 5/25 holm 0.008 LOSS
+  sim-no-traps   resid-safe  late25%  vs guarded-safe     -0.0031 [-0.0114,+0.0051] w/l 8/22 holm 1.000 ns
+  sim-no-traps   cfg-bandit  full     vs guarded-safe     -0.0167 [-0.0204,-0.0129] w/l 2/28 holm 0.000 LOSS
+  sim-no-traps   cfg-bandit  late25%  vs guarded-safe     -0.0168 [-0.0281,-0.0055] w/l 7/23 holm 0.137 ns
+  sim-no-traps   meta        full     vs guarded-safe     -0.0142 [-0.0167,-0.0116] w/l 1/29 holm 0.000 LOSS
+  sim-no-traps   meta        late25%  vs guarded-safe     -0.0239 [-0.0317,-0.0161] w/l 1/29 holm 0.000 LOSS
+  big-32agents   resid-warm  full     vs guarded-safe     -0.0195 [-0.0300,-0.0090] w/l 5/25 holm 0.022 LOSS
+  big-32agents   resid-warm  late25%  vs guarded-safe     -0.0054 [-0.0213,+0.0106] w/l 11/19 holm 1.000 ns
+  big-32agents   resid-safe  full     vs guarded-safe     -0.0023 [-0.0102,+0.0056] w/l 12/18 holm 1.000 ns
+  big-32agents   resid-safe  late25%  vs guarded-safe     -0.0042 [-0.0186,+0.0101] w/l 16/14 holm 1.000 ns
+  big-32agents   cfg-bandit  full     vs guarded-safe     -0.0173 [-0.0265,-0.0080] w/l 5/25 holm 0.022 LOSS
+  big-32agents   cfg-bandit  late25%  vs guarded-safe     -0.0097 [-0.0242,+0.0047] w/l 10/20 holm 1.000 ns
+  big-32agents   meta        full     vs guarded-safe     -0.0140 [-0.0241,-0.0039] w/l 6/24 holm 0.212 ns
+  big-32agents   meta        late25%  vs guarded-safe     -0.0123 [-0.0270,+0.0024] w/l 10/20 holm 1.000 ns
+  lin-cont       resid-warm  full     vs pooled-thompson  -0.0275 [-0.0344,-0.0206] w/l 1/29 holm 0.000 LOSS
+  lin-cont       resid-warm  late25%  vs pooled-thompson  -0.0613 [-0.0717,-0.0508] w/l 1/29 holm 0.000 LOSS
+  lin-cont       resid-safe  full     vs pooled-thompson  -0.0048 [-0.0121,+0.0024] w/l 13/17 holm 1.000 ns
+  lin-cont       resid-safe  late25%  vs pooled-thompson  -0.0294 [-0.0383,-0.0206] w/l 3/27 holm 0.000 LOSS
+  lin-cont       cfg-bandit  full     vs pooled-thompson  -0.0133 [-0.0224,-0.0042] w/l 12/18 holm 0.149 ns
+  lin-cont       cfg-bandit  late25%  vs pooled-thompson  -0.0249 [-0.0377,-0.0120] w/l 8/22 holm 0.015 LOSS
+  lin-cont       meta        full     vs pooled-thompson  -0.0219 [-0.0291,-0.0148] w/l 3/27 holm 0.000 LOSS
+  lin-cont       meta        late25%  vs pooled-thompson  -0.0527 [-0.0612,-0.0441] w/l 0/30 holm 0.000 LOSS
+  xor-cont       resid-warm  full     vs keyword          +0.0866 [+0.0713,+0.1019] w/l 27/3 holm 0.000 WIN
+  xor-cont       resid-warm  late25%  vs keyword          +0.1380 [+0.1157,+0.1603] w/l 27/3 holm 0.000 WIN
+  xor-cont       resid-safe  full     vs keyword          +0.1016 [+0.0964,+0.1069] w/l 30/0 holm 0.000 WIN
+  xor-cont       resid-safe  late25%  vs keyword          +0.1546 [+0.1479,+0.1613] w/l 30/0 holm 0.000 WIN
+  xor-cont       cfg-bandit  full     vs keyword          -0.0163 [-0.0185,-0.0140] w/l 0/30 holm 0.000 LOSS
+  xor-cont       cfg-bandit  late25%  vs keyword          -0.0136 [-0.0181,-0.0091] w/l 3/27 holm 0.000 LOSS
+  xor-cont       meta        full     vs keyword          +0.0983 [+0.0922,+0.1043] w/l 30/0 holm 0.000 WIN
+  xor-cont       meta        late25%  vs keyword          +0.1433 [+0.1349,+0.1517] w/l 30/0 holm 0.000 WIN
+  xor-cont-drift resid-warm  full     vs keyword          +0.0482 [+0.0360,+0.0603] w/l 27/3 holm 0.000 WIN
+  xor-cont-drift resid-warm  late25%  vs eps-greedy       +0.0860 [+0.0554,+0.1167] w/l 26/4 holm 0.000 WIN
+  xor-cont-drift resid-safe  full     vs keyword          +0.0821 [+0.0742,+0.0899] w/l 30/0 holm 0.000 WIN
+  xor-cont-drift resid-safe  late25%  vs eps-greedy       +0.1591 [+0.1464,+0.1719] w/l 30/0 holm 0.000 WIN
+  xor-cont-drift cfg-bandit  full     vs keyword          -0.0138 [-0.0163,-0.0113] w/l 1/29 holm 0.000 LOSS
+  xor-cont-drift cfg-bandit  late25%  vs eps-greedy       -0.0030 [-0.0067,+0.0008] w/l 13/17 holm 1.000 ns
+  xor-cont-drift meta        full     vs keyword          +0.0676 [+0.0593,+0.0759] w/l 29/1 holm 0.000 WIN
+  xor-cont-drift meta        late25%  vs eps-greedy       +0.1473 [+0.1311,+0.1635] w/l 29/1 holm 0.000 WIN
+  xor-tok        resid-warm  full     vs eps-greedy       +0.2222 [+0.2043,+0.2400] w/l 30/0 holm 0.000 WIN
+  xor-tok        resid-warm  late25%  vs eps-greedy       +0.2386 [+0.2154,+0.2617] w/l 30/0 holm 0.000 WIN
+  xor-tok        resid-safe  full     vs eps-greedy       +0.2177 [+0.1986,+0.2369] w/l 30/0 holm 0.000 WIN
+  xor-tok        resid-safe  late25%  vs eps-greedy       +0.2275 [+0.2012,+0.2538] w/l 30/0 holm 0.000 WIN
+  xor-tok        cfg-bandit  full     vs eps-greedy       -0.0410 [-0.0567,-0.0252] w/l 7/23 holm 0.000 LOSS
+  xor-tok        cfg-bandit  late25%  vs eps-greedy       -0.0621 [-0.0829,-0.0412] w/l 5/25 holm 0.000 LOSS
+  xor-tok        meta        full     vs eps-greedy       +0.2101 [+0.1896,+0.2306] w/l 30/0 holm 0.000 WIN
+  xor-tok        meta        late25%  vs eps-greedy       +0.2236 [+0.1959,+0.2512] w/l 30/0 holm 0.000 WIN
+  rich-cont      resid-warm  full     vs eps-greedy       -0.0327 [-0.0430,-0.0224] w/l 2/28 holm 0.000 LOSS
+  rich-cont      resid-warm  late25%  vs eps-greedy       -0.0569 [-0.0701,-0.0436] w/l 2/28 holm 0.000 LOSS
+  rich-cont      resid-safe  full     vs eps-greedy       -0.0304 [-0.0403,-0.0205] w/l 4/26 holm 0.000 LOSS
+  rich-cont      resid-safe  late25%  vs eps-greedy       -0.0540 [-0.0678,-0.0402] w/l 2/28 holm 0.000 LOSS
+  rich-cont      cfg-bandit  full     vs eps-greedy       -0.0236 [-0.0336,-0.0136] w/l 5/25 holm 0.002 LOSS
+  rich-cont      cfg-bandit  late25%  vs eps-greedy       -0.0340 [-0.0486,-0.0194] w/l 5/25 holm 0.002 LOSS
+  rich-cont      meta        full     vs eps-greedy       -0.0342 [-0.0454,-0.0229] w/l 2/28 holm 0.000 LOSS
+  rich-cont      meta        late25%  vs eps-greedy       -0.0554 [-0.0705,-0.0403] w/l 2/28 holm 0.000 LOSS
+  kw-drift4      resid-warm  full     vs warm(hebr)       -0.0059 [-0.0143,+0.0025] w/l 10/20 holm 1.000 ns
+  kw-drift4      resid-warm  late25%  vs hebbian-robust   -0.0100 [-0.0230,+0.0030] w/l 13/17 holm 1.000 ns
+  kw-drift4      resid-safe  full     vs warm(hebr)       -0.0262 [-0.0356,-0.0168] w/l 3/27 holm 0.000 LOSS
+  kw-drift4      resid-safe  late25%  vs hebbian-robust   -0.0489 [-0.0697,-0.0281] w/l 6/24 holm 0.002 LOSS
+  kw-drift4      cfg-bandit  full     vs warm(hebr)       -0.0063 [-0.0150,+0.0025] w/l 9/21 holm 1.000 ns
+  kw-drift4      cfg-bandit  late25%  vs hebbian-robust   -0.0203 [-0.0357,-0.0050] w/l 10/20 holm 0.273 ns
+  kw-drift4      meta        full     vs warm(hebr)       -0.0140 [-0.0228,-0.0052] w/l 7/23 holm 0.086 ns
+  kw-drift4      meta        late25%  vs hebbian-robust   -0.0158 [-0.0332,+0.0016] w/l 9/21 holm 1.000 ns
+  xor-drift3     resid-warm  full     vs keyword          -0.0010 [-0.0060,+0.0040] w/l 12/18 holm 1.000 ns
+  xor-drift3     resid-warm  late25%  vs keyword          +0.0053 [-0.0040,+0.0147] w/l 15/15 holm 1.000 ns
+  xor-drift3     resid-safe  full     vs keyword          +0.0195 [+0.0119,+0.0270] w/l 24/6 holm 0.001 WIN
+  xor-drift3     resid-safe  late25%  vs keyword          +0.0448 [+0.0352,+0.0544] w/l 28/2 holm 0.000 WIN
+  xor-drift3     cfg-bandit  full     vs keyword          -0.0131 [-0.0145,-0.0116] w/l 0/30 holm 0.000 LOSS
+  xor-drift3     cfg-bandit  late25%  vs keyword          -0.0084 [-0.0119,-0.0048] w/l 6/24 holm 0.002 LOSS
+  xor-drift3     meta        full     vs keyword          +0.0123 [+0.0076,+0.0170] w/l 25/5 holm 0.000 WIN
+  xor-drift3     meta        late25%  vs keyword          +0.0298 [+0.0192,+0.0405] w/l 24/6 holm 0.000 WIN
+  ctl-noinfo     resid-warm  full     vs eps-greedy       -0.0094 [-0.0111,-0.0077] w/l 0/30 holm 0.000 LOSS
+  ctl-noinfo     resid-warm  late25%  vs eps-greedy       -0.0034 [-0.0038,-0.0029] w/l 0/30 holm 0.000 LOSS
+  ctl-noinfo     resid-safe  full     vs eps-greedy       -0.0686 [-0.0732,-0.0641] w/l 0/30 holm 0.000 LOSS
+  ctl-noinfo     resid-safe  late25%  vs eps-greedy       -0.0694 [-0.0740,-0.0648] w/l 0/30 holm 0.000 LOSS
+  ctl-noinfo     cfg-bandit  full     vs eps-greedy       -0.0116 [-0.0138,-0.0095] w/l 1/29 holm 0.000 LOSS
+  ctl-noinfo     cfg-bandit  late25%  vs eps-greedy       -0.0080 [-0.0097,-0.0063] w/l 0/30 holm 0.000 LOSS
+  ctl-noinfo     meta        full     vs eps-greedy       -0.0219 [-0.0254,-0.0183] w/l 0/30 holm 0.000 LOSS
+  ctl-noinfo     meta        late25%  vs eps-greedy       -0.0153 [-0.0174,-0.0132] w/l 0/30 holm 0.000 LOSS
+  ctl-static     resid-warm  full     vs keyword          -0.0332 [-0.0345,-0.0319] w/l 0/30 holm 0.000 LOSS
+  ctl-static     resid-warm  late25%  vs keyword          -0.0308 [-0.0329,-0.0288] w/l 0/30 holm 0.000 LOSS
+  ctl-static     resid-safe  full     vs keyword          -0.0119 [-0.0125,-0.0113] w/l 0/30 holm 0.000 LOSS
+  ctl-static     resid-safe  late25%  vs keyword          -0.0099 [-0.0108,-0.0091] w/l 0/30 holm 0.000 LOSS
+  ctl-static     cfg-bandit  full     vs keyword          -0.0234 [-0.0250,-0.0218] w/l 0/30 holm 0.000 LOSS
+  ctl-static     cfg-bandit  late25%  vs keyword          -0.0195 [-0.0221,-0.0170] w/l 0/30 holm 0.000 LOSS
+  ctl-static     meta        full     vs keyword          -0.0121 [-0.0128,-0.0114] w/l 0/30 holm 0.000 LOSS
+  ctl-static     meta        late25%  vs keyword          -0.0115 [-0.0126,-0.0104] w/l 0/30 holm 0.000 LOSS
+
+=== F2: candidate vs its OWN incumbent (full metric; Holm over 52; TOST margin +-0.01) ===
+  sim-fixed      resid-warm  vs warm(hebr)       -0.0023 [-0.0061,+0.0014] holm 1.000 ns EQUIV(95%CI in +-.01)
+  sim-fixed      resid-safe  vs guarded-safe     -0.0057 [-0.0087,-0.0027] holm 0.016 LOSS EQUIV(95%CI in +-.01)
+  sim-fixed      cfg-bandit  vs warm(hebr)       +0.0061 [+0.0016,+0.0106] holm 0.277 ns 
+  sim-fixed      meta        vs guarded-safe     -0.0105 [-0.0145,-0.0065] holm 0.000 LOSS 
+  sim-random     resid-warm  vs warm(hebr)       -0.0033 [-0.0073,+0.0007] holm 1.000 ns EQUIV(95%CI in +-.01)
+  sim-random     resid-safe  vs guarded-safe     -0.0054 [-0.0104,-0.0004] holm 0.831 ns 
+  sim-random     cfg-bandit  vs warm(hebr)       +0.0069 [+0.0016,+0.0121] holm 0.327 ns 
+  sim-random     meta        vs guarded-safe     -0.0040 [-0.0087,+0.0007] holm 1.000 ns EQUIV(95%CI in +-.01)
+  sim-no-traps   resid-warm  vs warm(hebr)       +0.0006 [-0.0030,+0.0043] holm 1.000 ns EQUIV(95%CI in +-.01)
+  sim-no-traps   resid-safe  vs guarded-safe     -0.0051 [-0.0076,-0.0027] holm 0.007 LOSS EQUIV(95%CI in +-.01)
+  sim-no-traps   cfg-bandit  vs warm(hebr)       +0.0048 [+0.0006,+0.0090] holm 0.690 ns EQUIV(95%CI in +-.01)
+  sim-no-traps   meta        vs guarded-safe     -0.0142 [-0.0167,-0.0116] holm 0.000 LOSS 
+  big-32agents   resid-warm  vs warm(hebr)       -0.0012 [-0.0101,+0.0076] holm 1.000 ns 
+  big-32agents   resid-safe  vs guarded-safe     -0.0023 [-0.0102,+0.0056] holm 1.000 ns 
+  big-32agents   cfg-bandit  vs warm(hebr)       +0.0010 [-0.0088,+0.0109] holm 1.000 ns 
+  big-32agents   meta        vs guarded-safe     -0.0140 [-0.0241,-0.0039] holm 0.250 ns 
+  lin-cont       resid-warm  vs warm(hebr)       +0.0064 [+0.0012,+0.0117] holm 0.496 ns 
+  lin-cont       resid-safe  vs guarded-safe     +0.0136 [+0.0111,+0.0161] holm 0.000 WIN 
+  lin-cont       cfg-bandit  vs warm(hebr)       +0.0206 [+0.0109,+0.0302] holm 0.005 WIN 
+  lin-cont       meta        vs guarded-safe     -0.0035 [-0.0083,+0.0013] holm 1.000 ns EQUIV(95%CI in +-.01)
+  xor-cont       resid-warm  vs warm(hebr)       +0.1017 [+0.0861,+0.1173] holm 0.000 WIN 
+  xor-cont       resid-safe  vs guarded-safe     +0.1159 [+0.1106,+0.1211] holm 0.000 WIN 
+  xor-cont       cfg-bandit  vs warm(hebr)       -0.0011 [-0.0028,+0.0005] holm 1.000 ns EQUIV(95%CI in +-.01)
+  xor-cont       meta        vs guarded-safe     +0.1125 [+0.1064,+0.1186] holm 0.000 WIN 
+  xor-cont-drift resid-warm  vs warm(hebr)       +0.0600 [+0.0476,+0.0724] holm 0.000 WIN 
+  xor-cont-drift resid-safe  vs guarded-safe     +0.0950 [+0.0877,+0.1024] holm 0.000 WIN 
+  xor-cont-drift cfg-bandit  vs warm(hebr)       -0.0020 [-0.0040,+0.0000] holm 1.000 ns EQUIV(95%CI in +-.01)
+  xor-cont-drift meta        vs guarded-safe     +0.0805 [+0.0721,+0.0890] holm 0.000 WIN 
+  xor-tok        resid-warm  vs warm(hebr)       +0.2647 [+0.2594,+0.2700] holm 0.000 WIN 
+  xor-tok        resid-safe  vs guarded-safe     +0.2490 [+0.2438,+0.2541] holm 0.000 WIN 
+  xor-tok        cfg-bandit  vs warm(hebr)       +0.0016 [-0.0025,+0.0057] holm 1.000 ns EQUIV(95%CI in +-.01)
+  xor-tok        meta        vs guarded-safe     +0.2414 [+0.2234,+0.2593] holm 0.000 WIN 
+  rich-cont      resid-warm  vs warm(hebr)       +0.0012 [-0.0043,+0.0068] holm 1.000 ns EQUIV(95%CI in +-.01)
+  rich-cont      resid-safe  vs guarded-safe     +0.0026 [-0.0006,+0.0058] holm 1.000 ns EQUIV(95%CI in +-.01)
+  rich-cont      cfg-bandit  vs warm(hebr)       +0.0103 [+0.0019,+0.0187] holm 0.496 ns 
+  rich-cont      meta        vs guarded-safe     -0.0012 [-0.0050,+0.0026] holm 1.000 ns EQUIV(95%CI in +-.01)
+  kw-drift4      resid-warm  vs warm(hebr)       -0.0059 [-0.0143,+0.0025] holm 1.000 ns 
+  kw-drift4      resid-safe  vs guarded-safe     -0.0050 [-0.0154,+0.0054] holm 1.000 ns 
+  kw-drift4      cfg-bandit  vs warm(hebr)       -0.0063 [-0.0150,+0.0025] holm 1.000 ns 
+  kw-drift4      meta        vs guarded-safe     +0.0072 [-0.0034,+0.0179] holm 1.000 ns 
+  xor-drift3     resid-warm  vs warm(hebr)       +0.0106 [+0.0061,+0.0152] holm 0.002 WIN 
+  xor-drift3     resid-safe  vs guarded-safe     +0.0292 [+0.0220,+0.0365] holm 0.000 WIN 
+  xor-drift3     cfg-bandit  vs warm(hebr)       -0.0014 [-0.0032,+0.0004] holm 1.000 ns EQUIV(95%CI in +-.01)
+  xor-drift3     meta        vs guarded-safe     +0.0220 [+0.0172,+0.0268] holm 0.000 WIN 
+  ctl-noinfo     resid-warm  vs warm(hebr)       +0.0004 [-0.0012,+0.0020] holm 1.000 ns EQUIV(95%CI in +-.01)
+  ctl-noinfo     resid-safe  vs guarded-safe     +0.0016 [-0.0001,+0.0033] holm 1.000 ns EQUIV(95%CI in +-.01)
+  ctl-noinfo     cfg-bandit  vs warm(hebr)       -0.0018 [-0.0040,+0.0003] holm 1.000 ns EQUIV(95%CI in +-.01)
+  ctl-noinfo     meta        vs guarded-safe     +0.0484 [+0.0445,+0.0523] holm 0.000 WIN 
+  ctl-static     resid-warm  vs warm(hebr)       -0.0013 [-0.0031,+0.0005] holm 1.000 ns EQUIV(95%CI in +-.01)
+  ctl-static     resid-safe  vs guarded-safe     -0.0108 [-0.0114,-0.0102] holm 0.000 LOSS 
+  ctl-static     cfg-bandit  vs warm(hebr)       +0.0085 [+0.0063,+0.0107] holm 0.000 WIN 
+  ctl-static     meta        vs guarded-safe     -0.0111 [-0.0118,-0.0103] holm 0.000 LOSS 
+
+=== F4: nogate ablation vs gated resid-warm ===
+  sim-fixed      -0.0008 [-0.0068,+0.0052] holm 1.000 ns
+  sim-random     -0.0002 [-0.0064,+0.0060] holm 1.000 ns
+  sim-no-traps   -0.0143 [-0.0234,-0.0052] holm 0.016 LOSS
+  big-32agents   -0.0463 [-0.0566,-0.0360] holm 0.000 LOSS
+  lin-cont       +0.0440 [+0.0359,+0.0520] holm 0.000 WIN
+  xor-cont       +0.0543 [+0.0404,+0.0681] holm 0.000 WIN
+  xor-cont-drift -0.0038 [-0.0169,+0.0094] holm 1.000 ns
+  xor-tok        +0.0048 [-0.0229,+0.0325] holm 1.000 ns
+  rich-cont      +0.0430 [+0.0336,+0.0523] holm 0.000 WIN
+  kw-drift4      -0.0657 [-0.0777,-0.0537] holm 0.000 LOSS
+  xor-drift3     -0.0176 [-0.0226,-0.0125] holm 0.000 LOSS
+  ctl-noinfo     +0.0057 [+0.0050,+0.0064] holm 0.000 WIN
+  ctl-static     -0.0198 [-0.0230,-0.0166] holm 0.000 LOSS
+
+=== KEEP RULE: Holm-WIN vs best fair (full metric) in >=2 independent NON-control families AND harmless (95% CI vs incumbent inside +-0.01) in all keyword/control worlds ===
+  resid-warm  WIN families ["xor-cont", "xor-tok"] (2) | LOSS families ["big", "ctl-noinfo", "ctl-static", "lin-cont", "rich-cont", "sim"] | harmless-worlds equivalent 5/7 (worst CI-lo vs incumbent -0.0143) => NOT KEPT
+  resid-safe  WIN families ["xor-cont", "xor-tok"] (2) | LOSS families ["ctl-noinfo", "ctl-static", "kw-drift", "rich-cont", "sim"] | harmless-worlds equivalent 3/7 (worst CI-lo vs incumbent -0.0154) => NOT KEPT
+  cfg-bandit  WIN families [] (0) | LOSS families ["big", "ctl-noinfo", "ctl-static", "rich-cont", "sim", "xor-cont", "xor-tok"] | harmless-worlds equivalent 2/7 (worst CI-lo vs incumbent -0.0150) => NOT KEPT
+  meta        WIN families ["xor-cont", "xor-tok"] (2) | LOSS families ["ctl-noinfo", "ctl-static", "lin-cont", "rich-cont", "sim"] | harmless-worlds equivalent 1/7 (worst CI-lo vs incumbent -0.0241) => NOT KEPT
+
+=== ADAPTIVITY: recovery after drift events (T=6000; regret to oracle in 250-task bins; post window = 1500 tasks; rec = tasks until regret <= pre+.03, censored at window) ===
+  sim-fixed (drifts at [3000]), best fair by post-drift regret = warm(hebr) (0.0573)
+    keyword                  post-drift regret 0.1647 (vs best fair +0.1074 [+0.0983,+0.1164]; negative = better) dip 0.1032 recovery 1317 tasks
+    eps-greedy               post-drift regret 0.0866 (vs best fair +0.0293 [+0.0158,+0.0428]; negative = better) dip 0.0733 recovery 1117 tasks
+    pooled-thompson          post-drift regret 0.0924 (vs best fair +0.0351 [+0.0267,+0.0436]; negative = better) dip 0.0768 recovery 1142 tasks
+    hebbian-robust           post-drift regret 0.0625 (vs best fair +0.0052 [-0.0046,+0.0150]; negative = better) dip 0.0422 recovery 608 tasks
+    warm(hebr)               post-drift regret 0.0573 (vs best fair +0.0000 [+0.0000,+0.0000]; negative = better) dip 0.0506 recovery 617 tasks
+    guarded-safe             post-drift regret 0.0715 (vs best fair +0.0142 [+0.0064,+0.0219]; negative = better) dip 0.0788 recovery 1192 tasks
+    resid-warm               post-drift regret 0.0581 (vs best fair +0.0008 [-0.0054,+0.0070]; negative = better) dip 0.0501 recovery 683 tasks
+    resid-safe               post-drift regret 0.0745 (vs best fair +0.0171 [+0.0088,+0.0255]; negative = better) dip 0.0765 recovery 1150 tasks
+    cfg-bandit               post-drift regret 0.0558 (vs best fair -0.0016 [-0.0083,+0.0052]; negative = better) dip 0.0545 recovery 825 tasks
+    meta                     post-drift regret 0.0714 (vs best fair +0.0141 [+0.0053,+0.0228]; negative = better) dip 0.0664 recovery 975 tasks
+    resid-warm-nogate[abl]   post-drift regret 0.0659 (vs best fair +0.0086 [-0.0015,+0.0187]; negative = better) dip 0.0544 recovery 942 tasks
+  sim-random (drifts at [3000]), best fair by post-drift regret = warm(hebr) (0.0614)
+    keyword                  post-drift regret 0.1861 (vs best fair +0.1247 [+0.1042,+0.1452]; negative = better) dip 0.0871 recovery 1250 tasks
+    eps-greedy               post-drift regret 0.0915 (vs best fair +0.0301 [+0.0143,+0.0458]; negative = better) dip 0.0745 recovery 1183 tasks
+    pooled-thompson          post-drift regret 0.0907 (vs best fair +0.0293 [+0.0172,+0.0413]; negative = better) dip 0.0703 recovery 1067 tasks
+    hebbian-robust           post-drift regret 0.0674 (vs best fair +0.0060 [-0.0052,+0.0171]; negative = better) dip 0.0588 recovery 783 tasks
+    warm(hebr)               post-drift regret 0.0614 (vs best fair +0.0000 [+0.0000,+0.0000]; negative = better) dip 0.0596 recovery 875 tasks
+    guarded-safe             post-drift regret 0.0706 (vs best fair +0.0091 [+0.0015,+0.0168]; negative = better) dip 0.0774 recovery 1267 tasks
+    resid-warm               post-drift regret 0.0680 (vs best fair +0.0066 [-0.0021,+0.0154]; negative = better) dip 0.0666 recovery 875 tasks
+    resid-safe               post-drift regret 0.0752 (vs best fair +0.0138 [+0.0019,+0.0257]; negative = better) dip 0.0741 recovery 1083 tasks
+    cfg-bandit               post-drift regret 0.0602 (vs best fair -0.0012 [-0.0093,+0.0068]; negative = better) dip 0.0644 recovery 992 tasks
+    meta                     post-drift regret 0.0640 (vs best fair +0.0026 [-0.0065,+0.0116]; negative = better) dip 0.0675 recovery 892 tasks
+    resid-warm-nogate[abl]   post-drift regret 0.0723 (vs best fair +0.0109 [+0.0003,+0.0214]; negative = better) dip 0.0677 recovery 1067 tasks
+  sim-no-traps (drifts at [3000]), best fair by post-drift regret = warm(hebr) (0.0645)
+    keyword                  post-drift regret 0.0934 (vs best fair +0.0290 [+0.0149,+0.0430]; negative = better) dip 0.1330 recovery 1342 tasks
+    eps-greedy               post-drift regret 0.0940 (vs best fair +0.0295 [+0.0166,+0.0425]; negative = better) dip 0.1033 recovery 1075 tasks
+    pooled-thompson          post-drift regret 0.1084 (vs best fair +0.0440 [+0.0337,+0.0543]; negative = better) dip 0.1091 recovery 1167 tasks
+    hebbian-robust           post-drift regret 0.0708 (vs best fair +0.0064 [-0.0063,+0.0190]; negative = better) dip 0.0565 recovery 700 tasks
+    warm(hebr)               post-drift regret 0.0645 (vs best fair +0.0000 [+0.0000,+0.0000]; negative = better) dip 0.0561 recovery 858 tasks
+    guarded-safe             post-drift regret 0.0648 (vs best fair +0.0003 [-0.0083,+0.0089]; negative = better) dip 0.0911 recovery 1275 tasks
+    resid-warm               post-drift regret 0.0683 (vs best fair +0.0038 [-0.0037,+0.0114]; negative = better) dip 0.0643 recovery 867 tasks
+    resid-safe               post-drift regret 0.0670 (vs best fair +0.0025 [-0.0064,+0.0115]; negative = better) dip 0.0861 recovery 1150 tasks
+    cfg-bandit               post-drift regret 0.0665 (vs best fair +0.0020 [-0.0068,+0.0108]; negative = better) dip 0.0594 recovery 892 tasks
+    meta                     post-drift regret 0.0745 (vs best fair +0.0100 [+0.0033,+0.0167]; negative = better) dip 0.0868 recovery 1100 tasks
+    resid-warm-nogate[abl]   post-drift regret 0.0870 (vs best fair +0.0225 [+0.0042,+0.0408]; negative = better) dip 0.0803 recovery 1167 tasks
+  big-32agents (drifts at [3000]), best fair by post-drift regret = guarded-safe (0.1649)
+    keyword                  post-drift regret 0.2577 (vs best fair +0.0928 [+0.0744,+0.1111]; negative = better) dip 0.0824 recovery 1200 tasks
+    eps-greedy               post-drift regret 0.2513 (vs best fair +0.0864 [+0.0704,+0.1024]; negative = better) dip 0.0395 recovery 508 tasks
+    pooled-thompson          post-drift regret 0.2648 (vs best fair +0.0999 [+0.0850,+0.1147]; negative = better) dip 0.0305 recovery 475 tasks
+    hebbian-robust           post-drift regret 0.2436 (vs best fair +0.0786 [+0.0572,+0.1001]; negative = better) dip 0.0353 recovery 575 tasks
+    warm(hebr)               post-drift regret 0.1799 (vs best fair +0.0150 [+0.0033,+0.0267]; negative = better) dip 0.0825 recovery 1167 tasks
+    guarded-safe             post-drift regret 0.1649 (vs best fair +0.0000 [+0.0000,+0.0000]; negative = better) dip 0.0798 recovery 1175 tasks
+    resid-warm               post-drift regret 0.1736 (vs best fair +0.0086 [-0.0069,+0.0242]; negative = better) dip 0.0703 recovery 933 tasks
+    resid-safe               post-drift regret 0.1676 (vs best fair +0.0027 [-0.0071,+0.0124]; negative = better) dip 0.0801 recovery 1183 tasks
+    cfg-bandit               post-drift regret 0.1775 (vs best fair +0.0126 [+0.0006,+0.0245]; negative = better) dip 0.0762 recovery 1000 tasks
+    meta                     post-drift regret 0.1805 (vs best fair +0.0156 [+0.0037,+0.0275]; negative = better) dip 0.0809 recovery 1233 tasks
+    resid-warm-nogate[abl]   post-drift regret 0.2221 (vs best fair +0.0572 [+0.0428,+0.0716]; negative = better) dip 0.0619 recovery 942 tasks
+  xor-cont-drift (drifts at [3000]), best fair by post-drift regret = hebbian-robust (0.2514)
+    keyword                  post-drift regret 0.2517 (vs best fair +0.0003 [-0.0048,+0.0054]; negative = better) dip 0.0436 recovery 808 tasks
+    eps-greedy               post-drift regret 0.2564 (vs best fair +0.0050 [-0.0009,+0.0109]; negative = better) dip 0.0423 recovery 733 tasks
+    pooled-thompson          post-drift regret 0.2568 (vs best fair +0.0054 [+0.0012,+0.0096]; negative = better) dip 0.0210 recovery 250 tasks
+    hebbian-robust           post-drift regret 0.2514 (vs best fair +0.0000 [+0.0000,+0.0000]; negative = better) dip 0.0227 recovery 267 tasks
+    warm(hebr)               post-drift regret 0.2520 (vs best fair +0.0006 [-0.0030,+0.0042]; negative = better) dip 0.0290 recovery 675 tasks
+    guarded-safe             post-drift regret 0.2529 (vs best fair +0.0015 [-0.0022,+0.0053]; negative = better) dip 0.0287 recovery 475 tasks
+    resid-warm               post-drift regret 0.2371 (vs best fair -0.0143 [-0.0234,-0.0053]; negative = better) dip 0.1651 recovery 1425 tasks
+    resid-safe               post-drift regret 0.1965 (vs best fair -0.0550 [-0.0635,-0.0464]; negative = better) dip 0.1714 recovery 1300 tasks
+    cfg-bandit               post-drift regret 0.2531 (vs best fair +0.0017 [-0.0018,+0.0052]; negative = better) dip 0.0208 recovery 417 tasks
+    meta                     post-drift regret 0.2323 (vs best fair -0.0191 [-0.0276,-0.0106]; negative = better) dip 0.1671 recovery 1425 tasks
+    resid-warm-nogate[abl]   post-drift regret 0.3252 (vs best fair +0.0738 [+0.0602,+0.0874]; negative = better) dip 0.3608 recovery 1483 tasks
+  kw-drift4 (drifts at [1500, 3000, 4500]), best fair by post-drift regret = hebbian-robust (0.0890)
+    keyword                  post-drift regret 0.2899 (vs best fair +0.2009 [+0.1727,+0.2290]; negative = better) dip 0.1344 recovery 1264 tasks
+    eps-greedy               post-drift regret 0.1901 (vs best fair +0.1011 [+0.0830,+0.1191]; negative = better) dip 0.1230 recovery 1064 tasks
+    pooled-thompson          post-drift regret 0.1821 (vs best fair +0.0931 [+0.0785,+0.1076]; negative = better) dip 0.1249 recovery 1056 tasks
+    hebbian-robust           post-drift regret 0.0890 (vs best fair +0.0000 [+0.0000,+0.0000]; negative = better) dip 0.1026 recovery 803 tasks
+    warm(hebr)               post-drift regret 0.0936 (vs best fair +0.0045 [-0.0058,+0.0149]; negative = better) dip 0.1161 recovery 953 tasks
+    guarded-safe             post-drift regret 0.1294 (vs best fair +0.0403 [+0.0281,+0.0526]; negative = better) dip 0.1410 recovery 1081 tasks
+    resid-warm               post-drift regret 0.0969 (vs best fair +0.0079 [+0.0009,+0.0148]; negative = better) dip 0.1163 recovery 903 tasks
+    resid-safe               post-drift regret 0.1311 (vs best fair +0.0421 [+0.0289,+0.0552]; negative = better) dip 0.1356 recovery 1106 tasks
+    cfg-bandit               post-drift regret 0.1009 (vs best fair +0.0118 [+0.0013,+0.0224]; negative = better) dip 0.1227 recovery 986 tasks
+    meta                     post-drift regret 0.1156 (vs best fair +0.0266 [+0.0173,+0.0358]; negative = better) dip 0.1236 recovery 986 tasks
+    resid-warm-nogate[abl]   post-drift regret 0.1690 (vs best fair +0.0800 [+0.0628,+0.0971]; negative = better) dip 0.1302 recovery 1033 tasks
+  xor-drift3 (drifts at [1500, 3000, 4500]), best fair by post-drift regret = keyword (0.2527)
+    keyword                  post-drift regret 0.2527 (vs best fair +0.0000 [+0.0000,+0.0000]; negative = better) dip 0.0354 recovery 611 tasks
+    eps-greedy               post-drift regret 0.2551 (vs best fair +0.0025 [+0.0005,+0.0045]; negative = better) dip 0.0246 recovery 411 tasks
+    pooled-thompson          post-drift regret 0.2609 (vs best fair +0.0083 [+0.0055,+0.0110]; negative = better) dip 0.0202 recovery 322 tasks
+    hebbian-robust           post-drift regret 0.2538 (vs best fair +0.0012 [-0.0009,+0.0033]; negative = better) dip 0.0221 recovery 408 tasks
+    warm(hebr)               post-drift regret 0.2551 (vs best fair +0.0025 [+0.0004,+0.0045]; negative = better) dip 0.0237 recovery 375 tasks
+    guarded-safe             post-drift regret 0.2531 (vs best fair +0.0005 [-0.0020,+0.0029]; negative = better) dip 0.0254 recovery 433 tasks
+    resid-warm               post-drift regret 0.2458 (vs best fair -0.0069 [-0.0128,-0.0010]; negative = better) dip 0.0451 recovery 653 tasks
+    resid-safe               post-drift regret 0.2186 (vs best fair -0.0341 [-0.0421,-0.0260]; negative = better) dip 0.0690 recovery 772 tasks
+    cfg-bandit               post-drift regret 0.2578 (vs best fair +0.0051 [+0.0033,+0.0069]; negative = better) dip 0.0250 recovery 386 tasks
+    meta                     post-drift regret 0.2316 (vs best fair -0.0211 [-0.0270,-0.0152]; negative = better) dip 0.0528 recovery 767 tasks
+    resid-warm-nogate[abl]   post-drift regret 0.2752 (vs best fair +0.0225 [+0.0171,+0.0279]; negative = better) dip 0.1394 recovery 1069 tasks
+
+=== TIME-TO-PARITY vs late-best fair baseline (T=20000, windows of 500 tasks, parity = diff >= -.005 sustained to the end) ===
+[curves] done in 145s
+  sim-fixed    resid-warm  vs guarded-safe    : tasks-to-parity None, sustained CI-lo>0 None, mean gap over 20000 tasks -0.0217
+  sim-fixed    resid-safe  vs guarded-safe    : tasks-to-parity Some(12000), sustained CI-lo>0 None, mean gap over 20000 tasks -0.0030
+  sim-fixed    cfg-bandit  vs guarded-safe    : tasks-to-parity Some(9500), sustained CI-lo>0 None, mean gap over 20000 tasks -0.0000
+  sim-fixed    meta        vs guarded-safe    : tasks-to-parity Some(19500), sustained CI-lo>0 None, mean gap over 20000 tasks -0.0077
+  lin-cont     resid-warm  vs pooled-thompson : tasks-to-parity None, sustained CI-lo>0 None, mean gap over 20000 tasks -0.0656
+  lin-cont     resid-safe  vs pooled-thompson : tasks-to-parity None, sustained CI-lo>0 None, mean gap over 20000 tasks -0.0358
+  lin-cont     cfg-bandit  vs pooled-thompson : tasks-to-parity None, sustained CI-lo>0 None, mean gap over 20000 tasks -0.0449
+  lin-cont     meta        vs pooled-thompson : tasks-to-parity None, sustained CI-lo>0 None, mean gap over 20000 tasks -0.0538
+  xor-cont     resid-warm  vs eps-greedy      : tasks-to-parity Some(500), sustained CI-lo>0 Some(1500), mean gap over 20000 tasks +0.1211
+  xor-cont     resid-safe  vs eps-greedy      : tasks-to-parity Some(1500), sustained CI-lo>0 Some(1500), mean gap over 20000 tasks +0.1400
+  xor-cont     cfg-bandit  vs eps-greedy      : tasks-to-parity None, sustained CI-lo>0 None, mean gap over 20000 tasks -0.0153
+  xor-cont     meta        vs eps-greedy      : tasks-to-parity Some(1500), sustained CI-lo>0 Some(1500), mean gap over 20000 tasks +0.1382
+  xor-tok      resid-warm  vs eps-greedy      : tasks-to-parity Some(500), sustained CI-lo>0 Some(500), mean gap over 20000 tasks +0.2341
+  xor-tok      resid-safe  vs eps-greedy      : tasks-to-parity Some(500), sustained CI-lo>0 Some(500), mean gap over 20000 tasks +0.2262
+  xor-tok      cfg-bandit  vs eps-greedy      : tasks-to-parity None, sustained CI-lo>0 None, mean gap over 20000 tasks -0.0548
+  xor-tok      meta        vs eps-greedy      : tasks-to-parity Some(500), sustained CI-lo>0 Some(500), mean gap over 20000 tasks +0.2323
+  rich-cont    resid-warm  vs pooled-thompson : tasks-to-parity None, sustained CI-lo>0 None, mean gap over 20000 tasks -0.0654
+  rich-cont    resid-safe  vs pooled-thompson : tasks-to-parity None, sustained CI-lo>0 None, mean gap over 20000 tasks -0.0621
+  rich-cont    cfg-bandit  vs pooled-thompson : tasks-to-parity None, sustained CI-lo>0 None, mean gap over 20000 tasks -0.0426
+  rich-cont    meta        vs pooled-thompson : tasks-to-parity None, sustained CI-lo>0 None, mean gap over 20000 tasks -0.0635
+  kw-drift4    resid-warm  vs warm(hebr)      : tasks-to-parity None, sustained CI-lo>0 None, mean gap over 20000 tasks -0.0093
+  kw-drift4    resid-safe  vs warm(hebr)      : tasks-to-parity None, sustained CI-lo>0 None, mean gap over 20000 tasks -0.0203
+  kw-drift4    cfg-bandit  vs warm(hebr)      : tasks-to-parity Some(11000), sustained CI-lo>0 Some(18500), mean gap over 20000 tasks +0.0077
+  kw-drift4    meta        vs warm(hebr)      : tasks-to-parity None, sustained CI-lo>0 None, mean gap over 20000 tasks -0.0106
+  xor-drift3   resid-warm  vs warm(hebr)      : tasks-to-parity Some(500), sustained CI-lo>0 None, mean gap over 20000 tasks +0.0416
+  xor-drift3   resid-safe  vs warm(hebr)      : tasks-to-parity Some(500), sustained CI-lo>0 Some(16000), mean gap over 20000 tasks +0.1302
+  xor-drift3   cfg-bandit  vs warm(hebr)      : tasks-to-parity Some(9000), sustained CI-lo>0 None, mean gap over 20000 tasks -0.0014
+  xor-drift3   meta        vs warm(hebr)      : tasks-to-parity Some(500), sustained CI-lo>0 Some(16000), mean gap over 20000 tasks +0.1193
+  ctl-noinfo   resid-warm  vs eps-greedy      : tasks-to-parity Some(4000), sustained CI-lo>0 None, mean gap over 20000 tasks -0.0044
+  ctl-noinfo   resid-safe  vs eps-greedy      : tasks-to-parity None, sustained CI-lo>0 None, mean gap over 20000 tasks -0.0714
+  ctl-noinfo   cfg-bandit  vs eps-greedy      : tasks-to-parity Some(13500), sustained CI-lo>0 None, mean gap over 20000 tasks -0.0071
+  ctl-noinfo   meta        vs eps-greedy      : tasks-to-parity None, sustained CI-lo>0 None, mean gap over 20000 tasks -0.0155
+
+wrote results/h12_online_confirm61-90.json (586s)

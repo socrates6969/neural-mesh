@@ -1,0 +1,67 @@
+warning: value assigned to `verdict_ok` is never read
+    --> src\cognition.rs:1020:17
+     |
+1020 |                 verdict_ok = None;
+     |                 ^^^^^^^^^^^^^^^^^ this value is reassigned later and never used
+...
+1033 |                     verdict_ok = Some(flagged == !correct1);
+     |                     --------------------------------------- `verdict_ok` is overwritten here before the previous value is read
+     |
+     = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: `neural-mesh` (lib) generated 1 warning
+    Finished `release` profile [optimized] target(s) in 0.54s
+     Running `C:/Users/mariu/nm-target-r3\release\g3_perf.exe --out results/g3_perf.json`
+== sim-fixed
+  ns/decision (route+feedback) fresh min/med: ref 1180/1264  compact 601/674  (x0.51)   warm: ref 1167/1335 compact 571/605 (x0.49)   select-only warm: ref 607 compact 246   bg 66%
+  allocations/decision (warm): ref 12.8  compact 0.00
+  one trained brain (live bytes): ref 16504  compact 6084 (lib: owned 2266 + vocab~2862 + kw 256 = 5384; reserved 3196; after shrink owned 2266 reserved 2266; rows 32 cells 183)  JSON state 4320 B
+  K=400 brains, ref f64 guarded(hebr) [shipped]               :     16068 B live/brain, commit     22548 B/brain, lib-accounted         0 B (private_total, or owned+shared/K)  ->     66826 agents/GiB
+  K=400 brains, compact u16/q16, private vocab+kw             :      6618 B live/brain, commit      7178 B/brain, lib-accounted      5386 B (private_total, or owned+shared/K)  ->    162249 agents/GiB
+  K=400 brains, compact u16/q16, private, shrink_to_fit       :      5669 B live/brain, commit      7577 B/brain, lib-accounted      5386 B (private_total, or owned+shared/K)  ->    189413 agents/GiB
+  K=400 brains, compact u16/q16, SHARED vocab+kw, shrink_to_fit:      2389 B live/brain, commit      3594 B/brain, lib-accounted      2275 B (private_total, or owned+shared/K)  ->    449449 agents/GiB
+  memory reduction vs shipped: x2.8 (private compact), x6.7 (shared vocab)
+== sim-random
+  ns/decision (route+feedback) fresh min/med: ref 1162/1221  compact 552/573  (x0.48)   warm: ref 1116/1168 compact 532/559 (x0.48)   select-only warm: ref 568 compact 230   bg 50%
+  allocations/decision (warm): ref 12.8  compact 0.00
+  one trained brain (live bytes): ref 16504  compact 5616 (lib: owned 2062 + vocab~2862 + kw 256 = 5180; reserved 2728; after shrink owned 2062 reserved 2062; rows 32 cells 149)  JSON state 3916 B
+  K=400 brains, ref f64 guarded(hebr) [shipped]               :     16068 B live/brain, commit     20817 B/brain, lib-accounted         0 B (private_total, or owned+shared/K)  ->     66826 agents/GiB
+  K=400 brains, compact u16/q16, private vocab+kw             :      6797 B live/brain, commit      9431 B/brain, lib-accounted      5336 B (private_total, or owned+shared/K)  ->    157967 agents/GiB
+  K=400 brains, compact u16/q16, private, shrink_to_fit       :      5618 B live/brain, commit      8028 B/brain, lib-accounted      5336 B (private_total, or owned+shared/K)  ->    191114 agents/GiB
+  K=400 brains, compact u16/q16, SHARED vocab+kw, shrink_to_fit:      2339 B live/brain, commit      3563 B/brain, lib-accounted      2225 B (private_total, or owned+shared/K)  ->    459150 agents/GiB
+  memory reduction vs shipped: x2.9 (private compact), x6.9 (shared vocab)
+== sim-no-traps
+  ns/decision (route+feedback) fresh min/med: ref 1489/1973  compact 635/901  (x0.43)   warm: ref 1535/1983 compact 685/913 (x0.45)   select-only warm: ref 663 compact 293   bg 81%
+  allocations/decision (warm): ref 11.9  compact 0.00
+  one trained brain (live bytes): ref 16504  compact 7224 (lib: owned 2146 + vocab~2862 + kw 256 = 5264; reserved 4336; after shrink owned 2146 reserved 2146; rows 32 cells 163)  JSON state 4082 B
+  K=400 brains, ref f64 guarded(hebr) [shipped]               :     16068 B live/brain, commit     19578 B/brain, lib-accounted         0 B (private_total, or owned+shared/K)  ->     66826 agents/GiB
+  K=400 brains, compact u16/q16, private vocab+kw             :      6801 B live/brain, commit      9123 B/brain, lib-accounted      5343 B (private_total, or owned+shared/K)  ->    157873 agents/GiB
+  K=400 brains, compact u16/q16, private, shrink_to_fit       :      5626 B live/brain, commit      7864 B/brain, lib-accounted      5343 B (private_total, or owned+shared/K)  ->    190852 agents/GiB
+  K=400 brains, compact u16/q16, SHARED vocab+kw, shrink_to_fit:      2346 B live/brain, commit      3665 B/brain, lib-accounted      2232 B (private_total, or owned+shared/K)  ->    457638 agents/GiB
+  memory reduction vs shipped: x2.9 (private compact), x6.8 (shared vocab)
+== big-32agents
+  ns/decision (route+feedback) fresh min/med: ref 3477/5005  compact 1265/1651  (x0.36)   warm: ref 3658/5401 compact 1457/1831 (x0.40)   select-only warm: ref 2544 compact 645   bg 70%
+  allocations/decision (warm): ref 14.0  compact 0.00
+  one trained brain (live bytes): ref 247722  compact 69744 (lib: owned 17260 + vocab~21638 + kw 1536 = 40434; reserved 46096; after shrink owned 17260 reserved 17260; rows 232 cells 1882)  JSON state 35045 B
+  K=120 brains, ref f64 guarded(hebr) [shipped]               :    246128 B live/brain, commit    266513 B/brain, lib-accounted         0 B (private_total, or owned+shared/K)  ->      4363 agents/GiB
+  K=120 brains, compact u16/q16, private vocab+kw             :     62651 B live/brain, commit     72738 B/brain, lib-accounted     43800 B (private_total, or owned+shared/K)  ->     17139 agents/GiB
+  K=120 brains, compact u16/q16, private, shrink_to_fit       :     44702 B live/brain, commit     54169 B/brain, lib-accounted     43800 B (private_total, or owned+shared/K)  ->     24020 agents/GiB
+  K=120 brains, compact u16/q16, SHARED vocab+kw, shrink_to_fit:     20854 B live/brain, commit     42461 B/brain, lib-accounted     20806 B (private_total, or owned+shared/K)  ->     51487 agents/GiB
+  memory reduction vs shipped: x5.5 (private compact), x11.8 (shared vocab)
+== big-32agents-longtail
+  ns/decision (route+feedback) fresh min/med: ref 4721/6514  compact 1302/1815  (x0.28)   warm: ref 4484/6929 compact 1434/1925 (x0.32)   select-only warm: ref 3249 compact 671   bg 51%
+  allocations/decision (warm): ref 15.5  compact 0.00
+  one trained brain (live bytes): ref 1878161  compact 265116 (lib: owned 66850 + vocab~173123 + kw 1536 = 241509; reserved 84652; after shrink owned 66850 reserved 66850; rows 1838 cells 3723)  JSON state 123518 B
+  K=40 brains, ref f64 guarded(hebr) [shipped]               :   1877858 B live/brain, commit   2063564 B/brain, lib-accounted         0 B (private_total, or owned+shared/K)  ->       572 agents/GiB
+  K=40 brains, compact u16/q16, private vocab+kw             :    289247 B live/brain, commit    394342 B/brain, lib-accounted    244208 B (private_total, or owned+shared/K)  ->      3712 agents/GiB
+  K=40 brains, compact u16/q16, private, shrink_to_fit       :    250659 B live/brain, commit    305254 B/brain, lib-accounted    244208 B (private_total, or owned+shared/K)  ->      4284 agents/GiB
+  K=40 brains, compact u16/q16, SHARED vocab+kw, shrink_to_fit:     75930 B live/brain, commit    166707 B/brain, lib-accounted     75379 B (private_total, or owned+shared/K)  ->     14141 agents/GiB
+  memory reduction vs shipped: x7.5 (private compact), x24.7 (shared vocab)
+
+=== HEADLINE (seed 31 world per row; ns = min of 31 interleaved reps; bytes = counting-allocator live bytes) ===
+sim-fixed                ns fresh ref 1180 -> compact 601 (x0.51); warm 1167 -> 571 (x0.49); allocs/dec 12.8 -> 0.00; bytes/brain 16068 -> 5669 private (2.8x) | 2389 shared (6.7x); agents/GiB 66826 -> 189413 | 449449
+sim-random               ns fresh ref 1162 -> compact 552 (x0.48); warm 1116 -> 532 (x0.48); allocs/dec 12.8 -> 0.00; bytes/brain 16068 -> 5618 private (2.9x) | 2339 shared (6.9x); agents/GiB 66826 -> 191114 | 459150
+sim-no-traps             ns fresh ref 1489 -> compact 635 (x0.43); warm 1535 -> 685 (x0.45); allocs/dec 11.9 -> 0.00; bytes/brain 16068 -> 5626 private (2.9x) | 2346 shared (6.8x); agents/GiB 66826 -> 190852 | 457638
+big-32agents             ns fresh ref 3477 -> compact 1265 (x0.36); warm 3658 -> 1457 (x0.40); allocs/dec 14.0 -> 0.00; bytes/brain 246128 -> 44702 private (5.5x) | 20854 shared (11.8x); agents/GiB 4363 -> 24020 | 51487
+big-32agents-longtail    ns fresh ref 4721 -> compact 1302 (x0.28); warm 4484 -> 1434 (x0.32); allocs/dec 15.5 -> 0.00; bytes/brain 1877858 -> 250659 private (7.5x) | 75930 shared (24.7x); agents/GiB 572 -> 4284 | 14141
+wrote results/g3_perf.json (333.0s)

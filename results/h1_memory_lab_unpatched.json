@@ -1,0 +1,1690 @@
+{
+  "elapsed_s": 60.5989948,
+  "quick": true,
+  "tiered": {
+    "config": {
+      "budget_bytes": 2316000,
+      "budget_frac_of_flat_all": 0.25,
+      "bytes": "estimated via bytes() (tight allocation), incl. 88 B/item stats overhead for tiered; flat-all pre-sized",
+      "cold_bit_width": 4,
+      "dim": 384,
+      "eval_seeds": [
+        11,
+        12,
+        13,
+        14
+      ],
+      "group_size": 10,
+      "groups": 600,
+      "halflife_ticks": 30000.0,
+      "hot_cap": 16,
+      "items": 6000,
+      "k": 10,
+      "member_noise": 1.7999999523162842,
+      "mix_recent_useful_old": [
+        0.55,
+        0.3,
+        0.15
+      ],
+      "queries": 400,
+      "query_noise": 1.0,
+      "recency_window_items": 300,
+      "relevance": "query = noisy copy of a group centroid; relevant = the 10 members of that group; recall = hits/10",
+      "short_cap": 450,
+      "tune_seeds": [
+        1,
+        2
+      ],
+      "useful_frac": 0.05
+    },
+    "mixture_sweep": [
+      {
+        "method": "flat-all",
+        "p_old": 0.05,
+        "recall_all": {
+          "ci95": 0.03653032500000161,
+          "mean": 0.9363750000000013,
+          "n": 2,
+          "sd": 0.004065863991822828
+        }
+      },
+      {
+        "method": "hnsw-all (M16,ef64)",
+        "p_old": 0.05,
+        "recall_all": {
+          "ci95": 0.0476482500000011,
+          "mean": 0.9185000000000016,
+          "n": 2,
+          "sd": 0.005303300858899229
+        }
+      },
+      {
+        "method": "tiered keep-all",
+        "p_old": 0.05,
+        "recall_all": {
+          "ci95": 0.03653032500000161,
+          "mean": 0.9363750000000013,
+          "n": 2,
+          "sd": 0.004065863991822828
+        }
+      },
+      {
+        "method": "tiered keep-all +cold4",
+        "p_old": 0.05,
+        "recall_all": {
+          "ci95": 0.039706875000001966,
+          "mean": 0.9348750000000012,
+          "n": 2,
+          "sd": 0.004419417382416141
+        }
+      },
+      {
+        "method": "tiered FIFO-forget @B",
+        "p_old": 0.05,
+        "recall_all": {
+          "ci95": 0.030177225000000203,
+          "mean": 0.7608750000000004,
+          "n": 2,
+          "sd": 0.0033587572106361235
+        }
+      },
+      {
+        "method": "tiered value-forget @B",
+        "p_old": 0.05,
+        "recall_all": {
+          "ci95": 0.16041577500000137,
+          "mean": 0.9023750000000005,
+          "n": 2,
+          "sd": 0.017854446224960477
+        }
+      },
+      {
+        "method": "tiered FIFO-forget +cold4 @B",
+        "p_old": 0.05,
+        "recall_all": {
+          "ci95": 0.01747102499999737,
+          "mean": 0.8888750000000011,
+          "n": 2,
+          "sd": 0.001944543648262713
+        }
+      },
+      {
+        "method": "tiered value-forget +cold4 @B",
+        "p_old": 0.05,
+        "recall_all": {
+          "ci95": 0.034942049999999676,
+          "mean": 0.935250000000001,
+          "n": 2,
+          "sd": 0.0038890872965259755
+        }
+      },
+      {
+        "method": "flat-all",
+        "p_old": 0.15,
+        "recall_all": {
+          "ci95": 0.05241307500000057,
+          "mean": 0.9376250000000009,
+          "n": 2,
+          "sd": 0.005833630944789081
+        }
+      },
+      {
+        "method": "hnsw-all (M16,ef64)",
+        "p_old": 0.15,
+        "recall_all": {
+          "ci95": 0.04764824999999969,
+          "mean": 0.917250000000001,
+          "n": 2,
+          "sd": 0.005303300858899072
+        }
+      },
+      {
+        "method": "tiered keep-all",
+        "p_old": 0.15,
+        "recall_all": {
+          "ci95": 0.05241307500000057,
+          "mean": 0.9376250000000009,
+          "n": 2,
+          "sd": 0.005833630944789081
+        }
+      },
+      {
+        "method": "tiered keep-all +cold4",
+        "p_old": 0.15,
+        "recall_all": {
+          "ci95": 0.060354450000000406,
+          "mean": 0.9350000000000009,
+          "n": 2,
+          "sd": 0.006717514421272247
+        }
+      },
+      {
+        "method": "tiered FIFO-forget @B",
+        "p_old": 0.15,
+        "recall_all": {
+          "ci95": 0.08100202499999955,
+          "mean": 0.7363750000000004,
+          "n": 2,
+          "sd": 0.00901561146012843
+        }
+      },
+      {
+        "method": "tiered value-forget @B",
+        "p_old": 0.15,
+        "recall_all": {
+          "ci95": 0.03811860000000004,
+          "mean": 0.8480000000000004,
+          "n": 2,
+          "sd": 0.004242640687119289
+        }
+      },
+      {
+        "method": "tiered FIFO-forget +cold4 @B",
+        "p_old": 0.15,
+        "recall_all": {
+          "ci95": 0.007941375000003359,
+          "mean": 0.8953750000000009,
+          "n": 2,
+          "sd": 0.0008838834764835581
+        }
+      },
+      {
+        "method": "tiered value-forget +cold4 @B",
+        "p_old": 0.15,
+        "recall_all": {
+          "ci95": 0.007941374999999124,
+          "mean": 0.923375000000001,
+          "n": 2,
+          "sd": 0.0008838834764830871
+        }
+      },
+      {
+        "method": "flat-all",
+        "p_old": 0.4,
+        "recall_all": {
+          "ci95": 0.027000674999999846,
+          "mean": 0.9331250000000009,
+          "n": 2,
+          "sd": 0.00300520382004281
+        }
+      },
+      {
+        "method": "hnsw-all (M16,ef64)",
+        "p_old": 0.4,
+        "recall_all": {
+          "ci95": 0.004764825000001591,
+          "mean": 0.9173750000000008,
+          "n": 2,
+          "sd": 0.0005303300858900878
+        }
+      },
+      {
+        "method": "tiered keep-all",
+        "p_old": 0.4,
+        "recall_all": {
+          "ci95": 0.027000674999999846,
+          "mean": 0.9331250000000009,
+          "n": 2,
+          "sd": 0.00300520382004281
+        }
+      },
+      {
+        "method": "tiered keep-all +cold4",
+        "p_old": 0.4,
+        "recall_all": {
+          "ci95": 0.023824124999998784,
+          "mean": 0.9341250000000008,
+          "n": 2,
+          "sd": 0.002651650429449418
+        }
+      },
+      {
+        "method": "tiered FIFO-forget @B",
+        "p_old": 0.4,
+        "recall_all": {
+          "ci95": 0.31447845000000063,
+          "mean": 0.6615000000000002,
+          "n": 2,
+          "sd": 0.03500178566873417
+        }
+      },
+      {
+        "method": "tiered value-forget @B",
+        "p_old": 0.4,
+        "recall_all": {
+          "ci95": 0.14294474999999976,
+          "mean": 0.7027500000000002,
+          "n": 2,
+          "sd": 0.015909902576697294
+        }
+      },
+      {
+        "method": "tiered FIFO-forget +cold4 @B",
+        "p_old": 0.4,
+        "recall_all": {
+          "ci95": 0.09211995000000114,
+          "mean": 0.8782500000000006,
+          "n": 2,
+          "sd": 0.010253048327205066
+        }
+      },
+      {
+        "method": "tiered value-forget +cold4 @B",
+        "p_old": 0.4,
+        "recall_all": {
+          "ci95": 0.2207702250000011,
+          "mean": 0.8966250000000004,
+          "n": 2,
+          "sd": 0.024571960646232648
+        }
+      }
+    ],
+    "mixture_sweep_seeds": [
+      11,
+      12
+    ],
+    "paired_overall_recall": [
+      {
+        "a": "tiered value-forget @B",
+        "b": "tiered FIFO-forget @B",
+        "ci95": 0.018079488490828494,
+        "diff_mean": 0.11393750000000002,
+        "losses": 0,
+        "significant": true,
+        "ties": 0,
+        "wins": 4
+      },
+      {
+        "a": "tiered value-forget +cold4 @B",
+        "b": "tiered value-forget @B",
+        "ci95": 0.012329661104831918,
+        "diff_mean": 0.0717500000000004,
+        "losses": 0,
+        "significant": true,
+        "ties": 0,
+        "wins": 4
+      },
+      {
+        "a": "tiered value-forget +cold4 @B",
+        "b": "tiered FIFO-forget +cold4 @B",
+        "ci95": 0.019383312703715173,
+        "diff_mean": 0.032937500000000036,
+        "losses": 0,
+        "significant": true,
+        "ties": 0,
+        "wins": 4
+      },
+      {
+        "a": "tiered value-forget +cold4 @B",
+        "b": "tiered FIFO-forget @B",
+        "ci95": 0.02445607408906839,
+        "diff_mean": 0.18568750000000042,
+        "losses": 0,
+        "significant": true,
+        "ties": 0,
+        "wins": 4
+      },
+      {
+        "a": "tiered value-forget @B",
+        "b": "flat-all",
+        "ci95": 0.020233126329858048,
+        "diff_mean": -0.08712500000000048,
+        "losses": 4,
+        "significant": true,
+        "ties": 0,
+        "wins": 0
+      },
+      {
+        "a": "tiered value-forget +cold4 @B",
+        "b": "flat-all",
+        "ci95": 0.010949741569552963,
+        "diff_mean": -0.015375000000000083,
+        "losses": 4,
+        "significant": true,
+        "ties": 0,
+        "wins": 0
+      },
+      {
+        "a": "tiered keep-all",
+        "b": "flat-all",
+        "ci95": 0.0,
+        "diff_mean": 0.0,
+        "losses": 0,
+        "significant": false,
+        "ties": 4,
+        "wins": 0
+      }
+    ],
+    "rows": [
+      {
+        "bytes_end": {
+          "ci95": 0.0,
+          "mean": 9264000.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "bytes_end_over_budget_ratio": 4.0,
+        "bytes_peak": {
+          "ci95": 0.0,
+          "mean": 9264000.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "items_retained": {
+          "ci95": 0.0,
+          "mean": 6000.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "latency_us": {
+          "ci95": 49.63061241231041,
+          "mean": 132.10731249999998,
+          "n": 4,
+          "sd": 31.19068150597688
+        },
+        "method": "flat-all",
+        "peak_over_budget_ratio": 4.0,
+        "recall_all": {
+          "ci95": 0.012890193249133205,
+          "mean": 0.944000000000001,
+          "n": 4,
+          "sd": 0.008100925873009807
+        },
+        "recall_old": {
+          "ci95": 0.02029815434895826,
+          "mean": 0.9453778941279066,
+          "n": 4,
+          "sd": 0.012756507258018012
+        },
+        "recall_recent": {
+          "ci95": 0.012394899824983827,
+          "mean": 0.9427896444289234,
+          "n": 4,
+          "sd": 0.007789655495842023
+        },
+        "recall_useful": {
+          "ci95": 0.02338514553624493,
+          "mean": 0.945166409391728,
+          "n": 4,
+          "sd": 0.01469654696847972
+        }
+      },
+      {
+        "bytes_end": {
+          "ci95": 0.0,
+          "mean": 38976000.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "bytes_end_over_budget_ratio": 16.82901554404145,
+        "bytes_peak": {
+          "ci95": 0.0,
+          "mean": 38976000.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "items_retained": {
+          "ci95": 0.0,
+          "mean": 6000.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "latency_us": {
+          "ci95": 181.70989732865047,
+          "mean": 451.1706875000002,
+          "n": 4,
+          "sd": 114.19676805470743
+        },
+        "method": "hnsw-all (M16,ef64)",
+        "peak_over_budget_ratio": 16.82901554404145,
+        "recall_all": {
+          "ci95": 0.012838939792677681,
+          "mean": 0.926375000000001,
+          "n": 4,
+          "sd": 0.008068715304598845
+        },
+        "recall_old": {
+          "ci95": 0.022408156276396436,
+          "mean": 0.9311895890352254,
+          "n": 4,
+          "sd": 0.014082551707137026
+        },
+        "recall_recent": {
+          "ci95": 0.013141948065151792,
+          "mean": 0.9214033708382567,
+          "n": 4,
+          "sd": 0.008259142826264325
+        },
+        "recall_useful": {
+          "ci95": 0.01523164501255874,
+          "mean": 0.9331223082592385,
+          "n": 4,
+          "sd": 0.009572426478480858
+        }
+      },
+      {
+        "bytes_end": {
+          "ci95": 0.0,
+          "mean": 9936000.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "bytes_end_over_budget_ratio": 4.290155440414508,
+        "bytes_peak": {
+          "ci95": 0.0,
+          "mean": 9936000.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "items_retained": {
+          "ci95": 0.0,
+          "mean": 6000.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "latency_us": {
+          "ci95": 90.49935242183537,
+          "mean": 160.94331250000002,
+          "n": 4,
+          "sd": 56.874907253541586
+        },
+        "method": "tiered keep-all",
+        "peak_over_budget_ratio": 4.290155440414508,
+        "recall_all": {
+          "ci95": 0.012890193249133205,
+          "mean": 0.944000000000001,
+          "n": 4,
+          "sd": 0.008100925873009807
+        },
+        "recall_old": {
+          "ci95": 0.02029815434895826,
+          "mean": 0.9453778941279066,
+          "n": 4,
+          "sd": 0.012756507258018012
+        },
+        "recall_recent": {
+          "ci95": 0.012394899824983827,
+          "mean": 0.9427896444289234,
+          "n": 4,
+          "sd": 0.007789655495842023
+        },
+        "recall_useful": {
+          "ci95": 0.02338514553624493,
+          "mean": 0.945166409391728,
+          "n": 4,
+          "sd": 0.01469654696847972
+        }
+      },
+      {
+        "bytes_end": {
+          "ci95": 0.0,
+          "mean": 3065992.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "bytes_end_over_budget_ratio": 1.3238307426597582,
+        "bytes_peak": {
+          "ci95": 0.0,
+          "mean": 3065992.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "items_retained": {
+          "ci95": 0.0,
+          "mean": 6000.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "latency_us": {
+          "ci95": 32.30310958920458,
+          "mean": 102.45537500000002,
+          "n": 4,
+          "sd": 20.301099540726863
+        },
+        "method": "tiered keep-all +cold4",
+        "peak_over_budget_ratio": 1.3238307426597582,
+        "recall_all": {
+          "ci95": 0.01510243565521798,
+          "mean": 0.942500000000001,
+          "n": 4,
+          "sd": 0.009491224016602552
+        },
+        "recall_old": {
+          "ci95": 0.02094079500327685,
+          "mean": 0.94573315063471,
+          "n": 4,
+          "sd": 0.013160378961335376
+        },
+        "recall_recent": {
+          "ci95": 0.014813613459447567,
+          "mean": 0.9410009302020875,
+          "n": 4,
+          "sd": 0.009309711827204354
+        },
+        "recall_useful": {
+          "ci95": 0.025792459297130223,
+          "mean": 0.9434106424307372,
+          "n": 4,
+          "sd": 0.01620943897506927
+        }
+      },
+      {
+        "bytes_end": {
+          "ci95": 0.0,
+          "mean": 2245536.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "bytes_end_over_budget_ratio": 0.9695751295336787,
+        "bytes_peak": {
+          "ci95": 0.0,
+          "mean": 2245536.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "items_retained": {
+          "ci95": 0.0,
+          "mean": 1356.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "latency_us": {
+          "ci95": 19.177812727865557,
+          "mean": 63.57243750000001,
+          "n": 4,
+          "sd": 12.052421271911488
+        },
+        "method": "tiered FIFO-forget @B",
+        "peak_over_budget_ratio": 0.9695751295336787,
+        "recall_all": {
+          "ci95": 0.03591875545519352,
+          "mean": 0.7429375000000003,
+          "n": 4,
+          "sd": 0.022573375725988887
+        },
+        "recall_old": {
+          "ci95": 0.07641430811934259,
+          "mean": 0.44631770753566347,
+          "n": 4,
+          "sd": 0.048023069456600426
+        },
+        "recall_recent": {
+          "ci95": 0.009252715583896003,
+          "mean": 0.9702121895848433,
+          "n": 4,
+          "sd": 0.005814929351367523
+        },
+        "recall_useful": {
+          "ci95": 0.07367174056908914,
+          "mean": 0.45223440097635625,
+          "n": 4,
+          "sd": 0.04629948502330891
+        }
+      },
+      {
+        "bytes_end": {
+          "ci95": 0.0,
+          "mean": 2245536.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "bytes_end_over_budget_ratio": 0.9695751295336787,
+        "bytes_peak": {
+          "ci95": 0.0,
+          "mean": 2245536.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "items_retained": {
+          "ci95": 0.0,
+          "mean": 1356.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "latency_us": {
+          "ci95": 33.60864204924775,
+          "mean": 66.057625,
+          "n": 4,
+          "sd": 21.121569915314073
+        },
+        "method": "tiered value-forget @B",
+        "peak_over_budget_ratio": 0.9695751295336787,
+        "recall_all": {
+          "ci95": 0.026203518098911843,
+          "mean": 0.8568750000000005,
+          "n": 4,
+          "sd": 0.01646777155537446
+        },
+        "recall_old": {
+          "ci95": 0.01852779898899518,
+          "mean": 0.41492544324981884,
+          "n": 4,
+          "sd": 0.011643915905602802
+        },
+        "recall_recent": {
+          "ci95": 0.0068762539670334695,
+          "mean": 0.9714655941096494,
+          "n": 4,
+          "sd": 0.004321426575561507
+        },
+        "recall_useful": {
+          "ci95": 0.056801670284512544,
+          "mean": 0.8614661568661638,
+          "n": 4,
+          "sd": 0.035697379515153685
+        }
+      },
+      {
+        "bytes_end": {
+          "ci95": 0.0,
+          "mean": 2246404.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "bytes_end_over_budget_ratio": 0.9699499136442141,
+        "bytes_peak": {
+          "ci95": 0.0,
+          "mean": 2308004.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "items_retained": {
+          "ci95": 0.0,
+          "mean": 3339.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "latency_us": {
+          "ci95": 32.04135747046505,
+          "mean": 94.2680625,
+          "n": 4,
+          "sd": 20.136599717486835
+        },
+        "method": "tiered FIFO-forget +cold4 @B",
+        "peak_over_budget_ratio": 0.9965474956822107,
+        "recall_all": {
+          "ci95": 0.027301515665068884,
+          "mean": 0.8956875000000009,
+          "n": 4,
+          "sd": 0.017157815274678787
+        },
+        "recall_old": {
+          "ci95": 0.08277407703037377,
+          "mean": 0.825543804818514,
+          "n": 4,
+          "sd": 0.05201990763598151
+        },
+        "recall_recent": {
+          "ci95": 0.015307988173947847,
+          "mean": 0.947298605199639,
+          "n": 4,
+          "sd": 0.00962040483531162
+        },
+        "recall_useful": {
+          "ci95": 0.08775688136954582,
+          "mean": 0.8330624733318832,
+          "n": 4,
+          "sd": 0.05515138346502377
+        }
+      },
+      {
+        "bytes_end": {
+          "ci95": 0.0,
+          "mean": 2246404.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "bytes_end_over_budget_ratio": 0.9699499136442141,
+        "bytes_peak": {
+          "ci95": 0.0,
+          "mean": 2308004.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "items_retained": {
+          "ci95": 0.0,
+          "mean": 3339.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "latency_us": {
+          "ci95": 26.694478598797733,
+          "mean": 90.92343749999995,
+          "n": 4,
+          "sd": 16.776318878078012
+        },
+        "method": "tiered value-forget +cold4 @B",
+        "peak_over_budget_ratio": 0.9965474956822107,
+        "recall_all": {
+          "ci95": 0.014084966491972732,
+          "mean": 0.9286250000000009,
+          "n": 4,
+          "sd": 0.008851788896413231
+        },
+        "recall_old": {
+          "ci95": 0.03239832808249516,
+          "mean": 0.820482416811553,
+          "n": 4,
+          "sd": 0.02036094022278479
+        },
+        "recall_recent": {
+          "ci95": 0.014031071872212602,
+          "mean": 0.9467976748398579,
+          "n": 4,
+          "sd": 0.008817918471727377
+        },
+        "recall_useful": {
+          "ci95": 0.019564064082437133,
+          "mean": 0.9492450215860118,
+          "n": 4,
+          "sd": 0.012295163450500963
+        }
+      }
+    ],
+    "tuning": [
+      {
+        "halflife": 3000.0,
+        "hot_cap": null,
+        "recall": 0.8703750000000006,
+        "variant": "value-forget"
+      },
+      {
+        "halflife": 10000.0,
+        "hot_cap": null,
+        "recall": 0.8705000000000005,
+        "variant": "value-forget"
+      },
+      {
+        "halflife": 30000.0,
+        "hot_cap": null,
+        "recall": 0.8706250000000005,
+        "variant": "value-forget"
+      },
+      {
+        "halflife": 100000.0,
+        "hot_cap": null,
+        "recall": 0.8706250000000005,
+        "variant": "value-forget"
+      },
+      {
+        "halflife": 30000.0,
+        "hot_cap": 16,
+        "recall": 0.9267500000000009,
+        "variant": "value-forget+cold4"
+      },
+      {
+        "halflife": 30000.0,
+        "hot_cap": 22,
+        "recall": 0.9262500000000009,
+        "variant": "value-forget+cold4"
+      },
+      {
+        "halflife": 30000.0,
+        "hot_cap": 45,
+        "recall": 0.9256250000000009,
+        "variant": "value-forget+cold4"
+      },
+      {
+        "halflife": 30000.0,
+        "hot_cap": 112,
+        "recall": 0.9178750000000008,
+        "variant": "value-forget+cold4"
+      },
+      {
+        "halflife": 30000.0,
+        "hot_cap": 225,
+        "recall": 0.9113750000000008,
+        "variant": "value-forget+cold4"
+      },
+      {
+        "halflife": 30000.0,
+        "hot_cap": 450,
+        "recall": 0.8723750000000006,
+        "variant": "value-forget+cold4"
+      }
+    ]
+  },
+  "tiered_easy_world": {
+    "config": {
+      "budget_bytes": 2316000,
+      "budget_frac_of_flat_all": 0.25,
+      "bytes": "estimated via bytes() (tight allocation), incl. 88 B/item stats overhead for tiered; flat-all pre-sized",
+      "cold_bit_width": 4,
+      "dim": 384,
+      "eval_seeds": [
+        11,
+        12,
+        13,
+        14
+      ],
+      "group_size": 10,
+      "groups": 600,
+      "halflife_ticks": 3000.0,
+      "hot_cap": 16,
+      "items": 6000,
+      "k": 10,
+      "member_noise": 0.550000011920929,
+      "mix_recent_useful_old": [
+        0.55,
+        0.3,
+        0.15
+      ],
+      "queries": 400,
+      "query_noise": 0.3499999940395355,
+      "recency_window_items": 300,
+      "relevance": "query = noisy copy of a group centroid; relevant = the 10 members of that group; recall = hits/10",
+      "short_cap": 450,
+      "tune_seeds": [
+        1,
+        2
+      ],
+      "useful_frac": 0.05
+    },
+    "mixture_sweep": [
+      {
+        "method": "flat-all",
+        "p_old": 0.05,
+        "recall_all": {
+          "ci95": 0.0,
+          "mean": 1.0,
+          "n": 2,
+          "sd": 0.0
+        }
+      },
+      {
+        "method": "hnsw-all (M16,ef64)",
+        "p_old": 0.05,
+        "recall_all": {
+          "ci95": 0.025412399999997906,
+          "mean": 0.9850000000000005,
+          "n": 2,
+          "sd": 0.002828427124745957
+        }
+      },
+      {
+        "method": "tiered keep-all",
+        "p_old": 0.05,
+        "recall_all": {
+          "ci95": 0.0,
+          "mean": 1.0,
+          "n": 2,
+          "sd": 0.0
+        }
+      },
+      {
+        "method": "tiered keep-all +cold4",
+        "p_old": 0.05,
+        "recall_all": {
+          "ci95": 0.0,
+          "mean": 1.0,
+          "n": 2,
+          "sd": 0.0
+        }
+      },
+      {
+        "method": "tiered FIFO-forget @B",
+        "p_old": 0.05,
+        "recall_all": {
+          "ci95": 0.0031765499999996502,
+          "mean": 0.785,
+          "n": 2,
+          "sd": 0.00035355339059323483
+        }
+      },
+      {
+        "method": "tiered value-forget @B",
+        "p_old": 0.05,
+        "recall_all": {
+          "ci95": 0.19694610000000087,
+          "mean": 0.9265,
+          "n": 2,
+          "sd": 0.021920310216783073
+        }
+      },
+      {
+        "method": "tiered FIFO-forget +cold4 @B",
+        "p_old": 0.05,
+        "recall_all": {
+          "ci95": 0.06511927500000059,
+          "mean": 0.9436249999999999,
+          "n": 2,
+          "sd": 0.0072478445071621775
+        }
+      },
+      {
+        "method": "tiered value-forget +cold4 @B",
+        "p_old": 0.05,
+        "recall_all": {
+          "ci95": 0.01588275000000037,
+          "mean": 0.99125,
+          "n": 2,
+          "sd": 0.0017677669529664096
+        }
+      },
+      {
+        "method": "flat-all",
+        "p_old": 0.15,
+        "recall_all": {
+          "ci95": 0.0,
+          "mean": 1.0,
+          "n": 2,
+          "sd": 0.0
+        }
+      },
+      {
+        "method": "hnsw-all (M16,ef64)",
+        "p_old": 0.15,
+        "recall_all": {
+          "ci95": 0.012706199999998601,
+          "mean": 0.9845000000000004,
+          "n": 2,
+          "sd": 0.0014142135623729393
+        }
+      },
+      {
+        "method": "tiered keep-all",
+        "p_old": 0.15,
+        "recall_all": {
+          "ci95": 0.0,
+          "mean": 1.0,
+          "n": 2,
+          "sd": 0.0
+        }
+      },
+      {
+        "method": "tiered keep-all +cold4",
+        "p_old": 0.15,
+        "recall_all": {
+          "ci95": 0.0,
+          "mean": 1.0,
+          "n": 2,
+          "sd": 0.0
+        }
+      },
+      {
+        "method": "tiered FIFO-forget @B",
+        "p_old": 0.15,
+        "recall_all": {
+          "ci95": 0.12547372500000029,
+          "mean": 0.763125,
+          "n": 2,
+          "sd": 0.013965358928434346
+        }
+      },
+      {
+        "method": "tiered value-forget @B",
+        "p_old": 0.15,
+        "recall_all": {
+          "ci95": 0.00794137499999983,
+          "mean": 0.876875,
+          "n": 2,
+          "sd": 0.0008838834764831656
+        }
+      },
+      {
+        "method": "tiered FIFO-forget +cold4 @B",
+        "p_old": 0.15,
+        "recall_all": {
+          "ci95": 0.0667075499999997,
+          "mean": 0.95275,
+          "n": 2,
+          "sd": 0.007424621202458717
+        }
+      },
+      {
+        "method": "tiered value-forget +cold4 @B",
+        "p_old": 0.15,
+        "recall_all": {
+          "ci95": 0.004764825000000181,
+          "mean": 0.977875,
+          "n": 2,
+          "sd": 0.0005303300858899308
+        }
+      },
+      {
+        "method": "flat-all",
+        "p_old": 0.4,
+        "recall_all": {
+          "ci95": 0.0,
+          "mean": 1.0,
+          "n": 2,
+          "sd": 0.0
+        }
+      },
+      {
+        "method": "hnsw-all (M16,ef64)",
+        "p_old": 0.4,
+        "recall_all": {
+          "ci95": 0.00794137499999983,
+          "mean": 0.9848750000000004,
+          "n": 2,
+          "sd": 0.0008838834764831656
+        }
+      },
+      {
+        "method": "tiered keep-all",
+        "p_old": 0.4,
+        "recall_all": {
+          "ci95": 0.0,
+          "mean": 1.0,
+          "n": 2,
+          "sd": 0.0
+        }
+      },
+      {
+        "method": "tiered keep-all +cold4",
+        "p_old": 0.4,
+        "recall_all": {
+          "ci95": 0.0,
+          "mean": 1.0,
+          "n": 2,
+          "sd": 0.0
+        }
+      },
+      {
+        "method": "tiered FIFO-forget @B",
+        "p_old": 0.4,
+        "recall_all": {
+          "ci95": 0.3097136250000011,
+          "mean": 0.6848750000000001,
+          "n": 2,
+          "sd": 0.03447145558284432
+        }
+      },
+      {
+        "method": "tiered value-forget @B",
+        "p_old": 0.4,
+        "recall_all": {
+          "ci95": 0.14929785000000048,
+          "mean": 0.73025,
+          "n": 2,
+          "sd": 0.016617009357883922
+        }
+      },
+      {
+        "method": "tiered FIFO-forget +cold4 @B",
+        "p_old": 0.4,
+        "recall_all": {
+          "ci95": 0.10164959999999938,
+          "mean": 0.933,
+          "n": 2,
+          "sd": 0.011313708498984693
+        }
+      },
+      {
+        "method": "tiered value-forget +cold4 @B",
+        "p_old": 0.4,
+        "recall_all": {
+          "ci95": 0.24141779999999952,
+          "mean": 0.9515,
+          "n": 2,
+          "sd": 0.026870057685088752
+        }
+      }
+    ],
+    "mixture_sweep_seeds": [
+      11,
+      12
+    ],
+    "paired_overall_recall": [
+      {
+        "a": "tiered value-forget @B",
+        "b": "tiered FIFO-forget @B",
+        "ci95": 0.017856376046947533,
+        "diff_mean": 0.11581250000000001,
+        "losses": 0,
+        "significant": true,
+        "ties": 0,
+        "wins": 4
+      },
+      {
+        "a": "tiered value-forget +cold4 @B",
+        "b": "tiered value-forget @B",
+        "ci95": 0.016696151434687084,
+        "diff_mean": 0.09593750000000004,
+        "losses": 0,
+        "significant": true,
+        "ties": 0,
+        "wins": 4
+      },
+      {
+        "a": "tiered value-forget +cold4 @B",
+        "b": "tiered FIFO-forget +cold4 @B",
+        "ci95": 0.026906693275094175,
+        "diff_mean": 0.033875000000000016,
+        "losses": 0,
+        "significant": true,
+        "ties": 0,
+        "wins": 4
+      },
+      {
+        "a": "tiered value-forget +cold4 @B",
+        "b": "tiered FIFO-forget @B",
+        "ci95": 0.028143705734675468,
+        "diff_mean": 0.21175000000000005,
+        "losses": 0,
+        "significant": true,
+        "ties": 0,
+        "wins": 4
+      },
+      {
+        "a": "tiered value-forget @B",
+        "b": "flat-all",
+        "ci95": 0.022008504451007146,
+        "diff_mean": -0.11831250000000001,
+        "losses": 4,
+        "significant": true,
+        "ties": 0,
+        "wins": 0
+      },
+      {
+        "a": "tiered value-forget +cold4 @B",
+        "b": "flat-all",
+        "ci95": 0.006368942402000465,
+        "diff_mean": -0.022374999999999978,
+        "losses": 4,
+        "significant": true,
+        "ties": 0,
+        "wins": 0
+      },
+      {
+        "a": "tiered keep-all",
+        "b": "flat-all",
+        "ci95": 0.0,
+        "diff_mean": 0.0,
+        "losses": 0,
+        "significant": false,
+        "ties": 4,
+        "wins": 0
+      }
+    ],
+    "rows": [
+      {
+        "bytes_end": {
+          "ci95": 0.0,
+          "mean": 9264000.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "bytes_end_over_budget_ratio": 4.0,
+        "bytes_peak": {
+          "ci95": 0.0,
+          "mean": 9264000.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "items_retained": {
+          "ci95": 0.0,
+          "mean": 6000.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "latency_us": {
+          "ci95": 10.204776606104828,
+          "mean": 108.86081250000005,
+          "n": 4,
+          "sd": 6.413258299462561
+        },
+        "method": "flat-all",
+        "peak_over_budget_ratio": 4.0,
+        "recall_all": {
+          "ci95": 0.0,
+          "mean": 1.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "recall_old": {
+          "ci95": 0.0,
+          "mean": 1.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "recall_recent": {
+          "ci95": 0.0,
+          "mean": 1.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "recall_useful": {
+          "ci95": 0.0,
+          "mean": 1.0,
+          "n": 4,
+          "sd": 0.0
+        }
+      },
+      {
+        "bytes_end": {
+          "ci95": 0.0,
+          "mean": 38976000.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "bytes_end_over_budget_ratio": 16.82901554404145,
+        "bytes_peak": {
+          "ci95": 0.0,
+          "mean": 38976000.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "items_retained": {
+          "ci95": 0.0,
+          "mean": 6000.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "latency_us": {
+          "ci95": 59.804217164537,
+          "mean": 279.53168750000003,
+          "n": 4,
+          "sd": 37.58434965091566
+        },
+        "method": "hnsw-all (M16,ef64)",
+        "peak_over_budget_ratio": 16.82901554404145,
+        "recall_all": {
+          "ci95": 0.005777237589886646,
+          "mean": 0.9830625000000005,
+          "n": 4,
+          "sd": 0.0036307425778573693
+        },
+        "recall_old": {
+          "ci95": 0.007344221546004175,
+          "mean": 0.9909359032551672,
+          "n": 4,
+          "sd": 0.004615523847413383
+        },
+        "recall_recent": {
+          "ci95": 0.00606030760154477,
+          "mean": 0.9783970014768699,
+          "n": 4,
+          "sd": 0.0038086397696988246
+        },
+        "recall_useful": {
+          "ci95": 0.0070984205250234945,
+          "mean": 0.9881311511429273,
+          "n": 4,
+          "sd": 0.004461048595414464
+        }
+      },
+      {
+        "bytes_end": {
+          "ci95": 0.0,
+          "mean": 9936000.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "bytes_end_over_budget_ratio": 4.290155440414508,
+        "bytes_peak": {
+          "ci95": 0.0,
+          "mean": 9936000.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "items_retained": {
+          "ci95": 0.0,
+          "mean": 6000.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "latency_us": {
+          "ci95": 4.220261093665675,
+          "mean": 110.89999999999999,
+          "n": 4,
+          "sd": 2.6522505616300123
+        },
+        "method": "tiered keep-all",
+        "peak_over_budget_ratio": 4.290155440414508,
+        "recall_all": {
+          "ci95": 0.0,
+          "mean": 1.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "recall_old": {
+          "ci95": 0.0,
+          "mean": 1.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "recall_recent": {
+          "ci95": 0.0,
+          "mean": 1.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "recall_useful": {
+          "ci95": 0.0,
+          "mean": 1.0,
+          "n": 4,
+          "sd": 0.0
+        }
+      },
+      {
+        "bytes_end": {
+          "ci95": 0.0,
+          "mean": 3065992.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "bytes_end_over_budget_ratio": 1.3238307426597582,
+        "bytes_peak": {
+          "ci95": 0.0,
+          "mean": 3065992.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "items_retained": {
+          "ci95": 0.0,
+          "mean": 6000.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "latency_us": {
+          "ci95": 3.808445641674156,
+          "mean": 82.03368750000001,
+          "n": 4,
+          "sd": 2.3934424595740045
+        },
+        "method": "tiered keep-all +cold4",
+        "peak_over_budget_ratio": 1.3238307426597582,
+        "recall_all": {
+          "ci95": 0.0,
+          "mean": 1.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "recall_old": {
+          "ci95": 0.0,
+          "mean": 1.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "recall_recent": {
+          "ci95": 0.0,
+          "mean": 1.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "recall_useful": {
+          "ci95": 0.0,
+          "mean": 1.0,
+          "n": 4,
+          "sd": 0.0
+        }
+      },
+      {
+        "bytes_end": {
+          "ci95": 0.0,
+          "mean": 2245536.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "bytes_end_over_budget_ratio": 0.9695751295336787,
+        "bytes_peak": {
+          "ci95": 0.0,
+          "mean": 2245536.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "items_retained": {
+          "ci95": 0.0,
+          "mean": 1356.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "latency_us": {
+          "ci95": 0.9243012046549093,
+          "mean": 48.18962500000002,
+          "n": 4,
+          "sd": 0.5808831100143975
+        },
+        "method": "tiered FIFO-forget @B",
+        "peak_over_budget_ratio": 0.9695751295336787,
+        "recall_all": {
+          "ci95": 0.033945341014637094,
+          "mean": 0.765875,
+          "n": 4,
+          "sd": 0.02133317057229581
+        },
+        "recall_old": {
+          "ci95": 0.08360092150676032,
+          "mean": 0.4560872465939417,
+          "n": 4,
+          "sd": 0.052539543430593465
+        },
+        "recall_recent": {
+          "ci95": 0.0,
+          "mean": 1.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "recall_useful": {
+          "ci95": 0.06630618151933905,
+          "mean": 0.4692016343674908,
+          "n": 4,
+          "sd": 0.04167055148274199
+        }
+      },
+      {
+        "bytes_end": {
+          "ci95": 0.0,
+          "mean": 2245536.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "bytes_end_over_budget_ratio": 0.9695751295336787,
+        "bytes_peak": {
+          "ci95": 0.0,
+          "mean": 2245536.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "items_retained": {
+          "ci95": 0.0,
+          "mean": 1356.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "latency_us": {
+          "ci95": 1.6757952024945386,
+          "mean": 48.210187499999996,
+          "n": 4,
+          "sd": 1.0531644057909368
+        },
+        "method": "tiered value-forget @B",
+        "peak_over_budget_ratio": 0.9695751295336787,
+        "recall_all": {
+          "ci95": 0.022008504451007146,
+          "mean": 0.8816875,
+          "n": 4,
+          "sd": 0.013831387915414245
+        },
+        "recall_old": {
+          "ci95": 0.01867042033048951,
+          "mean": 0.424950515045061,
+          "n": 4,
+          "sd": 0.011733547216245293
+        },
+        "recall_recent": {
+          "ci95": 0.0,
+          "mean": 1.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "recall_useful": {
+          "ci95": 0.04879886367835699,
+          "mean": 0.887349985203607,
+          "n": 4,
+          "sd": 0.030667963598766335
+        }
+      },
+      {
+        "bytes_end": {
+          "ci95": 0.0,
+          "mean": 2246404.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "bytes_end_over_budget_ratio": 0.9699499136442141,
+        "bytes_peak": {
+          "ci95": 0.0,
+          "mean": 2308004.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "items_retained": {
+          "ci95": 0.0,
+          "mean": 3339.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "latency_us": {
+          "ci95": 6.151631420031818,
+          "mean": 74.42674999999998,
+          "n": 4,
+          "sd": 3.866032818018991
+        },
+        "method": "tiered FIFO-forget +cold4 @B",
+        "peak_over_budget_ratio": 0.9965474956822107,
+        "recall_all": {
+          "ci95": 0.03235331309649751,
+          "mean": 0.9437500000000001,
+          "n": 4,
+          "sd": 0.020332650261750573
+        },
+        "recall_old": {
+          "ci95": 0.09328839685348002,
+          "mean": 0.8627794816776322,
+          "n": 4,
+          "sd": 0.05862770038554552
+        },
+        "recall_recent": {
+          "ci95": 0.0,
+          "mean": 1.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "recall_useful": {
+          "ci95": 0.09272213799776885,
+          "mean": 0.8786402570583729,
+          "n": 4,
+          "sd": 0.05827183132087032
+        }
+      },
+      {
+        "bytes_end": {
+          "ci95": 0.0,
+          "mean": 2246404.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "bytes_end_over_budget_ratio": 0.9699499136442141,
+        "bytes_peak": {
+          "ci95": 0.0,
+          "mean": 2308004.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "items_retained": {
+          "ci95": 0.0,
+          "mean": 3339.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "latency_us": {
+          "ci95": 6.142373086638366,
+          "mean": 75.18606250000002,
+          "n": 4,
+          "sd": 3.8602143581186312
+        },
+        "method": "tiered value-forget +cold4 @B",
+        "peak_over_budget_ratio": 0.9965474956822107,
+        "recall_all": {
+          "ci95": 0.006368942402000465,
+          "mean": 0.9776250000000001,
+          "n": 4,
+          "sd": 0.004002603319507582
+        },
+        "recall_old": {
+          "ci95": 0.02648231775593226,
+          "mean": 0.8544368428027402,
+          "n": 4,
+          "sd": 0.016642985015040385
+        },
+        "recall_recent": {
+          "ci95": 0.0,
+          "mean": 1.0,
+          "n": 4,
+          "sd": 0.0
+        },
+        "recall_useful": {
+          "ci95": 0.00589333333333343,
+          "mean": 0.9981481481481481,
+          "n": 4,
+          "sd": 0.0037037037037037646
+        }
+      }
+    ],
+    "tuning": [
+      {
+        "halflife": 3000.0,
+        "hot_cap": null,
+        "recall": 0.8972500000000001,
+        "variant": "value-forget"
+      },
+      {
+        "halflife": 10000.0,
+        "hot_cap": null,
+        "recall": 0.8972500000000001,
+        "variant": "value-forget"
+      },
+      {
+        "halflife": 30000.0,
+        "hot_cap": null,
+        "recall": 0.8972500000000001,
+        "variant": "value-forget"
+      },
+      {
+        "halflife": 100000.0,
+        "hot_cap": null,
+        "recall": 0.8972500000000001,
+        "variant": "value-forget"
+      },
+      {
+        "halflife": 3000.0,
+        "hot_cap": 16,
+        "recall": 0.98,
+        "variant": "value-forget+cold4"
+      },
+      {
+        "halflife": 3000.0,
+        "hot_cap": 22,
+        "recall": 0.98,
+        "variant": "value-forget+cold4"
+      },
+      {
+        "halflife": 3000.0,
+        "hot_cap": 45,
+        "recall": 0.978,
+        "variant": "value-forget+cold4"
+      },
+      {
+        "halflife": 3000.0,
+        "hot_cap": 112,
+        "recall": 0.966,
+        "variant": "value-forget+cold4"
+      },
+      {
+        "halflife": 3000.0,
+        "hot_cap": 225,
+        "recall": 0.953,
+        "variant": "value-forget+cold4"
+      },
+      {
+        "halflife": 3000.0,
+        "hot_cap": 450,
+        "recall": 0.90325,
+        "variant": "value-forget+cold4"
+      }
+    ]
+  }
+}

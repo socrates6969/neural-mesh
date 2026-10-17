@@ -1,0 +1,16 @@
+base: C:/Users/mariu/nm-target-r6/g6/neural-mesh-base.exe
+new:  C:/Users/mariu/nm-target-r6/g6/neural-mesh-new.exe
+secs/run 1.5, reps 5, ABAB interleaved (order alternates each rep). decision = route + feedback.
+
+config                                                     | base dec/s  new dec/s |      x |  base p50   new p50 | base cpu  new cpu | base WS  new WS
+tcp lockstep N=1 (defaults flush 64/1s)                    |        683       5375 |  7.87x |    1393us     142us |   1444us    172us |   7.6MB   7.7MB
+tcp lockstep N=2 (defaults flush 64/1s)                    |        956       7408 |  7.75x |    2089us     193us |   2005us    183us |   7.7MB   7.8MB
+tcp lockstep N=4 (defaults flush 64/1s)                    |       1727       6593 |  3.82x |    2233us     452us |   2171us    216us |   7.8MB   7.9MB
+tcp lockstep N=8 (defaults flush 64/1s)                    |       2517       6915 |  2.75x |    3029us     892us |   2777us    202us |   8.0MB   8.1MB
+tcp lockstep N=1 (flush off)                               |        673       6430 |  9.55x |    1398us     148us |   1458us    128us |   8.9MB  20.0MB
+tcp lockstep N=8 (flush off)                               |       2766       8666 |  3.13x |    2827us     916us |   2770us    181us |  13.5MB  25.9MB
+tcp pipelined 32+32 per write N=1 (defaults flush)         |        682       9491 | 13.91x |    1438us     105us |   1465us    104us |   7.5MB   7.8MB
+tcp pipelined 32+32 per write N=4 (defaults flush)         |       1749      10281 |  5.88x |    2342us     336us |   2215us    116us |   7.8MB   8.0MB
+tcp pipelined 32+32 per write N=8 (defaults flush)         |       2624       9533 |  3.63x |    3174us     713us |   2652us    117us |   8.0MB   8.3MB
+stdio pipe, 20k decisions (defaults flush)                 |       7705       8230 |  1.07x |      65us      61us |    127us    116us |   7.8MB   7.8MB
+stdio pipe, 20k decisions (flush off)                      |      11292      15304 |  1.36x |      44us      33us |     87us     62us |  32.8MB  32.9MB

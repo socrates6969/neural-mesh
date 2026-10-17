@@ -1,0 +1,936 @@
+H7 lab exp=vs worlds=w4v2 set=confirm
+[tune1-8] V2-C1-multistyle                     G = pooled-ts(g=0.95)
+[tune1-8] V2-C2-star-plus-diverse              G = pooled-ts(g=0.9)
+[tune1-8] V2-C3-clustered-drift                G = pooled-ts(g=0.99)
+[tune1-8] V2-K1-multistyle-correct             G = warm(hebR,k=10,Mean)
+[tune1-8] V2-K2-star-correct                   G = eps-greedy(g=0.9,e=0.02)
+[tune1-8] V2-K3-clustered-drift-correct        G = warm(hebR,k=3,Mean)
+[tune1-8] V2-M1-mixed-3of6-creative            G = eps-greedy(g=0.95,e=0.02)
+[tune1-8] V2-M2-mixed-1of6-creative-star       G = eps-greedy(g=0.9,e=0.02)
+[tune1-8] VS default-profile k=4 selection -> Dedup { theta: 0.5, w: 0.75 }  pooled mean value 0.7075 (grid 12)
+evaluated 30 arms x 8 worlds x 30 seeds in 19.3s
+
+=== mean value per world: creative | correctness | overall | gen-calls/creative-task | judge/creative-task | multi-on[cr/cor] ===
+-- V2-C1-multistyle (W4)
+   G (best fair, 1 call)                                          0.3672 | NaN | 0.3672 | calls 1.00 judge 0.00 | on 0.00/NaN
+   U plain-ucb (1 call)                                           0.3666 | NaN | 0.3666 | calls 1.00 judge 0.00 | on 0.00/NaN
+   BoK-q k=4 same-agent VS profile, quality-only                  0.5374 | NaN | 0.5374 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.15 kap=0 rho=0.3|tag                              0.6190 | NaN | 0.6190 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.15 kap=0.15 rho=0.3|tag                           0.5791 | NaN | 0.5791 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.15 kap=0.4 rho=0.3|tag                            0.5195 | NaN | 0.5195 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.15 kap=0.8 rho=0.3|tag                            0.4399 | NaN | 0.4399 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.15 kap=1.5 rho=0.3|tag                            0.3218 | NaN | 0.3218 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0 rho=0.3|tag                              0.7582 | NaN | 0.7582 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0.15 rho=0.3|tag [DEFAULT]                 0.6626 | NaN | 0.6626 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0.4 rho=0.3|tag                            0.5376 | NaN | 0.5376 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0.8 rho=0.3|tag                            0.3824 | NaN | 0.3824 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=1.5 rho=0.3|tag                            0.2611 | NaN | 0.2611 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.6 kap=0 rho=0.3|tag                               0.7833 | NaN | 0.7833 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.6 kap=0.15 rho=0.3|tag                            0.6389 | NaN | 0.6389 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.6 kap=0.4 rho=0.3|tag                             0.4814 | NaN | 0.4814 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.6 kap=0.8 rho=0.3|tag                             0.3144 | NaN | 0.3144 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.6 kap=1.5 rho=0.3|tag                             0.2605 | NaN | 0.2605 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0.15 rho=0|tag                             0.6626 | NaN | 0.6626 | calls 1.00 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0.15 rho=1|tag                             0.6626 | NaN | 0.6626 | calls 4.00 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0 rho=0.3|tag JUDGE-FREE                   0.7054 | NaN | 0.7054 | calls 1.90 judge 0.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0.15 rho=0.3|tag JUDGE-FREE                0.6186 | NaN | 0.6186 | calls 1.90 judge 0.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0.4 rho=0.3|tag JUDGE-FREE                 0.4786 | NaN | 0.4786 | calls 1.90 judge 0.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0.8 rho=0.3|tag JUDGE-FREE                 0.2840 | NaN | 0.2840 | calls 1.90 judge 0.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=1.5 rho=0.3|tag JUDGE-FREE                 0.1866 | NaN | 0.1866 | calls 1.90 judge 0.00 | on 1.00/NaN
+   VS k=4 DEFAULT JUDGE-FREE |learned gate                        0.5734 | NaN | 0.5734 | calls 1.73 judge 0.00 | on 0.81/NaN
+   VS k=4 DEFAULT |learned gate                                   0.6098 | NaN | 0.6098 | calls 1.73 judge 3.24 | on 0.81/NaN
+   VS k=4 DEFAULT |always on                                      0.6626 | NaN | 0.6626 | calls 1.90 judge 4.00 | on 1.00/NaN
+   W4 nbucb(b=.8)|learned                                         0.3136 | NaN | 0.3136 | calls 1.00 judge 0.00 | on 0.00/NaN
+   W4 nbreg|learned                                               0.3150 | NaN | 0.3150 | calls 1.00 judge 0.00 | on 0.00/NaN
+-- V2-C2-star-plus-diverse (W4)
+   G (best fair, 1 call)                                          0.3357 | NaN | 0.3357 | calls 1.00 judge 0.00 | on 0.00/NaN
+   U plain-ucb (1 call)                                           0.3393 | NaN | 0.3393 | calls 1.00 judge 0.00 | on 0.00/NaN
+   BoK-q k=4 same-agent VS profile, quality-only                  0.4938 | NaN | 0.4938 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.15 kap=0 rho=0.3|tag                              0.5708 | NaN | 0.5708 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.15 kap=0.15 rho=0.3|tag                           0.5312 | NaN | 0.5312 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.15 kap=0.4 rho=0.3|tag                            0.4738 | NaN | 0.4738 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.15 kap=0.8 rho=0.3|tag                            0.3940 | NaN | 0.3940 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.15 kap=1.5 rho=0.3|tag                            0.2817 | NaN | 0.2817 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0 rho=0.3|tag                              0.7112 | NaN | 0.7112 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0.15 rho=0.3|tag [DEFAULT]                 0.6148 | NaN | 0.6148 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0.4 rho=0.3|tag                            0.4873 | NaN | 0.4873 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0.8 rho=0.3|tag                            0.3412 | NaN | 0.3412 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=1.5 rho=0.3|tag                            0.2445 | NaN | 0.2445 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.6 kap=0 rho=0.3|tag                               0.7401 | NaN | 0.7401 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.6 kap=0.15 rho=0.3|tag                            0.5911 | NaN | 0.5911 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.6 kap=0.4 rho=0.3|tag                             0.4305 | NaN | 0.4305 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.6 kap=0.8 rho=0.3|tag                             0.2867 | NaN | 0.2867 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.6 kap=1.5 rho=0.3|tag                             0.2450 | NaN | 0.2450 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0.15 rho=0|tag                             0.6148 | NaN | 0.6148 | calls 1.00 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0.15 rho=1|tag                             0.6148 | NaN | 0.6148 | calls 4.00 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0 rho=0.3|tag JUDGE-FREE                   0.6625 | NaN | 0.6625 | calls 1.90 judge 0.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0.15 rho=0.3|tag JUDGE-FREE                0.5701 | NaN | 0.5701 | calls 1.90 judge 0.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0.4 rho=0.3|tag JUDGE-FREE                 0.4278 | NaN | 0.4278 | calls 1.90 judge 0.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0.8 rho=0.3|tag JUDGE-FREE                 0.2504 | NaN | 0.2504 | calls 1.90 judge 0.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=1.5 rho=0.3|tag JUDGE-FREE                 0.1742 | NaN | 0.1742 | calls 1.90 judge 0.00 | on 1.00/NaN
+   VS k=4 DEFAULT JUDGE-FREE |learned gate                        0.5284 | NaN | 0.5284 | calls 1.73 judge 0.00 | on 0.81/NaN
+   VS k=4 DEFAULT |learned gate                                   0.5656 | NaN | 0.5656 | calls 1.73 judge 3.24 | on 0.81/NaN
+   VS k=4 DEFAULT |always on                                      0.6148 | NaN | 0.6148 | calls 1.90 judge 4.00 | on 1.00/NaN
+   W4 nbucb(b=.8)|learned                                         0.2868 | NaN | 0.2868 | calls 1.00 judge 0.00 | on 0.00/NaN
+   W4 nbreg|learned                                               0.2913 | NaN | 0.2913 | calls 1.00 judge 0.00 | on 0.00/NaN
+-- V2-C3-clustered-drift (W4)
+   G (best fair, 1 call)                                          0.2478 | NaN | 0.2478 | calls 1.00 judge 0.00 | on 0.00/NaN
+   U plain-ucb (1 call)                                           0.2536 | NaN | 0.2536 | calls 1.00 judge 0.00 | on 0.00/NaN
+   BoK-q k=4 same-agent VS profile, quality-only                  0.3839 | NaN | 0.3839 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.15 kap=0 rho=0.3|tag                              0.4513 | NaN | 0.4513 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.15 kap=0.15 rho=0.3|tag                           0.4153 | NaN | 0.4153 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.15 kap=0.4 rho=0.3|tag                            0.3597 | NaN | 0.3597 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.15 kap=0.8 rho=0.3|tag                            0.2781 | NaN | 0.2781 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.15 kap=1.5 rho=0.3|tag                            0.1718 | NaN | 0.1718 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0 rho=0.3|tag                              0.6133 | NaN | 0.6133 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0.15 rho=0.3|tag [DEFAULT]                 0.5111 | NaN | 0.5111 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0.4 rho=0.3|tag                            0.3712 | NaN | 0.3712 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0.8 rho=0.3|tag                            0.2159 | NaN | 0.2159 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=1.5 rho=0.3|tag                            0.1435 | NaN | 0.1435 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.6 kap=0 rho=0.3|tag                               0.6527 | NaN | 0.6527 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.6 kap=0.15 rho=0.3|tag                            0.4924 | NaN | 0.4924 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.6 kap=0.4 rho=0.3|tag                             0.3108 | NaN | 0.3108 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.6 kap=0.8 rho=0.3|tag                             0.1757 | NaN | 0.1757 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.6 kap=1.5 rho=0.3|tag                             0.1485 | NaN | 0.1485 | calls 1.90 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0.15 rho=0|tag                             0.5111 | NaN | 0.5111 | calls 1.00 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0.15 rho=1|tag                             0.5111 | NaN | 0.5111 | calls 4.00 judge 4.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0 rho=0.3|tag JUDGE-FREE                   0.5809 | NaN | 0.5809 | calls 1.90 judge 0.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0.15 rho=0.3|tag JUDGE-FREE                0.4754 | NaN | 0.4754 | calls 1.90 judge 0.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0.4 rho=0.3|tag JUDGE-FREE                 0.3088 | NaN | 0.3088 | calls 1.90 judge 0.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=0.8 rho=0.3|tag JUDGE-FREE                 0.1324 | NaN | 0.1324 | calls 1.90 judge 0.00 | on 1.00/NaN
+   VS k=4 sig=0.35 kap=1.5 rho=0.3|tag JUDGE-FREE                 0.0784 | NaN | 0.0784 | calls 1.90 judge 0.00 | on 1.00/NaN
+   VS k=4 DEFAULT JUDGE-FREE |learned gate                        0.4350 | NaN | 0.4350 | calls 1.73 judge 0.00 | on 0.81/NaN
+   VS k=4 DEFAULT |learned gate                                   0.4632 | NaN | 0.4632 | calls 1.72 judge 3.22 | on 0.80/NaN
+   VS k=4 DEFAULT |always on                                      0.5111 | NaN | 0.5111 | calls 1.90 judge 4.00 | on 1.00/NaN
+   W4 nbucb(b=.8)|learned                                         0.2233 | NaN | 0.2233 | calls 1.00 judge 0.00 | on 0.00/NaN
+   W4 nbreg|learned                                               0.2302 | NaN | 0.2302 | calls 1.00 judge 0.00 | on 0.00/NaN
+-- V2-K1-multistyle-correct (W4)
+   G (best fair, 1 call)                                          NaN | 0.7954 | 0.7954 | calls NaN judge NaN | on NaN/0.00
+   U plain-ucb (1 call)                                           NaN | 0.8083 | 0.8083 | calls NaN judge NaN | on NaN/0.00
+   BoK-q k=4 same-agent VS profile, quality-only                  NaN | 0.7954 | 0.7954 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.15 kap=0 rho=0.3|tag                              NaN | 0.7954 | 0.7954 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.15 kap=0.15 rho=0.3|tag                           NaN | 0.7954 | 0.7954 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.15 kap=0.4 rho=0.3|tag                            NaN | 0.7954 | 0.7954 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.15 kap=0.8 rho=0.3|tag                            NaN | 0.7954 | 0.7954 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.15 kap=1.5 rho=0.3|tag                            NaN | 0.7954 | 0.7954 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0 rho=0.3|tag                              NaN | 0.7954 | 0.7954 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0.15 rho=0.3|tag [DEFAULT]                 NaN | 0.7954 | 0.7954 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0.4 rho=0.3|tag                            NaN | 0.7954 | 0.7954 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0.8 rho=0.3|tag                            NaN | 0.7954 | 0.7954 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=1.5 rho=0.3|tag                            NaN | 0.7954 | 0.7954 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.6 kap=0 rho=0.3|tag                               NaN | 0.7954 | 0.7954 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.6 kap=0.15 rho=0.3|tag                            NaN | 0.7954 | 0.7954 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.6 kap=0.4 rho=0.3|tag                             NaN | 0.7954 | 0.7954 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.6 kap=0.8 rho=0.3|tag                             NaN | 0.7954 | 0.7954 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.6 kap=1.5 rho=0.3|tag                             NaN | 0.7954 | 0.7954 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0.15 rho=0|tag                             NaN | 0.7954 | 0.7954 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0.15 rho=1|tag                             NaN | 0.7954 | 0.7954 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0 rho=0.3|tag JUDGE-FREE                   NaN | 0.7954 | 0.7954 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0.15 rho=0.3|tag JUDGE-FREE                NaN | 0.7954 | 0.7954 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0.4 rho=0.3|tag JUDGE-FREE                 NaN | 0.7954 | 0.7954 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0.8 rho=0.3|tag JUDGE-FREE                 NaN | 0.7954 | 0.7954 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=1.5 rho=0.3|tag JUDGE-FREE                 NaN | 0.7954 | 0.7954 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 DEFAULT JUDGE-FREE |learned gate                        NaN | 0.7953 | 0.7953 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 DEFAULT |learned gate                                   NaN | 0.7953 | 0.7953 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 DEFAULT |always on                                      NaN | 0.7205 | 0.7205 | calls NaN judge NaN | on NaN/1.00
+   W4 nbucb(b=.8)|learned                                         NaN | 0.8076 | 0.8076 | calls NaN judge NaN | on NaN/0.00
+   W4 nbreg|learned                                               NaN | 0.8068 | 0.8068 | calls NaN judge NaN | on NaN/0.00
+-- V2-K2-star-correct (W4)
+   G (best fair, 1 call)                                          NaN | 0.8761 | 0.8761 | calls NaN judge NaN | on NaN/0.00
+   U plain-ucb (1 call)                                           NaN | 0.8999 | 0.8999 | calls NaN judge NaN | on NaN/0.00
+   BoK-q k=4 same-agent VS profile, quality-only                  NaN | 0.8761 | 0.8761 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.15 kap=0 rho=0.3|tag                              NaN | 0.8761 | 0.8761 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.15 kap=0.15 rho=0.3|tag                           NaN | 0.8761 | 0.8761 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.15 kap=0.4 rho=0.3|tag                            NaN | 0.8761 | 0.8761 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.15 kap=0.8 rho=0.3|tag                            NaN | 0.8761 | 0.8761 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.15 kap=1.5 rho=0.3|tag                            NaN | 0.8761 | 0.8761 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0 rho=0.3|tag                              NaN | 0.8761 | 0.8761 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0.15 rho=0.3|tag [DEFAULT]                 NaN | 0.8761 | 0.8761 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0.4 rho=0.3|tag                            NaN | 0.8761 | 0.8761 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0.8 rho=0.3|tag                            NaN | 0.8761 | 0.8761 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=1.5 rho=0.3|tag                            NaN | 0.8761 | 0.8761 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.6 kap=0 rho=0.3|tag                               NaN | 0.8761 | 0.8761 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.6 kap=0.15 rho=0.3|tag                            NaN | 0.8761 | 0.8761 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.6 kap=0.4 rho=0.3|tag                             NaN | 0.8761 | 0.8761 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.6 kap=0.8 rho=0.3|tag                             NaN | 0.8761 | 0.8761 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.6 kap=1.5 rho=0.3|tag                             NaN | 0.8761 | 0.8761 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0.15 rho=0|tag                             NaN | 0.8761 | 0.8761 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0.15 rho=1|tag                             NaN | 0.8761 | 0.8761 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0 rho=0.3|tag JUDGE-FREE                   NaN | 0.8761 | 0.8761 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0.15 rho=0.3|tag JUDGE-FREE                NaN | 0.8761 | 0.8761 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0.4 rho=0.3|tag JUDGE-FREE                 NaN | 0.8761 | 0.8761 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0.8 rho=0.3|tag JUDGE-FREE                 NaN | 0.8761 | 0.8761 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=1.5 rho=0.3|tag JUDGE-FREE                 NaN | 0.8761 | 0.8761 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 DEFAULT JUDGE-FREE |learned gate                        NaN | 0.8761 | 0.8761 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 DEFAULT |learned gate                                   NaN | 0.8761 | 0.8761 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 DEFAULT |always on                                      NaN | 0.8038 | 0.8038 | calls NaN judge NaN | on NaN/1.00
+   W4 nbucb(b=.8)|learned                                         NaN | 0.8999 | 0.8999 | calls NaN judge NaN | on NaN/0.00
+   W4 nbreg|learned                                               NaN | 0.8999 | 0.8999 | calls NaN judge NaN | on NaN/0.00
+-- V2-K3-clustered-drift-correct (W4)
+   G (best fair, 1 call)                                          NaN | 0.6684 | 0.6684 | calls NaN judge NaN | on NaN/0.00
+   U plain-ucb (1 call)                                           NaN | 0.6670 | 0.6670 | calls NaN judge NaN | on NaN/0.00
+   BoK-q k=4 same-agent VS profile, quality-only                  NaN | 0.6684 | 0.6684 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.15 kap=0 rho=0.3|tag                              NaN | 0.6684 | 0.6684 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.15 kap=0.15 rho=0.3|tag                           NaN | 0.6684 | 0.6684 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.15 kap=0.4 rho=0.3|tag                            NaN | 0.6684 | 0.6684 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.15 kap=0.8 rho=0.3|tag                            NaN | 0.6684 | 0.6684 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.15 kap=1.5 rho=0.3|tag                            NaN | 0.6684 | 0.6684 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0 rho=0.3|tag                              NaN | 0.6684 | 0.6684 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0.15 rho=0.3|tag [DEFAULT]                 NaN | 0.6684 | 0.6684 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0.4 rho=0.3|tag                            NaN | 0.6684 | 0.6684 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0.8 rho=0.3|tag                            NaN | 0.6684 | 0.6684 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=1.5 rho=0.3|tag                            NaN | 0.6684 | 0.6684 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.6 kap=0 rho=0.3|tag                               NaN | 0.6684 | 0.6684 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.6 kap=0.15 rho=0.3|tag                            NaN | 0.6684 | 0.6684 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.6 kap=0.4 rho=0.3|tag                             NaN | 0.6684 | 0.6684 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.6 kap=0.8 rho=0.3|tag                             NaN | 0.6684 | 0.6684 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.6 kap=1.5 rho=0.3|tag                             NaN | 0.6684 | 0.6684 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0.15 rho=0|tag                             NaN | 0.6684 | 0.6684 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0.15 rho=1|tag                             NaN | 0.6684 | 0.6684 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0 rho=0.3|tag JUDGE-FREE                   NaN | 0.6684 | 0.6684 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0.15 rho=0.3|tag JUDGE-FREE                NaN | 0.6684 | 0.6684 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0.4 rho=0.3|tag JUDGE-FREE                 NaN | 0.6684 | 0.6684 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=0.8 rho=0.3|tag JUDGE-FREE                 NaN | 0.6684 | 0.6684 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 sig=0.35 kap=1.5 rho=0.3|tag JUDGE-FREE                 NaN | 0.6684 | 0.6684 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 DEFAULT JUDGE-FREE |learned gate                        NaN | 0.6683 | 0.6683 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 DEFAULT |learned gate                                   NaN | 0.6683 | 0.6683 | calls NaN judge NaN | on NaN/0.00
+   VS k=4 DEFAULT |always on                                      NaN | 0.5894 | 0.5894 | calls NaN judge NaN | on NaN/1.00
+   W4 nbucb(b=.8)|learned                                         NaN | 0.6671 | 0.6671 | calls NaN judge NaN | on NaN/0.00
+   W4 nbreg|learned                                               NaN | 0.6653 | 0.6653 | calls NaN judge NaN | on NaN/0.00
+-- V2-M1-mixed-3of6-creative (W4)
+   G (best fair, 1 call)                                          0.3384 | 0.7911 | 0.5641 | calls 1.00 judge 0.00 | on 0.00/0.00
+   U plain-ucb (1 call)                                           0.3687 | 0.8066 | 0.5871 | calls 1.00 judge 0.00 | on 0.00/0.00
+   BoK-q k=4 same-agent VS profile, quality-only                  0.5025 | 0.7941 | 0.6480 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.15 kap=0 rho=0.3|tag                              0.5946 | 0.7983 | 0.6962 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.15 kap=0.15 rho=0.3|tag                           0.5582 | 0.7987 | 0.6781 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.15 kap=0.4 rho=0.3|tag                            0.4984 | 0.7981 | 0.6479 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.15 kap=0.8 rho=0.3|tag                            0.4158 | 0.7934 | 0.6041 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.15 kap=1.5 rho=0.3|tag                            0.2820 | 0.7921 | 0.5364 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.35 kap=0 rho=0.3|tag                              0.7882 | 0.7973 | 0.7928 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.35 kap=0.15 rho=0.3|tag [DEFAULT]                 0.6801 | 0.7962 | 0.7380 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.35 kap=0.4 rho=0.3|tag                            0.5299 | 0.7953 | 0.6623 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.35 kap=0.8 rho=0.3|tag                            0.3409 | 0.7926 | 0.5662 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.35 kap=1.5 rho=0.3|tag                            0.2015 | 0.7844 | 0.4922 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.6 kap=0 rho=0.3|tag                               0.8350 | 0.7956 | 0.8154 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.6 kap=0.15 rho=0.3|tag                            0.6614 | 0.7987 | 0.7299 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.6 kap=0.4 rho=0.3|tag                             0.4651 | 0.7932 | 0.6288 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.6 kap=0.8 rho=0.3|tag                             0.2568 | 0.7870 | 0.5212 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.6 kap=1.5 rho=0.3|tag                             0.1938 | 0.7874 | 0.4899 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.35 kap=0.15 rho=0|tag                             0.6801 | 0.7962 | 0.7380 | calls 1.00 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.35 kap=0.15 rho=1|tag                             0.6801 | 0.7962 | 0.7380 | calls 4.00 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.35 kap=0 rho=0.3|tag JUDGE-FREE                   0.7555 | 0.7961 | 0.7757 | calls 1.90 judge 0.00 | on 1.00/0.00
+   VS k=4 sig=0.35 kap=0.15 rho=0.3|tag JUDGE-FREE                0.6516 | 0.7948 | 0.7230 | calls 1.90 judge 0.00 | on 1.00/0.00
+   VS k=4 sig=0.35 kap=0.4 rho=0.3|tag JUDGE-FREE                 0.4779 | 0.7927 | 0.6349 | calls 1.90 judge 0.00 | on 1.00/0.00
+   VS k=4 sig=0.35 kap=0.8 rho=0.3|tag JUDGE-FREE                 0.2415 | 0.7879 | 0.5140 | calls 1.90 judge 0.00 | on 1.00/0.00
+   VS k=4 sig=0.35 kap=1.5 rho=0.3|tag JUDGE-FREE                 0.1354 | 0.7860 | 0.4599 | calls 1.90 judge 0.00 | on 1.00/0.00
+   VS k=4 DEFAULT JUDGE-FREE |learned gate                        0.5425 | 0.7899 | 0.6659 | calls 1.65 judge 0.00 | on 0.72/0.00
+   VS k=4 DEFAULT |learned gate                                   0.5485 | 0.7904 | 0.6692 | calls 1.65 judge 2.87 | on 0.72/0.00
+   VS k=4 DEFAULT |always on                                      0.6841 | 0.7335 | 0.7087 | calls 1.90 judge 4.00 | on 1.00/1.00
+   W4 nbucb(b=.8)|learned                                         0.3245 | 0.8066 | 0.5649 | calls 1.00 judge 0.00 | on 0.00/0.00
+   W4 nbreg|learned                                               0.3258 | 0.8045 | 0.5645 | calls 1.00 judge 0.00 | on 0.00/0.00
+-- V2-M2-mixed-1of6-creative-star (W4)
+   G (best fair, 1 call)                                          0.2957 | 0.8720 | 0.7762 | calls 1.00 judge 0.00 | on 0.00/0.00
+   U plain-ucb (1 call)                                           0.3440 | 0.8943 | 0.8027 | calls 1.00 judge 0.00 | on 0.00/0.00
+   BoK-q k=4 same-agent VS profile, quality-only                  0.4453 | 0.8713 | 0.8004 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.15 kap=0 rho=0.3|tag                              0.5479 | 0.8738 | 0.8194 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.15 kap=0.15 rho=0.3|tag                           0.5074 | 0.8759 | 0.8146 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.15 kap=0.4 rho=0.3|tag                            0.4440 | 0.8731 | 0.8017 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.15 kap=0.8 rho=0.3|tag                            0.3581 | 0.8701 | 0.7849 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.15 kap=1.5 rho=0.3|tag                            0.2339 | 0.8664 | 0.7612 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.35 kap=0 rho=0.3|tag                              0.8120 | 0.8699 | 0.8602 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.35 kap=0.15 rho=0.3|tag [DEFAULT]                 0.6911 | 0.8680 | 0.8385 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.35 kap=0.4 rho=0.3|tag                            0.4828 | 0.8681 | 0.8040 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.35 kap=0.8 rho=0.3|tag                            0.2915 | 0.8658 | 0.7702 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.35 kap=1.5 rho=0.3|tag                            0.1849 | 0.8633 | 0.7504 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.6 kap=0 rho=0.3|tag                               0.8789 | 0.8686 | 0.8704 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.6 kap=0.15 rho=0.3|tag                            0.6715 | 0.8663 | 0.8340 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.6 kap=0.4 rho=0.3|tag                             0.4097 | 0.8684 | 0.7921 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.6 kap=0.8 rho=0.3|tag                             0.2243 | 0.8649 | 0.7583 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.6 kap=1.5 rho=0.3|tag                             0.1828 | 0.8630 | 0.7498 | calls 1.90 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.35 kap=0.15 rho=0|tag                             0.6911 | 0.8680 | 0.8385 | calls 1.00 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.35 kap=0.15 rho=1|tag                             0.6911 | 0.8680 | 0.8385 | calls 4.00 judge 4.00 | on 1.00/0.00
+   VS k=4 sig=0.35 kap=0 rho=0.3|tag JUDGE-FREE                   0.7996 | 0.8657 | 0.8547 | calls 1.90 judge 0.00 | on 1.00/0.00
+   VS k=4 sig=0.35 kap=0.15 rho=0.3|tag JUDGE-FREE                0.6829 | 0.8680 | 0.8372 | calls 1.90 judge 0.00 | on 1.00/0.00
+   VS k=4 sig=0.35 kap=0.4 rho=0.3|tag JUDGE-FREE                 0.4335 | 0.8662 | 0.7942 | calls 1.90 judge 0.00 | on 1.00/0.00
+   VS k=4 sig=0.35 kap=0.8 rho=0.3|tag JUDGE-FREE                 0.1998 | 0.8602 | 0.7504 | calls 1.90 judge 0.00 | on 1.00/0.00
+   VS k=4 sig=0.35 kap=1.5 rho=0.3|tag JUDGE-FREE                 0.1370 | 0.8580 | 0.7380 | calls 1.90 judge 0.00 | on 1.00/0.00
+   VS k=4 DEFAULT JUDGE-FREE |learned gate                        0.4771 | 0.8692 | 0.8039 | calls 1.65 judge 0.00 | on 0.72/0.00
+   VS k=4 DEFAULT |learned gate                                   0.4920 | 0.8697 | 0.8069 | calls 1.65 judge 2.87 | on 0.72/0.00
+   VS k=4 DEFAULT |always on                                      0.7194 | 0.7970 | 0.7841 | calls 1.90 judge 4.00 | on 1.00/1.00
+   W4 nbucb(b=.8)|learned                                         0.2985 | 0.8943 | 0.7951 | calls 1.00 judge 0.00 | on 0.00/0.00
+   W4 nbreg|learned                                               0.3020 | 0.8942 | 0.7956 | calls 1.00 judge 0.00 | on 0.00/0.00
+
+=== DIFFS vs [G (best fair, 1 call)] : creative-valued subset  (diff [95% CI] w/l, Holm; break-even = value gain per extra gen+judge call per creative task) ===
+## U plain-ucb (1 call)
+   creative V2-C1-multistyle                   -0.0006 [-0.0028,+0.0015] w/l 10/20 holm 1.000  extra calls +0.00 breakeven/call NaN
+   creative V2-C2-star-plus-diverse            +0.0037 [+0.0021,+0.0053] w/l 24/6 holm 0.009 WIN  extra calls +0.00 breakeven/call NaN
+   creative V2-C3-clustered-drift              +0.0058 [+0.0034,+0.0082] w/l 24/6 holm 0.004 WIN  extra calls +0.00 breakeven/call NaN
+   correct  V2-K1-multistyle-correct           +0.0129 [+0.0067,+0.0192] 90%lo +0.0077 TOST.01 p 0.826 NONINF
+   correct  V2-K2-star-correct                 +0.0238 [+0.0194,+0.0282] 90%lo +0.0202 TOST.01 p 1.000 NONINF
+   correct  V2-K3-clustered-drift-correct      -0.0014 [-0.0036,+0.0008] 90%lo -0.0032 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          +0.0303 [+0.0274,+0.0331] w/l 30/0 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   correct  V2-M1-mixed-3of6-creative          +0.0155 [+0.0103,+0.0207] 90%lo +0.0112 TOST.01 p 0.980 NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.0483 [+0.0441,+0.0525] w/l 30/0 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   correct  V2-M2-mixed-1of6-creative-star     +0.0222 [+0.0188,+0.0256] 90%lo +0.0194 TOST.01 p 1.000 NONINF
+## BoK-q k=4 same-agent VS profile, quality-only
+   creative V2-C1-multistyle                   +0.1701 [+0.1674,+0.1728] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0347
+   creative V2-C2-star-plus-diverse            +0.1581 [+0.1558,+0.1604] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0323
+   creative V2-C3-clustered-drift              +0.1361 [+0.1276,+0.1447] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0278
+   correct  V2-K1-multistyle-correct           +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K2-star-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K3-clustered-drift-correct      +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative V2-M1-mixed-3of6-creative          +0.1641 [+0.1583,+0.1700] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0335
+   correct  V2-M1-mixed-3of6-creative          +0.0029 [-0.0021,+0.0080] 90%lo -0.0013 TOST.01 p 0.004 EQ NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.1496 [+0.1415,+0.1577] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0305
+   correct  V2-M2-mixed-1of6-creative-star     -0.0007 [-0.0038,+0.0024] 90%lo -0.0033 TOST.01 p 0.000 EQ NONINF
+## VS k=4 sig=0.15 kap=0 rho=0.3|tag
+   creative V2-C1-multistyle                   +0.2518 [+0.2499,+0.2537] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0514
+   creative V2-C2-star-plus-diverse            +0.2351 [+0.2332,+0.2370] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0480
+   creative V2-C3-clustered-drift              +0.2035 [+0.1911,+0.2159] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0415
+   correct  V2-K1-multistyle-correct           +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K2-star-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K3-clustered-drift-correct      +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative V2-M1-mixed-3of6-creative          +0.2562 [+0.2527,+0.2597] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0523
+   correct  V2-M1-mixed-3of6-creative          +0.0072 [+0.0022,+0.0121] 90%lo +0.0031 TOST.01 p 0.125 NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.2522 [+0.2436,+0.2608] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0515
+   correct  V2-M2-mixed-1of6-creative-star     +0.0017 [-0.0038,+0.0073] 90%lo -0.0029 TOST.01 p 0.003 EQ NONINF
+## VS k=4 sig=0.15 kap=0.15 rho=0.3|tag
+   creative V2-C1-multistyle                   +0.2118 [+0.2098,+0.2139] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0432
+   creative V2-C2-star-plus-diverse            +0.1955 [+0.1937,+0.1973] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0399
+   creative V2-C3-clustered-drift              +0.1676 [+0.1553,+0.1799] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0342
+   correct  V2-K1-multistyle-correct           +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K2-star-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K3-clustered-drift-correct      +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative V2-M1-mixed-3of6-creative          +0.2198 [+0.2164,+0.2232] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0449
+   correct  V2-M1-mixed-3of6-creative          +0.0076 [+0.0033,+0.0119] 90%lo +0.0040 TOST.01 p 0.129 NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.2117 [+0.2040,+0.2194] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0432
+   correct  V2-M2-mixed-1of6-creative-star     +0.0039 [+0.0008,+0.0069] 90%lo +0.0013 TOST.01 p 0.000 EQ NONINF
+## VS k=4 sig=0.15 kap=0.4 rho=0.3|tag
+   creative V2-C1-multistyle                   +0.1523 [+0.1505,+0.1541] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0311
+   creative V2-C2-star-plus-diverse            +0.1381 [+0.1360,+0.1402] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0282
+   creative V2-C3-clustered-drift              +0.1119 [+0.1002,+0.1236] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0228
+   correct  V2-K1-multistyle-correct           +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K2-star-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K3-clustered-drift-correct      +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative V2-M1-mixed-3of6-creative          +0.1600 [+0.1562,+0.1638] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0327
+   correct  V2-M1-mixed-3of6-creative          +0.0069 [+0.0032,+0.0106] 90%lo +0.0039 TOST.01 p 0.051 NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.1484 [+0.1414,+0.1554] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0303
+   correct  V2-M2-mixed-1of6-creative-star     +0.0010 [-0.0018,+0.0039] 90%lo -0.0013 TOST.01 p 0.000 EQ NONINF
+## VS k=4 sig=0.15 kap=0.8 rho=0.3|tag
+   creative V2-C1-multistyle                   +0.0727 [+0.0707,+0.0747] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0148
+   creative V2-C2-star-plus-diverse            +0.0584 [+0.0563,+0.0605] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0119
+   creative V2-C3-clustered-drift              +0.0304 [+0.0191,+0.0417] w/l 24/6 holm 0.001 WIN  extra calls +4.90 breakeven/call +0.0062
+   correct  V2-K1-multistyle-correct           +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K2-star-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K3-clustered-drift-correct      +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative V2-M1-mixed-3of6-creative          +0.0774 [+0.0735,+0.0812] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0158
+   correct  V2-M1-mixed-3of6-creative          +0.0022 [-0.0018,+0.0063] 90%lo -0.0011 TOST.01 p 0.000 EQ NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.0625 [+0.0574,+0.0676] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0127
+   correct  V2-M2-mixed-1of6-creative-star     -0.0020 [-0.0041,+0.0002] 90%lo -0.0037 TOST.01 p 0.000 EQ NONINF
+## VS k=4 sig=0.15 kap=1.5 rho=0.3|tag
+   creative V2-C1-multistyle                   -0.0454 [-0.0475,-0.0434] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0093
+   creative V2-C2-star-plus-diverse            -0.0539 [-0.0562,-0.0517] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0110
+   creative V2-C3-clustered-drift              -0.0760 [-0.0813,-0.0706] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0155
+   correct  V2-K1-multistyle-correct           +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K2-star-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K3-clustered-drift-correct      +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative V2-M1-mixed-3of6-creative          -0.0564 [-0.0600,-0.0528] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0115
+   correct  V2-M1-mixed-3of6-creative          +0.0010 [-0.0029,+0.0048] 90%lo -0.0022 TOST.01 p 0.000 EQ NONINF
+   creative V2-M2-mixed-1of6-creative-star     -0.0617 [-0.0662,-0.0573] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0126
+   correct  V2-M2-mixed-1of6-creative-star     -0.0057 [-0.0079,-0.0034] 90%lo -0.0075 TOST.01 p 0.000 EQ NONINF
+## VS k=4 sig=0.35 kap=0 rho=0.3|tag
+   creative V2-C1-multistyle                   +0.3909 [+0.3880,+0.3939] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0798
+   creative V2-C2-star-plus-diverse            +0.3756 [+0.3725,+0.3786] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0766
+   creative V2-C3-clustered-drift              +0.3655 [+0.3414,+0.3897] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0746
+   correct  V2-K1-multistyle-correct           +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K2-star-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K3-clustered-drift-correct      +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative V2-M1-mixed-3of6-creative          +0.4498 [+0.4437,+0.4558] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0918
+   correct  V2-M1-mixed-3of6-creative          +0.0062 [+0.0014,+0.0109] 90%lo +0.0022 TOST.01 p 0.055 NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.5164 [+0.5065,+0.5263] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.1054
+   correct  V2-M2-mixed-1of6-creative-star     -0.0022 [-0.0089,+0.0046] 90%lo -0.0078 TOST.01 p 0.012 EQ NONINF
+## VS k=4 sig=0.35 kap=0.15 rho=0.3|tag [DEFAULT]
+   creative V2-C1-multistyle                   +0.2954 [+0.2928,+0.2980] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0603
+   creative V2-C2-star-plus-diverse            +0.2791 [+0.2766,+0.2816] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0570
+   creative V2-C3-clustered-drift              +0.2634 [+0.2407,+0.2860] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0537
+   correct  V2-K1-multistyle-correct           +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K2-star-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K3-clustered-drift-correct      +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative V2-M1-mixed-3of6-creative          +0.3417 [+0.3353,+0.3480] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0697
+   correct  V2-M1-mixed-3of6-creative          +0.0051 [+0.0003,+0.0098] 90%lo +0.0011 TOST.01 p 0.021 EQ NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.3954 [+0.3814,+0.4094] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0807
+   correct  V2-M2-mixed-1of6-creative-star     -0.0040 [-0.0084,+0.0004] 90%lo -0.0076 TOST.01 p 0.005 EQ NONINF
+## VS k=4 sig=0.35 kap=0.4 rho=0.3|tag
+   creative V2-C1-multistyle                   +0.1704 [+0.1685,+0.1722] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0348
+   creative V2-C2-star-plus-diverse            +0.1517 [+0.1492,+0.1542] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0310
+   creative V2-C3-clustered-drift              +0.1234 [+0.1039,+0.1430] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0252
+   correct  V2-K1-multistyle-correct           +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K2-star-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K3-clustered-drift-correct      +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative V2-M1-mixed-3of6-creative          +0.1915 [+0.1865,+0.1965] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0391
+   correct  V2-M1-mixed-3of6-creative          +0.0042 [-0.0012,+0.0096] 90%lo -0.0003 TOST.01 p 0.019 EQ NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.1872 [+0.1748,+0.1995] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0382
+   correct  V2-M2-mixed-1of6-creative-star     -0.0039 [-0.0070,-0.0008] 90%lo -0.0065 TOST.01 p 0.000 EQ NONINF
+## VS k=4 sig=0.35 kap=0.8 rho=0.3|tag
+   creative V2-C1-multistyle                   +0.0151 [+0.0128,+0.0174] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0031
+   creative V2-C2-star-plus-diverse            +0.0055 [+0.0032,+0.0078] w/l 24/6 holm 0.005 WIN  extra calls +4.90 breakeven/call +0.0011
+   creative V2-C3-clustered-drift              -0.0318 [-0.0412,-0.0225] w/l 3/27 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0065
+   correct  V2-K1-multistyle-correct           +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K2-star-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K3-clustered-drift-correct      +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative V2-M1-mixed-3of6-creative          +0.0025 [-0.0029,+0.0080] w/l 16/14 holm 1.000  extra calls +4.90 breakeven/call +0.0005
+   correct  V2-M1-mixed-3of6-creative          +0.0015 [-0.0018,+0.0047] 90%lo -0.0012 TOST.01 p 0.000 EQ NONINF
+   creative V2-M2-mixed-1of6-creative-star     -0.0042 [-0.0122,+0.0039] w/l 15/15 holm 1.000  extra calls +4.90 breakeven/call -0.0009
+   correct  V2-M2-mixed-1of6-creative-star     -0.0062 [-0.0094,-0.0031] 90%lo -0.0089 TOST.01 p 0.011 EQ NONINF
+## VS k=4 sig=0.35 kap=1.5 rho=0.3|tag
+   creative V2-C1-multistyle                   -0.1061 [-0.1090,-0.1033] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0217
+   creative V2-C2-star-plus-diverse            -0.0912 [-0.0941,-0.0882] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0186
+   creative V2-C3-clustered-drift              -0.1043 [-0.1101,-0.0985] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0213
+   correct  V2-K1-multistyle-correct           +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K2-star-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K3-clustered-drift-correct      +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative V2-M1-mixed-3of6-creative          -0.1369 [-0.1410,-0.1328] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0279
+   correct  V2-M1-mixed-3of6-creative          -0.0067 [-0.0117,-0.0017] 90%lo -0.0109 TOST.01 p 0.096 NOT-NONINF
+   creative V2-M2-mixed-1of6-creative-star     -0.1108 [-0.1163,-0.1053] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0226
+   correct  V2-M2-mixed-1of6-creative-star     -0.0087 [-0.0123,-0.0050] 90%lo -0.0117 TOST.01 p 0.234 NOT-NONINF
+## VS k=4 sig=0.6 kap=0 rho=0.3|tag
+   creative V2-C1-multistyle                   +0.4160 [+0.4131,+0.4190] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0849
+   creative V2-C2-star-plus-diverse            +0.4044 [+0.4002,+0.4087] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0825
+   creative V2-C3-clustered-drift              +0.4049 [+0.3767,+0.4331] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0826
+   correct  V2-K1-multistyle-correct           +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K2-star-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K3-clustered-drift-correct      +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative V2-M1-mixed-3of6-creative          +0.4966 [+0.4905,+0.5027] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.1014
+   correct  V2-M1-mixed-3of6-creative          +0.0045 [-0.0004,+0.0094] 90%lo +0.0004 TOST.01 p 0.014 EQ NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.5833 [+0.5684,+0.5981] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.1190
+   correct  V2-M2-mixed-1of6-creative-star     -0.0034 [-0.0102,+0.0034] 90%lo -0.0090 TOST.01 p 0.028 EQ NONINF
+## VS k=4 sig=0.6 kap=0.15 rho=0.3|tag
+   creative V2-C1-multistyle                   +0.2717 [+0.2694,+0.2739] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0554
+   creative V2-C2-star-plus-diverse            +0.2554 [+0.2523,+0.2586] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0521
+   creative V2-C3-clustered-drift              +0.2447 [+0.2218,+0.2675] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0499
+   correct  V2-K1-multistyle-correct           +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K2-star-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K3-clustered-drift-correct      +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative V2-M1-mixed-3of6-creative          +0.3229 [+0.3168,+0.3291] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0659
+   correct  V2-M1-mixed-3of6-creative          +0.0076 [+0.0036,+0.0116] 90%lo +0.0043 TOST.01 p 0.113 NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.3758 [+0.3507,+0.4010] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0767
+   correct  V2-M2-mixed-1of6-creative-star     -0.0057 [-0.0097,-0.0017] 90%lo -0.0090 TOST.01 p 0.018 EQ NONINF
+## VS k=4 sig=0.6 kap=0.4 rho=0.3|tag
+   creative V2-C1-multistyle                   +0.1142 [+0.1115,+0.1168] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0233
+   creative V2-C2-star-plus-diverse            +0.0948 [+0.0921,+0.0976] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0193
+   creative V2-C3-clustered-drift              +0.0630 [+0.0456,+0.0804] w/l 26/4 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0129
+   correct  V2-K1-multistyle-correct           +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K2-star-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K3-clustered-drift-correct      +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative V2-M1-mixed-3of6-creative          +0.1267 [+0.1204,+0.1330] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0259
+   correct  V2-M1-mixed-3of6-creative          +0.0021 [-0.0016,+0.0057] 90%lo -0.0009 TOST.01 p 0.000 EQ NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.1141 [+0.1029,+0.1252] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0233
+   correct  V2-M2-mixed-1of6-creative-star     -0.0036 [-0.0064,-0.0008] 90%lo -0.0060 TOST.01 p 0.000 EQ NONINF
+## VS k=4 sig=0.6 kap=0.8 rho=0.3|tag
+   creative V2-C1-multistyle                   -0.0528 [-0.0550,-0.0506] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0108
+   creative V2-C2-star-plus-diverse            -0.0490 [-0.0516,-0.0463] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0100
+   creative V2-C3-clustered-drift              -0.0721 [-0.0752,-0.0690] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0147
+   correct  V2-K1-multistyle-correct           +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K2-star-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K3-clustered-drift-correct      +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative V2-M1-mixed-3of6-creative          -0.0816 [-0.0859,-0.0773] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0166
+   correct  V2-M1-mixed-3of6-creative          -0.0042 [-0.0086,+0.0002] 90%lo -0.0078 TOST.01 p 0.005 EQ NONINF
+   creative V2-M2-mixed-1of6-creative-star     -0.0714 [-0.0776,-0.0652] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0146
+   correct  V2-M2-mixed-1of6-creative-star     -0.0072 [-0.0099,-0.0044] 90%lo -0.0094 TOST.01 p 0.022 EQ NONINF
+## VS k=4 sig=0.6 kap=1.5 rho=0.3|tag
+   creative V2-C1-multistyle                   -0.1067 [-0.1090,-0.1044] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0218
+   creative V2-C2-star-plus-diverse            -0.0906 [-0.0929,-0.0884] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0185
+   creative V2-C3-clustered-drift              -0.0993 [-0.1053,-0.0933] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0203
+   correct  V2-K1-multistyle-correct           +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K2-star-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K3-clustered-drift-correct      +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative V2-M1-mixed-3of6-creative          -0.1446 [-0.1499,-0.1392] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0295
+   correct  V2-M1-mixed-3of6-creative          -0.0037 [-0.0087,+0.0013] 90%lo -0.0078 TOST.01 p 0.007 EQ NONINF
+   creative V2-M2-mixed-1of6-creative-star     -0.1129 [-0.1177,-0.1081] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0230
+   correct  V2-M2-mixed-1of6-creative-star     -0.0090 [-0.0126,-0.0055] 90%lo -0.0120 TOST.01 p 0.286 NOT-NONINF
+## VS k=4 sig=0.35 kap=0.15 rho=0|tag
+   creative V2-C1-multistyle                   +0.2954 [+0.2928,+0.2980] w/l 30/0 holm 0.000 WIN  extra calls +4.00 breakeven/call +0.0738
+   creative V2-C2-star-plus-diverse            +0.2791 [+0.2766,+0.2816] w/l 30/0 holm 0.000 WIN  extra calls +4.00 breakeven/call +0.0698
+   creative V2-C3-clustered-drift              +0.2634 [+0.2407,+0.2860] w/l 30/0 holm 0.000 WIN  extra calls +4.00 breakeven/call +0.0658
+   correct  V2-K1-multistyle-correct           +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K2-star-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K3-clustered-drift-correct      +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative V2-M1-mixed-3of6-creative          +0.3417 [+0.3353,+0.3480] w/l 30/0 holm 0.000 WIN  extra calls +4.00 breakeven/call +0.0854
+   correct  V2-M1-mixed-3of6-creative          +0.0051 [+0.0003,+0.0098] 90%lo +0.0011 TOST.01 p 0.021 EQ NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.3954 [+0.3814,+0.4094] w/l 30/0 holm 0.000 WIN  extra calls +4.00 breakeven/call +0.0989
+   correct  V2-M2-mixed-1of6-creative-star     -0.0040 [-0.0084,+0.0004] 90%lo -0.0076 TOST.01 p 0.005 EQ NONINF
+## VS k=4 sig=0.35 kap=0.15 rho=1|tag
+   creative V2-C1-multistyle                   +0.2954 [+0.2928,+0.2980] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0422
+   creative V2-C2-star-plus-diverse            +0.2791 [+0.2766,+0.2816] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0399
+   creative V2-C3-clustered-drift              +0.2634 [+0.2407,+0.2860] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0376
+   correct  V2-K1-multistyle-correct           +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K2-star-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K3-clustered-drift-correct      +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative V2-M1-mixed-3of6-creative          +0.3417 [+0.3353,+0.3480] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0488
+   correct  V2-M1-mixed-3of6-creative          +0.0051 [+0.0003,+0.0098] 90%lo +0.0011 TOST.01 p 0.021 EQ NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.3954 [+0.3814,+0.4094] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0565
+   correct  V2-M2-mixed-1of6-creative-star     -0.0040 [-0.0084,+0.0004] 90%lo -0.0076 TOST.01 p 0.005 EQ NONINF
+## VS k=4 sig=0.35 kap=0 rho=0.3|tag JUDGE-FREE
+   creative V2-C1-multistyle                   +0.3382 [+0.3350,+0.3413] w/l 30/0 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.3757
+   creative V2-C2-star-plus-diverse            +0.3268 [+0.3230,+0.3307] w/l 30/0 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.3632
+   creative V2-C3-clustered-drift              +0.3331 [+0.3071,+0.3591] w/l 30/0 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.3701
+   correct  V2-K1-multistyle-correct           +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K2-star-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K3-clustered-drift-correct      +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative V2-M1-mixed-3of6-creative          +0.4171 [+0.4104,+0.4238] w/l 30/0 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.4634
+   correct  V2-M1-mixed-3of6-creative          +0.0049 [+0.0005,+0.0093] 90%lo +0.0013 TOST.01 p 0.013 EQ NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.5039 [+0.4909,+0.5169] w/l 30/0 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.5599
+   correct  V2-M2-mixed-1of6-creative-star     -0.0063 [-0.0118,-0.0008] 90%lo -0.0109 TOST.01 p 0.092 NOT-NONINF
+## VS k=4 sig=0.35 kap=0.15 rho=0.3|tag JUDGE-FREE
+   creative V2-C1-multistyle                   +0.2514 [+0.2486,+0.2542] w/l 30/0 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.2793
+   creative V2-C2-star-plus-diverse            +0.2344 [+0.2312,+0.2376] w/l 30/0 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.2605
+   creative V2-C3-clustered-drift              +0.2276 [+0.2031,+0.2522] w/l 30/0 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.2529
+   correct  V2-K1-multistyle-correct           +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K2-star-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K3-clustered-drift-correct      +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative V2-M1-mixed-3of6-creative          +0.3132 [+0.3068,+0.3196] w/l 30/0 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.3479
+   correct  V2-M1-mixed-3of6-creative          +0.0037 [-0.0003,+0.0076] 90%lo +0.0004 TOST.01 p 0.001 EQ NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.3873 [+0.3735,+0.4010] w/l 30/0 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.4303
+   correct  V2-M2-mixed-1of6-creative-star     -0.0041 [-0.0089,+0.0008] 90%lo -0.0081 TOST.01 p 0.009 EQ NONINF
+## VS k=4 sig=0.35 kap=0.4 rho=0.3|tag JUDGE-FREE
+   creative V2-C1-multistyle                   +0.1114 [+0.1086,+0.1141] w/l 30/0 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.1237
+   creative V2-C2-star-plus-diverse            +0.0922 [+0.0890,+0.0953] w/l 30/0 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.1024
+   creative V2-C3-clustered-drift              +0.0611 [+0.0395,+0.0827] w/l 24/6 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.0678
+   correct  V2-K1-multistyle-correct           +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K2-star-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K3-clustered-drift-correct      +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative V2-M1-mixed-3of6-creative          +0.1395 [+0.1341,+0.1450] w/l 30/0 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.1551
+   correct  V2-M1-mixed-3of6-creative          +0.0016 [-0.0035,+0.0067] 90%lo -0.0027 TOST.01 p 0.001 EQ NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.1379 [+0.1271,+0.1486] w/l 30/0 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.1532
+   correct  V2-M2-mixed-1of6-creative-star     -0.0059 [-0.0102,-0.0015] 90%lo -0.0095 TOST.01 p 0.032 EQ NONINF
+## VS k=4 sig=0.35 kap=0.8 rho=0.3|tag JUDGE-FREE
+   creative V2-C1-multistyle                   -0.0832 [-0.0884,-0.0780] w/l 0/30 holm 0.000 LOSS  extra calls +0.90 breakeven/call -0.0925
+   creative V2-C2-star-plus-diverse            -0.0853 [-0.0908,-0.0797] w/l 0/30 holm 0.000 LOSS  extra calls +0.90 breakeven/call -0.0947
+   creative V2-C3-clustered-drift              -0.1153 [-0.1224,-0.1083] w/l 0/30 holm 0.000 LOSS  extra calls +0.90 breakeven/call -0.1281
+   correct  V2-K1-multistyle-correct           +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K2-star-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K3-clustered-drift-correct      +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative V2-M1-mixed-3of6-creative          -0.0969 [-0.1027,-0.0910] w/l 0/30 holm 0.000 LOSS  extra calls +0.90 breakeven/call -0.1076
+   correct  V2-M1-mixed-3of6-creative          -0.0032 [-0.0080,+0.0015] 90%lo -0.0072 TOST.01 p 0.003 EQ NONINF
+   creative V2-M2-mixed-1of6-creative-star     -0.0959 [-0.1040,-0.0877] w/l 0/30 holm 0.000 LOSS  extra calls +0.90 breakeven/call -0.1065
+   correct  V2-M2-mixed-1of6-creative-star     -0.0118 [-0.0162,-0.0074] 90%lo -0.0155 TOST.01 p 0.791 NOT-NONINF
+## VS k=4 sig=0.35 kap=1.5 rho=0.3|tag JUDGE-FREE
+   creative V2-C1-multistyle                   -0.1806 [-0.1873,-0.1739] w/l 0/30 holm 0.000 LOSS  extra calls +0.90 breakeven/call -0.2007
+   creative V2-C2-star-plus-diverse            -0.1614 [-0.1675,-0.1553] w/l 0/30 holm 0.000 LOSS  extra calls +0.90 breakeven/call -0.1794
+   creative V2-C3-clustered-drift              -0.1693 [-0.1782,-0.1605] w/l 0/30 holm 0.000 LOSS  extra calls +0.90 breakeven/call -0.1882
+   correct  V2-K1-multistyle-correct           +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K2-star-correct                 +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   correct  V2-K3-clustered-drift-correct      +0.0000 [+0.0000,+0.0000] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF (identical by construction)
+   creative V2-M1-mixed-3of6-creative          -0.2030 [-0.2093,-0.1968] w/l 0/30 holm 0.000 LOSS  extra calls +0.90 breakeven/call -0.2256
+   correct  V2-M1-mixed-3of6-creative          -0.0051 [-0.0107,+0.0004] 90%lo -0.0097 TOST.01 p 0.041 EQ NONINF
+   creative V2-M2-mixed-1of6-creative-star     -0.1587 [-0.1670,-0.1503] w/l 0/30 holm 0.000 LOSS  extra calls +0.90 breakeven/call -0.1763
+   correct  V2-M2-mixed-1of6-creative-star     -0.0141 [-0.0187,-0.0094] 90%lo -0.0179 TOST.01 p 0.958 NOT-NONINF
+## VS k=4 DEFAULT JUDGE-FREE |learned gate
+   creative V2-C1-multistyle                   +0.2061 [+0.2040,+0.2083] w/l 30/0 holm 0.000 WIN  extra calls +0.73 breakeven/call +0.2827
+   creative V2-C2-star-plus-diverse            +0.1927 [+0.1899,+0.1955] w/l 30/0 holm 0.000 WIN  extra calls +0.73 breakeven/call +0.2646
+   creative V2-C3-clustered-drift              +0.1872 [+0.1663,+0.2082] w/l 30/0 holm 0.000 WIN  extra calls +0.73 breakeven/call +0.2581
+   correct  V2-K1-multistyle-correct           -0.0000 [-0.0001,+0.0000] 90%lo -0.0001 TOST.01 p 0.000 EQ NONINF
+   correct  V2-K2-star-correct                 -0.0000 [-0.0000,+0.0000] 90%lo -0.0000 TOST.01 p 0.000 EQ NONINF
+   correct  V2-K3-clustered-drift-correct      -0.0001 [-0.0002,-0.0000] 90%lo -0.0002 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          +0.2041 [+0.1975,+0.2108] w/l 30/0 holm 0.000 WIN  extra calls +0.65 breakeven/call +0.3161
+   correct  V2-M1-mixed-3of6-creative          -0.0012 [-0.0030,+0.0006] 90%lo -0.0027 TOST.01 p 0.000 EQ NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.1814 [+0.1658,+0.1970] w/l 30/0 holm 0.000 WIN  extra calls +0.65 breakeven/call +0.2807
+   correct  V2-M2-mixed-1of6-creative-star     -0.0029 [-0.0044,-0.0014] 90%lo -0.0041 TOST.01 p 0.000 EQ NONINF
+## VS k=4 DEFAULT |learned gate
+   creative V2-C1-multistyle                   +0.2425 [+0.2403,+0.2448] w/l 30/0 holm 0.000 WIN  extra calls +3.97 breakeven/call +0.0611
+   creative V2-C2-star-plus-diverse            +0.2299 [+0.2280,+0.2319] w/l 30/0 holm 0.000 WIN  extra calls +3.96 breakeven/call +0.0580
+   creative V2-C3-clustered-drift              +0.2155 [+0.1963,+0.2347] w/l 30/0 holm 0.000 WIN  extra calls +3.94 breakeven/call +0.0547
+   correct  V2-K1-multistyle-correct           -0.0000 [-0.0001,+0.0000] 90%lo -0.0001 TOST.01 p 0.000 EQ NONINF
+   correct  V2-K2-star-correct                 -0.0000 [-0.0000,+0.0000] 90%lo -0.0000 TOST.01 p 0.000 EQ NONINF
+   correct  V2-K3-clustered-drift-correct      -0.0001 [-0.0002,-0.0000] 90%lo -0.0002 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          +0.2101 [+0.2023,+0.2180] w/l 30/0 holm 0.000 WIN  extra calls +3.52 breakeven/call +0.0598
+   correct  V2-M1-mixed-3of6-creative          -0.0007 [-0.0022,+0.0008] 90%lo -0.0020 TOST.01 p 0.000 EQ NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.1963 [+0.1796,+0.2130] w/l 30/0 holm 0.000 WIN  extra calls +3.52 breakeven/call +0.0558
+   correct  V2-M2-mixed-1of6-creative-star     -0.0023 [-0.0038,-0.0008] 90%lo -0.0036 TOST.01 p 0.000 EQ NONINF
+## VS k=4 DEFAULT |always on
+   creative V2-C1-multistyle                   +0.2954 [+0.2928,+0.2980] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0603
+   creative V2-C2-star-plus-diverse            +0.2791 [+0.2766,+0.2816] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0570
+   creative V2-C3-clustered-drift              +0.2634 [+0.2407,+0.2860] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0537
+   correct  V2-K1-multistyle-correct           -0.0748 [-0.0783,-0.0714] 90%lo -0.0777 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K2-star-correct                 -0.0723 [-0.0767,-0.0678] 90%lo -0.0760 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K3-clustered-drift-correct      -0.0790 [-0.0816,-0.0764] 90%lo -0.0811 TOST.01 p 1.000 NOT-NONINF
+   creative V2-M1-mixed-3of6-creative          +0.3457 [+0.3384,+0.3529] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0705
+   correct  V2-M1-mixed-3of6-creative          -0.0576 [-0.0619,-0.0533] 90%lo -0.0612 TOST.01 p 1.000 NOT-NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.4238 [+0.4137,+0.4339] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0865
+   correct  V2-M2-mixed-1of6-creative-star     -0.0751 [-0.0796,-0.0706] 90%lo -0.0788 TOST.01 p 1.000 NOT-NONINF
+## W4 nbucb(b=.8)|learned
+   creative V2-C1-multistyle                   -0.0536 [-0.0552,-0.0521] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   creative V2-C2-star-plus-diverse            -0.0488 [-0.0506,-0.0471] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   creative V2-C3-clustered-drift              -0.0245 [-0.0267,-0.0223] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   correct  V2-K1-multistyle-correct           +0.0122 [+0.0062,+0.0182] 90%lo +0.0072 TOST.01 p 0.772 NONINF
+   correct  V2-K2-star-correct                 +0.0238 [+0.0194,+0.0282] 90%lo +0.0202 TOST.01 p 1.000 NONINF
+   correct  V2-K3-clustered-drift-correct      -0.0013 [-0.0033,+0.0008] 90%lo -0.0030 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          -0.0139 [-0.0166,-0.0112] w/l 1/29 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   correct  V2-M1-mixed-3of6-creative          +0.0154 [+0.0103,+0.0206] 90%lo +0.0111 TOST.01 p 0.980 NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.0028 [-0.0018,+0.0074] w/l 16/14 holm 1.000  extra calls +0.00 breakeven/call NaN
+   correct  V2-M2-mixed-1of6-creative-star     +0.0222 [+0.0188,+0.0256] 90%lo +0.0194 TOST.01 p 1.000 NONINF
+## W4 nbreg|learned
+   creative V2-C1-multistyle                   -0.0523 [-0.0541,-0.0505] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   creative V2-C2-star-plus-diverse            -0.0444 [-0.0464,-0.0424] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   creative V2-C3-clustered-drift              -0.0175 [-0.0201,-0.0150] w/l 0/30 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   correct  V2-K1-multistyle-correct           +0.0114 [+0.0052,+0.0176] 90%lo +0.0063 TOST.01 p 0.680 NONINF
+   correct  V2-K2-star-correct                 +0.0238 [+0.0194,+0.0282] 90%lo +0.0201 TOST.01 p 1.000 NONINF
+   correct  V2-K3-clustered-drift-correct      -0.0031 [-0.0050,-0.0011] 90%lo -0.0047 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          -0.0126 [-0.0151,-0.0101] w/l 1/29 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   correct  V2-M1-mixed-3of6-creative          +0.0133 [+0.0083,+0.0184] 90%lo +0.0091 TOST.01 p 0.907 NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.0063 [+0.0024,+0.0102] w/l 21/9 holm 0.330  extra calls +0.00 breakeven/call NaN
+   correct  V2-M2-mixed-1of6-creative-star     +0.0222 [+0.0188,+0.0256] 90%lo +0.0193 TOST.01 p 1.000 NONINF
+
+=== DIFFS vs [W4 nbreg|learned] : creative-valued subset  (diff [95% CI] w/l, Holm; break-even = value gain per extra gen+judge call per creative task) ===
+## G (best fair, 1 call)
+   creative V2-C1-multistyle                   +0.0523 [+0.0505,+0.0541] w/l 30/0 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   creative V2-C2-star-plus-diverse            +0.0444 [+0.0424,+0.0464] w/l 30/0 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   creative V2-C3-clustered-drift              +0.0175 [+0.0150,+0.0201] w/l 30/0 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   correct  V2-K1-multistyle-correct           -0.0114 [-0.0176,-0.0052] 90%lo -0.0166 TOST.01 p 0.680 NOT-NONINF
+   correct  V2-K2-star-correct                 -0.0238 [-0.0282,-0.0194] 90%lo -0.0274 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K3-clustered-drift-correct      +0.0031 [+0.0011,+0.0050] 90%lo +0.0014 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          +0.0126 [+0.0101,+0.0151] w/l 29/1 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   correct  V2-M1-mixed-3of6-creative          -0.0133 [-0.0184,-0.0083] 90%lo -0.0175 TOST.01 p 0.907 NOT-NONINF
+   creative V2-M2-mixed-1of6-creative-star     -0.0063 [-0.0102,-0.0024] w/l 9/21 holm 0.108  extra calls +0.00 breakeven/call NaN
+   correct  V2-M2-mixed-1of6-creative-star     -0.0222 [-0.0256,-0.0188] 90%lo -0.0250 TOST.01 p 1.000 NOT-NONINF
+## U plain-ucb (1 call)
+   creative V2-C1-multistyle                   +0.0516 [+0.0496,+0.0536] w/l 30/0 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   creative V2-C2-star-plus-diverse            +0.0481 [+0.0465,+0.0496] w/l 30/0 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   creative V2-C3-clustered-drift              +0.0233 [+0.0212,+0.0254] w/l 30/0 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   correct  V2-K1-multistyle-correct           +0.0015 [+0.0004,+0.0025] 90%lo +0.0006 TOST.01 p 0.000 EQ NONINF
+   correct  V2-K2-star-correct                 +0.0001 [-0.0000,+0.0001] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF
+   correct  V2-K3-clustered-drift-correct      +0.0016 [+0.0007,+0.0025] 90%lo +0.0009 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          +0.0429 [+0.0405,+0.0452] w/l 30/0 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   correct  V2-M1-mixed-3of6-creative          +0.0021 [+0.0012,+0.0030] 90%lo +0.0014 TOST.01 p 0.000 EQ NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.0420 [+0.0387,+0.0453] w/l 30/0 holm 0.000 WIN  extra calls +0.00 breakeven/call NaN
+   correct  V2-M2-mixed-1of6-creative-star     +0.0001 [+0.0000,+0.0001] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF
+## BoK-q k=4 same-agent VS profile, quality-only
+   creative V2-C1-multistyle                   +0.2224 [+0.2191,+0.2257] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0454
+   creative V2-C2-star-plus-diverse            +0.2025 [+0.1995,+0.2055] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0413
+   creative V2-C3-clustered-drift              +0.1537 [+0.1444,+0.1630] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0314
+   correct  V2-K1-multistyle-correct           -0.0114 [-0.0176,-0.0052] 90%lo -0.0166 TOST.01 p 0.680 NOT-NONINF
+   correct  V2-K2-star-correct                 -0.0238 [-0.0282,-0.0194] 90%lo -0.0274 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K3-clustered-drift-correct      +0.0031 [+0.0011,+0.0050] 90%lo +0.0014 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          +0.1767 [+0.1713,+0.1821] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0361
+   correct  V2-M1-mixed-3of6-creative          -0.0104 [-0.0146,-0.0063] 90%lo -0.0139 TOST.01 p 0.580 NOT-NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.1433 [+0.1363,+0.1503] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0292
+   correct  V2-M2-mixed-1of6-creative-star     -0.0229 [-0.0267,-0.0191] 90%lo -0.0261 TOST.01 p 1.000 NOT-NONINF
+## VS k=4 sig=0.15 kap=0 rho=0.3|tag
+   creative V2-C1-multistyle                   +0.3041 [+0.3012,+0.3069] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0621
+   creative V2-C2-star-plus-diverse            +0.2795 [+0.2770,+0.2820] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0570
+   creative V2-C3-clustered-drift              +0.2210 [+0.2080,+0.2341] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0451
+   correct  V2-K1-multistyle-correct           -0.0114 [-0.0176,-0.0052] 90%lo -0.0166 TOST.01 p 0.680 NOT-NONINF
+   correct  V2-K2-star-correct                 -0.0238 [-0.0282,-0.0194] 90%lo -0.0274 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K3-clustered-drift-correct      +0.0031 [+0.0011,+0.0050] 90%lo +0.0014 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          +0.2688 [+0.2653,+0.2722] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0548
+   correct  V2-M1-mixed-3of6-creative          -0.0062 [-0.0096,-0.0027] 90%lo -0.0090 TOST.01 p 0.015 EQ NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.2459 [+0.2389,+0.2529] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0502
+   correct  V2-M2-mixed-1of6-creative-star     -0.0204 [-0.0244,-0.0164] 90%lo -0.0237 TOST.01 p 1.000 NOT-NONINF
+## VS k=4 sig=0.15 kap=0.15 rho=0.3|tag
+   creative V2-C1-multistyle                   +0.2641 [+0.2616,+0.2666] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0539
+   creative V2-C2-star-plus-diverse            +0.2399 [+0.2373,+0.2425] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0490
+   creative V2-C3-clustered-drift              +0.1851 [+0.1722,+0.1980] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0378
+   correct  V2-K1-multistyle-correct           -0.0114 [-0.0176,-0.0052] 90%lo -0.0166 TOST.01 p 0.680 NOT-NONINF
+   correct  V2-K2-star-correct                 -0.0238 [-0.0282,-0.0194] 90%lo -0.0274 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K3-clustered-drift-correct      +0.0031 [+0.0011,+0.0050] 90%lo +0.0014 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          +0.2324 [+0.2292,+0.2356] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0474
+   correct  V2-M1-mixed-3of6-creative          -0.0058 [-0.0090,-0.0025] 90%lo -0.0085 TOST.01 p 0.006 EQ NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.2054 [+0.1989,+0.2120] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0419
+   correct  V2-M2-mixed-1of6-creative-star     -0.0183 [-0.0211,-0.0155] 90%lo -0.0206 TOST.01 p 1.000 NOT-NONINF
+## VS k=4 sig=0.15 kap=0.4 rho=0.3|tag
+   creative V2-C1-multistyle                   +0.2046 [+0.2022,+0.2070] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0418
+   creative V2-C2-star-plus-diverse            +0.1825 [+0.1799,+0.1852] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0373
+   creative V2-C3-clustered-drift              +0.1294 [+0.1172,+0.1417] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0264
+   correct  V2-K1-multistyle-correct           -0.0114 [-0.0176,-0.0052] 90%lo -0.0166 TOST.01 p 0.680 NOT-NONINF
+   correct  V2-K2-star-correct                 -0.0238 [-0.0282,-0.0194] 90%lo -0.0274 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K3-clustered-drift-correct      +0.0031 [+0.0011,+0.0050] 90%lo +0.0014 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          +0.1726 [+0.1691,+0.1762] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0352
+   correct  V2-M1-mixed-3of6-creative          -0.0064 [-0.0097,-0.0031] 90%lo -0.0091 TOST.01 p 0.016 EQ NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.1421 [+0.1359,+0.1482] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0290
+   correct  V2-M2-mixed-1of6-creative-star     -0.0211 [-0.0250,-0.0172] 90%lo -0.0244 TOST.01 p 1.000 NOT-NONINF
+## VS k=4 sig=0.15 kap=0.8 rho=0.3|tag
+   creative V2-C1-multistyle                   +0.1250 [+0.1223,+0.1276] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0255
+   creative V2-C2-star-plus-diverse            +0.1028 [+0.1002,+0.1054] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0210
+   creative V2-C3-clustered-drift              +0.0479 [+0.0360,+0.0598] w/l 27/3 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0098
+   correct  V2-K1-multistyle-correct           -0.0114 [-0.0176,-0.0052] 90%lo -0.0166 TOST.01 p 0.680 NOT-NONINF
+   correct  V2-K2-star-correct                 -0.0238 [-0.0282,-0.0194] 90%lo -0.0274 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K3-clustered-drift-correct      +0.0031 [+0.0011,+0.0050] 90%lo +0.0014 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          +0.0900 [+0.0862,+0.0938] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0184
+   correct  V2-M1-mixed-3of6-creative          -0.0111 [-0.0151,-0.0071] 90%lo -0.0144 TOST.01 p 0.716 NOT-NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.0562 [+0.0521,+0.0603] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0115
+   correct  V2-M2-mixed-1of6-creative-star     -0.0241 [-0.0280,-0.0202] 90%lo -0.0274 TOST.01 p 1.000 NOT-NONINF
+## VS k=4 sig=0.15 kap=1.5 rho=0.3|tag
+   creative V2-C1-multistyle                   +0.0068 [+0.0038,+0.0098] w/l 21/9 holm 0.005 WIN  extra calls +4.90 breakeven/call +0.0014
+   creative V2-C2-star-plus-diverse            -0.0095 [-0.0128,-0.0063] w/l 4/26 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0019
+   creative V2-C3-clustered-drift              -0.0584 [-0.0644,-0.0525] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0119
+   correct  V2-K1-multistyle-correct           -0.0114 [-0.0176,-0.0052] 90%lo -0.0166 TOST.01 p 0.680 NOT-NONINF
+   correct  V2-K2-star-correct                 -0.0238 [-0.0282,-0.0194] 90%lo -0.0274 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K3-clustered-drift-correct      +0.0031 [+0.0011,+0.0050] 90%lo +0.0014 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          -0.0438 [-0.0472,-0.0404] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0089
+   correct  V2-M1-mixed-3of6-creative          -0.0124 [-0.0173,-0.0074] 90%lo -0.0165 TOST.01 p 0.829 NOT-NONINF
+   creative V2-M2-mixed-1of6-creative-star     -0.0680 [-0.0723,-0.0638] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0139
+   correct  V2-M2-mixed-1of6-creative-star     -0.0278 [-0.0312,-0.0244] 90%lo -0.0306 TOST.01 p 1.000 NOT-NONINF
+## VS k=4 sig=0.35 kap=0 rho=0.3|tag
+   creative V2-C1-multistyle                   +0.4432 [+0.4405,+0.4459] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0905
+   creative V2-C2-star-plus-diverse            +0.4200 [+0.4178,+0.4221] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0857
+   creative V2-C3-clustered-drift              +0.3831 [+0.3590,+0.4072] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0782
+   correct  V2-K1-multistyle-correct           -0.0114 [-0.0176,-0.0052] 90%lo -0.0166 TOST.01 p 0.680 NOT-NONINF
+   correct  V2-K2-star-correct                 -0.0238 [-0.0282,-0.0194] 90%lo -0.0274 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K3-clustered-drift-correct      +0.0031 [+0.0011,+0.0050] 90%lo +0.0014 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          +0.4624 [+0.4568,+0.4679] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0944
+   correct  V2-M1-mixed-3of6-creative          -0.0072 [-0.0109,-0.0034] 90%lo -0.0103 TOST.01 p 0.065 NOT-NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.5101 [+0.4999,+0.5203] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.1041
+   correct  V2-M2-mixed-1of6-creative-star     -0.0243 [-0.0293,-0.0193] 90%lo -0.0285 TOST.01 p 1.000 NOT-NONINF
+## VS k=4 sig=0.35 kap=0.15 rho=0.3|tag [DEFAULT]
+   creative V2-C1-multistyle                   +0.3477 [+0.3449,+0.3504] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0710
+   creative V2-C2-star-plus-diverse            +0.3235 [+0.3214,+0.3257] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0660
+   creative V2-C3-clustered-drift              +0.2809 [+0.2582,+0.3036] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0573
+   correct  V2-K1-multistyle-correct           -0.0114 [-0.0176,-0.0052] 90%lo -0.0166 TOST.01 p 0.680 NOT-NONINF
+   correct  V2-K2-star-correct                 -0.0238 [-0.0282,-0.0194] 90%lo -0.0274 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K3-clustered-drift-correct      +0.0031 [+0.0011,+0.0050] 90%lo +0.0014 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          +0.3543 [+0.3485,+0.3601] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0723
+   correct  V2-M1-mixed-3of6-creative          -0.0083 [-0.0119,-0.0047] 90%lo -0.0112 TOST.01 p 0.166 NOT-NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.3891 [+0.3755,+0.4028] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0794
+   correct  V2-M2-mixed-1of6-creative-star     -0.0261 [-0.0307,-0.0216] 90%lo -0.0299 TOST.01 p 1.000 NOT-NONINF
+## VS k=4 sig=0.35 kap=0.4 rho=0.3|tag
+   creative V2-C1-multistyle                   +0.2226 [+0.2203,+0.2250] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0454
+   creative V2-C2-star-plus-diverse            +0.1961 [+0.1935,+0.1987] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0400
+   creative V2-C3-clustered-drift              +0.1410 [+0.1212,+0.1608] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0288
+   correct  V2-K1-multistyle-correct           -0.0114 [-0.0176,-0.0052] 90%lo -0.0166 TOST.01 p 0.680 NOT-NONINF
+   correct  V2-K2-star-correct                 -0.0238 [-0.0282,-0.0194] 90%lo -0.0274 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K3-clustered-drift-correct      +0.0031 [+0.0011,+0.0050] 90%lo +0.0014 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          +0.2041 [+0.1995,+0.2088] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0417
+   correct  V2-M1-mixed-3of6-creative          -0.0092 [-0.0138,-0.0045] 90%lo -0.0130 TOST.01 p 0.355 NOT-NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.1809 [+0.1689,+0.1929] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0369
+   correct  V2-M2-mixed-1of6-creative-star     -0.0261 [-0.0299,-0.0222] 90%lo -0.0292 TOST.01 p 1.000 NOT-NONINF
+## VS k=4 sig=0.35 kap=0.8 rho=0.3|tag
+   creative V2-C1-multistyle                   +0.0674 [+0.0643,+0.0705] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0138
+   creative V2-C2-star-plus-diverse            +0.0499 [+0.0467,+0.0531] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0102
+   creative V2-C3-clustered-drift              -0.0143 [-0.0241,-0.0045] w/l 13/17 holm 0.126  extra calls +4.90 breakeven/call -0.0029
+   correct  V2-K1-multistyle-correct           -0.0114 [-0.0176,-0.0052] 90%lo -0.0166 TOST.01 p 0.680 NOT-NONINF
+   correct  V2-K2-star-correct                 -0.0238 [-0.0282,-0.0194] 90%lo -0.0274 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K3-clustered-drift-correct      +0.0031 [+0.0011,+0.0050] 90%lo +0.0014 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          +0.0151 [+0.0099,+0.0204] w/l 26/4 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0031
+   correct  V2-M1-mixed-3of6-creative          -0.0119 [-0.0158,-0.0079] 90%lo -0.0152 TOST.01 p 0.830 NOT-NONINF
+   creative V2-M2-mixed-1of6-creative-star     -0.0105 [-0.0173,-0.0036] w/l 8/22 holm 0.126  extra calls +4.90 breakeven/call -0.0021
+   correct  V2-M2-mixed-1of6-creative-star     -0.0284 [-0.0319,-0.0248] 90%lo -0.0313 TOST.01 p 1.000 NOT-NONINF
+## VS k=4 sig=0.35 kap=1.5 rho=0.3|tag
+   creative V2-C1-multistyle                   -0.0539 [-0.0576,-0.0501] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0110
+   creative V2-C2-star-plus-diverse            -0.0468 [-0.0507,-0.0428] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0095
+   creative V2-C3-clustered-drift              -0.0868 [-0.0925,-0.0810] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0177
+   correct  V2-K1-multistyle-correct           -0.0114 [-0.0176,-0.0052] 90%lo -0.0166 TOST.01 p 0.680 NOT-NONINF
+   correct  V2-K2-star-correct                 -0.0238 [-0.0282,-0.0194] 90%lo -0.0274 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K3-clustered-drift-correct      +0.0031 [+0.0011,+0.0050] 90%lo +0.0014 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          -0.1243 [-0.1286,-0.1201] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0254
+   correct  V2-M1-mixed-3of6-creative          -0.0201 [-0.0250,-0.0152] 90%lo -0.0241 TOST.01 p 1.000 NOT-NONINF
+   creative V2-M2-mixed-1of6-creative-star     -0.1171 [-0.1221,-0.1121] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0239
+   correct  V2-M2-mixed-1of6-creative-star     -0.0308 [-0.0347,-0.0270] 90%lo -0.0340 TOST.01 p 1.000 NOT-NONINF
+## VS k=4 sig=0.6 kap=0 rho=0.3|tag
+   creative V2-C1-multistyle                   +0.4683 [+0.4656,+0.4710] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0956
+   creative V2-C2-star-plus-diverse            +0.4488 [+0.4453,+0.4524] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0916
+   creative V2-C3-clustered-drift              +0.4224 [+0.3944,+0.4505] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0862
+   correct  V2-K1-multistyle-correct           -0.0114 [-0.0176,-0.0052] 90%lo -0.0166 TOST.01 p 0.680 NOT-NONINF
+   correct  V2-K2-star-correct                 -0.0238 [-0.0282,-0.0194] 90%lo -0.0274 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K3-clustered-drift-correct      +0.0031 [+0.0011,+0.0050] 90%lo +0.0014 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          +0.5092 [+0.5035,+0.5149] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.1039
+   correct  V2-M1-mixed-3of6-creative          -0.0089 [-0.0129,-0.0048] 90%lo -0.0122 TOST.01 p 0.287 NOT-NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.5770 [+0.5609,+0.5930] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.1177
+   correct  V2-M2-mixed-1of6-creative-star     -0.0256 [-0.0306,-0.0205] 90%lo -0.0298 TOST.01 p 1.000 NOT-NONINF
+## VS k=4 sig=0.6 kap=0.15 rho=0.3|tag
+   creative V2-C1-multistyle                   +0.3239 [+0.3218,+0.3261] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0661
+   creative V2-C2-star-plus-diverse            +0.2998 [+0.2969,+0.3028] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0612
+   creative V2-C3-clustered-drift              +0.2622 [+0.2393,+0.2850] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0535
+   correct  V2-K1-multistyle-correct           -0.0114 [-0.0176,-0.0052] 90%lo -0.0166 TOST.01 p 0.680 NOT-NONINF
+   correct  V2-K2-star-correct                 -0.0238 [-0.0282,-0.0194] 90%lo -0.0274 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K3-clustered-drift-correct      +0.0031 [+0.0011,+0.0050] 90%lo +0.0014 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          +0.3355 [+0.3296,+0.3415] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0685
+   correct  V2-M1-mixed-3of6-creative          -0.0058 [-0.0082,-0.0034] 90%lo -0.0077 TOST.01 p 0.001 EQ NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.3696 [+0.3437,+0.3954] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0754
+   correct  V2-M2-mixed-1of6-creative-star     -0.0278 [-0.0319,-0.0238] 90%lo -0.0312 TOST.01 p 1.000 NOT-NONINF
+## VS k=4 sig=0.6 kap=0.4 rho=0.3|tag
+   creative V2-C1-multistyle                   +0.1664 [+0.1637,+0.1692] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0340
+   creative V2-C2-star-plus-diverse            +0.1392 [+0.1362,+0.1423] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0284
+   creative V2-C3-clustered-drift              +0.0805 [+0.0628,+0.0982] w/l 29/1 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0164
+   correct  V2-K1-multistyle-correct           -0.0114 [-0.0176,-0.0052] 90%lo -0.0166 TOST.01 p 0.680 NOT-NONINF
+   correct  V2-K2-star-correct                 -0.0238 [-0.0282,-0.0194] 90%lo -0.0274 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K3-clustered-drift-correct      +0.0031 [+0.0011,+0.0050] 90%lo +0.0014 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          +0.1393 [+0.1334,+0.1452] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0284
+   correct  V2-M1-mixed-3of6-creative          -0.0113 [-0.0157,-0.0068] 90%lo -0.0149 TOST.01 p 0.716 NOT-NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.1078 [+0.0972,+0.1183] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0220
+   correct  V2-M2-mixed-1of6-creative-star     -0.0258 [-0.0294,-0.0222] 90%lo -0.0288 TOST.01 p 1.000 NOT-NONINF
+## VS k=4 sig=0.6 kap=0.8 rho=0.3|tag
+   creative V2-C1-multistyle                   -0.0005 [-0.0036,+0.0026] w/l 17/13 holm 0.740  extra calls +4.90 breakeven/call -0.0001
+   creative V2-C2-star-plus-diverse            -0.0046 [-0.0082,-0.0010] w/l 11/19 holm 0.126  extra calls +4.90 breakeven/call -0.0009
+   creative V2-C3-clustered-drift              -0.0546 [-0.0584,-0.0507] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0111
+   correct  V2-K1-multistyle-correct           -0.0114 [-0.0176,-0.0052] 90%lo -0.0166 TOST.01 p 0.680 NOT-NONINF
+   correct  V2-K2-star-correct                 -0.0238 [-0.0282,-0.0194] 90%lo -0.0274 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K3-clustered-drift-correct      +0.0031 [+0.0011,+0.0050] 90%lo +0.0014 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          -0.0690 [-0.0730,-0.0650] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0141
+   correct  V2-M1-mixed-3of6-creative          -0.0175 [-0.0220,-0.0130] 90%lo -0.0213 TOST.01 p 0.999 NOT-NONINF
+   creative V2-M2-mixed-1of6-creative-star     -0.0777 [-0.0832,-0.0721] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0159
+   correct  V2-M2-mixed-1of6-creative-star     -0.0293 [-0.0326,-0.0261] 90%lo -0.0320 TOST.01 p 1.000 NOT-NONINF
+## VS k=4 sig=0.6 kap=1.5 rho=0.3|tag
+   creative V2-C1-multistyle                   -0.0544 [-0.0578,-0.0511] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0111
+   creative V2-C2-star-plus-diverse            -0.0462 [-0.0495,-0.0430] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0094
+   creative V2-C3-clustered-drift              -0.0817 [-0.0879,-0.0756] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0167
+   correct  V2-K1-multistyle-correct           -0.0114 [-0.0176,-0.0052] 90%lo -0.0166 TOST.01 p 0.680 NOT-NONINF
+   correct  V2-K2-star-correct                 -0.0238 [-0.0282,-0.0194] 90%lo -0.0274 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K3-clustered-drift-correct      +0.0031 [+0.0011,+0.0050] 90%lo +0.0014 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          -0.1320 [-0.1371,-0.1268] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0269
+   correct  V2-M1-mixed-3of6-creative          -0.0170 [-0.0219,-0.0122] 90%lo -0.0211 TOST.01 p 0.997 NOT-NONINF
+   creative V2-M2-mixed-1of6-creative-star     -0.1192 [-0.1234,-0.1149] w/l 0/30 holm 0.000 LOSS  extra calls +4.90 breakeven/call -0.0243
+   correct  V2-M2-mixed-1of6-creative-star     -0.0312 [-0.0348,-0.0275] 90%lo -0.0342 TOST.01 p 1.000 NOT-NONINF
+## VS k=4 sig=0.35 kap=0.15 rho=0|tag
+   creative V2-C1-multistyle                   +0.3477 [+0.3449,+0.3504] w/l 30/0 holm 0.000 WIN  extra calls +4.00 breakeven/call +0.0869
+   creative V2-C2-star-plus-diverse            +0.3235 [+0.3214,+0.3257] w/l 30/0 holm 0.000 WIN  extra calls +4.00 breakeven/call +0.0809
+   creative V2-C3-clustered-drift              +0.2809 [+0.2582,+0.3036] w/l 30/0 holm 0.000 WIN  extra calls +4.00 breakeven/call +0.0702
+   correct  V2-K1-multistyle-correct           -0.0114 [-0.0176,-0.0052] 90%lo -0.0166 TOST.01 p 0.680 NOT-NONINF
+   correct  V2-K2-star-correct                 -0.0238 [-0.0282,-0.0194] 90%lo -0.0274 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K3-clustered-drift-correct      +0.0031 [+0.0011,+0.0050] 90%lo +0.0014 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          +0.3543 [+0.3485,+0.3601] w/l 30/0 holm 0.000 WIN  extra calls +4.00 breakeven/call +0.0886
+   correct  V2-M1-mixed-3of6-creative          -0.0083 [-0.0119,-0.0047] 90%lo -0.0112 TOST.01 p 0.166 NOT-NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.3891 [+0.3755,+0.4028] w/l 30/0 holm 0.000 WIN  extra calls +4.00 breakeven/call +0.0973
+   correct  V2-M2-mixed-1of6-creative-star     -0.0261 [-0.0307,-0.0216] 90%lo -0.0299 TOST.01 p 1.000 NOT-NONINF
+## VS k=4 sig=0.35 kap=0.15 rho=1|tag
+   creative V2-C1-multistyle                   +0.3477 [+0.3449,+0.3504] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0497
+   creative V2-C2-star-plus-diverse            +0.3235 [+0.3214,+0.3257] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0462
+   creative V2-C3-clustered-drift              +0.2809 [+0.2582,+0.3036] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0401
+   correct  V2-K1-multistyle-correct           -0.0114 [-0.0176,-0.0052] 90%lo -0.0166 TOST.01 p 0.680 NOT-NONINF
+   correct  V2-K2-star-correct                 -0.0238 [-0.0282,-0.0194] 90%lo -0.0274 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K3-clustered-drift-correct      +0.0031 [+0.0011,+0.0050] 90%lo +0.0014 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          +0.3543 [+0.3485,+0.3601] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0506
+   correct  V2-M1-mixed-3of6-creative          -0.0083 [-0.0119,-0.0047] 90%lo -0.0112 TOST.01 p 0.166 NOT-NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.3891 [+0.3755,+0.4028] w/l 30/0 holm 0.000 WIN  extra calls +7.00 breakeven/call +0.0556
+   correct  V2-M2-mixed-1of6-creative-star     -0.0261 [-0.0307,-0.0216] 90%lo -0.0299 TOST.01 p 1.000 NOT-NONINF
+## VS k=4 sig=0.35 kap=0 rho=0.3|tag JUDGE-FREE
+   creative V2-C1-multistyle                   +0.3904 [+0.3876,+0.3933] w/l 30/0 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.4338
+   creative V2-C2-star-plus-diverse            +0.3712 [+0.3682,+0.3743] w/l 30/0 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.4125
+   creative V2-C3-clustered-drift              +0.3506 [+0.3247,+0.3765] w/l 30/0 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.3896
+   correct  V2-K1-multistyle-correct           -0.0114 [-0.0176,-0.0052] 90%lo -0.0166 TOST.01 p 0.680 NOT-NONINF
+   correct  V2-K2-star-correct                 -0.0238 [-0.0282,-0.0194] 90%lo -0.0274 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K3-clustered-drift-correct      +0.0031 [+0.0011,+0.0050] 90%lo +0.0014 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          +0.4297 [+0.4234,+0.4360] w/l 30/0 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.4774
+   correct  V2-M1-mixed-3of6-creative          -0.0084 [-0.0117,-0.0051] 90%lo -0.0111 TOST.01 p 0.164 NOT-NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.4976 [+0.4841,+0.5112] w/l 30/0 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.5529
+   correct  V2-M2-mixed-1of6-creative-star     -0.0285 [-0.0335,-0.0235] 90%lo -0.0326 TOST.01 p 1.000 NOT-NONINF
+## VS k=4 sig=0.35 kap=0.15 rho=0.3|tag JUDGE-FREE
+   creative V2-C1-multistyle                   +0.3037 [+0.3009,+0.3065] w/l 30/0 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.3374
+   creative V2-C2-star-plus-diverse            +0.2788 [+0.2762,+0.2814] w/l 30/0 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.3098
+   creative V2-C3-clustered-drift              +0.2452 [+0.2207,+0.2696] w/l 30/0 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.2724
+   correct  V2-K1-multistyle-correct           -0.0114 [-0.0176,-0.0052] 90%lo -0.0166 TOST.01 p 0.680 NOT-NONINF
+   correct  V2-K2-star-correct                 -0.0238 [-0.0282,-0.0194] 90%lo -0.0274 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K3-clustered-drift-correct      +0.0031 [+0.0011,+0.0050] 90%lo +0.0014 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          +0.3258 [+0.3197,+0.3318] w/l 30/0 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.3619
+   correct  V2-M1-mixed-3of6-creative          -0.0097 [-0.0125,-0.0069] 90%lo -0.0120 TOST.01 p 0.408 NOT-NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.3810 [+0.3674,+0.3946] w/l 30/0 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.4233
+   correct  V2-M2-mixed-1of6-creative-star     -0.0262 [-0.0310,-0.0215] 90%lo -0.0302 TOST.01 p 1.000 NOT-NONINF
+## VS k=4 sig=0.35 kap=0.4 rho=0.3|tag JUDGE-FREE
+   creative V2-C1-multistyle                   +0.1636 [+0.1605,+0.1667] w/l 30/0 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.1818
+   creative V2-C2-star-plus-diverse            +0.1366 [+0.1332,+0.1400] w/l 30/0 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.1518
+   creative V2-C3-clustered-drift              +0.0786 [+0.0569,+0.1003] w/l 26/4 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.0873
+   correct  V2-K1-multistyle-correct           -0.0114 [-0.0176,-0.0052] 90%lo -0.0166 TOST.01 p 0.680 NOT-NONINF
+   correct  V2-K2-star-correct                 -0.0238 [-0.0282,-0.0194] 90%lo -0.0274 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K3-clustered-drift-correct      +0.0031 [+0.0011,+0.0050] 90%lo +0.0014 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          +0.1521 [+0.1470,+0.1573] w/l 30/0 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.1690
+   correct  V2-M1-mixed-3of6-creative          -0.0118 [-0.0164,-0.0071] 90%lo -0.0156 TOST.01 p 0.778 NOT-NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.1316 [+0.1213,+0.1418] w/l 30/0 holm 0.000 WIN  extra calls +0.90 breakeven/call +0.1462
+   correct  V2-M2-mixed-1of6-creative-star     -0.0280 [-0.0324,-0.0236] 90%lo -0.0317 TOST.01 p 1.000 NOT-NONINF
+## VS k=4 sig=0.35 kap=0.8 rho=0.3|tag JUDGE-FREE
+   creative V2-C1-multistyle                   -0.0309 [-0.0365,-0.0254] w/l 0/30 holm 0.000 LOSS  extra calls +0.90 breakeven/call -0.0344
+   creative V2-C2-star-plus-diverse            -0.0409 [-0.0472,-0.0345] w/l 0/30 holm 0.000 LOSS  extra calls +0.90 breakeven/call -0.0454
+   creative V2-C3-clustered-drift              -0.0978 [-0.1047,-0.0909] w/l 0/30 holm 0.000 LOSS  extra calls +0.90 breakeven/call -0.1087
+   correct  V2-K1-multistyle-correct           -0.0114 [-0.0176,-0.0052] 90%lo -0.0166 TOST.01 p 0.680 NOT-NONINF
+   correct  V2-K2-star-correct                 -0.0238 [-0.0282,-0.0194] 90%lo -0.0274 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K3-clustered-drift-correct      +0.0031 [+0.0011,+0.0050] 90%lo +0.0014 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          -0.0843 [-0.0895,-0.0790] w/l 0/30 holm 0.000 LOSS  extra calls +0.90 breakeven/call -0.0936
+   correct  V2-M1-mixed-3of6-creative          -0.0166 [-0.0219,-0.0113] 90%lo -0.0210 TOST.01 p 0.992 NOT-NONINF
+   creative V2-M2-mixed-1of6-creative-star     -0.1022 [-0.1095,-0.0949] w/l 0/30 holm 0.000 LOSS  extra calls +0.90 breakeven/call -0.1135
+   correct  V2-M2-mixed-1of6-creative-star     -0.0339 [-0.0392,-0.0287] 90%lo -0.0383 TOST.01 p 1.000 NOT-NONINF
+## VS k=4 sig=0.35 kap=1.5 rho=0.3|tag JUDGE-FREE
+   creative V2-C1-multistyle                   -0.1283 [-0.1351,-0.1215] w/l 0/30 holm 0.000 LOSS  extra calls +0.90 breakeven/call -0.1426
+   creative V2-C2-star-plus-diverse            -0.1170 [-0.1239,-0.1102] w/l 0/30 holm 0.000 LOSS  extra calls +0.90 breakeven/call -0.1300
+   creative V2-C3-clustered-drift              -0.1518 [-0.1602,-0.1435] w/l 0/30 holm 0.000 LOSS  extra calls +0.90 breakeven/call -0.1687
+   correct  V2-K1-multistyle-correct           -0.0114 [-0.0176,-0.0052] 90%lo -0.0166 TOST.01 p 0.680 NOT-NONINF
+   correct  V2-K2-star-correct                 -0.0238 [-0.0282,-0.0194] 90%lo -0.0274 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K3-clustered-drift-correct      +0.0031 [+0.0011,+0.0050] 90%lo +0.0014 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          -0.1904 [-0.1962,-0.1846] w/l 0/30 holm 0.000 LOSS  extra calls +0.90 breakeven/call -0.2116
+   correct  V2-M1-mixed-3of6-creative          -0.0185 [-0.0235,-0.0135] 90%lo -0.0226 TOST.01 p 0.999 NOT-NONINF
+   creative V2-M2-mixed-1of6-creative-star     -0.1650 [-0.1724,-0.1575] w/l 0/30 holm 0.000 LOSS  extra calls +0.90 breakeven/call -0.1833
+   correct  V2-M2-mixed-1of6-creative-star     -0.0362 [-0.0417,-0.0308] 90%lo -0.0407 TOST.01 p 1.000 NOT-NONINF
+## VS k=4 DEFAULT JUDGE-FREE |learned gate
+   creative V2-C1-multistyle                   +0.2584 [+0.2561,+0.2607] w/l 30/0 holm 0.000 WIN  extra calls +0.73 breakeven/call +0.3544
+   creative V2-C2-star-plus-diverse            +0.2371 [+0.2348,+0.2394] w/l 30/0 holm 0.000 WIN  extra calls +0.73 breakeven/call +0.3256
+   creative V2-C3-clustered-drift              +0.2048 [+0.1839,+0.2256] w/l 30/0 holm 0.000 WIN  extra calls +0.73 breakeven/call +0.2823
+   correct  V2-K1-multistyle-correct           -0.0115 [-0.0176,-0.0053] 90%lo -0.0166 TOST.01 p 0.683 NOT-NONINF
+   correct  V2-K2-star-correct                 -0.0238 [-0.0282,-0.0194] 90%lo -0.0274 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K3-clustered-drift-correct      +0.0030 [+0.0010,+0.0049] 90%lo +0.0014 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          +0.2167 [+0.2101,+0.2234] w/l 30/0 holm 0.000 WIN  extra calls +0.65 breakeven/call +0.3356
+   correct  V2-M1-mixed-3of6-creative          -0.0145 [-0.0194,-0.0097] 90%lo -0.0186 TOST.01 p 0.967 NOT-NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.1751 [+0.1592,+0.1911] w/l 30/0 holm 0.000 WIN  extra calls +0.65 breakeven/call +0.2710
+   correct  V2-M2-mixed-1of6-creative-star     -0.0250 [-0.0287,-0.0213] 90%lo -0.0281 TOST.01 p 1.000 NOT-NONINF
+## VS k=4 DEFAULT |learned gate
+   creative V2-C1-multistyle                   +0.2948 [+0.2925,+0.2971] w/l 30/0 holm 0.000 WIN  extra calls +3.97 breakeven/call +0.0743
+   creative V2-C2-star-plus-diverse            +0.2743 [+0.2718,+0.2768] w/l 30/0 holm 0.000 WIN  extra calls +3.96 breakeven/call +0.0692
+   creative V2-C3-clustered-drift              +0.2330 [+0.2138,+0.2522] w/l 30/0 holm 0.000 WIN  extra calls +3.94 breakeven/call +0.0591
+   correct  V2-K1-multistyle-correct           -0.0115 [-0.0176,-0.0053] 90%lo -0.0166 TOST.01 p 0.683 NOT-NONINF
+   correct  V2-K2-star-correct                 -0.0238 [-0.0282,-0.0194] 90%lo -0.0274 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K3-clustered-drift-correct      +0.0030 [+0.0010,+0.0049] 90%lo +0.0014 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          +0.2227 [+0.2143,+0.2311] w/l 30/0 holm 0.000 WIN  extra calls +3.52 breakeven/call +0.0634
+   correct  V2-M1-mixed-3of6-creative          -0.0141 [-0.0190,-0.0091] 90%lo -0.0182 TOST.01 p 0.948 NOT-NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.1900 [+0.1727,+0.2073] w/l 30/0 holm 0.000 WIN  extra calls +3.52 breakeven/call +0.0540
+   correct  V2-M2-mixed-1of6-creative-star     -0.0245 [-0.0280,-0.0210] 90%lo -0.0274 TOST.01 p 1.000 NOT-NONINF
+## VS k=4 DEFAULT |always on
+   creative V2-C1-multistyle                   +0.3477 [+0.3449,+0.3504] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0710
+   creative V2-C2-star-plus-diverse            +0.3235 [+0.3214,+0.3257] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0660
+   creative V2-C3-clustered-drift              +0.2809 [+0.2582,+0.3036] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0573
+   correct  V2-K1-multistyle-correct           -0.0863 [-0.0903,-0.0822] 90%lo -0.0896 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K2-star-correct                 -0.0960 [-0.0990,-0.0931] 90%lo -0.0985 TOST.01 p 1.000 NOT-NONINF
+   correct  V2-K3-clustered-drift-correct      -0.0759 [-0.0792,-0.0726] 90%lo -0.0787 TOST.01 p 1.000 NOT-NONINF
+   creative V2-M1-mixed-3of6-creative          +0.3582 [+0.3514,+0.3651] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0731
+   correct  V2-M1-mixed-3of6-creative          -0.0710 [-0.0737,-0.0682] 90%lo -0.0733 TOST.01 p 1.000 NOT-NONINF
+   creative V2-M2-mixed-1of6-creative-star     +0.4175 [+0.4065,+0.4285] w/l 30/0 holm 0.000 WIN  extra calls +4.90 breakeven/call +0.0852
+   correct  V2-M2-mixed-1of6-creative-star     -0.0972 [-0.1005,-0.0939] 90%lo -0.1000 TOST.01 p 1.000 NOT-NONINF
+## W4 nbucb(b=.8)|learned
+   creative V2-C1-multistyle                   -0.0014 [-0.0028,+0.0001] w/l 11/19 holm 0.356  extra calls +0.00 breakeven/call NaN
+   creative V2-C2-star-plus-diverse            -0.0044 [-0.0057,-0.0031] w/l 2/28 holm 0.000 LOSS  extra calls +0.00 breakeven/call NaN
+   creative V2-C3-clustered-drift              -0.0069 [-0.0097,-0.0042] w/l 5/25 holm 0.001 LOSS  extra calls +0.00 breakeven/call NaN
+   correct  V2-K1-multistyle-correct           +0.0008 [-0.0001,+0.0017] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF
+   correct  V2-K2-star-correct                 +0.0001 [-0.0000,+0.0001] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF
+   correct  V2-K3-clustered-drift-correct      +0.0018 [+0.0010,+0.0026] 90%lo +0.0011 TOST.01 p 0.000 EQ NONINF
+   creative V2-M1-mixed-3of6-creative          -0.0013 [-0.0031,+0.0005] w/l 14/16 holm 0.364  extra calls +0.00 breakeven/call NaN
+   correct  V2-M1-mixed-3of6-creative          +0.0021 [+0.0012,+0.0030] 90%lo +0.0013 TOST.01 p 0.000 EQ NONINF
+   creative V2-M2-mixed-1of6-creative-star     -0.0035 [-0.0065,-0.0004] w/l 11/19 holm 0.182  extra calls +0.00 breakeven/call NaN
+   correct  V2-M2-mixed-1of6-creative-star     +0.0001 [+0.0000,+0.0001] 90%lo +0.0000 TOST.01 p 0.000 EQ NONINF
+
+=== SUMMARY vs G: creative diff per world (* Holm win, ! Holm loss) | mean extra calls | correctness: TOST.01 equivalent / non-inferior counts ===
+arm                                                            V2-C1-mul V2-C2-sta V2-C3-clu V2-K1-mul V2-K2-sta V2-K3-clu V2-M1-mix V2-M2-mix | calls | eq/ni/n
+U plain-ucb (1 call)                                            -0.0006   +0.0037*  +0.0058*         -         -         -  +0.0303*  +0.0483* | +0.00 | 1/5/5
+BoK-q k=4 same-agent VS profile, quality-only                   +0.1701*  +0.1581*  +0.1361*         -         -         -  +0.1641*  +0.1496* | +4.90 | 5/5/5
+VS k=4 sig=0.15 kap=0 rho=0.3|tag                               +0.2518*  +0.2351*  +0.2035*         -         -         -  +0.2562*  +0.2522* | +4.90 | 4/5/5
+VS k=4 sig=0.15 kap=0.15 rho=0.3|tag                            +0.2118*  +0.1955*  +0.1676*         -         -         -  +0.2198*  +0.2117* | +4.90 | 4/5/5
+VS k=4 sig=0.15 kap=0.4 rho=0.3|tag                             +0.1523*  +0.1381*  +0.1119*         -         -         -  +0.1600*  +0.1484* | +4.90 | 4/5/5
+VS k=4 sig=0.15 kap=0.8 rho=0.3|tag                             +0.0727*  +0.0584*  +0.0304*         -         -         -  +0.0774*  +0.0625* | +4.90 | 5/5/5
+VS k=4 sig=0.15 kap=1.5 rho=0.3|tag                             -0.0454!  -0.0539!  -0.0760!         -         -         -  -0.0564!  -0.0617! | +4.90 | 5/5/5
+VS k=4 sig=0.35 kap=0 rho=0.3|tag                               +0.3909*  +0.3756*  +0.3655*         -         -         -  +0.4498*  +0.5164* | +4.90 | 4/5/5
+VS k=4 sig=0.35 kap=0.15 rho=0.3|tag [DEFAULT]                  +0.2954*  +0.2791*  +0.2634*         -         -         -  +0.3417*  +0.3954* | +4.90 | 5/5/5
+VS k=4 sig=0.35 kap=0.4 rho=0.3|tag                             +0.1704*  +0.1517*  +0.1234*         -         -         -  +0.1915*  +0.1872* | +4.90 | 5/5/5
+VS k=4 sig=0.35 kap=0.8 rho=0.3|tag                             +0.0151*  +0.0055*  -0.0318!         -         -         -  +0.0025   -0.0042  | +4.90 | 5/5/5
+VS k=4 sig=0.35 kap=1.5 rho=0.3|tag                             -0.1061!  -0.0912!  -0.1043!         -         -         -  -0.1369!  -0.1108! | +4.90 | 3/3/5
+VS k=4 sig=0.6 kap=0 rho=0.3|tag                                +0.4160*  +0.4044*  +0.4049*         -         -         -  +0.4966*  +0.5833* | +4.90 | 5/5/5
+VS k=4 sig=0.6 kap=0.15 rho=0.3|tag                             +0.2717*  +0.2554*  +0.2447*         -         -         -  +0.3229*  +0.3758* | +4.90 | 4/5/5
+VS k=4 sig=0.6 kap=0.4 rho=0.3|tag                              +0.1142*  +0.0948*  +0.0630*         -         -         -  +0.1267*  +0.1141* | +4.90 | 5/5/5
+VS k=4 sig=0.6 kap=0.8 rho=0.3|tag                              -0.0528!  -0.0490!  -0.0721!         -         -         -  -0.0816!  -0.0714! | +4.90 | 5/5/5
+VS k=4 sig=0.6 kap=1.5 rho=0.3|tag                              -0.1067!  -0.0906!  -0.0993!         -         -         -  -0.1446!  -0.1129! | +4.90 | 4/4/5
+VS k=4 sig=0.35 kap=0.15 rho=0|tag                              +0.2954*  +0.2791*  +0.2634*         -         -         -  +0.3417*  +0.3954* | +4.00 | 5/5/5
+VS k=4 sig=0.35 kap=0.15 rho=1|tag                              +0.2954*  +0.2791*  +0.2634*         -         -         -  +0.3417*  +0.3954* | +7.00 | 5/5/5
+VS k=4 sig=0.35 kap=0 rho=0.3|tag JUDGE-FREE                    +0.3382*  +0.3268*  +0.3331*         -         -         -  +0.4171*  +0.5039* | +0.90 | 4/4/5
+VS k=4 sig=0.35 kap=0.15 rho=0.3|tag JUDGE-FREE                 +0.2514*  +0.2344*  +0.2276*         -         -         -  +0.3132*  +0.3873* | +0.90 | 5/5/5
+VS k=4 sig=0.35 kap=0.4 rho=0.3|tag JUDGE-FREE                  +0.1114*  +0.0922*  +0.0611*         -         -         -  +0.1395*  +0.1379* | +0.90 | 5/5/5
+VS k=4 sig=0.35 kap=0.8 rho=0.3|tag JUDGE-FREE                  -0.0832!  -0.0853!  -0.1153!         -         -         -  -0.0969!  -0.0959! | +0.90 | 4/4/5
+VS k=4 sig=0.35 kap=1.5 rho=0.3|tag JUDGE-FREE                  -0.1806!  -0.1614!  -0.1693!         -         -         -  -0.2030!  -0.1587! | +0.90 | 4/4/5
+VS k=4 DEFAULT JUDGE-FREE |learned gate                         +0.2061*  +0.1927*  +0.1872*         -         -         -  +0.2041*  +0.1814* | +0.69 | 5/5/5
+VS k=4 DEFAULT |learned gate                                    +0.2425*  +0.2299*  +0.2155*         -         -         -  +0.2101*  +0.1963* | +3.78 | 5/5/5
+VS k=4 DEFAULT |always on                                       +0.2954*  +0.2791*  +0.2634*         -         -         -  +0.3457*  +0.4238* | +4.90 | 0/0/5
+W4 nbucb(b=.8)|learned                                          -0.0536!  -0.0488!  -0.0245!         -         -         -  -0.0139!  +0.0028  | +0.00 | 1/5/5
+W4 nbreg|learned                                                -0.0523!  -0.0444!  -0.0175!         -         -         -  -0.0126!  +0.0063  | +0.00 | 1/5/5
+wrote results/h7_vs_w4v2_confirm.json

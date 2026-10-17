@@ -1,0 +1,27 @@
+# h19_down controls tag=tune seeds 1..8: arms must be harmless (TOST +-0.01 on accuracy, paired over seeds); SYNTHETIC
+
+## nostruct (prose, no numbers needed): plain acc 0.9891 cost 1.000
+  ext        acc 0.9906  diff +0.0016  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.150
+  ext+R      acc 0.9906  diff +0.0016  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.160
+  ext+ver    acc 0.9922  diff +0.0031  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.170
+  ext+ver+R  acc 0.9922  diff +0.0031  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.180
+
+## tiny (single clean fact; extraction unnecessary): plain acc 0.9844 cost 1.000
+  ext        acc 0.9859  diff +0.0016  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.150
+  ext+R      acc 0.9844  diff -0.0000  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.160
+  ext+ver    acc 0.9859  diff +0.0016  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.170
+  ext+ver+R  acc 0.9859  diff +0.0016  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.180
+
+## mixed controls: plain acc 0.9891 cost 1.000
+  ext        acc 0.9891  diff +0.0000  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.150
+  ext+R      acc 0.9898  diff +0.0008  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.160
+  ext+ver    acc 0.9883  diff -0.0008  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.170
+  ext+ver+R  acc 0.9898  diff +0.0008  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.180
+
+## uninformative verifier control (random flags on 15% of kept facts) on the main worlds
+random-verifier ext+ver vs ext (no verifier): diff -0.0026 equivalent true non-inferior true ; cost 0.421 vs 0.355
+
+## adversarial financial layouts (side-by-side / wrapped labels / split numbers): accuracy of plain reader vs extraction arms
+kind 1 : plain 0.834 | ext 0.962 (cost 0.15) | ext+ver 0.972 (cost 0.17) | ext answers silently wrong on 0.0% of docs
+kind 2 : plain 0.834 | ext 0.838 (cost 1.15) | ext+ver 0.838 (cost 1.17) | ext answers silently wrong on 0.0% of docs
+kind 3 : plain 0.834 | ext 0.838 (cost 1.15) | ext+ver 0.838 (cost 1.17) | ext answers silently wrong on 0.0% of docs

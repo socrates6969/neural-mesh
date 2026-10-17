@@ -1,0 +1,362 @@
+TUNE (raw, A seeds 1-8 tune pool, mix25 MRR): z alpha 0.3 (MRR 0.2624), RSF alpha 0.2 (0.2534), rerank beta 1 (0.2648); z grid [0.2564, 0.259, 0.2624, 0.2583, 0.2588, 0.2494, 0.226, 0.1891, 0.1238, 0.0564]
+TUNE (spell, A seeds 1-8 tune pool, mix25 MRR): z alpha 0.3 (MRR 0.2757), RSF alpha 0.1 (0.2647), rerank beta 1 (0.2661); z grid [0.2704, 0.271, 0.2757, 0.2737, 0.2634, 0.2471, 0.2313, 0.1958, 0.1397, 0.0542]
+
+=== A tune seeds 1-8 (tune pool; descriptive): mean over 8 seeds ===
+  system        mix25 hit1/MRR/F1@3     clean hit1/MRR/F1@3    typo hit1/MRR/F1@3
+  dense_raw   | 0.041/0.056/0.024 | 0.045/0.061/0.026 | 0.031/0.043/0.018
+  dense_s     | 0.032/0.054/0.025 | 0.033/0.055/0.025 | 0.032/0.052/0.024
+  bm25_raw    | 0.175/0.254/0.132 | 0.185/0.269/0.139 | 0.143/0.210/0.111
+  bm25_s      | 0.183/0.268/0.139 | 0.185/0.270/0.141 | 0.179/0.262/0.136
+  hybz_raw    | 0.185/0.262/0.137 | 0.198/0.279/0.146 | 0.146/0.214/0.111
+  hybz_s      | 0.198/0.276/0.146 | 0.201/0.278/0.147 | 0.192/0.268/0.141
+  hybrrf_raw  | 0.072/0.150/0.082 | 0.076/0.159/0.086 | 0.059/0.125/0.069
+  hybrrf_s    | 0.087/0.163/0.090 | 0.089/0.165/0.091 | 0.084/0.158/0.086
+  hybrsf_raw  | 0.177/0.253/0.131 | 0.188/0.269/0.139 | 0.143/0.205/0.108
+  hybrsf_s    | 0.182/0.265/0.135 | 0.183/0.267/0.136 | 0.177/0.258/0.131
+  rerank_raw  | 0.200/0.265/0.140 | 0.215/0.283/0.149 | 0.153/0.211/0.112
+  rerank_s    | 0.199/0.266/0.140 | 0.202/0.269/0.141 | 0.191/0.258/0.137
+
+=== A held-out seeds 31-60: mean over 30 seeds ===
+  system        mix25 hit1/MRR/F1@3     clean hit1/MRR/F1@3    typo hit1/MRR/F1@3
+  dense_raw   | 0.044/0.061/0.029 | 0.046/0.065/0.030 | 0.036/0.050/0.024
+  dense_s     | 0.041/0.064/0.033 | 0.041/0.065/0.033 | 0.039/0.062/0.032
+  bm25_raw    | 0.183/0.267/0.146 | 0.198/0.288/0.158 | 0.135/0.204/0.111
+  bm25_s      | 0.195/0.284/0.156 | 0.198/0.288/0.158 | 0.186/0.275/0.151
+  hybz_raw    | 0.182/0.267/0.145 | 0.198/0.287/0.157 | 0.136/0.206/0.112
+  hybz_s      | 0.195/0.284/0.156 | 0.198/0.287/0.157 | 0.186/0.274/0.150
+  hybrrf_raw  | 0.091/0.170/0.091 | 0.097/0.181/0.097 | 0.075/0.137/0.072
+  hybrrf_s    | 0.097/0.175/0.090 | 0.098/0.177/0.091 | 0.092/0.169/0.087
+  hybrsf_raw  | 0.184/0.265/0.145 | 0.201/0.286/0.157 | 0.135/0.201/0.109
+  hybrsf_s    | 0.196/0.283/0.155 | 0.199/0.286/0.157 | 0.188/0.274/0.150
+  rerank_raw  | 0.200/0.271/0.147 | 0.217/0.291/0.157 | 0.148/0.210/0.116
+  rerank_s    | 0.210/0.285/0.158 | 0.213/0.289/0.160 | 0.200/0.275/0.152
+--- paired contrasts a-b (1566 distinct queries; seed t-CI | cluster-bootstrap CI; Holm over 126 tests: * win ! loss; robust = both) ---
+  bm25_s   -dense_s   mix25 Mrr   : +0.2202 t[+0.2125,+0.2279] boot[+0.2060,+0.2418] holm_t 0.000 holm_b 0.000 *
+  bm25_s   -dense_s   mix25 Hit1  : +0.1544 t[+0.1465,+0.1623] boot[+0.1422,+0.1800] holm_t 0.000 holm_b 0.000 *
+  bm25_s   -dense_s   mix25 F1at3 : +0.1230 t[+0.1181,+0.1278] boot[+0.1124,+0.1347] holm_t 0.000 holm_b 0.000 *
+  bm25_s   -dense_s   clean Mrr   : +0.2227 t[+0.2148,+0.2305] boot[+0.2080,+0.2445] holm_t 0.000 holm_b 0.000 *
+  bm25_s   -dense_s   typo  Mrr   : +0.2128 t[+0.2051,+0.2205] boot[+0.1996,+0.2341] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -dense_s   mix25 Mrr   : +0.2197 t[+0.2114,+0.2281] boot[+0.2063,+0.2414] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -dense_s   mix25 Hit1  : +0.1543 t[+0.1455,+0.1630] boot[+0.1438,+0.1820] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -dense_s   mix25 F1at3 : +0.1227 t[+0.1174,+0.1279] boot[+0.1112,+0.1335] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -dense_s   clean Mrr   : +0.2222 t[+0.2138,+0.2307] boot[+0.2083,+0.2442] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -dense_s   typo  Mrr   : +0.2121 t[+0.2038,+0.2204] boot[+0.1994,+0.2334] holm_t 0.000 holm_b 0.000 *
+  hybrrf_s -dense_s   mix25 Mrr   : +0.1104 t[+0.1053,+0.1156] boot[+0.0998,+0.1206] holm_t 0.000 holm_b 0.000 *
+  hybrrf_s -dense_s   mix25 Hit1  : +0.0562 t[+0.0503,+0.0621] boot[+0.0452,+0.0681] holm_t 0.000 holm_b 0.000 *
+  hybrrf_s -dense_s   mix25 F1at3 : +0.0571 t[+0.0539,+0.0603] boot[+0.0499,+0.0656] holm_t 0.000 holm_b 0.000 *
+  hybrrf_s -dense_s   clean Mrr   : +0.1116 t[+0.1064,+0.1168] boot[+0.1008,+0.1221] holm_t 0.000 holm_b 0.000 *
+  hybrrf_s -dense_s   typo  Mrr   : +0.1069 t[+0.1018,+0.1120] boot[+0.0968,+0.1162] holm_t 0.000 holm_b 0.000 *
+  hybrsf_s -dense_s   mix25 Mrr   : +0.2188 t[+0.2109,+0.2268] boot[+0.2042,+0.2399] holm_t 0.000 holm_b 0.000 *
+  hybrsf_s -dense_s   mix25 Hit1  : +0.1559 t[+0.1479,+0.1639] boot[+0.1434,+0.1817] holm_t 0.000 holm_b 0.000 *
+  hybrsf_s -dense_s   mix25 F1at3 : +0.1221 t[+0.1173,+0.1270] boot[+0.1108,+0.1330] holm_t 0.000 holm_b 0.000 *
+  hybrsf_s -dense_s   clean Mrr   : +0.2210 t[+0.2130,+0.2291] boot[+0.2060,+0.2423] holm_t 0.000 holm_b 0.000 *
+  hybrsf_s -dense_s   typo  Mrr   : +0.2123 t[+0.2044,+0.2202] boot[+0.1984,+0.2328] holm_t 0.000 holm_b 0.000 *
+  rerank_s -dense_s   mix25 Mrr   : +0.2210 t[+0.2140,+0.2281] boot[+0.2044,+0.2405] holm_t 0.000 holm_b 0.000 *
+  rerank_s -dense_s   mix25 Hit1  : +0.1690 t[+0.1612,+0.1768] boot[+0.1542,+0.1929] holm_t 0.000 holm_b 0.000 *
+  rerank_s -dense_s   mix25 F1at3 : +0.1247 t[+0.1202,+0.1293] boot[+0.1127,+0.1342] holm_t 0.000 holm_b 0.000 *
+  rerank_s -dense_s   clean Mrr   : +0.2237 t[+0.2165,+0.2309] boot[+0.2066,+0.2433] holm_t 0.000 holm_b 0.000 *
+  rerank_s -dense_s   typo  Mrr   : +0.2129 t[+0.2059,+0.2200] boot[+0.1978,+0.2323] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -bm25_s    mix25 Mrr   : -0.0005 t[-0.0025,+0.0016] boot[-0.0041,+0.0040] holm_t 1.000 holm_b 1.000 
+  hybz_s   -bm25_s    mix25 Hit1  : -0.0002 t[-0.0032,+0.0029] boot[-0.0043,+0.0080] holm_t 1.000 holm_b 1.000 
+  hybz_s   -bm25_s    mix25 F1at3 : -0.0003 t[-0.0021,+0.0014] boot[-0.0051,+0.0026] holm_t 1.000 holm_b 1.000 
+  hybz_s   -bm25_s    clean Mrr   : -0.0004 t[-0.0026,+0.0017] boot[-0.0041,+0.0043] holm_t 1.000 holm_b 1.000 
+  hybz_s   -bm25_s    typo  Mrr   : -0.0006 t[-0.0025,+0.0012] boot[-0.0040,+0.0032] holm_t 1.000 holm_b 1.000 
+  hybz_s   -hybrrf_s  mix25 Mrr   : +0.1093 t[+0.1029,+0.1157] boot[+0.1003,+0.1273] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -hybrrf_s  mix25 Hit1  : +0.0981 t[+0.0901,+0.1060] boot[+0.0891,+0.1241] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -hybrrf_s  mix25 F1at3 : +0.0656 t[+0.0616,+0.0695] boot[+0.0556,+0.0740] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -hybrrf_s  clean Mrr   : +0.1106 t[+0.1041,+0.1172] boot[+0.1013,+0.1290] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -hybrrf_s  typo  Mrr   : +0.1052 t[+0.0990,+0.1114] boot[+0.0970,+0.1226] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -hybrsf_s  mix25 Mrr   : +0.0009 t[-0.0009,+0.0026] boot[-0.0020,+0.0053] holm_t 1.000 holm_b 1.000 
+  hybz_s   -hybrsf_s  mix25 Hit1  : -0.0016 t[-0.0043,+0.0010] boot[-0.0052,+0.0059] holm_t 1.000 holm_b 1.000 
+  hybz_s   -hybrsf_s  mix25 F1at3 : +0.0005 t[-0.0011,+0.0022] boot[-0.0034,+0.0040] holm_t 1.000 holm_b 1.000 
+  hybz_s   -hybrsf_s  clean Mrr   : +0.0012 t[-0.0006,+0.0031] boot[-0.0018,+0.0058] holm_t 1.000 holm_b 1.000 
+  hybz_s   -hybrsf_s  typo  Mrr   : -0.0001 t[-0.0017,+0.0015] boot[-0.0026,+0.0038] holm_t 1.000 holm_b 1.000 
+  hybz_s   -rerank_s  mix25 Mrr   : -0.0013 t[-0.0051,+0.0024] boot[-0.0071,+0.0097] holm_t 1.000 holm_b 1.000 
+  hybz_s   -rerank_s  mix25 Hit1  : -0.0148 t[-0.0199,-0.0096] boot[-0.0243,+0.0013] holm_t 0.000 holm_b 1.000 
+  hybz_s   -rerank_s  mix25 F1at3 : -0.0020 t[-0.0047,+0.0006] boot[-0.0069,+0.0043] holm_t 1.000 holm_b 1.000 
+  hybz_s   -rerank_s  clean Mrr   : -0.0015 t[-0.0053,+0.0023] boot[-0.0073,+0.0100] holm_t 1.000 holm_b 1.000 
+  hybz_s   -rerank_s  typo  Mrr   : -0.0008 t[-0.0047,+0.0032] boot[-0.0067,+0.0088] holm_t 1.000 holm_b 1.000 
+  dense_s  -dense_raw mix25 Mrr   : +0.0033 t[-0.0014,+0.0080] boot[-0.0025,+0.0122] holm_t 1.000 holm_b 1.000 
+  dense_s  -dense_raw mix25 Hit1  : -0.0030 t[-0.0071,+0.0011] boot[-0.0098,+0.0055] holm_t 1.000 holm_b 1.000 
+  dense_s  -dense_raw mix25 F1at3 : +0.0044 t[+0.0017,+0.0070] boot[+0.0009,+0.0107] holm_t 0.068 holm_b 0.851 
+  dense_s  -dense_raw clean Mrr   : +0.0005 t[-0.0043,+0.0053] boot[-0.0062,+0.0097] holm_t 1.000 holm_b 1.000 
+  dense_s  -dense_raw typo  Mrr   : +0.0116 t[+0.0068,+0.0164] boot[+0.0076,+0.0205] holm_t 0.001 holm_b 0.001 *
+  hybz_s   -hybz_raw  mix25 Mrr   : +0.0173 t[+0.0149,+0.0198] boot[+0.0128,+0.0223] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -hybz_raw  mix25 Hit1  : +0.0125 t[+0.0088,+0.0163] boot[+0.0069,+0.0200] holm_t 0.000 holm_b 0.003 *
+  hybz_s   -hybz_raw  mix25 F1at3 : +0.0103 t[+0.0087,+0.0118] boot[+0.0067,+0.0133] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -hybz_raw  clean Mrr   : +0.0006 t[-0.0017,+0.0029] boot[-0.0051,+0.0039] holm_t 1.000 holm_b 1.000 
+  hybz_s   -hybz_raw  typo  Mrr   : +0.0677 t[+0.0619,+0.0734] boot[+0.0622,+0.0821] holm_t 0.000 holm_b 0.000 *
+  hybz_raw -dense_raw mix25 Mrr   : +0.2056 t[+0.1983,+0.2130] boot[+0.1946,+0.2274] holm_t 0.000 holm_b 0.000 *
+  hybz_raw -dense_raw mix25 Hit1  : +0.1387 t[+0.1315,+0.1459] boot[+0.1305,+0.1646] holm_t 0.000 holm_b 0.000 *
+  hybz_raw -dense_raw mix25 F1at3 : +0.1168 t[+0.1125,+0.1211] boot[+0.1079,+0.1280] holm_t 0.000 holm_b 0.000 *
+  hybz_raw -dense_raw clean Mrr   : +0.2222 t[+0.2138,+0.2305] boot[+0.2104,+0.2472] holm_t 0.000 holm_b 0.000 *
+  hybz_raw -dense_raw typo  Mrr   : +0.1561 t[+0.1503,+0.1619] boot[+0.1451,+0.1710] holm_t 0.000 holm_b 0.000 *
+  dense_raw-bm25_raw  mix25 Mrr   : -0.2059 t[-0.2130,-0.1988] boot[-0.2266,-0.1936] holm_t 0.000 holm_b 0.000 !
+  dense_raw-bm25_raw  mix25 Hit1  : -0.1390 t[-0.1459,-0.1320] boot[-0.1621,-0.1278] holm_t 0.000 holm_b 0.000 !
+  dense_raw-bm25_raw  mix25 F1at3 : -0.1174 t[-0.1218,-0.1131] boot[-0.1291,-0.1090] holm_t 0.000 holm_b 0.000 !
+  dense_raw-bm25_raw  clean Mrr   : -0.2232 t[-0.2312,-0.2153] boot[-0.2469,-0.2098] holm_t 0.000 holm_b 0.000 !
+  dense_raw-bm25_raw  typo  Mrr   : -0.1539 t[-0.1598,-0.1480] boot[-0.1683,-0.1424] holm_t 0.000 holm_b 0.000 !
+  dense_s  -bm25_s    mix25 Mrr   : -0.2202 t[-0.2279,-0.2125] boot[-0.2418,-0.2060] holm_t 0.000 holm_b 0.000 !
+  dense_s  -bm25_s    mix25 Hit1  : -0.1544 t[-0.1623,-0.1465] boot[-0.1800,-0.1420] holm_t 0.000 holm_b 0.000 !
+  dense_s  -bm25_s    mix25 F1at3 : -0.1230 t[-0.1278,-0.1181] boot[-0.1347,-0.1124] holm_t 0.000 holm_b 0.000 !
+  dense_s  -bm25_s    clean Mrr   : -0.2227 t[-0.2305,-0.2148] boot[-0.2445,-0.2078] holm_t 0.000 holm_b 0.000 !
+  dense_s  -bm25_s    typo  Mrr   : -0.2128 t[-0.2205,-0.2051] boot[-0.2340,-0.1995] holm_t 0.000 holm_b 0.000 !
+  robust wins 71, robust losses 18 of 126
+
+=== A confirm seeds 61-90 (frozen): mean over 30 seeds ===
+  system        mix25 hit1/MRR/F1@3     clean hit1/MRR/F1@3    typo hit1/MRR/F1@3
+  dense_raw   | 0.042/0.059/0.026 | 0.045/0.063/0.028 | 0.032/0.047/0.022
+  dense_s     | 0.038/0.064/0.033 | 0.039/0.064/0.034 | 0.037/0.061/0.031
+  bm25_raw    | 0.182/0.265/0.144 | 0.200/0.288/0.157 | 0.129/0.199/0.108
+  bm25_s      | 0.196/0.284/0.155 | 0.199/0.288/0.156 | 0.186/0.273/0.149
+  hybz_raw    | 0.186/0.266/0.142 | 0.203/0.288/0.154 | 0.132/0.202/0.109
+  hybz_s      | 0.201/0.285/0.153 | 0.205/0.289/0.155 | 0.191/0.274/0.148
+  hybrrf_raw  | 0.089/0.168/0.090 | 0.094/0.179/0.097 | 0.072/0.133/0.070
+  hybrrf_s    | 0.095/0.173/0.089 | 0.097/0.176/0.090 | 0.089/0.166/0.086
+  hybrsf_raw  | 0.185/0.264/0.143 | 0.203/0.287/0.156 | 0.130/0.197/0.106
+  hybrsf_s    | 0.198/0.282/0.153 | 0.201/0.286/0.155 | 0.189/0.272/0.148
+  rerank_raw  | 0.195/0.266/0.144 | 0.212/0.287/0.154 | 0.143/0.204/0.112
+  rerank_s    | 0.208/0.284/0.155 | 0.212/0.287/0.156 | 0.199/0.273/0.150
+--- paired contrasts a-b (1557 distinct queries; seed t-CI | cluster-bootstrap CI; Holm over 126 tests: * win ! loss; robust = both) ---
+  bm25_s   -dense_s   mix25 Mrr   : +0.2206 t[+0.2139,+0.2272] boot[+0.2060,+0.2406] holm_t 0.000 holm_b 0.000 *
+  bm25_s   -dense_s   mix25 Hit1  : +0.1578 t[+0.1501,+0.1654] boot[+0.1403,+0.1782] holm_t 0.000 holm_b 0.000 *
+  bm25_s   -dense_s   mix25 F1at3 : +0.1216 t[+0.1174,+0.1258] boot[+0.1131,+0.1347] holm_t 0.000 holm_b 0.000 *
+  bm25_s   -dense_s   clean Mrr   : +0.2233 t[+0.2165,+0.2301] boot[+0.2083,+0.2435] holm_t 0.000 holm_b 0.000 *
+  bm25_s   -dense_s   typo  Mrr   : +0.2124 t[+0.2061,+0.2187] boot[+0.1990,+0.2329] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -dense_s   mix25 Mrr   : +0.2216 t[+0.2153,+0.2279] boot[+0.2069,+0.2411] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -dense_s   mix25 Hit1  : +0.1631 t[+0.1559,+0.1703] boot[+0.1432,+0.1801] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -dense_s   mix25 F1at3 : +0.1199 t[+0.1154,+0.1243] boot[+0.1124,+0.1338] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -dense_s   clean Mrr   : +0.2245 t[+0.2180,+0.2310] boot[+0.2091,+0.2439] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -dense_s   typo  Mrr   : +0.2130 t[+0.2069,+0.2191] boot[+0.1996,+0.2326] holm_t 0.000 holm_b 0.000 *
+  hybrrf_s -dense_s   mix25 Mrr   : +0.1098 t[+0.1054,+0.1143] boot[+0.1002,+0.1202] holm_t 0.000 holm_b 0.000 *
+  hybrrf_s -dense_s   mix25 Hit1  : +0.0570 t[+0.0516,+0.0624] boot[+0.0448,+0.0670] holm_t 0.000 holm_b 0.000 *
+  hybrrf_s -dense_s   mix25 F1at3 : +0.0563 t[+0.0528,+0.0599] boot[+0.0507,+0.0662] holm_t 0.000 holm_b 0.000 *
+  hybrrf_s -dense_s   clean Mrr   : +0.1113 t[+0.1068,+0.1158] boot[+0.1013,+0.1217] holm_t 0.000 holm_b 0.000 *
+  hybrrf_s -dense_s   typo  Mrr   : +0.1054 t[+0.1010,+0.1099] boot[+0.0969,+0.1158] holm_t 0.000 holm_b 0.000 *
+  hybrsf_s -dense_s   mix25 Mrr   : +0.2187 t[+0.2122,+0.2253] boot[+0.2046,+0.2389] holm_t 0.000 holm_b 0.000 *
+  hybrsf_s -dense_s   mix25 Hit1  : +0.1595 t[+0.1518,+0.1671] boot[+0.1423,+0.1789] holm_t 0.000 holm_b 0.000 *
+  hybrsf_s -dense_s   mix25 F1at3 : +0.1200 t[+0.1158,+0.1243] boot[+0.1120,+0.1333] holm_t 0.000 holm_b 0.000 *
+  hybrsf_s -dense_s   clean Mrr   : +0.2212 t[+0.2144,+0.2279] boot[+0.2065,+0.2415] holm_t 0.000 holm_b 0.000 *
+  hybrsf_s -dense_s   typo  Mrr   : +0.2115 t[+0.2052,+0.2178] boot[+0.1983,+0.2318] holm_t 0.000 holm_b 0.000 *
+  rerank_s -dense_s   mix25 Mrr   : +0.2201 t[+0.2140,+0.2263] boot[+0.2057,+0.2414] holm_t 0.000 holm_b 0.000 *
+  rerank_s -dense_s   mix25 Hit1  : +0.1701 t[+0.1628,+0.1774] boot[+0.1542,+0.1930] holm_t 0.000 holm_b 0.000 *
+  rerank_s -dense_s   mix25 F1at3 : +0.1215 t[+0.1174,+0.1257] boot[+0.1140,+0.1357] holm_t 0.000 holm_b 0.000 *
+  rerank_s -dense_s   clean Mrr   : +0.2227 t[+0.2164,+0.2290] boot[+0.2079,+0.2441] holm_t 0.000 holm_b 0.000 *
+  rerank_s -dense_s   typo  Mrr   : +0.2125 t[+0.2065,+0.2185] boot[+0.1986,+0.2333] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -bm25_s    mix25 Mrr   : +0.0011 t[-0.0007,+0.0028] boot[-0.0036,+0.0046] holm_t 1.000 holm_b 1.000 
+  hybz_s   -bm25_s    mix25 Hit1  : +0.0053 t[+0.0030,+0.0077] boot[-0.0038,+0.0086] holm_t 0.002 holm_b 1.000 
+  hybz_s   -bm25_s    mix25 F1at3 : -0.0017 t[-0.0037,+0.0002] boot[-0.0046,+0.0030] holm_t 1.000 holm_b 1.000 
+  hybz_s   -bm25_s    clean Mrr   : +0.0012 t[-0.0005,+0.0030] boot[-0.0036,+0.0048] holm_t 1.000 holm_b 1.000 
+  hybz_s   -bm25_s    typo  Mrr   : +0.0006 t[-0.0011,+0.0023] boot[-0.0036,+0.0040] holm_t 1.000 holm_b 1.000 
+  hybz_s   -hybrrf_s  mix25 Mrr   : +0.1118 t[+0.1066,+0.1170] boot[+0.0999,+0.1270] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -hybrrf_s  mix25 Hit1  : +0.1061 t[+0.0990,+0.1131] boot[+0.0877,+0.1230] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -hybrrf_s  mix25 F1at3 : +0.0636 t[+0.0597,+0.0675] boot[+0.0560,+0.0736] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -hybrrf_s  clean Mrr   : +0.1132 t[+0.1078,+0.1185] boot[+0.1011,+0.1286] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -hybrrf_s  typo  Mrr   : +0.1076 t[+0.1025,+0.1127] boot[+0.0969,+0.1226] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -hybrsf_s  mix25 Mrr   : +0.0029 t[+0.0011,+0.0047] boot[-0.0015,+0.0060] holm_t 0.076 holm_b 1.000 
+  hybz_s   -hybrsf_s  mix25 Hit1  : +0.0036 t[+0.0013,+0.0059] boot[-0.0046,+0.0067] holm_t 0.081 holm_b 1.000 
+  hybz_s   -hybrsf_s  mix25 F1at3 : -0.0002 t[-0.0022,+0.0019] boot[-0.0030,+0.0044] holm_t 1.000 holm_b 1.000 
+  hybz_s   -hybrsf_s  clean Mrr   : +0.0033 t[+0.0014,+0.0052] boot[-0.0013,+0.0065] holm_t 0.041 holm_b 1.000 
+  hybz_s   -hybrsf_s  typo  Mrr   : +0.0015 t[-0.0000,+0.0030] boot[-0.0021,+0.0045] holm_t 1.000 holm_b 1.000 
+  hybz_s   -rerank_s  mix25 Mrr   : +0.0015 t[-0.0019,+0.0049] boot[-0.0088,+0.0089] holm_t 1.000 holm_b 1.000 
+  hybz_s   -rerank_s  mix25 Hit1  : -0.0070 t[-0.0117,-0.0023] boot[-0.0254,+0.0004] holm_t 0.127 holm_b 1.000 
+  hybz_s   -rerank_s  mix25 F1at3 : -0.0017 t[-0.0047,+0.0013] boot[-0.0078,+0.0039] holm_t 1.000 holm_b 1.000 
+  hybz_s   -rerank_s  clean Mrr   : +0.0018 t[-0.0016,+0.0052] boot[-0.0089,+0.0094] holm_t 1.000 holm_b 1.000 
+  hybz_s   -rerank_s  typo  Mrr   : +0.0005 t[-0.0030,+0.0040] boot[-0.0087,+0.0077] holm_t 1.000 holm_b 1.000 
+  dense_s  -dense_raw mix25 Mrr   : +0.0046 t[+0.0013,+0.0078] boot[-0.0026,+0.0124] holm_t 0.175 holm_b 1.000 
+  dense_s  -dense_raw mix25 Hit1  : -0.0036 t[-0.0067,-0.0005] boot[-0.0092,+0.0058] holm_t 0.496 holm_b 1.000 
+  dense_s  -dense_raw mix25 F1at3 : +0.0066 t[+0.0045,+0.0086] boot[+0.0003,+0.0102] holm_t 0.000 holm_b 1.000 
+  dense_s  -dense_raw clean Mrr   : +0.0014 t[-0.0019,+0.0047] boot[-0.0062,+0.0100] holm_t 1.000 holm_b 1.000 
+  dense_s  -dense_raw typo  Mrr   : +0.0139 t[+0.0104,+0.0174] boot[+0.0070,+0.0203] holm_t 0.000 holm_b 0.002 *
+  hybz_s   -hybz_raw  mix25 Mrr   : +0.0187 t[+0.0167,+0.0207] boot[+0.0124,+0.0221] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -hybz_raw  mix25 Hit1  : +0.0158 t[+0.0132,+0.0184] boot[+0.0064,+0.0200] holm_t 0.000 holm_b 0.004 *
+  hybz_s   -hybz_raw  mix25 F1at3 : +0.0105 t[+0.0089,+0.0121] boot[+0.0065,+0.0130] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -hybz_raw  clean Mrr   : +0.0011 t[-0.0009,+0.0031] boot[-0.0053,+0.0040] holm_t 1.000 holm_b 1.000 
+  hybz_s   -hybz_raw  typo  Mrr   : +0.0715 t[+0.0676,+0.0755] boot[+0.0611,+0.0809] holm_t 0.000 holm_b 0.000 *
+  hybz_raw -dense_raw mix25 Mrr   : +0.2075 t[+0.2007,+0.2142] boot[+0.1947,+0.2278] holm_t 0.000 holm_b 0.000 *
+  hybz_raw -dense_raw mix25 Hit1  : +0.1437 t[+0.1364,+0.1511] boot[+0.1297,+0.1637] holm_t 0.000 holm_b 0.000 *
+  hybz_raw -dense_raw mix25 F1at3 : +0.1160 t[+0.1119,+0.1200] boot[+0.1086,+0.1288] holm_t 0.000 holm_b 0.000 *
+  hybz_raw -dense_raw clean Mrr   : +0.2248 t[+0.2173,+0.2324] boot[+0.2107,+0.2471] holm_t 0.000 holm_b 0.000 *
+  hybz_raw -dense_raw typo  Mrr   : +0.1554 t[+0.1498,+0.1610] boot[+0.1455,+0.1716] holm_t 0.000 holm_b 0.000 *
+  dense_raw-bm25_raw  mix25 Mrr   : -0.2064 t[-0.2129,-0.2000] boot[-0.2258,-0.1931] holm_t 0.000 holm_b 0.000 !
+  dense_raw-bm25_raw  mix25 Hit1  : -0.1400 t[-0.1470,-0.1330] boot[-0.1601,-0.1261] holm_t 0.000 holm_b 0.000 !
+  dense_raw-bm25_raw  mix25 F1at3 : -0.1179 t[-0.1220,-0.1139] boot[-0.1294,-0.1092] holm_t 0.000 holm_b 0.000 !
+  dense_raw-bm25_raw  clean Mrr   : -0.2247 t[-0.2321,-0.2173] boot[-0.2459,-0.2096] holm_t 0.000 holm_b 0.000 !
+  dense_raw-bm25_raw  typo  Mrr   : -0.1517 t[-0.1565,-0.1469] boot[-0.1674,-0.1412] holm_t 0.000 holm_b 0.000 !
+  dense_s  -bm25_s    mix25 Mrr   : -0.2206 t[-0.2272,-0.2139] boot[-0.2405,-0.2060] holm_t 0.000 holm_b 0.000 !
+  dense_s  -bm25_s    mix25 Hit1  : -0.1578 t[-0.1654,-0.1501] boot[-0.1782,-0.1403] holm_t 0.000 holm_b 0.000 !
+  dense_s  -bm25_s    mix25 F1at3 : -0.1216 t[-0.1258,-0.1174] boot[-0.1347,-0.1131] holm_t 0.000 holm_b 0.000 !
+  dense_s  -bm25_s    clean Mrr   : -0.2233 t[-0.2301,-0.2165] boot[-0.2434,-0.2083] holm_t 0.000 holm_b 0.000 !
+  dense_s  -bm25_s    typo  Mrr   : -0.2124 t[-0.2187,-0.2061] boot[-0.2328,-0.1990] holm_t 0.000 holm_b 0.000 !
+  robust wins 71, robust losses 18 of 126
+
+=== B confirm seeds 61-90 (frozen, independent text): mean over 30 seeds ===
+  system        mix25 hit1/MRR/F1@3     clean hit1/MRR/F1@3    typo hit1/MRR/F1@3
+  dense_raw   | 0.019/0.034/0.014 | 0.021/0.037/0.016 | 0.012/0.023/0.009
+  dense_s     | 0.031/0.054/0.027 | 0.031/0.055/0.027 | 0.030/0.052/0.025
+  bm25_raw    | 0.136/0.206/0.112 | 0.151/0.224/0.122 | 0.092/0.152/0.083
+  bm25_s      | 0.149/0.222/0.121 | 0.151/0.224/0.122 | 0.144/0.217/0.118
+  hybz_raw    | 0.129/0.202/0.112 | 0.142/0.219/0.122 | 0.090/0.153/0.083
+  hybz_s      | 0.148/0.224/0.121 | 0.149/0.225/0.122 | 0.143/0.218/0.118
+  hybrrf_raw  | 0.057/0.120/0.060 | 0.062/0.128/0.065 | 0.042/0.094/0.048
+  hybrrf_s    | 0.080/0.141/0.069 | 0.081/0.142/0.069 | 0.078/0.138/0.067
+  hybrsf_raw  | 0.133/0.202/0.113 | 0.147/0.219/0.123 | 0.092/0.150/0.083
+  hybrsf_s    | 0.150/0.223/0.122 | 0.152/0.225/0.124 | 0.145/0.217/0.119
+  rerank_raw  | 0.146/0.208/0.117 | 0.160/0.225/0.127 | 0.105/0.158/0.087
+  rerank_s    | 0.159/0.224/0.123 | 0.160/0.226/0.124 | 0.155/0.219/0.121
+--- paired contrasts a-b (1029 distinct queries; seed t-CI | cluster-bootstrap CI; Holm over 126 tests: * win ! loss; robust = both) ---
+  bm25_s   -dense_s   mix25 Mrr   : +0.1681 t[+0.1618,+0.1744] boot[+0.1624,+0.2027] holm_t 0.000 holm_b 0.000 *
+  bm25_s   -dense_s   mix25 Hit1  : +0.1184 t[+0.1115,+0.1253] boot[+0.1123,+0.1547] holm_t 0.000 holm_b 0.000 *
+  bm25_s   -dense_s   mix25 F1at3 : +0.0939 t[+0.0895,+0.0982] boot[+0.0870,+0.1127] holm_t 0.000 holm_b 0.000 *
+  bm25_s   -dense_s   clean Mrr   : +0.1694 t[+0.1631,+0.1758] boot[+0.1638,+0.2046] holm_t 0.000 holm_b 0.000 *
+  bm25_s   -dense_s   typo  Mrr   : +0.1643 t[+0.1578,+0.1708] boot[+0.1577,+0.1966] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -dense_s   mix25 Mrr   : +0.1694 t[+0.1628,+0.1759] boot[+0.1647,+0.2038] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -dense_s   mix25 Hit1  : +0.1169 t[+0.1097,+0.1242] boot[+0.1123,+0.1540] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -dense_s   mix25 F1at3 : +0.0946 t[+0.0900,+0.0991] boot[+0.0872,+0.1122] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -dense_s   clean Mrr   : +0.1705 t[+0.1639,+0.1770] boot[+0.1661,+0.2056] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -dense_s   typo  Mrr   : +0.1660 t[+0.1591,+0.1730] boot[+0.1605,+0.1984] holm_t 0.000 holm_b 0.000 *
+  hybrrf_s -dense_s   mix25 Mrr   : +0.0868 t[+0.0824,+0.0912] boot[+0.0803,+0.1039] holm_t 0.000 holm_b 0.000 *
+  hybrrf_s -dense_s   mix25 Hit1  : +0.0498 t[+0.0450,+0.0547] boot[+0.0386,+0.0665] holm_t 0.000 holm_b 0.000 *
+  hybrrf_s -dense_s   mix25 F1at3 : +0.0420 t[+0.0388,+0.0452] boot[+0.0349,+0.0517] holm_t 0.000 holm_b 0.000 *
+  hybrrf_s -dense_s   clean Mrr   : +0.0871 t[+0.0827,+0.0915] boot[+0.0806,+0.1046] holm_t 0.000 holm_b 0.000 *
+  hybrrf_s -dense_s   typo  Mrr   : +0.0858 t[+0.0814,+0.0903] boot[+0.0795,+0.1021] holm_t 0.000 holm_b 0.000 *
+  hybrsf_s -dense_s   mix25 Mrr   : +0.1687 t[+0.1624,+0.1751] boot[+0.1629,+0.2025] holm_t 0.000 holm_b 0.000 *
+  hybrsf_s -dense_s   mix25 Hit1  : +0.1192 t[+0.1123,+0.1261] boot[+0.1129,+0.1546] holm_t 0.000 holm_b 0.000 *
+  hybrsf_s -dense_s   mix25 F1at3 : +0.0958 t[+0.0915,+0.1001] boot[+0.0881,+0.1134] holm_t 0.000 holm_b 0.000 *
+  hybrsf_s -dense_s   clean Mrr   : +0.1701 t[+0.1637,+0.1764] boot[+0.1643,+0.2047] holm_t 0.000 holm_b 0.000 *
+  hybrsf_s -dense_s   typo  Mrr   : +0.1648 t[+0.1581,+0.1714] boot[+0.1588,+0.1971] holm_t 0.000 holm_b 0.000 *
+  rerank_s -dense_s   mix25 Mrr   : +0.1702 t[+0.1621,+0.1783] boot[+0.1656,+0.2065] holm_t 0.000 holm_b 0.000 *
+  rerank_s -dense_s   mix25 Hit1  : +0.1284 t[+0.1193,+0.1375] boot[+0.1234,+0.1665] holm_t 0.000 holm_b 0.000 *
+  rerank_s -dense_s   mix25 F1at3 : +0.0964 t[+0.0915,+0.1013] boot[+0.0895,+0.1149] holm_t 0.000 holm_b 0.000 *
+  rerank_s -dense_s   clean Mrr   : +0.1713 t[+0.1631,+0.1794] boot[+0.1671,+0.2088] holm_t 0.000 holm_b 0.000 *
+  rerank_s -dense_s   typo  Mrr   : +0.1671 t[+0.1587,+0.1755] boot[+0.1615,+0.2012] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -bm25_s    mix25 Mrr   : +0.0012 t[-0.0011,+0.0035] boot[-0.0037,+0.0071] holm_t 1.000 holm_b 1.000 
+  hybz_s   -bm25_s    mix25 Hit1  : -0.0015 t[-0.0053,+0.0023] boot[-0.0095,+0.0079] holm_t 1.000 holm_b 1.000 
+  hybz_s   -bm25_s    mix25 F1at3 : +0.0007 t[-0.0009,+0.0022] boot[-0.0046,+0.0046] holm_t 1.000 holm_b 1.000 
+  hybz_s   -bm25_s    clean Mrr   : +0.0010 t[-0.0013,+0.0034] boot[-0.0040,+0.0071] holm_t 1.000 holm_b 1.000 
+  hybz_s   -bm25_s    typo  Mrr   : +0.0017 t[-0.0005,+0.0040] boot[-0.0031,+0.0071] holm_t 1.000 holm_b 1.000 
+  hybz_s   -hybrrf_s  mix25 Mrr   : +0.0826 t[+0.0772,+0.0879] boot[+0.0764,+0.1083] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -hybrrf_s  mix25 Hit1  : +0.0671 t[+0.0611,+0.0731] boot[+0.0604,+0.1013] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -hybrrf_s  mix25 F1at3 : +0.0526 t[+0.0483,+0.0569] boot[+0.0460,+0.0675] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -hybrrf_s  clean Mrr   : +0.0833 t[+0.0778,+0.0889] boot[+0.0773,+0.1098] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -hybrrf_s  typo  Mrr   : +0.0802 t[+0.0753,+0.0851] boot[+0.0736,+0.1039] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -hybrsf_s  mix25 Mrr   : +0.0006 t[-0.0012,+0.0025] boot[-0.0036,+0.0061] holm_t 1.000 holm_b 1.000 
+  hybz_s   -hybrsf_s  mix25 Hit1  : -0.0022 t[-0.0053,+0.0008] boot[-0.0086,+0.0071] holm_t 1.000 holm_b 1.000 
+  hybz_s   -hybrsf_s  mix25 F1at3 : -0.0012 t[-0.0023,-0.0001] boot[-0.0053,+0.0028] holm_t 0.793 holm_b 1.000 
+  hybz_s   -hybrsf_s  clean Mrr   : +0.0004 t[-0.0015,+0.0023] boot[-0.0038,+0.0061] holm_t 1.000 holm_b 1.000 
+  hybz_s   -hybrsf_s  typo  Mrr   : +0.0013 t[-0.0006,+0.0031] boot[-0.0031,+0.0060] holm_t 1.000 holm_b 1.000 
+  hybz_s   -rerank_s  mix25 Mrr   : -0.0009 t[-0.0039,+0.0022] boot[-0.0109,+0.0086] holm_t 1.000 holm_b 1.000 
+  hybz_s   -rerank_s  mix25 Hit1  : -0.0114 t[-0.0159,-0.0070] boot[-0.0255,+0.0028] holm_t 0.000 holm_b 1.000 
+  hybz_s   -rerank_s  mix25 F1at3 : -0.0018 t[-0.0042,+0.0006] boot[-0.0092,+0.0041] holm_t 1.000 holm_b 1.000 
+  hybz_s   -rerank_s  clean Mrr   : -0.0008 t[-0.0039,+0.0023] boot[-0.0110,+0.0088] holm_t 1.000 holm_b 1.000 
+  hybz_s   -rerank_s  typo  Mrr   : -0.0011 t[-0.0040,+0.0019] boot[-0.0106,+0.0083] holm_t 1.000 holm_b 1.000 
+  dense_s  -dense_raw mix25 Mrr   : +0.0206 t[+0.0158,+0.0254] boot[+0.0106,+0.0373] holm_t 0.000 holm_b 0.012 *
+  dense_s  -dense_raw mix25 Hit1  : +0.0117 t[+0.0071,+0.0163] boot[+0.0021,+0.0273] holm_t 0.000 holm_b 0.735 
+  dense_s  -dense_raw mix25 F1at3 : +0.0123 t[+0.0096,+0.0151] boot[+0.0058,+0.0214] holm_t 0.000 holm_b 0.016 *
+  dense_s  -dense_raw clean Mrr   : +0.0178 t[+0.0126,+0.0231] boot[+0.0059,+0.0340] holm_t 0.000 holm_b 0.163 
+  dense_s  -dense_raw typo  Mrr   : +0.0290 t[+0.0250,+0.0329] boot[+0.0246,+0.0476] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -hybz_raw  mix25 Mrr   : +0.0212 t[+0.0180,+0.0243] boot[+0.0194,+0.0321] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -hybz_raw  mix25 Hit1  : +0.0187 t[+0.0139,+0.0235] boot[+0.0151,+0.0331] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -hybz_raw  mix25 F1at3 : +0.0088 t[+0.0071,+0.0105] boot[+0.0061,+0.0156] holm_t 0.000 holm_b 0.000 *
+  hybz_s   -hybz_raw  clean Mrr   : +0.0064 t[+0.0035,+0.0093] boot[+0.0015,+0.0134] holm_t 0.003 holm_b 0.431 
+  hybz_s   -hybz_raw  typo  Mrr   : +0.0655 t[+0.0603,+0.0707] boot[+0.0672,+0.0932] holm_t 0.000 holm_b 0.000 *
+  hybz_raw -dense_raw mix25 Mrr   : +0.1688 t[+0.1617,+0.1760] boot[+0.1648,+0.2014] holm_t 0.000 holm_b 0.000 *
+  hybz_raw -dense_raw mix25 Hit1  : +0.1099 t[+0.1032,+0.1166] boot[+0.1047,+0.1433] holm_t 0.000 holm_b 0.000 *
+  hybz_raw -dense_raw mix25 F1at3 : +0.0981 t[+0.0933,+0.1029] boot[+0.0915,+0.1140] holm_t 0.000 holm_b 0.000 *
+  hybz_raw -dense_raw clean Mrr   : +0.1819 t[+0.1742,+0.1897] boot[+0.1782,+0.2196] holm_t 0.000 holm_b 0.000 *
+  hybz_raw -dense_raw typo  Mrr   : +0.1295 t[+0.1232,+0.1357] boot[+0.1205,+0.1503] holm_t 0.000 holm_b 0.000 *
+  dense_raw-bm25_raw  mix25 Mrr   : -0.1725 t[-0.1796,-0.1654] boot[-0.2061,-0.1677] holm_t 0.000 holm_b 0.000 !
+  dense_raw-bm25_raw  mix25 Hit1  : -0.1172 t[-0.1240,-0.1105] boot[-0.1519,-0.1127] holm_t 0.000 holm_b 0.000 !
+  dense_raw-bm25_raw  mix25 F1at3 : -0.0978 t[-0.1026,-0.0930] boot[-0.1145,-0.0918] holm_t 0.000 holm_b 0.000 !
+  dense_raw-bm25_raw  clean Mrr   : -0.1870 t[-0.1949,-0.1792] boot[-0.2261,-0.1831] holm_t 0.000 holm_b 0.000 !
+  dense_raw-bm25_raw  typo  Mrr   : -0.1287 t[-0.1344,-0.1229] boot[-0.1492,-0.1191] holm_t 0.000 holm_b 0.000 !
+  dense_s  -bm25_s    mix25 Mrr   : -0.1681 t[-0.1744,-0.1618] boot[-0.2026,-0.1623] holm_t 0.000 holm_b 0.000 !
+  dense_s  -bm25_s    mix25 Hit1  : -0.1184 t[-0.1253,-0.1115] boot[-0.1546,-0.1122] holm_t 0.000 holm_b 0.000 !
+  dense_s  -bm25_s    mix25 F1at3 : -0.0939 t[-0.0982,-0.0895] boot[-0.1126,-0.0870] holm_t 0.000 holm_b 0.000 !
+  dense_s  -bm25_s    clean Mrr   : -0.1694 t[-0.1758,-0.1631] boot[-0.2045,-0.1637] holm_t 0.000 holm_b 0.000 !
+  dense_s  -bm25_s    typo  Mrr   : -0.1643 t[-0.1708,-0.1578] boot[-0.1966,-0.1577] holm_t 0.000 holm_b 0.000 !
+  robust wins 74, robust losses 18 of 126
+
+=== lexical overlap of clean query with best relevant doc (idf-weighted / plain coverage of unique content tokens) ===
+  A H: idf-cov mean 0.453 median 0.460; plain-cov mean 0.456 median 0.500 (n=789)
+  A S: idf-cov mean 0.227 median 0.176; plain-cov mean 0.239 median 0.182 (n=768)
+  A ALL: idf-cov mean 0.341 median 0.266; plain-cov mean 0.349 median 0.286 (n=1557)
+  A overlap tertile 1 [0.00,0.14] n=519: hybz_s-dense_s MRR +0.0065 [+0.0021,+0.0113] | dense_s-bm25_s -0.0059 [-0.0104,-0.0017]
+  A overlap tertile 2 [0.14,0.44] n=519: hybz_s-dense_s MRR +0.2133 [+0.1857,+0.2409] | dense_s-bm25_s -0.2136 [-0.2420,-0.1850]
+  A overlap tertile 3 [0.44,1.00] n=519: hybz_s-dense_s MRR +0.4509 [+0.4179,+0.4846] | dense_s-bm25_s -0.4495 [-0.4842,-0.4161]
+  A corr(overlap, hybz_s-dense_s MRR per query) = +0.550
+  A_held H: idf-cov mean 0.450 median 0.459; plain-cov mean 0.454 median 0.500 (n=793)
+  A_held S: idf-cov mean 0.228 median 0.176; plain-cov mean 0.241 median 0.182 (n=773)
+  A_held ALL: idf-cov mean 0.341 median 0.266; plain-cov mean 0.349 median 0.286 (n=1566)
+  A_held overlap tertile 1 [0.00,0.14] n=522: hybz_s-dense_s MRR +0.0063 [+0.0023,+0.0110] | dense_s-bm25_s -0.0058 [-0.0101,-0.0019]
+  A_held overlap tertile 2 [0.14,0.44] n=522: hybz_s-dense_s MRR +0.2150 [+0.1877,+0.2429] | dense_s-bm25_s -0.2170 [-0.2455,-0.1891]
+  A_held overlap tertile 3 [0.44,1.00] n=522: hybz_s-dense_s MRR +0.4505 [+0.4168,+0.4835] | dense_s-bm25_s -0.4490 [-0.4831,-0.4149]
+  A_held corr(overlap, hybz_s-dense_s MRR per query) = +0.548
+  B H: idf-cov mean 0.397 median 0.340; plain-cov mean 0.405 median 0.333 (n=639)
+  B S: idf-cov mean 0.124 median 0.096; plain-cov mean 0.133 median 0.111 (n=390)
+  B ALL: idf-cov mean 0.294 median 0.169; plain-cov mean 0.302 median 0.200 (n=1029)
+  B overlap tertile 1 [0.00,0.04] n=343: hybz_s-dense_s MRR -0.0046 [-0.0108,-0.0010] | dense_s-bm25_s +0.0053 [+0.0015,+0.0118]
+  B overlap tertile 2 [0.04,0.34] n=343: hybz_s-dense_s MRR +0.1391 [+0.1129,+0.1673] | dense_s-bm25_s -0.1378 [-0.1654,-0.1114]
+  B overlap tertile 3 [0.34,1.00] n=343: hybz_s-dense_s MRR +0.4189 [+0.3767,+0.4617] | dense_s-bm25_s -0.4159 [-0.4599,-0.3737]
+  B corr(overlap, hybz_s-dense_s MRR per query) = +0.608
+g1 A: 1920 queries (ood dropped), tune concepts id%5==0 -> picks z [0.3, 0.2] rsf [0.1, 0.1] rerank beta [1.0, 1.0]
+  system       all hit1/MRR/F1@3     clean MRR  typo MRR  terse MRR chatty MRR
+  dense_raw   | 0.309/0.447/0.209 | 0.485 | 0.361 | 0.601 | 0.195
+  dense_s     | 0.138/0.274/0.122 | 0.298 | 0.302 | 0.291 | 0.111
+  bm25_raw    | 0.816/0.871/0.389 | 0.884 | 0.791 | 0.913 | 0.905
+  bm25_s      | 0.854/0.898/0.395 | 0.883 | 0.902 | 0.913 | 0.905
+  hybz_raw    | 0.818/0.871/0.386 | 0.889 | 0.790 | 0.913 | 0.894
+  hybz_s      | 0.850/0.896/0.392 | 0.886 | 0.897 | 0.912 | 0.892
+  hybrrf_raw  | 0.538/0.673/0.317 | 0.690 | 0.607 | 0.789 | 0.520
+  hybrrf_s    | 0.342/0.517/0.242 | 0.522 | 0.527 | 0.562 | 0.389
+  hybrsf_raw  | 0.819/0.872/0.386 | 0.889 | 0.789 | 0.917 | 0.894
+  hybrsf_s    | 0.845/0.894/0.391 | 0.879 | 0.897 | 0.914 | 0.893
+  rerank_raw  | 0.825/0.871/0.380 | 0.890 | 0.786 | 0.911 | 0.901
+  rerank_s    | 0.857/0.895/0.383 | 0.886 | 0.898 | 0.905 | 0.895
+  g1 A bm25_s   -dense_s   all MRR +0.6244 boot[+0.5985,+0.6503] holm 0.000 *
+  g1 A hybz_s   -dense_s   all MRR +0.6219 boot[+0.5960,+0.6476] holm 0.000 *
+  g1 A hybrrf_s -dense_s   all MRR +0.2427 boot[+0.2294,+0.2570] holm 0.000 *
+  g1 A hybrsf_s -dense_s   all MRR +0.6199 boot[+0.5948,+0.6450] holm 0.000 *
+  g1 A rerank_s -dense_s   all MRR +0.6211 boot[+0.5942,+0.6472] holm 0.000 *
+  g1 A hybz_s   -bm25_s    all MRR -0.0025 boot[-0.0068,+0.0021] holm 1.000 
+  g1 A hybz_s   -hybrrf_s  all MRR +0.3792 boot[+0.3546,+0.4041] holm 0.000 *
+  g1 A hybz_s   -hybrsf_s  all MRR +0.0020 boot[-0.0014,+0.0055] holm 1.000 
+  g1 A hybz_s   -rerank_s  all MRR +0.0008 boot[-0.0046,+0.0060] holm 1.000 
+  g1 A dense_s  -dense_raw all MRR -0.1730 boot[-0.1976,-0.1495] holm 0.000 !
+  g1 A hybz_s   -hybz_raw  all MRR +0.0247 boot[+0.0153,+0.0339] holm 0.000 *
+  g1 A hybz_raw -dense_raw all MRR +0.4242 boot[+0.4006,+0.4487] holm 0.000 *
+  g1 A dense_raw-bm25_raw  all MRR -0.4240 boot[-0.4498,-0.3993] holm 0.000 !
+  g1 A dense_s  -bm25_s    all MRR -0.6244 boot[-0.6502,-0.5985] holm 0.000 !
+g1 B: 1920 queries (ood dropped), tune concepts id%5==0 -> picks z [0.2, 0.1] rsf [0.1, 0.1] rerank beta [1.0, 1.0]
+  system       all hit1/MRR/F1@3     clean MRR  typo MRR  terse MRR chatty MRR
+  dense_raw   | 0.327/0.467/0.224 | 0.523 | 0.372 | 0.611 | 0.200
+  dense_s     | 0.145/0.288/0.130 | 0.315 | 0.289 | 0.323 | 0.137
+  bm25_raw    | 0.795/0.852/0.385 | 0.888 | 0.757 | 0.894 | 0.849
+  bm25_s      | 0.831/0.878/0.386 | 0.885 | 0.869 | 0.895 | 0.837
+  hybz_raw    | 0.798/0.855/0.384 | 0.890 | 0.766 | 0.897 | 0.843
+  hybz_s      | 0.833/0.880/0.385 | 0.887 | 0.874 | 0.897 | 0.836
+  hybrrf_raw  | 0.544/0.680/0.323 | 0.726 | 0.605 | 0.777 | 0.496
+  hybrrf_s    | 0.352/0.535/0.259 | 0.555 | 0.528 | 0.578 | 0.406
+  hybrsf_raw  | 0.803/0.859/0.384 | 0.891 | 0.770 | 0.903 | 0.850
+  hybrsf_s    | 0.826/0.875/0.378 | 0.877 | 0.869 | 0.898 | 0.833
+  rerank_raw  | 0.802/0.855/0.374 | 0.887 | 0.773 | 0.904 | 0.825
+  rerank_s    | 0.840/0.882/0.372 | 0.886 | 0.881 | 0.907 | 0.821
+  g1 B bm25_s   -dense_s   all MRR +0.5893 boot[+0.5624,+0.6161] holm 0.000 *
+  g1 B hybz_s   -dense_s   all MRR +0.5916 boot[+0.5657,+0.6179] holm 0.000 *
+  g1 B hybrrf_s -dense_s   all MRR +0.2472 boot[+0.2319,+0.2615] holm 0.000 *
+  g1 B hybrsf_s -dense_s   all MRR +0.5866 boot[+0.5605,+0.6126] holm 0.000 *
+  g1 B rerank_s -dense_s   all MRR +0.5936 boot[+0.5684,+0.6192] holm 0.000 *
+  g1 B hybz_s   -bm25_s    all MRR +0.0023 boot[-0.0010,+0.0058] holm 1.000 
+  g1 B hybz_s   -hybrrf_s  all MRR +0.3445 boot[+0.3201,+0.3687] holm 0.000 *
+  g1 B hybz_s   -hybrsf_s  all MRR +0.0050 boot[+0.0017,+0.0085] holm 0.037 *
+  g1 B hybz_s   -rerank_s  all MRR -0.0020 boot[-0.0094,+0.0049] holm 1.000 
+  g1 B dense_s  -dense_raw all MRR -0.1786 boot[-0.2054,-0.1534] holm 0.000 !
+  g1 B hybz_s   -hybz_raw  all MRR +0.0252 boot[+0.0162,+0.0340] holm 0.000 *
+  g1 B hybz_raw -dense_raw all MRR +0.3879 boot[+0.3621,+0.4137] holm 0.000 *
+  g1 B dense_raw-bm25_raw  all MRR -0.3849 boot[-0.4120,-0.3576] holm 0.000 !
+  g1 B dense_s  -bm25_s    all MRR -0.5893 boot[-0.6160,-0.5622] holm 0.000 !
+
+LATENCY us/query (6831 docs, single thread): dense scan 1743, BM25 6.2, top8(dense) 56, z-fusion+top8 75, RRF+top8 120, RSF+top8 122, rerank20 (z first stage + 20 coverage + top8) 123 (stage only 64.8)
+BYTES: dense vectors 10492416 B, BM25 index ~1032689 B, doc token sets 484900 B
+
+wrote results/h17_top_hash_A.bin (42391 entries), results/h17_top_hash_B.bin (16473)

@@ -1,0 +1,207 @@
+warning: value assigned to `verdict_ok` is never read
+    --> src\cognition.rs:1020:17
+     |
+1020 |                 verdict_ok = None;
+     |                 ^^^^^^^^^^^^^^^^^ this value is reassigned later and never used
+...
+1033 |                     verdict_ok = Some(flagged == !correct1);
+     |                     --------------------------------------- `verdict_ok` is overwritten here before the previous value is read
+     |
+     = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: `neural-mesh` (lib) generated 1 warning
+    Finished `release` profile [optimized] target(s) in 0.58s
+     Running `C:/Users/mariu/nm-target-r1\release\g1_retrieval.exe --corpus A`
+corpus A: 780 docs, 2120 queries, 240 concepts; loaded+matrices in 24.4s
+tune queries 384 (concept%5==0), held-out queries 1536
+tune: {"bm25_qv":"Spell","tune_mrr":0.8927124669312172}
+tune: {"bm25_qv":"Kw","tune_mrr":0.8923869460978838}
+tune: {"model":"hash","step":"alone","tune_mrr":0.5785063535105842}
+tune: {"cfg":"model=hash qv=Raw lam=0.7 prf=0 lex=false alpha=1 gamma=0 cascade=None M=20","gain":0.05653523250898873,"model":"hash","single_lever":"chunk","tune_mrr":0.635041586019573}
+tune: {"cfg":"model=hash qv=Spell lam=1 prf=0 lex=false alpha=1 gamma=0 cascade=None M=20","gain":0.02700081804968646,"model":"hash","single_lever":"spell","tune_mrr":0.6055071715602707}
+tune: {"cfg":"model=hash qv=Raw lam=1 prf=0 lex=true alpha=0.2 gamma=0 cascade=None M=20","gain":0.2768983257222202,"model":"hash","single_lever":"hybrid","tune_mrr":0.8554046792328044}
+tune: {"cfg":"model=hash qv=Raw lam=1 prf=0.3 lex=false alpha=1 gamma=0 cascade=None M=20","gain":-0.03170635791243026,"model":"hash","single_lever":"prf","tune_mrr":0.546799995598154}
+tune: {"cfg":"model=hash qv=Raw lam=1 prf=0 lex=false alpha=1 gamma=2 cascade=None M=20","gain":0.18554095169369478,"model":"hash","single_lever":"overlap","tune_mrr":0.764047305204279}
+tune: {"cfg":"model=hash qv=Raw lam=1 prf=0 lex=true alpha=0.2 gamma=0 cascade=None M=20","gain":0.2768983257222202,"ladder_add":"hybrid","model":"hash","tune_mrr":0.8554046792328044}
+tune: {"cfg":"model=hash qv=Spell lam=1 prf=0 lex=true alpha=0.2 gamma=0 cascade=None M=20","gain":0.03552207341269864,"ladder_add":"spell","model":"hash","tune_mrr":0.890926752645503}
+tune: {"cfg":"model=hash qv=Spell lam=1 prf=0 lex=true alpha=0.2 gamma=2 cascade=None M=20","gain":0.008029513888888618,"ladder_add":"overlap","model":"hash","tune_mrr":0.8989562665343916}
+tune: {"model":"mini","step":"alone","tune_mrr":0.9358351934523809}
+tune: {"cfg":"model=mini qv=Raw lam=0.7 prf=0 lex=false alpha=1 gamma=0 cascade=None M=20","gain":0.004991112764550332,"model":"mini","single_lever":"chunk","tune_mrr":0.9408263062169312}
+tune: {"cfg":"model=mini qv=Spell lam=1 prf=0 lex=false alpha=1 gamma=0 cascade=None M=20","gain":0.024432663690476142,"model":"mini","single_lever":"spell","tune_mrr":0.960267857142857}
+tune: {"cfg":"model=mini qv=Raw lam=1 prf=0 lex=true alpha=0.7 gamma=0 cascade=None M=20","gain":0.015141369047619202,"model":"mini","single_lever":"hybrid","tune_mrr":0.9509765625000001}
+tune: {"cfg":"model=mini qv=Raw lam=1 prf=0.6 lex=false alpha=1 gamma=0 cascade=None M=20","gain":-0.0032611087109573056,"model":"mini","single_lever":"prf","tune_mrr":0.9325740847414236}
+tune: {"cfg":"model=mini qv=Raw lam=1 prf=0 lex=false alpha=1 gamma=1 cascade=None M=20","gain":0.0157376405423284,"model":"mini","single_lever":"overlap","tune_mrr":0.9515728339947093}
+tune: {"cfg":"model=mini qv=Spell lam=1 prf=0 lex=false alpha=1 gamma=0 cascade=None M=20","gain":0.024432663690476142,"ladder_add":"spell","model":"mini","tune_mrr":0.960267857142857}
+tune: {"cfg":"model=mini qv=Spell lam=1 prf=0 lex=false alpha=1 gamma=1 cascade=None M=20","gain":0.009111483134920828,"ladder_add":"overlap","model":"mini","tune_mrr":0.9693793402777778}
+tune: {"model":"bge","step":"alone","tune_mrr":0.9493923611111111}
+tune: {"cfg":"model=bge qv=Raw lam=0.7 prf=0 lex=false alpha=1 gamma=0 cascade=None M=20","gain":-0.016555059523809312,"model":"bge","single_lever":"chunk","tune_mrr":0.9328373015873018}
+tune: {"cfg":"model=bge qv=Spell lam=1 prf=0 lex=false alpha=1 gamma=0 cascade=None M=20","gain":0.015755208333333326,"model":"bge","single_lever":"spell","tune_mrr":0.9651475694444445}
+tune: {"cfg":"model=bge qv=Raw lam=1 prf=0 lex=true alpha=0.8 gamma=0 cascade=None M=20","gain":0.007018849206349209,"model":"bge","single_lever":"hybrid","tune_mrr":0.9564112103174603}
+tune: {"cfg":"model=bge qv=Raw lam=1 prf=0.3 lex=false alpha=1 gamma=0 cascade=None M=20","gain":-0.0046161954365081526,"model":"bge","single_lever":"prf","tune_mrr":0.944776165674603}
+tune: {"cfg":"model=bge qv=Raw lam=1 prf=0 lex=false alpha=1 gamma=0.5 cascade=None M=20","gain":0.010770089285714102,"model":"bge","single_lever":"overlap","tune_mrr":0.9601624503968252}
+tune: {"cfg":"model=bge qv=Spell lam=1 prf=0 lex=false alpha=1 gamma=0 cascade=None M=20","gain":0.015755208333333326,"ladder_add":"spell","model":"bge","tune_mrr":0.9651475694444445}
+tune: {"cfg":"model=bge qv=Spell lam=1 prf=0 lex=false alpha=1 gamma=0.5 cascade=None M=20","gain":0.008860367063492025,"ladder_add":"overlap","model":"bge","tune_mrr":0.9740079365079365}
+tune: {"model":"bgei","step":"alone","tune_mrr":0.9568576388888889}
+tune: {"cfg":"model=bgei qv=Raw lam=0.7 prf=0 lex=false alpha=1 gamma=0 cascade=None M=20","gain":-0.002213541666666541,"model":"bgei","single_lever":"chunk","tune_mrr":0.9546440972222223}
+tune: {"cfg":"model=bgei qv=Spell lam=1 prf=0 lex=false alpha=1 gamma=0 cascade=None M=20","gain":0.016449652777777768,"model":"bgei","single_lever":"spell","tune_mrr":0.9733072916666666}
+tune: {"cfg":"model=bgei qv=Raw lam=1 prf=0 lex=true alpha=0.8 gamma=0 cascade=None M=20","gain":0.0007688492063493424,"model":"bgei","single_lever":"hybrid","tune_mrr":0.9576264880952382}
+tune: {"cfg":"model=bgei qv=Raw lam=1 prf=0.3 lex=false alpha=1 gamma=0 cascade=None M=20","gain":-0.007440476190476053,"model":"bgei","single_lever":"prf","tune_mrr":0.9494171626984128}
+tune: {"cfg":"model=bgei qv=Raw lam=1 prf=0 lex=false alpha=1 gamma=0.5 cascade=None M=20","gain":0.004123263888889062,"model":"bgei","single_lever":"overlap","tune_mrr":0.9609809027777779}
+tune: {"cfg":"model=bgei qv=Spell lam=1 prf=0 lex=false alpha=1 gamma=0 cascade=None M=20","gain":0.016449652777777768,"ladder_add":"spell","model":"bgei","tune_mrr":0.9733072916666666}
+
+=== held-out concepts, corpus A, seeds 31-60: mean over seeds (95% t-CI half-width) ===
+system                        hit1     mrr     P@3     R@3    F1@3     R@5   sib@1   cfg
+bm25-raw                    0.8234  0.8732  0.3253  0.4879  0.3903  0.5442  0.1541   model=- qv=Raw lam=1 prf=0 lex=true alpha=0 gamma=0 cascade=None M=20
+bm25-tuned                  0.8582  0.9012  0.3349  0.5023  0.4019  0.5456  0.1300   model=- qv=Spell lam=1 prf=0 lex=true alpha=0 gamma=0 cascade=None M=20
+hash-alone                  0.4311  0.5617  0.2249  0.3373  0.2699  0.4079  0.3387   model=hash qv=Raw lam=1 prf=0 lex=false alpha=1 gamma=0 cascade=None M=20
+hash+chunk                  0.4771  0.6177  0.2417  0.3625  0.2900  0.4378  0.4182   model=hash qv=Raw lam=0.7 prf=0 lex=false alpha=1 gamma=0 cascade=None M=20
+hash+spell                  0.4509  0.5906  0.2387  0.3581  0.2864  0.4357  0.3497   model=hash qv=Spell lam=1 prf=0 lex=false alpha=1 gamma=0 cascade=None M=20
+hash+hybrid                 0.8258  0.8755  0.3274  0.4911  0.3929  0.5519  0.1512   model=hash qv=Raw lam=1 prf=0 lex=true alpha=0.2 gamma=0 cascade=None M=20
+hash+prf                    0.3986  0.5354  0.2201  0.3302  0.2642  0.4004  0.3406   model=hash qv=Raw lam=1 prf=0.3 lex=false alpha=1 gamma=0 cascade=None M=20
+hash+overlap                0.6858  0.7642  0.2913  0.4369  0.3495  0.4840  0.2754   model=hash qv=Raw lam=1 prf=0 lex=false alpha=1 gamma=2 cascade=None M=20
+hash-final                  0.8632  0.9026  0.3267  0.4900  0.3920  0.5258  0.1330   model=hash qv=Spell lam=1 prf=0 lex=true alpha=0.2 gamma=2 cascade=None M=20
+mini-alone                  0.8989  0.9337  0.5107  0.7661  0.6128  0.8350  0.0907   model=mini qv=Raw lam=1 prf=0 lex=false alpha=1 gamma=0 cascade=None M=20
+mini+chunk                  0.9064  0.9387  0.5003  0.7504  0.6003  0.8158  0.0877   model=mini qv=Raw lam=0.7 prf=0 lex=false alpha=1 gamma=0 cascade=None M=20
+mini+spell                  0.9201  0.9495  0.5232  0.7848  0.6278  0.8488  0.0740   model=mini qv=Spell lam=1 prf=0 lex=false alpha=1 gamma=0 cascade=None M=20
+mini+hybrid                 0.9210  0.9461  0.4267  0.6401  0.5120  0.7166  0.0763   model=mini qv=Raw lam=1 prf=0 lex=true alpha=0.7 gamma=0 cascade=None M=20
+mini+prf                    0.8846  0.9245  0.5109  0.7663  0.6131  0.8331  0.1030   model=mini qv=Raw lam=1 prf=0.6 lex=false alpha=1 gamma=0 cascade=None M=20
+mini+overlap                0.9162  0.9430  0.4292  0.6438  0.5150  0.7158  0.0794   model=mini qv=Raw lam=1 prf=0 lex=false alpha=1 gamma=1 cascade=None M=20
+mini-final                  0.9362  0.9567  0.4321  0.6481  0.5185  0.7189  0.0622   model=mini qv=Spell lam=1 prf=0 lex=false alpha=1 gamma=1 cascade=None M=20
+bge-alone                   0.9251  0.9534  0.4956  0.7433  0.5947  0.8085  0.0653   model=bge qv=Raw lam=1 prf=0 lex=false alpha=1 gamma=0 cascade=None M=20
+bge+chunk                   0.9072  0.9406  0.4704  0.7056  0.5644  0.7773  0.0858   model=bge qv=Raw lam=0.7 prf=0 lex=false alpha=1 gamma=0 cascade=None M=20
+bge+spell                   0.9487  0.9686  0.5056  0.7584  0.6068  0.8218  0.0478   model=bge qv=Spell lam=1 prf=0 lex=false alpha=1 gamma=0 cascade=None M=20
+bge+hybrid                  0.9248  0.9524  0.4299  0.6448  0.5159  0.7037  0.0707   model=bge qv=Raw lam=1 prf=0 lex=true alpha=0.8 gamma=0 cascade=None M=20
+bge+prf                     0.9226  0.9508  0.4956  0.7433  0.5947  0.8109  0.0651   model=bge qv=Raw lam=1 prf=0.3 lex=false alpha=1 gamma=0 cascade=None M=20
+bge+overlap                 0.9297  0.9549  0.4443  0.6664  0.5331  0.7293  0.0641   model=bge qv=Raw lam=1 prf=0 lex=false alpha=1 gamma=0.5 cascade=None M=20
+bge-final                   0.9463  0.9669  0.4497  0.6746  0.5397  0.7314  0.0521   model=bge qv=Spell lam=1 prf=0 lex=false alpha=1 gamma=0.5 cascade=None M=20
+bgei-alone                  0.9338  0.9581  0.4780  0.7169  0.5736  0.7828  0.0573   model=bgei qv=Raw lam=1 prf=0 lex=false alpha=1 gamma=0 cascade=None M=20
+bgei+chunk                  0.9203  0.9488  0.4531  0.6797  0.5438  0.7527  0.0743   model=bgei qv=Raw lam=0.7 prf=0 lex=false alpha=1 gamma=0 cascade=None M=20
+bgei+spell                  0.9514  0.9703  0.4819  0.7228  0.5782  0.7922  0.0461   model=bgei qv=Spell lam=1 prf=0 lex=false alpha=1 gamma=0 cascade=None M=20
+bgei+hybrid                 0.9283  0.9540  0.4218  0.6327  0.5062  0.6904  0.0683   model=bgei qv=Raw lam=1 prf=0 lex=true alpha=0.8 gamma=0 cascade=None M=20
+bgei+prf                    0.9336  0.9572  0.4780  0.7169  0.5736  0.7835  0.0586   model=bgei qv=Raw lam=1 prf=0.3 lex=false alpha=1 gamma=0 cascade=None M=20
+bgei+overlap                0.9302  0.9557  0.4320  0.6480  0.5184  0.7125  0.0637   model=bgei qv=Raw lam=1 prf=0 lex=false alpha=1 gamma=0.5 cascade=None M=20
+bgei-final                  0.9514  0.9703  0.4819  0.7228  0.5782  0.7922  0.0461   model=bgei qv=Spell lam=1 prf=0 lex=false alpha=1 gamma=0 cascade=None M=20
+mini-final+bge-cascade      0.9529  0.9701  0.4818  0.7227  0.5781  0.7797  0.0456   model=mini qv=Spell lam=1 prf=0 lex=false alpha=1 gamma=1 cascade=Some(("bge", 2.0)) M=20
+
+=== tuning split (concept%5==0), seeds 1-8 (means; levers were chosen on this split) ===
+bm25-raw                   hit1 0.8021 mrr 0.8593 F1@3 0.3827
+bm25-tuned                 hit1 0.8492 mrr 0.8942 F1@3 0.3965
+hash-alone                 hit1 0.4617 mrr 0.5854 F1@3 0.2685
+hash+chunk                 hit1 0.5104 mrr 0.6432 F1@3 0.2975
+hash+spell                 hit1 0.4838 mrr 0.6127 F1@3 0.2862
+hash+hybrid                hit1 0.7975 mrr 0.8572 F1@3 0.3805
+hash+prf                   hit1 0.4275 mrr 0.5540 F1@3 0.2618
+hash+overlap               hit1 0.7000 mrr 0.7712 F1@3 0.3438
+hash-final                 hit1 0.8633 mrr 0.8995 F1@3 0.3877
+mini-alone                 hit1 0.8975 mrr 0.9340 F1@3 0.6268
+mini+chunk                 hit1 0.9058 mrr 0.9394 F1@3 0.6028
+mini+spell                 hit1 0.9337 mrr 0.9602 F1@3 0.6572
+mini+hybrid                hit1 0.9267 mrr 0.9509 F1@3 0.5218
+mini+prf                   hit1 0.8958 mrr 0.9309 F1@3 0.6268
+mini+overlap               hit1 0.9263 mrr 0.9514 F1@3 0.5230
+mini-final                 hit1 0.9513 mrr 0.9705 F1@3 0.5377
+bge-alone                  hit1 0.9204 mrr 0.9518 F1@3 0.5967
+bge+chunk                  hit1 0.8900 mrr 0.9343 F1@3 0.5762
+bge+spell                  hit1 0.9433 mrr 0.9673 F1@3 0.6098
+bge+hybrid                 hit1 0.9375 mrr 0.9581 F1@3 0.5010
+bge+prf                    hit1 0.9175 mrr 0.9472 F1@3 0.5967
+bge+overlap                hit1 0.9425 mrr 0.9619 F1@3 0.5445
+bge-final                  hit1 0.9625 mrr 0.9753 F1@3 0.5507
+bgei-alone                 hit1 0.9346 mrr 0.9565 F1@3 0.5673
+bgei+chunk                 hit1 0.9317 mrr 0.9558 F1@3 0.5562
+bgei+spell                 hit1 0.9587 mrr 0.9736 F1@3 0.5850
+bgei+hybrid                hit1 0.9388 mrr 0.9596 F1@3 0.4930
+bgei+prf                   hit1 0.9254 mrr 0.9510 F1@3 0.5673
+bgei+overlap               hit1 0.9413 mrr 0.9614 F1@3 0.5217
+bgei-final                 hit1 0.9587 mrr 0.9736 F1@3 0.5850
+mini-final+bge-cascade     hit1 0.9625 mrr 0.9783 F1@3 0.5993
+
+=== paired differences A-B (held-out concepts, corpus A, seeds 31-60); Holm over 52 tests (* = Holm win, ! = Holm loss) ===
+bge-alone                    - mini-alone             mrr    +0.0197 [+0.0159,+0.0236] wins 30/0  holm_p 0.0000 *
+bge-alone                    - mini-alone             hit1   +0.0262 [+0.0199,+0.0325] wins 27/0  holm_p 0.0000 *
+bgei-alone                   - mini-alone             mrr    +0.0244 [+0.0205,+0.0283] wins 30/0  holm_p 0.0000 *
+bgei-alone                   - mini-alone             hit1   +0.0349 [+0.0288,+0.0410] wins 30/0  holm_p 0.0000 *
+bgei-alone                   - bge-alone              mrr    +0.0047 [+0.0027,+0.0066] wins 26/4  holm_p 0.0005 *
+bgei-alone                   - bge-alone              hit1   +0.0087 [+0.0049,+0.0124] wins 24/4  holm_p 0.0006 *
+mini-alone                   - bm25-raw               mrr    +0.0605 [+0.0550,+0.0659] wins 30/0  holm_p 0.0000 *
+mini-alone                   - bm25-raw               hit1   +0.0754 [+0.0680,+0.0829] wins 30/0  holm_p 0.0000 *
+bge-alone                    - bm25-raw               mrr    +0.0802 [+0.0754,+0.0849] wins 30/0  holm_p 0.0000 *
+bge-alone                    - bm25-raw               hit1   +0.1017 [+0.0947,+0.1087] wins 30/0  holm_p 0.0000 *
+mini-alone                   - hash-alone             mrr    +0.3720 [+0.3656,+0.3785] wins 30/0  holm_p 0.0000 *
+mini-alone                   - hash-alone             hit1   +0.4678 [+0.4596,+0.4759] wins 30/0  holm_p 0.0000 *
+mini+chunk                   - mini-alone             mrr    +0.0050 [+0.0029,+0.0071] wins 24/6  holm_p 0.0005 *
+mini+chunk                   - mini-alone             hit1   +0.0076 [+0.0039,+0.0112] wins 23/6  holm_p 0.0019 *
+mini+spell                   - mini-alone             mrr    +0.0158 [+0.0130,+0.0186] wins 30/0  holm_p 0.0000 *
+mini+spell                   - mini-alone             hit1   +0.0212 [+0.0173,+0.0251] wins 30/0  holm_p 0.0000 *
+mini+hybrid                  - mini-alone             mrr    +0.0123 [+0.0086,+0.0160] wins 27/3  holm_p 0.0000 *
+mini+hybrid                  - mini-alone             hit1   +0.0221 [+0.0160,+0.0282] wins 28/2  holm_p 0.0000 *
+mini+prf                     - mini-alone             mrr    -0.0092 [-0.0111,-0.0074] wins  1/29 holm_p 0.0000 !
+mini+prf                     - mini-alone             hit1   -0.0143 [-0.0177,-0.0110] wins  1/28 holm_p 0.0000 !
+mini+overlap                 - mini-alone             mrr    +0.0093 [+0.0064,+0.0122] wins 26/4  holm_p 0.0000 *
+mini+overlap                 - mini-alone             hit1   +0.0173 [+0.0127,+0.0219] wins 26/1  holm_p 0.0000 *
+mini-final                   - mini-alone             mrr    +0.0230 [+0.0191,+0.0269] wins 30/0  holm_p 0.0000 *
+mini-final                   - mini-alone             hit1   +0.0373 [+0.0318,+0.0429] wins 30/0  holm_p 0.0000 *
+bge+chunk                    - bge-alone              mrr    -0.0128 [-0.0153,-0.0103] wins  1/29 holm_p 0.0000 !
+bge+chunk                    - bge-alone              hit1   -0.0179 [-0.0223,-0.0135] wins  1/28 holm_p 0.0000 !
+bge+spell                    - bge-alone              mrr    +0.0152 [+0.0128,+0.0175] wins 30/0  holm_p 0.0000 *
+bge+spell                    - bge-alone              hit1   +0.0236 [+0.0202,+0.0269] wins 30/0  holm_p 0.0000 *
+bge+hybrid                   - bge-alone              mrr    -0.0010 [-0.0031,+0.0010] wins 14/16 holm_p 0.6347  
+bge+hybrid                   - bge-alone              hit1   -0.0003 [-0.0040,+0.0033] wins 12/11 holm_p 0.8541  
+bge+prf                      - bge-alone              mrr    -0.0027 [-0.0042,-0.0011] wins  8/22 holm_p 0.0109 !
+bge+prf                      - bge-alone              hit1   -0.0026 [-0.0053,+0.0002] wins  8/18 holm_p 0.1905  
+bge+overlap                  - bge-alone              mrr    +0.0015 [+0.0001,+0.0030] wins 20/10 holm_p 0.1814  
+bge+overlap                  - bge-alone              hit1   +0.0046 [+0.0018,+0.0073] wins 20/7  holm_p 0.0149 *
+bge-final                    - bge-alone              mrr    +0.0134 [+0.0111,+0.0158] wins 29/1  holm_p 0.0000 *
+bge-final                    - bge-alone              hit1   +0.0212 [+0.0178,+0.0246] wins 29/0  holm_p 0.0000 *
+mini-final                   - bge-alone              mrr    +0.0033 [+0.0002,+0.0063] wins 18/12 holm_p 0.1814  
+mini-final                   - bge-alone              hit1   +0.0111 [+0.0063,+0.0159] wins 22/7  holm_p 0.0006 *
+mini+hybrid                  - bge-alone              mrr    -0.0074 [-0.0097,-0.0051] wins  3/27 holm_p 0.0000 !
+mini+hybrid                  - bge-alone              hit1   -0.0041 [-0.0077,-0.0005] wins  8/19 holm_p 0.1577  
+bge-final                    - mini-final             mrr    +0.0102 [+0.0073,+0.0130] wins 26/4  holm_p 0.0000 *
+bge-final                    - mini-final             hit1   +0.0101 [+0.0058,+0.0144] wins 25/4  holm_p 0.0006 *
+bgei-final                   - mini-final             mrr    +0.0136 [+0.0105,+0.0166] wins 30/0  holm_p 0.0000 *
+bgei-final                   - mini-final             hit1   +0.0152 [+0.0105,+0.0200] wins 26/4  holm_p 0.0000 *
+bge-final                    - bge-alone              mrr    +0.0134 [+0.0111,+0.0158] wins 29/1  holm_p 0.0000 *
+bge-final                    - bge-alone              hit1   +0.0212 [+0.0178,+0.0246] wins 29/0  holm_p 0.0000 *
+mini-final+bge-cascade       - mini-final             mrr    +0.0134 [+0.0110,+0.0157] wins 30/0  holm_p 0.0000 *
+mini-final+bge-cascade       - mini-final             hit1   +0.0167 [+0.0132,+0.0201] wins 28/1  holm_p 0.0000 *
+mini-final+bge-cascade       - bge-alone              mrr    +0.0167 [+0.0141,+0.0192] wins 30/0  holm_p 0.0000 *
+mini-final+bge-cascade       - bge-alone              hit1   +0.0278 [+0.0240,+0.0316] wins 30/0  holm_p 0.0000 *
+mini-final                   - bm25-raw               mrr    +0.0835 [+0.0787,+0.0883] wins 30/0  holm_p 0.0000 *
+mini-final                   - bm25-raw               hit1   +0.1128 [+0.1060,+0.1196] wins 30/0  holm_p 0.0000 *
+
+=== per query class, held-out queries (hit1 / mrr) ===
+system                             clean          typo         terse        chatty
+bm25-raw                    0.844/0.888   0.716/0.788   0.875/0.916   0.849/0.894 
+bm25-tuned                  0.844/0.889   0.857/0.900   0.872/0.915   0.854/0.898 
+hash-alone                  0.464/0.606   0.346/0.474   0.620/0.721   0.224/0.357 
+hash+chunk                  0.505/0.653   0.359/0.518   0.674/0.767   0.297/0.451 
+hash+spell                  0.457/0.602   0.443/0.598   0.615/0.716   0.214/0.349 
+hash+hybrid                 0.847/0.891   0.727/0.796   0.883/0.920   0.828/0.884 
+hash+prf                    0.441/0.586   0.307/0.449   0.562/0.676   0.203/0.333 
+hash+overlap                0.726/0.804   0.596/0.679   0.844/0.889   0.479/0.588 
+hash-final                  0.847/0.889   0.867/0.904   0.880/0.916   0.854/0.899 
+mini-alone                  0.917/0.949   0.818/0.876   0.924/0.951   0.917/0.940 
+mini+chunk                  0.925/0.953   0.836/0.890   0.938/0.958   0.901/0.935 
+mini+spell                  0.917/0.948   0.911/0.945   0.922/0.948   0.917/0.940 
+mini+hybrid                 0.932/0.955   0.854/0.898   0.945/0.965   0.943/0.958 
+mini+prf                    0.896/0.935   0.802/0.866   0.919/0.948   0.896/0.926 
+mini+overlap                0.924/0.949   0.857/0.900   0.935/0.958   0.943/0.956 
+mini-final                  0.922/0.948   0.938/0.957   0.938/0.958   0.943/0.957 
+bge-alone                   0.946/0.968   0.852/0.905   0.948/0.970   0.948/0.965 
+bge+chunk                   0.938/0.961   0.826/0.887   0.940/0.962   0.917/0.944 
+bge+spell                   0.944/0.967   0.956/0.971   0.943/0.965   0.953/0.967 
+bge+hybrid                  0.939/0.963   0.854/0.906   0.961/0.974   0.938/0.957 
+bge+prf                     0.950/0.968   0.839/0.897   0.951/0.971   0.948/0.965 
+bge+overlap                 0.946/0.967   0.862/0.909   0.956/0.973   0.953/0.966 
+bge-final                   0.944/0.966   0.945/0.966   0.945/0.965   0.948/0.964 
+bgei-alone                  0.957/0.973   0.872/0.918   0.956/0.975   0.953/0.968 
+bgei+chunk                  0.950/0.968   0.854/0.903   0.948/0.967   0.927/0.951 
+bgei+spell                  0.953/0.970   0.945/0.967   0.951/0.971   0.953/0.969 
+bgei+hybrid                 0.941/0.963   0.870/0.915   0.953/0.970   0.943/0.960 
+bgei+prf                    0.958/0.973   0.872/0.917   0.953/0.974   0.943/0.962 
+bgei+overlap                0.951/0.970   0.867/0.915   0.956/0.974   0.948/0.963 
+bgei-final                  0.953/0.970   0.945/0.967   0.951/0.971   0.953/0.969 
+mini-final+bge-cascade      0.953/0.971   0.953/0.969   0.945/0.965   0.953/0.965 
+
+wrote results/g1_retrieval.json  (total 26.4s)

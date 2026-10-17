@@ -1,0 +1,34 @@
+h8_vectors mode=cross rayon=2 free=5.74GB
+  [fixed ef] dim128 n=10000 M16/efc200 ef32: recall 1.000 p50 287us p99 2637us | flat avx2 p50 58us (x0.20)
+  [fixed ef] dim128 n=10000 M16/efc200 ef64: recall 1.000 p50 484us p99 2439us | flat avx2 p50 58us (x0.12)
+  [fixed ef] dim128 n=10000 M16/efc200 ef128: recall 1.000 p50 850us p99 6396us | flat avx2 p50 58us (x0.07)
+  [fixed ef] dim128 n=10000 M32/efc100 ef32: recall 1.000 p50 170us p99 288us | flat avx2 p50 58us (x0.34)
+  [fixed ef] dim128 n=10000 M32/efc100 ef64: recall 1.000 p50 288us p99 403us | flat avx2 p50 58us (x0.20)
+  [fixed ef] dim128 n=10000 M32/efc100 ef128: recall 1.000 p50 471us p99 629us | flat avx2 p50 58us (x0.12)
+[cross d128] n=10000: flat avx2 p50 58us; hnsw [Some(114.26666666666667), Some(83.73333333333333)]
+  [fixed ef] dim128 n=30000 M16/efc200 ef32: recall 1.000 p50 142us p99 236us | flat avx2 p50 341us (x2.41)
+  [fixed ef] dim128 n=30000 M16/efc200 ef64: recall 1.000 p50 232us p99 356us | flat avx2 p50 341us (x1.47)
+  [fixed ef] dim128 n=30000 M16/efc200 ef128: recall 1.000 p50 319us p99 494us | flat avx2 p50 341us (x1.07)
+  [fixed ef] dim128 n=30000 M32/efc100 ef32: recall 1.000 p50 134us p99 231us | flat avx2 p50 341us (x2.56)
+  [fixed ef] dim128 n=30000 M32/efc100 ef64: recall 1.000 p50 227us p99 329us | flat avx2 p50 341us (x1.50)
+  [fixed ef] dim128 n=30000 M32/efc100 ef128: recall 1.000 p50 371us p99 491us | flat avx2 p50 341us (x0.92)
+[cross d128] n=30000: flat avx2 p50 341us; hnsw [Some(58.1), Some(64.36666666666666)]
+ setting number of points 50000 
+ setting number of points 50000 
+ setting number of points 100000 
+ setting number of points 100000 
+  [fixed ef] dim128 n=100000 M16/efc200 ef32: recall 0.945 p50 143us p99 337us | flat avx2 p50 1548us (x10.80)
+  [fixed ef] dim128 n=100000 M16/efc200 ef64: recall 0.973 p50 259us p99 507us | flat avx2 p50 1548us (x5.97)
+  [fixed ef] dim128 n=100000 M16/efc200 ef128: recall 0.993 p50 493us p99 1048us | flat avx2 p50 1548us (x3.14)
+  [fixed ef] dim128 n=100000 M32/efc100 ef32: recall 0.975 p50 225us p99 565us | flat avx2 p50 1548us (x6.88)
+  [fixed ef] dim128 n=100000 M32/efc100 ef64: recall 0.980 p50 334us p99 646us | flat avx2 p50 1548us (x4.64)
+  [fixed ef] dim128 n=100000 M32/efc100 ef128: recall 1.000 p50 565us p99 1104us | flat avx2 p50 1548us (x2.74)
+[cross d128] n=100000: flat avx2 p50 1548us; hnsw [Some(208.9), Some(157.5666666666667)]
+
+#### flat vs HNSW crossover (dim 128, synthetic, 1 thread, p50 us; HNSW = smallest ef reaching recall target)
+| N | flat avx2 | flat lib | flat bfp16 | int8+rr10 | tv4+rr4 | M16/efc200 r>=.95 (ef) | M16/efc200 r>=.99 (ef) | M32/efc100 r>=.95 (ef) | M32/efc100 r>=.99 (ef) |
+|---|---|---|---|---|---|---|---|---|---||
+| 10000 | 58 | 137 | 92 | 91 | 91 | 114 (10) | 137 (10) | 84 (10) | 93 (10) |
+| 30000 | 341 | 424 | 234 | 161 | 185 | 58 (10) | 89 (16) | 64 (10) | 90 (16) |
+| 100000 | 1548 | 1573 | 1012 | 612 | 271 | 209 (48) | 415 (128) | 158 (24) | 391 (96) |
+wrote results/h8_cross_d128_fixedef.json

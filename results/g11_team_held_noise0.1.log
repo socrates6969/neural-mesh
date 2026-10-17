@@ -1,0 +1,377 @@
+G11 learned team model vs fair baselines. eval set held (30 seeds); tuning only on seeds 1-8; learned configs pooled over ALL 16 worlds (incl. controls)
+[tune] L-add  pooled mean v 0.7403: LCfg { lr: 0.3, l2: 0.0005, eps: 0.02, c1: 0.1, c2: 0.0, rho: 0.3, boost: 0.0 }
+[tune] L-pair pooled mean v 0.7462: LCfg { lr: 0.1, l2: 0.0005, eps: 0.02, c1: 0.1, c2: 0.05, rho: 0.3, boost: 4.0 }
+[tune] L-gate pooled mean v 0.7461: LCfg { lr: 0.3, l2: 0.0005, eps: 0.02, c1: 0.1, c2: 0.05, rho: 0.3, boost: 4.0 } GCfg { zthr: 1.5, lam: 0.995 }
+[tune] L-full pooled mean v 0.7328: CCfg { q: 0.2, margin: 0.0, warm: 60, decay: 0.998 } (fallback seq:guarded-safe)
+
+=== RC [gen RC] (N=14, K=4, T=2500) refs[seed 31]: oracle v 0.923, random-team v 0.615
+policy                           v  late v  real r gate-on lrn-frac    ns/dec     bytes
+seq:eps-greedy(g=1,e=0.05)  0.8004  0.8157  0.7963    0.00    0.00         0         0
+seq:pooled-ts(g=1)          0.8029  0.8350  0.7976    0.00    0.00         0         0
+seq:warm(hebR,k=100,FailSet)  0.9014  0.9011  0.8912    0.00    0.00         0         0
+seq:hebbian-robust          0.7403  0.7423  0.7376    0.00    0.00         0         0
+seq:keyword                 0.9015  0.9013  0.8913    0.00    0.00         0         0   <- best fair
+seq:guarded-safe            0.9004  0.9002  0.8903    0.00    0.00         0         0
+mesh(guarded-safe)          0.7551  0.7569  0.7521    0.00    0.00         0         0
+mesh(hebbian-robust)        0.7151  0.7175  0.7132    0.00    0.00         0         0
+L-add                       0.8989  0.9038  0.8878    0.00    1.00         0         0
+L-pair                      0.8962  0.8971  0.8843    0.00    1.00         0         0
+L-gate                      0.8935  0.9085  0.8822    0.36    1.00         0         0
+L-full                      0.8967  0.8987  0.8867    0.55    0.11         0         0
+
+=== RC-drift [gen RC] (N=14, K=4, T=2500) refs[seed 31]: oracle v 0.923, random-team v 0.613
+policy                           v  late v  real r gate-on lrn-frac    ns/dec     bytes
+seq:eps-greedy(g=0.99,e=0.05)  0.7811  0.7889  0.7777    0.00    0.00         0         0
+seq:pooled-ts(g=1)          0.7763  0.7915  0.7719    0.00    0.00         0         0
+seq:warm(hebR,k=10,FailSet)  0.8421  0.7821  0.8344    0.00    0.00         0         0
+seq:hebbian-robust          0.7324  0.7266  0.7299    0.00    0.00         0         0
+seq:keyword                 0.8427  0.7833  0.8350    0.00    0.00         0         0   <- best fair
+seq:guarded-safe            0.8418  0.7837  0.8343    0.00    0.00         0         0
+mesh(guarded-safe)          0.7392  0.7240  0.7364    0.00    0.00         0         0
+mesh(hebbian-robust)        0.7069  0.7042  0.7051    0.00    0.00         0         0
+L-add                       0.8746  0.8645  0.8657    0.00    1.00         0         0
+L-pair                      0.8723  0.8570  0.8628    0.00    1.00         0         0
+L-gate                      0.8702  0.8714  0.8612    0.33    1.00         0         0
+L-full                      0.8560  0.8335  0.8481    0.47    0.18         0         0
+
+=== RC-L [gen RC] (N=24, K=5, T=3500) refs[seed 31]: oracle v 0.970, random-team v 0.621
+policy                           v  late v  real r gate-on lrn-frac    ns/dec     bytes
+seq:eps-greedy(g=1,e=0.1)   0.8112  0.8332  0.8051    0.00    0.00         0         0
+seq:pooled-ts(g=1)          0.8189  0.8583  0.8112    0.00    0.00         0         0
+seq:warm(hebR,k=30,FailSet)  0.9235  0.9235  0.9088    0.00    0.00         0         0
+seq:hebbian-robust          0.7326  0.7349  0.7290    0.00    0.00         0         0
+seq:keyword                 0.9235  0.9235  0.9088    0.00    0.00         0         0   <- best fair
+seq:guarded-safe            0.9213  0.9212  0.9072    0.00    0.00         0         0
+mesh(guarded-safe)          0.7565  0.7560  0.7522    0.00    0.00         0         0
+mesh(hebbian-robust)        0.7062  0.7060  0.7034    0.00    0.00         0         0
+L-add                       0.9243  0.9282  0.9087    0.00    1.00         0         0
+L-pair                      0.9262  0.9238  0.9088    0.00    1.00         0         0
+L-gate                      0.9173  0.9342  0.9012    0.44    1.00         0         0
+L-full                      0.9173  0.9201  0.9033    0.73    0.11         0         0
+
+=== ROLE [gen ROLE] (N=15, K=4, T=2500) refs[seed 31]: oracle v 0.658, random-team v 0.224
+policy                           v  late v  real r gate-on lrn-frac    ns/dec     bytes
+seq:eps-greedy(g=1,e=0.1)   0.4139  0.4425  0.4141    0.00    0.00         0         0
+seq:pooled-ts(g=1)          0.4486  0.4748  0.4484    0.00    0.00         0         0
+seq:warm(hebR,k=100,FailSet)  0.5877  0.5833  0.5872    0.00    0.00         0         0
+seq:hebbian-robust          0.3329  0.3347  0.3342    0.00    0.00         0         0
+seq:keyword                 0.5903  0.5898  0.5897    0.00    0.00         0         0   <- best fair
+seq:guarded-safe            0.4890  0.4904  0.4891    0.00    0.00         0         0
+mesh(guarded-safe)          0.3318  0.3347  0.3329    0.00    0.00         0         0
+mesh(hebbian-robust)        0.3168  0.3218  0.3181    0.00    0.00         0         0
+L-add                       0.5929  0.5959  0.5921    0.00    1.00         0         0
+L-pair                      0.5860  0.5924  0.5853    0.00    1.00         0         0
+L-gate                      0.5798  0.5930  0.5791    0.24    1.00         0         0
+L-full                      0.5771  0.5906  0.5765    0.26    0.57         0         0
+
+=== THR [gen THR] (N=14, K=4, T=2500) refs[seed 31]: oracle v 0.993, random-team v 0.402
+policy                           v  late v  real r gate-on lrn-frac    ns/dec     bytes
+seq:eps-greedy(g=1,e=0.02)  0.6846  0.7094  0.6771    0.00    0.00         0         0
+seq:pooled-ts(g=1)          0.7238  0.7729  0.7131    0.00    0.00         0         0
+seq:warm(hebR,k=10,FailSet)  0.6951  0.6964  0.6867    0.00    0.00         0         0
+seq:hebbian-robust          0.5838  0.5814  0.5817    0.00    0.00         0         0
+seq:keyword                 0.6573  0.6586  0.6504    0.00    0.00         0         0
+seq:guarded-safe            0.7699  0.7666  0.7578    0.00    0.00         0         0   <- best fair
+mesh(guarded-safe)          0.5797  0.5816  0.5777    0.00    0.00         0         0
+mesh(hebbian-robust)        0.5611  0.5789  0.5602    0.00    0.00         0         0
+L-add                       0.9084  0.9307  0.8859    0.00    1.00         0         0
+L-pair                      0.9194  0.9344  0.8961    0.00    1.00         0         0
+L-gate                      0.8969  0.9369  0.8755    0.20    1.00         0         0
+L-full                      0.8513  0.8994  0.8337    0.18    0.51         0         0
+
+=== LAT [gen LAT, OWN-CLASS by construction] (N=12, K=4, T=2500) refs[seed 31]: oracle v 0.699, random-team v 0.549
+policy                           v  late v  real r gate-on lrn-frac    ns/dec     bytes
+seq:eps-greedy(g=1,e=0.1)   0.6347  0.6468  0.6345    0.00    0.00         0         0   <- best fair
+seq:pooled-ts(g=1)          0.5839  0.6034  0.5836    0.00    0.00         0         0
+seq:warm(hebR,k=3,FailSet)  0.5921  0.5911  0.5919    0.00    0.00         0         0
+seq:hebbian-robust          0.5861  0.5845  0.5858    0.00    0.00         0         0
+seq:keyword                 0.5645  0.5647  0.5643    0.00    0.00         0         0
+seq:guarded-safe            0.6100  0.6085  0.6097    0.00    0.00         0         0
+mesh(guarded-safe)          0.6143  0.6151  0.6141    0.00    0.00         0         0
+mesh(hebbian-robust)        0.6019  0.6044  0.6016    0.00    0.00         0         0
+L-add                       0.6549  0.6667  0.6546    0.00    1.00         0         0
+L-pair                      0.6675  0.6822  0.6672    0.00    1.00         0         0
+L-gate                      0.6637  0.6792  0.6634    0.85    1.00         0         0
+L-full                      0.6563  0.6714  0.6560    0.86    0.84         0         0
+
+=== C-SEP [gen SEP, CONTROL] (N=10, K=3, T=2500) refs[seed 31]: oracle v 0.601, random-team v 0.290
+policy                           v  late v  real r gate-on lrn-frac    ns/dec     bytes
+seq:eps-greedy(g=0.9,e=0.1)  0.5048  0.5389  0.5046    0.00    0.00         0         0   <- best fair
+seq:pooled-ts(g=1)          0.4157  0.4574  0.4157    0.00    0.00         0         0
+seq:warm(hebR,k=30,Mean)    0.4664  0.4584  0.4662    0.00    0.00         0         0
+seq:hebbian-robust          0.4626  0.4576  0.4625    0.00    0.00         0         0
+seq:keyword                 0.3885  0.3884  0.3883    0.00    0.00         0         0
+seq:guarded-safe            0.4672  0.4592  0.4670    0.00    0.00         0         0
+mesh(guarded-safe)          0.4090  0.4269  0.4090    0.00    0.00         0         0
+mesh(hebbian-robust)        0.4017  0.4187  0.4017    0.00    0.00         0         0
+L-add                       0.5392  0.5823  0.5390    0.00    1.00         0         0
+L-pair                      0.5538  0.5824  0.5536    0.00    1.00         0         0
+L-gate                      0.5623  0.5977  0.5621    0.65    1.00         0         0
+L-full                      0.5588  0.5881  0.5586    0.59    0.86         0         0
+
+=== C-SEPT [gen SEP, CONTROL] (N=16, K=4, T=2500) refs[seed 31]: oracle v 0.759, random-team v 0.317
+policy                           v  late v  real r gate-on lrn-frac    ns/dec     bytes
+seq:eps-greedy(g=0.9,e=0.1)  0.5897  0.6342  0.5893    0.00    0.00         0         0   <- best fair
+seq:pooled-ts(g=1)          0.4892  0.5435  0.4889    0.00    0.00         0         0
+seq:warm(hebR,k=10,Mean)    0.5069  0.5056  0.5067    0.00    0.00         0         0
+seq:hebbian-robust          0.5058  0.5015  0.5055    0.00    0.00         0         0
+seq:keyword                 0.3525  0.3539  0.3528    0.00    0.00         0         0
+seq:guarded-safe            0.5063  0.5012  0.5061    0.00    0.00         0         0
+mesh(guarded-safe)          0.4460  0.4623  0.4459    0.00    0.00         0         0
+mesh(hebbian-robust)        0.4394  0.4516  0.4394    0.00    0.00         0         0
+L-add                       0.5728  0.6310  0.5725    0.00    1.00         0         0
+L-pair                      0.6013  0.6427  0.6010    0.00    1.00         0         0
+L-gate                      0.6336  0.6915  0.6331    0.52    1.00         0         0
+L-full                      0.6419  0.7065  0.6413    0.38    0.85         0         0
+
+=== RC-K [gen RC] (N=14, K=4, T=2500) refs[seed 31]: oracle v 0.923, random-team v 0.615
+policy                           v  late v  real r gate-on lrn-frac    ns/dec     bytes
+seq:eps-greedy(g=1,e=0.05)  0.8004  0.8157  0.7963    0.00    0.00         0         0
+seq:pooled-ts(g=1)          0.8029  0.8350  0.7976    0.00    0.00         0         0   <- best fair
+seq:warm(hebR,k=10,Set)     0.7534  0.7626  0.7495    0.00    0.00         0         0
+seq:hebbian-robust          0.7403  0.7423  0.7376    0.00    0.00         0         0
+seq:keyword                 0.7337  0.7339  0.7300    0.00    0.00         0         0
+seq:guarded-safe            0.7693  0.7665  0.7650    0.00    0.00         0         0
+mesh(guarded-safe)          0.7334  0.7362  0.7309    0.00    0.00         0         0
+mesh(hebbian-robust)        0.7151  0.7175  0.7132    0.00    0.00         0         0
+L-add                       0.8677  0.8881  0.8595    0.00    1.00         0         0
+L-pair                      0.8637  0.8759  0.8553    0.00    1.00         0         0
+L-gate                      0.8755  0.8994  0.8660    0.18    1.00         0         0
+L-full                      0.8589  0.8871  0.8502    0.26    0.72         0         0
+
+=== RC-drift-K [gen RC] (N=14, K=4, T=2500) refs[seed 31]: oracle v 0.923, random-team v 0.613
+policy                           v  late v  real r gate-on lrn-frac    ns/dec     bytes
+seq:eps-greedy(g=0.99,e=0.05)  0.7811  0.7889  0.7777    0.00    0.00         0         0   <- best fair
+seq:pooled-ts(g=1)          0.7763  0.7915  0.7719    0.00    0.00         0         0
+seq:warm(hebR,k=10,Set)     0.7318  0.7224  0.7285    0.00    0.00         0         0
+seq:hebbian-robust          0.7324  0.7266  0.7299    0.00    0.00         0         0
+seq:keyword                 0.7103  0.6873  0.7073    0.00    0.00         0         0
+seq:guarded-safe            0.7435  0.7173  0.7400    0.00    0.00         0         0
+mesh(guarded-safe)          0.7188  0.7075  0.7166    0.00    0.00         0         0
+mesh(hebbian-robust)        0.7069  0.7042  0.7051    0.00    0.00         0         0
+L-add                       0.8479  0.8571  0.8411    0.00    1.00         0         0
+L-pair                      0.8419  0.8411  0.8351    0.00    1.00         0         0
+L-gate                      0.8512  0.8603  0.8437    0.17    1.00         0         0
+L-full                      0.8376  0.8520  0.8305    0.27    0.73         0         0
+
+=== RC-L-K [gen RC] (N=24, K=5, T=3500) refs[seed 31]: oracle v 0.970, random-team v 0.621
+policy                           v  late v  real r gate-on lrn-frac    ns/dec     bytes
+seq:eps-greedy(g=1,e=0.1)   0.8112  0.8332  0.8051    0.00    0.00         0         0
+seq:pooled-ts(g=1)          0.8189  0.8583  0.8112    0.00    0.00         0         0   <- best fair
+seq:warm(hebR,k=30,Set)     0.7861  0.7885  0.7795    0.00    0.00         0         0
+seq:hebbian-robust          0.7326  0.7349  0.7290    0.00    0.00         0         0
+seq:keyword                 0.7816  0.7811  0.7751    0.00    0.00         0         0
+seq:guarded-safe            0.8068  0.8057  0.7995    0.00    0.00         0         0
+mesh(guarded-safe)          0.7347  0.7368  0.7311    0.00    0.00         0         0
+mesh(hebbian-robust)        0.7062  0.7060  0.7034    0.00    0.00         0         0
+L-add                       0.8978  0.9147  0.8853    0.00    1.00         0         0
+L-pair                      0.8930  0.9026  0.8799    0.00    1.00         0         0
+L-gate                      0.9011  0.9278  0.8869    0.32    1.00         0         0
+L-full                      0.8800  0.9077  0.8680    0.32    0.60         0         0
+
+=== ROLE-K [gen ROLE] (N=15, K=4, T=2500) refs[seed 31]: oracle v 0.658, random-team v 0.224
+policy                           v  late v  real r gate-on lrn-frac    ns/dec     bytes
+seq:eps-greedy(g=1,e=0.1)   0.4139  0.4425  0.4141    0.00    0.00         0         0
+seq:pooled-ts(g=1)          0.4486  0.4748  0.4484    0.00    0.00         0         0   <- best fair
+seq:warm(hebR,k=3,FailSet)  0.3926  0.3890  0.3930    0.00    0.00         0         0
+seq:hebbian-robust          0.3329  0.3347  0.3342    0.00    0.00         0         0
+seq:keyword                 0.3452  0.3429  0.3461    0.00    0.00         0         0
+seq:guarded-safe            0.3780  0.3912  0.3789    0.00    0.00         0         0
+mesh(guarded-safe)          0.3214  0.3288  0.3226    0.00    0.00         0         0
+mesh(hebbian-robust)        0.3168  0.3218  0.3181    0.00    0.00         0         0
+L-add                       0.5727  0.5868  0.5721    0.00    1.00         0         0
+L-pair                      0.5644  0.5808  0.5638    0.00    1.00         0         0
+L-gate                      0.5631  0.5844  0.5625    0.12    1.00         0         0
+L-full                      0.5462  0.5727  0.5458    0.20    0.83         0         0
+
+=== THR-K [gen THR] (N=14, K=4, T=2500) refs[seed 31]: oracle v 0.993, random-team v 0.402
+policy                           v  late v  real r gate-on lrn-frac    ns/dec     bytes
+seq:eps-greedy(g=1,e=0.02)  0.6846  0.7094  0.6771    0.00    0.00         0         0
+seq:pooled-ts(g=1)          0.7238  0.7729  0.7131    0.00    0.00         0         0   <- best fair
+seq:warm(hebR,k=3,FailSet)  0.5930  0.6017  0.5895    0.00    0.00         0         0
+seq:hebbian-robust          0.5838  0.5814  0.5817    0.00    0.00         0         0
+seq:keyword                 0.4708  0.4712  0.4729    0.00    0.00         0         0
+seq:guarded-safe            0.6892  0.6959  0.6812    0.00    0.00         0         0
+mesh(guarded-safe)          0.5629  0.5721  0.5618    0.00    0.00         0         0
+mesh(hebbian-robust)        0.5611  0.5789  0.5602    0.00    0.00         0         0
+L-add                       0.8783  0.9231  0.8594    0.00    1.00         0         0
+L-pair                      0.8855  0.9146  0.8653    0.00    1.00         0         0
+L-gate                      0.8740  0.9091  0.8551    0.20    1.00         0         0
+L-full                      0.8516  0.9036  0.8339    0.22    0.74         0         0
+
+=== LAT-K [gen LAT, OWN-CLASS by construction] (N=12, K=4, T=2500) refs[seed 31]: oracle v 0.699, random-team v 0.549
+policy                           v  late v  real r gate-on lrn-frac    ns/dec     bytes
+seq:eps-greedy(g=1,e=0.1)   0.6347  0.6468  0.6345    0.00    0.00         0         0   <- best fair
+seq:pooled-ts(g=1)          0.5839  0.6034  0.5836    0.00    0.00         0         0
+seq:warm(hebR,k=3,Mean)     0.5861  0.5840  0.5859    0.00    0.00         0         0
+seq:hebbian-robust          0.5861  0.5845  0.5858    0.00    0.00         0         0
+seq:keyword                 0.5491  0.5494  0.5488    0.00    0.00         0         0
+seq:guarded-safe            0.5978  0.5972  0.5976    0.00    0.00         0         0
+mesh(guarded-safe)          0.6042  0.6080  0.6040    0.00    0.00         0         0
+mesh(hebbian-robust)        0.6019  0.6044  0.6016    0.00    0.00         0         0
+L-add                       0.6432  0.6581  0.6429    0.00    1.00         0         0
+L-pair                      0.6544  0.6684  0.6541    0.00    1.00         0         0
+L-gate                      0.6525  0.6710  0.6522    0.78    1.00         0         0
+L-full                      0.6458  0.6628  0.6456    0.85    0.86         0         0
+
+=== COMP [gen COMP] (N=10, K=3, T=2500) refs[seed 31]: oracle v 0.714, random-team v 0.257
+policy                           v  late v  real r gate-on lrn-frac    ns/dec     bytes
+seq:eps-greedy(g=0.95,e=0.1)  0.5232  0.5626  0.5232    0.00    0.00         0         0
+seq:pooled-ts(g=1)          0.4603  0.5244  0.4605    0.00    0.00         0         0
+seq:warm(hebR,k=100,Mean)   0.5596  0.5473  0.5596    0.00    0.00         0         0
+seq:hebbian-robust          0.5115  0.5128  0.5115    0.00    0.00         0         0
+seq:keyword                 0.3217  0.3199  0.3221    0.00    0.00         0         0
+seq:guarded-safe            0.5810  0.6002  0.5809    0.00    0.00         0         0   <- best fair
+mesh(guarded-safe)          0.4422  0.4670  0.4423    0.00    0.00         0         0
+mesh(hebbian-robust)        0.4055  0.4019  0.4057    0.00    0.00         0         0
+L-add                       0.6353  0.6639  0.6351    0.00    1.00         0         0
+L-pair                      0.6589  0.6744  0.6587    0.00    1.00         0         0
+L-gate                      0.6514  0.6763  0.6512    0.65    1.00         0         0
+L-full                      0.6402  0.6661  0.6400    0.47    0.77         0         0
+
+=== COMP-X [gen COMPX] (N=9, K=3, T=2500) refs[seed 31]: oracle v 0.718, random-team v 0.228
+policy                           v  late v  real r gate-on lrn-frac    ns/dec     bytes
+seq:eps-greedy(g=0.95,e=0.1)  0.5526  0.5852  0.5548    0.00    0.00         0         0
+seq:pooled-ts(g=1)          0.4666  0.5120  0.4733    0.00    0.00         0         0
+seq:warm(hebR,k=100,Mean)   0.5739  0.5706  0.5759    0.00    0.00         0         0
+seq:hebbian-robust          0.5598  0.5524  0.5626    0.00    0.00         0         0
+seq:keyword                 0.3181  0.3161  0.3211    0.00    0.00         0         0
+seq:guarded-safe            0.6074  0.6179  0.6088    0.00    0.00         0         0
+mesh(guarded-safe)          0.6075  0.6240  0.6091    0.00    0.00         0         0   <- best fair
+mesh(hebbian-robust)        0.5167  0.5875  0.5204    0.00    0.00         0         0
+L-add                       0.6533  0.6724  0.6534    0.00    1.00         0         0
+L-pair                      0.6688  0.6763  0.6687    0.00    1.00         0         0
+L-gate                      0.6590  0.6762  0.6591    0.81    1.00         0         0
+L-full                      0.6443  0.6656  0.6447    0.68    0.79         0         0
+
+=== learned arms vs BEST FAIR baseline per world (metric v; paired 95% t-CI; Holm within each world set; 64 cells total)
+world      arm           diff               95% CI   win/loss        p   Holm |     late | vs mesh(gs)     diff (Holm) | vs seq:gs     diff
+RC         L-add      -0.0026 [ -0.0041, -0.0012]     6/24     0.0011 0.0067 LOSS |  +0.0025 |  +0.1438 (0.0000) WIN  |  -0.0015
+RC         L-pair     -0.0054 [ -0.0073, -0.0034]     4/26     0.0000 0.0000 LOSS |  -0.0042 |  +0.1410 (0.0000) WIN  |  -0.0042
+RC         L-gate     -0.0081 [ -0.0100, -0.0061]     2/28     0.0000 0.0000 LOSS |  +0.0072 |  +0.1383 (0.0000) WIN  |  -0.0069
+RC         L-full     -0.0048 [ -0.0055, -0.0041]     0/30     0.0000 0.0000 LOSS |  -0.0026 |  +0.1416 (0.0000) WIN  |  -0.0037
+RC-drift   L-add      +0.0320 [ +0.0231, +0.0408]    28/2      0.0000 0.0000 WIN  |  +0.0731 |  +0.1355 (0.0000) WIN  |  +0.0328
+RC-drift   L-pair     +0.0297 [ +0.0203, +0.0390]    26/4      0.0000 0.0000 WIN  |  +0.0656 |  +0.1332 (0.0000) WIN  |  +0.0305
+RC-drift   L-gate     +0.0276 [ +0.0177, +0.0375]    26/4      0.0000 0.0000 WIN  |  +0.0799 |  +0.1311 (0.0000) WIN  |  +0.0284
+RC-drift   L-full     +0.0134 [ +0.0059, +0.0208]    24/6      0.0010 0.0067 WIN  |  +0.0420 |  +0.1169 (0.0000) WIN  |  +0.0142
+RC-L       L-add      +0.0008 [ -0.0008, +0.0025]    16/14     0.3245 0.3245 n.s. |  +0.0047 |  +0.1678 (0.0000) WIN  |  +0.0030
+RC-L       L-pair     +0.0027 [ +0.0012, +0.0042]    24/6      0.0007 0.0064 WIN  |  +0.0003 |  +0.1697 (0.0000) WIN  |  +0.0049
+RC-L       L-gate     -0.0062 [ -0.0079, -0.0044]     3/27     0.0000 0.0000 LOSS |  +0.0107 |  +0.1609 (0.0000) WIN  |  -0.0040
+RC-L       L-full     -0.0062 [ -0.0069, -0.0055]     0/30     0.0000 0.0000 LOSS |  -0.0034 |  +0.1608 (0.0000) WIN  |  -0.0040
+ROLE       L-add      +0.0026 [ +0.0008, +0.0043]    22/8      0.0062 0.0312 WIN  |  +0.0061 |  +0.2611 (0.0000) WIN  |  +0.1039
+ROLE       L-pair     -0.0043 [ -0.0073, -0.0013]     9/21     0.0063 0.0312 LOSS |  +0.0026 |  +0.2543 (0.0000) WIN  |  +0.0971
+ROLE       L-gate     -0.0106 [ -0.0187, -0.0025]     2/28     0.0124 0.0371 LOSS |  +0.0032 |  +0.2480 (0.0000) WIN  |  +0.0908
+ROLE       L-full     -0.0132 [ -0.0204, -0.0061]     9/21     0.0007 0.0064 LOSS |  +0.0008 |  +0.2453 (0.0000) WIN  |  +0.0881
+THR        L-add      +0.1385 [ +0.1128, +0.1643]    30/0      0.0000 0.0000 WIN  |  +0.1578 |  +0.3288 (0.0000) WIN  |  +0.1385
+THR        L-pair     +0.1495 [ +0.1203, +0.1787]    30/0      0.0000 0.0000 WIN  |  +0.1615 |  +0.3397 (0.0000) WIN  |  +0.1495
+THR        L-gate     +0.1270 [ +0.0971, +0.1570]    30/0      0.0000 0.0000 WIN  |  +0.1640 |  +0.3173 (0.0000) WIN  |  +0.1270
+THR        L-full     +0.0814 [ +0.0569, +0.1059]    27/3      0.0000 0.0000 WIN  |  +0.1265 |  +0.2717 (0.0000) WIN  |  +0.0814
+LAT        L-add      +0.0202 [ +0.0158, +0.0245]    29/1      0.0000 0.0000 WIN  |  +0.0199 |  +0.0406 (0.0000) WIN  |  +0.0449
+LAT        L-pair     +0.0327 [ +0.0284, +0.0371]    29/1      0.0000 0.0000 WIN  |  +0.0354 |  +0.0532 (0.0000) WIN  |  +0.0575
+LAT        L-gate     +0.0290 [ +0.0243, +0.0337]    29/1      0.0000 0.0000 WIN  |  +0.0324 |  +0.0494 (0.0000) WIN  |  +0.0537
+LAT        L-full     +0.0215 [ +0.0176, +0.0255]    29/1      0.0000 0.0000 WIN  |  +0.0246 |  +0.0420 (0.0000) WIN  |  +0.0463
+C-SEP      L-add      +0.0344 [ +0.0260, +0.0428]    29/1      0.0000 0.0000 WIN  |  +0.0434 |  +0.1302 (0.0000) WIN  |  +0.0720   TOST+-0.01: not shown equivalent; NI-vs-bestfair Holm 0.000; NI-vs-seq:gs Holm 0.000
+C-SEP      L-pair     +0.0490 [ +0.0403, +0.0577]    29/1      0.0000 0.0000 WIN  |  +0.0435 |  +0.1448 (0.0000) WIN  |  +0.0866   TOST+-0.01: not shown equivalent; NI-vs-bestfair Holm 0.000; NI-vs-seq:gs Holm 0.000
+C-SEP      L-gate     +0.0575 [ +0.0498, +0.0652]    30/0      0.0000 0.0000 WIN  |  +0.0588 |  +0.1533 (0.0000) WIN  |  +0.0951   TOST+-0.01: not shown equivalent; NI-vs-bestfair Holm 0.000; NI-vs-seq:gs Holm 0.000
+C-SEP      L-full     +0.0540 [ +0.0480, +0.0600]    30/0      0.0000 0.0000 WIN  |  +0.0492 |  +0.1498 (0.0000) WIN  |  +0.0916   TOST+-0.01: not shown equivalent; NI-vs-bestfair Holm 0.000; NI-vs-seq:gs Holm 0.000
+C-SEPT     L-add      -0.0169 [ -0.0258, -0.0081]     8/22     0.0005 0.0051 LOSS |  -0.0032 |  +0.1268 (0.0000) WIN  |  +0.0665   TOST+-0.01: not shown equivalent; NI-vs-bestfair Holm 0.940; NI-vs-seq:gs Holm 0.000
+C-SEPT     L-pair     +0.0115 [ +0.0022, +0.0209]    21/9      0.0172 0.0371 WIN  |  +0.0085 |  +0.1553 (0.0000) WIN  |  +0.0949   TOST+-0.01: not shown equivalent; NI-vs-bestfair Holm 0.000; NI-vs-seq:gs Holm 0.000
+C-SEPT     L-gate     +0.0439 [ +0.0344, +0.0533]    28/2      0.0000 0.0000 WIN  |  +0.0573 |  +0.1876 (0.0000) WIN  |  +0.1273   TOST+-0.01: not shown equivalent; NI-vs-bestfair Holm 0.000; NI-vs-seq:gs Holm 0.000
+C-SEPT     L-full     +0.0521 [ +0.0433, +0.0610]    29/1      0.0000 0.0000 WIN  |  +0.0723 |  +0.1959 (0.0000) WIN  |  +0.1356   TOST+-0.01: not shown equivalent; NI-vs-bestfair Holm 0.000; NI-vs-seq:gs Holm 0.000
+RC-K       L-add      +0.0648 [ +0.0581, +0.0714]    30/0      0.0000 0.0000 WIN  |  +0.0531 |  +0.1343 (0.0000) WIN  |  +0.0984
+RC-K       L-pair     +0.0608 [ +0.0547, +0.0669]    30/0      0.0000 0.0000 WIN  |  +0.0409 |  +0.1303 (0.0000) WIN  |  +0.0944
+RC-K       L-gate     +0.0725 [ +0.0681, +0.0770]    30/0      0.0000 0.0000 WIN  |  +0.0644 |  +0.1421 (0.0000) WIN  |  +0.1062
+RC-K       L-full     +0.0560 [ +0.0493, +0.0626]    30/0      0.0000 0.0000 WIN  |  +0.0521 |  +0.1255 (0.0000) WIN  |  +0.0896
+RC-drift-K L-add      +0.0667 [ +0.0606, +0.0729]    30/0      0.0000 0.0000 WIN  |  +0.0656 |  +0.1290 (0.0000) WIN  |  +0.1043
+RC-drift-K L-pair     +0.0608 [ +0.0549, +0.0667]    30/0      0.0000 0.0000 WIN  |  +0.0497 |  +0.1231 (0.0000) WIN  |  +0.0984
+RC-drift-K L-gate     +0.0701 [ +0.0648, +0.0754]    30/0      0.0000 0.0000 WIN  |  +0.0688 |  +0.1324 (0.0000) WIN  |  +0.1077
+RC-drift-K L-full     +0.0565 [ +0.0481, +0.0649]    29/1      0.0000 0.0000 WIN  |  +0.0606 |  +0.1188 (0.0000) WIN  |  +0.0941
+RC-L-K     L-add      +0.0789 [ +0.0722, +0.0857]    30/0      0.0000 0.0000 WIN  |  +0.0564 |  +0.1631 (0.0000) WIN  |  +0.0910
+RC-L-K     L-pair     +0.0742 [ +0.0673, +0.0811]    30/0      0.0000 0.0000 WIN  |  +0.0443 |  +0.1583 (0.0000) WIN  |  +0.0863
+RC-L-K     L-gate     +0.0822 [ +0.0771, +0.0873]    30/0      0.0000 0.0000 WIN  |  +0.0695 |  +0.1663 (0.0000) WIN  |  +0.0943
+RC-L-K     L-full     +0.0611 [ +0.0547, +0.0675]    30/0      0.0000 0.0000 WIN  |  +0.0494 |  +0.1452 (0.0000) WIN  |  +0.0732
+ROLE-K     L-add      +0.1241 [ +0.1044, +0.1438]    30/0      0.0000 0.0000 WIN  |  +0.1120 |  +0.2513 (0.0000) WIN  |  +0.1947
+ROLE-K     L-pair     +0.1158 [ +0.0957, +0.1359]    30/0      0.0000 0.0000 WIN  |  +0.1059 |  +0.2429 (0.0000) WIN  |  +0.1864
+ROLE-K     L-gate     +0.1145 [ +0.0951, +0.1339]    30/0      0.0000 0.0000 WIN  |  +0.1096 |  +0.2416 (0.0000) WIN  |  +0.1851
+ROLE-K     L-full     +0.0976 [ +0.0773, +0.1179]    29/1      0.0000 0.0000 WIN  |  +0.0979 |  +0.2248 (0.0000) WIN  |  +0.1682
+THR-K      L-add      +0.1545 [ +0.1311, +0.1778]    30/0      0.0000 0.0000 WIN  |  +0.1502 |  +0.3154 (0.0000) WIN  |  +0.1891
+THR-K      L-pair     +0.1617 [ +0.1331, +0.1902]    29/1      0.0000 0.0000 WIN  |  +0.1417 |  +0.3226 (0.0000) WIN  |  +0.1963
+THR-K      L-gate     +0.1502 [ +0.1265, +0.1738]    30/0      0.0000 0.0000 WIN  |  +0.1363 |  +0.3111 (0.0000) WIN  |  +0.1848
+THR-K      L-full     +0.1278 [ +0.1013, +0.1543]    29/1      0.0000 0.0000 WIN  |  +0.1308 |  +0.2887 (0.0000) WIN  |  +0.1624
+LAT-K      L-add      +0.0084 [ +0.0031, +0.0138]    21/9      0.0032 0.0032 WIN  |  +0.0113 |  +0.0389 (0.0000) WIN  |  +0.0453
+LAT-K      L-pair     +0.0196 [ +0.0153, +0.0240]    28/2      0.0000 0.0000 WIN  |  +0.0215 |  +0.0501 (0.0000) WIN  |  +0.0565
+LAT-K      L-gate     +0.0178 [ +0.0135, +0.0220]    29/1      0.0000 0.0000 WIN  |  +0.0242 |  +0.0483 (0.0000) WIN  |  +0.0547
+LAT-K      L-full     +0.0111 [ +0.0064, +0.0158]    25/5      0.0000 0.0001 WIN  |  +0.0160 |  +0.0416 (0.0000) WIN  |  +0.0480
+COMP       L-add      +0.0543 [ +0.0363, +0.0724]    27/3      0.0000 0.0000 WIN  |  +0.0637 |  +0.1931 (0.0000) WIN  |  +0.0543
+COMP       L-pair     +0.0779 [ +0.0655, +0.0903]    30/0      0.0000 0.0000 WIN  |  +0.0741 |  +0.2167 (0.0000) WIN  |  +0.0779
+COMP       L-gate     +0.0704 [ +0.0575, +0.0834]    30/0      0.0000 0.0000 WIN  |  +0.0761 |  +0.2092 (0.0000) WIN  |  +0.0704
+COMP       L-full     +0.0592 [ +0.0459, +0.0725]    29/1      0.0000 0.0000 WIN  |  +0.0658 |  +0.1979 (0.0000) WIN  |  +0.0592
+COMP-X     L-add      +0.0458 [ +0.0359, +0.0557]    30/0      0.0000 0.0000 WIN  |  +0.0485 |  +0.0458 (0.0000) WIN  |  +0.0458
+COMP-X     L-pair     +0.0613 [ +0.0514, +0.0712]    30/0      0.0000 0.0000 WIN  |  +0.0524 |  +0.0613 (0.0000) WIN  |  +0.0613
+COMP-X     L-gate     +0.0515 [ +0.0419, +0.0610]    30/0      0.0000 0.0000 WIN  |  +0.0523 |  +0.0515 (0.0000) WIN  |  +0.0515
+COMP-X     L-full     +0.0368 [ +0.0268, +0.0468]    28/2      0.0000 0.0000 WIN  |  +0.0416 |  +0.0368 (0.0000) WIN  |  +0.0368
+
+Generator-level summary (an arm 'wins' a generator if it has a Holm WIN vs best fair in >=1 of that generator's non-control worlds; OWN-CLASS generators excluded from the independent count):
+  set1 L-add   independent generators won: ["RC", "ROLE", "THR"] (count 3); all incl. own-class: ["RC", "ROLE", "THR", "LAT"]; controls with Holm LOSS: ["C-SEPT"]; controls NOT shown equivalent (+-0.01): ["C-SEP", "C-SEPT"]
+  set1 L-pair  independent generators won: ["RC", "THR"] (count 2); all incl. own-class: ["RC", "THR", "LAT"]; controls with Holm LOSS: []; controls NOT shown equivalent (+-0.01): ["C-SEP", "C-SEPT"]
+  set1 L-gate  independent generators won: ["RC", "THR"] (count 2); all incl. own-class: ["RC", "THR", "LAT"]; controls with Holm LOSS: []; controls NOT shown equivalent (+-0.01): ["C-SEP", "C-SEPT"]
+  set1 L-full  independent generators won: ["RC", "THR"] (count 2); all incl. own-class: ["RC", "THR", "LAT"]; controls with Holm LOSS: []; controls NOT shown equivalent (+-0.01): ["C-SEP", "C-SEPT"]
+  set2 L-add   independent generators won: ["RC", "ROLE", "THR"] (count 3); all incl. own-class: ["RC", "ROLE", "THR", "LAT"]; controls with Holm LOSS: []; controls NOT shown equivalent (+-0.01): ["C-SEP", "C-SEPT"]
+  set2 L-pair  independent generators won: ["RC", "ROLE", "THR"] (count 3); all incl. own-class: ["RC", "ROLE", "THR", "LAT"]; controls with Holm LOSS: []; controls NOT shown equivalent (+-0.01): ["C-SEP", "C-SEPT"]
+  set2 L-gate  independent generators won: ["RC", "ROLE", "THR"] (count 3); all incl. own-class: ["RC", "ROLE", "THR", "LAT"]; controls with Holm LOSS: []; controls NOT shown equivalent (+-0.01): ["C-SEP", "C-SEPT"]
+  set2 L-full  independent generators won: ["RC", "ROLE", "THR"] (count 3); all incl. own-class: ["RC", "ROLE", "THR", "LAT"]; controls with Holm LOSS: []; controls NOT shown equivalent (+-0.01): ["C-SEP", "C-SEPT"]
+  set3 L-add   independent generators won: ["COMP", "COMPX"] (count 2); all incl. own-class: ["COMP", "COMPX"]; controls with Holm LOSS: []; controls NOT shown equivalent (+-0.01): ["C-SEP", "C-SEPT"]
+  set3 L-pair  independent generators won: ["COMP", "COMPX"] (count 2); all incl. own-class: ["COMP", "COMPX"]; controls with Holm LOSS: []; controls NOT shown equivalent (+-0.01): ["C-SEP", "C-SEPT"]
+  set3 L-gate  independent generators won: ["COMP", "COMPX"] (count 2); all incl. own-class: ["COMP", "COMPX"]; controls with Holm LOSS: []; controls NOT shown equivalent (+-0.01): ["C-SEP", "C-SEPT"]
+  set3 L-full  independent generators won: ["COMP", "COMPX"] (count 2); all incl. own-class: ["COMP", "COMPX"]; controls with Holm LOSS: []; controls NOT shown equivalent (+-0.01): ["C-SEP", "C-SEPT"]
+
+=== ablation: arm minus L-add (same world, paired over seeds; metric v; Holm over 48 cells) -- does the pairwise term / the gates add anything over the additive model?
+set1 RC          L-pair   -0.0027 [ -0.0045, -0.0010] Holm 0.0676 n.s.
+set1 RC          L-gate   -0.0054 [ -0.0071, -0.0037] Holm 0.0000 WORSE than L-add
+set1 RC          L-full   -0.0022 [ -0.0039, -0.0005] Holm 0.2447 n.s.
+set1 RC-drift    L-pair   -0.0023 [ -0.0047, +0.0001] Holm 0.6295 n.s.
+set1 RC-drift    L-gate   -0.0044 [ -0.0074, -0.0014] Holm 0.1085 n.s.
+set1 RC-drift    L-full   -0.0186 [ -0.0228, -0.0143] Holm 0.0000 WORSE than L-add
+set1 RC-L        L-pair   +0.0019 [ +0.0001, +0.0036] Holm 0.4704 n.s.
+set1 RC-L        L-gate   -0.0070 [ -0.0085, -0.0054] Holm 0.0000 WORSE than L-add
+set1 RC-L        L-full   -0.0070 [ -0.0089, -0.0051] Holm 0.0000 WORSE than L-add
+set1 ROLE        L-pair   -0.0068 [ -0.0087, -0.0050] Holm 0.0000 WORSE than L-add
+set1 ROLE        L-gate   -0.0131 [ -0.0214, -0.0049] Holm 0.0659 n.s.
+set1 ROLE        L-full   -0.0158 [ -0.0221, -0.0095] Holm 0.0006 WORSE than L-add
+set1 THR         L-pair   +0.0109 [ -0.0066, +0.0284] Holm 1.0000 n.s.
+set1 THR         L-gate   -0.0115 [ -0.0274, +0.0044] Holm 1.0000 n.s.
+set1 THR         L-full   -0.0571 [ -0.0728, -0.0413] Holm 0.0000 WORSE than L-add
+set1 LAT         L-pair   +0.0126 [ +0.0090, +0.0161] Holm 0.0000 BETTER than L-add
+set1 LAT         L-gate   +0.0088 [ +0.0047, +0.0130] Holm 0.0047 BETTER than L-add
+set1 LAT         L-full   +0.0014 [ -0.0021, +0.0049] Holm 1.0000 n.s.
+set1 C-SEP       L-pair   +0.0146 [ +0.0050, +0.0242] Holm 0.0900 n.s.
+set1 C-SEP       L-gate   +0.0231 [ +0.0153, +0.0309] Holm 0.0000 BETTER than L-add
+set1 C-SEP       L-full   +0.0196 [ +0.0134, +0.0259] Holm 0.0000 BETTER than L-add
+set1 C-SEPT      L-pair   +0.0285 [ +0.0195, +0.0375] Holm 0.0000 BETTER than L-add
+set1 C-SEPT      L-gate   +0.0608 [ +0.0516, +0.0701] Holm 0.0000 BETTER than L-add
+set1 C-SEPT      L-full   +0.0691 [ +0.0589, +0.0792] Holm 0.0000 BETTER than L-add
+set2 RC-K        L-pair   -0.0040 [ -0.0073, -0.0007] Holm 0.3016 n.s.
+set2 RC-K        L-gate   +0.0078 [ +0.0031, +0.0124] Holm 0.0472 BETTER than L-add
+set2 RC-K        L-full   -0.0088 [ -0.0149, -0.0026] Holm 0.1227 n.s.
+set2 RC-drift-K  L-pair   -0.0059 [ -0.0090, -0.0029] Holm 0.0112 WORSE than L-add
+set2 RC-drift-K  L-gate   +0.0034 [ -0.0017, +0.0084] Holm 1.0000 n.s.
+set2 RC-drift-K  L-full   -0.0102 [ -0.0160, -0.0045] Holm 0.0284 WORSE than L-add
+set2 RC-L-K      L-pair   -0.0048 [ -0.0076, -0.0020] Holm 0.0440 WORSE than L-add
+set2 RC-L-K      L-gate   +0.0033 [ -0.0005, +0.0070] Holm 0.7817 n.s.
+set2 RC-L-K      L-full   -0.0178 [ -0.0238, -0.0118] Holm 0.0000 WORSE than L-add
+set2 ROLE-K      L-pair   -0.0083 [ -0.0157, -0.0009] Holm 0.4025 n.s.
+set2 ROLE-K      L-gate   -0.0096 [ -0.0199, +0.0007] Holm 0.6538 n.s.
+set2 ROLE-K      L-full   -0.0265 [ -0.0352, -0.0178] Holm 0.0000 WORSE than L-add
+set2 THR-K       L-pair   +0.0072 [ -0.0095, +0.0239] Holm 1.0000 n.s.
+set2 THR-K       L-gate   -0.0043 [ -0.0205, +0.0119] Holm 1.0000 n.s.
+set2 THR-K       L-full   -0.0266 [ -0.0444, -0.0089] Holm 0.0913 n.s.
+set2 LAT-K       L-pair   +0.0112 [ +0.0081, +0.0143] Holm 0.0000 BETTER than L-add
+set2 LAT-K       L-gate   +0.0093 [ +0.0055, +0.0132] Holm 0.0008 BETTER than L-add
+set2 LAT-K       L-full   +0.0027 [ -0.0006, +0.0060] Holm 0.8684 n.s.
+set3 COMP        L-pair   +0.0236 [ +0.0095, +0.0376] Holm 0.0472 BETTER than L-add
+set3 COMP        L-gate   +0.0161 [ +0.0011, +0.0311] Holm 0.4704 n.s.
+set3 COMP        L-full   +0.0048 [ -0.0102, +0.0199] Holm 1.0000 n.s.
+set3 COMP-X      L-pair   +0.0155 [ +0.0108, +0.0202] Holm 0.0000 BETTER than L-add
+set3 COMP-X      L-gate   +0.0057 [ +0.0011, +0.0103] Holm 0.2728 n.s.
+set3 COMP-X      L-full   -0.0090 [ -0.0137, -0.0043] Holm 0.0136 WORSE than L-add
+wrote results/g11_team_held_noise0.1.json

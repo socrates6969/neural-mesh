@@ -1,0 +1,5 @@
+# G12 proposed patch: none
+
+No change to `src/*.rs` is proposed. The learned router lost to guarded(hebbian-robust) / warm(hebbian-robust) in every existing world (sim Fixed/Random/NoTraps, f3 Big, BigTail) at every data volume tested (2000, 6000, 20000 tasks), including with a keyword-prior skip connection (`ann+kw`), so there is nothing to promote into `defaults.rs` or `variants.rs`.
+
+If a future owner wants a continuous-feature / interaction-aware router as an OPT-IN module (it won it in my synthetic XOR / RBF worlds and in a linear continuous world with raw-float features), the self-contained implementation is `AnnRouter` in `src/bin/g12_common/mod.rs` (about 250 lines, std-only, implements `router::Router`, constant ~25-120 kB state). Moving it would need: a `features: Vec<String>` side channel for floats (today it reads a table indexed by `Task::id`, which is a bench-only hack), a decision on the replay/forgetting behaviour under drift, and a keyword-prior variant. Not recommended as a default.

@@ -1,0 +1,188 @@
+world agency | pool Agency | 10 agents | mix [0.3, 0.2, 0.25, 0.15, 0.1] | d [0.3, 0.22, 0.28, 0.0, 0.0] x1 | projects 12 | id tokens 3/3 | decoy 0.3 | briefs-given false | confusable false
+agent mean competence by domain (hidden):
+  agent      design businessmarketing   coding     math
+  a0           0.38     0.32     0.36     0.80     0.37
+  a1           0.36     0.30     0.85     0.38     0.38
+  a2           0.36     0.37     0.39     0.37     0.86
+  a3           0.63     0.37     0.37     0.40     0.40
+  a4           0.58     0.58     0.55     0.56     0.56
+  a5           0.38     0.63     0.41     0.37     0.37
+  a6           0.83     0.36     0.81     0.38     0.35
+  a7           0.82     0.36     0.40     0.41     0.33
+  a8           0.56     0.60     0.57     0.57     0.58
+  a9           0.39     0.84     0.34     0.36     0.38
+correlation across agents of domain-mean competence:
+  design        1.00    -0.24     0.23    -0.13    -0.31
+  business     -0.24     1.00    -0.33    -0.14     0.00
+  marketing     0.23    -0.33     1.00    -0.18    -0.14
+  coding       -0.13    -0.14    -0.18     1.00    -0.02
+  math         -0.31     0.00    -0.14    -0.02     1.00
+sample tasks (tags | text tokens | project | best agent (competence) | keyword-advertised agent):
+  #0 [marketing/copywriting] ["marketing", "dom:marketing", "copywriting-w0", "copywriting-w1", "campaign-w2", "pr7a", "pr7b", "pr7c", "client", "please"] | proj Some(7) | best a6 (0.82) | keyword a1 (0.82)
+  #1 [marketing/copywriting] ["marketing", "dom:marketing", "copywriting-w0", "copywriting-w2", "pr6c", "pr6b", "pr6a", "please", "client"] | proj Some(6) | best a6 (0.82) | keyword a3 (0.38)
+  #2 [coding/api] ["coding", "dom:coding", "api-w0", "api-w2", "pr9b", "pr9c", "pr9a", "urgent", "iterate"] | proj Some(9) | best a0 (0.79) | keyword a0 (0.79)
+  #3 [coding/rust] ["coding", "dom:coding", "rust-w0", "rust-w2", "pr10c", "pr10a", "pr10b", "urgent", "client"] | proj Some(10) | best a0 (0.80) | keyword a0 (0.80)
+  #4 [math/calculus] ["math", "dom:math", "calculus-w1", "calculus-w2", "algebra-w1", "pr11a", "pr11c", "pr11b", "review", "client"] | proj Some(11) | best a2 (0.89) | keyword a2 (0.89)
+  #5 [coding/sql] ["coding", "dom:coding", "sql-w1", "sql-w2", "pr10b", "pr10a", "pr10c", "iterate", "urgent"] | proj Some(10) | best a0 (0.79) | keyword a0 (0.79)
+  #6 [design/ux-flow] ["design", "dom:design", "ux-flow-w0", "ux-flow-w1", "pr1a", "pr1b", "pr1c", "iterate", "review"] | proj Some(1) | best a6 (0.86) | keyword a6 (0.86)
+  #7 [coding/rust] ["coding", "dom:coding", "rust-w1", "rust-w2", "pr10c", "pr10b", "pr10a", "please", "client"] | proj Some(10) | best a0 (0.80) | keyword a0 (0.80)
+keyword map: 4/20 sub-skills advertise a clearly non-best agent; oracle (no-ctx) mean quality 0.676
+
+world generalist-pool | pool Generalists | 8 agents | mix [0.3, 0.2, 0.25, 0.15, 0.1] | d [0.3, 0.22, 0.28, 0.0, 0.0] x1 | projects 12 | id tokens 3/3 | decoy 0.3 | briefs-given false | confusable false
+agent mean competence by domain (hidden):
+  agent      design businessmarketing   coding     math
+  a0           0.48     0.56     0.50     0.50     0.54
+  a1           0.70     0.46     0.50     0.45     0.45
+  a2           0.51     0.46     0.44     0.45     0.50
+  a3           0.49     0.51     0.46     0.48     0.52
+  a4           0.47     0.51     0.66     0.47     0.49
+  a5           0.49     0.48     0.48     0.48     0.49
+  a6           0.59     0.68     0.65     0.60     0.56
+  a7           0.61     0.62     0.72     0.58     0.65
+correlation across agents of domain-mean competence:
+  design        1.00     0.14     0.26     0.23     0.08
+  business      0.14     1.00     0.74     0.97     0.78
+  marketing     0.26     0.74     1.00     0.72     0.63
+  coding        0.23     0.97     0.72     1.00     0.83
+  math          0.08     0.78     0.63     0.83     1.00
+sample tasks (tags | text tokens | project | best agent (competence) | keyword-advertised agent):
+  #0 [business/go-to-market] ["business", "dom:business", "go-to-market-w0", "go-to-market-w1", "ops-plan-w0", "pr4b", "pr4c", "pr4a", "draft", "please"] | proj Some(4) | best a6 (0.61) | keyword a0 (0.42)
+  #1 [business/ops-plan] ["business", "dom:business", "ops-plan-w1", "ops-plan-w2", "pr5b", "pr5c", "pr5a", "review", "urgent"] | proj Some(5) | best a6 (0.72) | keyword a0 (0.58)
+  #2 [marketing/campaign] ["marketing", "dom:marketing", "campaign-w0", "campaign-w1", "pr6b", "pr6a", "pr6c", "client", "urgent"] | proj Some(6) | best a4 (0.78) | keyword a0 (0.48)
+  #3 [coding/api] ["coding", "dom:coding", "api-w1", "api-w2", "pr10b", "pr10c", "pr10a", "urgent", "urgent"] | proj Some(10) | best a6 (0.63) | keyword a3 (0.39)
+  #4 [marketing/campaign] ["marketing", "dom:marketing", "campaign-w0", "campaign-w2", "copywriting-w2", "pr7a", "pr7c", "pr7b", "review", "please"] | proj Some(7) | best a4 (0.78) | keyword a0 (0.48)
+  #5 [design/visual-ui] ["design", "dom:design", "visual-ui-w0", "visual-ui-w2", "pr0c", "pr0a", "pr0b", "please", "please"] | proj Some(0) | best a6 (0.70) | keyword a6 (0.70)
+  #6 [coding/debug] ["coding", "dom:coding", "debug-w0", "debug-w1", "pr10b", "pr10c", "pr10a", "please", "please"] | proj Some(10) | best a7 (0.58) | keyword a7 (0.58)
+  #7 [coding/sql] ["coding", "dom:coding", "sql-w0", "sql-w2", "debug-w2", "pr10b", "pr10a", "pr10c", "please", "draft"] | proj Some(10) | best a6 (0.67) | keyword a4 (0.48)
+keyword map: 5/20 sub-skills advertise a clearly non-best agent; oracle (no-ctx) mean quality 0.546
+
+world big-pool | pool Big | 20 agents | mix [0.15, 0.4, 0.2, 0.15, 0.1] | d [0.3, 0.22, 0.28, 0.0, 0.0] x1 | projects 24 | id tokens 3/3 | decoy 0.3 | briefs-given false | confusable false
+agent mean competence by domain (hidden):
+  agent      design businessmarketing   coding     math
+  a0           0.39     0.37     0.78     0.38     0.36
+  a1           0.33     0.33     0.37     0.37     0.75
+  a2           0.33     0.38     0.36     0.38     0.81
+  a3           0.35     0.38     0.84     0.37     0.34
+  a4           0.53     0.53     0.52     0.54     0.58
+  a5           0.39     0.39     0.37     0.79     0.37
+  a6           0.54     0.52     0.59     0.54     0.53
+  a7           0.53     0.57     0.58     0.54     0.56
+  a8           0.71     0.33     0.38     0.36     0.41
+  a9           0.38     0.83     0.38     0.39     0.37
+  a10          0.33     0.73     0.36     0.36     0.34
+  a11          0.37     0.34     0.34     0.75     0.33
+  a12          0.35     0.79     0.36     0.35     0.34
+  a13          0.34     0.35     0.37     0.37     0.76
+  a14          0.53     0.50     0.55     0.51     0.54
+  a15          0.79     0.38     0.35     0.33     0.42
+  a16          0.83     0.37     0.32     0.38     0.38
+  a17          0.41     0.36     0.39     0.79     0.34
+  a18          0.52     0.50     0.55     0.55     0.58
+  a19          0.37     0.33     0.74     0.30     0.39
+correlation across agents of domain-mean competence:
+  design        1.00    -0.18    -0.17    -0.09    -0.12
+  business     -0.18     1.00    -0.14    -0.13    -0.21
+  marketing    -0.17    -0.14     1.00    -0.15    -0.13
+  coding       -0.09    -0.13    -0.15     1.00    -0.15
+  math         -0.12    -0.21    -0.13    -0.15     1.00
+sample tasks (tags | text tokens | project | best agent (competence) | keyword-advertised agent):
+  #0 [business/financial-model] ["business", "dom:business", "financial-model-w0", "financial-model-w1", "pricing-w1", "pr11b", "pr11c", "pr11a", "client", "urgent"] | proj Some(11) | best a9 (0.85) | keyword a9 (0.85)
+  #1 [business/pricing] ["business", "dom:business", "pricing-w1", "pricing-w2", "pr4a", "pr4b", "pr4c", "draft", "please"] | proj Some(4) | best a9 (0.88) | keyword a9 (0.88)
+  #2 [marketing/campaign] ["marketing", "dom:marketing", "campaign-w0", "campaign-w2", "pr14b", "pr14a", "pr14c", "client", "please"] | proj Some(14) | best a0 (0.87) | keyword a0 (0.87)
+  #3 [coding/sql] ["coding", "dom:coding", "sql-w0", "sql-w1", "debug-w0", "pr20a", "pr20b", "pr20c", "iterate", "please"] | proj Some(20) | best a17 (0.81) | keyword a18 (0.54)
+  #4 [design/visual-ui] ["design", "dom:design", "visual-ui-w0", "visual-ui-w1", "pr2b", "pr2c", "pr2a", "draft", "please"] | proj Some(2) | best a8 (0.86) | keyword a19 (0.31)
+  #5 [marketing/social] ["marketing", "dom:marketing", "social-w1", "social-w2", "seo-w2", "pr17a", "pr17b", "pr17c", "draft", "please"] | proj Some(17) | best a3 (0.83) | keyword a3 (0.83)
+  #6 [marketing/campaign] ["marketing", "dom:marketing", "campaign-w1", "campaign-w2", "pr14a", "pr14c", "pr14b", "review", "urgent"] | proj Some(14) | best a0 (0.87) | keyword a0 (0.87)
+  #7 [business/go-to-market] ["business", "dom:business", "go-to-market-w0", "go-to-market-w1", "pr10a", "pr10c", "pr10b", "review", "urgent"] | proj Some(10) | best a9 (0.91) | keyword a14 (0.54)
+keyword map: 9/20 sub-skills advertise a clearly non-best agent; oracle (no-ctx) mean quality 0.698
+
+world latent-factors | pool Latent | 10 agents | mix [0.3, 0.2, 0.25, 0.15, 0.1] | d [0.3, 0.22, 0.28, 0.0, 0.0] x1 | projects 12 | id tokens 3/3 | decoy 0.3 | briefs-given false | confusable false
+agent mean competence by domain (hidden):
+  agent      design businessmarketing   coding     math
+  a0           0.28     0.60     0.27     0.70     0.79
+  a1           0.57     0.49     0.56     0.52     0.40
+  a2           0.40     0.20     0.32     0.46     0.34
+  a3           0.59     0.46     0.65     0.44     0.47
+  a4           0.45     0.60     0.46     0.57     0.58
+  a5           0.46     0.17     0.34     0.34     0.22
+  a6           0.20     0.60     0.34     0.34     0.51
+  a7           0.36     0.61     0.46     0.44     0.58
+  a8           0.50     0.42     0.44     0.29     0.40
+  a9           0.79     0.16     0.54     0.78     0.40
+correlation across agents of domain-mean competence:
+  design        1.00    -0.57     0.74     0.39    -0.44
+  business     -0.57     1.00    -0.00    -0.07     0.80
+  marketing     0.74    -0.00     1.00     0.11    -0.17
+  coding        0.39    -0.07     0.11     1.00     0.42
+  math         -0.44     0.80    -0.17     0.42     1.00
+sample tasks (tags | text tokens | project | best agent (competence) | keyword-advertised agent):
+  #0 [coding/api] ["coding", "dom:coding", "api-w1", "api-w2", "sql-w2", "pr10b", "pr10c", "pr10a", "urgent", "client"] | proj Some(10) | best a9 (0.81) | keyword a3 (0.43)
+  #1 [business/ops-plan] ["business", "dom:business", "ops-plan-w1", "ops-plan-w2", "pr5c", "pr5a", "pr5b", "review", "draft"] | proj Some(5) | best a0 (0.65) | keyword a2 (0.16)
+  #2 [business/financial-model] ["business", "dom:business", "financial-model-w0", "financial-model-w1", "pr4b", "pr4c", "pr4a", "please", "client"] | proj Some(4) | best a6 (0.69) | keyword a6 (0.69)
+  #3 [coding/debug] ["coding", "dom:coding", "debug-w0", "debug-w1", "pr10b", "pr10a", "pr10c", "draft", "please"] | proj Some(10) | best a0 (0.70) | keyword a0 (0.70)
+  #4 [coding/api] ["coding", "dom:coding", "api-w0", "api-w2", "sql-w2", "pr9a", "pr9b", "pr9c", "iterate", "urgent"] | proj Some(9) | best a9 (0.81) | keyword a3 (0.43)
+  #5 [design/design-system] ["design", "dom:design", "design-system-w1", "design-system-w2", "pr2b", "pr2a", "pr2c", "iterate", "urgent"] | proj Some(2) | best a9 (0.73) | keyword a9 (0.73)
+  #6 [math/algebra] ["math", "dom:math", "algebra-w0", "algebra-w1", "pr11b", "pr11a", "pr11c", "urgent", "please"] | proj Some(11) | best a0 (0.76) | keyword a0 (0.76)
+  #7 [business/go-to-market] ["business", "dom:business", "go-to-market-w0", "go-to-market-w2", "pr5c", "pr5b", "pr5a", "please", "urgent"] | proj Some(5) | best a7 (0.69) | keyword a7 (0.69)
+keyword map: 7/20 sub-skills advertise a clearly non-best agent; oracle (no-ctx) mean quality 0.586
+
+world confusable-briefs | pool Agency | 10 agents | mix [0.3, 0.2, 0.25, 0.15, 0.1] | d [0.3, 0.22, 0.28, 0.0, 0.0] x1 | projects 12 | id tokens 3/3 | decoy 0.3 | briefs-given false | confusable true
+agent mean competence by domain (hidden):
+  agent      design businessmarketing   coding     math
+  a0           0.38     0.34     0.82     0.38     0.33
+  a1           0.53     0.56     0.57     0.56     0.57
+  a2           0.65     0.34     0.34     0.37     0.37
+  a3           0.82     0.37     0.35     0.37     0.31
+  a4           0.34     0.66     0.36     0.40     0.37
+  a5           0.57     0.59     0.57     0.56     0.58
+  a6           0.36     0.40     0.38     0.84     0.41
+  a7           0.87     0.37     0.84     0.36     0.35
+  a8           0.40     0.83     0.36     0.35     0.38
+  a9           0.31     0.35     0.36     0.35     0.83
+correlation across agents of domain-mean competence:
+  design        1.00    -0.31     0.30    -0.24    -0.38
+  business     -0.31     1.00    -0.24    -0.01    -0.03
+  marketing     0.30    -0.24     1.00    -0.10    -0.18
+  coding       -0.24    -0.01    -0.10     1.00     0.09
+  math         -0.38    -0.03    -0.18     0.09     1.00
+sample tasks (tags | text tokens | project | best agent (competence) | keyword-advertised agent):
+  #0 [marketing/campaign] ["marketing", "dom:marketing", "campaign-w0", "campaign-w1", "pr8a", "tone", "audience", "brand", "iterate", "iterate"] | proj Some(8) | best a0 (0.81) | keyword a0 (0.81)
+  #1 [coding/api] ["coding", "dom:coding", "api-w0", "api-w2", "pr10a", "tone", "guide", "deliverable", "review", "iterate"] | proj Some(10) | best a6 (0.89) | keyword a6 (0.89)
+  #2 [business/financial-model] ["business", "dom:business", "financial-model-w1", "financial-model-w2", "pr4a", "brand", "tone", "guide", "urgent", "draft"] | proj Some(4) | best a4 (0.95) | keyword a4 (0.95)
+  #3 [marketing/campaign] ["marketing", "dom:marketing", "campaign-w1", "campaign-w2", "social-w2", "pr8a", "audience", "brand", "style", "please", "urgent"] | proj Some(8) | best a0 (0.81) | keyword a0 (0.81)
+  #4 [coding/sql] ["coding", "dom:coding", "sql-w0", "sql-w2", "pr10a", "tone", "guide", "brand", "review", "client"] | proj Some(10) | best a6 (0.81) | keyword a9 (0.40)
+  #5 [marketing/campaign] ["marketing", "dom:marketing", "campaign-w0", "campaign-w1", "pr8a", "audience", "brand", "guide", "client", "urgent"] | proj Some(8) | best a0 (0.81) | keyword a0 (0.81)
+  #6 [design/visual-ui] ["design", "dom:design", "visual-ui-w0", "visual-ui-w2", "pr2a", "guide", "audience", "deliverable", "draft", "please"] | proj Some(2) | best a7 (0.87) | keyword a7 (0.87)
+  #7 [design/visual-ui] ["design", "dom:design", "visual-ui-w0", "visual-ui-w1", "ux-flow-w2", "pr1a", "tone", "guide", "style", "iterate", "please"] | proj Some(1) | best a7 (0.87) | keyword a7 (0.87)
+keyword map: 4/20 sub-skills advertise a clearly non-best agent; oracle (no-ctx) mean quality 0.677
+
+world ctl-coding-math | pool Agency | 10 agents | mix [0.0, 0.0, 0.0, 0.55, 0.45] | d [0.0, 0.0, 0.0, 0.0, 0.0] x1 | projects 8 | id tokens 3/3 | decoy 0.3 | briefs-given false | confusable false
+agent mean competence by domain (hidden):
+  agent      design businessmarketing   coding     math
+  a0           0.41     0.63     0.33     0.37     0.37
+  a1           0.55     0.59     0.56     0.55     0.56
+  a2           0.59     0.58     0.57     0.56     0.56
+  a3           0.38     0.35     0.38     0.36     0.83
+  a4           0.39     0.81     0.36     0.38     0.33
+  a5           0.82     0.37     0.84     0.41     0.38
+  a6           0.39     0.39     0.84     0.32     0.35
+  a7           0.65     0.37     0.35     0.36     0.38
+  a8           0.86     0.34     0.34     0.42     0.34
+  a9           0.36     0.36     0.38     0.82     0.36
+correlation across agents of domain-mean competence:
+  design        1.00    -0.36     0.20    -0.14    -0.21
+  business     -0.36     1.00    -0.19    -0.07    -0.13
+  marketing     0.20    -0.19     1.00    -0.13    -0.07
+  coding       -0.14    -0.07    -0.13     1.00    -0.01
+  math         -0.21    -0.13    -0.07    -0.01     1.00
+sample tasks (tags | text tokens | project | best agent (competence) | keyword-advertised agent):
+  #0 [coding/api] ["coding", "dom:coding", "api-w1", "api-w2", "pr3b", "pr3c", "pr3a", "iterate", "iterate"] | proj Some(3) | best a9 (0.81) | keyword a9 (0.81)
+  #1 [coding/sql] ["coding", "dom:coding", "sql-w1", "sql-w2", "pr2c", "pr2b", "pr2a", "iterate", "please"] | proj Some(2) | best a9 (0.83) | keyword a2 (0.57)
+  #2 [math/proof] ["math", "dom:math", "proof-w0", "proof-w2", "pr5a", "pr5c", "pr5b", "client", "iterate"] | proj Some(5) | best a3 (0.85) | keyword a3 (0.85)
+  #3 [math/stats] ["math", "dom:math", "stats-w1", "stats-w2", "pr6b", "pr6c", "pr6a", "please", "client"] | proj Some(6) | best a3 (0.81) | keyword a7 (0.36)
+  #4 [coding/rust] ["coding", "dom:coding", "rust-w0", "rust-w2", "pr0c", "pr0b", "pr0a", "client", "urgent"] | proj Some(0) | best a9 (0.84) | keyword a9 (0.84)
+  #5 [coding/api] ["coding", "dom:coding", "api-w0", "api-w1", "pr1b", "pr1a", "pr1c", "please", "urgent"] | proj Some(1) | best a9 (0.81) | keyword a9 (0.81)
+  #6 [coding/rust] ["coding", "dom:coding", "rust-w1", "rust-w2", "pr0a", "pr0c", "pr0b", "please", "client"] | proj Some(0) | best a9 (0.84) | keyword a9 (0.84)
+  #7 [math/calculus] ["math", "dom:math", "calculus-w1", "calculus-w2", "pr5a", "pr5c", "pr5b", "client", "client"] | proj Some(5) | best a3 (0.81) | keyword a3 (0.81)
+keyword map: 4/20 sub-skills advertise a clearly non-best agent; oracle (no-ctx) mean quality 0.821
+

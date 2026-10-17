@@ -1,0 +1,23 @@
+[package]
+name = "g17_harness"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[dependencies]
+hnsw_orig = { package = "hnsw_rs", version = "=0.3.4" }
+hnsw_patched = { package = "hnsw_rs", path = "../hnsw_rs_patched" }
+
+[profile.release]
+opt-level = 3
+debug = false
+
+[[bin]]
+name = "g17_harness"
+path = "src/main.rs"
+
+[[bin]]
+name = "g17_wk"
+path = "src/wk.rs"

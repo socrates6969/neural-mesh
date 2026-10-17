@@ -1,0 +1,3171 @@
+{
+  "dataset": "real-bge",
+  "dim": 768,
+  "machine": {
+    "avx2": true,
+    "calib_ms_fixed_scan": 1.2642,
+    "f16c": true,
+    "free_ram_gb": 5.765926361083984,
+    "proc_peak_ws_mb": 310.2421875,
+    "proc_ws_mb": 83.2265625,
+    "rayon_threads": 2,
+    "tag": "end"
+  },
+  "mode": "memory",
+  "n": 23453,
+  "note": "32476 rows read from results/g1_emb_[A-D]_bge.f32, 9023 exact duplicates dropped -> 23453 base rows; queries: real bge query-instruction embeddings (g1_emb_*_bgei). SYNTHETIC templated corpora (near-duplicate-heavy), real model embeddings.",
+  "nq": 300,
+  "reps": 3,
+  "rows": [
+    {
+      "bench": {
+        "mean_us": {
+          "max": 2183.5243333333315,
+          "mean": 2042.5025555555549,
+          "min": 1870.937666666666,
+          "reps": [
+            1870.937666666666,
+            2073.045666666667,
+            2183.5243333333315
+          ]
+        },
+        "p50_us": {
+          "max": 2098.8,
+          "mean": 1972.8,
+          "min": 1736.5,
+          "reps": [
+            1736.5,
+            2083.1,
+            2098.8
+          ]
+        },
+        "p99_us": {
+          "max": 3381.0,
+          "mean": 2940.2999999999997,
+          "min": 2519.7000000000003,
+          "reps": [
+            2519.7000000000003,
+            2920.2,
+            3381.0
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.0,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 3072.0,
+      "m_vectors_per_decimal_GB_ram": 0.3255208333333333,
+      "n": 23453,
+      "name": "flat f32 exact (avx2)",
+      "ram_bytes_per_vec_total": 3072.0,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 1574.3756666666675,
+          "mean": 1483.9425555555554,
+          "min": 1432.0146666666658,
+          "reps": [
+            1445.4373333333326,
+            1432.0146666666658,
+            1574.3756666666675
+          ]
+        },
+        "p50_us": {
+          "max": 1636.7,
+          "mean": 1489.1000000000001,
+          "min": 1386.3,
+          "reps": [
+            1444.3,
+            1386.3,
+            1636.7
+          ]
+        },
+        "p99_us": {
+          "max": 1910.3,
+          "mean": 1799.1333333333332,
+          "min": 1685.2,
+          "reps": [
+            1801.8999999999999,
+            1910.3,
+            1685.2
+          ]
+        },
+        "recall_at_10": 0.9996666666666666,
+        "recall_min_query": 0.9
+      },
+      "build_s": 0.0138512,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 1536.0,
+      "m_vectors_per_decimal_GB_ram": 0.6510416666666666,
+      "n": 23453,
+      "name": "flat f16",
+      "ram_bytes_per_vec_total": 1536.0,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 1428.9543333333327,
+          "mean": 1413.5683333333334,
+          "min": 1388.2573333333335,
+          "reps": [
+            1388.2573333333335,
+            1423.493333333333,
+            1428.9543333333327
+          ]
+        },
+        "p50_us": {
+          "max": 1403.0,
+          "mean": 1393.9666666666665,
+          "min": 1379.6,
+          "reps": [
+            1379.6,
+            1403.0,
+            1399.3
+          ]
+        },
+        "p99_us": {
+          "max": 1760.2,
+          "mean": 1717.3333333333333,
+          "min": 1676.7,
+          "reps": [
+            1676.7,
+            1715.1,
+            1760.2
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.0692311,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 1632.0,
+      "m_vectors_per_decimal_GB_ram": 0.6127450980392156,
+      "n": 23453,
+      "name": "flat blockfp16(32,i16+f32 scale)",
+      "ram_bytes_per_vec_total": 1632.0,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 964.4746666666665,
+          "mean": 925.0647777777776,
+          "min": 891.0476666666666,
+          "reps": [
+            919.6719999999997,
+            891.0476666666666,
+            964.4746666666665
+          ]
+        },
+        "p50_us": {
+          "max": 1010.4999999999999,
+          "mean": 953.3333333333334,
+          "min": 920.6,
+          "reps": [
+            928.9,
+            920.6,
+            1010.4999999999999
+          ]
+        },
+        "p99_us": {
+          "max": 1086.6999999999998,
+          "mean": 1059.3666666666666,
+          "min": 1034.2,
+          "reps": [
+            1057.1999999999998,
+            1034.2,
+            1086.6999999999998
+          ]
+        },
+        "recall_at_10": 0.9933333333333332,
+        "recall_min_query": 0.9
+      },
+      "build_s": 0.0501587,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 772.0,
+      "m_vectors_per_decimal_GB_ram": 1.2953367875647668,
+      "n": 23453,
+      "name": "flat int8(per-vector scale)",
+      "ram_bytes_per_vec_total": 772.0,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 1026.2823333333333,
+          "mean": 987.0056666666673,
+          "min": 965.7320000000007,
+          "reps": [
+            969.0026666666676,
+            1026.2823333333333,
+            965.7320000000007
+          ]
+        },
+        "p50_us": {
+          "max": 1011.5,
+          "mean": 987.2333333333335,
+          "min": 966.9,
+          "reps": [
+            966.9,
+            1011.5,
+            983.3000000000001
+          ]
+        },
+        "p99_us": {
+          "max": 1375.3000000000002,
+          "mean": 1184.4666666666665,
+          "min": 1050.3999999999999,
+          "reps": [
+            1050.3999999999999,
+            1375.3000000000002,
+            1127.6999999999998
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.0501587,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 772.0,
+      "m_vectors_per_decimal_GB_ram": 0.2601456815816858,
+      "n": 23453,
+      "name": "flat int8 + rerank4x [RAM]",
+      "ram_bytes_per_vec_total": 3844.0,
+      "ram_f32_rerank_bytes_per_vec": 3072.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 1224.3246666666673,
+          "mean": 1198.4971111111115,
+          "min": 1167.9900000000002,
+          "reps": [
+            1224.3246666666673,
+            1167.9900000000002,
+            1203.1766666666665
+          ]
+        },
+        "p50_us": {
+          "max": 1232.1000000000001,
+          "mean": 1203.0333333333335,
+          "min": 1169.8,
+          "reps": [
+            1232.1000000000001,
+            1169.8,
+            1207.2
+          ]
+        },
+        "p99_us": {
+          "max": 1523.4,
+          "mean": 1457.5333333333335,
+          "min": 1375.6000000000001,
+          "reps": [
+            1473.6000000000001,
+            1375.6000000000001,
+            1523.4
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.0501587,
+      "disk_f32_rerank_bytes_per_vec": 3072.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 772.0,
+      "m_vectors_per_decimal_GB_ram": 1.2953367875647668,
+      "n": 23453,
+      "name": "flat int8 + rerank4x [SSD buffered]",
+      "ram_bytes_per_vec_total": 772.0,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 6577.452666666663,
+          "mean": 5424.627777777776,
+          "min": 4789.145333333332,
+          "reps": [
+            6577.452666666663,
+            4789.145333333332,
+            4907.285333333332
+          ]
+        },
+        "p50_us": {
+          "max": 5120.2,
+          "mean": 4949.166666666667,
+          "min": 4810.7,
+          "reps": [
+            5120.2,
+            4810.7,
+            4916.6
+          ]
+        },
+        "p99_us": {
+          "max": 31134.6,
+          "mean": 14200.233333333332,
+          "min": 5572.599999999999,
+          "reps": [
+            31134.6,
+            5572.599999999999,
+            5893.5
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.0501587,
+      "disk_f32_rerank_bytes_per_vec": 3072.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 772.0,
+      "m_vectors_per_decimal_GB_ram": 1.2953367875647668,
+      "n": 23453,
+      "name": "flat int8 + rerank4x [SSD direct]",
+      "ram_bytes_per_vec_total": 772.0,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 142.29866666666672,
+          "mean": 134.6171111111111,
+          "min": 123.738,
+          "reps": [
+            123.738,
+            142.29866666666672,
+            137.8146666666665
+          ]
+        },
+        "p50_us": {
+          "max": 136.20000000000002,
+          "mean": 129.66666666666666,
+          "min": 117.30000000000001,
+          "reps": [
+            117.30000000000001,
+            136.20000000000002,
+            135.5
+          ]
+        },
+        "p99_us": {
+          "max": 220.6,
+          "mean": 206.56666666666663,
+          "min": 198.29999999999998,
+          "reps": [
+            200.8,
+            220.6,
+            198.29999999999998
+          ]
+        },
+        "recall_at_10": 0.9306666666666682,
+        "recall_min_query": 0.6
+      },
+      "build_s": 0.0812772,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 196.69705368183176,
+      "m_vectors_per_decimal_GB_ram": 5.083960238761658,
+      "n": 23453,
+      "name": "turbovec 2-bit",
+      "ram_bytes_per_vec_total": 196.69705368183176,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 172.52366666666654,
+          "mean": 163.8616666666666,
+          "min": 157.2753333333334,
+          "reps": [
+            172.52366666666654,
+            157.2753333333334,
+            161.78599999999986
+          ]
+        },
+        "p50_us": {
+          "max": 176.79999999999998,
+          "mean": 169.56666666666663,
+          "min": 164.5,
+          "reps": [
+            176.79999999999998,
+            164.5,
+            167.4
+          ]
+        },
+        "p99_us": {
+          "max": 227.9,
+          "mean": 217.16666666666666,
+          "min": 203.79999999999998,
+          "reps": [
+            227.9,
+            203.79999999999998,
+            219.8
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.0812772,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 196.69705368183176,
+      "m_vectors_per_decimal_GB_ram": 0.3059322976638685,
+      "n": 23453,
+      "name": "turbovec 2-bit + rerank4x [RAM]",
+      "ram_bytes_per_vec_total": 3268.6970536818317,
+      "ram_f32_rerank_bytes_per_vec": 3072.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 474.9006666666666,
+          "mean": 452.10488888888887,
+          "min": 414.81766666666675,
+          "reps": [
+            466.5963333333333,
+            474.9006666666666,
+            414.81766666666675
+          ]
+        },
+        "p50_us": {
+          "max": 443.2,
+          "mean": 429.6000000000001,
+          "min": 404.1,
+          "reps": [
+            441.5,
+            443.2,
+            404.1
+          ]
+        },
+        "p99_us": {
+          "max": 1081.6000000000001,
+          "mean": 855.9666666666667,
+          "min": 631.4,
+          "reps": [
+            854.9,
+            1081.6000000000001,
+            631.4
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.0812772,
+      "disk_f32_rerank_bytes_per_vec": 3072.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 196.69705368183176,
+      "m_vectors_per_decimal_GB_ram": 5.083960238761658,
+      "n": 23453,
+      "name": "turbovec 2-bit + rerank4x [SSD buffered]",
+      "ram_bytes_per_vec_total": 196.69705368183176,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 4812.53133333333,
+          "mean": 4594.289111111112,
+          "min": 4332.421333333333,
+          "reps": [
+            4637.914666666672,
+            4332.421333333333,
+            4812.53133333333
+          ]
+        },
+        "p50_us": {
+          "max": 4644.1,
+          "mean": 4523.866666666667,
+          "min": 4284.099999999999,
+          "reps": [
+            4643.4,
+            4284.099999999999,
+            4644.1
+          ]
+        },
+        "p99_us": {
+          "max": 8565.400000000001,
+          "mean": 6546.3,
+          "min": 5344.9,
+          "reps": [
+            5728.6,
+            5344.9,
+            8565.400000000001
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.0812772,
+      "disk_f32_rerank_bytes_per_vec": 3072.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 196.69705368183176,
+      "m_vectors_per_decimal_GB_ram": 5.083960238761658,
+      "n": 23453,
+      "name": "turbovec 2-bit + rerank4x [SSD direct]",
+      "ram_bytes_per_vec_total": 196.69705368183176,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 472.7566666666669,
+          "mean": 430.36111111111103,
+          "min": 377.14833333333314,
+          "reps": [
+            377.14833333333314,
+            472.7566666666669,
+            441.1783333333331
+          ]
+        },
+        "p50_us": {
+          "max": 421.2,
+          "mean": 383.26666666666665,
+          "min": 341.4,
+          "reps": [
+            341.4,
+            421.2,
+            387.2
+          ]
+        },
+        "p99_us": {
+          "max": 1415.3,
+          "mean": 1243.033333333333,
+          "min": 1048.6,
+          "reps": [
+            1048.6,
+            1415.3,
+            1265.2
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.0812772,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 196.69705368183176,
+      "m_vectors_per_decimal_GB_ram": 0.3059322976638685,
+      "n": 23453,
+      "name": "turbovec 2-bit + rerank8x [RAM]",
+      "ram_bytes_per_vec_total": 3268.6970536818317,
+      "ram_f32_rerank_bytes_per_vec": 3072.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 805.2116666666668,
+          "mean": 796.7555555555555,
+          "min": 790.9490000000003,
+          "reps": [
+            805.2116666666668,
+            790.9490000000003,
+            794.1059999999995
+          ]
+        },
+        "p50_us": {
+          "max": 783.5,
+          "mean": 779.6666666666666,
+          "min": 772.0999999999999,
+          "reps": [
+            783.5,
+            772.0999999999999,
+            783.4
+          ]
+        },
+        "p99_us": {
+          "max": 1629.5,
+          "mean": 1365.1333333333332,
+          "min": 1174.7,
+          "reps": [
+            1629.5,
+            1291.2,
+            1174.7
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.0812772,
+      "disk_f32_rerank_bytes_per_vec": 3072.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 196.69705368183176,
+      "m_vectors_per_decimal_GB_ram": 5.083960238761658,
+      "n": 23453,
+      "name": "turbovec 2-bit + rerank8x [SSD buffered]",
+      "ram_bytes_per_vec_total": 196.69705368183176,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 8971.610333333334,
+          "mean": 8425.872333333333,
+          "min": 7995.993000000001,
+          "reps": [
+            7995.993000000001,
+            8971.610333333334,
+            8310.01366666666
+          ]
+        },
+        "p50_us": {
+          "max": 8592.6,
+          "mean": 8384.900000000001,
+          "min": 8052.200000000001,
+          "reps": [
+            8052.200000000001,
+            8509.900000000001,
+            8592.6
+          ]
+        },
+        "p99_us": {
+          "max": 15929.7,
+          "mean": 11925.9,
+          "min": 9000.5,
+          "reps": [
+            9000.5,
+            15929.7,
+            10847.5
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.0812772,
+      "disk_f32_rerank_bytes_per_vec": 3072.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 196.69705368183176,
+      "m_vectors_per_decimal_GB_ram": 5.083960238761658,
+      "n": 23453,
+      "name": "turbovec 2-bit + rerank8x [SSD direct]",
+      "ram_bytes_per_vec_total": 196.69705368183176,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 420.2686666666664,
+          "mean": 404.72488888888887,
+          "min": 394.3220000000002,
+          "reps": [
+            420.2686666666664,
+            394.3220000000002,
+            399.5840000000001
+          ]
+        },
+        "p50_us": {
+          "max": 420.59999999999997,
+          "mean": 403.6333333333334,
+          "min": 388.8,
+          "reps": [
+            420.59999999999997,
+            388.8,
+            401.5
+          ]
+        },
+        "p99_us": {
+          "max": 571.2,
+          "mean": 538.3333333333334,
+          "min": 498.2,
+          "reps": [
+            571.2,
+            545.6,
+            498.2
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.0812772,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 196.69705368183176,
+      "m_vectors_per_decimal_GB_ram": 0.3059322976638685,
+      "n": 23453,
+      "name": "turbovec 2-bit + rerank16x [RAM]",
+      "ram_bytes_per_vec_total": 3268.6970536818317,
+      "ram_f32_rerank_bytes_per_vec": 3072.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 1844.8270000000002,
+          "mean": 1458.0187777777774,
+          "min": 1172.470999999999,
+          "reps": [
+            1356.758333333333,
+            1172.470999999999,
+            1844.8270000000002
+          ]
+        },
+        "p50_us": {
+          "max": 1330.6,
+          "mean": 1277.9,
+          "min": 1203.7,
+          "reps": [
+            1330.6,
+            1203.7,
+            1299.4
+          ]
+        },
+        "p99_us": {
+          "max": 8365.0,
+          "mean": 3909.3333333333335,
+          "min": 1452.5,
+          "reps": [
+            1910.5,
+            1452.5,
+            8365.0
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.0812772,
+      "disk_f32_rerank_bytes_per_vec": 3072.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 196.69705368183176,
+      "m_vectors_per_decimal_GB_ram": 5.083960238761658,
+      "n": 23453,
+      "name": "turbovec 2-bit + rerank16x [SSD buffered]",
+      "ram_bytes_per_vec_total": 196.69705368183176,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 18217.759333333346,
+          "mean": 16081.070555555556,
+          "min": 14503.360000000002,
+          "reps": [
+            18217.759333333346,
+            15522.092333333325,
+            14503.360000000002
+          ]
+        },
+        "p50_us": {
+          "max": 17590.600000000002,
+          "mean": 15623.533333333333,
+          "min": 14493.6,
+          "reps": [
+            17590.600000000002,
+            14786.4,
+            14493.6
+          ]
+        },
+        "p99_us": {
+          "max": 28540.9,
+          "mean": 24601.099999999995,
+          "min": 16891.1,
+          "reps": [
+            28540.9,
+            28371.3,
+            16891.1
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.0812772,
+      "disk_f32_rerank_bytes_per_vec": 3072.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 196.69705368183176,
+      "m_vectors_per_decimal_GB_ram": 5.083960238761658,
+      "n": 23453,
+      "name": "turbovec 2-bit + rerank16x [SSD direct]",
+      "ram_bytes_per_vec_total": 196.69705368183176,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 271.5636666666665,
+          "mean": 243.2976666666666,
+          "min": 213.3803333333334,
+          "reps": [
+            244.9489999999999,
+            271.5636666666665,
+            213.3803333333334
+          ]
+        },
+        "p50_us": {
+          "max": 263.2,
+          "mean": 233.66666666666666,
+          "min": 197.1,
+          "reps": [
+            240.7,
+            263.2,
+            197.1
+          ]
+        },
+        "p99_us": {
+          "max": 468.90000000000003,
+          "mean": 394.9666666666667,
+          "min": 316.4,
+          "reps": [
+            468.90000000000003,
+            399.6,
+            316.4
+          ]
+        },
+        "recall_at_10": 0.9576666666666671,
+        "recall_min_query": 0.7
+      },
+      "build_s": 0.1634141,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 388.7132562998337,
+      "m_vectors_per_decimal_GB_ram": 2.5725904218420856,
+      "n": 23453,
+      "name": "turbovec 3-bit",
+      "ram_bytes_per_vec_total": 388.7132562998337,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 323.1993333333336,
+          "mean": 308.2245555555557,
+          "min": 299.68199999999996,
+          "reps": [
+            299.68199999999996,
+            301.7923333333335,
+            323.1993333333336
+          ]
+        },
+        "p50_us": {
+          "max": 299.40000000000003,
+          "mean": 295.73333333333335,
+          "min": 290.1,
+          "reps": [
+            290.1,
+            297.70000000000005,
+            299.40000000000003
+          ]
+        },
+        "p99_us": {
+          "max": 621.2,
+          "mean": 514.2666666666668,
+          "min": 445.5,
+          "reps": [
+            445.5,
+            476.1,
+            621.2
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.1634141,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 388.7132562998337,
+      "m_vectors_per_decimal_GB_ram": 0.28895777429106967,
+      "n": 23453,
+      "name": "turbovec 3-bit + rerank2x [RAM]",
+      "ram_bytes_per_vec_total": 3460.7132562998336,
+      "ram_f32_rerank_bytes_per_vec": 3072.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 630.7049999999998,
+          "mean": 586.2114444444443,
+          "min": 511.54800000000006,
+          "reps": [
+            511.54800000000006,
+            616.3813333333329,
+            630.7049999999998
+          ]
+        },
+        "p50_us": {
+          "max": 631.7,
+          "mean": 592.2333333333333,
+          "min": 523.0,
+          "reps": [
+            523.0,
+            622.0,
+            631.7
+          ]
+        },
+        "p99_us": {
+          "max": 820.9,
+          "mean": 770.1999999999999,
+          "min": 706.1,
+          "reps": [
+            706.1,
+            820.9,
+            783.5999999999999
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.1634141,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 388.7132562998337,
+      "m_vectors_per_decimal_GB_ram": 0.28895777429106967,
+      "n": 23453,
+      "name": "turbovec 3-bit + rerank4x [RAM]",
+      "ram_bytes_per_vec_total": 3460.7132562998336,
+      "ram_f32_rerank_bytes_per_vec": 3072.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 788.6596666666667,
+          "mean": 765.4282222222224,
+          "min": 741.5706666666663,
+          "reps": [
+            766.0543333333341,
+            741.5706666666663,
+            788.6596666666667
+          ]
+        },
+        "p50_us": {
+          "max": 791.5,
+          "mean": 772.5333333333333,
+          "min": 753.1,
+          "reps": [
+            773.0,
+            753.1,
+            791.5
+          ]
+        },
+        "p99_us": {
+          "max": 1053.8,
+          "mean": 1007.9333333333334,
+          "min": 961.2,
+          "reps": [
+            961.2,
+            1008.8000000000001,
+            1053.8
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.1634141,
+      "disk_f32_rerank_bytes_per_vec": 3072.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 388.7132562998337,
+      "m_vectors_per_decimal_GB_ram": 2.5725904218420856,
+      "n": 23453,
+      "name": "turbovec 3-bit + rerank4x [SSD buffered]",
+      "ram_bytes_per_vec_total": 388.7132562998337,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 4190.740666666668,
+          "mean": 4080.7814444444434,
+          "min": 3987.638666666664,
+          "reps": [
+            4190.740666666668,
+            3987.638666666664,
+            4063.9649999999983
+          ]
+        },
+        "p50_us": {
+          "max": 4151.3,
+          "mean": 4079.6666666666665,
+          "min": 4027.9,
+          "reps": [
+            4151.3,
+            4027.9,
+            4059.7999999999997
+          ]
+        },
+        "p99_us": {
+          "max": 6737.599999999999,
+          "mean": 5292.966666666666,
+          "min": 4511.0,
+          "reps": [
+            6737.599999999999,
+            4511.0,
+            4630.3
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.1634141,
+      "disk_f32_rerank_bytes_per_vec": 3072.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 388.7132562998337,
+      "m_vectors_per_decimal_GB_ram": 2.5725904218420856,
+      "n": 23453,
+      "name": "turbovec 3-bit + rerank4x [SSD direct]",
+      "ram_bytes_per_vec_total": 388.7132562998337,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 566.1339999999997,
+          "mean": 431.8124444444443,
+          "min": 334.2776666666667,
+          "reps": [
+            566.1339999999997,
+            395.0256666666666,
+            334.2776666666667
+          ]
+        },
+        "p50_us": {
+          "max": 551.7,
+          "mean": 425.6333333333334,
+          "min": 339.5,
+          "reps": [
+            551.7,
+            385.7,
+            339.5
+          ]
+        },
+        "p99_us": {
+          "max": 718.3,
+          "mean": 627.4333333333333,
+          "min": 502.70000000000005,
+          "reps": [
+            718.3,
+            661.3,
+            502.70000000000005
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.1634141,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 388.7132562998337,
+      "m_vectors_per_decimal_GB_ram": 0.28895777429106967,
+      "n": 23453,
+      "name": "turbovec 3-bit + rerank8x [RAM]",
+      "ram_bytes_per_vec_total": 3460.7132562998336,
+      "ram_f32_rerank_bytes_per_vec": 3072.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 909.4130000000005,
+          "mean": 901.8681111111115,
+          "min": 895.223666666667,
+          "reps": [
+            895.223666666667,
+            900.9676666666672,
+            909.4130000000005
+          ]
+        },
+        "p50_us": {
+          "max": 940.7,
+          "mean": 924.5,
+          "min": 915.3,
+          "reps": [
+            915.3,
+            917.5,
+            940.7
+          ]
+        },
+        "p99_us": {
+          "max": 1150.9,
+          "mean": 1093.5,
+          "min": 1034.3,
+          "reps": [
+            1095.3,
+            1034.3,
+            1150.9
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.1634141,
+      "disk_f32_rerank_bytes_per_vec": 3072.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 388.7132562998337,
+      "m_vectors_per_decimal_GB_ram": 2.5725904218420856,
+      "n": 23453,
+      "name": "turbovec 3-bit + rerank8x [SSD buffered]",
+      "ram_bytes_per_vec_total": 388.7132562998337,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 7415.603333333332,
+          "mean": 7296.2394444444435,
+          "min": 7224.427999999998,
+          "reps": [
+            7224.427999999998,
+            7248.686999999999,
+            7415.603333333332
+          ]
+        },
+        "p50_us": {
+          "max": 7452.8,
+          "mean": 7367.5,
+          "min": 7318.200000000001,
+          "reps": [
+            7318.200000000001,
+            7331.5,
+            7452.8
+          ]
+        },
+        "p99_us": {
+          "max": 8288.800000000001,
+          "mean": 8162.100000000001,
+          "min": 8031.3,
+          "reps": [
+            8166.2,
+            8031.3,
+            8288.800000000001
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.1634141,
+      "disk_f32_rerank_bytes_per_vec": 3072.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 388.7132562998337,
+      "m_vectors_per_decimal_GB_ram": 2.5725904218420856,
+      "n": 23453,
+      "name": "turbovec 3-bit + rerank8x [SSD direct]",
+      "ram_bytes_per_vec_total": 388.7132562998337,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 661.211,
+          "mean": 652.9168888888886,
+          "min": 643.7443333333331,
+          "reps": [
+            643.7443333333331,
+            661.211,
+            653.7953333333329
+          ]
+        },
+        "p50_us": {
+          "max": 662.2,
+          "mean": 658.8,
+          "min": 653.9,
+          "reps": [
+            653.9,
+            662.2,
+            660.3
+          ]
+        },
+        "p99_us": {
+          "max": 745.6,
+          "mean": 722.4333333333334,
+          "min": 709.4,
+          "reps": [
+            709.4,
+            745.6,
+            712.3000000000001
+          ]
+        },
+        "recall_at_10": 0.9763333333333335,
+        "recall_min_query": 0.8
+      },
+      "build_s": 0.1624609,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 388.71871402379224,
+      "m_vectors_per_decimal_GB_ram": 2.572554301923301,
+      "n": 23453,
+      "name": "turbovec 4-bit",
+      "ram_bytes_per_vec_total": 388.71871402379224,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 678.0159999999996,
+          "mean": 671.3175555555555,
+          "min": 664.0576666666665,
+          "reps": [
+            671.8790000000002,
+            664.0576666666665,
+            678.0159999999996
+          ]
+        },
+        "p50_us": {
+          "max": 687.0,
+          "mean": 679.7333333333333,
+          "min": 674.3,
+          "reps": [
+            677.9000000000001,
+            674.3,
+            687.0
+          ]
+        },
+        "p99_us": {
+          "max": 777.3,
+          "mean": 768.5666666666666,
+          "min": 753.8,
+          "reps": [
+            777.3,
+            753.8,
+            774.5999999999999
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.1624609,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 388.71871402379224,
+      "m_vectors_per_decimal_GB_ram": 0.28895731859041957,
+      "n": 23453,
+      "name": "turbovec 4-bit + rerank2x [RAM]",
+      "ram_bytes_per_vec_total": 3460.7187140237925,
+      "ram_f32_rerank_bytes_per_vec": 3072.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 805.007666666667,
+          "mean": 798.4085555555557,
+          "min": 785.6386666666668,
+          "reps": [
+            804.5793333333334,
+            785.6386666666668,
+            805.007666666667
+          ]
+        },
+        "p50_us": {
+          "max": 808.4,
+          "mean": 801.7666666666668,
+          "min": 793.9000000000001,
+          "reps": [
+            808.4,
+            793.9000000000001,
+            803.0
+          ]
+        },
+        "p99_us": {
+          "max": 948.0,
+          "mean": 938.0333333333333,
+          "min": 929.4000000000001,
+          "reps": [
+            929.4000000000001,
+            948.0,
+            936.6999999999999
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.1624609,
+      "disk_f32_rerank_bytes_per_vec": 3072.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 388.71871402379224,
+      "m_vectors_per_decimal_GB_ram": 2.572554301923301,
+      "n": 23453,
+      "name": "turbovec 4-bit + rerank2x [SSD buffered]",
+      "ram_bytes_per_vec_total": 388.71871402379224,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 2490.7083333333326,
+          "mean": 2459.601,
+          "min": 2418.717666666668,
+          "reps": [
+            2418.717666666668,
+            2469.376999999999,
+            2490.7083333333326
+          ]
+        },
+        "p50_us": {
+          "max": 2475.6,
+          "mean": 2454.9666666666667,
+          "min": 2423.4,
+          "reps": [
+            2423.4,
+            2465.9,
+            2475.6
+          ]
+        },
+        "p99_us": {
+          "max": 2840.6,
+          "mean": 2803.7666666666664,
+          "min": 2750.9,
+          "reps": [
+            2840.6,
+            2750.9,
+            2819.7999999999997
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.1624609,
+      "disk_f32_rerank_bytes_per_vec": 3072.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 388.71871402379224,
+      "m_vectors_per_decimal_GB_ram": 2.572554301923301,
+      "n": 23453,
+      "name": "turbovec 4-bit + rerank2x [SSD direct]",
+      "ram_bytes_per_vec_total": 388.71871402379224,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 729.7366666666662,
+          "mean": 708.549333333333,
+          "min": 685.2243333333328,
+          "reps": [
+            710.6870000000001,
+            729.7366666666662,
+            685.2243333333328
+          ]
+        },
+        "p50_us": {
+          "max": 703.0,
+          "mean": 699.0,
+          "min": 691.1,
+          "reps": [
+            703.0,
+            702.9,
+            691.1
+          ]
+        },
+        "p99_us": {
+          "max": 1564.4,
+          "mean": 1267.3000000000002,
+          "min": 764.8000000000001,
+          "reps": [
+            1472.7,
+            1564.4,
+            764.8000000000001
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.1624609,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 388.71871402379224,
+      "m_vectors_per_decimal_GB_ram": 0.28895731859041957,
+      "n": 23453,
+      "name": "turbovec 4-bit + rerank4x [RAM]",
+      "ram_bytes_per_vec_total": 3460.7187140237925,
+      "ram_f32_rerank_bytes_per_vec": 3072.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 866.6873333333334,
+          "mean": 861.0536666666667,
+          "min": 851.7513333333333,
+          "reps": [
+            851.7513333333333,
+            866.6873333333334,
+            864.7223333333332
+          ]
+        },
+        "p50_us": {
+          "max": 882.1999999999999,
+          "mean": 871.4666666666666,
+          "min": 854.1999999999999,
+          "reps": [
+            854.1999999999999,
+            882.1999999999999,
+            878.0
+          ]
+        },
+        "p99_us": {
+          "max": 1094.2,
+          "mean": 1063.1666666666667,
+          "min": 1009.4,
+          "reps": [
+            1009.4,
+            1085.9,
+            1094.2
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.1624609,
+      "disk_f32_rerank_bytes_per_vec": 3072.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 388.71871402379224,
+      "m_vectors_per_decimal_GB_ram": 2.572554301923301,
+      "n": 23453,
+      "name": "turbovec 4-bit + rerank4x [SSD buffered]",
+      "ram_bytes_per_vec_total": 388.71871402379224,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 4356.851666666666,
+          "mean": 4119.722777777775,
+          "min": 3813.9333333333325,
+          "reps": [
+            4356.851666666666,
+            4188.383333333329,
+            3813.9333333333325
+          ]
+        },
+        "p50_us": {
+          "max": 4332.8,
+          "mean": 4066.766666666667,
+          "min": 3721.1000000000004,
+          "reps": [
+            4332.8,
+            4146.4,
+            3721.1000000000004
+          ]
+        },
+        "p99_us": {
+          "max": 8104.3,
+          "mean": 6034.433333333334,
+          "min": 4624.1,
+          "reps": [
+            5374.900000000001,
+            8104.3,
+            4624.1
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.1624609,
+      "disk_f32_rerank_bytes_per_vec": 3072.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 388.71871402379224,
+      "m_vectors_per_decimal_GB_ram": 2.572554301923301,
+      "n": 23453,
+      "name": "turbovec 4-bit + rerank4x [SSD direct]",
+      "ram_bytes_per_vec_total": 388.71871402379224,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 753.8906666666667,
+          "mean": 744.1315555555557,
+          "min": 735.8266666666668,
+          "reps": [
+            735.8266666666668,
+            742.6773333333335,
+            753.8906666666667
+          ]
+        },
+        "p50_us": {
+          "max": 755.6,
+          "mean": 746.6999999999999,
+          "min": 739.1,
+          "reps": [
+            739.1,
+            745.4,
+            755.6
+          ]
+        },
+        "p99_us": {
+          "max": 860.4,
+          "mean": 828.5,
+          "min": 810.0,
+          "reps": [
+            810.0,
+            860.4,
+            815.1
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.1624609,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 388.71871402379224,
+      "m_vectors_per_decimal_GB_ram": 0.28895731859041957,
+      "n": 23453,
+      "name": "turbovec 4-bit + rerank8x [RAM]",
+      "ram_bytes_per_vec_total": 3460.7187140237925,
+      "ram_f32_rerank_bytes_per_vec": 3072.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 1110.7610000000006,
+          "mean": 1071.3262222222222,
+          "min": 1043.671666666667,
+          "reps": [
+            1110.7610000000006,
+            1059.5459999999994,
+            1043.671666666667
+          ]
+        },
+        "p50_us": {
+          "max": 1106.6,
+          "mean": 1078.8666666666668,
+          "min": 1062.3,
+          "reps": [
+            1106.6,
+            1067.7,
+            1062.3
+          ]
+        },
+        "p99_us": {
+          "max": 1251.6000000000001,
+          "mean": 1227.0,
+          "min": 1211.1,
+          "reps": [
+            1251.6000000000001,
+            1211.1,
+            1218.3000000000002
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.1624609,
+      "disk_f32_rerank_bytes_per_vec": 3072.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 388.71871402379224,
+      "m_vectors_per_decimal_GB_ram": 2.572554301923301,
+      "n": 23453,
+      "name": "turbovec 4-bit + rerank8x [SSD buffered]",
+      "ram_bytes_per_vec_total": 388.71871402379224,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 7517.432333333336,
+          "mean": 7068.655444444447,
+          "min": 6830.184666666668,
+          "reps": [
+            7517.432333333336,
+            6858.349333333336,
+            6830.184666666668
+          ]
+        },
+        "p50_us": {
+          "max": 7522.0,
+          "mean": 7040.0,
+          "min": 6780.3,
+          "reps": [
+            7522.0,
+            6817.700000000001,
+            6780.3
+          ]
+        },
+        "p99_us": {
+          "max": 10722.1,
+          "mean": 8788.933333333332,
+          "min": 7671.200000000001,
+          "reps": [
+            10722.1,
+            7973.5,
+            7671.200000000001
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.1624609,
+      "disk_f32_rerank_bytes_per_vec": 3072.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 388.71871402379224,
+      "m_vectors_per_decimal_GB_ram": 2.572554301923301,
+      "n": 23453,
+      "name": "turbovec 4-bit + rerank8x [SSD direct]",
+      "ram_bytes_per_vec_total": 388.71871402379224,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 470.33833333333354,
+          "mean": 455.50422222222227,
+          "min": 429.210333333333,
+          "reps": [
+            470.33833333333354,
+            466.9640000000002,
+            429.210333333333
+          ]
+        },
+        "p50_us": {
+          "max": 480.9,
+          "mean": 463.3333333333333,
+          "min": 440.5,
+          "reps": [
+            480.9,
+            468.6,
+            440.5
+          ]
+        },
+        "p99_us": {
+          "max": 621.9,
+          "mean": 554.4333333333334,
+          "min": 517.6,
+          "reps": [
+            621.9,
+            523.8000000000001,
+            517.6
+          ]
+        },
+        "recall_at_10": 0.8690000000000024,
+        "recall_min_query": 0.5
+      },
+      "build_s": 0.6660066,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 200.5967680040933,
+      "m_vectors_per_decimal_GB_ram": 4.985125183969037,
+      "n": 23453,
+      "name": "rabitq-style 1-bit",
+      "ram_bytes_per_vec_total": 200.5967680040933,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 401.4200000000001,
+          "mean": 400.8774444444443,
+          "min": 400.2509999999998,
+          "reps": [
+            400.9613333333329,
+            400.2509999999998,
+            401.4200000000001
+          ]
+        },
+        "p50_us": {
+          "max": 372.7,
+          "mean": 371.5,
+          "min": 370.8,
+          "reps": [
+            370.8,
+            372.7,
+            371.0
+          ]
+        },
+        "p99_us": {
+          "max": 556.4,
+          "mean": 552.5666666666667,
+          "min": 546.3,
+          "reps": [
+            556.4,
+            555.0,
+            546.3
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.6660066,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 200.5967680040933,
+      "m_vectors_per_decimal_GB_ram": 0.30556774051020186,
+      "n": 23453,
+      "name": "rabitq-style 1-bit + rerank8x [RAM]",
+      "ram_bytes_per_vec_total": 3272.5967680040935,
+      "ram_f32_rerank_bytes_per_vec": 3072.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 762.8556666666663,
+          "mean": 754.1013333333331,
+          "min": 749.6173333333328,
+          "reps": [
+            762.8556666666663,
+            749.8310000000002,
+            749.6173333333328
+          ]
+        },
+        "p50_us": {
+          "max": 788.1,
+          "mean": 761.5666666666666,
+          "min": 711.3,
+          "reps": [
+            788.1,
+            785.3,
+            711.3
+          ]
+        },
+        "p99_us": {
+          "max": 1023.8999999999999,
+          "mean": 1006.8333333333331,
+          "min": 985.9999999999999,
+          "reps": [
+            1023.8999999999999,
+            1010.5999999999999,
+            985.9999999999999
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.6660066,
+      "disk_f32_rerank_bytes_per_vec": 3072.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 200.5967680040933,
+      "m_vectors_per_decimal_GB_ram": 4.985125183969037,
+      "n": 23453,
+      "name": "rabitq-style 1-bit + rerank8x [SSD buffered]",
+      "ram_bytes_per_vec_total": 200.5967680040933,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 6261.295000000002,
+          "mean": 6226.963333333333,
+          "min": 6177.181333333327,
+          "reps": [
+            6242.41366666667,
+            6177.181333333327,
+            6261.295000000002
+          ]
+        },
+        "p50_us": {
+          "max": 6148.3,
+          "mean": 6106.533333333334,
+          "min": 6040.9,
+          "reps": [
+            6148.3,
+            6040.9,
+            6130.400000000001
+          ]
+        },
+        "p99_us": {
+          "max": 7375.3,
+          "mean": 7263.633333333332,
+          "min": 7205.2,
+          "reps": [
+            7210.4,
+            7205.2,
+            7375.3
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.6660066,
+      "disk_f32_rerank_bytes_per_vec": 3072.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 200.5967680040933,
+      "m_vectors_per_decimal_GB_ram": 4.985125183969037,
+      "n": 23453,
+      "name": "rabitq-style 1-bit + rerank8x [SSD direct]",
+      "ram_bytes_per_vec_total": 200.5967680040933,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 569.9466666666667,
+          "mean": 507.21622222222214,
+          "min": 416.41599999999977,
+          "reps": [
+            535.2860000000001,
+            569.9466666666667,
+            416.41599999999977
+          ]
+        },
+        "p50_us": {
+          "max": 569.1999999999999,
+          "mean": 506.56666666666666,
+          "min": 397.70000000000005,
+          "reps": [
+            552.8,
+            569.1999999999999,
+            397.70000000000005
+          ]
+        },
+        "p99_us": {
+          "max": 609.1999999999999,
+          "mean": 598.5333333333333,
+          "min": 578.3000000000001,
+          "reps": [
+            609.1999999999999,
+            608.1,
+            578.3000000000001
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 0.6660066,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 200.5967680040933,
+      "m_vectors_per_decimal_GB_ram": 0.30556774051020186,
+      "n": 23453,
+      "name": "rabitq-style 1-bit + rerank16x [RAM]",
+      "ram_bytes_per_vec_total": 3272.5967680040935,
+      "ram_f32_rerank_bytes_per_vec": 3072.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 849.5876666666669,
+          "mean": 821.3940000000003,
+          "min": 770.4770000000007,
+          "reps": [
+            844.1173333333336,
+            849.5876666666669,
+            770.4770000000007
+          ]
+        },
+        "p50_us": {
+          "max": 848.9,
+          "mean": 821.6333333333333,
+          "min": 771.3000000000001,
+          "reps": [
+            844.6999999999999,
+            848.9,
+            771.3000000000001
+          ]
+        },
+        "p99_us": {
+          "max": 883.2,
+          "mean": 855.0666666666666,
+          "min": 802.8,
+          "reps": [
+            879.2,
+            883.2,
+            802.8
+          ]
+        },
+        "recall_at_10": 0.9230000000000016,
+        "recall_min_query": 0.5
+      },
+      "build_s": 1.2222234,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 296.5967680040933,
+      "m_vectors_per_decimal_GB_ram": 3.371580906728556,
+      "n": 23453,
+      "name": "rabitq-style 2-bit",
+      "ram_bytes_per_vec_total": 296.5967680040933,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 854.8756666666662,
+          "mean": 692.1493333333332,
+          "min": 594.1266666666664,
+          "reps": [
+            594.1266666666664,
+            854.8756666666662,
+            627.4456666666669
+          ]
+        },
+        "p50_us": {
+          "max": 856.3000000000001,
+          "mean": 669.8000000000001,
+          "min": 574.9000000000001,
+          "reps": [
+            574.9000000000001,
+            856.3000000000001,
+            578.1999999999999
+          ]
+        },
+        "p99_us": {
+          "max": 884.0,
+          "mean": 868.9666666666667,
+          "min": 851.9000000000001,
+          "reps": [
+            851.9000000000001,
+            884.0,
+            871.0
+          ]
+        },
+        "recall_at_10": 0.9986666666666666,
+        "recall_min_query": 0.8
+      },
+      "build_s": 1.2222234,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 296.5967680040933,
+      "m_vectors_per_decimal_GB_ram": 0.29685951417465256,
+      "n": 23453,
+      "name": "rabitq-style 2-bit + rerank2x [RAM]",
+      "ram_bytes_per_vec_total": 3368.5967680040935,
+      "ram_f32_rerank_bytes_per_vec": 3072.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 873.6086666666664,
+          "mean": 836.5998888888888,
+          "min": 794.3046666666668,
+          "reps": [
+            841.8863333333333,
+            794.3046666666668,
+            873.6086666666664
+          ]
+        },
+        "p50_us": {
+          "max": 884.2,
+          "mean": 843.4666666666666,
+          "min": 795.0,
+          "reps": [
+            851.1999999999999,
+            795.0,
+            884.2
+          ]
+        },
+        "p99_us": {
+          "max": 919.0999999999999,
+          "mean": 880.1333333333333,
+          "min": 835.8000000000001,
+          "reps": [
+            885.5,
+            835.8000000000001,
+            919.0999999999999
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 1.2222234,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 296.5967680040933,
+      "m_vectors_per_decimal_GB_ram": 0.29685951417465256,
+      "n": 23453,
+      "name": "rabitq-style 2-bit + rerank4x [RAM]",
+      "ram_bytes_per_vec_total": 3368.5967680040935,
+      "ram_f32_rerank_bytes_per_vec": 3072.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 910.1963333333332,
+          "mean": 888.1127777777779,
+          "min": 857.8570000000004,
+          "reps": [
+            857.8570000000004,
+            896.285,
+            910.1963333333332
+          ]
+        },
+        "p50_us": {
+          "max": 958.5,
+          "mean": 882.1666666666666,
+          "min": 768.0,
+          "reps": [
+            768.0,
+            958.5,
+            920.0
+          ]
+        },
+        "p99_us": {
+          "max": 1181.3,
+          "mean": 1134.0666666666666,
+          "min": 1084.3999999999999,
+          "reps": [
+            1136.5,
+            1084.3999999999999,
+            1181.3
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 1.2222234,
+      "disk_f32_rerank_bytes_per_vec": 3072.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 296.5967680040933,
+      "m_vectors_per_decimal_GB_ram": 3.371580906728556,
+      "n": 23453,
+      "name": "rabitq-style 2-bit + rerank4x [SSD buffered]",
+      "ram_bytes_per_vec_total": 296.5967680040933,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 5451.138666666667,
+          "mean": 4812.590666666666,
+          "min": 3710.7239999999983,
+          "reps": [
+            3710.7239999999983,
+            5451.138666666667,
+            5275.909333333333
+          ]
+        },
+        "p50_us": {
+          "max": 5251.900000000001,
+          "mean": 4554.833333333333,
+          "min": 3602.6,
+          "reps": [
+            3602.6,
+            5251.900000000001,
+            4810.0
+          ]
+        },
+        "p99_us": {
+          "max": 9191.400000000001,
+          "mean": 7562.933333333334,
+          "min": 4612.3,
+          "reps": [
+            4612.3,
+            8885.1,
+            9191.400000000001
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 1.2222234,
+      "disk_f32_rerank_bytes_per_vec": 3072.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 296.5967680040933,
+      "m_vectors_per_decimal_GB_ram": 3.371580906728556,
+      "n": 23453,
+      "name": "rabitq-style 2-bit + rerank4x [SSD direct]",
+      "ram_bytes_per_vec_total": 296.5967680040933,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 867.5620000000002,
+          "mean": 818.0588888888889,
+          "min": 775.361333333333,
+          "reps": [
+            867.5620000000002,
+            775.361333333333,
+            811.2533333333337
+          ]
+        },
+        "p50_us": {
+          "max": 894.8,
+          "mean": 881.0666666666666,
+          "min": 867.7,
+          "reps": [
+            894.8,
+            880.7,
+            867.7
+          ]
+        },
+        "p99_us": {
+          "max": 952.2,
+          "mean": 936.5333333333333,
+          "min": 924.9,
+          "reps": [
+            952.2,
+            932.5,
+            924.9
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 1.2222234,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 296.5967680040933,
+      "m_vectors_per_decimal_GB_ram": 0.29685951417465256,
+      "n": 23453,
+      "name": "rabitq-style 2-bit + rerank8x [RAM]",
+      "ram_bytes_per_vec_total": 3368.5967680040935,
+      "ram_f32_rerank_bytes_per_vec": 3072.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 992.1503333333327,
+          "mean": 948.0888888888882,
+          "min": 906.316333333333,
+          "reps": [
+            992.1503333333327,
+            945.799999999999,
+            906.316333333333
+          ]
+        },
+        "p50_us": {
+          "max": 1071.9,
+          "mean": 899.2666666666668,
+          "min": 802.3000000000001,
+          "reps": [
+            1071.9,
+            823.5999999999999,
+            802.3000000000001
+          ]
+        },
+        "p99_us": {
+          "max": 1211.7,
+          "mean": 1179.8666666666668,
+          "min": 1146.3,
+          "reps": [
+            1181.6000000000001,
+            1146.3,
+            1211.7
+          ]
+        },
+        "recall_at_10": 0.9550000000000002,
+        "recall_min_query": 0.7
+      },
+      "build_s": 1.2791738000000001,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 392.5967680040933,
+      "m_vectors_per_decimal_GB_ram": 2.5471427212298745,
+      "n": 23453,
+      "name": "rabitq-style 3-bit",
+      "ram_bytes_per_vec_total": 392.5967680040933,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 1078.1123333333333,
+          "mean": 998.4958888888891,
+          "min": 875.0616666666671,
+          "reps": [
+            1078.1123333333333,
+            1042.3136666666674,
+            875.0616666666671
+          ]
+        },
+        "p50_us": {
+          "max": 1206.7,
+          "mean": 1034.5333333333333,
+          "min": 806.1,
+          "reps": [
+            1206.7,
+            1090.8,
+            806.1
+          ]
+        },
+        "p99_us": {
+          "max": 1275.0,
+          "mean": 1270.5666666666666,
+          "min": 1268.0,
+          "reps": [
+            1275.0,
+            1268.0,
+            1268.7
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 1.2791738000000001,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 392.5967680040933,
+      "m_vectors_per_decimal_GB_ram": 0.2886338777531349,
+      "n": 23453,
+      "name": "rabitq-style 3-bit + rerank2x [RAM]",
+      "ram_bytes_per_vec_total": 3464.5967680040935,
+      "ram_f32_rerank_bytes_per_vec": 3072.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 1142.9153333333331,
+          "mean": 1016.8561111111106,
+          "min": 950.6919999999985,
+          "reps": [
+            956.961,
+            1142.9153333333331,
+            950.6919999999985
+          ]
+        },
+        "p50_us": {
+          "max": 1118.1,
+          "mean": 921.9666666666666,
+          "min": 816.3,
+          "reps": [
+            831.5,
+            1118.1,
+            816.3
+          ]
+        },
+        "p99_us": {
+          "max": 1280.8999999999999,
+          "mean": 1265.0333333333335,
+          "min": 1240.9,
+          "reps": [
+            1240.9,
+            1280.8999999999999,
+            1273.3
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 1.2791738000000001,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 392.5967680040933,
+      "m_vectors_per_decimal_GB_ram": 0.2886338777531349,
+      "n": 23453,
+      "name": "rabitq-style 3-bit + rerank4x [RAM]",
+      "ram_bytes_per_vec_total": 3464.5967680040935,
+      "ram_f32_rerank_bytes_per_vec": 3072.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 1339.741999999999,
+          "mean": 1166.651333333334,
+          "min": 1062.6683333333344,
+          "reps": [
+            1097.5436666666676,
+            1062.6683333333344,
+            1339.741999999999
+          ]
+        },
+        "p50_us": {
+          "max": 1394.7,
+          "mean": 1109.7,
+          "min": 966.6,
+          "reps": [
+            966.6,
+            967.8,
+            1394.7
+          ]
+        },
+        "p99_us": {
+          "max": 1516.3,
+          "mean": 1481.9333333333334,
+          "min": 1440.8999999999999,
+          "reps": [
+            1516.3,
+            1440.8999999999999,
+            1488.6000000000001
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 1.2791738000000001,
+      "disk_f32_rerank_bytes_per_vec": 3072.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 392.5967680040933,
+      "m_vectors_per_decimal_GB_ram": 2.5471427212298745,
+      "n": 23453,
+      "name": "rabitq-style 3-bit + rerank4x [SSD buffered]",
+      "ram_bytes_per_vec_total": 392.5967680040933,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 4007.2480000000014,
+          "mean": 3924.6914444444446,
+          "min": 3872.1986666666685,
+          "reps": [
+            3894.6276666666636,
+            4007.2480000000014,
+            3872.1986666666685
+          ]
+        },
+        "p50_us": {
+          "max": 3947.1000000000004,
+          "mean": 3788.366666666667,
+          "min": 3688.7999999999997,
+          "reps": [
+            3729.2,
+            3947.1000000000004,
+            3688.7999999999997
+          ]
+        },
+        "p99_us": {
+          "max": 4788.2,
+          "mean": 4714.633333333333,
+          "min": 4626.7,
+          "reps": [
+            4626.7,
+            4788.2,
+            4729.0
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 1.2791738000000001,
+      "disk_f32_rerank_bytes_per_vec": 3072.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 392.5967680040933,
+      "m_vectors_per_decimal_GB_ram": 2.5471427212298745,
+      "n": 23453,
+      "name": "rabitq-style 3-bit + rerank4x [SSD direct]",
+      "ram_bytes_per_vec_total": 392.5967680040933,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 1075.0893333333338,
+          "mean": 1007.4352222222223,
+          "min": 898.7003333333338,
+          "reps": [
+            1075.0893333333338,
+            1048.515999999999,
+            898.7003333333338
+          ]
+        },
+        "p50_us": {
+          "max": 1230.4,
+          "mean": 1065.9333333333334,
+          "min": 833.8,
+          "reps": [
+            1230.4,
+            1133.6,
+            833.8
+          ]
+        },
+        "p99_us": {
+          "max": 1304.7,
+          "mean": 1247.6666666666667,
+          "min": 1185.8999999999999,
+          "reps": [
+            1304.7,
+            1185.8999999999999,
+            1252.4
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 1.2791738000000001,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 392.5967680040933,
+      "m_vectors_per_decimal_GB_ram": 0.2886338777531349,
+      "n": 23453,
+      "name": "rabitq-style 3-bit + rerank8x [RAM]",
+      "ram_bytes_per_vec_total": 3464.5967680040935,
+      "ram_f32_rerank_bytes_per_vec": 3072.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 1365.2486666666666,
+          "mean": 1333.7930000000001,
+          "min": 1287.8253333333328,
+          "reps": [
+            1365.2486666666666,
+            1348.305000000001,
+            1287.8253333333328
+          ]
+        },
+        "p50_us": {
+          "max": 1494.7,
+          "mean": 1343.0333333333335,
+          "min": 1112.0,
+          "reps": [
+            1494.7,
+            1422.4,
+            1112.0
+          ]
+        },
+        "p99_us": {
+          "max": 1652.4,
+          "mean": 1631.2666666666667,
+          "min": 1616.7,
+          "reps": [
+            1624.7,
+            1652.4,
+            1616.7
+          ]
+        },
+        "recall_at_10": 0.9746666666666666,
+        "recall_min_query": 0.8
+      },
+      "build_s": 1.0385698,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 488.5967680040933,
+      "m_vectors_per_decimal_GB_ram": 2.0466774761629662,
+      "n": 23453,
+      "name": "rabitq-style 4-bit",
+      "ram_bytes_per_vec_total": 488.5967680040933,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 1329.5533333333335,
+          "mean": 1267.8557777777776,
+          "min": 1206.2796666666661,
+          "reps": [
+            1329.5533333333335,
+            1206.2796666666661,
+            1267.7343333333329
+          ]
+        },
+        "p50_us": {
+          "max": 1297.5,
+          "mean": 1150.6666666666665,
+          "min": 1068.1,
+          "reps": [
+            1297.5,
+            1086.3999999999999,
+            1068.1
+          ]
+        },
+        "p99_us": {
+          "max": 1681.2,
+          "mean": 1646.6000000000001,
+          "min": 1622.6000000000001,
+          "reps": [
+            1681.2,
+            1636.0,
+            1622.6000000000001
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 1.0385698,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 488.5967680040933,
+      "m_vectors_per_decimal_GB_ram": 0.2808517968072397,
+      "n": 23453,
+      "name": "rabitq-style 4-bit + rerank2x [RAM]",
+      "ram_bytes_per_vec_total": 3560.5967680040935,
+      "ram_f32_rerank_bytes_per_vec": 3072.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 1705.5313333333334,
+          "mean": 1520.068888888889,
+          "min": 1314.4463333333342,
+          "reps": [
+            1314.4463333333342,
+            1540.2289999999994,
+            1705.5313333333334
+          ]
+        },
+        "p50_us": {
+          "max": 1630.0,
+          "mean": 1444.8,
+          "min": 1148.2,
+          "reps": [
+            1148.2,
+            1556.2,
+            1630.0
+          ]
+        },
+        "p99_us": {
+          "max": 3575.1,
+          "mean": 2926.933333333333,
+          "min": 1646.7,
+          "reps": [
+            1646.7,
+            3559.0,
+            3575.1
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 1.0385698,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 488.5967680040933,
+      "m_vectors_per_decimal_GB_ram": 0.2808517968072397,
+      "n": 23453,
+      "name": "rabitq-style 4-bit + rerank4x [RAM]",
+      "ram_bytes_per_vec_total": 3560.5967680040935,
+      "ram_f32_rerank_bytes_per_vec": 3072.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 1696.915333333334,
+          "mean": 1605.4082222222225,
+          "min": 1553.7056666666672,
+          "reps": [
+            1553.7056666666672,
+            1565.6036666666669,
+            1696.915333333334
+          ]
+        },
+        "p50_us": {
+          "max": 1761.5,
+          "mean": 1656.1666666666667,
+          "min": 1587.8999999999999,
+          "reps": [
+            1587.8999999999999,
+            1619.1000000000001,
+            1761.5
+          ]
+        },
+        "p99_us": {
+          "max": 1958.1999999999998,
+          "mean": 1932.8999999999999,
+          "min": 1907.8000000000002,
+          "reps": [
+            1958.1999999999998,
+            1932.7,
+            1907.8000000000002
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 1.0385698,
+      "disk_f32_rerank_bytes_per_vec": 3072.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 488.5967680040933,
+      "m_vectors_per_decimal_GB_ram": 2.0466774761629662,
+      "n": 23453,
+      "name": "rabitq-style 4-bit + rerank4x [SSD buffered]",
+      "ram_bytes_per_vec_total": 488.5967680040933,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 4455.967333333336,
+          "mean": 4311.736777777777,
+          "min": 4235.563666666664,
+          "reps": [
+            4455.967333333336,
+            4235.563666666664,
+            4243.679333333333
+          ]
+        },
+        "p50_us": {
+          "max": 4617.900000000001,
+          "mean": 4259.2,
+          "min": 4077.6,
+          "reps": [
+            4617.900000000001,
+            4077.6,
+            4082.1
+          ]
+        },
+        "p99_us": {
+          "max": 5253.8,
+          "mean": 5137.633333333332,
+          "min": 5049.299999999999,
+          "reps": [
+            5253.8,
+            5049.299999999999,
+            5109.8
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 1.0385698,
+      "disk_f32_rerank_bytes_per_vec": 3072.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 488.5967680040933,
+      "m_vectors_per_decimal_GB_ram": 2.0466774761629662,
+      "n": 23453,
+      "name": "rabitq-style 4-bit + rerank4x [SSD direct]",
+      "ram_bytes_per_vec_total": 488.5967680040933,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 1574.7180000000008,
+          "mean": 1381.1136666666664,
+          "min": 1192.2113333333334,
+          "reps": [
+            1376.4116666666655,
+            1192.2113333333334,
+            1574.7180000000008
+          ]
+        },
+        "p50_us": {
+          "max": 1406.7,
+          "mean": 1212.4666666666665,
+          "min": 1097.7,
+          "reps": [
+            1133.0,
+            1097.7,
+            1406.7
+          ]
+        },
+        "p99_us": {
+          "max": 2362.2000000000003,
+          "mean": 2133.5333333333333,
+          "min": 1731.8,
+          "reps": [
+            2362.2000000000003,
+            1731.8,
+            2306.6
+          ]
+        },
+        "recall_at_10": 1.0,
+        "recall_min_query": 1.0
+      },
+      "build_s": 1.0385698,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 488.5967680040933,
+      "m_vectors_per_decimal_GB_ram": 0.2808517968072397,
+      "n": 23453,
+      "name": "rabitq-style 4-bit + rerank8x [RAM]",
+      "ram_bytes_per_vec_total": 3560.5967680040935,
+      "ram_f32_rerank_bytes_per_vec": 3072.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 1711.9286666666667,
+          "mean": 1579.933,
+          "min": 1431.0083333333334,
+          "reps": [
+            1596.8619999999996,
+            1431.0083333333334,
+            1711.9286666666667
+          ]
+        },
+        "p50_us": {
+          "max": 1871.3,
+          "mean": 1632.2,
+          "min": 1300.9,
+          "reps": [
+            1724.4,
+            1300.9,
+            1871.3
+          ]
+        },
+        "p99_us": {
+          "max": 2159.6,
+          "mean": 2071.9,
+          "min": 2024.0000000000002,
+          "reps": [
+            2159.6,
+            2024.0000000000002,
+            2032.0999999999997
+          ]
+        },
+        "recall_at_10": 0.9870000000000001,
+        "recall_min_query": 0.8
+      },
+      "build_s": 1.1325577,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 584.5967680040933,
+      "m_vectors_per_decimal_GB_ram": 1.7105807878722281,
+      "n": 23453,
+      "name": "rabitq-style 5-bit",
+      "ram_bytes_per_vec_total": 584.5967680040933,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 1882.7689999999996,
+          "mean": 1811.7596666666668,
+          "min": 1706.1946666666663,
+          "reps": [
+            1882.7689999999996,
+            1846.3153333333344,
+            1706.1946666666663
+          ]
+        },
+        "p50_us": {
+          "max": 1893.9,
+          "mean": 1677.2666666666667,
+          "min": 1535.9,
+          "reps": [
+            1893.9,
+            1602.0,
+            1535.9
+          ]
+        },
+        "p99_us": {
+          "max": 2411.0,
+          "mean": 2396.6666666666665,
+          "min": 2385.1,
+          "reps": [
+            2393.9,
+            2411.0,
+            2385.1
+          ]
+        },
+        "recall_at_10": 0.9920000000000001,
+        "recall_min_query": 0.9
+      },
+      "build_s": 1.1316263,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": null,
+      "index_heap_bytes_per_vec": 680.5967680040933,
+      "m_vectors_per_decimal_GB_ram": 1.4692987786771061,
+      "n": 23453,
+      "name": "rabitq-style 6-bit",
+      "ram_bytes_per_vec_total": 680.5967680040933,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 184.83066666666664,
+          "mean": 166.7511111111111,
+          "min": 145.92766666666668,
+          "reps": [
+            184.83066666666664,
+            169.495,
+            145.92766666666668
+          ]
+        },
+        "p50_us": {
+          "max": 178.5,
+          "mean": 162.0,
+          "min": 142.2,
+          "reps": [
+            178.5,
+            165.3,
+            142.2
+          ]
+        },
+        "p99_us": {
+          "max": 286.9,
+          "mean": 257.1666666666667,
+          "min": 216.8,
+          "reps": [
+            286.9,
+            267.8,
+            216.8
+          ]
+        },
+        "recall_at_10": 0.996,
+        "recall_min_query": 0.0
+      },
+      "build_s": 3.3528866,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": {
+        "kernel": "f32 (lib kernel)",
+        "point_payload_bytes": 3072,
+        "self_absent_top10": 13,
+        "self_not_top1": 13
+      },
+      "index_heap_bytes_per_vec": 8164.603590159041,
+      "m_vectors_per_decimal_GB_ram": 0.12247992066697762,
+      "n": 23453,
+      "name": "HNSW M32 efc100 ef24 [f32lib stored]",
+      "ram_bytes_per_vec_total": 8164.603590159041,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 141.70300000000003,
+          "mean": 131.11566666666667,
+          "min": 120.12933333333329,
+          "reps": [
+            120.12933333333329,
+            131.51466666666664,
+            141.70300000000003
+          ]
+        },
+        "p50_us": {
+          "max": 137.4,
+          "mean": 128.0666666666667,
+          "min": 116.3,
+          "reps": [
+            116.3,
+            130.5,
+            137.4
+          ]
+        },
+        "p99_us": {
+          "max": 247.9,
+          "mean": 221.9333333333333,
+          "min": 205.4,
+          "reps": [
+            205.4,
+            212.5,
+            247.9
+          ]
+        },
+        "recall_at_10": 0.996,
+        "recall_min_query": 0.0
+      },
+      "build_s": 2.4673748,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": {
+        "kernel": "blockfp16 stored (i16 mantissa+scales, custom dist)",
+        "point_payload_bytes": 1632,
+        "self_absent_top10": 25,
+        "self_not_top1": 25
+      },
+      "index_heap_bytes_per_vec": 6696.282778322603,
+      "m_vectors_per_decimal_GB_ram": 0.1493365846551804,
+      "n": 23453,
+      "name": "HNSW M32 efc100 ef24 [bfp16 stored]",
+      "ram_bytes_per_vec_total": 6696.282778322603,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 97.30400000000004,
+          "mean": 96.4252222222223,
+          "min": 95.88000000000008,
+          "reps": [
+            96.09166666666673,
+            97.30400000000004,
+            95.88000000000008
+          ]
+        },
+        "p50_us": {
+          "max": 95.8,
+          "mean": 94.86666666666667,
+          "min": 93.30000000000001,
+          "reps": [
+            93.30000000000001,
+            95.8,
+            95.5
+          ]
+        },
+        "p99_us": {
+          "max": 170.4,
+          "mean": 164.20000000000002,
+          "min": 159.9,
+          "reps": [
+            170.4,
+            159.9,
+            162.29999999999998
+          ]
+        },
+        "recall_at_10": 0.9933333333333332,
+        "recall_min_query": 0.9
+      },
+      "build_s": 2.0853769,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": {
+        "kernel": "int8 stored (custom dist)",
+        "point_payload_bytes": 772,
+        "self_absent_top10": 26,
+        "self_not_top1": 26
+      },
+      "index_heap_bytes_per_vec": 5873.911056154863,
+      "m_vectors_per_decimal_GB_ram": 0.17024432110734286,
+      "n": 23453,
+      "name": "HNSW M32 efc100 ef24 [int8 stored]",
+      "ram_bytes_per_vec_total": 5873.911056154863,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 148.59033333333332,
+          "mean": 147.7222222222222,
+          "min": 146.2646666666666,
+          "reps": [
+            148.3116666666667,
+            146.2646666666666,
+            148.59033333333332
+          ]
+        },
+        "p50_us": {
+          "max": 143.5,
+          "mean": 142.36666666666667,
+          "min": 141.0,
+          "reps": [
+            142.6,
+            141.0,
+            143.5
+          ]
+        },
+        "p99_us": {
+          "max": 240.7,
+          "mean": 238.36666666666667,
+          "min": 234.60000000000002,
+          "reps": [
+            239.8,
+            234.60000000000002,
+            240.7
+          ]
+        },
+        "recall_at_10": 0.9993333333333334,
+        "recall_min_query": 0.8
+      },
+      "build_s": 3.4289998,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": {
+        "kernel": "f32 (lib kernel)",
+        "point_payload_bytes": 3072,
+        "self_absent_top10": 39,
+        "self_not_top1": 39
+      },
+      "index_heap_bytes_per_vec": 7416.200230247729,
+      "m_vectors_per_decimal_GB_ram": 0.13483994079898193,
+      "n": 23453,
+      "name": "HNSW M16 efc100 ef24 [f32lib stored]",
+      "ram_bytes_per_vec_total": 7416.200230247729,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 151.43533333333318,
+          "mean": 147.05311111111112,
+          "min": 144.49666666666673,
+          "reps": [
+            151.43533333333318,
+            145.2273333333334,
+            144.49666666666673
+          ]
+        },
+        "p50_us": {
+          "max": 147.79999999999998,
+          "mean": 144.0,
+          "min": 141.9,
+          "reps": [
+            147.79999999999998,
+            142.29999999999998,
+            141.9
+          ]
+        },
+        "p99_us": {
+          "max": 230.10000000000002,
+          "mean": 226.60000000000002,
+          "min": 223.1,
+          "reps": [
+            226.6,
+            230.10000000000002,
+            223.1
+          ]
+        },
+        "recall_at_10": 0.9993333333333334,
+        "recall_min_query": 0.8
+      },
+      "build_s": 2.4901453,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": {
+        "kernel": "blockfp16 stored (i16 mantissa+scales, custom dist)",
+        "point_payload_bytes": 1632,
+        "self_absent_top10": 44,
+        "self_not_top1": 44
+      },
+      "index_heap_bytes_per_vec": 5986.221293651132,
+      "m_vectors_per_decimal_GB_ram": 0.16705028948070802,
+      "n": 23453,
+      "name": "HNSW M16 efc100 ef24 [bfp16 stored]",
+      "ram_bytes_per_vec_total": 5986.221293651132,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 107.95933333333338,
+          "mean": 103.88311111111118,
+          "min": 97.84600000000006,
+          "reps": [
+            107.95933333333338,
+            105.84400000000005,
+            97.84600000000006
+          ]
+        },
+        "p50_us": {
+          "max": 103.1,
+          "mean": 99.0,
+          "min": 93.0,
+          "reps": [
+            103.1,
+            100.9,
+            93.0
+          ]
+        },
+        "p99_us": {
+          "max": 238.9,
+          "mean": 223.13333333333333,
+          "min": 200.29999999999998,
+          "reps": [
+            230.20000000000002,
+            238.9,
+            200.29999999999998
+          ]
+        },
+        "recall_at_10": 0.9799999999999998,
+        "recall_min_query": 0.0
+      },
+      "build_s": 1.9977112,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": {
+        "kernel": "int8 stored (custom dist)",
+        "point_payload_bytes": 772,
+        "self_absent_top10": 63,
+        "self_not_top1": 64
+      },
+      "index_heap_bytes_per_vec": 5111.373896729629,
+      "m_vectors_per_decimal_GB_ram": 0.19564211505634957,
+      "n": 23453,
+      "name": "HNSW M16 efc100 ef24 [int8 stored]",
+      "ram_bytes_per_vec_total": 5111.373896729629,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 164.56933333333322,
+          "mean": 155.3888888888888,
+          "min": 150.344,
+          "reps": [
+            150.344,
+            151.2533333333332,
+            164.56933333333322
+          ]
+        },
+        "p50_us": {
+          "max": 162.29999999999998,
+          "mean": 153.70000000000002,
+          "min": 148.8,
+          "reps": [
+            148.8,
+            150.0,
+            162.29999999999998
+          ]
+        },
+        "p99_us": {
+          "max": 257.20000000000005,
+          "mean": 239.53333333333333,
+          "min": 229.9,
+          "reps": [
+            231.5,
+            229.9,
+            257.20000000000005
+          ]
+        },
+        "recall_at_10": 0.9986666666666667,
+        "recall_min_query": 0.8
+      },
+      "build_s": 10.0435163,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": {
+        "kernel": "f32 (lib kernel)",
+        "point_payload_bytes": 3072,
+        "self_absent_top10": 1,
+        "self_not_top1": 1
+      },
+      "index_heap_bytes_per_vec": 8697.566366776105,
+      "m_vectors_per_decimal_GB_ram": 0.11497469037084983,
+      "n": 23453,
+      "name": "HNSW M48 efc200 ef16 [f32lib stored]",
+      "ram_bytes_per_vec_total": 8697.566366776105,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 101.00333333333334,
+          "mean": 95.25666666666666,
+          "min": 90.48533333333326,
+          "reps": [
+            101.00333333333334,
+            90.48533333333326,
+            94.2813333333334
+          ]
+        },
+        "p50_us": {
+          "max": 95.8,
+          "mean": 91.10000000000001,
+          "min": 87.5,
+          "reps": [
+            95.8,
+            87.5,
+            90.0
+          ]
+        },
+        "p99_us": {
+          "max": 180.2,
+          "mean": 172.16666666666666,
+          "min": 164.6,
+          "reps": [
+            180.2,
+            164.6,
+            171.7
+          ]
+        },
+        "recall_at_10": 0.9986666666666667,
+        "recall_min_query": 0.8
+      },
+      "build_s": 5.8627955,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": {
+        "kernel": "blockfp16 stored (i16 mantissa+scales, custom dist)",
+        "point_payload_bytes": 1632,
+        "self_absent_top10": 1,
+        "self_not_top1": 1
+      },
+      "index_heap_bytes_per_vec": 7268.193578646655,
+      "m_vectors_per_decimal_GB_ram": 0.1375857686204061,
+      "n": 23453,
+      "name": "HNSW M48 efc200 ef16 [bfp16 stored]",
+      "ram_bytes_per_vec_total": 7268.193578646655,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    },
+    {
+      "bench": {
+        "mean_us": {
+          "max": 83.07333333333328,
+          "mean": 77.24444444444447,
+          "min": 73.97200000000005,
+          "reps": [
+            83.07333333333328,
+            74.68800000000006,
+            73.97200000000005
+          ]
+        },
+        "p50_us": {
+          "max": 80.3,
+          "mean": 75.0,
+          "min": 72.0,
+          "reps": [
+            80.3,
+            72.7,
+            72.0
+          ]
+        },
+        "p99_us": {
+          "max": 152.39999999999998,
+          "mean": 132.83333333333331,
+          "min": 121.39999999999999,
+          "reps": [
+            152.39999999999998,
+            124.69999999999999,
+            121.39999999999999
+          ]
+        },
+        "recall_at_10": 0.9933333333333332,
+        "recall_min_query": 0.9
+      },
+      "build_s": 3.8961618,
+      "disk_f32_rerank_bytes_per_vec": 0.0,
+      "extra": {
+        "kernel": "int8 stored (custom dist)",
+        "point_payload_bytes": 772,
+        "self_absent_top10": 1,
+        "self_not_top1": 2
+      },
+      "index_heap_bytes_per_vec": 6404.87835244958,
+      "m_vectors_per_decimal_GB_ram": 0.15613099031264888,
+      "n": 23453,
+      "name": "HNSW M48 efc200 ef16 [int8 stored]",
+      "ram_bytes_per_vec_total": 6404.87835244958,
+      "ram_f32_rerank_bytes_per_vec": 0.0
+    }
+  ]
+}

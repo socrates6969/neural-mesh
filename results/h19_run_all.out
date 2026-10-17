@@ -1,0 +1,703 @@
+    Finished `release` profile [optimized] target(s) in 5.20s
+docs 720 chars 940319 facts 18538 fnv1a 995d88a2c1bc823d
+docs 2700 chars 3569869 facts 70296 fnv1a 03bbc9bfabf34686
+wrote results/h19_corpus_samples.txt
+# h19_down tune seeds 1..8: objective = acc(ext+ver) - 0.03*cost
+tau 0.3 repair true : ext+ver acc 0.9286 cost 0.370 (plain acc 0.8016) objective 0.9175
+tau 0.3 repair false: ext+ver acc 0.9302 cost 0.379 (plain acc 0.8016) objective 0.9188
+tau 0.4 repair true : ext+ver acc 0.9292 cost 0.382 (plain acc 0.8016) objective 0.9177
+tau 0.4 repair false: ext+ver acc 0.9307 cost 0.389 (plain acc 0.8016) objective 0.9191
+tau 0.5 repair true : ext+ver acc 0.9312 cost 0.394 (plain acc 0.8016) objective 0.9194
+tau 0.5 repair false: ext+ver acc 0.9297 cost 0.399 (plain acc 0.8016) objective 0.9177
+tau 0.6 repair true : ext+ver acc 0.9214 cost 0.479 (plain acc 0.8016) objective 0.9070
+tau 0.6 repair false: ext+ver acc 0.9203 cost 0.482 (plain acc 0.8016) objective 0.9059
+tau 0.7 repair true : ext+ver acc 0.9214 cost 0.488 (plain acc 0.8016) objective 0.9067
+tau 0.7 repair false: ext+ver acc 0.9214 cost 0.488 (plain acc 0.8016) objective 0.9067
+-> chosen tau 0.5 repair true
+# h19_extract eval tag=tune seeds=1..8 (8 seeds) tau=0.50   SYNTHETIC; unseen bank written by the same author before the extractor was built (optimistic)
+
+## dev-phrasing (seen): P/R/F1 per field type (extractor at tau; then after verifier removes flagged facts)
+field            P      R     F1 |    P_v    R_v   F1_v  (n truth)
+table_cell   1.000  1.000  1.000 |  1.000  1.000  1.000  (2124)
+param        1.000  1.000  1.000 |  1.000  1.000  1.000  (357)
+claim        1.000  1.000  1.000 |  1.000  1.000  1.000  (501)
+line_item    1.000  0.983  0.992 |  1.000  0.983  0.992  (5183)
+date         1.000  1.000  1.000 |  1.000  1.000  1.000  (61)
+amount       1.000  1.000  1.000 |  1.000  1.000  1.000  (122)
+party        1.000  1.000  1.000 |  1.000  1.000  1.000  (122)
+kpi          1.000  1.000  1.000 |  1.000  1.000  1.000  (686)
+clause       1.000  1.000  1.000 |  1.000  1.000  1.000  (183)
+ALL          1.000  0.991  0.995 |  1.000  0.991  0.995
+
+## dev-phrasing (seen): F1 (R) by world x layout L0..L4
+paper       L0 1.000 (1.000)  L1 1.000 (1.000)  L2 1.000 (1.000)  L3 1.000 (1.000)  L4 1.000 (1.000)
+financial   L0 1.000 (1.000)  L1 1.000 (1.000)  L2 1.000 (1.000)  L3 0.990 (0.981)  L4 0.972 (0.946)
+business    L0 1.000 (1.000)  L1 1.000 (1.000)  L2 1.000 (1.000)  L3 1.000 (1.000)  L4 1.000 (1.000)
+
+## dev-phrasing (seen): abstain 87/9339 candidates (0.9%), ECE(conf vs correct) 0.144, span-exact(>=50% overlap) 1.000
+   verifier: kept facts wrong 0 / correct 9252; CATCH rate (wrong flagged) 0.000; FALSE-FLAG rate (correct flagged) 0.0000; repair proposals 0 (correct on wrong facts: 0)
+
+## unseen-phrasing: P/R/F1 per field type (extractor at tau; then after verifier removes flagged facts)
+field            P      R     F1 |    P_v    R_v   F1_v  (n truth)
+table_cell   0.967  0.864  0.913 |  1.000  0.864  0.927  (2132)
+param        1.000  0.316  0.480 |  1.000  0.316  0.480  (345)
+claim        0.554  0.150  0.236 |  1.000  0.006  0.012  (481)
+line_item    0.618  0.221  0.325 |  0.942  0.221  0.357  (5136)
+date         0.920  0.397  0.554 |  0.920  0.397  0.554  (58)
+amount       0.548  0.198  0.291 |  0.676  0.198  0.307  (116)
+party        1.000  0.414  0.585 |  1.000  0.414  0.585  (116)
+kpi          1.000  0.123  0.218 |  1.000  0.123  0.218  (726)
+clause       0.868  0.569  0.688 |  0.866  0.557  0.678  (174)
+ALL          0.800  0.370  0.506 |  0.972  0.363  0.528
+
+## unseen-phrasing: F1 (R) by world x layout L0..L4
+paper       L0 0.785 (0.690)  L1 0.772 (0.651)  L2 0.777 (0.665)  L3 0.821 (0.713)  L4 0.809 (0.699)
+financial   L0 0.376 (0.248)  L1 0.381 (0.267)  L2 0.227 (0.148)  L3 0.369 (0.253)  L4 0.307 (0.213)
+business    L0 0.348 (0.222)  L1 0.311 (0.192)  L2 0.349 (0.217)  L3 0.404 (0.259)  L4 0.456 (0.299)
+
+## unseen-phrasing: abstain 1692/5988 candidates (28.3%), ECE(conf vs correct) 0.121, span-exact(>=50% overlap) 0.996
+   verifier: kept facts wrong 858 / correct 3438; CATCH rate (wrong flagged) 0.886; FALSE-FLAG rate (correct flagged) 0.0209; repair proposals 703 (correct on wrong facts: 701)
+     reason span_mismatch    flags on wrong     8 on correct     0
+     reason scale            flags on wrong   401 on correct     0
+     reason foot_explained   flags on wrong     0 on correct     1
+     reason plausibility     flags on wrong    62 on correct     0
+     reason cross_check      flags on wrong     2 on correct     2
+     reason claim_coverage   flags on wrong    58 on correct    69
+     reason ambig_separator  flags on wrong   231 on correct     0
+
+wrote results/h19_extract_tune.json
+# h19_extract eval tag=tunen seeds=1..8 (8 seeds) tau=0.50   SYNTHETIC; unseen bank written by the same author before the extractor was built (optimistic)
+
+## dev-phrasing (seen): P/R/F1 per field type (extractor at tau; then after verifier removes flagged facts)
+field            P      R     F1 |    P_v    R_v   F1_v  (n truth)
+table_cell   1.000  1.000  1.000 |  1.000  1.000  1.000  (2124)
+param        1.000  1.000  1.000 |  1.000  1.000  1.000  (357)
+claim        1.000  1.000  1.000 |  1.000  1.000  1.000  (501)
+line_item    1.000  0.983  0.992 |  1.000  0.983  0.992  (5183)
+date         1.000  1.000  1.000 |  1.000  1.000  1.000  (61)
+amount       1.000  1.000  1.000 |  1.000  1.000  1.000  (122)
+party        1.000  1.000  1.000 |  1.000  1.000  1.000  (122)
+kpi          1.000  1.000  1.000 |  1.000  1.000  1.000  (686)
+clause       1.000  1.000  1.000 |  1.000  1.000  1.000  (183)
+ALL          1.000  0.991  0.995 |  1.000  0.991  0.995
+
+## dev-phrasing (seen): F1 (R) by world x layout L0..L4
+paper       L0 1.000 (1.000)  L1 1.000 (1.000)  L2 1.000 (1.000)  L3 1.000 (1.000)  L4 1.000 (1.000)
+financial   L0 1.000 (1.000)  L1 1.000 (1.000)  L2 1.000 (1.000)  L3 0.990 (0.981)  L4 0.972 (0.946)
+business    L0 1.000 (1.000)  L1 1.000 (1.000)  L2 1.000 (1.000)  L3 1.000 (1.000)  L4 1.000 (1.000)
+
+## dev-phrasing (seen): abstain 87/9339 candidates (0.9%), ECE(conf vs correct) 0.144, span-exact(>=50% overlap) 1.000
+   verifier: kept facts wrong 0 / correct 9252; CATCH rate (wrong flagged) 0.000; FALSE-FLAG rate (correct flagged) 0.0000; repair proposals 0 (correct on wrong facts: 0)
+
+## unseen-phrasing: P/R/F1 per field type (extractor at tau; then after verifier removes flagged facts)
+field            P      R     F1 |    P_v    R_v   F1_v  (n truth)
+table_cell   0.967  0.864  0.913 |  1.000  0.864  0.927  (2132)
+param        1.000  0.316  0.480 |  1.000  0.316  0.480  (345)
+claim        0.554  0.150  0.236 |  1.000  0.006  0.012  (481)
+line_item    0.618  0.221  0.325 |  0.617  0.221  0.325  (5136)
+date         0.920  0.397  0.554 |  0.920  0.397  0.554  (58)
+amount       0.548  0.198  0.291 |  0.575  0.198  0.295  (116)
+party        1.000  0.414  0.585 |  1.000  0.414  0.585  (116)
+kpi          1.000  0.123  0.218 |  1.000  0.123  0.218  (726)
+clause       0.868  0.569  0.688 |  0.866  0.557  0.678  (174)
+ALL          0.800  0.370  0.506 |  0.821  0.363  0.503
+
+## unseen-phrasing: F1 (R) by world x layout L0..L4
+paper       L0 0.785 (0.690)  L1 0.772 (0.651)  L2 0.777 (0.665)  L3 0.821 (0.713)  L4 0.809 (0.699)
+financial   L0 0.376 (0.248)  L1 0.381 (0.267)  L2 0.227 (0.148)  L3 0.369 (0.253)  L4 0.307 (0.213)
+business    L0 0.348 (0.222)  L1 0.311 (0.192)  L2 0.349 (0.217)  L3 0.404 (0.259)  L4 0.456 (0.299)
+
+## unseen-phrasing: abstain 1692/5988 candidates (28.3%), ECE(conf vs correct) 0.121, span-exact(>=50% overlap) 0.996
+   verifier: kept facts wrong 858 / correct 3438; CATCH rate (wrong flagged) 0.142; FALSE-FLAG rate (correct flagged) 0.0209; repair proposals 63 (correct on wrong facts: 62)
+     reason foot_explained   flags on wrong     0 on correct     1
+     reason plausibility     flags on wrong    62 on correct     0
+     reason cross_check      flags on wrong     2 on correct     2
+     reason claim_coverage   flags on wrong    58 on correct    69
+
+wrote results/h19_extract_tunen.json
+# h19 injected-error catch rates, tag=tune seeds 1..8 tau=0.50 (each error injected ALONE into an otherwise verifier-silent doc; SYNTHETIC)
+baseline false-flag rate on correct facts (verifier-silent selection excluded): 72/12690 = 0.0057
+scale x1000                       line_item: 997/997 (1.00)  table_cell: 1438/1438 (1.00)  kpi: 424/424 (1.00)  amount: 145/145 (1.00)  clause: 184/184 (1.00)   ALL catch 1.000 (n=3188), repaired-to-truth 0.978
+scale /1000                       line_item: 997/997 (1.00)  table_cell: 1438/1438 (1.00)  kpi: 424/424 (1.00)  amount: 145/145 (1.00)  clause: 184/184 (1.00)   ALL catch 1.000 (n=3188), repaired-to-truth 0.978
+sign flip                         line_item: 997/997 (1.00)  table_cell: 1438/1438 (1.00)  kpi: 424/424 (1.00)  amount: 145/145 (1.00)  clause: 184/184 (1.00)   ALL catch 1.000 (n=3188), repaired-to-truth 0.978
+digit transposition               line_item: 997/997 (1.00)  table_cell: 1199/1199 (1.00)  kpi: 389/389 (1.00)  amount: 128/128 (1.00)  clause: 140/140 (1.00)   ALL catch 1.000 (n=2853), repaired-to-truth 0.977
+wrong cell (neighbour in row)     line_item: 836/972 (0.86)  table_cell: 203/1437 (0.14)  kpi: 272/388 (0.70)   ALL catch 0.469 (n=2797), repaired-to-truth 0.000
+decimal shift /10                 line_item: 997/997 (1.00)  table_cell: 1438/1438 (1.00)  kpi: 424/424 (1.00)  amount: 145/145 (1.00)  clause: 184/184 (1.00)   ALL catch 1.000 (n=3188), repaired-to-truth 0.978
+# h19 adversarial financial layouts (controls; failure is the expected result) tau=0.50
+side-by-side two statements    P 1.000 R 0.500 F1 0.667 | after verifier P 1.000 R 0.500 | wrong kept 0 caught 0 (0.00); silent-wrong rate among emitted 0.000
+wrapped labels                 P   n/a R 0.000 F1 0.000 | after verifier P   n/a R 0.000 | wrong kept 0 caught 0 (0.00); silent-wrong rate among emitted 0.000
+numbers split across lines     P   n/a R 0.000 F1 0.000 | after verifier P   n/a R 0.000 | wrong kept 0 caught 0 (0.00); silent-wrong rate among emitted 0.000
+# h19_down eval tag=tune seeds 1..8 (8 seeds) n/world/seed=80 unseen share 0.40 tau 0.50 repair true noise x1
+# SYNTHETIC. Reader-noise model is an ASSUMPTION (see h19_common/down.rs); extraction/verification arms run the real hand-written extractor + verifier on generated text.
+
+## plain reader, accuracy by router (mean over seeds): keyword=0.8057  eps-greedy=0.8021  pooled-thompson=0.8031  hebbian-robust=0.8016  warm(hebr)=0.8031  guarded-safe=0.8047
+best fair baseline (picked on eval seeds -> favours baseline): plain + keyword
+
+## accuracy and cost per arm (cost in full-document reads; plain = 1.0)
+arm                ALL     paper financial  business |   cALL  c_pap  c_fin  c_biz
+plain/keyword    0.8057    0.7172    0.8297    0.8703 |  1.000  1.000  1.000  1.000
+plain           0.8016    0.7078    0.8281    0.8688 |  1.000  1.000  1.000  1.000
+plain+R         0.7990    0.7688    0.7625    0.8656 |  1.010  1.010  1.010  1.010
+ext             0.9177    0.8969    0.9281    0.9281 |  0.355  0.219  0.414  0.431
+ext+R           0.9068    0.8969    0.8922    0.9313 |  0.418  0.258  0.555  0.441
+ext+ver         0.9312    0.9234    0.9359    0.9344 |  0.394  0.297  0.434  0.451
+ext+ver+R       0.9141    0.9125    0.8953    0.9344 |  0.452  0.318  0.575  0.461
+
+## paired 95% t-CI of (arm - best plain baseline), accuracy; Holm over 15 comparisons (arms x worlds)
+plain+R    paper      +0.0516 [+0.0335,+0.0696] W/L/T 8/0/0  p=2.64e-4 holm=1.58e-3 WIN*
+plain+R    financial  -0.0672 [-0.0939,-0.0404] W/L/T 0/8/0  p=5.77e-4 holm=2.88e-3 LOSS!
+plain+R    business   -0.0047 [-0.0101,+0.0007] W/L/T 0/3/5  p=7.96e-2 holm=7.96e-2 tie
+ext        paper      +0.1797 [+0.1282,+0.2312] W/L/T 8/0/0  p=7.46e-5 holm=6.72e-4 WIN*
+ext        financial  +0.0984 [+0.0843,+0.1126] W/L/T 8/0/0  p=7.57e-7 holm=1.13e-5 WIN*
+ext        business   +0.0578 [+0.0402,+0.0754] W/L/T 8/0/0  p=1.10e-4 holm=8.24e-4 WIN*
+ext+R      paper      +0.1797 [+0.1255,+0.2338] W/L/T 8/0/0  p=1.03e-4 holm=8.24e-4 WIN*
+ext+R      financial  +0.0625 [+0.0369,+0.0881] W/L/T 7/0/1  p=6.82e-4 holm=2.88e-3 WIN*
+ext+R      business   +0.0609 [+0.0351,+0.0868] W/L/T 8/0/0  p=8.41e-4 holm=2.88e-3 WIN*
+ext+ver    paper      +0.2062 [+0.1572,+0.2553] W/L/T 8/0/0  p=2.21e-5 holm=2.87e-4 WIN*
+ext+ver    financial  +0.1062 [+0.0886,+0.1239] W/L/T 8/0/0  p=2.02e-6 holm=2.82e-5 WIN*
+ext+ver    business   +0.0641 [+0.0469,+0.0812] W/L/T 8/0/0  p=4.84e-5 holm=4.84e-4 WIN*
+ext+ver+R  paper      +0.1953 [+0.1438,+0.2468] W/L/T 8/0/0  p=4.36e-5 holm=4.79e-4 WIN*
+ext+ver+R  financial  +0.0656 [+0.0384,+0.0928] W/L/T 7/0/1  p=7.35e-4 holm=2.88e-3 WIN*
+ext+ver+R  business   +0.0641 [+0.0478,+0.0803] W/L/T 8/0/0  p=3.36e-5 holm=4.03e-4 WIN*
+plain+R    ALL        -0.0068 [-0.0168,+0.0032] W/L/T 1/6/1  p=1.54e-1
+ext        ALL        +0.1120 [+0.0955,+0.1285] W/L/T 8/0/0  p=8.83e-7
+ext+R      ALL        +0.1010 [+0.0803,+0.1218] W/L/T 8/0/0  p=8.29e-6
+ext+ver    ALL        +0.1255 [+0.1084,+0.1426] W/L/T 8/0/0  p=5.20e-7
+ext+ver+R  ALL        +0.1083 [+0.0937,+0.1230] W/L/T 8/0/0  p=4.95e-7
+
+## which part moves quality (paired over seeds, accuracy, mixed worlds)
+EXTRACTION  (ext - plain, no retrieval)         ALL +0.1161[+0.0972,+0.1351]  paper +0.1891[+0.1325,+0.2456]  financial +0.1000[+0.0875,+0.1125]  business +0.0594[+0.0438,+0.0749]
+VERIFICATION (ext+ver - ext)                    ALL +0.0135[+0.0066,+0.0204]  paper +0.0266[+0.0148,+0.0383]  financial +0.0078[-0.0018,+0.0174]  business +0.0062[-0.0016,+0.0141]
+RETRIEVAL on plain (plain+R - plain)            ALL -0.0026[-0.0164,+0.0112]  paper +0.0609[+0.0405,+0.0814]  financial -0.0656[-0.0911,-0.0402]  business -0.0031[-0.0124,+0.0061]
+RETRIEVAL on ext (ext+R - ext)                  ALL -0.0109[-0.0218,-0.0001]  paper +0.0000[-0.0193,+0.0193]  financial -0.0359[-0.0522,-0.0197]  business +0.0031[-0.0077,+0.0139]
+RETRIEVAL on ext+ver (ext+ver+R - ext+ver)      ALL -0.0172[-0.0240,-0.0104]  paper -0.0109[-0.0197,-0.0022]  financial -0.0406[-0.0621,-0.0192]  business +0.0000[-0.0097,+0.0097]
+
+## what the extraction arms did with each question (share of questions): exact&right / exact&WRONG(silent) / fell back to full read / flagged-field re-read
+ext         paper: 0.881/0.050/0.069/0.000  financial: 0.723/0.013/0.264/0.000  business: 0.708/0.011/0.281/0.000
+ext+R       paper: 0.864/0.037/0.098/0.000  financial: 0.584/0.020/0.395/0.000  business: 0.708/0.011/0.281/0.000
+ext+ver     paper: 0.872/0.000/0.127/0.002  financial: 0.733/0.003/0.264/0.000  business: 0.711/0.006/0.281/0.002
+ext+ver+R   paper: 0.861/0.000/0.138/0.002  financial: 0.588/0.017/0.395/0.000  business: 0.711/0.006/0.281/0.002
+retrieval recall (needed spans inside the retrieved blocks):  paper 0.997  financial 0.845  business 1.000
+
+## router value (best router - keyword) for plain vs ext+ver arms: routing matters less once the answer is computed exactly
+plain: 0.8057 (best router) vs keyword 0.8057 -> +0.0000 [+0.0000,+0.0000] W/L/T 0/0/8
+ext+ver (hebbian-robust) 0.9312
+# h19_down controls tag=tune seeds 1..8: arms must be harmless (TOST +-0.01 on accuracy, paired over seeds); SYNTHETIC
+
+## nostruct (prose, no numbers needed): plain acc 0.9891 cost 1.000
+  ext        acc 0.9906  diff +0.0016  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.150
+  ext+R      acc 0.9906  diff +0.0016  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.160
+  ext+ver    acc 0.9922  diff +0.0031  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.170
+  ext+ver+R  acc 0.9922  diff +0.0031  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.180
+
+## tiny (single clean fact; extraction unnecessary): plain acc 0.9844 cost 1.000
+  ext        acc 0.9859  diff +0.0016  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.150
+  ext+R      acc 0.9844  diff -0.0000  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.160
+  ext+ver    acc 0.9859  diff +0.0016  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.170
+  ext+ver+R  acc 0.9859  diff +0.0016  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.180
+
+## mixed controls: plain acc 0.9891 cost 1.000
+  ext        acc 0.9891  diff +0.0000  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.150
+  ext+R      acc 0.9898  diff +0.0008  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.160
+  ext+ver    acc 0.9883  diff -0.0008  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.170
+  ext+ver+R  acc 0.9898  diff +0.0008  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.180
+
+## uninformative verifier control (random flags on 15% of kept facts) on the main worlds
+random-verifier ext+ver vs ext (no verifier): diff -0.0026 equivalent true non-inferior true ; cost 0.421 vs 0.355
+
+## adversarial financial layouts (side-by-side / wrapped labels / split numbers): accuracy of plain reader vs extraction arms
+kind 1 : plain 0.834 | ext 0.962 (cost 0.15) | ext+ver 0.972 (cost 0.17) | ext answers silently wrong on 0.0% of docs
+kind 2 : plain 0.834 | ext 0.838 (cost 1.15) | ext+ver 0.838 (cost 1.17) | ext answers silently wrong on 0.0% of docs
+kind 3 : plain 0.834 | ext 0.838 (cost 1.15) | ext+ver 0.838 (cost 1.17) | ext answers silently wrong on 0.0% of docs
+# h19_extract eval tag=held seeds=31..60 (30 seeds) tau=0.50   SYNTHETIC; unseen bank written by the same author before the extractor was built (optimistic)
+
+## dev-phrasing (seen): P/R/F1 per field type (extractor at tau; then after verifier removes flagged facts)
+field            P      R     F1 |    P_v    R_v   F1_v  (n truth)
+table_cell   1.000  1.000  1.000 |  1.000  1.000  1.000  (8023)
+param        1.000  1.000  1.000 |  1.000  1.000  1.000  (1346)
+claim        1.000  1.000  1.000 |  1.000  1.000  1.000  (1808)
+line_item    1.000  0.981  0.990 |  1.000  0.981  0.990  (20020)
+date         1.000  1.000  1.000 |  1.000  1.000  1.000  (226)
+amount       1.000  1.000  1.000 |  1.000  1.000  1.000  (452)
+party        1.000  1.000  1.000 |  1.000  1.000  1.000  (452)
+kpi          1.000  1.000  1.000 |  1.000  1.000  1.000  (2580)
+clause       1.000  1.000  1.000 |  1.000  1.000  1.000  (678)
+ALL          1.000  0.989  0.995 |  1.000  0.989  0.995
+
+## dev-phrasing (seen): F1 (R) by world x layout L0..L4
+paper       L0 1.000 (1.000)  L1 1.000 (1.000)  L2 1.000 (1.000)  L3 1.000 (1.000)  L4 1.000 (1.000)
+financial   L0 1.000 (1.000)  L1 1.000 (1.000)  L2 1.000 (1.000)  L3 0.979 (0.959)  L4 0.979 (0.960)
+business    L0 1.000 (1.000)  L1 1.000 (1.000)  L2 1.000 (1.000)  L3 1.000 (1.000)  L4 1.000 (1.000)
+
+## dev-phrasing (seen): abstain 383/35585 candidates (1.1%), ECE(conf vs correct) 0.143, span-exact(>=50% overlap) 1.000
+   verifier: kept facts wrong 0 / correct 35202; CATCH rate (wrong flagged) 0.000; FALSE-FLAG rate (correct flagged) 0.0000; repair proposals 0 (correct on wrong facts: 0)
+
+## unseen-phrasing: P/R/F1 per field type (extractor at tau; then after verifier removes flagged facts)
+field            P      R     F1 |    P_v    R_v   F1_v  (n truth)
+table_cell   0.967  0.845  0.902 |  1.000  0.845  0.916  (7859)
+param        1.000  0.327  0.493 |  1.000  0.327  0.493  (1359)
+claim        0.586  0.180  0.276 |  0.478  0.006  0.012  (1777)
+line_item    0.628  0.268  0.376 |  0.887  0.268  0.411  (19776)
+date         0.825  0.363  0.504 |  0.825  0.363  0.504  (234)
+amount       0.551  0.233  0.327 |  0.732  0.233  0.353  (468)
+party        1.000  0.380  0.551 |  1.000  0.380  0.551  (468)
+kpi          0.921  0.088  0.161 |  0.921  0.088  0.161  (2502)
+clause       0.902  0.590  0.713 |  0.905  0.585  0.711  (702)
+ALL          0.785  0.390  0.521 |  0.943  0.381  0.543
+
+## unseen-phrasing: F1 (R) by world x layout L0..L4
+paper       L0 0.774 (0.664)  L1 0.805 (0.694)  L2 0.761 (0.644)  L3 0.762 (0.648)  L4 0.823 (0.715)
+financial   L0 0.273 (0.185)  L1 0.268 (0.182)  L2 0.335 (0.237)  L3 0.480 (0.359)  L4 0.433 (0.318)
+business    L0 0.353 (0.223)  L1 0.346 (0.215)  L2 0.422 (0.279)  L3 0.360 (0.231)  L4 0.327 (0.203)
+
+## unseen-phrasing: abstain 4864/22340 candidates (21.8%), ECE(conf vs correct) 0.095, span-exact(>=50% overlap) 0.987
+   verifier: kept facts wrong 3766 / correct 13710; CATCH rate (wrong flagged) 0.787; FALSE-FLAG rate (correct flagged) 0.0232; repair proposals 2742 (correct on wrong facts: 2735)
+     reason span_mismatch    flags on wrong    49 on correct     0
+     reason scale            flags on wrong  1603 on correct     0
+     reason foot_explained   flags on wrong     0 on correct     2
+     reason plausibility     flags on wrong   225 on correct     0
+     reason cross_check      flags on wrong    11 on correct     3
+     reason claim_coverage   flags on wrong   214 on correct   309
+     reason ambig_separator  flags on wrong   863 on correct     0
+     reason foot_ambiguous   flags on wrong     2 on correct     4
+
+wrote results/h19_extract_held.json
+# h19_extract eval tag=heldn seeds=31..60 (30 seeds) tau=0.50   SYNTHETIC; unseen bank written by the same author before the extractor was built (optimistic)
+
+## dev-phrasing (seen): P/R/F1 per field type (extractor at tau; then after verifier removes flagged facts)
+field            P      R     F1 |    P_v    R_v   F1_v  (n truth)
+table_cell   1.000  1.000  1.000 |  1.000  1.000  1.000  (8023)
+param        1.000  1.000  1.000 |  1.000  1.000  1.000  (1346)
+claim        1.000  1.000  1.000 |  1.000  1.000  1.000  (1808)
+line_item    1.000  0.981  0.990 |  1.000  0.981  0.990  (20020)
+date         1.000  1.000  1.000 |  1.000  1.000  1.000  (226)
+amount       1.000  1.000  1.000 |  1.000  1.000  1.000  (452)
+party        1.000  1.000  1.000 |  1.000  1.000  1.000  (452)
+kpi          1.000  1.000  1.000 |  1.000  1.000  1.000  (2580)
+clause       1.000  1.000  1.000 |  1.000  1.000  1.000  (678)
+ALL          1.000  0.989  0.995 |  1.000  0.989  0.995
+
+## dev-phrasing (seen): F1 (R) by world x layout L0..L4
+paper       L0 1.000 (1.000)  L1 1.000 (1.000)  L2 1.000 (1.000)  L3 1.000 (1.000)  L4 1.000 (1.000)
+financial   L0 1.000 (1.000)  L1 1.000 (1.000)  L2 1.000 (1.000)  L3 0.979 (0.959)  L4 0.979 (0.960)
+business    L0 1.000 (1.000)  L1 1.000 (1.000)  L2 1.000 (1.000)  L3 1.000 (1.000)  L4 1.000 (1.000)
+
+## dev-phrasing (seen): abstain 383/35585 candidates (1.1%), ECE(conf vs correct) 0.143, span-exact(>=50% overlap) 1.000
+   verifier: kept facts wrong 0 / correct 35202; CATCH rate (wrong flagged) 0.000; FALSE-FLAG rate (correct flagged) 0.0000; repair proposals 0 (correct on wrong facts: 0)
+
+## unseen-phrasing: P/R/F1 per field type (extractor at tau; then after verifier removes flagged facts)
+field            P      R     F1 |    P_v    R_v   F1_v  (n truth)
+table_cell   0.967  0.845  0.902 |  1.000  0.845  0.916  (7859)
+param        1.000  0.327  0.493 |  1.000  0.327  0.493  (1359)
+claim        0.586  0.180  0.276 |  0.478  0.006  0.012  (1777)
+line_item    0.628  0.268  0.376 |  0.628  0.268  0.375  (19776)
+date         0.825  0.363  0.504 |  0.825  0.363  0.504  (234)
+amount       0.551  0.233  0.327 |  0.565  0.233  0.330  (468)
+party        1.000  0.380  0.551 |  1.000  0.380  0.551  (468)
+kpi          0.921  0.088  0.161 |  0.921  0.088  0.161  (2502)
+clause       0.902  0.590  0.713 |  0.905  0.585  0.711  (702)
+ALL          0.785  0.390  0.521 |  0.802  0.381  0.517
+
+## unseen-phrasing: F1 (R) by world x layout L0..L4
+paper       L0 0.774 (0.664)  L1 0.805 (0.694)  L2 0.761 (0.644)  L3 0.762 (0.648)  L4 0.823 (0.715)
+financial   L0 0.273 (0.185)  L1 0.268 (0.182)  L2 0.335 (0.237)  L3 0.480 (0.359)  L4 0.433 (0.318)
+business    L0 0.353 (0.223)  L1 0.346 (0.215)  L2 0.422 (0.279)  L3 0.360 (0.231)  L4 0.327 (0.203)
+
+## unseen-phrasing: abstain 4864/22340 candidates (21.8%), ECE(conf vs correct) 0.095, span-exact(>=50% overlap) 0.987
+   verifier: kept facts wrong 3766 / correct 13710; CATCH rate (wrong flagged) 0.120; FALSE-FLAG rate (correct flagged) 0.0232; repair proposals 227 (correct on wrong facts: 225)
+     reason foot_explained   flags on wrong     0 on correct     2
+     reason plausibility     flags on wrong   225 on correct     0
+     reason cross_check      flags on wrong    11 on correct     3
+     reason claim_coverage   flags on wrong   214 on correct   309
+     reason foot_ambiguous   flags on wrong     2 on correct     4
+
+wrote results/h19_extract_heldn.json
+# h19 injected-error catch rates, tag=held seeds 31..60 tau=0.50 (each error injected ALONE into an otherwise verifier-silent doc; SYNTHETIC)
+baseline false-flag rate on correct facts (verifier-silent selection excluded): 318/48912 = 0.0065
+scale x1000                       line_item: 3781/3781 (1.00)  table_cell: 5379/5379 (1.00)  kpi: 1506/1506 (1.00)  amount: 561/561 (1.00)  clause: 705/705 (1.00)   ALL catch 1.000 (n=11932), repaired-to-truth 0.975
+scale /1000                       line_item: 3781/3781 (1.00)  table_cell: 5379/5379 (1.00)  kpi: 1506/1506 (1.00)  amount: 561/561 (1.00)  clause: 705/705 (1.00)   ALL catch 1.000 (n=11932), repaired-to-truth 0.975
+sign flip                         line_item: 3781/3781 (1.00)  table_cell: 5379/5379 (1.00)  kpi: 1506/1506 (1.00)  amount: 561/561 (1.00)  clause: 705/705 (1.00)   ALL catch 1.000 (n=11932), repaired-to-truth 0.975
+digit transposition               line_item: 3781/3781 (1.00)  table_cell: 4536/4536 (1.00)  kpi: 1386/1386 (1.00)  amount: 499/499 (1.00)  clause: 502/502 (1.00)   ALL catch 1.000 (n=10704), repaired-to-truth 0.973
+wrong cell (neighbour in row)     line_item: 3217/3677 (0.87)  table_cell: 656/5352 (0.12)  kpi: 847/1400 (0.60)   ALL catch 0.453 (n=10429), repaired-to-truth 0.000
+decimal shift /10                 line_item: 3781/3781 (1.00)  table_cell: 5379/5379 (1.00)  kpi: 1506/1506 (1.00)  amount: 561/561 (1.00)  clause: 705/705 (1.00)   ALL catch 1.000 (n=11932), repaired-to-truth 0.975
+# h19 adversarial financial layouts (controls; failure is the expected result) tau=0.50
+side-by-side two statements    P 1.000 R 0.500 F1 0.667 | after verifier P 1.000 R 0.500 | wrong kept 0 caught 0 (0.00); silent-wrong rate among emitted 0.000
+wrapped labels                 P   n/a R 0.000 F1 0.000 | after verifier P   n/a R 0.000 | wrong kept 0 caught 0 (0.00); silent-wrong rate among emitted 0.000
+numbers split across lines     P   n/a R 0.000 F1 0.000 | after verifier P   n/a R 0.000 | wrong kept 0 caught 0 (0.00); silent-wrong rate among emitted 0.000
+# h19_down eval tag=held seeds 31..60 (30 seeds) n/world/seed=80 unseen share 0.40 tau 0.50 repair true noise x1
+# SYNTHETIC. Reader-noise model is an ASSUMPTION (see h19_common/down.rs); extraction/verification arms run the real hand-written extractor + verifier on generated text.
+
+## plain reader, accuracy by router (mean over seeds): keyword=0.8231  eps-greedy=0.8203  pooled-thompson=0.8197  hebbian-robust=0.8206  warm(hebr)=0.8226  guarded-safe=0.8231
+best fair baseline (picked on eval seeds -> favours baseline): plain + guarded-safe
+
+## accuracy and cost per arm (cost in full-document reads; plain = 1.0)
+arm                ALL     paper financial  business |   cALL  c_pap  c_fin  c_biz
+plain/guarded-safe    0.8231    0.7433    0.8267    0.8992 |  1.000  1.000  1.000  1.000
+plain           0.8206    0.7396    0.8254    0.8967 |  1.000  1.000  1.000  1.000
+plain+R         0.8087    0.7908    0.7404    0.8950 |  1.010  1.010  1.010  1.010
+ext             0.9243    0.9175    0.9179    0.9375 |  0.360  0.213  0.414  0.452
+ext+R           0.9181    0.9192    0.8992    0.9358 |  0.422  0.245  0.559  0.462
+ext+ver         0.9387    0.9400    0.9283    0.9479 |  0.396  0.284  0.434  0.472
+ext+ver+R       0.9286    0.9362    0.9012    0.9483 |  0.455  0.305  0.579  0.482
+
+## paired 95% t-CI of (arm - best plain baseline), accuracy; Holm over 15 comparisons (arms x worlds)
+plain+R    paper      +0.0475 [+0.0394,+0.0556] W/L/T 29/0/1  p=8.52e-13 holm=8.52e-12 WIN*
+plain+R    financial  -0.0862 [-0.1004,-0.0721] W/L/T 0/29/1  p=3.28e-13 holm=3.61e-12 LOSS!
+plain+R    business   -0.0042 [-0.0067,-0.0016] W/L/T 0/9/21  p=2.32e-3 holm=2.32e-3 LOSS!
+ext        paper      +0.1742 [+0.1509,+0.1974] W/L/T 30/0/0  p=1.95e-15 holm=2.35e-14 WIN*
+ext        financial  +0.0913 [+0.0735,+0.1090] W/L/T 29/1/0  p=2.14e-11 holm=1.72e-10 WIN*
+ext        business   +0.0383 [+0.0248,+0.0519] W/L/T 26/2/2  p=2.82e-6 holm=8.46e-6 WIN*
+ext+R      paper      +0.1758 [+0.1529,+0.1988] W/L/T 30/0/0  p=1.10e-15 holm=1.43e-14 WIN*
+ext+R      financial  +0.0725 [+0.0553,+0.0897] W/L/T 27/1/2  p=1.75e-9 holm=1.05e-8 WIN*
+ext+R      business   +0.0367 [+0.0224,+0.0509] W/L/T 23/2/5  p=1.21e-5 holm=2.42e-5 WIN*
+ext+ver    paper      +0.1967 [+0.1784,+0.2150] W/L/T 30/0/0  p=1.26e-19 holm=1.88e-18 WIN*
+ext+ver    financial  +0.1017 [+0.0842,+0.1192] W/L/T 30/0/0  p=1.15e-12 holm=1.03e-11 WIN*
+ext+ver    business   +0.0487 [+0.0353,+0.0622] W/L/T 27/1/2  p=3.60e-8 holm=1.44e-7 WIN*
+ext+ver+R  paper      +0.1929 [+0.1731,+0.2128] W/L/T 30/0/0  p=1.98e-18 holm=2.78e-17 WIN*
+ext+ver+R  financial  +0.0746 [+0.0589,+0.0903] W/L/T 28/0/2  p=1.22e-10 holm=8.51e-10 WIN*
+ext+ver+R  business   +0.0492 [+0.0359,+0.0624] W/L/T 27/1/2  p=2.31e-8 holm=1.15e-7 WIN*
+plain+R    ALL        -0.0143 [-0.0200,-0.0086] W/L/T 4/24/2  p=1.63e-5
+ext        ALL        +0.1013 [+0.0909,+0.1116] W/L/T 30/0/0  p=1.61e-18
+ext+R      ALL        +0.0950 [+0.0846,+0.1054] W/L/T 30/0/0  p=1.04e-17
+ext+ver    ALL        +0.1157 [+0.1055,+0.1259] W/L/T 30/0/0  p=3.00e-20
+ext+ver+R  ALL        +0.1056 [+0.0956,+0.1155] W/L/T 30/0/0  p=1.84e-19
+
+## which part moves quality (paired over seeds, accuracy, mixed worlds)
+EXTRACTION  (ext - plain, no retrieval)         ALL +0.1037[+0.0939,+0.1136]  paper +0.1779[+0.1537,+0.2021]  financial +0.0925[+0.0754,+0.1096]  business +0.0408[+0.0281,+0.0536]
+VERIFICATION (ext+ver - ext)                    ALL +0.0144[+0.0105,+0.0184]  paper +0.0225[+0.0149,+0.0301]  financial +0.0104[+0.0032,+0.0177]  business +0.0104[+0.0047,+0.0162]
+RETRIEVAL on plain (plain+R - plain)            ALL -0.0118[-0.0180,-0.0056]  paper +0.0513[+0.0438,+0.0587]  financial -0.0850[-0.0994,-0.0706]  business -0.0017[-0.0064,+0.0030]
+RETRIEVAL on ext (ext+R - ext)                  ALL -0.0063[-0.0099,-0.0026]  paper +0.0017[-0.0033,+0.0067]  financial -0.0188[-0.0290,-0.0085]  business -0.0017[-0.0057,+0.0023]
+RETRIEVAL on ext+ver (ext+ver+R - ext+ver)      ALL -0.0101[-0.0133,-0.0070]  paper -0.0038[-0.0078,+0.0003]  financial -0.0271[-0.0363,-0.0178]  business +0.0004[-0.0034,+0.0042]
+
+## what the extraction arms did with each question (share of questions): exact&right / exact&WRONG(silent) / fell back to full read / flagged-field re-read
+ext         paper: 0.894/0.043/0.063/0.000  financial: 0.720/0.016/0.264/0.000  business: 0.680/0.018/0.302/0.000
+ext+R       paper: 0.880/0.035/0.085/0.000  financial: 0.583/0.018/0.399/0.000  business: 0.680/0.018/0.302/0.000
+ext+ver     paper: 0.885/0.001/0.114/0.000  financial: 0.731/0.005/0.264/0.000  business: 0.690/0.007/0.302/0.001
+ext+ver+R   paper: 0.874/0.001/0.125/0.000  financial: 0.588/0.013/0.399/0.000  business: 0.690/0.007/0.302/0.001
+retrieval recall (needed spans inside the retrieved blocks):  paper 0.996  financial 0.824  business 1.000
+
+## router value (best router - keyword) for plain vs ext+ver arms: routing matters less once the answer is computed exactly
+plain: 0.8231 (best router) vs keyword 0.8231 -> +0.0000 [-0.0004,+0.0004] W/L/T 1/1/28
+ext+ver (hebbian-robust) 0.9387
+# h19_down controls tag=held seeds 31..60: arms must be harmless (TOST +-0.01 on accuracy, paired over seeds); SYNTHETIC
+
+## nostruct (prose, no numbers needed): plain acc 0.9967 cost 1.000
+  ext        acc 0.9958  diff -0.0008  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.150
+  ext+R      acc 0.9963  diff -0.0004  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.160
+  ext+ver    acc 0.9963  diff -0.0004  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.170
+  ext+ver+R  acc 0.9958  diff -0.0008  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.180
+
+## tiny (single clean fact; extraction unnecessary): plain acc 0.9913 cost 1.000
+  ext        acc 0.9929  diff +0.0017  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.150
+  ext+R      acc 0.9921  diff +0.0008  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.160
+  ext+ver    acc 0.9896  diff -0.0017  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.170
+  ext+ver+R  acc 0.9913  diff +0.0000  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.180
+
+## mixed controls: plain acc 0.9923 cost 1.000
+  ext        acc 0.9925  diff +0.0002  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.150
+  ext+R      acc 0.9915  diff -0.0008  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.160
+  ext+ver    acc 0.9929  diff +0.0006  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.170
+  ext+ver+R  acc 0.9923  diff +0.0000  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.180
+
+## uninformative verifier control (random flags on 15% of kept facts) on the main worlds
+random-verifier ext+ver vs ext (no verifier): diff -0.0094 equivalent false non-inferior false ; cost 0.428 vs 0.360
+
+## adversarial financial layouts (side-by-side / wrapped labels / split numbers): accuracy of plain reader vs extraction arms
+kind 1 : plain 0.849 | ext 0.982 (cost 0.15) | ext+ver 0.978 (cost 0.17) | ext answers silently wrong on 0.0% of docs
+kind 2 : plain 0.849 | ext 0.849 (cost 1.15) | ext+ver 0.846 (cost 1.17) | ext answers silently wrong on 0.0% of docs
+kind 3 : plain 0.849 | ext 0.850 (cost 1.15) | ext+ver 0.847 (cost 1.17) | ext answers silently wrong on 0.0% of docs
+# h19_extract eval tag=confirm seeds=61..90 (30 seeds) tau=0.50   SYNTHETIC; unseen bank written by the same author before the extractor was built (optimistic)
+
+## dev-phrasing (seen): P/R/F1 per field type (extractor at tau; then after verifier removes flagged facts)
+field            P      R     F1 |    P_v    R_v   F1_v  (n truth)
+table_cell   1.000  1.000  1.000 |  1.000  1.000  1.000  (7718)
+param        1.000  1.000  1.000 |  1.000  1.000  1.000  (1317)
+claim        1.000  1.000  1.000 |  1.000  1.000  1.000  (1806)
+line_item    1.000  0.986  0.993 |  1.000  0.986  0.993  (19278)
+date         1.000  1.000  1.000 |  1.000  1.000  1.000  (226)
+amount       1.000  1.000  1.000 |  1.000  1.000  1.000  (452)
+party        1.000  1.000  1.000 |  1.000  1.000  1.000  (452)
+kpi          1.000  1.000  1.000 |  1.000  1.000  1.000  (2638)
+clause       1.000  1.000  1.000 |  1.000  1.000  1.000  (678)
+ALL          1.000  0.992  0.996 |  1.000  0.992  0.996
+
+## dev-phrasing (seen): F1 (R) by world x layout L0..L4
+paper       L0 1.000 (1.000)  L1 1.000 (1.000)  L2 1.000 (1.000)  L3 1.000 (1.000)  L4 1.000 (1.000)
+financial   L0 1.000 (1.000)  L1 1.000 (1.000)  L2 1.000 (1.000)  L3 0.982 (0.964)  L4 0.989 (0.978)
+business    L0 1.000 (1.000)  L1 1.000 (1.000)  L2 1.000 (1.000)  L3 1.000 (1.000)  L4 1.000 (1.000)
+
+## dev-phrasing (seen): abstain 271/34565 candidates (0.8%), ECE(conf vs correct) 0.136, span-exact(>=50% overlap) 1.000
+   verifier: kept facts wrong 0 / correct 34294; CATCH rate (wrong flagged) 0.000; FALSE-FLAG rate (correct flagged) 0.0000; repair proposals 0 (correct on wrong facts: 0)
+
+## unseen-phrasing: P/R/F1 per field type (extractor at tau; then after verifier removes flagged facts)
+field            P      R     F1 |    P_v    R_v   F1_v  (n truth)
+table_cell   0.973  0.858  0.912 |  1.000  0.858  0.923  (7980)
+param        1.000  0.301  0.463 |  1.000  0.301  0.463  (1365)
+claim        0.571  0.175  0.268 |  0.824  0.008  0.015  (1820)
+line_item    0.638  0.260  0.369 |  0.891  0.260  0.402  (19287)
+date         0.772  0.310  0.442 |  0.772  0.310  0.442  (229)
+amount       0.567  0.231  0.329 |  0.765  0.227  0.350  (458)
+party        1.000  0.402  0.573 |  1.000  0.402  0.573  (458)
+kpi          0.963  0.125  0.221 |  0.963  0.125  0.221  (2530)
+clause       0.905  0.585  0.711 |  0.913  0.581  0.710  (687)
+ALL          0.799  0.393  0.527 |  0.949  0.384  0.546
+
+## unseen-phrasing: F1 (R) by world x layout L0..L4
+paper       L0 0.772 (0.664)  L1 0.801 (0.695)  L2 0.798 (0.688)  L3 0.774 (0.654)  L4 0.807 (0.691)
+financial   L0 0.296 (0.207)  L1 0.419 (0.301)  L2 0.371 (0.256)  L3 0.385 (0.276)  L4 0.353 (0.245)
+business    L0 0.375 (0.237)  L1 0.403 (0.261)  L2 0.432 (0.289)  L3 0.329 (0.204)  L4 0.387 (0.248)
+
+## unseen-phrasing: abstain 4861/21965 candidates (22.1%), ECE(conf vs correct) 0.124, span-exact(>=50% overlap) 0.993
+   verifier: kept facts wrong 3436 / correct 13668; CATCH rate (wrong flagged) 0.791; FALSE-FLAG rate (correct flagged) 0.0229; repair proposals 2474 (correct on wrong facts: 2472)
+     reason span_mismatch    flags on wrong    47 on correct     0
+     reason scale            flags on wrong  1095 on correct     0
+     reason plausibility     flags on wrong   190 on correct     0
+     reason cross_check      flags on wrong     9 on correct     5
+     reason claim_coverage   flags on wrong   236 on correct   304
+     reason ambig_separator  flags on wrong  1142 on correct     0
+     reason foot_ambiguous   flags on wrong     2 on correct     4
+
+wrote results/h19_extract_confirm.json
+# h19_extract eval tag=confirmn seeds=61..90 (30 seeds) tau=0.50   SYNTHETIC; unseen bank written by the same author before the extractor was built (optimistic)
+
+## dev-phrasing (seen): P/R/F1 per field type (extractor at tau; then after verifier removes flagged facts)
+field            P      R     F1 |    P_v    R_v   F1_v  (n truth)
+table_cell   1.000  1.000  1.000 |  1.000  1.000  1.000  (7718)
+param        1.000  1.000  1.000 |  1.000  1.000  1.000  (1317)
+claim        1.000  1.000  1.000 |  1.000  1.000  1.000  (1806)
+line_item    1.000  0.986  0.993 |  1.000  0.986  0.993  (19278)
+date         1.000  1.000  1.000 |  1.000  1.000  1.000  (226)
+amount       1.000  1.000  1.000 |  1.000  1.000  1.000  (452)
+party        1.000  1.000  1.000 |  1.000  1.000  1.000  (452)
+kpi          1.000  1.000  1.000 |  1.000  1.000  1.000  (2638)
+clause       1.000  1.000  1.000 |  1.000  1.000  1.000  (678)
+ALL          1.000  0.992  0.996 |  1.000  0.992  0.996
+
+## dev-phrasing (seen): F1 (R) by world x layout L0..L4
+paper       L0 1.000 (1.000)  L1 1.000 (1.000)  L2 1.000 (1.000)  L3 1.000 (1.000)  L4 1.000 (1.000)
+financial   L0 1.000 (1.000)  L1 1.000 (1.000)  L2 1.000 (1.000)  L3 0.982 (0.964)  L4 0.989 (0.978)
+business    L0 1.000 (1.000)  L1 1.000 (1.000)  L2 1.000 (1.000)  L3 1.000 (1.000)  L4 1.000 (1.000)
+
+## dev-phrasing (seen): abstain 271/34565 candidates (0.8%), ECE(conf vs correct) 0.136, span-exact(>=50% overlap) 1.000
+   verifier: kept facts wrong 0 / correct 34294; CATCH rate (wrong flagged) 0.000; FALSE-FLAG rate (correct flagged) 0.0000; repair proposals 0 (correct on wrong facts: 0)
+
+## unseen-phrasing: P/R/F1 per field type (extractor at tau; then after verifier removes flagged facts)
+field            P      R     F1 |    P_v    R_v   F1_v  (n truth)
+table_cell   0.973  0.858  0.912 |  1.000  0.858  0.923  (7980)
+param        1.000  0.301  0.463 |  1.000  0.301  0.463  (1365)
+claim        0.571  0.175  0.268 |  0.824  0.008  0.015  (1820)
+line_item    0.638  0.260  0.369 |  0.638  0.260  0.369  (19287)
+date         0.772  0.310  0.442 |  0.772  0.310  0.442  (229)
+amount       0.567  0.231  0.329 |  0.578  0.227  0.326  (458)
+party        1.000  0.402  0.573 |  1.000  0.402  0.573  (458)
+kpi          0.963  0.125  0.221 |  0.963  0.125  0.221  (2530)
+clause       0.905  0.585  0.711 |  0.913  0.581  0.710  (687)
+ALL          0.799  0.393  0.527 |  0.817  0.384  0.522
+
+## unseen-phrasing: F1 (R) by world x layout L0..L4
+paper       L0 0.772 (0.664)  L1 0.801 (0.695)  L2 0.798 (0.688)  L3 0.774 (0.654)  L4 0.807 (0.691)
+financial   L0 0.296 (0.207)  L1 0.419 (0.301)  L2 0.371 (0.256)  L3 0.385 (0.276)  L4 0.353 (0.245)
+business    L0 0.375 (0.237)  L1 0.403 (0.261)  L2 0.432 (0.289)  L3 0.329 (0.204)  L4 0.387 (0.248)
+
+## unseen-phrasing: abstain 4861/21965 candidates (22.1%), ECE(conf vs correct) 0.124, span-exact(>=50% overlap) 0.993
+   verifier: kept facts wrong 3436 / correct 13668; CATCH rate (wrong flagged) 0.127; FALSE-FLAG rate (correct flagged) 0.0229; repair proposals 190 (correct on wrong facts: 190)
+     reason plausibility     flags on wrong   190 on correct     0
+     reason cross_check      flags on wrong     9 on correct     5
+     reason claim_coverage   flags on wrong   236 on correct   304
+     reason foot_ambiguous   flags on wrong     2 on correct     4
+
+wrote results/h19_extract_confirmn.json
+# h19 injected-error catch rates, tag=confirm seeds 61..90 tau=0.50 (each error injected ALONE into an otherwise verifier-silent doc; SYNTHETIC)
+baseline false-flag rate on correct facts (verifier-silent selection excluded): 313/47962 = 0.0065
+scale x1000                       line_item: 3747/3747 (1.00)  table_cell: 5380/5380 (1.00)  kpi: 1589/1589 (1.00)  amount: 556/556 (1.00)  clause: 715/715 (1.00)   ALL catch 1.000 (n=11987), repaired-to-truth 0.976
+scale /1000                       line_item: 3747/3747 (1.00)  table_cell: 5380/5380 (1.00)  kpi: 1589/1589 (1.00)  amount: 556/556 (1.00)  clause: 715/715 (1.00)   ALL catch 1.000 (n=11987), repaired-to-truth 0.976
+sign flip                         line_item: 3747/3747 (1.00)  table_cell: 5380/5380 (1.00)  kpi: 1589/1589 (1.00)  amount: 556/556 (1.00)  clause: 715/715 (1.00)   ALL catch 1.000 (n=11987), repaired-to-truth 0.976
+digit transposition               line_item: 3744/3744 (1.00)  table_cell: 4501/4501 (1.00)  kpi: 1489/1489 (1.00)  amount: 495/495 (1.00)  clause: 526/526 (1.00)   ALL catch 1.000 (n=10755), repaired-to-truth 0.974
+wrong cell (neighbour in row)     line_item: 3193/3686 (0.87)  table_cell: 736/5340 (0.14)  kpi: 999/1500 (0.67)   ALL catch 0.468 (n=10526), repaired-to-truth 0.000
+decimal shift /10                 line_item: 3747/3747 (1.00)  table_cell: 5380/5380 (1.00)  kpi: 1589/1589 (1.00)  amount: 556/556 (1.00)  clause: 715/715 (1.00)   ALL catch 1.000 (n=11987), repaired-to-truth 0.976
+# h19 adversarial financial layouts (controls; failure is the expected result) tau=0.50
+side-by-side two statements    P 1.000 R 0.500 F1 0.667 | after verifier P 1.000 R 0.500 | wrong kept 0 caught 0 (0.00); silent-wrong rate among emitted 0.000
+wrapped labels                 P   n/a R 0.000 F1 0.000 | after verifier P   n/a R 0.000 | wrong kept 0 caught 0 (0.00); silent-wrong rate among emitted 0.000
+numbers split across lines     P 1.000 R 0.002 F1 0.004 | after verifier P 1.000 R 0.002 | wrong kept 0 caught 0 (0.00); silent-wrong rate among emitted 0.000
+# h19_down eval tag=confirm seeds 61..90 (30 seeds) n/world/seed=80 unseen share 0.40 tau 0.50 repair true noise x1
+# SYNTHETIC. Reader-noise model is an ASSUMPTION (see h19_common/down.rs); extraction/verification arms run the real hand-written extractor + verifier on generated text.
+
+## plain reader, accuracy by router (mean over seeds): keyword=0.8281  eps-greedy=0.8236  pooled-thompson=0.8232  hebbian-robust=0.8237  warm(hebr)=0.8276  guarded-safe=0.8278
+best fair baseline (picked on eval seeds -> favours baseline): plain + keyword
+
+## accuracy and cost per arm (cost in full-document reads; plain = 1.0)
+arm                ALL     paper financial  business |   cALL  c_pap  c_fin  c_biz
+plain/keyword    0.8281    0.7487    0.8496    0.8858 |  1.000  1.000  1.000  1.000
+plain           0.8237    0.7429    0.8433    0.8850 |  1.000  1.000  1.000  1.000
+plain+R         0.8176    0.7929    0.7733    0.8867 |  1.010  1.010  1.010  1.010
+ext             0.9265    0.9208    0.9267    0.9321 |  0.364  0.218  0.423  0.452
+ext+R           0.9214    0.9192    0.9137    0.9312 |  0.420  0.252  0.547  0.462
+ext+ver         0.9368    0.9333    0.9362    0.9408 |  0.399  0.282  0.443  0.472
+ext+ver+R       0.9299    0.9279    0.9171    0.9446 |  0.451  0.305  0.567  0.482
+
+## paired 95% t-CI of (arm - best plain baseline), accuracy; Holm over 15 comparisons (arms x worlds)
+plain+R    paper      +0.0442 [+0.0342,+0.0542] W/L/T 29/1/0  p=6.47e-10 holm=3.88e-9 WIN*
+plain+R    financial  -0.0762 [-0.0886,-0.0639] W/L/T 0/30/0  p=2.55e-13 holm=2.55e-12 LOSS!
+plain+R    business   +0.0008 [-0.0028,+0.0045] W/L/T 2/2/26  p=6.45e-1 holm=6.45e-1 tie
+ext        paper      +0.1721 [+0.1528,+0.1914] W/L/T 30/0/0  p=2.06e-17 holm=2.47e-16 WIN*
+ext        financial  +0.0771 [+0.0629,+0.0913] W/L/T 29/0/1  p=5.78e-12 holm=5.21e-11 WIN*
+ext        business   +0.0463 [+0.0319,+0.0606] W/L/T 27/1/2  p=3.21e-7 holm=9.62e-7 WIN*
+ext+R      paper      +0.1704 [+0.1529,+0.1879] W/L/T 30/0/0  p=1.80e-18 holm=2.34e-17 WIN*
+ext+R      financial  +0.0642 [+0.0516,+0.0768] W/L/T 30/0/0  p=2.62e-11 holm=1.83e-10 WIN*
+ext+R      business   +0.0454 [+0.0313,+0.0595] W/L/T 28/2/0  p=3.26e-7 holm=9.62e-7 WIN*
+ext+ver    paper      +0.1846 [+0.1706,+0.1986] W/L/T 30/0/0  p=4.48e-22 holm=6.71e-21 WIN*
+ext+ver    financial  +0.0867 [+0.0727,+0.1006] W/L/T 29/0/1  p=2.32e-13 holm=2.55e-12 WIN*
+ext+ver    business   +0.0550 [+0.0415,+0.0685] W/L/T 29/1/0  p=3.57e-9 holm=1.43e-8 WIN*
+ext+ver+R  paper      +0.1792 [+0.1639,+0.1944] W/L/T 30/0/0  p=1.13e-20 holm=1.58e-19 WIN*
+ext+ver+R  financial  +0.0675 [+0.0549,+0.0801] W/L/T 30/0/0  p=7.93e-12 holm=6.34e-11 WIN*
+ext+ver+R  business   +0.0587 [+0.0449,+0.0726] W/L/T 29/1/0  p=1.55e-9 holm=7.77e-9 WIN*
+plain+R    ALL        -0.0104 [-0.0150,-0.0059] W/L/T 4/23/3  p=6.37e-5
+ext        ALL        +0.0985 [+0.0894,+0.1075] W/L/T 30/0/0  p=8.40e-20
+ext+R      ALL        +0.0933 [+0.0843,+0.1023] W/L/T 30/0/0  p=3.18e-19
+ext+ver    ALL        +0.1087 [+0.1009,+0.1166] W/L/T 30/0/0  p=9.84e-23
+ext+ver+R  ALL        +0.1018 [+0.0936,+0.1100] W/L/T 30/0/0  p=2.58e-21
+
+## which part moves quality (paired over seeds, accuracy, mixed worlds)
+EXTRACTION  (ext - plain, no retrieval)         ALL +0.1028[+0.0934,+0.1122]  paper +0.1779[+0.1594,+0.1964]  financial +0.0833[+0.0693,+0.0974]  business +0.0471[+0.0317,+0.0624]
+VERIFICATION (ext+ver - ext)                    ALL +0.0103[+0.0072,+0.0134]  paper +0.0125[+0.0034,+0.0216]  financial +0.0096[+0.0049,+0.0143]  business +0.0087[+0.0034,+0.0141]
+RETRIEVAL on plain (plain+R - plain)            ALL -0.0061[-0.0113,-0.0010]  paper +0.0500[+0.0405,+0.0595]  financial -0.0700[-0.0836,-0.0564]  business +0.0017[-0.0004,+0.0037]
+RETRIEVAL on ext (ext+R - ext)                  ALL -0.0051[-0.0088,-0.0015]  paper -0.0017[-0.0075,+0.0042]  financial -0.0129[-0.0214,-0.0045]  business -0.0008[-0.0043,+0.0026]
+RETRIEVAL on ext+ver (ext+ver+R - ext+ver)      ALL -0.0069[-0.0105,-0.0034]  paper -0.0054[-0.0132,+0.0024]  financial -0.0192[-0.0277,-0.0106]  business +0.0038[-0.0002,+0.0077]
+
+## what the extraction arms did with each question (share of questions): exact&right / exact&WRONG(silent) / fell back to full read / flagged-field re-read
+ext         paper: 0.897/0.036/0.068/0.000  financial: 0.713/0.014/0.273/0.000  business: 0.681/0.018/0.302/0.000
+ext+R       paper: 0.881/0.027/0.092/0.000  financial: 0.597/0.017/0.387/0.000  business: 0.681/0.018/0.302/0.000
+ext+ver     paper: 0.887/0.000/0.112/0.000  financial: 0.724/0.003/0.273/0.000  business: 0.690/0.007/0.302/0.001
+ext+ver+R   paper: 0.875/0.000/0.125/0.000  financial: 0.602/0.011/0.387/0.000  business: 0.690/0.007/0.302/0.001
+retrieval recall (needed spans inside the retrieved blocks):  paper 0.993  financial 0.843  business 1.000
+
+## router value (best router - keyword) for plain vs ext+ver arms: routing matters less once the answer is computed exactly
+plain: 0.8281 (best router) vs keyword 0.8281 -> +0.0000 [+0.0000,+0.0000] W/L/T 0/0/30
+ext+ver (hebbian-robust) 0.9368
+# h19_down controls tag=confirm seeds 61..90: arms must be harmless (TOST +-0.01 on accuracy, paired over seeds); SYNTHETIC
+
+## nostruct (prose, no numbers needed): plain acc 0.9929 cost 1.000
+  ext        acc 0.9938  diff +0.0008  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.150
+  ext+R      acc 0.9933  diff +0.0004  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.160
+  ext+ver    acc 0.9946  diff +0.0017  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.170
+  ext+ver+R  acc 0.9938  diff +0.0008  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.180
+
+## tiny (single clean fact; extraction unnecessary): plain acc 0.9879 cost 1.000
+  ext        acc 0.9875  diff -0.0004  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.150
+  ext+R      acc 0.9883  diff +0.0004  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.160
+  ext+ver    acc 0.9896  diff +0.0017  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.170
+  ext+ver+R  acc 0.9871  diff -0.0008  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.180
+
+## mixed controls: plain acc 0.9912 cost 1.000
+  ext        acc 0.9915  diff +0.0002  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.150
+  ext+R      acc 0.9912  diff -0.0000  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.160
+  ext+ver    acc 0.9921  diff +0.0008  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.170
+  ext+ver+R  acc 0.9915  diff +0.0002  equivalent(+-0.01) true  non-inferior(>=-0.01) true  cost 1.180
+
+## uninformative verifier control (random flags on 15% of kept facts) on the main worlds
+random-verifier ext+ver vs ext (no verifier): diff -0.0099 equivalent false non-inferior false ; cost 0.430 vs 0.364
+
+## adversarial financial layouts (side-by-side / wrapped labels / split numbers): accuracy of plain reader vs extraction arms
+kind 1 : plain 0.847 | ext 0.972 (cost 0.15) | ext+ver 0.973 (cost 0.17) | ext answers silently wrong on 0.0% of docs
+kind 2 : plain 0.847 | ext 0.848 (cost 1.15) | ext+ver 0.848 (cost 1.17) | ext answers silently wrong on 0.0% of docs
+kind 3 : plain 0.848 | ext 0.848 (cost 1.15) | ext+ver 0.849 (cost 1.17) | ext answers silently wrong on 0.0% of docs
+# h19_down sensitivity tag=held seeds 31..60 (accuracy; ALL three worlds; plain uses the same router (hebbian-robust))
+
+## (a) reader-noise multiplier (1.0 = default assumptions; 0.25 = a very strong reader); break-even = where ext+ver stops beating plain
+ noise    plain      ext  ext+ver  ext+ver+R | cost(ext) cost(ext+ver)
+  0.02   0.9954   0.9735   0.9946     0.9918 |    0.360    0.396
+  0.05   0.9904   0.9722   0.9929     0.9901 |    0.360    0.396
+  0.10   0.9804   0.9699   0.9906     0.9871 |    0.360    0.396
+  0.25   0.9521   0.9625   0.9807     0.9769 |    0.360    0.396
+  0.50   0.9044   0.9499   0.9674     0.9614 |    0.360    0.396
+  1.00   0.8206   0.9243   0.9387     0.9286 |    0.360    0.396
+  2.00   0.6847   0.8797   0.8900     0.8779 |    0.360    0.396
+  4.00   0.4692   0.8004   0.8078     0.7894 |    0.360    0.396
+
+## (b) share of UNSEEN-phrasing documents (extractor never developed on them)
+unseen    plain      ext  ext+ver  ext+ver+R | cost(ext) cost(ext+ver)
+  0.00   0.8247   0.9779   0.9781     0.9644 |    0.153    0.173
+  0.40   0.8206   0.9243   0.9387     0.9286 |    0.360    0.396
+  1.00   0.8149   0.8482   0.8846     0.8800 |    0.674    0.733
+
+## (c) verifier variants at unseen share 0.4 (all else frozen)
+variant                                 ext  ext+ver  cost_ev    plain
+full verifier + repair (default)     0.9243   0.9387    0.396   0.8206
+full verifier, flag only (no repair)   0.9243   0.9378    0.402   0.8206
+narrow verifier (dev knowledge only)   0.9243   0.9319    0.397   0.8206
+no footing                           0.9243   0.9387    0.396   0.8206
+no scale check                       0.9243   0.9351    0.396   0.8206
+no plausibility                      0.9243   0.9382    0.396   0.8206
+no claim coverage                    0.9243   0.9322    0.380   0.8206
+span re-parse only                   0.9243   0.9279    0.380   0.8206
+
+## (d) abstention threshold tau
+   tau      ext  ext+ver  cost_ev    plain
+  0.20   0.9204   0.9388    0.368   0.8206
+  0.35   0.9210   0.9385    0.380   0.8206
+  0.50   0.9243   0.9387    0.396   0.8206
+  0.65   0.9192   0.9293    0.473   0.8206
+  0.80   0.9199   0.9283    0.478   0.8206
+# h19_real: REAL on-disk text, no labels; author inspects flagged items. Label every number REAL-TEXT/UNLABELLED.
+
+## (A) results/*.md tables (this repo; machine-written benchmark tables): 23 files with tables, 56 tables, numeric cells (extractor parser) 4167 vs (trivial parser) 5083
+   parser agreement (extractor vs trivial): 5930/6932 = 0.8555
+   verifier independent re-parse vs extractor parse: disagreements 0/4167 = 0.0000 (a proxy for FALSE flags on real cells; no labels)
+   total-row footing: 0/0 columns foot (tolerance .6%); violations 0
+   percent columns 24; implausible values 0
+     parser-disagree: finance-packages-catalog.md:54 '1.43, 2026-07' mine=None triv=1.43
+     parser-disagree: finance-packages-catalog.md:59 '3.0, last upload 2022-11' mine=None triv=3
+     parser-disagree: finance-packages-catalog.md:83 '152.7M' mine=152700000 triv=None
+     parser-disagree: finance-packages-catalog.md:84 '124M' mine=124000000 triv=None
+     parser-disagree: finance-packages-catalog.md:85 '1.0M' mine=1000000 triv=None
+     parser-disagree: finance-packages-catalog.md:86 '2.3M' mine=2300000 triv=None
+     parser-disagree: finance-packages-catalog.md:87 '12.8k' mine=12800 triv=None
+     parser-disagree: finance-packages-catalog.md:88 '53k' mine=53000 triv=None
+     parser-disagree: finance-packages-catalog.md:89 '3.3k' mine=3300 triv=None
+     parser-disagree: finance-packages-catalog.md:90 '363k' mine=363000 triv=None
+     parser-disagree: finance-packages-catalog.md:91 '15.2M' mine=15200000 triv=None
+     parser-disagree: finance-packages-catalog.md:92 '222k' mine=222000 triv=None
+
+## (B) vendored crate READMEs (~/.cargo/registry; real third-party benchmark/feature tables): 131 files with tables, 275 tables, numeric cells (extractor parser) 1056 vs (trivial parser) 1134
+   parser agreement (extractor vs trivial): 4230/4642 = 0.9112
+   verifier independent re-parse vs extractor parse: disagreements 0/1056 = 0.0000 (a proxy for FALSE flags on real cells; no labels)
+   total-row footing: 0/2 columns foot (tolerance .6%); violations 2
+   percent columns 20; implausible values 0
+     parser-disagree: README.md:95 '`32` and `64`' mine=None triv=32
+     parser-disagree: README.md:96 '`32` and `64`' mine=None triv=32
+     parser-disagree: README.md:97 '`64` only' mine=None triv=64
+     parser-disagree: README.md:104 '15.017 µs' mine=None triv=15.017
+     parser-disagree: README.md:104 '13.906 µs -7.3967%' mine=None triv=13.906
+     parser-disagree: README.md:104 '15.877 μs +5.7268%' mine=None triv=15.877
+     parser-disagree: README.md:105 '40.144 µs' mine=None triv=40.144
+     parser-disagree: README.md:105 '25.963 µs -35.603%' mine=None triv=25.963
+     parser-disagree: README.md:105 '42.118 μs +4.9173%' mine=None triv=42.118
+     parser-disagree: README.md:106 '41.334 µs' mine=None triv=41.334
+     parser-disagree: README.md:106 '27.874 µs -32.660%' mine=None triv=27.874
+     parser-disagree: README.md:106 '43.985 μs +6.4136%' mine=None triv=43.985
+     footing-violation: README.md:961 col 2 total 24000 vs sum 6400
+     footing-violation: README.md:961 col 3 total 1 vs sum 0.61
+
+## (C) currency amounts in real prose (results/market-research.md, results/finance-packages-catalog.md)
+   amounts found 95; independent re-parse agrees on 58 (0.611); disagreements (likely scale suffix K/M/B/mn after the span, i.e. true extractor misses):
+     results/market-research.md '$11.5' extractor=11.5 iparse=11500000000 (tail 'B (202')
+     results/market-research.md '$37' extractor=37 iparse=37000000000 (tail 'B (202')
+     results/market-research.md '$12.5' extractor=12.5 iparse=12500000000 (tail 'B in 2')
+     results/market-research.md '$3.5' extractor=3.5 iparse=3500000000 (tail 'B (Nov')
+     results/market-research.md '$8.4' extractor=8.4 iparse=8400000000 (tail 'B (mid')
+     results/market-research.md '$28.3' extractor=28.3 iparse=28300000000 (tail 'B (202')
+     results/market-research.md '$51.6' extractor=51.6 iparse=51600000000 (tail 'B (202')
+     results/market-research.md '$63' extractor=63 iparse=63000000000 (tail 'B (202')
+     results/market-research.md '$220' extractor=220 iparse=220000000000 (tail 'B (203')
+     results/market-research.md '$28.9' extractor=28.9 iparse=28900000000 (tail 'B (202')
+     results/market-research.md '$142.7' extractor=142.7 iparse=142700000000 (tail 'B (203')
+     results/market-research.md '$83.3' extractor=83.3 iparse=83300000000 (tail 'B (202')
+
+## (D) interval triples 'x [lo,hi]' in results/*.md (containment lo <= x <= hi)
+   triples 1885; containment violations 6 (0.0032)
+     violation: g17_board_entry.md:6 200 [0.0029,0.0143]
+     violation: g2_board_entry.md:55 16 [-0.0037,0.0025]
+     violation: g2_board_entry.md:55 16 [-0.0031,0.0029]
+     violation: g2_board_entry.md:55 16 [-0.0028,0.0029]
+     violation: g2_board_entry.md:55 16 [-0.0028,0.0035]
+     violation: h10_board_entry.md:7 1 [-0.014,0.021]

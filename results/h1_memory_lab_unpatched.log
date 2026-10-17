@@ -1,0 +1,94 @@
+
+=== PART 1: tiered memory ===
+dim 384, 600 groups x 10 = 6000 items, 400 queries, short ring 450, budget 2.32 MB (25% of flat-all)
+  tune halflife     3000: value-forget recall 0.8704
+  tune halflife    10000: value-forget recall 0.8705
+  tune halflife    30000: value-forget recall 0.8706
+  tune halflife   100000: value-forget recall 0.8706
+  tune hot_cap    16: value-forget+cold4 recall 0.9268
+  tune hot_cap    22: value-forget+cold4 recall 0.9263
+  tune hot_cap    45: value-forget+cold4 recall 0.9256
+  tune hot_cap   112: value-forget+cold4 recall 0.9179
+  tune hot_cap   225: value-forget+cold4 recall 0.9114
+  tune hot_cap   450: value-forget+cold4 recall 0.8724
+  chosen: halflife 30000 ticks, hot_cap 16 items
+
+method                             recall@10 all          recent          useful             old     latency us        MB end  retained
+flat-all                            0.944 ±0.013    0.943 ±0.012    0.945 ±0.023    0.945 ±0.020        132 ±50    9.26 ±0.00      6000
+hnsw-all (M16,ef64)                 0.926 ±0.013    0.921 ±0.013    0.933 ±0.015    0.931 ±0.022       451 ±182   38.98 ±0.00      6000
+tiered keep-all                     0.944 ±0.013    0.943 ±0.012    0.945 ±0.023    0.945 ±0.020        161 ±90    9.94 ±0.00      6000
+tiered keep-all +cold4              0.943 ±0.015    0.941 ±0.015    0.943 ±0.026    0.946 ±0.021        102 ±32    3.07 ±0.00      6000
+tiered FIFO-forget @B               0.743 ±0.036    0.970 ±0.009    0.452 ±0.074    0.446 ±0.076         64 ±19    2.25 ±0.00      1356
+tiered value-forget @B              0.857 ±0.026    0.971 ±0.007    0.861 ±0.057    0.415 ±0.019         66 ±34    2.25 ±0.00      1356
+tiered FIFO-forget +cold4 @B        0.896 ±0.027    0.947 ±0.015    0.833 ±0.088    0.826 ±0.083         94 ±32    2.25 ±0.00      3339
+tiered value-forget +cold4 @B       0.929 ±0.014    0.947 ±0.014    0.949 ±0.020    0.820 ±0.032         91 ±27    2.25 ±0.00      3339
+budget = 2.32 MB; MB end is the estimated bytes() after the last block
+
+paired differences in overall recall@10 (a - b), mean ±95% CI, wins/losses over 4 seeds
+  tiered value-forget @B - tiered FIFO-forget @B: +0.1139 ±0.0181  (4W/0L/0T)  [CI excludes 0]
+  tiered value-forget +cold4 @B - tiered value-forget @B: +0.0718 ±0.0123  (4W/0L/0T)  [CI excludes 0]
+  tiered value-forget +cold4 @B - tiered FIFO-forget +cold4 @B: +0.0329 ±0.0194  (4W/0L/0T)  [CI excludes 0]
+  tiered value-forget +cold4 @B - tiered FIFO-forget @B: +0.1857 ±0.0245  (4W/0L/0T)  [CI excludes 0]
+  tiered value-forget @B - flat-all: -0.0871 ±0.0202  (0W/4L/0T)  [CI excludes 0]
+  tiered value-forget +cold4 @B - flat-all: -0.0154 ±0.0109  (0W/4L/0T)  [CI excludes 0]
+  tiered keep-all - flat-all: +0.0000 ±0.0000  (0W/0L/4T)
+
+sensitivity to the share of random-old queries (p_old); recent/useful share the rest 55:30 -> scaled
+method (overall recall@10)        p_old=.05  p_old=.15  p_old=.40
+flat-all                              0.936      0.938      0.933
+hnsw-all (M16,ef64)                   0.919      0.917      0.917
+tiered keep-all                       0.936      0.938      0.933
+tiered keep-all +cold4                0.935      0.935      0.934
+tiered FIFO-forget @B                 0.761      0.736      0.662
+tiered value-forget @B                0.902      0.848      0.703
+tiered FIFO-forget +cold4 @B          0.889      0.895      0.878
+tiered value-forget +cold4 @B         0.935      0.923      0.897
+
+##### repeat of part 1 on an EASY world (tight groups; exact search is perfect) #####
+
+=== PART 1: tiered memory ===
+dim 384, 600 groups x 10 = 6000 items, 400 queries, short ring 450, budget 2.32 MB (25% of flat-all)
+  tune halflife     3000: value-forget recall 0.8973
+  tune halflife    10000: value-forget recall 0.8973
+  tune halflife    30000: value-forget recall 0.8973
+  tune halflife   100000: value-forget recall 0.8973
+  tune hot_cap    16: value-forget+cold4 recall 0.9800
+  tune hot_cap    22: value-forget+cold4 recall 0.9800
+  tune hot_cap    45: value-forget+cold4 recall 0.9780
+  tune hot_cap   112: value-forget+cold4 recall 0.9660
+  tune hot_cap   225: value-forget+cold4 recall 0.9530
+  tune hot_cap   450: value-forget+cold4 recall 0.9032
+  chosen: halflife 3000 ticks, hot_cap 16 items
+
+method                             recall@10 all          recent          useful             old     latency us        MB end  retained
+flat-all                            1.000 ±0.000    1.000 ±0.000    1.000 ±0.000    1.000 ±0.000        109 ±10    9.26 ±0.00      6000
+hnsw-all (M16,ef64)                 0.983 ±0.006    0.978 ±0.006    0.988 ±0.007    0.991 ±0.007        280 ±60   38.98 ±0.00      6000
+tiered keep-all                     1.000 ±0.000    1.000 ±0.000    1.000 ±0.000    1.000 ±0.000         111 ±4    9.94 ±0.00      6000
+tiered keep-all +cold4              1.000 ±0.000    1.000 ±0.000    1.000 ±0.000    1.000 ±0.000          82 ±4    3.07 ±0.00      6000
+tiered FIFO-forget @B               0.766 ±0.034    1.000 ±0.000    0.469 ±0.066    0.456 ±0.084          48 ±1    2.25 ±0.00      1356
+tiered value-forget @B              0.882 ±0.022    1.000 ±0.000    0.887 ±0.049    0.425 ±0.019          48 ±2    2.25 ±0.00      1356
+tiered FIFO-forget +cold4 @B        0.944 ±0.032    1.000 ±0.000    0.879 ±0.093    0.863 ±0.093          74 ±6    2.25 ±0.00      3339
+tiered value-forget +cold4 @B       0.978 ±0.006    1.000 ±0.000    0.998 ±0.006    0.854 ±0.026          75 ±6    2.25 ±0.00      3339
+budget = 2.32 MB; MB end is the estimated bytes() after the last block
+
+paired differences in overall recall@10 (a - b), mean ±95% CI, wins/losses over 4 seeds
+  tiered value-forget @B - tiered FIFO-forget @B: +0.1158 ±0.0179  (4W/0L/0T)  [CI excludes 0]
+  tiered value-forget +cold4 @B - tiered value-forget @B: +0.0959 ±0.0167  (4W/0L/0T)  [CI excludes 0]
+  tiered value-forget +cold4 @B - tiered FIFO-forget +cold4 @B: +0.0339 ±0.0269  (4W/0L/0T)  [CI excludes 0]
+  tiered value-forget +cold4 @B - tiered FIFO-forget @B: +0.2118 ±0.0281  (4W/0L/0T)  [CI excludes 0]
+  tiered value-forget @B - flat-all: -0.1183 ±0.0220  (0W/4L/0T)  [CI excludes 0]
+  tiered value-forget +cold4 @B - flat-all: -0.0224 ±0.0064  (0W/4L/0T)  [CI excludes 0]
+  tiered keep-all - flat-all: +0.0000 ±0.0000  (0W/0L/4T)
+
+sensitivity to the share of random-old queries (p_old); recent/useful share the rest 55:30 -> scaled
+method (overall recall@10)        p_old=.05  p_old=.15  p_old=.40
+flat-all                              1.000      1.000      1.000
+hnsw-all (M16,ef64)                   0.985      0.985      0.985
+tiered keep-all                       1.000      1.000      1.000
+tiered keep-all +cold4                1.000      1.000      1.000
+tiered FIFO-forget @B                 0.785      0.763      0.685
+tiered value-forget @B                0.926      0.877      0.730
+tiered FIFO-forget +cold4 @B          0.944      0.953      0.933
+tiered value-forget +cold4 @B         0.991      0.978      0.952
+
+wrote results/memory_lab_quick.json (61s)

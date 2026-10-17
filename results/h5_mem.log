@@ -1,0 +1,177 @@
+== sim-fixed
+  ns/decision (route+feedback), min over 21 interleaved reps [median]; ratio vs ref f64 | vs R3 compact (fresh / warm); bg CPU 80%
+   ref f64 guarded(hebr)      fresh    1703 [   1957]  warm    1866 [   1952]   x1.00/1.00 vs ref   x1.95/2.29 vs R3 compact
+   R3 compact u16/q16         fresh     872 [    909]  warm     815 [    901]   x0.51/0.44 vs ref   x1.00/1.00 vs R3 compact
+   R4 compact u16/q16         fresh     799 [    841]  warm     749 [    816]   x0.47/0.40 vs ref   x0.92/0.92 vs R3 compact
+   R4 u12/q12 packed          fresh     925 [   1014]  warm     991 [   1066]   x0.54/0.53 vs ref   x1.06/1.22 vs R3 compact
+   R4 u16/q16 rowcap=50%      fresh    1609 [   1930]  warm    1765 [   1908]   x0.95/0.95 vs ref   x1.85/2.17 vs R3 compact
+   R4 u16/q16 hash32          fresh     644 [    801]  warm     711 [    757]   x0.38/0.38 vs ref   x0.74/0.87 vs R3 compact
+   declared criterion (R4 u16/q16 within +10% of R3 compact): Some(true)
+  one trained brain: live bytes ref 16504  R3 compact Some(5154)  R4 compact 4802 (owned 2082 + vocab~2862 + kw 256); JSON R3 Some(4320) -> R4 4256  binary self-contained 1642  binary state-only 1299  (u12/q12: 1340 / 997)
+  serde exact round trip: binary true, state-only true; ns: to_json 14027 from_json 31237 | to_bytes 15463 from_bytes 18557 | state 6060 restore 6130
+  K=400 brains, ref f64 guarded(hebr) [shipped]           :     16068 B live/brain (incl. shared vocab/kw amortised)  commit    22282 B/brain  ->      66823 agents/GiB
+  K=400 brains, R3 compact u16/q16 private                :      5670 B live/brain (incl. shared vocab/kw amortised)  commit     6297 B/brain  ->     189389 agents/GiB
+  K=400 brains, R4 compact u16/q16 private                :      5533 B live/brain (incl. shared vocab/kw amortised)  commit     7577 B/brain  ->     194078 agents/GiB
+  K=400 brains, R4 u16/q16 SHARED vocab                   :      2253 B live/brain (incl. shared vocab/kw amortised)  commit     3102 B/brain  ->     476634 agents/GiB
+  K=400 brains, R4 u12/q12 SHARED vocab                   :      1999 B live/brain (incl. shared vocab/kw amortised)  commit     1464 B/brain  ->     537161 agents/GiB
+  K=400 brains, R4 u16/q16 SHARED rowcap=50%              :      1415 B live/brain (incl. shared vocab/kw amortised)  commit     2877 B/brain  ->     758607 agents/GiB
+  K=400 brains, R4 u12/q12 SHARED rowcap=50%              :      1315 B live/brain (incl. shared vocab/kw amortised)  commit     3983 B/brain  ->     816388 agents/GiB
+  K=400 brains, R4 u16/q16 SHARED, cold state-only blobs  :      1332 B live/brain (incl. shared vocab/kw amortised)  commit      378 B/brain  ->     806293 agents/GiB
+  serialised state per brain (mean of 40): R3 JSON 4309 B | R4 JSON 4245 B | R4 binary 1645 B | R4 binary state-only 1302 B
+  cold pool: 400 TRAINED keys, max_hot 20 (5%): after training 20 hot + 380 cold blobs (494796 B = 1302 B/blob), live incl. vocab/kw 1494 B/brain -> 718616 agents/GiB; churn 11870 ns/decision vs all-hot 1410 (x8.42); spills 380 reloads 0; reload ns median 5600 (min 4900), spill+reload ns median 5100; decisions and final state identical to the all-hot twins: true
+== sim-random
+  ns/decision (route+feedback), min over 21 interleaved reps [median]; ratio vs ref f64 | vs R3 compact (fresh / warm); bg CPU 36%
+   ref f64 guarded(hebr)      fresh    1131 [   1157]  warm    1075 [   1112]   x1.00/1.00 vs ref   x2.09/2.06 vs R3 compact
+   R3 compact u16/q16         fresh     541 [    551]  warm     523 [    539]   x0.48/0.49 vs ref   x1.00/1.00 vs R3 compact
+   R4 compact u16/q16         fresh     472 [    487]  warm     446 [    461]   x0.42/0.42 vs ref   x0.87/0.85 vs R3 compact
+   R4 u12/q12 packed          fresh     548 [    562]  warm     547 [    561]   x0.48/0.51 vs ref   x1.01/1.05 vs R3 compact
+   R4 u16/q16 rowcap=50%      fresh     995 [   1009]  warm     966 [    988]   x0.88/0.90 vs ref   x1.84/1.85 vs R3 compact
+   R4 u16/q16 hash32          fresh     446 [    454]  warm     414 [    427]   x0.39/0.38 vs ref   x0.82/0.79 vs R3 compact
+   declared criterion (R4 u16/q16 within +10% of R3 compact): Some(true)
+  one trained brain: live bytes ref 16504  R3 compact Some(4950)  R4 compact 4598 (owned 1878 + vocab~2862 + kw 256); JSON R3 Some(3916) -> R4 3850  binary self-contained 1439  binary state-only 1096  (u12/q12: 1179 / 836)
+  serde exact round trip: binary true, state-only true; ns: to_json 7627 from_json 16030 | to_bytes 7197 from_bytes 8997 | state 2413 restore 2417
+  K=400 brains, ref f64 guarded(hebr) [shipped]           :     16068 B live/brain (incl. shared vocab/kw amortised)  commit    21207 B/brain  ->      66823 agents/GiB
+  K=400 brains, R3 compact u16/q16 private                :      5619 B live/brain (incl. shared vocab/kw amortised)  commit     8427 B/brain  ->     191090 agents/GiB
+  K=400 brains, R4 compact u16/q16 private                :      5482 B live/brain (incl. shared vocab/kw amortised)  commit     7004 B/brain  ->     195864 agents/GiB
+  K=400 brains, R4 u16/q16 SHARED vocab                   :      2202 B live/brain (incl. shared vocab/kw amortised)  commit     3317 B/brain  ->     487558 agents/GiB
+  K=400 brains, R4 u12/q12 SHARED vocab                   :      1964 B live/brain (incl. shared vocab/kw amortised)  commit     2928 B/brain  ->     546711 agents/GiB
+  K=400 brains, R4 u16/q16 SHARED rowcap=50%              :      1385 B live/brain (incl. shared vocab/kw amortised)  commit     2713 B/brain  ->     775037 agents/GiB
+  K=400 brains, R4 u12/q12 SHARED rowcap=50%              :      1297 B live/brain (incl. shared vocab/kw amortised)  commit     2600 B/brain  ->     828062 agents/GiB
+  K=400 brains, R4 u16/q16 SHARED, cold state-only blobs  :      1282 B live/brain (incl. shared vocab/kw amortised)  commit     2324 B/brain  ->     837733 agents/GiB
+  serialised state per brain (mean of 40): R3 JSON 4227 B | R4 JSON 4163 B | R4 binary 1601 B | R4 binary state-only 1258 B
+  cold pool: 400 TRAINED keys, max_hot 20 (5%): after training 20 hot + 380 cold blobs (475789 B = 1252 B/blob), live incl. vocab/kw 1465 B/brain -> 733113 agents/GiB; churn 7137 ns/decision vs all-hot 856 (x8.34); spills 380 reloads 0; reload ns median 3500 (min 2900), spill+reload ns median 3000; decisions and final state identical to the all-hot twins: true
+== sim-no-traps
+  ns/decision (route+feedback), min over 21 interleaved reps [median]; ratio vs ref f64 | vs R3 compact (fresh / warm); bg CPU 52%
+   ref f64 guarded(hebr)      fresh    1094 [   1114]  warm    1074 [   1116]   x1.00/1.00 vs ref   x2.01/2.05 vs R3 compact
+   R3 compact u16/q16         fresh     545 [    558]  warm     524 [    537]   x0.50/0.49 vs ref   x1.00/1.00 vs R3 compact
+   R4 compact u16/q16         fresh     472 [    490]  warm     445 [    456]   x0.43/0.41 vs ref   x0.87/0.85 vs R3 compact
+   R4 u12/q12 packed          fresh     553 [    573]  warm     552 [    575]   x0.51/0.51 vs ref   x1.01/1.05 vs R3 compact
+   R4 u16/q16 rowcap=50%      fresh    1003 [   1019]  warm     978 [    996]   x0.92/0.91 vs ref   x1.84/1.87 vs R3 compact
+   R4 u16/q16 hash32          fresh     446 [    458]  warm     412 [    426]   x0.41/0.38 vs ref   x0.82/0.79 vs R3 compact
+   declared criterion (R4 u16/q16 within +10% of R3 compact): Some(true)
+  one trained brain: live bytes ref 16504  R3 compact Some(5034)  R4 compact 4682 (owned 1962 + vocab~2862 + kw 256); JSON R3 Some(4082) -> R4 4019  binary self-contained 1522  binary state-only 1179  (u12/q12: 1237 / 894)
+  serde exact round trip: binary true, state-only true; ns: to_json 7973 from_json 17347 | to_bytes 7600 from_bytes 9243 | state 2657 restore 2537
+  K=400 brains, ref f64 guarded(hebr) [shipped]           :     16068 B live/brain (incl. shared vocab/kw amortised)  commit    20674 B/brain  ->      66823 agents/GiB
+  K=400 brains, R3 compact u16/q16 private                :      5627 B live/brain (incl. shared vocab/kw amortised)  commit     8437 B/brain  ->     190828 agents/GiB
+  K=400 brains, R4 compact u16/q16 private                :      5490 B live/brain (incl. shared vocab/kw amortised)  commit     6359 B/brain  ->     195589 agents/GiB
+  K=400 brains, R4 u16/q16 SHARED vocab                   :      2210 B live/brain (incl. shared vocab/kw amortised)  commit     5068 B/brain  ->     485854 agents/GiB
+  K=400 brains, R4 u12/q12 SHARED vocab                   :      1969 B live/brain (incl. shared vocab/kw amortised)  commit     3153 B/brain  ->     545413 agents/GiB
+  K=400 brains, R4 u16/q16 SHARED rowcap=50%              :      1398 B live/brain (incl. shared vocab/kw amortised)  commit     2672 B/brain  ->     767795 agents/GiB
+  K=400 brains, R4 u12/q12 SHARED rowcap=50%              :      1305 B live/brain (incl. shared vocab/kw amortised)  commit     2365 B/brain  ->     822696 agents/GiB
+  K=400 brains, R4 u16/q16 SHARED, cold state-only blobs  :      1289 B live/brain (incl. shared vocab/kw amortised)  commit     2877 B/brain  ->     832721 agents/GiB
+  serialised state per brain (mean of 40): R3 JSON 4267 B | R4 JSON 4203 B | R4 binary 1621 B | R4 binary state-only 1278 B
+  cold pool: 400 TRAINED keys, max_hot 20 (5%): after training 20 hot + 380 cold blobs (478407 B = 1259 B/blob), live incl. vocab/kw 1462 B/brain -> 734616 agents/GiB; churn 6435 ns/decision vs all-hot 781 (x8.24); spills 380 reloads 0; reload ns median 3000 (min 2700), spill+reload ns median 2700; decisions and final state identical to the all-hot twins: true
+== big-32agents
+  ns/decision (route+feedback), min over 21 interleaved reps [median]; ratio vs ref f64 | vs R3 compact (fresh / warm); bg CPU 26%
+   ref f64 guarded(hebr)      fresh    3245 [   3458]  warm    3280 [   3336]   x1.00/1.00 vs ref   x2.94/2.69 vs R3 compact
+   R3 compact u16/q16         fresh    1105 [   1183]  warm    1218 [   1278]   x0.34/0.37 vs ref   x1.00/1.00 vs R3 compact
+   R4 compact u16/q16         fresh     980 [   1074]  warm    1052 [   1094]   x0.30/0.32 vs ref   x0.89/0.86 vs R3 compact
+   R4 u12/q12 packed          fresh    1160 [   1217]  warm    1276 [   1340]   x0.36/0.39 vs ref   x1.05/1.05 vs R3 compact
+   R4 u16/q16 rowcap=50%      fresh    1358 [   1411]  warm    1371 [   1460]   x0.42/0.42 vs ref   x1.23/1.13 vs R3 compact
+   R4 u16/q16 hash32          fresh     981 [   1029]  warm    1014 [   1061]   x0.30/0.31 vs ref   x0.89/0.83 vs R3 compact
+   declared criterion (R4 u16/q16 within +10% of R3 compact): Some(true)
+  one trained brain: live bytes ref 247722  R3 compact Some(40908)  R4 compact 39052 (owned 15572 + vocab~21638 + kw 1536); JSON R3 Some(35045) -> R4 34599  binary self-contained 15047  binary state-only 13390  (u12/q12: 12253 / 10596)
+  serde exact round trip: binary true, state-only true; ns: to_json 98317 from_json 240040 | to_bytes 75317 from_bytes 65750 | state 23540 restore 26137
+  K=120 brains, ref f64 guarded(hebr) [shipped]           :    246130 B live/brain (incl. shared vocab/kw amortised)  commit   278493 B/brain  ->       4363 agents/GiB
+  K=120 brains, R3 compact u16/q16 private                :     44704 B live/brain (incl. shared vocab/kw amortised)  commit    47547 B/brain  ->      24019 agents/GiB
+  K=120 brains, R4 compact u16/q16 private                :     43028 B live/brain (incl. shared vocab/kw amortised)  commit    54442 B/brain  ->      24955 agents/GiB
+  K=120 brains, R4 u16/q16 SHARED vocab                   :     19180 B live/brain (incl. shared vocab/kw amortised)  commit    44544 B/brain  ->      55982 agents/GiB
+  K=120 brains, R4 u12/q12 SHARED vocab                   :     15688 B live/brain (incl. shared vocab/kw amortised)  commit    32870 B/brain  ->      68445 agents/GiB
+  K=120 brains, R4 u16/q16 SHARED rowcap=50%              :      9960 B live/brain (incl. shared vocab/kw amortised)  commit    27818 B/brain  ->     107806 agents/GiB
+  K=120 brains, R4 u12/q12 SHARED rowcap=50%              :      8301 B live/brain (incl. shared vocab/kw amortised)  commit    13721 B/brain  ->     129350 agents/GiB
+  K=120 brains, R4 u16/q16 SHARED, cold state-only blobs  :     16978 B live/brain (incl. shared vocab/kw amortised)  commit    17885 B/brain  ->      63243 agents/GiB
+  serialised state per brain (mean of 12): R3 JSON 42052 B | R4 JSON 41525 B | R4 binary 18636 B | R4 binary state-only 16979 B
+  cold pool: 120 TRAINED keys, max_hot 6 (5%): after training 6 hot + 114 cold blobs (1909906 B = 16754 B/blob), live incl. vocab/kw 17839 B/brain -> 60191 agents/GiB; churn 63985 ns/decision vs all-hot 1965 (x32.56); spills 114 reloads 0; reload ns median 30600 (min 27300), spill+reload ns median 29800; decisions and final state identical to the all-hot twins: true
+== big-32agents-longtail
+  ns/decision (route+feedback), min over 21 interleaved reps [median]; ratio vs ref f64 | vs R3 compact (fresh / warm); bg CPU 26%
+   ref f64 guarded(hebr)      fresh    5208 [   6868]  warm    4309 [   7132]   x1.00/1.00 vs ref   x3.58/3.15 vs R3 compact
+   R3 compact u16/q16         fresh    1456 [   1989]  warm    1370 [   1997]   x0.28/0.32 vs ref   x1.00/1.00 vs R3 compact
+   R4 compact u16/q16         fresh    1437 [   1915]  warm    1146 [   1824]   x0.28/0.27 vs ref   x0.99/0.84 vs R3 compact
+   R4 u12/q12 packed          fresh    1724 [   2159]  warm    1399 [   2242]   x0.33/0.32 vs ref   x1.18/1.02 vs R3 compact
+   R4 u16/q16 rowcap=50%      fresh    1394 [   2105]  warm    1319 [   2078]   x0.27/0.31 vs ref   x0.96/0.96 vs R3 compact
+   R4 u16/q16 hash32          fresh    1294 [   1596]  warm    1070 [   1639]   x0.25/0.25 vs ref   x0.89/0.78 vs R3 compact
+   declared criterion (R4 u16/q16 within +10% of R3 compact): Some(true)
+  one trained brain: live bytes ref 1878161  R3 compact Some(247314)  R4 compact 232610 (owned 52314 + vocab~173123 + kw 1536); JSON R3 Some(123518) -> R4 116672  binary self-contained 49670  binary state-only 38890  (u12/q12: 42374 / 31594)
+  serde exact round trip: binary true, state-only true; ns: to_json 308787 from_json 646917 | to_bytes 321520 from_bytes 392777 | state 85653 restore 97733
+  K=40 brains, ref f64 guarded(hebr) [shipped]           :   1877865 B live/brain (incl. shared vocab/kw amortised)  commit  2011340 B/brain  ->        572 agents/GiB
+  K=40 brains, R3 compact u16/q16 private                :    250666 B live/brain (incl. shared vocab/kw amortised)  commit   249344 B/brain  ->       4284 agents/GiB
+  K=40 brains, R4 compact u16/q16 private                :    236230 B live/brain (incl. shared vocab/kw amortised)  commit        0 B/brain  ->       4545 agents/GiB
+  K=40 brains, R4 u16/q16 SHARED vocab                   :     61501 B live/brain (incl. shared vocab/kw amortised)  commit   147968 B/brain  ->      17459 agents/GiB
+  K=40 brains, R4 u12/q12 SHARED vocab                   :     55502 B live/brain (incl. shared vocab/kw amortised)  commit        0 B/brain  ->      19346 agents/GiB
+  K=40 brains, R4 u16/q16 SHARED rowcap=50%              :     38562 B live/brain (incl. shared vocab/kw amortised)  commit    55910 B/brain  ->      27845 agents/GiB
+  K=40 brains, R4 u12/q12 SHARED rowcap=50%              :     34420 B live/brain (incl. shared vocab/kw amortised)  commit    85811 B/brain  ->      31196 agents/GiB
+  K=40 brains, R4 u16/q16 SHARED, cold state-only blobs  :     47758 B live/brain (incl. shared vocab/kw amortised)  commit    10547 B/brain  ->      22483 agents/GiB
+  serialised state per brain (mean of 12): R3 JSON 128738 B | R4 JSON 121585 B | R4 binary 52515 B | R4 binary state-only 41690 B
+  cold pool: 40 TRAINED keys, max_hot 2 (5%): after training 2 hot + 38 cold blobs (1579927 B = 41577 B/blob), live incl. vocab/kw 49494 B/brain -> 21694 agents/GiB; churn 211088 ns/decision vs all-hot 2494 (x84.63); spills 38 reloads 0; reload ns median 100500 (min 92600), spill+reload ns median 97900; decisions and final state identical to the all-hot twins: true
+== big-32agents-open
+  ns/decision (route+feedback), min over 21 interleaved reps [median]; ratio vs ref f64 | vs R3 compact (fresh / warm); bg CPU 9%
+   ref f64 guarded(hebr)      fresh    4334 [   6456]  warm    4284 [   6422]   x1.00/1.00 vs ref   x3.20/3.25 vs R3 compact
+   R3 compact u16/q16         fresh    1354 [   1707]  warm    1318 [   1805]   x0.31/0.31 vs ref   x1.00/1.00 vs R3 compact
+   R4 compact u16/q16         fresh    1277 [   1664]  warm    1197 [   1608]   x0.29/0.28 vs ref   x0.94/0.91 vs R3 compact
+   R4 u12/q12 packed          fresh    1345 [   2007]  warm    1410 [   2098]   x0.31/0.33 vs ref   x0.99/1.07 vs R3 compact
+   R4 u16/q16 rowcap=50%      fresh    1281 [   1898]  warm    1370 [   1903]   x0.30/0.32 vs ref   x0.95/1.04 vs R3 compact
+   R4 u16/q16 hash32          fresh    1151 [   1562]  warm    1086 [   1468]   x0.27/0.25 vs ref   x0.85/0.82 vs R3 compact
+   declared criterion (R4 u16/q16 within +10% of R3 compact): Some(true)
+  one trained brain: live bytes ref 2601113  R3 compact Some(336222)  R4 compact 315438 (owned 65110 + vocab~234219 + kw 1536); JSON R3 Some(168240) -> R4 158566  binary self-contained 74074  binary state-only 46366  (u12/q12: 65868 / 38160)
+  serde exact round trip: binary true, state-only true; ns: to_json 493713 from_json 1212463 | to_bytes 559803 from_bytes 760077 | state 153723 restore 175083
+  K=40 brains, ref f64 guarded(hebr) [shipped]           :   2595107 B live/brain (incl. shared vocab/kw amortised)  commit  2896486 B/brain  ->        414 agents/GiB
+  K=40 brains, R3 compact u16/q16 private                :    338765 B live/brain (incl. shared vocab/kw amortised)  commit        0 B/brain  ->       3170 agents/GiB
+  K=40 brains, R4 compact u16/q16 private                :    318343 B live/brain (incl. shared vocab/kw amortised)  commit   397312 B/brain  ->       3373 agents/GiB
+  K=40 brains, R4 u16/q16 SHARED vocab                   :    278714 B live/brain (incl. shared vocab/kw amortised)  commit   156774 B/brain  ->       3852 agents/GiB
+  K=40 brains, R4 u12/q12 SHARED vocab                   :    272580 B live/brain (incl. shared vocab/kw amortised)  commit   135065 B/brain  ->       3939 agents/GiB
+  K=40 brains, R4 u16/q16 SHARED rowcap=50%              :    248869 B live/brain (incl. shared vocab/kw amortised)  commit   134963 B/brain  ->       4314 agents/GiB
+  K=40 brains, R4 u12/q12 SHARED rowcap=50%              :    244765 B live/brain (incl. shared vocab/kw amortised)  commit   134963 B/brain  ->       4387 agents/GiB
+  K=40 brains, R4 u16/q16 SHARED, cold state-only blobs  :    259739 B live/brain (incl. shared vocab/kw amortised)  commit   138547 B/brain  ->       4134 agents/GiB
+  serialised state per brain (mean of 12): R3 JSON 172449 B | R4 JSON 162599 B | R4 binary 76511 B | R4 binary state-only 48843 B
+  cold pool: 40 TRAINED keys, max_hot 2 (5%): after training 2 hot + 38 cold blobs (1853623 B = 48780 B/blob), live incl. vocab/kw 263060 B/brain -> 4082 agents/GiB; churn 254408 ns/decision vs all-hot 2727 (x93.30); spills 38 reloads 0; reload ns median 116300 (min 105500), spill+reload ns median 120500; decisions and final state identical to the all-hot twins: true
+== big-64agents
+  ns/decision (route+feedback), min over 21 interleaved reps [median]; ratio vs ref f64 | vs R3 compact (fresh / warm); bg CPU 42%
+   ref f64 guarded(hebr)      fresh    5528 [   5778]  warm    5716 [   6150]   x1.00/1.00 vs ref   x3.96/3.46 vs R3 compact
+   R3 compact u16/q16         fresh    1395 [   1456]  warm    1651 [   1736]   x0.25/0.29 vs ref   x1.00/1.00 vs R3 compact
+   R4 compact u16/q16         fresh    1306 [   1355]  warm    1403 [   1486]   x0.24/0.25 vs ref   x0.94/0.85 vs R3 compact
+   R4 u12/q12 packed          fresh    1573 [   1637]  warm    1886 [   2048]   x0.28/0.33 vs ref   x1.13/1.14 vs R3 compact
+   R4 u16/q16 rowcap=50%      fresh    1644 [   1915]  warm    1781 [   1845]   x0.30/0.31 vs ref   x1.18/1.08 vs R3 compact
+   R4 u16/q16 hash32          fresh    1264 [   1329]  warm    1363 [   1401]   x0.23/0.24 vs ref   x0.91/0.83 vs R3 compact
+   declared criterion (R4 u16/q16 within +10% of R3 compact): Some(true)
+  one trained brain: live bytes ref 424794  R3 compact Some(43182)  R4 compact 42254 (owned 18774 + vocab~21638 + kw 1536); JSON R3 Some(39522) -> R4 39104  binary self-contained 18249  binary state-only 16592  (u12/q12: 15477 / 13820)
+  serde exact round trip: binary true, state-only true; ns: to_json 72797 from_json 140427 | to_bytes 59257 from_bytes 69033 | state 25950 restore 27810
+  K=80 brains, ref f64 guarded(hebr) [shipped]           :    424788 B live/brain (incl. shared vocab/kw amortised)  commit   368025 B/brain  ->       2528 agents/GiB
+  K=80 brains, R3 compact u16/q16 private                :     47823 B live/brain (incl. shared vocab/kw amortised)  commit        0 B/brain  ->      22452 agents/GiB
+  K=80 brains, R4 compact u16/q16 private                :     47164 B live/brain (incl. shared vocab/kw amortised)  commit        0 B/brain  ->      22766 agents/GiB
+  K=80 brains, R4 u16/q16 SHARED vocab                   :     23417 B live/brain (incl. shared vocab/kw amortised)  commit        0 B/brain  ->      45854 agents/GiB
+  K=80 brains, R4 u12/q12 SHARED vocab                   :     20093 B live/brain (incl. shared vocab/kw amortised)  commit    38860 B/brain  ->      53440 agents/GiB
+  K=80 brains, R4 u16/q16 SHARED rowcap=50%              :     12691 B live/brain (incl. shared vocab/kw amortised)  commit     5683 B/brain  ->      84605 agents/GiB
+  K=80 brains, R4 u12/q12 SHARED rowcap=50%              :     11367 B live/brain (incl. shared vocab/kw amortised)  commit        0 B/brain  ->      94461 agents/GiB
+  K=80 brains, R4 u16/q16 SHARED, cold state-only blobs  :     20920 B live/brain (incl. shared vocab/kw amortised)  commit     2355 B/brain  ->      51326 agents/GiB
+  serialised state per brain (mean of 12): R3 JSON 46242 B | R4 JSON 45723 B | R4 binary 21904 B | R4 binary state-only 20247 B
+  cold pool: 80 TRAINED keys, max_hot 4 (5%): after training 4 hot + 76 cold blobs (1565182 B = 20594 B/blob), live incl. vocab/kw 21933 B/brain -> 48954 agents/GiB; churn 88382 ns/decision vs all-hot 3593 (x24.60); spills 76 reloads 0; reload ns median 70200 (min 61300), spill+reload ns median 69900; decisions and final state identical to the all-hot twins: true
+== big-128agents
+  ns/decision (route+feedback), min over 21 interleaved reps [median]; ratio vs ref f64 | vs R3 compact (fresh / warm); bg CPU 42%
+   ref f64 guarded(hebr)      fresh   10558 [  16211]  warm   11049 [  17300]   x1.00/1.00 vs ref   (R3 compact limited to 64 agents)
+   R4 compact u16/q16         fresh    1927 [   2849]  warm    2031 [   3085]   x0.18/0.18 vs ref   (R3 compact limited to 64 agents)
+   R4 u12/q12 packed          fresh    2293 [   3550]  warm    2460 [   3839]   x0.22/0.22 vs ref   (R3 compact limited to 64 agents)
+   R4 u16/q16 rowcap=50%      fresh    2177 [   3287]  warm    2314 [   3727]   x0.21/0.21 vs ref   (R3 compact limited to 64 agents)
+   R4 u16/q16 hash32          fresh    1838 [   2747]  warm    1974 [   3091]   x0.17/0.18 vs ref   (R3 compact limited to 64 agents)
+   declared criterion (R4 u16/q16 within +10% of R3 compact): None
+  one trained brain: live bytes ref 779514  R3 compact None  R4 compact 45844 (owned 22364 + vocab~21638 + kw 1536); JSON R3 None -> R4 44328  binary self-contained 21840  binary state-only 20182  (u12/q12: 17203 / 15545)
+  serde exact round trip: binary true, state-only true; ns: to_json 101200 from_json 262353 | to_bytes 94550 from_bytes 115093 | state 46057 restore 54003
+  K=80 brains, ref f64 guarded(hebr) [shipped]           :    781033 B live/brain (incl. shared vocab/kw amortised)  commit   764160 B/brain  ->       1375 agents/GiB
+  K=80 brains, R4 compact u16/q16 private                :     51091 B live/brain (incl. shared vocab/kw amortised)  commit        0 B/brain  ->      21016 agents/GiB
+  K=80 brains, R4 u16/q16 SHARED vocab                   :     27344 B live/brain (incl. shared vocab/kw amortised)  commit        0 B/brain  ->      39269 agents/GiB
+  K=80 brains, R4 u12/q12 SHARED vocab                   :     24021 B live/brain (incl. shared vocab/kw amortised)  commit        0 B/brain  ->      44700 agents/GiB
+  K=80 brains, R4 u16/q16 SHARED rowcap=50%              :     14777 B live/brain (incl. shared vocab/kw amortised)  commit        0 B/brain  ->      72663 agents/GiB
+  K=80 brains, R4 u12/q12 SHARED rowcap=50%              :     13136 B live/brain (incl. shared vocab/kw amortised)  commit        0 B/brain  ->      81739 agents/GiB
+  K=80 brains, R4 u16/q16 SHARED, cold state-only blobs  :     24847 B live/brain (incl. shared vocab/kw amortised)  commit        0 B/brain  ->      43214 agents/GiB
+  serialised state per brain (mean of 12): R3 JSON 0 B | R4 JSON 52714 B | R4 binary 26193 B | R4 binary state-only 24535 B
+  cold pool: 80 TRAINED keys, max_hot 4 (5%): after training 4 hot + 76 cold blobs (1862549 B = 24507 B/blob), live incl. vocab/kw 26384 B/brain -> 40696 agents/GiB; churn 86370 ns/decision vs all-hot 3502 (x24.66); spills 76 reloads 0; reload ns median 39100 (min 34900), spill+reload ns median 38400; decisions and final state identical to the all-hot twins: true
+
+=== HEADLINE (seed-31 world per row for latency/one-brain; K brains for agents/GiB; counting-allocator live bytes) ===
+sim-fixed                agents/GiB: ref 66823 | R3 private 189389 | R4 private 194078 | R4 shared 476634 | R4 u12/q12 shared 537161 | R4 rowcap50 shared 758607 | cold blobs 806293 | pool(5% hot) 718616;  R4/R3 ns x0.92/0.92; state B (R3 json/R4 json/bin/state) 4309/4245/1645/1302
+sim-random               agents/GiB: ref 66823 | R3 private 191090 | R4 private 195864 | R4 shared 487558 | R4 u12/q12 shared 546711 | R4 rowcap50 shared 775037 | cold blobs 837733 | pool(5% hot) 733113;  R4/R3 ns x0.87/0.85; state B (R3 json/R4 json/bin/state) 4227/4163/1601/1258
+sim-no-traps             agents/GiB: ref 66823 | R3 private 190828 | R4 private 195589 | R4 shared 485854 | R4 u12/q12 shared 545413 | R4 rowcap50 shared 767795 | cold blobs 832721 | pool(5% hot) 734616;  R4/R3 ns x0.87/0.85; state B (R3 json/R4 json/bin/state) 4267/4203/1621/1278
+big-32agents             agents/GiB: ref 4363 | R3 private 24019 | R4 private 24955 | R4 shared 55982 | R4 u12/q12 shared 68445 | R4 rowcap50 shared 107806 | cold blobs 63243 | pool(5% hot) 60191;  R4/R3 ns x0.89/0.86; state B (R3 json/R4 json/bin/state) 42052/41525/18636/16979
+big-32agents-longtail    agents/GiB: ref 572 | R3 private 4284 | R4 private 4545 | R4 shared 17459 | R4 u12/q12 shared 19346 | R4 rowcap50 shared 27845 | cold blobs 22483 | pool(5% hot) 21694;  R4/R3 ns x0.99/0.84; state B (R3 json/R4 json/bin/state) 128738/121585/52515/41690
+big-32agents-open        agents/GiB: ref 414 | R3 private 3170 | R4 private 3373 | R4 shared 3852 | R4 u12/q12 shared 3939 | R4 rowcap50 shared 4314 | cold blobs 4134 | pool(5% hot) 4082;  R4/R3 ns x0.94/0.91; state B (R3 json/R4 json/bin/state) 172449/162599/76511/48843
+big-64agents             agents/GiB: ref 2528 | R3 private 22452 | R4 private 22766 | R4 shared 45854 | R4 u12/q12 shared 53440 | R4 rowcap50 shared 84605 | cold blobs 51326 | pool(5% hot) 48954;  R4/R3 ns x0.94/0.85; state B (R3 json/R4 json/bin/state) 46242/45723/21904/20247
+big-128agents            agents/GiB: ref 1375 | R3 private n/a | R4 private 21016 | R4 shared 39269 | R4 u12/q12 shared 44700 | R4 rowcap50 shared 72663 | cold blobs 43214 | pool(5% hot) 40696;  R4/R3 ns xn/a; state B (R3 json/R4 json/bin/state) 0/52714/26193/24535
+wrote results/h5_mem.json (523.2s)

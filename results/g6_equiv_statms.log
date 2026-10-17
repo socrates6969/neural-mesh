@@ -1,0 +1,21 @@
+base: C:/Users/mariu/nm-target-r6/g6/neural-mesh-base.exe
+new:  C:/Users/mariu/nm-target-r6/g6/neural-mesh-new.exe
+new side runs with env NEURAL_MESH_SERVE_STAT_MS=50
+script: small 933 lines / 64600 bytes; big 646 lines / 10529395 bytes; tiny 160 lines
+[OK ] stdio: whole script, EOF end                                     replies    306685 B /   916 lines ( 392 ok,  524 err)  new==base: true   control base==base: true  
+[OK ] stdio: whole script + shutdown mid-stream (+ignored tail)        replies    306736 B /   917 lines ( 393 ok,  524 err)  new==base: true   control base==base: true  
+[OK ] stdio: random 1..64-byte writes                                  replies    306685 B /   916 lines ( 392 ok,  524 err)  new==base: true   control base==base: true  
+[OK ] stdio: EOF in the middle of the last line (no newline)           replies    313492 B /   917 lines ( 393 ok,  524 err)  new==base: true   control base==base: true  
+[OK ] stdio: big/boundary lines (1 MiB limit, 3 MiB, invalid UTF-8)    replies   2357388 B /   636 lines ( 289 ok,  347 err)  new==base: true   control base==base: true  
+[OK ] tcp: lockstep (one request, wait reply)                          replies    306736 B /   917 lines ( 393 ok,  524 err)  new==base: true   control base==base: true  
+[OK ] tcp: whole script in one pipelined burst + shutdown              replies    306736 B /   917 lines ( 393 ok,  524 err)  new==base: true   control base==base: true  
+[OK ] tcp: random 1..300-byte writes (split lines)                     replies    306736 B /   917 lines ( 393 ok,  524 err)  new==base: true   control base==base: true  
+[OK ] tcp: byte at a time (160 lines)                                  replies     68916 B /   156 lines ( 140 ok,   16 err)  new==base: true   control base==base: true  
+[OK ] tcp: big/boundary lines, pipelined burst                         replies   2357388 B /   636 lines ( 289 ok,  347 err)  new==base: true   control base==base: true  
+[OK ] tcp: big/boundary lines, lockstep                                replies   2357388 B /   636 lines ( 289 ok,  347 err)  new==base: true   control base==base: true  
+[OK ] tcp: client half-closes after burst (EOF, no shutdown)           replies    306685 B /   916 lines ( 392 ok,  524 err)  new==base: true   control base==base: true  
+[OK ] tcp: half-close in the middle of the last line                   replies    313495 B /   917 lines ( 393 ok,  524 err)  new==base: true   control base==base: true  
+[OK ] tcp: CLI writes interleaved (reload + journal replay)            replies     19015 B /    62 lines (  62 ok,    0 err)  new==base: true   control base==base: true  
+harness self-test (one request byte changed, same exe): difference detected = true
+
+EQUIVALENCE: ALL BYTE-IDENTICAL (14 scenarios, base vs new; 14 controls)

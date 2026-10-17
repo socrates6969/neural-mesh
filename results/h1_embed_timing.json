@@ -1,0 +1,124 @@
+{
+  "box": "shared, loaded, 2 rayon threads; indicative",
+  "enc_ms_model": 2.4,
+  "per_decision": [
+    {
+      "arm": "baseline",
+      "calls_per_decision": 3.744666666666667,
+      "decisions": 6000,
+      "encoder": "MiniLM table (cheap lookup)",
+      "ms_per_decision": 0.15709786666666667
+    },
+    {
+      "arm": "memo(cap4)",
+      "calls_per_decision": 0.9881666666666666,
+      "decisions": 6000,
+      "encoder": "MiniLM table (cheap lookup)",
+      "ms_per_decision": 0.1575220833333333
+    },
+    {
+      "arm": "memo(cap4096)",
+      "calls_per_decision": 0.14366666666666666,
+      "decisions": 6000,
+      "encoder": "MiniLM table (cheap lookup)",
+      "ms_per_decision": 0.17900121666666666
+    },
+    {
+      "arm": "cached(cap4096)",
+      "calls_per_decision": 0.14366666666666666,
+      "decisions": 6000,
+      "encoder": "MiniLM table (cheap lookup)",
+      "ms_per_decision": 0.18677208333333337
+    },
+    {
+      "arm": "baseline",
+      "calls_per_decision": 3.6221666666666668,
+      "decisions": 6000,
+      "encoder": "hash (cheap)",
+      "ms_per_decision": 0.12047138333333333
+    },
+    {
+      "arm": "memo(cap4)",
+      "calls_per_decision": 0.9881666666666666,
+      "decisions": 6000,
+      "encoder": "hash (cheap)",
+      "ms_per_decision": 0.12606778333333332
+    },
+    {
+      "arm": "memo(cap4096)",
+      "calls_per_decision": 0.14366666666666666,
+      "decisions": 6000,
+      "encoder": "hash (cheap)",
+      "ms_per_decision": 0.12467248333333335
+    },
+    {
+      "arm": "cached(cap4096)",
+      "calls_per_decision": 0.14366666666666666,
+      "decisions": 6000,
+      "encoder": "hash (cheap)",
+      "ms_per_decision": 0.12388428333333336
+    },
+    {
+      "arm": "baseline",
+      "calls_per_decision": 3.2711111111111113,
+      "decisions": 450,
+      "encoder": "simulated real encoder: table + spin 2.4 ms",
+      "ms_per_decision": 7.906436
+    },
+    {
+      "arm": "memo(cap4)",
+      "calls_per_decision": 0.9866666666666667,
+      "decisions": 450,
+      "encoder": "simulated real encoder: table + spin 2.4 ms",
+      "ms_per_decision": 2.4091404444444446
+    },
+    {
+      "arm": "memo(cap4096)",
+      "calls_per_decision": 0.8111111111111111,
+      "decisions": 450,
+      "encoder": "simulated real encoder: table + spin 2.4 ms",
+      "ms_per_decision": 1.9810708888888888
+    },
+    {
+      "arm": "cached(cap4096)",
+      "calls_per_decision": 0.8111111111111111,
+      "decisions": 450,
+      "encoder": "simulated real encoder: table + spin 2.4 ms",
+      "ms_per_decision": 1.9869593333333333
+    }
+  ],
+  "per_embed_ns": [
+    {
+      "ns": 184.41375,
+      "what": "table raw embed_task"
+    },
+    {
+      "ns": 421.679,
+      "what": "cached hit"
+    },
+    {
+      "ns": 180.849,
+      "what": "memo hit (Vec out)"
+    },
+    {
+      "ns": 113.16075,
+      "what": "memo hit (shared)"
+    },
+    {
+      "ns": 772.7495,
+      "what": "memo cap0 (always miss)"
+    },
+    {
+      "ns": 187.851,
+      "what": "hash raw"
+    },
+    {
+      "ns": 396.034,
+      "what": "cached(hash) hit"
+    },
+    {
+      "ns": 117.987,
+      "what": "memo(hash) hit (shared)"
+    }
+  ]
+}

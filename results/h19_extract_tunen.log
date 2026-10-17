@@ -1,0 +1,49 @@
+# h19_extract eval tag=tunen seeds=1..8 (8 seeds) tau=0.50   SYNTHETIC; unseen bank written by the same author before the extractor was built (optimistic)
+
+## dev-phrasing (seen): P/R/F1 per field type (extractor at tau; then after verifier removes flagged facts)
+field            P      R     F1 |    P_v    R_v   F1_v  (n truth)
+table_cell   1.000  1.000  1.000 |  1.000  1.000  1.000  (2124)
+param        1.000  1.000  1.000 |  1.000  1.000  1.000  (357)
+claim        1.000  1.000  1.000 |  1.000  1.000  1.000  (501)
+line_item    1.000  0.983  0.992 |  1.000  0.983  0.992  (5183)
+date         1.000  1.000  1.000 |  1.000  1.000  1.000  (61)
+amount       1.000  1.000  1.000 |  1.000  1.000  1.000  (122)
+party        1.000  1.000  1.000 |  1.000  1.000  1.000  (122)
+kpi          1.000  1.000  1.000 |  1.000  1.000  1.000  (686)
+clause       1.000  1.000  1.000 |  1.000  1.000  1.000  (183)
+ALL          1.000  0.991  0.995 |  1.000  0.991  0.995
+
+## dev-phrasing (seen): F1 (R) by world x layout L0..L4
+paper       L0 1.000 (1.000)  L1 1.000 (1.000)  L2 1.000 (1.000)  L3 1.000 (1.000)  L4 1.000 (1.000)
+financial   L0 1.000 (1.000)  L1 1.000 (1.000)  L2 1.000 (1.000)  L3 0.990 (0.981)  L4 0.972 (0.946)
+business    L0 1.000 (1.000)  L1 1.000 (1.000)  L2 1.000 (1.000)  L3 1.000 (1.000)  L4 1.000 (1.000)
+
+## dev-phrasing (seen): abstain 87/9339 candidates (0.9%), ECE(conf vs correct) 0.144, span-exact(>=50% overlap) 1.000
+   verifier: kept facts wrong 0 / correct 9252; CATCH rate (wrong flagged) 0.000; FALSE-FLAG rate (correct flagged) 0.0000; repair proposals 0 (correct on wrong facts: 0)
+
+## unseen-phrasing: P/R/F1 per field type (extractor at tau; then after verifier removes flagged facts)
+field            P      R     F1 |    P_v    R_v   F1_v  (n truth)
+table_cell   0.967  0.864  0.913 |  1.000  0.864  0.927  (2132)
+param        1.000  0.316  0.480 |  1.000  0.316  0.480  (345)
+claim        0.554  0.150  0.236 |  1.000  0.006  0.012  (481)
+line_item    0.618  0.221  0.325 |  0.617  0.221  0.325  (5136)
+date         0.920  0.397  0.554 |  0.920  0.397  0.554  (58)
+amount       0.548  0.198  0.291 |  0.575  0.198  0.295  (116)
+party        1.000  0.414  0.585 |  1.000  0.414  0.585  (116)
+kpi          1.000  0.123  0.218 |  1.000  0.123  0.218  (726)
+clause       0.868  0.569  0.688 |  0.866  0.557  0.678  (174)
+ALL          0.800  0.370  0.506 |  0.821  0.363  0.503
+
+## unseen-phrasing: F1 (R) by world x layout L0..L4
+paper       L0 0.785 (0.690)  L1 0.772 (0.651)  L2 0.777 (0.665)  L3 0.821 (0.713)  L4 0.809 (0.699)
+financial   L0 0.376 (0.248)  L1 0.381 (0.267)  L2 0.227 (0.148)  L3 0.369 (0.253)  L4 0.307 (0.213)
+business    L0 0.348 (0.222)  L1 0.311 (0.192)  L2 0.349 (0.217)  L3 0.404 (0.259)  L4 0.456 (0.299)
+
+## unseen-phrasing: abstain 1692/5988 candidates (28.3%), ECE(conf vs correct) 0.121, span-exact(>=50% overlap) 0.996
+   verifier: kept facts wrong 858 / correct 3438; CATCH rate (wrong flagged) 0.142; FALSE-FLAG rate (correct flagged) 0.0209; repair proposals 63 (correct on wrong facts: 62)
+     reason foot_explained   flags on wrong     0 on correct     1
+     reason plausibility     flags on wrong    62 on correct     0
+     reason cross_check      flags on wrong     2 on correct     2
+     reason claim_coverage   flags on wrong    58 on correct    69
+
+wrote results/h19_extract_tunen.json

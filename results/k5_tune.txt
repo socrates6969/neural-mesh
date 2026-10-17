@@ -1,0 +1,32 @@
+tune panel ["T12", "T12-drift", "Tctx", "ctl-irrel", "ctl-noinfo"]; BF7 control refs {"ctl-irrel": 0.6324214136901298, "ctl-noinfo": 0.49713445358467795}
+  stage1 meta3|d1|n2            obj 0.5510
+  stage1 meta3|d1|n10           obj 0.5422
+  stage1 meta3|d0.995|n2        obj 0.5272
+  stage1 meta3|d0.995|n10       obj 0.5307
+  stage1 meta3|d0.98|n2         obj 0.4886
+  stage1 meta3|d0.98|n10        obj 0.5004
+STAGE1b g1|warm*   best g1|warm*|n2|p0.5|t0.3|k5|i2 obj 0.4968
+STAGE1b P2w        best P2w|n10|p0.5|t0.3|k5|i0.7 obj 0.5854
+STAGE1b P2w+       best P2w+|n10|p0.5|t0.3|k5|i0.7 obj 0.5975
+STAGE1b P3         best P3|n10|p0.5|t0.3|k5|i0 obj 0.5842
+STAGE1b P2g        best P2g|n30|p0.5|t0.3|k3|i0 obj 0.5758
+STAGE2 shrink|meta3         best shrink|meta3|k6|g0.7|n1|f0.6 obj 0.5609
+      shrink|meta3|k6|g0.7|n1|f0.6                       0.5609
+      shrink|meta3|k6|g0.5|n1|f0.6                       0.5570
+      shrink|meta3|k6|g0.5|n2|f0.6                       0.5519
+STAGE2 local|meta3          best local|meta3|g0.9|kf5|k6|n1 obj 0.5680
+      local|meta3|g0.9|kf5|k6|n1                         0.5680
+      local|meta3|g0.9|kf5|k3|n1                         0.5659
+      local|meta3|g0.9|kf5|k3|n2                         0.5631
+STAGE2 ab(g1)|meta3         best ab(g1)|meta3|e0.1|g0.6|b25|d1 obj 0.5590
+      ab(g1)|meta3|e0.1|g0.6|b25|d1                      0.5590
+      ab(g1)|meta3|e0.1|g0.6|b10|d1                      0.5549
+      ab(g1)|meta3|e0.2|g0.6|b10|d1                      0.5527
+STAGE2 ab(shrink)|meta3     best ab(shrink)|meta3|e0.2|g0.6|b10|d1 obj 0.5510
+      ab(shrink)|meta3|e0.2|g0.6|b10|d1                  0.5510
+      ab(shrink)|meta3|e0.1|g0.6|b10|d1                  0.5468
+      ab(shrink)|meta3|e0.1|g0.6|b10|d0.995              0.5461
+STAGE2 ab(g1)|guard         best ab(g1)|guard|e0.1|g0.6|b10|d1 obj 0.3956
+      ab(g1)|guard|e0.1|g0.6|b10|d1                      0.3956
+      ab(g1)|guard|e0.2|g0.6|b25|d1                      0.3907
+      ab(g1)|guard|e0.2|g0.6|b10|d1                      0.3901

@@ -1,0 +1,16 @@
+base: C:/Users/mariu/nm-target-r6/g6/neural-mesh-base.exe
+new:  C:/Users/mariu/nm-target-r6/g6/neural-mesh-base2.exe
+secs/run 1.5, reps 5, ABAB interleaved (order alternates each rep). decision = route + feedback.
+
+config                                                     | base dec/s  new dec/s |      x |  base p50   new p50 | base cpu  new cpu | base WS  new WS
+tcp lockstep N=1 (defaults flush 64/1s)                    |        658        635 |  0.96x |    1410us    1400us |   1470us   1576us |   7.5MB   7.5MB
+tcp lockstep N=2 (defaults flush 64/1s)                    |       1045       1016 |  0.97x |    1908us    1978us |   1824us   1845us |   7.7MB   7.8MB
+tcp lockstep N=4 (defaults flush 64/1s)                    |       1664       1692 |  1.02x |    2266us    2247us |   2253us   2219us |   7.8MB   7.8MB
+tcp lockstep N=8 (defaults flush 64/1s)                    |       2538       2455 |  0.97x |    3007us    3098us |   2806us   2880us |   8.0MB   8.0MB
+tcp lockstep N=1 (flush off)                               |        771        751 |  0.97x |    1258us    1288us |   1260us   1310us |   9.1MB   9.0MB
+tcp lockstep N=8 (flush off)                               |       2587       2620 |  1.01x |    3068us    3025us |   2978us   2937us |  12.9MB  13.0MB
+tcp pipelined 32+32 per write N=1 (defaults flush)         |        640        683 |  1.07x |    1582us    1489us |   1546us   1465us |   7.7MB   7.7MB
+tcp pipelined 32+32 per write N=4 (defaults flush)         |       1813       1962 |  1.08x |    2219us    2106us |   2102us   1990us |   7.8MB   7.8MB
+tcp pipelined 32+32 per write N=8 (defaults flush)         |       2389       2432 |  1.02x |    3386us    3461us |   2759us   2742us |   8.0MB   8.0MB
+stdio pipe, 20k decisions (defaults flush)                 |       7263       7169 |  0.99x |      69us      70us |    132us    123us |   7.8MB   7.8MB
+stdio pipe, 20k decisions (flush off)                      |      13969      12797 |  0.92x |      36us      39us |     72us     77us |  32.8MB  32.8MB

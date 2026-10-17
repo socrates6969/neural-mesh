@@ -1,0 +1,272 @@
+== world res-main (family A, pool Spec, shape Mixed, p_doc 0.65, key_p 0.35, noise 0.1, kmem 0.3, hq 0.7, p_vis 0.5, h_schema 0.85, ar 1 ex 1 syn 1, vq 1, vscale 1, mono_pen 0, decoy 0.3, beta 2.5, q_sec 0.6, q_conf 0.12, cover 1)
+agents (true competence per type ["search", "db", "read", "compute", "synth"]; price) ; keyword map [7, 7, 0, 5, 1]
+  agent 0: 0.46 0.52 0.50 0.44 0.88  price 0.65
+  agent 1: 0.50 0.43 0.89 0.48 0.48  price 0.64
+  agent 2: 0.91 0.50 0.46 0.48 0.51  price 0.68
+  agent 3: 0.40 0.38 0.41 0.44 0.41  price 0.35
+  agent 4: 0.63 0.63 0.68 0.69 0.68  price 0.91
+  agent 5: 0.52 0.48 0.51 0.92 0.49  price 0.71
+  agent 6: 0.53 0.91 0.49 0.53 0.46  price 0.70
+  agent 7: 0.65 0.66 0.68 0.66 0.63  price 0.89
+  session [0:db<-[] 1:search<-[] 2:read<-[1] 3:compute<-[0, 2] 4:synth<-[3]]
+  session [0:search<-[] 1:read<-[0] 2:search<-[] 3:read<-[2] 4:compute<-[1, 3] 5:synth<-[4]]
+  session [0:search<-[] 1:read<-[0] 2:synth<-[1]]
+  session [0:db<-[] 1:search<-[] 2:read<-[1] 3:db<-[] 4:compute<-[0, 2] 5:synth<-[3, 4]]
+  steps/session mean 5.61 (min 3, max 8), deps/step 0.87, step-type mix [0.26, 0.13, 0.26, 0.17, 0.18]
+  reference rows (not policies): oracle-single q 0.270 ok 0.011 cost 5.16 | oracle-decomp (no retr) q 0.313 ok 0.013 | oracle-L5 q 0.853 ok 0.646 cost 6.17 | oracle-Stack q 0.853 ok 0.647 cost 6.21
+== world res-chain (family A, pool Spec, shape Chain, p_doc 0.65, key_p 0.35, noise 0.1, kmem 0.3, hq 0.7, p_vis 0.5, h_schema 0.85, ar 1 ex 1 syn 1, vq 1, vscale 1, mono_pen 0, decoy 0.3, beta 2.5, q_sec 0.6, q_conf 0.12, cover 1)
+agents (true competence per type ["search", "db", "read", "compute", "synth"]; price) ; keyword map [5, 0, 0, 2, 7]
+  agent 0: 0.51 0.48 0.91 0.49 0.51  price 0.70
+  agent 1: 0.67 0.67 0.64 0.66 0.68  price 0.91
+  agent 2: 0.51 0.45 0.50 0.88 0.52  price 0.68
+  agent 3: 0.89 0.53 0.44 0.49 0.48  price 0.66
+  agent 4: 0.39 0.40 0.39 0.40 0.41  price 0.35
+  agent 5: 0.68 0.64 0.67 0.69 0.68  price 0.93
+  agent 6: 0.50 0.88 0.46 0.51 0.46  price 0.66
+  agent 7: 0.51 0.49 0.44 0.47 0.92  price 0.66
+  session [0:search<-[] 1:read<-[0] 2:db<-[1] 3:db<-[2] 4:compute<-[1, 2] 5:synth<-[3, 4]]
+  session [0:db<-[] 1:db<-[0] 2:compute<-[0, 1] 3:synth<-[2]]
+  session [0:search<-[] 1:read<-[0] 2:synth<-[1]]
+  session [0:search<-[] 1:read<-[0] 2:db<-[1] 3:compute<-[1, 2] 4:synth<-[3]]
+  steps/session mean 4.80 (min 3, max 7), deps/step 1.04, step-type mix [0.15, 0.3, 0.15, 0.19, 0.21]
+  reference rows (not policies): oracle-single q 0.289 ok 0.018 cost 4.24 | oracle-decomp (no retr) q 0.329 ok 0.026 | oracle-L5 q 0.831 ok 0.688 cost 5.10 | oracle-Stack q 0.831 ok 0.688 cost 5.11
+== world res-wide (family A, pool Spec, shape Wide, p_doc 0.65, key_p 0.35, noise 0.1, kmem 0.3, hq 0.7, p_vis 0.5, h_schema 0.85, ar 1 ex 1 syn 1, vq 1, vscale 1, mono_pen 0, decoy 0.3, beta 2.5, q_sec 0.6, q_conf 0.12, cover 1)
+agents (true competence per type ["search", "db", "read", "compute", "synth"]; price) ; keyword map [7, 4, 2, 5, 2]
+  agent 0: 0.66 0.69 0.65 0.66 0.65  price 0.91
+  agent 1: 0.68 0.68 0.66 0.68 0.66  price 0.94
+  agent 2: 0.52 0.47 0.49 0.53 0.92  price 0.72
+  agent 3: 0.44 0.90 0.47 0.47 0.46  price 0.62
+  agent 4: 0.49 0.48 0.88 0.47 0.46  price 0.64
+  agent 5: 0.49 0.47 0.52 0.92 0.48  price 0.69
+  agent 6: 0.44 0.42 0.39 0.40 0.42  price 0.35
+  agent 7: 0.90 0.51 0.44 0.51 0.49  price 0.68
+  session [0:db<-[] 1:db<-[] 2:search<-[] 3:read<-[2] 4:search<-[] 5:read<-[4] 6:compute<-[1, 3, 5] 7:synth<-[0, 6]]
+  session [0:db<-[] 1:search<-[] 2:read<-[1] 3:db<-[] 4:compute<-[0, 2] 5:compute<-[0, 3] 6:synth<-[4, 5]]
+  session [0:db<-[] 1:db<-[] 2:search<-[] 3:read<-[2] 4:compute<-[0, 1, 3] 5:compute<-[0, 4] 6:synth<-[5]]
+  session [0:search<-[] 1:read<-[0] 2:search<-[] 3:read<-[2] 4:search<-[] 5:read<-[4] 6:compute<-[1, 3, 5] 7:synth<-[6]]
+  steps/session mean 7.39 (min 5, max 8), deps/step 0.89, step-type mix [0.27, 0.16, 0.27, 0.16, 0.14]
+  reference rows (not policies): oracle-single q 0.269 ok 0.000 cost 7.08 | oracle-decomp (no retr) q 0.303 ok 0.003 | oracle-L5 q 0.858 ok 0.572 cost 8.23 | oracle-Stack q 0.857 ok 0.569 cost 8.27
+== world res-lowret (family A, pool Spec, shape Mixed, p_doc 0.65, key_p 0.35, noise 0.1, kmem 0.3, hq 0.45, p_vis 0.5, h_schema 0.6, ar 1 ex 1 syn 1, vq 1, vscale 1, mono_pen 0, decoy 0.3, beta 2.5, q_sec 0.6, q_conf 0.12, cover 1)
+agents (true competence per type ["search", "db", "read", "compute", "synth"]; price) ; keyword map [2, 1, 2, 5, 2]
+  agent 0: 0.89 0.48 0.43 0.50 0.43  price 0.61
+  agent 1: 0.64 0.65 0.64 0.69 0.65  price 0.89
+  agent 2: 0.51 0.45 0.46 0.92 0.51  price 0.67
+  agent 3: 0.52 0.45 0.48 0.47 0.87  price 0.64
+  agent 4: 0.40 0.40 0.39 0.39 0.40  price 0.35
+  agent 5: 0.51 0.44 0.92 0.49 0.52  price 0.69
+  agent 6: 0.52 0.89 0.51 0.45 0.53  price 0.70
+  agent 7: 0.65 0.64 0.65 0.67 0.66  price 0.88
+  session [0:db<-[] 1:search<-[] 2:read<-[1] 3:compute<-[0, 2] 4:synth<-[3]]
+  session [0:search<-[] 1:read<-[0] 2:search<-[] 3:read<-[2] 4:search<-[] 5:read<-[4] 6:compute<-[1, 5] 7:synth<-[3, 6]]
+  session [0:search<-[] 1:read<-[0] 2:search<-[] 3:read<-[2] 4:compute<-[1, 3] 5:synth<-[4]]
+  session [0:db<-[] 1:db<-[] 2:compute<-[0, 1] 3:synth<-[2]]
+  steps/session mean 5.50 (min 3, max 8), deps/step 0.87, step-type mix [0.26, 0.13, 0.26, 0.16, 0.18]
+  reference rows (not policies): oracle-single q 0.269 ok 0.008 cost 4.82 | oracle-decomp (no retr) q 0.327 ok 0.020 | oracle-L5 q 0.827 ok 0.628 cost 6.49 | oracle-Stack q 0.827 ok 0.628 cost 6.49
+== world res-badver (family A, pool Spec, shape Mixed, p_doc 0.65, key_p 0.35, noise 0.1, kmem 0.3, hq 0.7, p_vis 0.5, h_schema 0.85, ar 1 ex 1 syn 1, vq 0.45, vscale 1, mono_pen 0, decoy 0.3, beta 2.5, q_sec 0.6, q_conf 0.12, cover 1)
+agents (true competence per type ["search", "db", "read", "compute", "synth"]; price) ; keyword map [2, 6, 7, 1, 4]
+  agent 0: 0.64 0.68 0.67 0.64 0.67  price 0.89
+  agent 1: 0.49 0.47 0.47 0.89 0.48  price 0.65
+  agent 2: 0.90 0.44 0.50 0.51 0.45  price 0.65
+  agent 3: 0.65 0.66 0.68 0.64 0.66  price 0.90
+  agent 4: 0.51 0.46 0.45 0.48 0.88  price 0.64
+  agent 5: 0.38 0.40 0.44 0.40 0.43  price 0.35
+  agent 6: 0.49 0.90 0.50 0.48 0.48  price 0.68
+  agent 7: 0.45 0.45 0.92 0.52 0.52  price 0.68
+  session [0:db<-[] 1:db<-[] 2:compute<-[0, 1] 3:synth<-[2]]
+  session [0:search<-[] 1:read<-[0] 2:search<-[] 3:read<-[2] 4:compute<-[1, 3] 5:synth<-[4]]
+  session [0:db<-[] 1:search<-[] 2:read<-[1] 3:compute<-[0, 2] 4:synth<-[3]]
+  session [0:search<-[] 1:read<-[0] 2:search<-[] 3:read<-[2] 4:search<-[] 5:read<-[4] 6:compute<-[1, 3, 5] 7:synth<-[6]]
+  steps/session mean 5.57 (min 3, max 8), deps/step 0.86, step-type mix [0.26, 0.13, 0.26, 0.17, 0.18]
+  reference rows (not policies): oracle-single q 0.285 ok 0.012 cost 5.07 | oracle-decomp (no retr) q 0.314 ok 0.026 | oracle-L5 q 0.819 ok 0.615 cost 5.90 | oracle-Stack q 0.819 ok 0.615 cost 5.89
+== world res-hardex (family A, pool Spec, shape Mixed, p_doc 0.65, key_p 0.35, noise 0.1, kmem 0.3, hq 0.7, p_vis 0.5, h_schema 0.85, ar 1.5 ex 2 syn 1, vq 1, vscale 1, mono_pen 0, decoy 0.3, beta 2.5, q_sec 0.6, q_conf 0.12, cover 1)
+agents (true competence per type ["search", "db", "read", "compute", "synth"]; price) ; keyword map [6, 1, 5, 4, 7]
+  agent 0: 0.41 0.41 0.41 0.40 0.44  price 0.35
+  agent 1: 0.49 0.91 0.43 0.49 0.44  price 0.63
+  agent 2: 0.64 0.66 0.69 0.63 0.65  price 0.88
+  agent 3: 0.67 0.63 0.64 0.66 0.67  price 0.89
+  agent 4: 0.52 0.48 0.47 0.88 0.48  price 0.66
+  agent 5: 0.44 0.48 0.88 0.52 0.45  price 0.64
+  agent 6: 0.91 0.49 0.53 0.49 0.46  price 0.69
+  agent 7: 0.44 0.48 0.47 0.49 0.89  price 0.64
+  session [0:search<-[] 1:read<-[0] 2:search<-[] 3:read<-[2] 4:search<-[] 5:read<-[4] 6:compute<-[3, 5] 7:synth<-[1, 6]]
+  session [0:search<-[] 1:read<-[0] 2:search<-[] 3:read<-[2] 4:compute<-[1, 3] 5:synth<-[4]]
+  session [0:search<-[] 1:read<-[0] 2:search<-[] 3:read<-[2] 4:search<-[] 5:read<-[4] 6:compute<-[1, 3, 5] 7:synth<-[6]]
+  session [0:db<-[] 1:db<-[] 2:db<-[0] 3:compute<-[1, 2] 4:compute<-[1, 2] 5:synth<-[3, 4]]
+  steps/session mean 5.63 (min 3, max 8), deps/step 0.86, step-type mix [0.27, 0.12, 0.27, 0.16, 0.18]
+  reference rows (not policies): oracle-single q 0.267 ok 0.015 cost 4.88 | oracle-decomp (no retr) q 0.326 ok 0.021 | oracle-L5 q 0.840 ok 0.611 cost 6.93 | oracle-Stack q 0.810 ok 0.539 cost 6.17
+== world ana-main (family B, pool Latent, shape Dag, p_doc 0.5, key_p 0.5, noise 0.1, kmem 0.25, hq 0.65, p_vis 0.5, h_schema 0.85, ar 1.2 ex 1.3 syn 1, vq 1, vscale 1, mono_pen 0, decoy 0.3, beta 2.5, q_sec 0.6, q_conf 0.12, cover 1)
+agents (true competence per type ["search", "db", "read", "compute", "synth"]; price) ; keyword map [6, 5, 4, 0, 6]
+  agent 0: 0.73 0.83 0.76 0.80 0.59  price 1.10
+  agent 1: 0.69 0.66 0.72 0.65 0.67  price 0.94
+  agent 2: 0.67 0.72 0.68 0.75 0.68  price 0.99
+  agent 3: 0.69 0.60 0.76 0.60 0.80  price 0.98
+  agent 4: 0.79 0.82 0.82 0.79 0.75  price 1.24
+  agent 5: 0.65 0.74 0.79 0.79 0.93  price 1.19
+  agent 6: 0.70 0.64 0.73 0.58 0.52  price 0.83
+  agent 7: 0.44 0.62 0.40 0.67 0.64  price 0.64
+  session [0:db<-[] 1:search<-[] 2:read<-[1] 3:compute<-[0, 2] 4:synth<-[3]]
+  session [0:search<-[] 1:read<-[0] 2:db<-[1] 3:db<-[] 4:db<-[1] 5:synth<-[2, 3, 4]]
+  session [0:search<-[] 1:read<-[0] 2:db<-[1] 3:db<-[] 4:compute<-[1, 2] 5:synth<-[3, 4]]
+  session [0:db<-[] 1:db<-[] 2:synth<-[0, 1]]
+  steps/session mean 5.45 (min 3, max 8), deps/step 0.85, step-type mix [0.23, 0.3, 0.23, 0.05, 0.18]
+  reference rows (not policies): oracle-single q 0.257 ok 0.011 cost 6.91 | oracle-decomp (no retr) q 0.269 ok 0.013 | oracle-L5 q 0.807 ok 0.531 cost 10.56 | oracle-Stack q 0.776 ok 0.453 cost 9.91
+== world ana-dbheavy (family B, pool Latent, shape Dag, p_doc 0.2, key_p 0.7, noise 0.1, kmem 0.25, hq 0.65, p_vis 0.5, h_schema 0.85, ar 1.2 ex 1.3 syn 1, vq 1, vscale 1, mono_pen 0, decoy 0.3, beta 2.5, q_sec 0.6, q_conf 0.12, cover 1)
+agents (true competence per type ["search", "db", "read", "compute", "synth"]; price) ; keyword map [0, 2, 6, 2, 2]
+  agent 0: 0.71 0.60 0.68 0.67 0.63  price 0.89
+  agent 1: 0.55 0.66 0.52 0.69 0.67  price 0.80
+  agent 2: 0.66 0.85 0.64 0.83 0.84  price 1.16
+  agent 3: 0.56 0.65 0.58 0.75 0.74  price 0.89
+  agent 4: 0.52 0.52 0.54 0.54 0.62  price 0.62
+  agent 5: 0.65 0.57 0.65 0.54 0.77  price 0.84
+  agent 6: 0.66 0.82 0.76 0.75 0.64  price 1.07
+  agent 7: 0.65 0.65 0.63 0.62 0.47  price 0.76
+  session [0:search<-[] 1:read<-[0] 2:synth<-[1]]
+  session [0:db<-[] 1:search<-[] 2:read<-[1] 3:db<-[0] 4:compute<-[0, 3] 5:search<-[] 6:read<-[5] 7:synth<-[2, 4, 6]]
+  session [0:db<-[] 1:db<-[0] 2:db<-[1] 3:synth<-[2]]
+  session [0:db<-[] 1:db<-[0] 2:db<-[] 3:search<-[] 4:read<-[3] 5:db<-[1] 6:synth<-[2, 4, 5]]
+  steps/session mean 5.56 (min 3, max 8), deps/step 0.96, step-type mix [0.12, 0.5, 0.12, 0.09, 0.18]
+  reference rows (not policies): oracle-single q 0.273 ok 0.010 cost 6.64 | oracle-decomp (no retr) q 0.280 ok 0.011 | oracle-L5 q 0.752 ok 0.454 cost 10.00 | oracle-Stack q 0.724 ok 0.397 cost 9.58
+== world ana-noisyag (family B, pool Latent, shape Dag, p_doc 0.5, key_p 0.5, noise 0.16, kmem 0.25, hq 0.65, p_vis 0.5, h_schema 0.85, ar 1.2 ex 1.3 syn 1, vq 1, vscale 1, mono_pen 0, decoy 0.3, beta 2.5, q_sec 0.6, q_conf 0.12, cover 1)
+agents (true competence per type ["search", "db", "read", "compute", "synth"]; price) ; keyword map [1, 1, 4, 1, 6]
+  agent 0: 0.59 0.53 0.63 0.54 0.64  price 0.72
+  agent 1: 0.64 0.73 0.63 0.62 0.62  price 0.87
+  agent 2: 0.55 0.64 0.57 0.60 0.52  price 0.69
+  agent 3: 0.58 0.64 0.55 0.56 0.45  price 0.64
+  agent 4: 0.74 0.68 0.77 0.68 0.67  price 1.02
+  agent 5: 0.65 0.62 0.67 0.63 0.68  price 0.87
+  agent 6: 0.63 0.62 0.67 0.69 0.71  price 0.91
+  agent 7: 0.73 0.46 0.72 0.38 0.43  price 0.61
+  session [0:db<-[] 1:db<-[] 2:compute<-[0, 1] 3:synth<-[2]]
+  session [0:db<-[] 1:db<-[] 2:synth<-[0, 1]]
+  session [0:search<-[] 1:read<-[0] 2:synth<-[1]]
+  session [0:search<-[] 1:read<-[0] 2:db<-[] 3:db<-[] 4:synth<-[1, 2, 3]]
+  steps/session mean 5.41 (min 3, max 8), deps/step 0.85, step-type mix [0.23, 0.31, 0.23, 0.05, 0.18]
+  reference rows (not policies): oracle-single q 0.240 ok 0.009 cost 5.57 | oracle-decomp (no retr) q 0.247 ok 0.008 | oracle-L5 q 0.811 ok 0.515 cost 9.85 | oracle-Stack q 0.778 ok 0.428 cost 9.41
+== world ana-pricever (family B, pool Latent, shape Dag, p_doc 0.5, key_p 0.5, noise 0.1, kmem 0.25, hq 0.65, p_vis 0.5, h_schema 0.85, ar 1.2 ex 1.3 syn 1, vq 1, vscale 2.5, mono_pen 0, decoy 0.3, beta 2.5, q_sec 0.6, q_conf 0.12, cover 1)
+agents (true competence per type ["search", "db", "read", "compute", "synth"]; price) ; keyword map [6, 3, 6, 1, 4]
+  agent 0: 0.60 0.57 0.54 0.56 0.65  price 0.71
+  agent 1: 0.70 0.70 0.70 0.76 0.77  price 1.07
+  agent 2: 0.58 0.48 0.55 0.53 0.54  price 0.59
+  agent 3: 0.63 0.71 0.65 0.67 0.52  price 0.83
+  agent 4: 0.52 0.65 0.57 0.73 0.68  price 0.83
+  agent 5: 0.49 0.64 0.55 0.61 0.51  price 0.65
+  agent 6: 0.69 0.70 0.73 0.58 0.49  price 0.84
+  agent 7: 0.50 0.55 0.45 0.60 0.56  price 0.58
+  session [0:db<-[] 1:search<-[] 2:read<-[1] 3:db<-[0] 4:compute<-[0, 2, 3] 5:db<-[3] 6:synth<-[4, 5]]
+  session [0:search<-[] 1:read<-[0] 2:search<-[] 3:read<-[2] 4:synth<-[1, 3]]
+  session [0:db<-[] 1:search<-[] 2:read<-[1] 3:compute<-[0, 2] 4:db<-[] 5:synth<-[3, 4]]
+  session [0:search<-[] 1:read<-[0] 2:search<-[] 3:read<-[2] 4:compute<-[1, 3] 5:db<-[] 6:db<-[3] 7:synth<-[4, 5, 6]]
+  steps/session mean 5.45 (min 3, max 8), deps/step 0.85, step-type mix [0.23, 0.31, 0.23, 0.05, 0.18]
+  reference rows (not policies): oracle-single q 0.254 ok 0.011 cost 5.98 | oracle-decomp (no retr) q 0.261 ok 0.005 | oracle-L5 q 0.617 ok 0.222 cost 7.45 | oracle-Stack q 0.616 ok 0.219 cost 7.46
+== world ana-lowbudget (family B, pool Latent, shape Dag, p_doc 0.5, key_p 0.5, noise 0.1, kmem 0.25, hq 0.65, p_vis 0.5, h_schema 0.85, ar 1.2 ex 1.3 syn 1, vq 1, vscale 1, mono_pen 0, decoy 0.3, beta 1.4, q_sec 0.6, q_conf 0.12, cover 1)
+agents (true competence per type ["search", "db", "read", "compute", "synth"]; price) ; keyword map [7, 4, 7, 5, 6]
+  agent 0: 0.74 0.71 0.70 0.75 0.71  price 1.05
+  agent 1: 0.61 0.56 0.53 0.64 0.49  price 0.67
+  agent 2: 0.72 0.64 0.77 0.59 0.67  price 0.95
+  agent 3: 0.62 0.49 0.62 0.58 0.69  price 0.75
+  agent 4: 0.75 0.77 0.79 0.67 0.64  price 1.06
+  agent 5: 0.51 0.66 0.56 0.65 0.56  price 0.72
+  agent 6: 0.60 0.76 0.60 0.74 0.78  price 0.99
+  agent 7: 0.77 0.56 0.80 0.58 0.75  price 0.98
+  session [0:search<-[] 1:read<-[0] 2:db<-[1] 3:db<-[] 4:db<-[] 5:synth<-[2, 3, 4]]
+  session [0:db<-[] 1:db<-[] 2:synth<-[0, 1]]
+  session [0:search<-[] 1:read<-[0] 2:synth<-[1]]
+  session [0:search<-[] 1:read<-[0] 2:search<-[] 3:read<-[2] 4:compute<-[1, 3] 5:search<-[] 6:read<-[5] 7:synth<-[4, 6]]
+  steps/session mean 5.48 (min 3, max 8), deps/step 0.85, step-type mix [0.24, 0.3, 0.24, 0.05, 0.18]
+  reference rows (not policies): oracle-single q 0.240 ok 0.006 cost 5.86 | oracle-decomp (no retr) q 0.252 ok 0.010 | oracle-L5 q 0.587 ok 0.235 cost 7.49 | oracle-Stack q 0.587 ok 0.235 cost 7.35
+== world ctl-single-step (family A, pool Spec, shape Single, p_doc 0.65, key_p 0.35, noise 0.1, kmem 0.3, hq 0.7, p_vis 0.5, h_schema 0.85, ar 1 ex 1 syn 1, vq 1, vscale 1, mono_pen 0, decoy 0.3, beta 2.5, q_sec 0.6, q_conf 0.12, cover 1)
+agents (true competence per type ["search", "db", "read", "compute", "synth"]; price) ; keyword map [5, 3, 1, 7, 2]
+  agent 0: 0.46 0.50 0.46 0.91 0.43  price 0.63
+  agent 1: 0.48 0.51 0.89 0.49 0.49  price 0.68
+  agent 2: 0.48 0.44 0.44 0.50 0.89  price 0.63
+  agent 3: 0.50 0.90 0.50 0.43 0.45  price 0.64
+  agent 4: 0.65 0.66 0.69 0.64 0.68  price 0.91
+  agent 5: 0.90 0.52 0.45 0.50 0.49  price 0.68
+  agent 6: 0.63 0.68 0.64 0.64 0.63  price 0.86
+  agent 7: 0.44 0.41 0.42 0.42 0.44  price 0.35
+  session [0:db<-[]]
+  session [0:db<-[]]
+  session [0:db<-[]]
+  session [0:db<-[]]
+  steps/session mean 1.00 (min 1, max 1), deps/step 0.00, step-type mix [0.0, 1.0, 0.0, 0.0, 0.0]
+  reference rows (not policies): oracle-single q 0.320 ok 0.285 cost 0.64 | oracle-decomp (no retr) q 0.320 ok 0.285 | oracle-L5 q 0.855 ok 0.847 cost 1.02 | oracle-Stack q 0.855 ok 0.847 cost 1.02
+== world ctl-indep (family A, pool Spec, shape Indep, p_doc 0.65, key_p 0.35, noise 0.1, kmem 0.3, hq 0.7, p_vis 0.5, h_schema 0.85, ar 1 ex 1 syn 1, vq 1, vscale 1, mono_pen 0, decoy 0.3, beta 2.5, q_sec 0.6, q_conf 0.12, cover 1)
+agents (true competence per type ["search", "db", "read", "compute", "synth"]; price) ; keyword map [6, 0, 7, 0, 3]
+  agent 0: 0.48 0.89 0.49 0.48 0.49  price 0.66
+  agent 1: 0.39 0.42 0.39 0.46 0.45  price 0.35
+  agent 2: 0.66 0.67 0.68 0.67 0.68  price 0.94
+  agent 3: 0.46 0.43 0.50 0.47 0.90  price 0.63
+  agent 4: 0.53 0.46 0.51 0.93 0.49  price 0.71
+  agent 5: 0.69 0.67 0.65 0.64 0.66  price 0.90
+  agent 6: 0.91 0.51 0.45 0.50 0.43  price 0.65
+  agent 7: 0.47 0.45 0.89 0.49 0.45  price 0.63
+  session [0:db<-[] 1:search<-[] 2:read<-[1] 3:search<-[] 4:read<-[3] 5:db<-[]]
+  session [0:search<-[] 1:read<-[0] 2:search<-[] 3:read<-[2]]
+  session [0:search<-[] 1:read<-[0] 2:search<-[] 3:read<-[2] 4:search<-[] 5:read<-[4]]
+  session [0:search<-[] 1:read<-[0] 2:db<-[] 3:search<-[] 4:read<-[3] 5:search<-[] 6:read<-[5]]
+  steps/session mean 5.02 (min 2, max 8), deps/step 0.39, step-type mix [0.39, 0.21, 0.39, 0.0, 0.0]
+  reference rows (not policies): oracle-single q 0.258 ok 0.009 cost 4.04 | oracle-decomp (no retr) q 0.290 ok 0.007 | oracle-L5 q 0.908 ok 0.621 cost 5.60 | oracle-Stack q 0.906 ok 0.615 cost 5.62
+== world ctl-noinfo (family A, pool Spec, shape Mixed, p_doc 0.65, key_p 0.35, noise 0.1, kmem 0.3, hq 0.7, p_vis 0.5, h_schema 0.85, ar 1 ex 1 syn 1, vq 1, vscale 1, mono_pen 0, decoy 0.3, beta 2.5, q_sec 0.6, q_conf 0.12, cover 0.03)
+agents (true competence per type ["search", "db", "read", "compute", "synth"]; price) ; keyword map [4, 1, 6, 7, 5]
+  agent 0: 0.45 0.44 0.42 0.38 0.40  price 0.35
+  agent 1: 0.68 0.67 0.69 0.68 0.67  price 0.95
+  agent 2: 0.46 0.50 0.43 0.50 0.89  price 0.64
+  agent 3: 0.64 0.68 0.66 0.66 0.68  price 0.91
+  agent 4: 0.89 0.47 0.53 0.44 0.49  price 0.66
+  agent 5: 0.44 0.92 0.51 0.51 0.49  price 0.69
+  agent 6: 0.52 0.48 0.88 0.53 0.51  price 0.71
+  agent 7: 0.44 0.51 0.52 0.91 0.45  price 0.66
+  session [0:search<-[] 1:read<-[0] 2:synth<-[1]]
+  session [0:db<-[] 1:search<-[] 2:read<-[1] 3:compute<-[0, 2] 4:synth<-[3]]
+  session [0:search<-[] 1:read<-[0] 2:search<-[] 3:read<-[2] 4:db<-[] 5:compute<-[1, 3, 4] 6:synth<-[5]]
+  session [0:search<-[] 1:read<-[0] 2:search<-[] 3:read<-[2] 4:search<-[] 5:read<-[4] 6:compute<-[3, 5] 7:synth<-[1, 6]]
+  steps/session mean 5.63 (min 3, max 8), deps/step 0.86, step-type mix [0.27, 0.13, 0.27, 0.16, 0.18]
+  reference rows (not policies): oracle-single q 0.271 ok 0.016 cost 5.39 | oracle-decomp (no retr) q 0.321 ok 0.024 | oracle-L5 q 0.230 ok 0.010 cost 11.71 | oracle-Stack q 0.227 ok 0.011 cost 12.15
+== world ctl-rare-pricever (family A, pool HighSkill, shape Mixed, p_doc 0.65, key_p 0.35, noise 0.03, kmem 0.3, hq 0.99, p_vis 0.5, h_schema 0.99, ar 0.3 ex 0.3 syn 0.3, vq 1, vscale 3, mono_pen 0, decoy 0.3, beta 2.5, q_sec 0.6, q_conf 0.12, cover 1)
+agents (true competence per type ["search", "db", "read", "compute", "synth"]; price) ; keyword map [2, 0, 5, 2, 7]
+  agent 0: 0.99 0.99 0.98 0.98 0.98  price 1.71
+  agent 1: 0.99 0.99 0.98 0.98 0.99  price 1.71
+  agent 2: 0.99 0.99 0.99 0.99 0.98  price 1.72
+  agent 3: 0.98 0.98 0.99 0.98 0.98  price 1.71
+  agent 4: 0.99 0.98 0.99 0.99 0.98  price 1.71
+  agent 5: 0.99 0.99 0.99 0.99 0.98  price 1.72
+  agent 6: 0.98 0.98 0.98 0.98 0.99  price 1.71
+  agent 7: 0.98 0.99 0.98 0.99 0.99  price 1.71
+  session [0:search<-[] 1:read<-[0] 2:synth<-[1]]
+  session [0:search<-[] 1:read<-[0] 2:synth<-[1]]
+  session [0:search<-[] 1:read<-[0] 2:search<-[] 3:read<-[2] 4:db<-[] 5:compute<-[3, 4] 6:compute<-[3, 4] 7:synth<-[1, 5, 6]]
+  session [0:search<-[] 1:read<-[0] 2:search<-[] 3:read<-[2] 4:compute<-[1, 3] 5:synth<-[4]]
+  steps/session mean 5.55 (min 3, max 8), deps/step 0.86, step-type mix [0.27, 0.12, 0.27, 0.16, 0.18]
+  reference rows (not policies): oracle-single q 0.346 ok 0.034 cost 9.79 | oracle-decomp (no retr) q 0.341 ok 0.025 | oracle-L5 q 0.963 ok 0.911 cost 11.72 | oracle-Stack q 0.963 ok 0.910 cost 11.73
+== world ctl-equal-agents (family A, pool Equal, shape Mixed, p_doc 0.65, key_p 0.35, noise 0.1, kmem 0.3, hq 0.7, p_vis 0.5, h_schema 0.85, ar 1 ex 1 syn 1, vq 1, vscale 1, mono_pen 0, decoy 0.3, beta 2.5, q_sec 0.6, q_conf 0.12, cover 1)
+agents (true competence per type ["search", "db", "read", "compute", "synth"]; price) ; keyword map [0, 5, 0, 6, 0]
+  agent 0: 0.72 0.72 0.72 0.72 0.72  price 1.05
+  agent 1: 0.72 0.72 0.72 0.72 0.72  price 1.05
+  agent 2: 0.72 0.72 0.72 0.72 0.72  price 1.05
+  agent 3: 0.72 0.72 0.72 0.72 0.72  price 1.05
+  agent 4: 0.72 0.72 0.72 0.72 0.72  price 1.05
+  agent 5: 0.72 0.72 0.72 0.72 0.72  price 1.05
+  agent 6: 0.72 0.72 0.72 0.72 0.72  price 1.05
+  agent 7: 0.72 0.72 0.72 0.72 0.72  price 1.05
+  session [0:search<-[] 1:read<-[0] 2:db<-[] 3:db<-[] 4:compute<-[1, 2, 3] 5:synth<-[4]]
+  session [0:search<-[] 1:read<-[0] 2:synth<-[1]]
+  session [0:search<-[] 1:read<-[0] 2:search<-[] 3:read<-[2] 4:compute<-[1, 3] 5:synth<-[4]]
+  session [0:db<-[] 1:search<-[] 2:read<-[1] 3:compute<-[0, 2] 4:synth<-[3]]
+  steps/session mean 5.56 (min 3, max 8), deps/step 0.86, step-type mix [0.27, 0.12, 0.27, 0.16, 0.18]
+  reference rows (not policies): oracle-single q 0.294 ok 0.014 cost 6.00 | oracle-decomp (no retr) q 0.294 ok 0.014 | oracle-L5 q 0.811 ok 0.587 cost 10.06 | oracle-Stack q 0.761 ok 0.475 cost 9.29
+== world ctl-dominant (family A, pool Dominant, shape Mixed, p_doc 0.65, key_p 0.35, noise 0.1, kmem 0.3, hq 0.7, p_vis 0.5, h_schema 0.85, ar 1 ex 1 syn 1, vq 1, vscale 1, mono_pen 0, decoy 0.3, beta 2.5, q_sec 0.6, q_conf 0.12, cover 1)
+agents (true competence per type ["search", "db", "read", "compute", "synth"]; price) ; keyword map [7, 7, 0, 7, 4]
+  agent 0: 0.61 0.65 0.61 0.61 0.56  price 0.77
+  agent 1: 0.61 0.64 0.57 0.63 0.62  price 0.78
+  agent 2: 0.62 0.62 0.56 0.55 0.55  price 0.70
+  agent 3: 0.56 0.64 0.60 0.65 0.62  price 0.78
+  agent 4: 0.62 0.62 0.60 0.63 0.55  price 0.76
+  agent 5: 0.64 0.56 0.59 0.63 0.61  price 0.77
+  agent 6: 0.57 0.60 0.57 0.59 0.57  price 0.69
+  agent 7: 0.88 0.88 0.88 0.88 0.88  price 1.44
+  session [0:search<-[] 1:read<-[0] 2:search<-[] 3:read<-[2] 4:compute<-[1, 3] 5:synth<-[4]]
+  session [0:search<-[] 1:read<-[0] 2:search<-[] 3:read<-[2] 4:compute<-[1, 3] 5:synth<-[4]]
+  session [0:search<-[] 1:read<-[0] 2:search<-[] 3:read<-[2] 4:db<-[] 5:compute<-[1, 3] 6:compute<-[4, 5] 7:synth<-[6]]
+  session [0:db<-[] 1:db<-[0] 2:compute<-[0, 1] 3:synth<-[2]]
+  steps/session mean 5.62 (min 3, max 8), deps/step 0.87, step-type mix [0.26, 0.13, 0.26, 0.17, 0.18]
+  reference rows (not policies): oracle-single q 0.302 ok 0.018 cost 8.34 | oracle-decomp (no retr) q 0.302 ok 0.018 | oracle-L5 q 0.844 ok 0.638 cost 11.58 | oracle-Stack q 0.841 ok 0.634 cost 11.54

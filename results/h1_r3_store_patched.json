@@ -1,0 +1,111 @@
+{
+  "store": {
+    "append": {
+      "checkpoint_s": 0.0147431,
+      "fsync_s": 0.0038313,
+      "records_per_s": 220341.4852338154
+    },
+    "crash_safety": {
+      "bitflip_detected_at_damaged_record": 150,
+      "trials_each": 150,
+      "truncation_recovered_exactly": 150
+    },
+    "dim": 128,
+    "disk": {
+      "bytes_per_vector": 547.889,
+      "log_bytes": 5478890,
+      "log_overhead_pct": 7.009570312500002,
+      "raw_f32_bytes": 5120000,
+      "snapshot_bytes": 5200028
+    },
+    "flat_exact": {
+      "p50_us": 154.6,
+      "p99_us": 177.5,
+      "resident_bytes": 5200000
+    },
+    "hnsw": [
+      {
+        "ef_search": 16,
+        "p50_us": 65.3,
+        "p99_us": 120.8,
+        "recall_at_10": 0.9677999999999961,
+        "resident_bytes": 59920000,
+        "speedup_p50_vs_flat": 2.3675344563552834
+      },
+      {
+        "ef_search": 32,
+        "p50_us": 114.2,
+        "p99_us": 157.60000000000002,
+        "recall_at_10": 0.9973999999999995,
+        "resident_bytes": 59920000,
+        "speedup_p50_vs_flat": 1.3537653239929948
+      },
+      {
+        "ef_search": 64,
+        "p50_us": 139.70000000000002,
+        "p99_us": 210.9,
+        "recall_at_10": 1.0,
+        "resident_bytes": 59920000,
+        "speedup_p50_vs_flat": 1.1066571224051538
+      },
+      {
+        "ef_search": 128,
+        "p50_us": 269.9,
+        "p99_us": 437.2,
+        "recall_at_10": 1.0,
+        "resident_bytes": 59920000,
+        "speedup_p50_vs_flat": 0.5728047424972212
+      },
+      {
+        "ef_search": 256,
+        "p50_us": 557.6999999999999,
+        "p99_us": 881.7,
+        "recall_at_10": 1.0,
+        "resident_bytes": 59920000,
+        "speedup_p50_vs_flat": 0.27720996951766186
+      }
+    ],
+    "mmap": "not used (std has no mmap; no new crates). 'warm open' = checkpoint snapshot + log-tail replay",
+    "multi_reader": {
+      "all_clean": true,
+      "readers": [
+        {
+          "final_len": 20000,
+          "refreshes": 1185,
+          "search_checks": 3555,
+          "violations": 0
+        },
+        {
+          "final_len": 20000,
+          "refreshes": 1178,
+          "search_checks": 3534,
+          "violations": 0
+        },
+        {
+          "final_len": 20000,
+          "refreshes": 1167,
+          "search_checks": 3501,
+          "violations": 0
+        },
+        {
+          "final_len": 20000,
+          "refreshes": 1180,
+          "search_checks": 3540,
+          "violations": 0
+        }
+      ],
+      "writer_appends": 20000
+    },
+    "n": 10000,
+    "note_timings": "warm OS file cache; open times are CPU/memcpy bound",
+    "open_ms": {
+      "caveat": "HNSW graph itself is not persisted; warm open still rebuilds the graph (parallel batch insert) from the snapshot vectors",
+      "flat_cold_replay": 12.8112,
+      "flat_warm_snapshot": 10.960799999999999,
+      "hnsw_build_by_append_s": 4.9072257,
+      "hnsw_cold_replay": 5578.7552,
+      "hnsw_warm_snapshot": 2686.3296
+    },
+    "queries": 1000
+  }
+}

@@ -1,0 +1,1455 @@
+{
+  "bin": "h5_mem",
+  "criteria": {
+    "latency_vs_r3_margin": 1.1,
+    "quick": false,
+    "reps": 21
+  },
+  "notes": [
+    "ns is min/median of interleaved repetitions on a shared box (+-30% noise); only ratios matter",
+    "R3 compact = verbatim copy of the old src/compact.rs (<=64 agents)",
+    "commit-charge column is unreliable for small K"
+  ],
+  "runtime_s": 523.1969699,
+  "worlds": [
+    {
+      "agents": 6,
+      "agents_per_gib": [
+        {
+          "agents_per_gib": 66823.36118931863,
+          "commit_bytes_per_brain_unreliable": 22282,
+          "k": 400,
+          "live_bytes_per_brain": 16068.36,
+          "variant": "ref f64 guarded(hebr) [shipped]"
+        },
+        {
+          "agents_per_gib": 189389.15671575977,
+          "commit_bytes_per_brain_unreliable": 6297,
+          "k": 400,
+          "live_bytes_per_brain": 5669.5,
+          "variant": "R3 compact u16/q16 private"
+        },
+        {
+          "agents_per_gib": 194077.55280576373,
+          "commit_bytes_per_brain_unreliable": 7577,
+          "k": 400,
+          "live_bytes_per_brain": 5532.54,
+          "variant": "R4 compact u16/q16 private"
+        },
+        {
+          "agents_per_gib": 476633.9175056375,
+          "commit_bytes_per_brain_unreliable": 3102,
+          "k": 400,
+          "live_bytes_per_brain": 2252.76,
+          "variant": "R4 u16/q16 SHARED vocab"
+        },
+        {
+          "agents_per_gib": 537160.9789286214,
+          "commit_bytes_per_brain_unreliable": 1464,
+          "k": 400,
+          "live_bytes_per_brain": 1998.92,
+          "variant": "R4 u12/q12 SHARED vocab"
+        },
+        {
+          "agents_per_gib": 758606.9954871814,
+          "commit_bytes_per_brain_unreliable": 2877,
+          "k": 400,
+          "live_bytes_per_brain": 1415.4125,
+          "variant": "R4 u16/q16 SHARED rowcap=50%"
+        },
+        {
+          "agents_per_gib": 816387.8120640038,
+          "commit_bytes_per_brain_unreliable": 3983,
+          "k": 400,
+          "live_bytes_per_brain": 1315.235,
+          "variant": "R4 u12/q12 SHARED rowcap=50%"
+        },
+        {
+          "agents_per_gib": 806292.5645930679,
+          "commit_bytes_per_brain_unreliable": 378,
+          "k": 400,
+          "live_bytes_per_brain": 1331.7025,
+          "variant": "R4 u16/q16 SHARED, cold state-only blobs"
+        }
+      ],
+      "bg_cpu_pct": 79.8828125,
+      "latency_ns": [
+        {
+          "fresh_median": 1957.35,
+          "fresh_min": 1702.55,
+          "ratio_vs_r3_fresh": 1.9535857716580607,
+          "ratio_vs_r3_warm": 2.289746579124992,
+          "ratio_vs_ref_fresh": 1.0,
+          "ratio_vs_ref_warm": 1.0,
+          "subject": "ref f64 guarded(hebr)",
+          "warm_median": 1951.95,
+          "warm_min": 1865.8
+        },
+        {
+          "fresh_median": 908.9,
+          "fresh_min": 871.5,
+          "ratio_vs_r3_fresh": 1.0,
+          "ratio_vs_r3_warm": 1.0,
+          "ratio_vs_ref_fresh": 0.5118792399635841,
+          "ratio_vs_ref_warm": 0.43672955300675315,
+          "subject": "R3 compact u16/q16",
+          "warm_median": 901.3,
+          "warm_min": 814.85
+        },
+        {
+          "fresh_median": 840.7,
+          "fresh_min": 798.85,
+          "ratio_vs_r3_fresh": 0.9166379804934022,
+          "ratio_vs_r3_warm": 0.9189421365895563,
+          "ratio_vs_ref_fresh": 0.4692079527767173,
+          "ratio_vs_ref_warm": 0.40132918855182764,
+          "subject": "R4 compact u16/q16",
+          "warm_median": 815.75,
+          "warm_min": 748.8
+        },
+        {
+          "fresh_median": 1014.2,
+          "fresh_min": 924.8,
+          "ratio_vs_r3_fresh": 1.061158921399885,
+          "ratio_vs_r3_warm": 1.21672700497024,
+          "ratio_vs_ref_fresh": 0.5431852221667499,
+          "ratio_vs_ref_warm": 0.5313806410118984,
+          "subject": "R4 u12/q12 packed",
+          "warm_median": 1066.15,
+          "warm_min": 991.45
+        },
+        {
+          "fresh_median": 1930.3,
+          "fresh_min": 1609.3,
+          "ratio_vs_r3_fresh": 1.846586345381526,
+          "ratio_vs_r3_warm": 2.166042829968706,
+          "ratio_vs_ref_fresh": 0.9452292150010279,
+          "ratio_vs_ref_warm": 0.9459749169257156,
+          "subject": "R4 u16/q16 rowcap=50%",
+          "warm_median": 1908.35,
+          "warm_min": 1765.0
+        },
+        {
+          "fresh_median": 800.65,
+          "fresh_min": 644.45,
+          "ratio_vs_r3_fresh": 0.7394721744119335,
+          "ratio_vs_r3_warm": 0.8724305086825795,
+          "ratio_vs_ref_fresh": 0.3785204546121994,
+          "ratio_vs_ref_warm": 0.38101618608639726,
+          "subject": "R4 u16/q16 hash32",
+          "warm_median": 756.9,
+          "warm_min": 710.9
+        }
+      ],
+      "latency_within_10pct_of_r3": true,
+      "natural_rows": 32,
+      "one_brain": {
+        "binary": 1642,
+        "binary_state_only": 1299,
+        "binary_u12q12": 1340,
+        "exact_roundtrip_binary": true,
+        "exact_roundtrip_state_only": true,
+        "json_r3": 4320,
+        "json_r4": 4256,
+        "live_r3_compact": 5154,
+        "live_r4_compact": 4802,
+        "live_ref": 16504,
+        "ns": {
+          "from_bytes": 18556.666666666668,
+          "from_json": 31236.666666666668,
+          "from_state_bytes": 6130.0,
+          "state_bytes": 6060.0,
+          "to_bytes": 15463.333333333334,
+          "to_json": 14026.666666666666
+        },
+        "state_only_u12q12": 997
+      },
+      "pool": {
+        "agents_per_gib": 718616.1131858276,
+        "all_hot_ns_per_decision": 1410.05,
+        "churn_ns_per_decision": 11869.6,
+        "cold_blobs": 380,
+        "cold_bytes": 494796,
+        "keys": 400,
+        "live_bytes_per_brain_incl_shared": 1494.18,
+        "max_hot": 20,
+        "pooled_state_equals_all_hot": true,
+        "reload_ns_median": 5600.0,
+        "reload_ns_min": 4900.0,
+        "reloads": 0,
+        "spill_ns_median": 5100.0,
+        "spills": 380
+      },
+      "r4_vs_r3_ratio_fresh_warm": [
+        0.9166379804934022,
+        0.9189421365895563
+      ],
+      "serialised_per_brain_mean": {
+        "r3_json": 4308.7,
+        "r4_binary": 1644.775,
+        "r4_json": 4244.75,
+        "r4_state_only": 1301.775,
+        "sample": 40
+      },
+      "tasks": 2000,
+      "world": "sim-fixed"
+    },
+    {
+      "agents": 6,
+      "agents_per_gib": [
+        {
+          "agents_per_gib": 66823.36118931863,
+          "commit_bytes_per_brain_unreliable": 21207,
+          "k": 400,
+          "live_bytes_per_brain": 16068.36,
+          "variant": "ref f64 guarded(hebr) [shipped]"
+        },
+        {
+          "agents_per_gib": 191090.41586396217,
+          "commit_bytes_per_brain_unreliable": 8427,
+          "k": 400,
+          "live_bytes_per_brain": 5619.025,
+          "variant": "R3 compact u16/q16 private"
+        },
+        {
+          "agents_per_gib": 195864.48245323615,
+          "commit_bytes_per_brain_unreliable": 7004,
+          "k": 400,
+          "live_bytes_per_brain": 5482.065,
+          "variant": "R4 compact u16/q16 private"
+        },
+        {
+          "agents_per_gib": 487558.0699137487,
+          "commit_bytes_per_brain_unreliable": 3317,
+          "k": 400,
+          "live_bytes_per_brain": 2202.285,
+          "variant": "R4 u16/q16 SHARED vocab"
+        },
+        {
+          "agents_per_gib": 546711.0270989981,
+          "commit_bytes_per_brain_unreliable": 2928,
+          "k": 400,
+          "live_bytes_per_brain": 1964.0025,
+          "variant": "R4 u12/q12 SHARED vocab"
+        },
+        {
+          "agents_per_gib": 775036.8205744519,
+          "commit_bytes_per_brain_unreliable": 2713,
+          "k": 400,
+          "live_bytes_per_brain": 1385.4075,
+          "variant": "R4 u16/q16 SHARED rowcap=50%"
+        },
+        {
+          "agents_per_gib": 828062.0301266491,
+          "commit_bytes_per_brain_unreliable": 2600,
+          "k": 400,
+          "live_bytes_per_brain": 1296.6925,
+          "variant": "R4 u12/q12 SHARED rowcap=50%"
+        },
+        {
+          "agents_per_gib": 837733.45946568,
+          "commit_bytes_per_brain_unreliable": 2324,
+          "k": 400,
+          "live_bytes_per_brain": 1281.7225,
+          "variant": "R4 u16/q16 SHARED, cold state-only blobs"
+        }
+      ],
+      "bg_cpu_pct": 36.137667304015295,
+      "latency_ns": [
+        {
+          "fresh_median": 1156.7,
+          "fresh_min": 1131.1,
+          "ratio_vs_r3_fresh": 2.090371465533173,
+          "ratio_vs_r3_warm": 2.0552739791527204,
+          "ratio_vs_ref_fresh": 1.0,
+          "ratio_vs_ref_warm": 1.0,
+          "subject": "ref f64 guarded(hebr)",
+          "warm_median": 1112.2,
+          "warm_min": 1074.6
+        },
+        {
+          "fresh_median": 551.4,
+          "fresh_min": 541.1,
+          "ratio_vs_r3_fresh": 1.0,
+          "ratio_vs_r3_warm": 1.0,
+          "ratio_vs_ref_fresh": 0.4783838741048537,
+          "ratio_vs_ref_warm": 0.48655313605062356,
+          "subject": "R3 compact u16/q16",
+          "warm_median": 538.9,
+          "warm_min": 522.85
+        },
+        {
+          "fresh_median": 487.45,
+          "fresh_min": 472.3,
+          "ratio_vs_r3_fresh": 0.8728515985954537,
+          "ratio_vs_r3_warm": 0.8537821554939274,
+          "ratio_vs_ref_fresh": 0.41755812925470787,
+          "ratio_vs_ref_warm": 0.41541038525963153,
+          "subject": "R4 compact u16/q16",
+          "warm_median": 461.2,
+          "warm_min": 446.4
+        },
+        {
+          "fresh_median": 561.6,
+          "fresh_min": 548.0,
+          "ratio_vs_r3_fresh": 1.012751801885049,
+          "ratio_vs_r3_warm": 1.0460935258678397,
+          "ratio_vs_ref_fresh": 0.48448413049244105,
+          "ratio_vs_ref_warm": 0.5089800856132515,
+          "subject": "R4 u12/q12 packed",
+          "warm_median": 560.6,
+          "warm_min": 546.95
+        },
+        {
+          "fresh_median": 1009.45,
+          "fresh_min": 994.65,
+          "ratio_vs_r3_fresh": 1.8381999630382553,
+          "ratio_vs_r3_warm": 1.848426891077747,
+          "ratio_vs_ref_fresh": 0.8793652196976395,
+          "ratio_vs_ref_warm": 0.8993579006141822,
+          "subject": "R4 u16/q16 rowcap=50%",
+          "warm_median": 987.95,
+          "warm_min": 966.45
+        },
+        {
+          "fresh_median": 454.35,
+          "fresh_min": 445.9,
+          "ratio_vs_r3_fresh": 0.8240620957309184,
+          "ratio_vs_r3_warm": 0.7911446877689585,
+          "ratio_vs_ref_fresh": 0.3942180178587216,
+          "ratio_vs_ref_warm": 0.38493392890377814,
+          "subject": "R4 u16/q16 hash32",
+          "warm_median": 427.45,
+          "warm_min": 413.65
+        }
+      ],
+      "latency_within_10pct_of_r3": true,
+      "natural_rows": 32,
+      "one_brain": {
+        "binary": 1439,
+        "binary_state_only": 1096,
+        "binary_u12q12": 1179,
+        "exact_roundtrip_binary": true,
+        "exact_roundtrip_state_only": true,
+        "json_r3": 3916,
+        "json_r4": 3850,
+        "live_r3_compact": 4950,
+        "live_r4_compact": 4598,
+        "live_ref": 16504,
+        "ns": {
+          "from_bytes": 8996.666666666666,
+          "from_json": 16030.0,
+          "from_state_bytes": 2416.6666666666665,
+          "state_bytes": 2413.3333333333335,
+          "to_bytes": 7196.666666666667,
+          "to_json": 7626.666666666667
+        },
+        "state_only_u12q12": 836
+      },
+      "pool": {
+        "agents_per_gib": 733113.4765888372,
+        "all_hot_ns_per_decision": 855.65,
+        "churn_ns_per_decision": 7137.35,
+        "cold_blobs": 380,
+        "cold_bytes": 475789,
+        "keys": 400,
+        "live_bytes_per_brain_incl_shared": 1464.6325,
+        "max_hot": 20,
+        "pooled_state_equals_all_hot": true,
+        "reload_ns_median": 3500.0,
+        "reload_ns_min": 2900.0,
+        "reloads": 0,
+        "spill_ns_median": 3000.0,
+        "spills": 380
+      },
+      "r4_vs_r3_ratio_fresh_warm": [
+        0.8728515985954537,
+        0.8537821554939274
+      ],
+      "serialised_per_brain_mean": {
+        "r3_json": 4227.15,
+        "r4_binary": 1600.85,
+        "r4_json": 4163.125,
+        "r4_state_only": 1257.85,
+        "sample": 40
+      },
+      "tasks": 2000,
+      "world": "sim-random"
+    },
+    {
+      "agents": 6,
+      "agents_per_gib": [
+        {
+          "agents_per_gib": 66823.36118931863,
+          "commit_bytes_per_brain_unreliable": 20674,
+          "k": 400,
+          "live_bytes_per_brain": 16068.36,
+          "variant": "ref f64 guarded(hebr) [shipped]"
+        },
+        {
+          "agents_per_gib": 190828.06664593238,
+          "commit_bytes_per_brain_unreliable": 8437,
+          "k": 400,
+          "live_bytes_per_brain": 5626.75,
+          "variant": "R3 compact u16/q16 private"
+        },
+        {
+          "agents_per_gib": 195588.87024822444,
+          "commit_bytes_per_brain_unreliable": 6359,
+          "k": 400,
+          "live_bytes_per_brain": 5489.79,
+          "variant": "R4 compact u16/q16 private"
+        },
+        {
+          "agents_per_gib": 485853.83052565367,
+          "commit_bytes_per_brain_unreliable": 5068,
+          "k": 400,
+          "live_bytes_per_brain": 2210.01,
+          "variant": "R4 u16/q16 SHARED vocab"
+        },
+        {
+          "agents_per_gib": 545413.4501631808,
+          "commit_bytes_per_brain_unreliable": 3153,
+          "k": 400,
+          "live_bytes_per_brain": 1968.675,
+          "variant": "R4 u12/q12 SHARED vocab"
+        },
+        {
+          "agents_per_gib": 767794.793614473,
+          "commit_bytes_per_brain_unreliable": 2672,
+          "k": 400,
+          "live_bytes_per_brain": 1398.475,
+          "variant": "R4 u16/q16 SHARED rowcap=50%"
+        },
+        {
+          "agents_per_gib": 822696.1069608857,
+          "commit_bytes_per_brain_unreliable": 2365,
+          "k": 400,
+          "live_bytes_per_brain": 1305.15,
+          "variant": "R4 u12/q12 SHARED rowcap=50%"
+        },
+        {
+          "agents_per_gib": 832721.10823518,
+          "commit_bytes_per_brain_unreliable": 2877,
+          "k": 400,
+          "live_bytes_per_brain": 1289.4375,
+          "variant": "R4 u16/q16 SHARED, cold state-only blobs"
+        }
+      ],
+      "bg_cpu_pct": 51.881188118811885,
+      "latency_ns": [
+        {
+          "fresh_median": 1113.5,
+          "fresh_min": 1094.0,
+          "ratio_vs_r3_fresh": 2.0062350999449845,
+          "ratio_vs_r3_warm": 2.0493038336830063,
+          "ratio_vs_ref_fresh": 1.0,
+          "ratio_vs_ref_warm": 1.0,
+          "subject": "ref f64 guarded(hebr)",
+          "warm_median": 1115.6,
+          "warm_min": 1074.45
+        },
+        {
+          "fresh_median": 558.45,
+          "fresh_min": 545.3,
+          "ratio_vs_r3_fresh": 1.0,
+          "ratio_vs_r3_warm": 1.0,
+          "ratio_vs_ref_fresh": 0.49844606946983544,
+          "ratio_vs_ref_warm": 0.4879705896039834,
+          "subject": "R3 compact u16/q16",
+          "warm_median": 536.65,
+          "warm_min": 524.3
+        },
+        {
+          "fresh_median": 490.15,
+          "fresh_min": 472.4,
+          "ratio_vs_r3_fresh": 0.8663121217678342,
+          "ratio_vs_r3_warm": 0.8485599847415602,
+          "ratio_vs_ref_fresh": 0.4318098720292504,
+          "ratio_vs_ref_warm": 0.4140723160686863,
+          "subject": "R4 compact u16/q16",
+          "warm_median": 456.35,
+          "warm_min": 444.9
+        },
+        {
+          "fresh_median": 573.1,
+          "fresh_min": 552.6,
+          "ratio_vs_r3_fresh": 1.0133871263524667,
+          "ratio_vs_r3_warm": 1.0526416173946214,
+          "ratio_vs_ref_fresh": 0.5051188299817185,
+          "ratio_vs_ref_warm": 0.5136581506817441,
+          "subject": "R4 u12/q12 packed",
+          "warm_median": 574.95,
+          "warm_min": 551.9
+        },
+        {
+          "fresh_median": 1019.05,
+          "fresh_min": 1003.0,
+          "ratio_vs_r3_fresh": 1.8393544837704017,
+          "ratio_vs_r3_warm": 1.8659164600419609,
+          "ratio_vs_ref_fresh": 0.916819012797075,
+          "ratio_vs_ref_warm": 0.9105123551584531,
+          "subject": "R4 u16/q16 rowcap=50%",
+          "warm_median": 995.65,
+          "warm_min": 978.3
+        },
+        {
+          "fresh_median": 458.15,
+          "fresh_min": 445.75,
+          "ratio_vs_r3_fresh": 0.8174399413167065,
+          "ratio_vs_r3_warm": 0.7851420942208659,
+          "ratio_vs_ref_fresh": 0.40744972577696525,
+          "ratio_vs_ref_warm": 0.3831262506398622,
+          "subject": "R4 u16/q16 hash32",
+          "warm_median": 425.55,
+          "warm_min": 411.65
+        }
+      ],
+      "latency_within_10pct_of_r3": true,
+      "natural_rows": 32,
+      "one_brain": {
+        "binary": 1522,
+        "binary_state_only": 1179,
+        "binary_u12q12": 1237,
+        "exact_roundtrip_binary": true,
+        "exact_roundtrip_state_only": true,
+        "json_r3": 4082,
+        "json_r4": 4019,
+        "live_r3_compact": 5034,
+        "live_r4_compact": 4682,
+        "live_ref": 16504,
+        "ns": {
+          "from_bytes": 9243.333333333334,
+          "from_json": 17346.666666666668,
+          "from_state_bytes": 2536.6666666666665,
+          "state_bytes": 2656.6666666666665,
+          "to_bytes": 7600.0,
+          "to_json": 7973.333333333333
+        },
+        "state_only_u12q12": 894
+      },
+      "pool": {
+        "agents_per_gib": 734615.6786480916,
+        "all_hot_ns_per_decision": 781.35,
+        "churn_ns_per_decision": 6435.4,
+        "cold_blobs": 380,
+        "cold_bytes": 478407,
+        "keys": 400,
+        "live_bytes_per_brain_incl_shared": 1461.6375,
+        "max_hot": 20,
+        "pooled_state_equals_all_hot": true,
+        "reload_ns_median": 3000.0,
+        "reload_ns_min": 2700.0,
+        "reloads": 0,
+        "spill_ns_median": 2700.0,
+        "spills": 380
+      },
+      "r4_vs_r3_ratio_fresh_warm": [
+        0.8663121217678342,
+        0.8485599847415602
+      ],
+      "serialised_per_brain_mean": {
+        "r3_json": 4267.3,
+        "r4_binary": 1621.25,
+        "r4_json": 4203.225,
+        "r4_state_only": 1278.25,
+        "sample": 40
+      },
+      "tasks": 2000,
+      "world": "sim-no-traps"
+    },
+    {
+      "agents": 32,
+      "agents_per_gib": [
+        {
+          "agents_per_gib": 4362.501140319419,
+          "commit_bytes_per_brain_unreliable": 278493,
+          "k": 120,
+          "live_bytes_per_brain": 246129.86666666667,
+          "variant": "ref f64 guarded(hebr) [shipped]"
+        },
+        {
+          "agents_per_gib": 24018.71458540792,
+          "commit_bytes_per_brain_unreliable": 47547,
+          "k": 120,
+          "live_bytes_per_brain": 44704.38333333333,
+          "variant": "R3 compact u16/q16 private"
+        },
+        {
+          "agents_per_gib": 24954.73230931321,
+          "commit_bytes_per_brain_unreliable": 54442,
+          "k": 120,
+          "live_bytes_per_brain": 43027.583333333336,
+          "variant": "R4 compact u16/q16 private"
+        },
+        {
+          "agents_per_gib": 55982.41694683433,
+          "commit_bytes_per_brain_unreliable": 44544,
+          "k": 120,
+          "live_bytes_per_brain": 19179.983333333334,
+          "variant": "R4 u16/q16 SHARED vocab"
+        },
+        {
+          "agents_per_gib": 68445.1485804894,
+          "commit_bytes_per_brain_unreliable": 32870,
+          "k": 120,
+          "live_bytes_per_brain": 15687.625,
+          "variant": "R4 u12/q12 SHARED vocab"
+        },
+        {
+          "agents_per_gib": 107806.12560994385,
+          "commit_bytes_per_brain_unreliable": 27818,
+          "k": 120,
+          "live_bytes_per_brain": 9959.933333333332,
+          "variant": "R4 u16/q16 SHARED rowcap=50%"
+        },
+        {
+          "agents_per_gib": 129349.86154389796,
+          "commit_bytes_per_brain_unreliable": 13721,
+          "k": 120,
+          "live_bytes_per_brain": 8301.066666666668,
+          "variant": "R4 u12/q12 SHARED rowcap=50%"
+        },
+        {
+          "agents_per_gib": 63243.127812463186,
+          "commit_bytes_per_brain_unreliable": 17885,
+          "k": 120,
+          "live_bytes_per_brain": 16978.0,
+          "variant": "R4 u16/q16 SHARED, cold state-only blobs"
+        }
+      ],
+      "bg_cpu_pct": 25.680933852140075,
+      "latency_ns": [
+        {
+          "fresh_median": 3457.95,
+          "fresh_min": 3245.2,
+          "ratio_vs_r3_fresh": 2.9357698570653152,
+          "ratio_vs_r3_warm": 2.693842774139241,
+          "ratio_vs_ref_fresh": 1.0,
+          "ratio_vs_ref_warm": 1.0,
+          "subject": "ref f64 guarded(hebr)",
+          "warm_median": 3336.325,
+          "warm_min": 3280.225
+        },
+        {
+          "fresh_median": 1182.975,
+          "fresh_min": 1105.4,
+          "ratio_vs_r3_fresh": 1.0,
+          "ratio_vs_r3_warm": 1.0,
+          "ratio_vs_ref_fresh": 0.3406261555528165,
+          "ratio_vs_ref_warm": 0.37121691347392327,
+          "subject": "R3 compact u16/q16",
+          "warm_median": 1278.35,
+          "warm_min": 1217.675
+        },
+        {
+          "fresh_median": 1074.425,
+          "fresh_min": 980.0,
+          "ratio_vs_r3_fresh": 0.8865569024787406,
+          "ratio_vs_r3_warm": 0.863962058841645,
+          "ratio_vs_ref_fresh": 0.30198446937014667,
+          "ratio_vs_ref_warm": 0.32071732884177157,
+          "subject": "R4 compact u16/q16",
+          "warm_median": 1093.575,
+          "warm_min": 1052.025
+        },
+        {
+          "fresh_median": 1216.8,
+          "fresh_min": 1159.875,
+          "ratio_vs_r3_fresh": 1.0492808033291114,
+          "ratio_vs_r3_warm": 1.0475085716632107,
+          "ratio_vs_ref_fresh": 0.35741248613336624,
+          "ratio_vs_ref_warm": 0.38885289881029506,
+          "subject": "R4 u12/q12 packed",
+          "warm_median": 1340.425,
+          "warm_min": 1275.525
+        },
+        {
+          "fresh_median": 1411.375,
+          "fresh_min": 1357.55,
+          "ratio_vs_r3_fresh": 1.228107472408178,
+          "ratio_vs_r3_warm": 1.1260599092532901,
+          "ratio_vs_ref_fresh": 0.4183255269320843,
+          "ratio_vs_ref_warm": 0.4180124838997325,
+          "subject": "R4 u16/q16 rowcap=50%",
+          "warm_median": 1460.3,
+          "warm_min": 1371.175
+        },
+        {
+          "fresh_median": 1028.95,
+          "fresh_min": 980.775,
+          "ratio_vs_r3_fresh": 0.8872580061516192,
+          "ratio_vs_r3_warm": 0.8327345145461639,
+          "ratio_vs_ref_fresh": 0.3022232836188833,
+          "ratio_vs_ref_warm": 0.3091251362330328,
+          "subject": "R4 u16/q16 hash32",
+          "warm_median": 1061.275,
+          "warm_min": 1014.0
+        }
+      ],
+      "latency_within_10pct_of_r3": true,
+      "natural_rows": 232,
+      "one_brain": {
+        "binary": 15047,
+        "binary_state_only": 13390,
+        "binary_u12q12": 12253,
+        "exact_roundtrip_binary": true,
+        "exact_roundtrip_state_only": true,
+        "json_r3": 35045,
+        "json_r4": 34599,
+        "live_r3_compact": 40908,
+        "live_r4_compact": 39052,
+        "live_ref": 247722,
+        "ns": {
+          "from_bytes": 65750.0,
+          "from_json": 240040.0,
+          "from_state_bytes": 26136.666666666668,
+          "state_bytes": 23540.0,
+          "to_bytes": 75316.66666666667,
+          "to_json": 98316.66666666667
+        },
+        "state_only_u12q12": 10596
+      },
+      "pool": {
+        "agents_per_gib": 60190.63965596011,
+        "all_hot_ns_per_decision": 1964.9,
+        "churn_ns_per_decision": 63984.7,
+        "cold_blobs": 114,
+        "cold_bytes": 1909906,
+        "keys": 120,
+        "live_bytes_per_brain_incl_shared": 17839.016666666666,
+        "max_hot": 6,
+        "pooled_state_equals_all_hot": true,
+        "reload_ns_median": 30600.0,
+        "reload_ns_min": 27300.0,
+        "reloads": 0,
+        "spill_ns_median": 29800.0,
+        "spills": 114
+      },
+      "r4_vs_r3_ratio_fresh_warm": [
+        0.8865569024787406,
+        0.863962058841645
+      ],
+      "serialised_per_brain_mean": {
+        "r3_json": 42051.916666666664,
+        "r4_binary": 18635.916666666668,
+        "r4_json": 41524.833333333336,
+        "r4_state_only": 16978.916666666668,
+        "sample": 12
+      },
+      "tasks": 4000,
+      "world": "big-32agents"
+    },
+    {
+      "agents": 32,
+      "agents_per_gib": [
+        {
+          "agents_per_gib": 571.7885141736668,
+          "commit_bytes_per_brain_unreliable": 2011340,
+          "k": 40,
+          "live_bytes_per_brain": 1877865.325,
+          "variant": "ref f64 guarded(hebr) [shipped]"
+        },
+        {
+          "agents_per_gib": 4283.5601752533,
+          "commit_bytes_per_brain_unreliable": 249344,
+          "k": 40,
+          "live_bytes_per_brain": 250665.75,
+          "variant": "R3 compact u16/q16 private"
+        },
+        {
+          "agents_per_gib": 4545.324688931272,
+          "commit_bytes_per_brain_unreliable": 0,
+          "k": 40,
+          "live_bytes_per_brain": 236229.95,
+          "variant": "R4 compact u16/q16 private"
+        },
+        {
+          "agents_per_gib": 17458.890183354295,
+          "commit_bytes_per_brain_unreliable": 147968,
+          "k": 40,
+          "live_bytes_per_brain": 61501.15,
+          "variant": "R4 u16/q16 SHARED vocab"
+        },
+        {
+          "agents_per_gib": 19346.098233883724,
+          "commit_bytes_per_brain_unreliable": 0,
+          "k": 40,
+          "live_bytes_per_brain": 55501.725,
+          "variant": "R4 u12/q12 SHARED vocab"
+        },
+        {
+          "agents_per_gib": 27844.593543635634,
+          "commit_bytes_per_brain_unreliable": 55910,
+          "k": 40,
+          "live_bytes_per_brain": 38561.95,
+          "variant": "R4 u16/q16 SHARED rowcap=50%"
+        },
+        {
+          "agents_per_gib": 31195.69616685866,
+          "commit_bytes_per_brain_unreliable": 85811,
+          "k": 40,
+          "live_bytes_per_brain": 34419.55,
+          "variant": "R4 u12/q12 SHARED rowcap=50%"
+        },
+        {
+          "agents_per_gib": 22483.149528478436,
+          "commit_bytes_per_brain_unreliable": 10547,
+          "k": 40,
+          "live_bytes_per_brain": 47757.625,
+          "variant": "R4 u16/q16 SHARED, cold state-only blobs"
+        }
+      ],
+      "bg_cpu_pct": 25.83826429980276,
+      "latency_ns": [
+        {
+          "fresh_median": 6868.2,
+          "fresh_min": 5207.675,
+          "ratio_vs_r3_fresh": 3.576454227044846,
+          "ratio_vs_r3_warm": 3.145257818487027,
+          "ratio_vs_ref_fresh": 1.0,
+          "ratio_vs_ref_warm": 1.0,
+          "subject": "ref f64 guarded(hebr)",
+          "warm_median": 7131.85,
+          "warm_min": 4309.475
+        },
+        {
+          "fresh_median": 1988.975,
+          "fresh_min": 1456.1,
+          "ratio_vs_r3_fresh": 1.0,
+          "ratio_vs_r3_warm": 1.0,
+          "ratio_vs_ref_fresh": 0.27960654226694254,
+          "ratio_vs_ref_warm": 0.31793896008214456,
+          "subject": "R3 compact u16/q16",
+          "warm_median": 1997.4,
+          "warm_min": 1370.15
+        },
+        {
+          "fresh_median": 1915.375,
+          "fresh_min": 1436.7,
+          "ratio_vs_r3_fresh": 0.9866767392349427,
+          "ratio_vs_r3_warm": 0.8361128343612012,
+          "ratio_vs_ref_fresh": 0.275881271392704,
+          "ratio_vs_ref_warm": 0.2658328450681347,
+          "subject": "R4 compact u16/q16",
+          "warm_median": 1824.45,
+          "warm_min": 1145.6
+        },
+        {
+          "fresh_median": 2158.975,
+          "fresh_min": 1724.075,
+          "ratio_vs_r3_fresh": 1.1840361238925898,
+          "ratio_vs_r3_warm": 1.0211838119913876,
+          "ratio_vs_ref_fresh": 0.3310642465207602,
+          "ratio_vs_ref_warm": 0.324674119237262,
+          "subject": "R4 u12/q12 packed",
+          "warm_median": 2241.625,
+          "warm_min": 1399.175
+        },
+        {
+          "fresh_median": 2104.725,
+          "fresh_min": 1393.7,
+          "ratio_vs_r3_fresh": 0.957145800425795,
+          "ratio_vs_r3_warm": 0.9624493668576433,
+          "ratio_vs_ref_fresh": 0.2676242277023816,
+          "ratio_vs_ref_warm": 0.3060001508304376,
+          "subject": "R4 u16/q16 rowcap=50%",
+          "warm_median": 2078.475,
+          "warm_min": 1318.7
+        },
+        {
+          "fresh_median": 1596.05,
+          "fresh_min": 1294.375,
+          "ratio_vs_r3_fresh": 0.8889327656067578,
+          "ratio_vs_r3_warm": 0.7812830711965842,
+          "ratio_vs_ref_fresh": 0.24855141689909604,
+          "ratio_vs_ref_warm": 0.2484003271860261,
+          "subject": "R4 u16/q16 hash32",
+          "warm_median": 1638.95,
+          "warm_min": 1070.475
+        }
+      ],
+      "latency_within_10pct_of_r3": true,
+      "natural_rows": 1838,
+      "one_brain": {
+        "binary": 49670,
+        "binary_state_only": 38890,
+        "binary_u12q12": 42374,
+        "exact_roundtrip_binary": true,
+        "exact_roundtrip_state_only": true,
+        "json_r3": 123518,
+        "json_r4": 116672,
+        "live_r3_compact": 247314,
+        "live_r4_compact": 232610,
+        "live_ref": 1878161,
+        "ns": {
+          "from_bytes": 392776.6666666667,
+          "from_json": 646916.6666666666,
+          "from_state_bytes": 97733.33333333333,
+          "state_bytes": 85653.33333333333,
+          "to_bytes": 321520.0,
+          "to_json": 308786.6666666667
+        },
+        "state_only_u12q12": 31594
+      },
+      "pool": {
+        "agents_per_gib": 21694.263104167097,
+        "all_hot_ns_per_decision": 2494.35,
+        "churn_ns_per_decision": 211087.6,
+        "cold_blobs": 38,
+        "cold_bytes": 1579927,
+        "keys": 40,
+        "live_bytes_per_brain_incl_shared": 49494.275,
+        "max_hot": 2,
+        "pooled_state_equals_all_hot": true,
+        "reload_ns_median": 100500.0,
+        "reload_ns_min": 92600.0,
+        "reloads": 0,
+        "spill_ns_median": 97900.0,
+        "spills": 38
+      },
+      "r4_vs_r3_ratio_fresh_warm": [
+        0.9866767392349427,
+        0.8361128343612012
+      ],
+      "serialised_per_brain_mean": {
+        "r3_json": 128737.83333333333,
+        "r4_binary": 52514.666666666664,
+        "r4_json": 121584.91666666667,
+        "r4_state_only": 41689.666666666664,
+        "sample": 12
+      },
+      "tasks": 4000,
+      "world": "big-32agents-longtail"
+    },
+    {
+      "agents": 32,
+      "agents_per_gib": [
+        {
+          "agents_per_gib": 413.75628609683804,
+          "commit_bytes_per_brain_unreliable": 2896486,
+          "k": 40,
+          "live_bytes_per_brain": 2595106.975,
+          "variant": "ref f64 guarded(hebr) [shipped]"
+        },
+        {
+          "agents_per_gib": 3169.576743527705,
+          "commit_bytes_per_brain_unreliable": 0,
+          "k": 40,
+          "live_bytes_per_brain": 338765.05,
+          "variant": "R3 compact u16/q16 private"
+        },
+        {
+          "agents_per_gib": 3372.9122503692165,
+          "commit_bytes_per_brain_unreliable": 397312,
+          "k": 40,
+          "live_bytes_per_brain": 318342.65,
+          "variant": "R4 compact u16/q16 private"
+        },
+        {
+          "agents_per_gib": 3852.482691502139,
+          "commit_bytes_per_brain_unreliable": 156774,
+          "k": 40,
+          "live_bytes_per_brain": 278714.25,
+          "variant": "R4 u16/q16 SHARED vocab"
+        },
+        {
+          "agents_per_gib": 3939.180150856615,
+          "commit_bytes_per_brain_unreliable": 135065,
+          "k": 40,
+          "live_bytes_per_brain": 272580.025,
+          "variant": "R4 u12/q12 SHARED vocab"
+        },
+        {
+          "agents_per_gib": 4314.482563531365,
+          "commit_bytes_per_brain_unreliable": 134963,
+          "k": 40,
+          "live_bytes_per_brain": 248869.2,
+          "variant": "R4 u16/q16 SHARED rowcap=50%"
+        },
+        {
+          "agents_per_gib": 4386.827463076829,
+          "commit_bytes_per_brain_unreliable": 134963,
+          "k": 40,
+          "live_bytes_per_brain": 244765.0,
+          "variant": "R4 u12/q12 SHARED rowcap=50%"
+        },
+        {
+          "agents_per_gib": 4133.924082480836,
+          "commit_bytes_per_brain_unreliable": 138547,
+          "k": 40,
+          "live_bytes_per_brain": 259739.125,
+          "variant": "R4 u16/q16 SHARED, cold state-only blobs"
+        }
+      ],
+      "bg_cpu_pct": 9.288537549407117,
+      "latency_ns": [
+        {
+          "fresh_median": 6456.075,
+          "fresh_min": 4333.6,
+          "ratio_vs_r3_fresh": 3.1995274834803795,
+          "ratio_vs_r3_warm": 3.250516930664896,
+          "ratio_vs_ref_fresh": 1.0,
+          "ratio_vs_ref_warm": 1.0,
+          "subject": "ref f64 guarded(hebr)",
+          "warm_median": 6422.2,
+          "warm_min": 4283.775
+        },
+        {
+          "fresh_median": 1707.25,
+          "fresh_min": 1354.45,
+          "ratio_vs_r3_fresh": 1.0,
+          "ratio_vs_r3_warm": 1.0,
+          "ratio_vs_ref_fresh": 0.3125461510060919,
+          "ratio_vs_ref_warm": 0.3076433752939872,
+          "subject": "R3 compact u16/q16",
+          "warm_median": 1805.25,
+          "warm_min": 1317.875
+        },
+        {
+          "fresh_median": 1663.675,
+          "fresh_min": 1276.6,
+          "ratio_vs_r3_fresh": 0.9425227952305363,
+          "ratio_vs_r3_warm": 0.9085459546618608,
+          "ratio_vs_ref_fresh": 0.29458187188480706,
+          "ratio_vs_ref_warm": 0.27950814410187275,
+          "subject": "R4 compact u16/q16",
+          "warm_median": 1607.875,
+          "warm_min": 1197.35
+        },
+        {
+          "fresh_median": 2007.3,
+          "fresh_min": 1345.1,
+          "ratio_vs_r3_fresh": 0.993096828971169,
+          "ratio_vs_r3_warm": 1.070226690695248,
+          "ratio_vs_ref_fresh": 0.31038859147129405,
+          "ratio_vs_ref_warm": 0.32924815145520014,
+          "subject": "R4 u12/q12 packed",
+          "warm_median": 2097.675,
+          "warm_min": 1410.425
+        },
+        {
+          "fresh_median": 1897.65,
+          "fresh_min": 1280.625,
+          "ratio_vs_r3_fresh": 0.9454944811547122,
+          "ratio_vs_r3_warm": 1.039476429858674,
+          "ratio_vs_ref_fresh": 0.29551066088240724,
+          "ratio_vs_ref_warm": 0.31978803742026607,
+          "subject": "R4 u16/q16 rowcap=50%",
+          "warm_median": 1903.175,
+          "warm_min": 1369.9
+        },
+        {
+          "fresh_median": 1561.65,
+          "fresh_min": 1151.125,
+          "ratio_vs_r3_fresh": 0.8498837166377496,
+          "ratio_vs_r3_warm": 0.8238072654842075,
+          "ratio_vs_ref_fresh": 0.2656278844378807,
+          "ratio_vs_ref_warm": 0.2534388477452714,
+          "subject": "R4 u16/q16 hash32",
+          "warm_median": 1467.6,
+          "warm_min": 1085.675
+        }
+      ],
+      "latency_within_10pct_of_r3": true,
+      "natural_rows": 2598,
+      "one_brain": {
+        "binary": 74074,
+        "binary_state_only": 46366,
+        "binary_u12q12": 65868,
+        "exact_roundtrip_binary": true,
+        "exact_roundtrip_state_only": true,
+        "json_r3": 168240,
+        "json_r4": 158566,
+        "live_r3_compact": 336222,
+        "live_r4_compact": 315438,
+        "live_ref": 2601113,
+        "ns": {
+          "from_bytes": 760076.6666666666,
+          "from_json": 1212463.3333333333,
+          "from_state_bytes": 175083.33333333334,
+          "state_bytes": 153723.33333333334,
+          "to_bytes": 559803.3333333334,
+          "to_json": 493713.3333333333
+        },
+        "state_only_u12q12": 38160
+      },
+      "pool": {
+        "agents_per_gib": 4081.7392770372144,
+        "all_hot_ns_per_decision": 2726.75,
+        "churn_ns_per_decision": 254408.4,
+        "cold_blobs": 38,
+        "cold_bytes": 1853623,
+        "keys": 40,
+        "live_bytes_per_brain_incl_shared": 263059.875,
+        "max_hot": 2,
+        "pooled_state_equals_all_hot": true,
+        "reload_ns_median": 116300.0,
+        "reload_ns_min": 105500.0,
+        "reloads": 0,
+        "spill_ns_median": 120500.0,
+        "spills": 38
+      },
+      "r4_vs_r3_ratio_fresh_warm": [
+        0.9425227952305363,
+        0.9085459546618608
+      ],
+      "serialised_per_brain_mean": {
+        "r3_json": 172449.41666666666,
+        "r4_binary": 76511.33333333333,
+        "r4_json": 162598.83333333334,
+        "r4_state_only": 48843.166666666664,
+        "sample": 12
+      },
+      "tasks": 4000,
+      "world": "big-32agents-open"
+    },
+    {
+      "agents": 64,
+      "agents_per_gib": [
+        {
+          "agents_per_gib": 2527.7098527172584,
+          "commit_bytes_per_brain_unreliable": 368025,
+          "k": 80,
+          "live_bytes_per_brain": 424788.4,
+          "variant": "ref f64 guarded(hebr) [shipped]"
+        },
+        {
+          "agents_per_gib": 22452.285503240837,
+          "commit_bytes_per_brain_unreliable": 0,
+          "k": 80,
+          "live_bytes_per_brain": 47823.275,
+          "variant": "R3 compact u16/q16 private"
+        },
+        {
+          "agents_per_gib": 22766.095253643798,
+          "commit_bytes_per_brain_unreliable": 0,
+          "k": 80,
+          "live_bytes_per_brain": 47164.075,
+          "variant": "R4 compact u16/q16 private"
+        },
+        {
+          "agents_per_gib": 45853.72705561315,
+          "commit_bytes_per_brain_unreliable": 0,
+          "k": 80,
+          "live_bytes_per_brain": 23416.675,
+          "variant": "R4 u16/q16 SHARED vocab"
+        },
+        {
+          "agents_per_gib": 53439.56581110867,
+          "commit_bytes_per_brain_unreliable": 38860,
+          "k": 80,
+          "live_bytes_per_brain": 20092.6375,
+          "variant": "R4 u12/q12 SHARED vocab"
+        },
+        {
+          "agents_per_gib": 84604.55776791976,
+          "commit_bytes_per_brain_unreliable": 5683,
+          "k": 80,
+          "live_bytes_per_brain": 12691.3,
+          "variant": "R4 u16/q16 SHARED rowcap=50%"
+        },
+        {
+          "agents_per_gib": 94461.42383811015,
+          "commit_bytes_per_brain_unreliable": 0,
+          "k": 80,
+          "live_bytes_per_brain": 11366.9875,
+          "variant": "R4 u12/q12 SHARED rowcap=50%"
+        },
+        {
+          "agents_per_gib": 51325.999009323,
+          "commit_bytes_per_brain_unreliable": 2355,
+          "k": 80,
+          "live_bytes_per_brain": 20920.0375,
+          "variant": "R4 u16/q16 SHARED, cold state-only blobs"
+        }
+      ],
+      "bg_cpu_pct": 41.96078431372548,
+      "latency_ns": [
+        {
+          "fresh_median": 5777.775,
+          "fresh_min": 5528.15,
+          "ratio_vs_r3_fresh": 3.961482649277128,
+          "ratio_vs_r3_warm": 3.4617469377867276,
+          "ratio_vs_ref_fresh": 1.0,
+          "ratio_vs_ref_warm": 1.0,
+          "subject": "ref f64 guarded(hebr)",
+          "warm_median": 6150.0,
+          "warm_min": 5715.95
+        },
+        {
+          "fresh_median": 1455.7,
+          "fresh_min": 1395.475,
+          "ratio_vs_r3_fresh": 1.0,
+          "ratio_vs_r3_warm": 1.0,
+          "ratio_vs_ref_fresh": 0.25243074084458633,
+          "ratio_vs_ref_warm": 0.28887149117819433,
+          "subject": "R3 compact u16/q16",
+          "warm_median": 1736.4,
+          "warm_min": 1651.175
+        },
+        {
+          "fresh_median": 1355.45,
+          "fresh_min": 1306.475,
+          "ratio_vs_r3_fresh": 0.9362224332216629,
+          "ratio_vs_r3_warm": 0.8497282238405983,
+          "ratio_vs_ref_fresh": 0.23633132241346563,
+          "ratio_vs_ref_warm": 0.24546225911703218,
+          "subject": "R4 compact u16/q16",
+          "warm_median": 1486.35,
+          "warm_min": 1403.05
+        },
+        {
+          "fresh_median": 1636.8,
+          "fresh_min": 1572.675,
+          "ratio_vs_r3_fresh": 1.1269818520575432,
+          "ratio_vs_r3_warm": 1.142504580071767,
+          "ratio_vs_ref_fresh": 0.28448486383328964,
+          "ratio_vs_ref_warm": 0.3300370017232481,
+          "subject": "R4 u12/q12 packed",
+          "warm_median": 2048.1,
+          "warm_min": 1886.475
+        },
+        {
+          "fresh_median": 1914.6,
+          "fresh_min": 1643.6,
+          "ratio_vs_r3_fresh": 1.1778068399648864,
+          "ratio_vs_r3_warm": 1.0787772343936894,
+          "ratio_vs_ref_fresh": 0.29731465318415745,
+          "ratio_vs_ref_warm": 0.31162798834839356,
+          "subject": "R4 u16/q16 rowcap=50%",
+          "warm_median": 1844.8,
+          "warm_min": 1781.25
+        },
+        {
+          "fresh_median": 1329.25,
+          "fresh_min": 1263.8,
+          "ratio_vs_r3_fresh": 0.9056414482523872,
+          "ratio_vs_r3_warm": 0.825215376928551,
+          "ratio_vs_ref_fresh": 0.2286117417219142,
+          "ratio_vs_ref_warm": 0.23838119647652622,
+          "subject": "R4 u16/q16 hash32",
+          "warm_median": 1400.775,
+          "warm_min": 1362.575
+        }
+      ],
+      "latency_within_10pct_of_r3": true,
+      "natural_rows": 232,
+      "one_brain": {
+        "binary": 18249,
+        "binary_state_only": 16592,
+        "binary_u12q12": 15477,
+        "exact_roundtrip_binary": true,
+        "exact_roundtrip_state_only": true,
+        "json_r3": 39522,
+        "json_r4": 39104,
+        "live_r3_compact": 43182,
+        "live_r4_compact": 42254,
+        "live_ref": 424794,
+        "ns": {
+          "from_bytes": 69033.33333333333,
+          "from_json": 140426.66666666666,
+          "from_state_bytes": 27810.0,
+          "state_bytes": 25950.0,
+          "to_bytes": 59256.666666666664,
+          "to_json": 72796.66666666667
+        },
+        "state_only_u12q12": 13820
+      },
+      "pool": {
+        "agents_per_gib": 48954.47821195684,
+        "all_hot_ns_per_decision": 3593.35,
+        "churn_ns_per_decision": 88381.55,
+        "cold_blobs": 76,
+        "cold_bytes": 1565182,
+        "keys": 80,
+        "live_bytes_per_brain_incl_shared": 21933.475,
+        "max_hot": 4,
+        "pooled_state_equals_all_hot": true,
+        "reload_ns_median": 70200.0,
+        "reload_ns_min": 61300.0,
+        "reloads": 0,
+        "spill_ns_median": 69900.0,
+        "spills": 76
+      },
+      "r4_vs_r3_ratio_fresh_warm": [
+        0.9362224332216629,
+        0.8497282238405983
+      ],
+      "serialised_per_brain_mean": {
+        "r3_json": 46241.75,
+        "r4_binary": 21904.166666666668,
+        "r4_json": 45722.916666666664,
+        "r4_state_only": 20247.166666666668,
+        "sample": 12
+      },
+      "tasks": 4000,
+      "world": "big-64agents"
+    },
+    {
+      "agents": 128,
+      "agents_per_gib": [
+        {
+          "agents_per_gib": 1374.7713912216257,
+          "commit_bytes_per_brain_unreliable": 764160,
+          "k": 80,
+          "live_bytes_per_brain": 781033.0,
+          "variant": "ref f64 guarded(hebr) [shipped]"
+        },
+        {
+          "skipped": "R3 compact limited to 64 agents",
+          "variant": "R3 compact u16/q16 private"
+        },
+        {
+          "agents_per_gib": 21016.27193452464,
+          "commit_bytes_per_brain_unreliable": 0,
+          "k": 80,
+          "live_bytes_per_brain": 51090.975,
+          "variant": "R4 compact u16/q16 private"
+        },
+        {
+          "agents_per_gib": 39268.52373912336,
+          "commit_bytes_per_brain_unreliable": 0,
+          "k": 80,
+          "live_bytes_per_brain": 27343.575,
+          "variant": "R4 u16/q16 SHARED vocab"
+        },
+        {
+          "agents_per_gib": 44699.804401741385,
+          "commit_bytes_per_brain_unreliable": 0,
+          "k": 80,
+          "live_bytes_per_brain": 24021.175,
+          "variant": "R4 u12/q12 SHARED vocab"
+        },
+        {
+          "agents_per_gib": 72663.04554375043,
+          "commit_bytes_per_brain_unreliable": 0,
+          "k": 80,
+          "live_bytes_per_brain": 14777.0,
+          "variant": "R4 u16/q16 SHARED rowcap=50%"
+        },
+        {
+          "agents_per_gib": 81739.30569591225,
+          "commit_bytes_per_brain_unreliable": 0,
+          "k": 80,
+          "live_bytes_per_brain": 13136.175,
+          "variant": "R4 u12/q12 SHARED rowcap=50%"
+        },
+        {
+          "agents_per_gib": 43214.49136307291,
+          "commit_bytes_per_brain_unreliable": 0,
+          "k": 80,
+          "live_bytes_per_brain": 24846.8,
+          "variant": "R4 u16/q16 SHARED, cold state-only blobs"
+        }
+      ],
+      "bg_cpu_pct": 42.1875,
+      "latency_ns": [
+        {
+          "fresh_median": 16211.15,
+          "fresh_min": 10557.65,
+          "ratio_vs_r3_fresh": null,
+          "ratio_vs_r3_warm": null,
+          "ratio_vs_ref_fresh": 1.0,
+          "ratio_vs_ref_warm": 1.0,
+          "subject": "ref f64 guarded(hebr)",
+          "warm_median": 17299.625,
+          "warm_min": 11048.6
+        },
+        {
+          "fresh_median": 2848.575,
+          "fresh_min": 1927.15,
+          "ratio_vs_r3_fresh": null,
+          "ratio_vs_r3_warm": null,
+          "ratio_vs_ref_fresh": 0.18253588630045514,
+          "ratio_vs_ref_warm": 0.18382645765074307,
+          "subject": "R4 compact u16/q16",
+          "warm_median": 3084.575,
+          "warm_min": 2031.025
+        },
+        {
+          "fresh_median": 3550.45,
+          "fresh_min": 2292.825,
+          "ratio_vs_r3_fresh": null,
+          "ratio_vs_r3_warm": null,
+          "ratio_vs_ref_fresh": 0.2171719085213092,
+          "ratio_vs_ref_warm": 0.22269789837626486,
+          "subject": "R4 u12/q12 packed",
+          "warm_median": 3839.375,
+          "warm_min": 2460.5
+        },
+        {
+          "fresh_median": 3287.125,
+          "fresh_min": 2177.375,
+          "ratio_vs_r3_fresh": null,
+          "ratio_vs_r3_warm": null,
+          "ratio_vs_ref_fresh": 0.20623670987388293,
+          "ratio_vs_ref_warm": 0.2094224607642597,
+          "subject": "R4 u16/q16 rowcap=50%",
+          "warm_median": 3726.625,
+          "warm_min": 2313.825
+        },
+        {
+          "fresh_median": 2746.875,
+          "fresh_min": 1837.625,
+          "ratio_vs_r3_fresh": null,
+          "ratio_vs_r3_warm": null,
+          "ratio_vs_ref_fresh": 0.17405625304873718,
+          "ratio_vs_ref_warm": 0.17867874662853211,
+          "subject": "R4 u16/q16 hash32",
+          "warm_median": 3090.55,
+          "warm_min": 1974.15
+        }
+      ],
+      "latency_within_10pct_of_r3": null,
+      "natural_rows": 232,
+      "one_brain": {
+        "binary": 21840,
+        "binary_state_only": 20182,
+        "binary_u12q12": 17203,
+        "exact_roundtrip_binary": true,
+        "exact_roundtrip_state_only": true,
+        "json_r3": null,
+        "json_r4": 44328,
+        "live_r3_compact": null,
+        "live_r4_compact": 45844,
+        "live_ref": 779514,
+        "ns": {
+          "from_bytes": 115093.33333333333,
+          "from_json": 262353.3333333333,
+          "from_state_bytes": 54003.333333333336,
+          "state_bytes": 46056.666666666664,
+          "to_bytes": 94550.0,
+          "to_json": 101200.0
+        },
+        "state_only_u12q12": 15545
+      },
+      "pool": {
+        "agents_per_gib": 40696.45280573147,
+        "all_hot_ns_per_decision": 3502.35,
+        "churn_ns_per_decision": 86369.8,
+        "cold_blobs": 76,
+        "cold_bytes": 1862549,
+        "keys": 80,
+        "live_bytes_per_brain_incl_shared": 26384.1625,
+        "max_hot": 4,
+        "pooled_state_equals_all_hot": true,
+        "reload_ns_median": 39100.0,
+        "reload_ns_min": 34900.0,
+        "reloads": 0,
+        "spill_ns_median": 38400.0,
+        "spills": 76
+      },
+      "r4_vs_r3_ratio_fresh_warm": null,
+      "serialised_per_brain_mean": {
+        "r3_json": 0.0,
+        "r4_binary": 26193.0,
+        "r4_json": 52713.5,
+        "r4_state_only": 24535.0,
+        "sample": 12
+      },
+      "tasks": 4000,
+      "world": "big-128agents"
+    }
+  ]
+}

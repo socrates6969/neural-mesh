@@ -1,0 +1,15 @@
+[k1] world B: base 4181, variants 2938, noise 1254, universe 8373, queries 1029 (matrices 138 MB) loaded in 11.4s
+[check] quantisation matrices vs flatq::FlatIndex (top-5 ids over the BASE docs, 40 queries)
+  block-fp16: top-5 id agreement 200/200, max |score diff| 6.56e-7 (bytes/row 816)
+  int8: top-5 id agreement 200/200, max |score diff| 6.56e-7 (bytes/row 388)
+[check] stream seed 1: 7960 records (base+exact-dups 4882 , old 1251 , near 825 , noise 1002), unbounded bytes 13.52 MB
+[check] docs with >=1 old record: 953 (22.8% of base docs)
+[check] eligible queries per checkpoint: [240, 516, 806, 1029] of 1029
+  arm none         rows   7960 bytes   13.52 MB  u.hit1 0.175 mrr 0.236 stale1 0.107 noise1 0.040 store_stale 0.157 merged 0 stale_dropped 0 (0.3s)
+  arm exact        rows   7082 bytes   12.03 MB  u.hit1 0.175 mrr 0.241 stale1 0.107 noise1 0.040 store_stale 0.176 merged 878 stale_dropped 0 (0.7s)
+  arm supdel       rows   5183 bytes    8.80 MB  u.hit1 0.193 mrr 0.264 stale1 0.000 noise1 0.043 store_stale 0.000 merged 1526 stale_dropped 107 (1.0s)
+  arm cosnew0.95   rows   6269 bytes   10.65 MB  u.hit1 0.172 mrr 0.244 stale1 0.102 noise1 0.043 store_stale 0.174 merged 1691 stale_dropped 0 (1.2s)
+  arm val25        rows   1989 bytes    3.38 MB  u.hit1 0.133 mrr 0.166 stale1 0.010 noise1 0.052 store_stale 0.031 merged 0 stale_dropped 0 (1.5s)
+  arm summary      rows   6329 bytes   10.99 MB  u.hit1 0.158 mrr 0.224 stale1 0.130 noise1 0.043 store_stale 0.056 merged 0 stale_dropped 0 (2.7s)
+[check] library Deduper keeps 7082 of 7960 records (878 suppressed)
+wall 14s

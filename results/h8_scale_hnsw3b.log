@@ -1,0 +1,112 @@
+h8_vectors mode=scale rayon=2 free=5.21GB
+[scale] N=300000: streaming queries + ground truth
+  gt 3.3s free 5.2GB
+  wrote rerank file C:/Users/mariu/nm-target-r8/h8_tmp/scale_300000.f32 (2.4s)
+ setting number of points 50000 
+ setting number of points 100000 
+ setting number of points 150000 
+ setting number of points 200000 
+ setting number of points 250000 
+ setting number of points 300000 
+  HNSW M16 efc200 f32lib build0: 155s heap 6227 B/vec, ws 1157 MB
+ setting number of points 50000 
+ setting number of points 100000 
+ setting number of points 150000 
+ setting number of points 200000 
+ setting number of points 250000 
+ setting number of points 300000 
+  HNSW M16 efc200 f32lib build1: 142s heap 6217 B/vec, ws 1152 MB
+ setting number of points 50000 
+ setting number of points 100000 
+ setting number of points 150000 
+ setting number of points 200000 
+ setting number of points 250000 
+ setting number of points 300000 
+  HNSW M16 efc200 f32lib build2: 149s heap 6232 B/vec, ws 1163 MB
+ setting number of points 50000 
+ setting number of points 100000 
+ setting number of points 150000 
+ setting number of points 200000 
+ setting number of points 250000 
+ setting number of points 300000 
+  HNSW M32 efc100 f32lib build0: 95s heap 6878 B/vec, ws 1094 MB
+ setting number of points 50000 
+ setting number of points 100000 
+ setting number of points 150000 
+ setting number of points 200000 
+ setting number of points 250000 
+ setting number of points 300000 
+  HNSW M32 efc100 f32lib build1: 80s heap 6877 B/vec, ws 1094 MB
+ setting number of points 50000 
+ setting number of points 100000 
+ setting number of points 150000 
+ setting number of points 200000 
+ setting number of points 250000 
+ setting number of points 300000 
+  HNSW M32 efc100 f32lib build2: 80s heap 6856 B/vec, ws 1083 MB
+ setting number of points 50000 
+ setting number of points 100000 
+ setting number of points 150000 
+ setting number of points 200000 
+ setting number of points 250000 
+ setting number of points 300000 
+  HNSW M48 efc100 f32lib build0: 81s heap 7299 B/vec, ws 1083 MB
+ setting number of points 50000 
+ setting number of points 100000 
+ setting number of points 150000 
+ setting number of points 200000 
+ setting number of points 250000 
+ setting number of points 300000 
+  HNSW M48 efc100 f32lib build1: 89s heap 7275 B/vec, ws 1072 MB
+[ram] free 2.92 GB < 3.7 GB, pausing before hnsw build
+ setting number of points 50000 
+ setting number of points 100000 
+ setting number of points 150000 
+ setting number of points 200000 
+ setting number of points 250000 
+ setting number of points 300000 
+  HNSW M48 efc100 f32lib build2: 76s heap 7330 B/vec, ws 1098 MB
+
+#### scale N=300000 dim=384 (peak WS 1238 MB)
+| config | index heap B/vec (measured) | RAM B/vec total | SSD B/vec | M vectors/GB RAM | recall@10 | p50 us | p99 us | build s |
+|---|---|---|---|---|---|---|---|---|
+| HNSW M16 efc200 ef32 [f32lib stored] build0 | 6226.9 | 6226.9 | 0.0 | 0.16 | 0.779 | 201.1 | 507.3 | 155.5 |
+| HNSW M16 efc200 ef64 [f32lib stored] build0 | 6226.9 | 6226.9 | 0.0 | 0.16 | 0.808 | 372.1 | 825.9 | 155.5 |
+| HNSW M16 efc200 ef128 [f32lib stored] build0 | 6226.9 | 6226.9 | 0.0 | 0.16 | 0.857 | 522.8 | 1342.9 | 155.5 |
+| HNSW M16 efc200 ef256 [f32lib stored] build0 | 6226.9 | 6226.9 | 0.0 | 0.16 | 0.902 | 694.4 | 1992.1 | 155.5 |
+| HNSW M16 efc200 ef32 [f32lib stored] build1 | 6216.6 | 6216.6 | 0.0 | 0.16 | 0.751 | 237.5 | 609.0 | 142.0 |
+| HNSW M16 efc200 ef64 [f32lib stored] build1 | 6216.6 | 6216.6 | 0.0 | 0.16 | 0.820 | 319.1 | 899.5 | 142.0 |
+| HNSW M16 efc200 ef128 [f32lib stored] build1 | 6216.6 | 6216.6 | 0.0 | 0.16 | 0.851 | 525.5 | 1387.4 | 142.0 |
+| HNSW M16 efc200 ef256 [f32lib stored] build1 | 6216.6 | 6216.6 | 0.0 | 0.16 | 0.911 | 803.2 | 2309.9 | 142.0 |
+| HNSW M16 efc200 ef32 [f32lib stored] build2 | 6231.8 | 6231.8 | 0.0 | 0.16 | 0.742 | 280.3 | 613.4 | 149.0 |
+| HNSW M16 efc200 ef64 [f32lib stored] build2 | 6231.8 | 6231.8 | 0.0 | 0.16 | 0.760 | 410.5 | 854.6 | 149.0 |
+| HNSW M16 efc200 ef128 [f32lib stored] build2 | 6231.8 | 6231.8 | 0.0 | 0.16 | 0.825 | 590.6 | 1779.1 | 149.0 |
+| HNSW M16 efc200 ef256 [f32lib stored] build2 | 6231.8 | 6231.8 | 0.0 | 0.16 | 0.868 | 881.3 | 2480.2 | 149.0 |
+| HNSW M32 efc100 ef32 [f32lib stored] build0 | 6877.8 | 6877.8 | 0.0 | 0.15 | 0.880 | 233.4 | 534.4 | 95.2 |
+| HNSW M32 efc100 ef64 [f32lib stored] build0 | 6877.8 | 6877.8 | 0.0 | 0.15 | 0.927 | 322.6 | 768.7 | 95.2 |
+| HNSW M32 efc100 ef128 [f32lib stored] build0 | 6877.8 | 6877.8 | 0.0 | 0.15 | 0.962 | 512.2 | 1308.9 | 95.2 |
+| HNSW M32 efc100 ef256 [f32lib stored] build0 | 6877.8 | 6877.8 | 0.0 | 0.15 | 0.992 | 821.1 | 2061.0 | 95.2 |
+| HNSW M32 efc100 ef32 [f32lib stored] build1 | 6877.1 | 6877.1 | 0.0 | 0.15 | 0.849 | 239.5 | 544.9 | 79.9 |
+| HNSW M32 efc100 ef64 [f32lib stored] build1 | 6877.1 | 6877.1 | 0.0 | 0.15 | 0.942 | 363.1 | 933.7 | 79.9 |
+| HNSW M32 efc100 ef128 [f32lib stored] build1 | 6877.1 | 6877.1 | 0.0 | 0.15 | 0.977 | 467.3 | 1135.6 | 79.9 |
+| HNSW M32 efc100 ef256 [f32lib stored] build1 | 6877.1 | 6877.1 | 0.0 | 0.15 | 0.992 | 836.5 | 1896.7 | 79.9 |
+| HNSW M32 efc100 ef32 [f32lib stored] build2 | 6856.1 | 6856.1 | 0.0 | 0.15 | 0.773 | 256.9 | 693.1 | 79.7 |
+| HNSW M32 efc100 ef64 [f32lib stored] build2 | 6856.1 | 6856.1 | 0.0 | 0.15 | 0.878 | 400.0 | 980.4 | 79.7 |
+| HNSW M32 efc100 ef128 [f32lib stored] build2 | 6856.1 | 6856.1 | 0.0 | 0.15 | 0.954 | 484.6 | 1174.8 | 79.7 |
+| HNSW M32 efc100 ef256 [f32lib stored] build2 | 6856.1 | 6856.1 | 0.0 | 0.15 | 0.994 | 811.0 | 1984.4 | 79.7 |
+| HNSW M48 efc100 ef24 [f32lib stored] build0 | 7298.5 | 7298.5 | 0.0 | 0.14 | 0.881 | 261.9 | 549.0 | 80.9 |
+| HNSW M48 efc100 ef32 [f32lib stored] build0 | 7298.5 | 7298.5 | 0.0 | 0.14 | 0.920 | 269.7 | 619.0 | 80.9 |
+| HNSW M48 efc100 ef64 [f32lib stored] build0 | 7298.5 | 7298.5 | 0.0 | 0.14 | 0.958 | 367.5 | 848.4 | 80.9 |
+| HNSW M48 efc100 ef128 [f32lib stored] build0 | 7298.5 | 7298.5 | 0.0 | 0.14 | 0.983 | 566.4 | 1276.6 | 80.9 |
+| HNSW M48 efc100 ef256 [f32lib stored] build0 | 7298.5 | 7298.5 | 0.0 | 0.14 | 0.993 | 754.7 | 1553.3 | 80.9 |
+| HNSW M48 efc100 ef24 [f32lib stored] build1 | 7275.3 | 7275.3 | 0.0 | 0.14 | 0.900 | 320.7 | 603.0 | 88.9 |
+| HNSW M48 efc100 ef32 [f32lib stored] build1 | 7275.3 | 7275.3 | 0.0 | 0.14 | 0.915 | 307.1 | 599.8 | 88.9 |
+| HNSW M48 efc100 ef64 [f32lib stored] build1 | 7275.3 | 7275.3 | 0.0 | 0.14 | 0.950 | 460.1 | 1041.2 | 88.9 |
+| HNSW M48 efc100 ef128 [f32lib stored] build1 | 7275.3 | 7275.3 | 0.0 | 0.14 | 0.990 | 569.1 | 1315.5 | 88.9 |
+| HNSW M48 efc100 ef256 [f32lib stored] build1 | 7275.3 | 7275.3 | 0.0 | 0.14 | 1.000 | 943.2 | 1851.1 | 88.9 |
+| HNSW M48 efc100 ef24 [f32lib stored] build2 | 7330.1 | 7330.1 | 0.0 | 0.14 | 0.889 | 210.2 | 439.0 | 76.0 |
+| HNSW M48 efc100 ef32 [f32lib stored] build2 | 7330.1 | 7330.1 | 0.0 | 0.14 | 0.930 | 254.1 | 545.2 | 76.0 |
+| HNSW M48 efc100 ef64 [f32lib stored] build2 | 7330.1 | 7330.1 | 0.0 | 0.14 | 0.964 | 361.2 | 761.6 | 76.0 |
+| HNSW M48 efc100 ef128 [f32lib stored] build2 | 7330.1 | 7330.1 | 0.0 | 0.14 | 0.984 | 502.4 | 1021.8 | 76.0 |
+| HNSW M48 efc100 ef256 [f32lib stored] build2 | 7330.1 | 7330.1 | 0.0 | 0.14 | 0.994 | 780.6 | 1593.0 | 76.0 |
+wrote results/h8_scale_hnsw3b.json

@@ -1,0 +1,956 @@
+loaded: A tops 42391, B tops 16473 (0.3s)
+tuned (211s)
+A_held_31_60 done (258s)
+A_confirm_61_90 done (299s)
+B_confirm_61_90 done (337s)
+TUNE (A seeds 1-8 panel {T12,T12-drift,Tctx,ctl-irrel}, objective = mean treat (H500+H2000)/2 - 2 x control penalty vs best fair):
+  ctx|bm25_raw       thr 0.70 min_n 2 k 1 obj 0.4850
+  ctx|bm25_s         thr 0.70 min_n 2 k 1 obj 0.4850
+  ctx|dense_raw      thr 0.70 min_n 2 k 1 obj 0.4842
+  ctx|dense_s        thr 0.70 min_n 2 k 1 obj 0.4841
+  ctx|hybrrf_raw     thr 0.70 min_n 2 k 1 obj 0.4842
+  ctx|hybrrf_s       thr 0.70 min_n 2 k 1 obj 0.4841
+  ctx|hybrsf_raw     thr 0.70 min_n 2 k 1 obj 0.4850
+  ctx|hybrsf_s       thr 0.70 min_n 2 k 1 obj 0.4850
+  ctx|hybz_raw       thr 0.70 min_n 2 k 1 obj 0.4850
+  ctx|hybz_s         thr 0.70 min_n 2 k 1 obj 0.4850
+  ctx|oracle         thr 0.00 min_n 2 k 1 obj 0.5063
+  ctx|rerank_raw     thr 0.70 min_n 2 k 1 obj 0.4850
+  ctx|rerank_s       thr 0.70 min_n 2 k 1 obj 0.4850
+  g1|bm25_raw        thr 0.00 min_n 2 k 5 obj 0.5526
+  g1|bm25_s          thr 0.10 min_n 3 k 1 obj 0.5539
+  g1|dense_raw       thr 0.30 min_n 3 k 3 obj 0.5453
+  g1|dense_s         thr 0.25 min_n 2 k 5 obj 0.5433
+  g1|hybrrf_raw      thr 0.20 min_n 2 k 1 obj 0.5489
+  g1|hybrrf_s        thr 0.25 min_n 3 k 1 obj 0.5514
+  g1|hybrsf_raw      thr 0.05 min_n 3 k 5 obj 0.5512
+  g1|hybrsf_s        thr 0.00 min_n 3 k 1 obj 0.5557
+  g1|hybz_raw        thr 0.15 min_n 3 k 1 obj 0.5520
+  g1|hybz_s          thr 0.05 min_n 3 k 1 obj 0.5534
+  g1|oracle          thr 0.00 min_n 2 k 1 obj 0.7085
+  g1|rerank_raw      thr 0.25 min_n 3 k 1 obj 0.5509
+  g1|rerank_s        thr 0.15 min_n 2 k 3 obj 0.5539
+  safe|bm25_raw      thr 0.10 min_n 3 k 3 obj 0.5332
+  safe|bm25_s        thr 0.15 min_n 2 k 3 obj 0.5313
+  safe|dense_raw     thr 0.00 min_n 3 k 3 obj 0.5261
+  safe|dense_s       thr 0.25 min_n 3 k 3 obj 0.5258
+  safe|hybrrf_raw    thr 0.10 min_n 3 k 1 obj 0.5279
+  safe|hybrrf_s      thr 0.10 min_n 2 k 3 obj 0.5294
+  safe|hybrsf_raw    thr 0.20 min_n 3 k 1 obj 0.5323
+  safe|hybrsf_s      thr 0.05 min_n 3 k 1 obj 0.5310
+  safe|hybz_raw      thr 0.10 min_n 3 k 3 obj 0.5310
+  safe|hybz_s        thr 0.30 min_n 3 k 3 obj 0.5328
+  safe|oracle        thr 0.00 min_n 2 k 1 obj 0.6759
+  safe|rerank_raw    thr 0.20 min_n 2 k 1 obj 0.5308
+  safe|rerank_s      thr 0.15 min_n 2 k 1 obj 0.5301
+
+=================== A_held_31_60 (30 seeds) ===================
+H2000 (mean expected success; vote% / precision of injected paragraph / anchor acc in brackets for safe arms)
+arm                         T12  T12-drift       Tctx        T48  T12-noctx  ctl-irrel ctl-oneoff        Tqa
+keyword                  0.5067     0.4959     0.4361     0.4914     0.5059     0.4259     0.5061     0.2016
+eps-greedy               0.5544     0.5425     0.4823     0.5498     0.5555     0.4800     0.5561     0.2143
+pooled-ts                0.5368     0.5263     0.4867     0.5290     0.5369     0.4783     0.5334     0.2119
+hebbian-robust           0.5745     0.5642     0.5089     0.5693     0.5734     0.4983     0.5777     0.2124
+warm(hebr)               0.5797     0.5660     0.4962     0.5707     0.5837     0.4856     0.5811     0.2119
+guarded                  0.5875     0.5726     0.4876     0.5808     0.5902     0.4812     0.5893     0.2126
+global-ts                0.5170     0.5192     0.6533     0.4800     0.5151     0.6494     0.5115     0.2820
+safe|dense_raw           0.5855     0.5708     0.5110     0.5755     0.5885     0.4994     0.5874     0.2127
+safe|dense_s             0.5871     0.5704     0.5107     0.5758     0.5875     0.4974     0.5859     0.2129
+safe|bm25_raw            0.5892     0.5767     0.5158     0.5756     0.5917     0.4998     0.5843     0.2124
+safe|bm25_s              0.5869     0.5766     0.5174     0.5794     0.5911     0.4988     0.5874     0.2126
+safe|hybz_raw            0.5910     0.5768     0.5196     0.5782     0.5909     0.5005     0.5879     0.2128
+safe|hybz_s              0.5881     0.5766     0.5115     0.5759     0.5858     0.4964     0.5886     0.2127
+safe|hybrrf_raw          0.5863     0.5755     0.5166     0.5770     0.5885     0.4985     0.5887     0.2130
+safe|hybrrf_s            0.5868     0.5739     0.5137     0.5767     0.5894     0.4939     0.5878     0.2128
+safe|hybrsf_raw          0.5889     0.5777     0.5148     0.5806     0.5912     0.4995     0.5862     0.2132
+safe|hybrsf_s            0.5881     0.5784     0.5169     0.5802     0.5901     0.4995     0.5884     0.2127
+safe|rerank_raw          0.5890     0.5763     0.5128     0.5789     0.5896     0.4991     0.5860     0.2133
+safe|rerank_s            0.5920     0.5760     0.5158     0.5829     0.5907     0.4972     0.5871     0.2123
+safe|oracle              0.8161     0.7797     0.5786     0.7350     0.7995     0.4989     0.8228     0.3274
+g1|dense_raw             0.5844     0.5725     0.5567     0.5753     0.5893     0.5554     0.5866     0.2342
+g1|dense_s               0.5871     0.5748     0.5581     0.5783     0.5898     0.5526     0.5864     0.2359
+g1|bm25_raw              0.5952     0.5839     0.5580     0.5809     0.5978     0.5482     0.5925     0.2353
+g1|bm25_s                0.6003     0.5890     0.5605     0.5883     0.6012     0.5526     0.5914     0.2359
+g1|hybz_raw              0.5968     0.5873     0.5609     0.5816     0.5964     0.5519     0.5897     0.2361
+g1|hybz_s                0.5996     0.5905     0.5630     0.5870     0.6022     0.5530     0.5936     0.2364
+g1|hybrrf_raw            0.5904     0.5787     0.5619     0.5795     0.5964     0.5527     0.5876     0.2359
+g1|hybrrf_s              0.5938     0.5807     0.5610     0.5822     0.5990     0.5526     0.5924     0.2345
+g1|hybrsf_raw            0.5921     0.5817     0.5605     0.5793     0.5992     0.5528     0.5906     0.2369
+g1|hybrsf_s              0.6021     0.5908     0.5606     0.5903     0.6036     0.5530     0.5915     0.2355
+g1|rerank_raw            0.5970     0.5856     0.5609     0.5820     0.5958     0.5465     0.5886     0.2364
+g1|rerank_s              0.6003     0.5868     0.5625     0.5839     0.5985     0.5507     0.5921     0.2351
+g1|oracle                0.8286     0.7964     0.6131     0.7603     0.8145     0.5501     0.8359     0.3662
+ctx|dense_raw            0.5871     0.5726     0.4889     0.5808     0.5901     0.4809     0.5893     0.2209
+ctx|dense_s              0.5875     0.5726     0.4882     0.5809     0.5900     0.4810     0.5892     0.2222
+ctx|bm25_raw             0.5872     0.5726     0.4889     0.5808     0.5901     0.4809     0.5893     0.2209
+ctx|bm25_s               0.5874     0.5726     0.4882     0.5809     0.5900     0.4810     0.5892     0.2222
+ctx|hybz_raw             0.5871     0.5726     0.4889     0.5808     0.5901     0.4809     0.5893     0.2209
+ctx|hybz_s               0.5875     0.5726     0.4882     0.5809     0.5900     0.4810     0.5892     0.2222
+ctx|hybrrf_raw           0.5871     0.5726     0.4889     0.5808     0.5901     0.4809     0.5893     0.2209
+ctx|hybrrf_s             0.5875     0.5726     0.4882     0.5809     0.5900     0.4810     0.5892     0.2222
+ctx|hybrsf_raw           0.5871     0.5726     0.4889     0.5808     0.5901     0.4809     0.5893     0.2209
+ctx|hybrsf_s             0.5875     0.5726     0.4882     0.5809     0.5900     0.4810     0.5892     0.2222
+ctx|rerank_raw           0.5871     0.5726     0.4889     0.5808     0.5901     0.4809     0.5893     0.2209
+ctx|rerank_s             0.5875     0.5726     0.4882     0.5809     0.5900     0.4810     0.5892     0.2222
+ctx|oracle               0.6376     0.6250     0.5779     0.6298     0.5902     0.4540     0.6375     0.8803
+--- vs the SAME front guarded(hebr) (no retrieval): H2000 diff [95% CI] (* Holm win / ! loss; in controls 'eq' = TOST +-.01 Holm-equivalent) ---
+arm                               T12        T12-drift             Tctx              T48        T12-noctx        ctl-irrel       ctl-oneoff              Tqa
+safe|dense_raw        -0.002         -0.002         +0.023*         -0.005         -0.002         +0.018*         -0.002 eq      +0.000       
+safe|dense_s          -0.000         -0.002         +0.023*         -0.005         -0.003         +0.016*         -0.003 eq      +0.000       
+safe|bm25_raw         +0.002         +0.004         +0.028*         -0.005         +0.002         +0.019*         -0.005         -0.000       
+safe|bm25_s           -0.001         +0.004         +0.030*         -0.001         +0.001         +0.018*         -0.002 eq      +0.000       
+safe|hybz_raw         +0.004         +0.004         +0.032*         -0.003         +0.001         +0.019*         -0.001 eq      +0.000       
+safe|hybz_s           +0.001         +0.004         +0.024*         -0.005         -0.004         +0.015*         -0.001 eq      +0.000       
+safe|hybrrf_raw       -0.001         +0.003         +0.029*         -0.004         -0.002         +0.017*         -0.001 eq      +0.000       
+safe|hybrrf_s         -0.001         +0.001         +0.026*         -0.004         -0.001         +0.013*         -0.002 eq      +0.000       
+safe|hybrsf_raw       +0.001         +0.005         +0.027*         -0.000         +0.001         +0.018*         -0.003 eq      +0.001       
+safe|hybrsf_s         +0.001         +0.006         +0.029*         -0.001         -0.000         +0.018*         -0.001 eq      +0.000       
+safe|rerank_raw       +0.002         +0.004         +0.025*         -0.002         -0.001         +0.018*         -0.003 eq      +0.001       
+safe|rerank_s         +0.005         +0.003         +0.028*         +0.002         +0.000         +0.016*         -0.002 eq      -0.000       
+safe|oracle           +0.229*         +0.207*         +0.091*         +0.154*         +0.209*         +0.018*         +0.233*         +0.115*       
+g1|dense_raw          -0.003         -0.000         +0.069*         -0.006         -0.001         +0.074*         -0.003         +0.022*       
+g1|dense_s            -0.000         +0.002         +0.070*         -0.003         -0.000         +0.071*         -0.003         +0.023*       
+g1|bm25_raw           +0.008         +0.011*         +0.070*         +0.000         +0.008         +0.067*         +0.003         +0.023*       
+g1|bm25_s             +0.013*         +0.016*         +0.073*         +0.008         +0.011*         +0.071*         +0.002         +0.023*       
+g1|hybz_raw           +0.009         +0.015*         +0.073*         +0.001         +0.006         +0.071*         +0.000 eq      +0.023*       
+g1|hybz_s             +0.012*         +0.018*         +0.075*         +0.006         +0.012*         +0.072*         +0.004         +0.024*       
+g1|hybrrf_raw         +0.003         +0.006         +0.074*         -0.001         +0.006         +0.072*         -0.002         +0.023*       
+g1|hybrrf_s           +0.006         +0.008         +0.073*         +0.001         +0.009         +0.071*         +0.003         +0.022*       
+g1|hybrsf_raw         +0.005         +0.009         +0.073*         -0.002         +0.009         +0.072*         +0.001         +0.024*       
+g1|hybrsf_s           +0.015*         +0.018*         +0.073*         +0.009         +0.013*         +0.072*         +0.002         +0.023*       
+g1|rerank_raw         +0.010         +0.013*         +0.073*         +0.001         +0.006         +0.065*         -0.001 eq      +0.024*       
+g1|rerank_s           +0.013*         +0.014*         +0.075*         +0.003         +0.008         +0.070*         +0.003         +0.023*       
+g1|oracle             +0.241*         +0.224*         +0.125*         +0.179*         +0.224*         +0.069*         +0.247*         +0.154*       
+ctx|dense_raw         -0.000         -0.000         +0.001         +0.000         -0.000         -0.000 eq      -0.000 eq      +0.008*       
+ctx|dense_s           -0.000         +0.000         +0.001         +0.000         -0.000         -0.000 eq      -0.000 eq      +0.010*       
+ctx|bm25_raw          -0.000         +0.000         +0.001         -0.000         -0.000         -0.000 eq      -0.000 eq      +0.008*       
+ctx|bm25_s            -0.000         +0.000         +0.001         +0.000         -0.000         -0.000 eq      -0.000 eq      +0.010*       
+ctx|hybz_raw          -0.000         -0.000         +0.001         +0.000         -0.000         -0.000 eq      -0.000 eq      +0.008*       
+ctx|hybz_s            -0.000         +0.000         +0.001         +0.000         -0.000         -0.000 eq      -0.000 eq      +0.010*       
+ctx|hybrrf_raw        -0.000         -0.000         +0.001         +0.000         -0.000         -0.000 eq      -0.000 eq      +0.008*       
+ctx|hybrrf_s          -0.000         +0.000         +0.001         +0.000         -0.000         -0.000 eq      -0.000 eq      +0.010*       
+ctx|hybrsf_raw        -0.000         -0.000         +0.001         +0.000         -0.000         -0.000 eq      -0.000 eq      +0.008*       
+ctx|hybrsf_s          -0.000         +0.000         +0.001         +0.000         -0.000         -0.000 eq      -0.000 eq      +0.010*       
+ctx|rerank_raw        -0.000         -0.000         +0.001         +0.000         -0.000         -0.000 eq      -0.000 eq      +0.008*       
+ctx|rerank_s          -0.000         +0.000         +0.001         +0.000         -0.000         -0.000 eq      -0.000 eq      +0.010*       
+ctx|oracle            +0.050*         +0.052*         +0.090*         +0.049*         +0.000         -0.027!         +0.048*         +0.668*       
+--- vs BEST FAIR baseline per world (7 baselines incl. post-hoc global-ts): H2000 diff [95% CI] (* Holm win / ! loss; in controls 'eq' = TOST +-.01 Holm-equivalent) ---
+arm                               T12        T12-drift             Tctx              T48        T12-noctx        ctl-irrel       ctl-oneoff              Tqa
+safe|dense_raw        -0.002         -0.002         -0.142!         -0.005         -0.002         -0.150!         -0.002 eq      -0.069!       
+safe|dense_s          -0.000         -0.002         -0.143!         -0.005         -0.003         -0.152!         -0.003 eq      -0.069!       
+safe|bm25_raw         +0.002         +0.004         -0.137!         -0.005         +0.002         -0.150!         -0.005         -0.070!       
+safe|bm25_s           -0.001         +0.004         -0.136!         -0.001         +0.001         -0.151!         -0.002 eq      -0.069!       
+safe|hybz_raw         +0.004         +0.004         -0.134!         -0.003         +0.001         -0.149!         -0.001 eq      -0.069!       
+safe|hybz_s           +0.001         +0.004         -0.142!         -0.005         -0.004         -0.153!         -0.001 eq      -0.069!       
+safe|hybrrf_raw       -0.001         +0.003         -0.137!         -0.004         -0.002         -0.151!         -0.001 eq      -0.069!       
+safe|hybrrf_s         -0.001         +0.001         -0.140!         -0.004         -0.001         -0.156!         -0.002 eq      -0.069!       
+safe|hybrsf_raw       +0.001         +0.005         -0.138!         -0.000         +0.001         -0.150!         -0.003 eq      -0.069!       
+safe|hybrsf_s         +0.001         +0.006         -0.136!         -0.001         -0.000         -0.150!         -0.001 eq      -0.069!       
+safe|rerank_raw       +0.002         +0.004         -0.141!         -0.002         -0.001         -0.150!         -0.003 eq      -0.069!       
+safe|rerank_s         +0.005         +0.003         -0.138!         +0.002         +0.000         -0.152!         -0.002 eq      -0.070!       
+safe|oracle           +0.229*         +0.207*         -0.075!         +0.154*         +0.209*         -0.151!         +0.233*         +0.045       
+g1|dense_raw          -0.003         -0.000         -0.097!         -0.006         -0.001         -0.094!         -0.003         -0.048!       
+g1|dense_s            -0.000         +0.002         -0.095!         -0.003         -0.000         -0.097!         -0.003         -0.046!       
+g1|bm25_raw           +0.008         +0.011*         -0.095!         +0.000         +0.008         -0.101!         +0.003         -0.047!       
+g1|bm25_s             +0.013*         +0.016*         -0.093!         +0.008         +0.011*         -0.097!         +0.002         -0.046!       
+g1|hybz_raw           +0.009*         +0.015*         -0.092!         +0.001         +0.006         -0.098!         +0.000 eq      -0.046!       
+g1|hybz_s             +0.012*         +0.018*         -0.090!         +0.006         +0.012*         -0.096!         +0.004         -0.046!       
+g1|hybrrf_raw         +0.003         +0.006         -0.091!         -0.001         +0.006         -0.097!         -0.002         -0.046!       
+g1|hybrrf_s           +0.006         +0.008         -0.092!         +0.001         +0.009         -0.097!         +0.003         -0.048!       
+g1|hybrsf_raw         +0.005         +0.009         -0.093!         -0.002         +0.009         -0.097!         +0.001         -0.045!       
+g1|hybrsf_s           +0.015*         +0.018*         -0.093!         +0.009         +0.013*         -0.096!         +0.002         -0.047!       
+g1|rerank_raw         +0.010         +0.013*         -0.092!         +0.001         +0.006         -0.103!         -0.001 eq      -0.046!       
+g1|rerank_s           +0.013*         +0.014*         -0.091!         +0.003         +0.008         -0.099!         +0.003         -0.047!       
+g1|oracle             +0.241*         +0.224*         -0.040!         +0.179*         +0.224*         -0.099!         +0.247*         +0.084*       
+ctx|dense_raw         -0.000         -0.000         -0.164!         +0.000         -0.000         -0.169!         -0.000 eq      -0.061!       
+ctx|dense_s           -0.000         +0.000         -0.165!         +0.000         -0.000         -0.168!         -0.000 eq      -0.060!       
+ctx|bm25_raw          -0.000         +0.000         -0.164!         -0.000         -0.000         -0.168!         -0.000 eq      -0.061!       
+ctx|bm25_s            -0.000         +0.000         -0.165!         +0.000         -0.000         -0.168!         -0.000 eq      -0.060!       
+ctx|hybz_raw          -0.000         -0.000         -0.164!         +0.000         -0.000         -0.169!         -0.000 eq      -0.061!       
+ctx|hybz_s            -0.000         +0.000         -0.165!         +0.000         -0.000         -0.168!         -0.000 eq      -0.060!       
+ctx|hybrrf_raw        -0.000         -0.000         -0.164!         +0.000         -0.000         -0.169!         -0.000 eq      -0.061!       
+ctx|hybrrf_s          -0.000         +0.000         -0.165!         +0.000         -0.000         -0.168!         -0.000 eq      -0.060!       
+ctx|hybrsf_raw        -0.000         -0.000         -0.164!         +0.000         -0.000         -0.169!         -0.000 eq      -0.061!       
+ctx|hybrsf_s          -0.000         +0.000         -0.165!         +0.000         -0.000         -0.168!         -0.000 eq      -0.060!       
+ctx|rerank_raw        -0.000         -0.000         -0.164!         +0.000         -0.000         -0.169!         -0.000 eq      -0.061!       
+ctx|rerank_s          -0.000         +0.000         -0.165!         +0.000         -0.000         -0.168!         -0.000 eq      -0.060!       
+ctx|oracle            +0.050*         +0.052*         -0.075!         +0.049*         +0.000         -0.195!         +0.048*         +0.598*       
+--- vs BEST FAIR of the 6 pre-declared baselines: H2000 diff [95% CI] (* Holm win / ! loss; in controls 'eq' = TOST +-.01 Holm-equivalent) ---
+arm                               T12        T12-drift             Tctx              T48        T12-noctx        ctl-irrel       ctl-oneoff              Tqa
+safe|dense_raw        -0.002         -0.002         +0.002         -0.005         -0.002         +0.001         -0.002 eq      -0.002       
+safe|dense_s          -0.000         -0.002         +0.002         -0.005         -0.003         -0.001         -0.003 eq      -0.001       
+safe|bm25_raw         +0.002         +0.004         +0.007         -0.005         +0.002         +0.002         -0.005         -0.002       
+safe|bm25_s           -0.001         +0.004         +0.009         -0.001         +0.001         +0.001         -0.002 eq      -0.002       
+safe|hybz_raw         +0.004         +0.004         +0.011         -0.003         +0.001         +0.002         -0.001 eq      -0.001       
+safe|hybz_s           +0.001         +0.004         +0.003         -0.005         -0.004         -0.002         -0.001 eq      -0.002       
+safe|hybrrf_raw       -0.001         +0.003         +0.008         -0.004         -0.002         +0.000         -0.001 eq      -0.001       
+safe|hybrrf_s         -0.001         +0.001         +0.005         -0.004         -0.001         -0.004         -0.002 eq      -0.001       
+safe|hybrsf_raw       +0.001         +0.005         +0.006         -0.000         +0.001         +0.001         -0.003 eq      -0.001       
+safe|hybrsf_s         +0.001         +0.006         +0.008         -0.001         -0.000         +0.001         -0.001 eq      -0.002       
+safe|rerank_raw       +0.002         +0.004         +0.004         -0.002         -0.001         +0.001         -0.003 eq      -0.001       
+safe|rerank_s         +0.005         +0.003         +0.007         +0.002         +0.000         -0.001         -0.002 eq      -0.002       
+safe|oracle           +0.229*         +0.207*         +0.070*         +0.154*         +0.209*         +0.001         +0.233*         +0.113*       
+g1|dense_raw          -0.003         -0.000         +0.048*         -0.006         -0.001         +0.057*         -0.003         +0.020*       
+g1|dense_s            -0.000         +0.002         +0.049*         -0.003         -0.000         +0.054*         -0.003         +0.022*       
+g1|bm25_raw           +0.008         +0.011*         +0.049*         +0.000         +0.008         +0.050*         +0.003         +0.021*       
+g1|bm25_s             +0.013*         +0.016*         +0.052*         +0.008         +0.011*         +0.054*         +0.002         +0.022*       
+g1|hybz_raw           +0.009         +0.015*         +0.052*         +0.001         +0.006         +0.054*         +0.000 eq      +0.022*       
+g1|hybz_s             +0.012*         +0.018*         +0.054*         +0.006         +0.012*         +0.055*         +0.004         +0.022*       
+g1|hybrrf_raw         +0.003         +0.006         +0.053*         -0.001         +0.006         +0.054*         -0.002         +0.022*       
+g1|hybrrf_s           +0.006         +0.008         +0.052*         +0.001         +0.009         +0.054*         +0.003         +0.020*       
+g1|hybrsf_raw         +0.005         +0.009         +0.052*         -0.002         +0.009         +0.055*         +0.001         +0.023*       
+g1|hybrsf_s           +0.015*         +0.018*         +0.052*         +0.009         +0.013*         +0.055*         +0.002         +0.021*       
+g1|rerank_raw         +0.010         +0.013*         +0.052*         +0.001         +0.006         +0.048*         -0.001 eq      +0.022*       
+g1|rerank_s           +0.013*         +0.014*         +0.054*         +0.003         +0.008         +0.052*         +0.003         +0.021*       
+g1|oracle             +0.241*         +0.224*         +0.104*         +0.179*         +0.224*         +0.052*         +0.247*         +0.152*       
+ctx|dense_raw         -0.000         -0.000         -0.020!         +0.000         -0.000         -0.017!         -0.000 eq      +0.007*       
+ctx|dense_s           -0.000         +0.000         -0.021!         +0.000         -0.000         -0.017!         -0.000 eq      +0.008*       
+ctx|bm25_raw          -0.000         +0.000         -0.020!         -0.000         -0.000         -0.017!         -0.000 eq      +0.007*       
+ctx|bm25_s            -0.000         +0.000         -0.021!         +0.000         -0.000         -0.017!         -0.000 eq      +0.008*       
+ctx|hybz_raw          -0.000         -0.000         -0.020!         +0.000         -0.000         -0.017!         -0.000 eq      +0.007*       
+ctx|hybz_s            -0.000         +0.000         -0.021!         +0.000         -0.000         -0.017!         -0.000 eq      +0.008*       
+ctx|hybrrf_raw        -0.000         -0.000         -0.020!         +0.000         -0.000         -0.017!         -0.000 eq      +0.007*       
+ctx|hybrrf_s          -0.000         +0.000         -0.021!         +0.000         -0.000         -0.017!         -0.000 eq      +0.008*       
+ctx|hybrsf_raw        -0.000         -0.000         -0.020!         +0.000         -0.000         -0.017!         -0.000 eq      +0.007*       
+ctx|hybrsf_s          -0.000         +0.000         -0.021!         +0.000         -0.000         -0.017!         -0.000 eq      +0.008*       
+ctx|rerank_raw        -0.000         -0.000         -0.020!         +0.000         -0.000         -0.017!         -0.000 eq      +0.007*       
+ctx|rerank_s          -0.000         +0.000         -0.021!         +0.000         -0.000         -0.017!         -0.000 eq      +0.008*       
+ctx|oracle            +0.050*         +0.052*         +0.069*         +0.049*         +0.000         -0.044!         +0.048*         +0.666*       
+--- vs same-gate dense_s (same gate, spell-corrected dense), H2000 diff (* Holm win / ! loss) ---
+arm                         T12  T12-drift       Tctx        T48  T12-noctx  ctl-irrel ctl-oneoff        Tqa
+safe|dense_raw         -0.002     +0.000     +0.000     -0.000     +0.001     +0.002     +0.002     -0.000  
+safe|bm25_raw          +0.002     +0.006     +0.005     -0.000     +0.004     +0.002     -0.002     -0.000  
+safe|bm25_s            -0.000     +0.006     +0.007     +0.004     +0.004     +0.001     +0.002     -0.000  
+safe|hybz_raw          +0.004     +0.006     +0.009     +0.002     +0.003     +0.003     +0.002     -0.000  
+safe|hybz_s            +0.001     +0.006     +0.001     +0.000     -0.002     -0.001     +0.003     -0.000  
+safe|hybrrf_raw        -0.001     +0.005     +0.006     +0.001     +0.001     +0.001     +0.003     +0.000  
+safe|hybrrf_s          -0.000     +0.004     +0.003     +0.001     +0.002     -0.004     +0.002     -0.000  
+safe|hybrsf_raw        +0.002     +0.007     +0.004     +0.005     +0.004     +0.002     +0.000     +0.000  
+safe|hybrsf_s          +0.001     +0.008     +0.006     +0.004     +0.003     +0.002     +0.003     -0.000  
+safe|rerank_raw        +0.002     +0.006     +0.002     +0.003     +0.002     +0.002     +0.000     +0.000  
+safe|rerank_s          +0.005     +0.006     +0.005     +0.007     +0.003     -0.000     +0.001     -0.001  
+safe|oracle            +0.229*    +0.209*    +0.068*    +0.159*    +0.212*    +0.001     +0.237*    +0.115* 
+g1|dense_raw           -0.003     -0.002     -0.001     -0.003     -0.001     +0.003     +0.000     -0.002  
+g1|bm25_raw            +0.008*    +0.009     -0.000     +0.003     +0.008     -0.004     +0.006     -0.001  
+g1|bm25_s              +0.013*    +0.014*    +0.002     +0.010*    +0.011*    +0.000     +0.005     +0.000  
+g1|hybz_raw            +0.010*    +0.012*    +0.003     +0.003     +0.007     -0.001     +0.003     +0.000  
+g1|hybz_s              +0.013*    +0.016*    +0.005     +0.009     +0.012*    +0.000     +0.007     +0.000  
+g1|hybrrf_raw          +0.003     +0.004     +0.004     +0.001     +0.007     +0.000     +0.001     +0.000  
+g1|hybrrf_s            +0.007     +0.006     +0.003     +0.004     +0.009     +0.000     +0.006     -0.001  
+g1|hybrsf_raw          +0.005     +0.007     +0.002     +0.001     +0.009     +0.000     +0.004     +0.001  
+g1|hybrsf_s            +0.015*    +0.016*    +0.003     +0.012*    +0.014*    +0.000     +0.005     -0.000  
+g1|rerank_raw          +0.010*    +0.011*    +0.003     +0.004     +0.006     -0.006     +0.002     +0.000  
+g1|rerank_s            +0.013*    +0.012*    +0.004     +0.006     +0.009*    -0.002     +0.006     -0.001  
+g1|oracle              +0.242*    +0.222*    +0.055*    +0.182*    +0.225*    -0.002     +0.250*    +0.130* 
+ctx|dense_raw          -0.000     -0.000     +0.001     -0.000     +0.000     -0.000     +0.000     -0.001  
+ctx|bm25_raw           -0.000     -0.000     +0.001     -0.000     +0.000     -0.000     +0.000     -0.001  
+ctx|bm25_s             -0.000     +0.000     +0.000     -0.000     +0.000     -0.000     -0.000     +0.000  
+ctx|hybz_raw           -0.000     -0.000     +0.001     -0.000     +0.000     -0.000     +0.000     -0.001  
+ctx|hybz_s             -0.000     +0.000     +0.000     +0.000     -0.000     +0.000     +0.000     +0.000  
+ctx|hybrrf_raw         -0.000     -0.000     +0.001     -0.000     +0.000     -0.000     +0.000     -0.001  
+ctx|hybrrf_s           -0.000     +0.000     +0.000     +0.000     -0.000     +0.000     +0.000     +0.000  
+ctx|hybrsf_raw         -0.000     -0.000     +0.001     -0.000     +0.000     -0.000     +0.000     -0.001  
+ctx|hybrsf_s           -0.000     +0.000     +0.000     +0.000     -0.000     +0.000     +0.000     +0.000  
+ctx|rerank_raw         -0.000     -0.000     +0.001     -0.000     +0.000     -0.000     +0.000     -0.001  
+ctx|rerank_s           -0.000     +0.000     -0.000     +0.000     -0.000     +0.000     -0.000     +0.000  
+ctx|oracle             +0.050*    +0.052*    +0.090*    +0.049*    +0.000     -0.027!    +0.048*    +0.658* 
+--- verdicts (treat worlds = T12,T12-drift,Tctx,T48,T12-noctx,Tqa; controls = ctl-irrel, ctl-oneoff) ---
+  safe|dense_raw     vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|dense_s       vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|bm25_raw      vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|bm25_s        vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|hybz_raw      vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|hybz_s        vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|hybrrf_raw    vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|hybrrf_s      vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|hybrsf_raw    vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|hybrsf_s      vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|rerank_raw    vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|rerank_s      vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|oracle        vs front: wins 6/6 ctl-losses 0 keep=true | vs best fair: wins 4/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 6/6 losses 0 beats=true
+  g1|dense_raw       vs front: wins 2/6 ctl-losses 0 keep=true | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  g1|dense_s         vs front: wins 2/6 ctl-losses 0 keep=true | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  g1|bm25_raw        vs front: wins 3/6 ctl-losses 0 keep=true | vs best fair: wins 1/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 1/6 losses 0 beats=false
+  g1|bm25_s          vs front: wins 5/6 ctl-losses 0 keep=true | vs best fair: wins 3/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 4/6 losses 0 beats=true
+  g1|hybz_raw        vs front: wins 3/6 ctl-losses 0 keep=true | vs best fair: wins 2/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 2/6 losses 0 beats=true
+  g1|hybz_s          vs front: wins 5/6 ctl-losses 0 keep=true | vs best fair: wins 3/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 3/6 losses 0 beats=true
+  g1|hybrrf_raw      vs front: wins 2/6 ctl-losses 0 keep=true | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  g1|hybrrf_s        vs front: wins 2/6 ctl-losses 0 keep=true | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  g1|hybrsf_raw      vs front: wins 2/6 ctl-losses 0 keep=true | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  g1|hybrsf_s        vs front: wins 5/6 ctl-losses 0 keep=true | vs best fair: wins 3/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 4/6 losses 0 beats=true
+  g1|rerank_raw      vs front: wins 3/6 ctl-losses 0 keep=true | vs best fair: wins 1/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 2/6 losses 0 beats=true
+  g1|rerank_s        vs front: wins 4/6 ctl-losses 0 keep=true | vs best fair: wins 2/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 3/6 losses 0 beats=true
+  g1|oracle          vs front: wins 6/6 ctl-losses 0 keep=true | vs best fair: wins 5/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 6/6 losses 0 beats=true
+  ctx|dense_raw      vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|dense_s        vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|bm25_raw       vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|bm25_s         vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|hybz_raw       vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|hybz_s         vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|hybrrf_raw     vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|hybrrf_s       vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|hybrsf_raw     vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|hybrsf_s       vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|rerank_raw     vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|rerank_s       vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|oracle         vs front: wins 5/6 ctl-losses 1 keep=false | vs best fair: wins 4/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 5/6 losses 1 beats=false
+
+=================== A_confirm_61_90 (30 seeds) ===================
+H2000 (mean expected success; vote% / precision of injected paragraph / anchor acc in brackets for safe arms)
+arm                         T12  T12-drift       Tctx        T48  T12-noctx  ctl-irrel ctl-oneoff        Tqa
+keyword                  0.5089     0.5037     0.4319     0.4975     0.5064     0.4238     0.5049     0.1974
+eps-greedy               0.5547     0.5470     0.4825     0.5556     0.5568     0.4805     0.5560     0.2078
+pooled-ts                0.5360     0.5263     0.4861     0.5322     0.5334     0.4779     0.5383     0.2054
+hebbian-robust           0.5786     0.5655     0.5067     0.5687     0.5766     0.5019     0.5754     0.2073
+warm(hebr)               0.5842     0.5719     0.4946     0.5717     0.5814     0.4880     0.5812     0.2055
+guarded                  0.5951     0.5769     0.4840     0.5860     0.5896     0.4822     0.5907     0.2068
+global-ts                0.5244     0.5136     0.6535     0.4783     0.5197     0.6460     0.5256     0.2704
+safe|dense_raw           0.5948     0.5753     0.5040     0.5770     0.5894     0.5004     0.5859     0.2072
+safe|dense_s             0.5923     0.5758     0.5090     0.5770     0.5889     0.5007     0.5883     0.2070
+safe|bm25_raw            0.5968     0.5784     0.5095     0.5794     0.5918     0.4987     0.5903     0.2076
+safe|bm25_s              0.5953     0.5791     0.5074     0.5799     0.5925     0.4986     0.5895     0.2081
+safe|hybz_raw            0.5975     0.5756     0.5065     0.5778     0.5909     0.4979     0.5900     0.2072
+safe|hybz_s              0.5933     0.5770     0.5077     0.5789     0.5910     0.4936     0.5904     0.2071
+safe|hybrrf_raw          0.5938     0.5780     0.5099     0.5794     0.5905     0.5009     0.5896     0.2075
+safe|hybrrf_s            0.5959     0.5752     0.5086     0.5783     0.5897     0.4970     0.5872     0.2066
+safe|hybrsf_raw          0.5970     0.5786     0.5115     0.5794     0.5922     0.4979     0.5904     0.2074
+safe|hybrsf_s            0.5983     0.5810     0.5129     0.5809     0.5931     0.4968     0.5917     0.2076
+safe|rerank_raw          0.5978     0.5786     0.5109     0.5788     0.5925     0.4995     0.5877     0.2069
+safe|rerank_s            0.5986     0.5798     0.5103     0.5805     0.5943     0.4977     0.5890     0.2073
+safe|oracle              0.8210     0.7853     0.5746     0.7383     0.7974     0.4993     0.8277     0.3341
+g1|dense_raw             0.5948     0.5745     0.5532     0.5769     0.5885     0.5478     0.5898     0.2246
+g1|dense_s               0.5976     0.5794     0.5563     0.5793     0.5957     0.5491     0.5937     0.2238
+g1|bm25_raw              0.6065     0.5868     0.5586     0.5845     0.6009     0.5511     0.5948     0.2262
+g1|bm25_s                0.6115     0.5911     0.5561     0.5900     0.6079     0.5490     0.5934     0.2259
+g1|hybz_raw              0.6053     0.5885     0.5533     0.5850     0.6025     0.5493     0.5919     0.2269
+g1|hybz_s                0.6104     0.5905     0.5581     0.5912     0.6041     0.5505     0.5947     0.2259
+g1|hybrrf_raw            0.6033     0.5825     0.5561     0.5769     0.5961     0.5514     0.5904     0.2254
+g1|hybrrf_s              0.6056     0.5858     0.5577     0.5857     0.5994     0.5459     0.5912     0.2244
+g1|hybrsf_raw            0.6055     0.5867     0.5586     0.5829     0.6001     0.5463     0.5924     0.2265
+g1|hybrsf_s              0.6109     0.5924     0.5565     0.5911     0.6064     0.5505     0.5941     0.2251
+g1|rerank_raw            0.6060     0.5860     0.5527     0.5870     0.6023     0.5447     0.5920     0.2254
+g1|rerank_s              0.6130     0.5895     0.5581     0.5870     0.6020     0.5485     0.5928     0.2266
+g1|oracle                0.8350     0.8021     0.6116     0.7635     0.8144     0.5494     0.8380     0.3498
+ctx|dense_raw            0.5951     0.5769     0.4852     0.5859     0.5891     0.4819     0.5903     0.2151
+ctx|dense_s              0.5950     0.5770     0.4853     0.5857     0.5891     0.4815     0.5902     0.2161
+ctx|bm25_raw             0.5951     0.5769     0.4853     0.5860     0.5891     0.4820     0.5903     0.2151
+ctx|bm25_s               0.5948     0.5770     0.4853     0.5857     0.5891     0.4815     0.5902     0.2162
+ctx|hybz_raw             0.5951     0.5769     0.4853     0.5859     0.5891     0.4819     0.5903     0.2152
+ctx|hybz_s               0.5948     0.5770     0.4853     0.5857     0.5891     0.4815     0.5902     0.2161
+ctx|hybrrf_raw           0.5951     0.5769     0.4853     0.5859     0.5891     0.4819     0.5903     0.2152
+ctx|hybrrf_s             0.5948     0.5770     0.4853     0.5857     0.5891     0.4815     0.5902     0.2161
+ctx|hybrsf_raw           0.5951     0.5769     0.4853     0.5859     0.5891     0.4819     0.5903     0.2152
+ctx|hybrsf_s             0.5949     0.5770     0.4853     0.5857     0.5891     0.4815     0.5902     0.2161
+ctx|rerank_raw           0.5951     0.5769     0.4853     0.5859     0.5891     0.4819     0.5903     0.2152
+ctx|rerank_s             0.5948     0.5770     0.4853     0.5857     0.5891     0.4815     0.5903     0.2161
+ctx|oracle               0.6430     0.6302     0.5751     0.6335     0.5896     0.4543     0.6404     0.8798
+--- vs the SAME front guarded(hebr) (no retrieval): H2000 diff [95% CI] (* Holm win / ! loss; in controls 'eq' = TOST +-.01 Holm-equivalent) ---
+arm                               T12        T12-drift             Tctx              T48        T12-noctx        ctl-irrel       ctl-oneoff              Tqa
+safe|dense_raw        -0.000         -0.002         +0.020*         -0.009!         -0.000         +0.018*         -0.005         +0.000       
+safe|dense_s          -0.003         -0.001         +0.025*         -0.009         -0.001         +0.018*         -0.002 eq      +0.000       
+safe|bm25_raw         +0.002         +0.001         +0.025*         -0.007         +0.002         +0.016         -0.000 eq      +0.001       
+safe|bm25_s           +0.000         +0.002         +0.023*         -0.006         +0.003         +0.016*         -0.001 eq      +0.001       
+safe|hybz_raw         +0.002         -0.001         +0.023*         -0.008!         +0.001         +0.016         -0.001 eq      +0.000       
+safe|hybz_s           -0.002         +0.000         +0.024*         -0.007         +0.001         +0.011         -0.000 eq      +0.000       
+safe|hybrrf_raw       -0.001         +0.001         +0.026*         -0.007         +0.001         +0.019*         -0.001 eq      +0.001       
+safe|hybrrf_s         +0.001         -0.002         +0.025*         -0.008         +0.000         +0.015*         -0.003 eq      -0.000       
+safe|hybrsf_raw       +0.002         +0.002         +0.028*         -0.007!         +0.003         +0.016*         -0.000 eq      +0.001       
+safe|hybrsf_s         +0.003         +0.004         +0.029*         -0.005         +0.004         +0.015         +0.001 eq      +0.001       
+safe|rerank_raw       +0.003         +0.002         +0.027*         -0.007         +0.003         +0.017*         -0.003 eq      +0.000       
+safe|rerank_s         +0.003         +0.003         +0.026*         -0.006         +0.005         +0.016*         -0.002 eq      +0.000       
+safe|oracle           +0.226*         +0.208*         +0.091*         +0.152*         +0.208*         +0.017*         +0.237*         +0.127*       
+g1|dense_raw          -0.000         -0.002         +0.069*         -0.009         -0.001         +0.066*         -0.001         +0.018*       
+g1|dense_s            +0.002         +0.002         +0.072*         -0.007         +0.006         +0.067*         +0.003         +0.017*       
+g1|bm25_raw           +0.011         +0.010         +0.075*         -0.002         +0.011*         +0.069*         +0.004         +0.019*       
+g1|bm25_s             +0.016*         +0.014*         +0.072*         +0.004         +0.018*         +0.067*         +0.003         +0.019*       
+g1|hybz_raw           +0.010         +0.012         +0.069*         -0.001         +0.013*         +0.067*         +0.001 eq      +0.020*       
+g1|hybz_s             +0.015*         +0.014*         +0.074*         +0.005         +0.015*         +0.068*         +0.004         +0.019*       
+g1|hybrrf_raw         +0.008         +0.006         +0.072*         -0.009         +0.006         +0.069*         -0.000 eq      +0.019*       
+g1|hybrrf_s           +0.010         +0.009         +0.074*         -0.000         +0.010         +0.064*         +0.001 eq      +0.018*       
+g1|hybrsf_raw         +0.010         +0.010         +0.075*         -0.003         +0.011         +0.064*         +0.002         +0.020*       
+g1|hybrsf_s           +0.016*         +0.015*         +0.072*         +0.005         +0.017*         +0.068*         +0.003         +0.018*       
+g1|rerank_raw         +0.011         +0.009         +0.069*         +0.001         +0.013*         +0.063*         +0.001         +0.019*       
+g1|rerank_s           +0.018*         +0.013*         +0.074*         +0.001         +0.012*         +0.066*         +0.002         +0.020*       
+g1|oracle             +0.240*         +0.225*         +0.128*         +0.177*         +0.225*         +0.067*         +0.247*         +0.143*       
+ctx|dense_raw         -0.000         -0.000         +0.001         -0.000         -0.001         -0.000 eq      -0.000 eq      +0.008*       
+ctx|dense_s           -0.000         +0.000         +0.001         -0.000         -0.001         -0.001 eq      -0.000 eq      +0.009*       
+ctx|bm25_raw          -0.000         -0.000         +0.001         +0.000         -0.001         -0.000 eq      -0.000 eq      +0.008*       
+ctx|bm25_s            -0.000         +0.000         +0.001         -0.000         -0.001         -0.001 eq      -0.000 eq      +0.009*       
+ctx|hybz_raw          -0.000         -0.000         +0.001         -0.000         -0.001         -0.000 eq      -0.000 eq      +0.008*       
+ctx|hybz_s            -0.000         +0.000         +0.001         -0.000         -0.001         -0.001 eq      -0.000 eq      +0.009*       
+ctx|hybrrf_raw        -0.000         -0.000         +0.001         -0.000         -0.001         -0.000 eq      -0.000 eq      +0.008*       
+ctx|hybrrf_s          -0.000         +0.000         +0.001         -0.000         -0.001         -0.001 eq      -0.000 eq      +0.009*       
+ctx|hybrsf_raw        -0.000         -0.000         +0.001         -0.000         -0.001         -0.000 eq      -0.000 eq      +0.008*       
+ctx|hybrsf_s          -0.000         +0.000         +0.001         -0.000         -0.001         -0.001 eq      -0.000 eq      +0.009*       
+ctx|rerank_raw        -0.000         -0.000         +0.001         -0.000         -0.001         -0.000 eq      -0.000 eq      +0.008*       
+ctx|rerank_s          -0.000         +0.000         +0.001         -0.000         -0.001         -0.001 eq      -0.000 eq      +0.009*       
+ctx|oracle            +0.048*         +0.053*         +0.091*         +0.048*         +0.000         -0.028!         +0.050*         +0.673*       
+--- vs BEST FAIR baseline per world (7 baselines incl. post-hoc global-ts): H2000 diff [95% CI] (* Holm win / ! loss; in controls 'eq' = TOST +-.01 Holm-equivalent) ---
+arm                               T12        T12-drift             Tctx              T48        T12-noctx        ctl-irrel       ctl-oneoff              Tqa
+safe|dense_raw        -0.000         -0.002         -0.149!         -0.009!         -0.000         -0.146!         -0.005         -0.063!       
+safe|dense_s          -0.003         -0.001         -0.145!         -0.009         -0.001         -0.145!         -0.002 eq      -0.063!       
+safe|bm25_raw         +0.002         +0.001         -0.144!         -0.007         +0.002         -0.147!         -0.000 eq      -0.063!       
+safe|bm25_s           +0.000         +0.002         -0.146!         -0.006         +0.003         -0.147!         -0.001 eq      -0.062!       
+safe|hybz_raw         +0.002         -0.001         -0.147!         -0.008!         +0.001         -0.148!         -0.001 eq      -0.063!       
+safe|hybz_s           -0.002         +0.000         -0.146!         -0.007         +0.001         -0.152!         -0.000 eq      -0.063!       
+safe|hybrrf_raw       -0.001         +0.001         -0.144!         -0.007         +0.001         -0.145!         -0.001 eq      -0.063!       
+safe|hybrrf_s         +0.001         -0.002         -0.145!         -0.008         +0.000         -0.149!         -0.003 eq      -0.064!       
+safe|hybrsf_raw       +0.002         +0.002         -0.142!         -0.007!         +0.003         -0.148!         -0.000 eq      -0.063!       
+safe|hybrsf_s         +0.003         +0.004         -0.141!         -0.005         +0.004         -0.149!         +0.001 eq      -0.063!       
+safe|rerank_raw       +0.003         +0.002         -0.143!         -0.007         +0.003         -0.147!         -0.003 eq      -0.064!       
+safe|rerank_s         +0.003         +0.003         -0.143!         -0.006         +0.005         -0.148!         -0.002 eq      -0.063!       
+safe|oracle           +0.226*         +0.208*         -0.079!         +0.152*         +0.208*         -0.147!         +0.237*         +0.064       
+g1|dense_raw          -0.000         -0.002         -0.100!         -0.009         -0.001         -0.098!         -0.001         -0.046!       
+g1|dense_s            +0.002         +0.002         -0.097!         -0.007         +0.006         -0.097!         +0.003         -0.047!       
+g1|bm25_raw           +0.011         +0.010         -0.095!         -0.002         +0.011*         -0.095!         +0.004         -0.044!       
+g1|bm25_s             +0.016*         +0.014*         -0.097!         +0.004         +0.018*         -0.097!         +0.003         -0.045!       
+g1|hybz_raw           +0.010         +0.012         -0.100!         -0.001         +0.013*         -0.097!         +0.001 eq      -0.043!       
+g1|hybz_s             +0.015*         +0.014*         -0.095!         +0.005         +0.015*         -0.096!         +0.004         -0.045!       
+g1|hybrrf_raw         +0.008         +0.006         -0.097!         -0.009         +0.006         -0.095!         -0.000 eq      -0.045!       
+g1|hybrrf_s           +0.010         +0.009         -0.096!         -0.000         +0.010         -0.100!         +0.001 eq      -0.046!       
+g1|hybrsf_raw         +0.010         +0.010*         -0.095!         -0.003         +0.011         -0.100!         +0.002         -0.044!       
+g1|hybrsf_s           +0.016*         +0.015*         -0.097!         +0.005         +0.017*         -0.096!         +0.003         -0.045!       
+g1|rerank_raw         +0.011         +0.009         -0.101!         +0.001         +0.013*         -0.101!         +0.001         -0.045!       
+g1|rerank_s           +0.018*         +0.013*         -0.095!         +0.001         +0.012*         -0.098!         +0.002         -0.044!       
+g1|oracle             +0.240*         +0.225*         -0.042!         +0.177*         +0.225*         -0.097!         +0.247*         +0.079*       
+ctx|dense_raw         -0.000         -0.000         -0.168!         -0.000         -0.001         -0.164!         -0.000 eq      -0.055!       
+ctx|dense_s           -0.000         +0.000         -0.168!         -0.000         -0.001         -0.165!         -0.000 eq      -0.054!       
+ctx|bm25_raw          -0.000         -0.000         -0.168!         +0.000         -0.001         -0.164!         -0.000 eq      -0.055!       
+ctx|bm25_s            -0.000         +0.000         -0.168!         -0.000         -0.001         -0.165!         -0.000 eq      -0.054!       
+ctx|hybz_raw          -0.000         -0.000         -0.168!         -0.000         -0.001         -0.164!         -0.000 eq      -0.055!       
+ctx|hybz_s            -0.000         +0.000         -0.168!         -0.000         -0.001         -0.165!         -0.000 eq      -0.054!       
+ctx|hybrrf_raw        -0.000         -0.000         -0.168!         -0.000         -0.001         -0.164!         -0.000 eq      -0.055!       
+ctx|hybrrf_s          -0.000         +0.000         -0.168!         -0.000         -0.001         -0.165!         -0.000 eq      -0.054!       
+ctx|hybrsf_raw        -0.000         -0.000         -0.168!         -0.000         -0.001         -0.164!         -0.000 eq      -0.055!       
+ctx|hybrsf_s          -0.000         +0.000         -0.168!         -0.000         -0.001         -0.165!         -0.000 eq      -0.054!       
+ctx|rerank_raw        -0.000         -0.000         -0.168!         -0.000         -0.001         -0.164!         -0.000 eq      -0.055!       
+ctx|rerank_s          -0.000         +0.000         -0.168!         -0.000         -0.001         -0.165!         -0.000 eq      -0.054!       
+ctx|oracle            +0.048*         +0.053*         -0.078!         +0.048*         +0.000         -0.192!         +0.050*         +0.609*       
+--- vs BEST FAIR of the 6 pre-declared baselines: H2000 diff [95% CI] (* Holm win / ! loss; in controls 'eq' = TOST +-.01 Holm-equivalent) ---
+arm                               T12        T12-drift             Tctx              T48        T12-noctx        ctl-irrel       ctl-oneoff              Tqa
+safe|dense_raw        -0.000         -0.002         -0.003         -0.009!         -0.000         -0.001         -0.005         -0.001       
+safe|dense_s          -0.003         -0.001         +0.002         -0.009         -0.001         -0.001         -0.002 eq      -0.001       
+safe|bm25_raw         +0.002         +0.001         +0.003         -0.007         +0.002         -0.003         -0.000 eq      -0.000       
+safe|bm25_s           +0.000         +0.002         +0.001         -0.006         +0.003         -0.003         -0.001 eq      +0.000       
+safe|hybz_raw         +0.002         -0.001         -0.000         -0.008!         +0.001         -0.004         -0.001 eq      -0.001       
+safe|hybz_s           -0.002         +0.000         +0.001         -0.007         +0.001         -0.008         -0.000 eq      -0.001       
+safe|hybrrf_raw       -0.001         +0.001         +0.003         -0.007         +0.001         -0.001         -0.001 eq      -0.000       
+safe|hybrrf_s         +0.001         -0.002         +0.002         -0.008         +0.000         -0.005         -0.003 eq      -0.001       
+safe|hybrsf_raw       +0.002         +0.002         +0.005         -0.007!         +0.003         -0.004         -0.000 eq      -0.000       
+safe|hybrsf_s         +0.003         +0.004         +0.006         -0.005         +0.004         -0.005         +0.001 eq      -0.000       
+safe|rerank_raw       +0.003         +0.002         +0.004         -0.007         +0.003         -0.002         -0.003 eq      -0.001       
+safe|rerank_s         +0.003         +0.003         +0.004         -0.006         +0.005         -0.004         -0.002 eq      -0.001       
+safe|oracle           +0.226*         +0.208*         +0.068*         +0.152*         +0.208*         -0.003         +0.237*         +0.126*       
+g1|dense_raw          -0.000         -0.002         +0.047*         -0.009         -0.001         +0.046*         -0.001         +0.017*       
+g1|dense_s            +0.002         +0.002         +0.050*         -0.007         +0.006         +0.047*         +0.003         +0.016*       
+g1|bm25_raw           +0.011         +0.010         +0.052*         -0.002         +0.011*         +0.049*         +0.004         +0.018*       
+g1|bm25_s             +0.016*         +0.014*         +0.049*         +0.004         +0.018*         +0.047*         +0.003         +0.018*       
+g1|hybz_raw           +0.010         +0.012         +0.047*         -0.001         +0.013*         +0.047*         +0.001 eq      +0.019*       
+g1|hybz_s             +0.015*         +0.014*         +0.051*         +0.005         +0.015*         +0.049*         +0.004         +0.018*       
+g1|hybrrf_raw         +0.008         +0.006         +0.049*         -0.009         +0.006         +0.050*         -0.000 eq      +0.018*       
+g1|hybrrf_s           +0.010         +0.009         +0.051*         -0.000         +0.010         +0.044*         +0.001 eq      +0.017*       
+g1|hybrsf_raw         +0.010         +0.010         +0.052*         -0.003         +0.011         +0.044*         +0.002         +0.019*       
+g1|hybrsf_s           +0.016*         +0.015*         +0.050*         +0.005         +0.017*         +0.049*         +0.003         +0.017*       
+g1|rerank_raw         +0.011         +0.009         +0.046*         +0.001         +0.013*         +0.043*         +0.001         +0.018*       
+g1|rerank_s           +0.018*         +0.013*         +0.051*         +0.001         +0.012*         +0.047*         +0.002         +0.019*       
+g1|oracle             +0.240*         +0.225*         +0.105*         +0.177*         +0.225*         +0.048*         +0.247*         +0.142*       
+ctx|dense_raw         -0.000         -0.000         -0.022!         -0.000         -0.001         -0.020!         -0.000 eq      +0.007*       
+ctx|dense_s           -0.000         +0.000         -0.021!         -0.000         -0.001         -0.020!         -0.000 eq      +0.008*       
+ctx|bm25_raw          -0.000         -0.000         -0.021!         +0.000         -0.001         -0.020!         -0.000 eq      +0.007*       
+ctx|bm25_s            -0.000         +0.000         -0.021!         -0.000         -0.001         -0.020!         -0.000 eq      +0.008*       
+ctx|hybz_raw          -0.000         -0.000         -0.021!         -0.000         -0.001         -0.020!         -0.000 eq      +0.007*       
+ctx|hybz_s            -0.000         +0.000         -0.021!         -0.000         -0.001         -0.020!         -0.000 eq      +0.008*       
+ctx|hybrrf_raw        -0.000         -0.000         -0.021!         -0.000         -0.001         -0.020!         -0.000 eq      +0.007*       
+ctx|hybrrf_s          -0.000         +0.000         -0.021!         -0.000         -0.001         -0.020!         -0.000 eq      +0.008*       
+ctx|hybrsf_raw        -0.000         -0.000         -0.021!         -0.000         -0.001         -0.020!         -0.000 eq      +0.007*       
+ctx|hybrsf_s          -0.000         +0.000         -0.021!         -0.000         -0.001         -0.020!         -0.000 eq      +0.008*       
+ctx|rerank_raw        -0.000         -0.000         -0.021!         -0.000         -0.001         -0.020!         -0.000 eq      +0.007*       
+ctx|rerank_s          -0.000         +0.000         -0.021!         -0.000         -0.001         -0.020!         -0.000 eq      +0.008*       
+ctx|oracle            +0.048*         +0.053*         +0.068*         +0.048*         +0.000         -0.048!         +0.050*         +0.672*       
+--- vs same-gate dense_s (same gate, spell-corrected dense), H2000 diff (* Holm win / ! loss) ---
+arm                         T12  T12-drift       Tctx        T48  T12-noctx  ctl-irrel ctl-oneoff        Tqa
+safe|dense_raw         +0.002     -0.000     -0.005     +0.000     +0.000     -0.000     -0.002     +0.000  
+safe|bm25_raw          +0.004     +0.003     +0.000     +0.002     +0.003     -0.002     +0.002     +0.001  
+safe|bm25_s            +0.003     +0.003     -0.002     +0.003     +0.004     -0.002     +0.001     +0.001  
+safe|hybz_raw          +0.005     -0.000     -0.002     +0.001     +0.002     -0.003     +0.002     +0.000  
+safe|hybz_s            +0.001     +0.001     -0.001     +0.002     +0.002     -0.007     +0.002     +0.000  
+safe|hybrrf_raw        +0.001     +0.002     +0.001     +0.002     +0.002     +0.000     +0.001     +0.001  
+safe|hybrrf_s          +0.004     -0.001     -0.000     +0.001     +0.001     -0.004     -0.001     -0.000  
+safe|hybrsf_raw        +0.005     +0.003     +0.003     +0.002     +0.003     -0.003     +0.002     +0.000  
+safe|hybrsf_s          +0.006     +0.005     +0.004     +0.004     +0.004     -0.004     +0.003     +0.001  
+safe|rerank_raw        +0.005     +0.003     +0.002     +0.002     +0.004     -0.001     -0.001     -0.000  
+safe|rerank_s          +0.006     +0.004     +0.001     +0.003     +0.005     -0.003     +0.001     +0.000  
+safe|oracle            +0.229*    +0.210*    +0.066*    +0.161*    +0.208*    -0.001     +0.239*    +0.127* 
+g1|dense_raw           -0.003     -0.005     -0.003     -0.002     -0.007     -0.001     -0.004     +0.001  
+g1|bm25_raw            +0.009*    +0.007     +0.002     +0.005     +0.005     +0.002     +0.001     +0.002  
+g1|bm25_s              +0.014*    +0.012     -0.000     +0.011     +0.012*    -0.000     -0.000     +0.002  
+g1|hybz_raw            +0.008     +0.009     -0.003     +0.006     +0.007     +0.000     -0.002     +0.003  
+g1|hybz_s              +0.013*    +0.011*    +0.002     +0.012*    +0.008     +0.001     +0.001     +0.002  
+g1|hybrrf_raw          +0.006     +0.003     -0.000     -0.002     +0.000     +0.002     -0.003     +0.002  
+g1|hybrrf_s            +0.008     +0.006     +0.001     +0.006     +0.004     -0.003     -0.002     +0.001  
+g1|hybrsf_raw          +0.008     +0.007     +0.002     +0.004     +0.004     -0.003     -0.001     +0.003  
+g1|hybrsf_s            +0.013*    +0.013*    +0.000     +0.012*    +0.011*    +0.001     +0.000     +0.001  
+g1|rerank_raw          +0.008     +0.007     -0.004     +0.008     +0.007     -0.004     -0.002     +0.002  
+g1|rerank_s            +0.015*    +0.010     +0.002     +0.008     +0.006     -0.001     -0.001     +0.003  
+g1|oracle              +0.237*    +0.223*    +0.055*    +0.184*    +0.219*    +0.000     +0.244*    +0.126* 
+ctx|dense_raw          +0.000     -0.000     -0.000     +0.000     -0.000     +0.000     +0.000     -0.001  
+ctx|bm25_raw           +0.000     -0.000     -0.000     +0.000     -0.000     +0.000     +0.000     -0.001  
+ctx|bm25_s             -0.000     +0.000     -0.000     +0.000     +0.000     -0.000     -0.000     +0.000  
+ctx|hybz_raw           +0.000     -0.000     -0.000     +0.000     -0.000     +0.000     +0.000     -0.001  
+ctx|hybz_s             -0.000     -0.000     -0.000     +0.000     +0.000     +0.000     +0.000     +0.000  
+ctx|hybrrf_raw         +0.000     -0.000     -0.000     +0.000     -0.000     +0.000     +0.000     -0.001  
+ctx|hybrrf_s           -0.000     -0.000     -0.000     +0.000     +0.000     +0.000     +0.000     +0.000  
+ctx|hybrsf_raw         +0.000     -0.000     -0.000     +0.000     -0.000     +0.000     +0.000     -0.001  
+ctx|hybrsf_s           -0.000     +0.000     -0.000     +0.000     +0.000     +0.000     +0.000     +0.000  
+ctx|rerank_raw         +0.000     -0.000     -0.000     +0.000     -0.000     +0.000     +0.000     -0.001  
+ctx|rerank_s           -0.000     -0.000     -0.000     +0.000     +0.000     +0.000     +0.000     +0.000  
+ctx|oracle             +0.048*    +0.053*    +0.090*    +0.048*    +0.001     -0.027!    +0.050*    +0.664* 
+--- verdicts (treat worlds = T12,T12-drift,Tctx,T48,T12-noctx,Tqa; controls = ctl-irrel, ctl-oneoff) ---
+  safe|dense_raw     vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|dense_s       vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|bm25_raw      vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|bm25_s        vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|hybz_raw      vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|hybz_s        vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|hybrrf_raw    vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|hybrrf_s      vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|hybrsf_raw    vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|hybrsf_s      vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|rerank_raw    vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|rerank_s      vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|oracle        vs front: wins 6/6 ctl-losses 0 keep=true | vs best fair: wins 4/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 6/6 losses 0 beats=true
+  g1|dense_raw       vs front: wins 2/6 ctl-losses 0 keep=true | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  g1|dense_s         vs front: wins 2/6 ctl-losses 0 keep=true | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  g1|bm25_raw        vs front: wins 3/6 ctl-losses 0 keep=true | vs best fair: wins 1/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 1/6 losses 0 beats=false
+  g1|bm25_s          vs front: wins 5/6 ctl-losses 0 keep=true | vs best fair: wins 3/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 2/6 losses 0 beats=true
+  g1|hybz_raw        vs front: wins 3/6 ctl-losses 0 keep=true | vs best fair: wins 1/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  g1|hybz_s          vs front: wins 5/6 ctl-losses 0 keep=true | vs best fair: wins 3/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 3/6 losses 0 beats=true
+  g1|hybrrf_raw      vs front: wins 2/6 ctl-losses 0 keep=true | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  g1|hybrrf_s        vs front: wins 2/6 ctl-losses 0 keep=true | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  g1|hybrsf_raw      vs front: wins 2/6 ctl-losses 0 keep=true | vs best fair: wins 1/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  g1|hybrsf_s        vs front: wins 5/6 ctl-losses 0 keep=true | vs best fair: wins 3/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 4/6 losses 0 beats=true
+  g1|rerank_raw      vs front: wins 3/6 ctl-losses 0 keep=true | vs best fair: wins 1/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  g1|rerank_s        vs front: wins 5/6 ctl-losses 0 keep=true | vs best fair: wins 3/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 1/6 losses 0 beats=false
+  g1|oracle          vs front: wins 6/6 ctl-losses 0 keep=true | vs best fair: wins 5/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 6/6 losses 0 beats=true
+  ctx|dense_raw      vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|dense_s        vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|bm25_raw       vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|bm25_s         vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|hybz_raw       vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|hybz_s         vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|hybrrf_raw     vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|hybrrf_s       vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|hybrsf_raw     vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|hybrsf_s       vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|rerank_raw     vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|rerank_s       vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|oracle         vs front: wins 5/6 ctl-losses 1 keep=false | vs best fair: wins 4/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 5/6 losses 1 beats=false
+
+=================== B_confirm_61_90 (30 seeds) ===================
+H2000 (mean expected success; vote% / precision of injected paragraph / anchor acc in brackets for safe arms)
+arm                         T12  T12-drift       Tctx        T48  T12-noctx  ctl-irrel ctl-oneoff        Tqa
+keyword                  0.4974     0.4854     0.4325     0.4835     0.4968     0.4245     0.4877     0.1983
+eps-greedy               0.5706     0.5599     0.4881     0.5651     0.5711     0.4782     0.5711     0.2085
+pooled-ts                0.5506     0.5361     0.4875     0.5430     0.5495     0.4790     0.5490     0.2060
+hebbian-robust           0.5926     0.5792     0.5105     0.5822     0.5935     0.5037     0.5903     0.2075
+warm(hebr)               0.5940     0.5738     0.4996     0.5753     0.5914     0.4922     0.5881     0.2073
+guarded                  0.5978     0.5761     0.4911     0.5899     0.5939     0.4869     0.5896     0.2076
+global-ts                0.5235     0.5146     0.6514     0.4830     0.5209     0.6441     0.5199     0.2668
+safe|dense_raw           0.5970     0.5730     0.5152     0.5865     0.5906     0.5002     0.5908     0.2072
+safe|dense_s             0.5950     0.5742     0.5190     0.5836     0.5911     0.5007     0.5894     0.2076
+safe|bm25_raw            0.5972     0.5755     0.5166     0.5815     0.5929     0.4987     0.5865     0.2077
+safe|bm25_s              0.5987     0.5750     0.5193     0.5836     0.5924     0.4960     0.5875     0.2068
+safe|hybz_raw            0.5953     0.5748     0.5171     0.5817     0.5950     0.5043     0.5879     0.2081
+safe|hybz_s              0.5977     0.5756     0.5118     0.5858     0.5940     0.4971     0.5875     0.2075
+safe|hybrrf_raw          0.5948     0.5747     0.5159     0.5847     0.5918     0.5038     0.5886     0.2074
+safe|hybrrf_s            0.5945     0.5751     0.5130     0.5848     0.5918     0.5006     0.5921     0.2080
+safe|hybrsf_raw          0.5977     0.5741     0.5155     0.5825     0.5944     0.5005     0.5866     0.2077
+safe|hybrsf_s            0.5977     0.5765     0.5171     0.5861     0.5914     0.4973     0.5886     0.2071
+safe|rerank_raw          0.5980     0.5776     0.5115     0.5871     0.5892     0.4978     0.5886     0.2077
+safe|rerank_s            0.5980     0.5763     0.5148     0.5868     0.5927     0.4985     0.5899     0.2079
+safe|oracle              0.8186     0.7750     0.5811     0.7335     0.7926     0.4974     0.8148     0.3324
+g1|dense_raw             0.5943     0.5703     0.5582     0.5819     0.5891     0.5466     0.5846     0.2229
+g1|dense_s               0.5962     0.5705     0.5615     0.5837     0.5920     0.5519     0.5865     0.2249
+g1|bm25_raw              0.6057     0.5803     0.5580     0.5868     0.5996     0.5513     0.5887     0.2261
+g1|bm25_s                0.6047     0.5826     0.5618     0.5933     0.6020     0.5475     0.5884     0.2251
+g1|hybz_raw              0.6032     0.5797     0.5602     0.5880     0.5980     0.5492     0.5879     0.2264
+g1|hybz_s                0.6063     0.5814     0.5606     0.5923     0.6012     0.5477     0.5903     0.2250
+g1|hybrrf_raw            0.6009     0.5756     0.5569     0.5862     0.5962     0.5522     0.5869     0.2264
+g1|hybrrf_s              0.6050     0.5746     0.5574     0.5879     0.5992     0.5465     0.5888     0.2232
+g1|hybrsf_raw            0.6043     0.5782     0.5604     0.5848     0.5991     0.5509     0.5865     0.2256
+g1|hybrsf_s              0.6058     0.5818     0.5598     0.5914     0.6005     0.5481     0.5896     0.2251
+g1|rerank_raw            0.6032     0.5789     0.5535     0.5882     0.6010     0.5420     0.5884     0.2230
+g1|rerank_s              0.6058     0.5809     0.5589     0.5869     0.6020     0.5476     0.5909     0.2249
+g1|oracle                0.8354     0.7934     0.6104     0.7589     0.8093     0.5511     0.8276     0.3528
+ctx|dense_raw            0.5979     0.5765     0.4910     0.5899     0.5938     0.4865     0.5893     0.2107
+ctx|dense_s              0.5979     0.5764     0.4912     0.5899     0.5938     0.4864     0.5893     0.2109
+ctx|bm25_raw             0.5979     0.5765     0.4910     0.5899     0.5938     0.4865     0.5893     0.2107
+ctx|bm25_s               0.5980     0.5764     0.4912     0.5899     0.5938     0.4866     0.5893     0.2109
+ctx|hybz_raw             0.5979     0.5765     0.4910     0.5899     0.5938     0.4865     0.5893     0.2107
+ctx|hybz_s               0.5980     0.5764     0.4912     0.5899     0.5938     0.4866     0.5893     0.2109
+ctx|hybrrf_raw           0.5979     0.5765     0.4910     0.5899     0.5938     0.4865     0.5893     0.2107
+ctx|hybrrf_s             0.5979     0.5764     0.4912     0.5899     0.5938     0.4864     0.5893     0.2109
+ctx|hybrsf_raw           0.5979     0.5765     0.4910     0.5899     0.5938     0.4865     0.5893     0.2107
+ctx|hybrsf_s             0.5980     0.5764     0.4912     0.5899     0.5938     0.4866     0.5893     0.2109
+ctx|rerank_raw           0.5979     0.5765     0.4910     0.5899     0.5938     0.4865     0.5893     0.2107
+ctx|rerank_s             0.5980     0.5764     0.4912     0.5899     0.5938     0.4866     0.5893     0.2109
+ctx|oracle               0.6418     0.6231     0.5791     0.6340     0.5939     0.4585     0.6344     0.8798
+--- vs the SAME front guarded(hebr) (no retrieval): H2000 diff [95% CI] (* Holm win / ! loss; in controls 'eq' = TOST +-.01 Holm-equivalent) ---
+arm                               T12        T12-drift             Tctx              T48        T12-noctx        ctl-irrel       ctl-oneoff              Tqa
+safe|dense_raw        -0.001         -0.003         +0.024*         -0.003         -0.003         +0.013         +0.001 eq      -0.000       
+safe|dense_s          -0.003         -0.002         +0.028*         -0.006         -0.003         +0.014*         -0.000 eq      -0.000       
+safe|bm25_raw         -0.001         -0.001         +0.025*         -0.008!         -0.001         +0.012         -0.003         +0.000       
+safe|bm25_s           +0.001         -0.001         +0.028*         -0.006         -0.001         +0.009         -0.002 eq      -0.001       
+safe|hybz_raw         -0.003         -0.001         +0.026*         -0.008         +0.001         +0.017*         -0.002 eq      +0.000       
+safe|hybz_s           -0.000         -0.000         +0.021*         -0.004         +0.000         +0.010         -0.002 eq      -0.000       
+safe|hybrrf_raw       -0.003         -0.001         +0.025*         -0.005         -0.002         +0.017*         -0.001 eq      -0.000       
+safe|hybrrf_s         -0.003         -0.001         +0.022*         -0.005         -0.002         +0.014*         +0.002         +0.000       
+safe|hybrsf_raw       -0.000         -0.002         +0.024*         -0.007!         +0.001         +0.014*         -0.003 eq      +0.000       
+safe|hybrsf_s         -0.000         +0.000         +0.026*         -0.004         -0.002         +0.010         -0.001 eq      -0.001       
+safe|rerank_raw       +0.000         +0.002         +0.020*         -0.003         -0.005         +0.011*         -0.001 eq      +0.000       
+safe|rerank_s         +0.000         +0.000         +0.024*         -0.003         -0.001         +0.012         +0.000 eq      +0.000       
+safe|oracle           +0.221*         +0.199*         +0.090*         +0.144*         +0.199*         +0.011         +0.225*         +0.125*       
+g1|dense_raw          -0.004         -0.006         +0.067*         -0.008         -0.005         +0.060*         -0.005         +0.015*       
+g1|dense_s            -0.002         -0.006         +0.070*         -0.006         -0.002         +0.065*         -0.003         +0.017*       
+g1|bm25_raw           +0.008         +0.004         +0.067*         -0.003         +0.006         +0.064*         -0.001 eq      +0.019*       
+g1|bm25_s             +0.007         +0.006         +0.071*         +0.003         +0.008         +0.061*         -0.001 eq      +0.017*       
+g1|hybz_raw           +0.005         +0.004         +0.069*         -0.002         +0.004         +0.062*         -0.002         +0.019*       
+g1|hybz_s             +0.008         +0.005         +0.070*         +0.002         +0.007         +0.061*         +0.001 eq      +0.017*       
+g1|hybrrf_raw         +0.003         -0.000         +0.066*         -0.004         +0.002         +0.065*         -0.003         +0.019*       
+g1|hybrrf_s           +0.007         -0.001         +0.066*         -0.002         +0.005         +0.060*         -0.001         +0.016*       
+g1|hybrsf_raw         +0.006         +0.002         +0.069*         -0.005         +0.005         +0.064*         -0.003         +0.018*       
+g1|hybrsf_s           +0.008         +0.006         +0.069*         +0.001         +0.007         +0.061*         +0.000         +0.018*       
+g1|rerank_raw         +0.005         +0.003         +0.062*         -0.002         +0.007         +0.055*         -0.001 eq      +0.015*       
+g1|rerank_s           +0.008         +0.005         +0.068*         -0.003         +0.008         +0.061*         +0.001         +0.017*       
+g1|oracle             +0.238*         +0.217*         +0.119*         +0.169*         +0.215*         +0.064*         +0.238*         +0.145*       
+ctx|dense_raw         +0.000         +0.000         -0.000         -0.000         -0.000         -0.000 eq      -0.000 eq      +0.003*       
+ctx|dense_s           +0.000         +0.000         +0.000         -0.000         -0.000         -0.000 eq      -0.000 eq      +0.003*       
+ctx|bm25_raw          +0.000         +0.000         -0.000         -0.000         -0.000         -0.000 eq      -0.000 eq      +0.003*       
+ctx|bm25_s            +0.000         +0.000         +0.000         -0.000         -0.000         -0.000 eq      -0.000 eq      +0.003*       
+ctx|hybz_raw          +0.000         +0.000         -0.000         -0.000         -0.000         -0.000 eq      -0.000 eq      +0.003*       
+ctx|hybz_s            +0.000         +0.000         +0.000         -0.000         -0.000         -0.000 eq      -0.000 eq      +0.003*       
+ctx|hybrrf_raw        +0.000         +0.000         -0.000         -0.000         -0.000         -0.000 eq      -0.000 eq      +0.003*       
+ctx|hybrrf_s          +0.000         +0.000         +0.000         -0.000         -0.000         -0.000 eq      -0.000 eq      +0.003*       
+ctx|hybrsf_raw        +0.000         +0.000         -0.000         -0.000         -0.000         -0.000 eq      -0.000 eq      +0.003*       
+ctx|hybrsf_s          +0.000         +0.000         +0.000         -0.000         -0.000         -0.000 eq      -0.000 eq      +0.003*       
+ctx|rerank_raw        +0.000         +0.000         -0.000         -0.000         -0.000         -0.000 eq      -0.000 eq      +0.003*       
+ctx|rerank_s          +0.000         +0.000         +0.000         -0.000         -0.000         -0.000 eq      -0.000 eq      +0.003*       
+ctx|oracle            +0.044*         +0.047*         +0.088*         +0.044*         +0.000         -0.028!         +0.045*         +0.672*       
+--- vs BEST FAIR baseline per world (7 baselines incl. post-hoc global-ts): H2000 diff [95% CI] (* Holm win / ! loss; in controls 'eq' = TOST +-.01 Holm-equivalent) ---
+arm                               T12        T12-drift             Tctx              T48        T12-noctx        ctl-irrel       ctl-oneoff              Tqa
+safe|dense_raw        -0.001         -0.006         -0.136!         -0.003         -0.003         -0.144!         +0.001         -0.060!       
+safe|dense_s          -0.003         -0.005         -0.132!         -0.006         -0.003         -0.143!         -0.001         -0.059!       
+safe|bm25_raw         -0.001         -0.004         -0.135!         -0.008!         -0.001         -0.145!         -0.004         -0.059!       
+safe|bm25_s           +0.001         -0.004         -0.132!         -0.006         -0.001         -0.148!         -0.003         -0.060!       
+safe|hybz_raw         -0.003         -0.004         -0.134!         -0.008         +0.001         -0.140!         -0.002         -0.059!       
+safe|hybz_s           -0.000         -0.004         -0.140!         -0.004         +0.000         -0.147!         -0.003         -0.059!       
+safe|hybrrf_raw       -0.003         -0.004         -0.136!         -0.005         -0.002         -0.140!         -0.002         -0.059!       
+safe|hybrrf_s         -0.003         -0.004         -0.138!         -0.005         -0.002         -0.144!         +0.002         -0.059!       
+safe|hybrsf_raw       -0.000         -0.005         -0.136!         -0.007!         +0.001         -0.144!         -0.004         -0.059!       
+safe|hybrsf_s         -0.000         -0.003         -0.134!         -0.004         -0.002         -0.147!         -0.002         -0.060!       
+safe|rerank_raw       +0.000         -0.002         -0.140!         -0.003         -0.005         -0.146!         -0.002         -0.059!       
+safe|rerank_s         +0.000         -0.003         -0.137!         -0.003         -0.001         -0.146!         -0.000         -0.059!       
+safe|oracle           +0.221*         +0.196*         -0.070!         +0.144*         +0.199*         -0.147!         +0.224*         +0.066       
+g1|dense_raw          -0.004         -0.009         -0.093!         -0.008         -0.005         -0.098!         -0.006         -0.044!       
+g1|dense_s            -0.002         -0.009         -0.090!         -0.006         -0.002         -0.092!         -0.004         -0.042!       
+g1|bm25_raw           +0.008         +0.001         -0.093!         -0.003         +0.006         -0.093!         -0.002         -0.041!       
+g1|bm25_s             +0.007         +0.003         -0.090!         +0.003         +0.008         -0.097!         -0.002         -0.042!       
+g1|hybz_raw           +0.005         +0.000         -0.091!         -0.002         +0.004         -0.095!         -0.002         -0.040!       
+g1|hybz_s             +0.008         +0.002         -0.091!         +0.002         +0.007         -0.096!         +0.000         -0.042!       
+g1|hybrrf_raw         +0.003         -0.004         -0.095!         -0.004         +0.002         -0.092!         -0.003         -0.040!       
+g1|hybrrf_s           +0.007         -0.005         -0.094!         -0.002         +0.005         -0.098!         -0.001         -0.044!       
+g1|hybrsf_raw         +0.006         -0.001         -0.091!         -0.005         +0.005         -0.093!         -0.004         -0.041!       
+g1|hybrsf_s           +0.008         +0.003         -0.092!         +0.001         +0.007         -0.096!         -0.001         -0.042!       
+g1|rerank_raw         +0.005         -0.000         -0.098!         -0.002         +0.007         -0.102!         -0.002         -0.044!       
+g1|rerank_s           +0.008         +0.002         -0.092!         -0.003         +0.008         -0.097!         +0.001         -0.042!       
+g1|oracle             +0.238*         +0.214*         -0.041!         +0.169*         +0.215*         -0.093!         +0.237*         +0.086*       
+ctx|dense_raw         +0.000         -0.003         -0.160!         -0.000         -0.000         -0.158!         -0.001         -0.056!       
+ctx|dense_s           +0.000         -0.003         -0.160!         -0.000         -0.000         -0.158!         -0.001         -0.056!       
+ctx|bm25_raw          +0.000         -0.003         -0.160!         -0.000         -0.000         -0.158!         -0.001         -0.056!       
+ctx|bm25_s            +0.000         -0.003         -0.160!         -0.000         -0.000         -0.158!         -0.001         -0.056!       
+ctx|hybz_raw          +0.000         -0.003         -0.160!         -0.000         -0.000         -0.158!         -0.001         -0.056!       
+ctx|hybz_s            +0.000         -0.003         -0.160!         -0.000         -0.000         -0.158!         -0.001         -0.056!       
+ctx|hybrrf_raw        +0.000         -0.003         -0.160!         -0.000         -0.000         -0.158!         -0.001         -0.056!       
+ctx|hybrrf_s          +0.000         -0.003         -0.160!         -0.000         -0.000         -0.158!         -0.001         -0.056!       
+ctx|hybrsf_raw        +0.000         -0.003         -0.160!         -0.000         -0.000         -0.158!         -0.001         -0.056!       
+ctx|hybrsf_s          +0.000         -0.003         -0.160!         -0.000         -0.000         -0.158!         -0.001         -0.056!       
+ctx|rerank_raw        +0.000         -0.003         -0.160!         -0.000         -0.000         -0.158!         -0.001         -0.056!       
+ctx|rerank_s          +0.000         -0.003         -0.160!         -0.000         -0.000         -0.158!         -0.001         -0.056!       
+ctx|oracle            +0.044*         +0.044*         -0.072!         +0.044*         +0.000         -0.186!         +0.044*         +0.613*       
+--- vs BEST FAIR of the 6 pre-declared baselines: H2000 diff [95% CI] (* Holm win / ! loss; in controls 'eq' = TOST +-.01 Holm-equivalent) ---
+arm                               T12        T12-drift             Tctx              T48        T12-noctx        ctl-irrel       ctl-oneoff              Tqa
+safe|dense_raw        -0.001         -0.006         +0.005         -0.003         -0.003         -0.004         +0.001         -0.001       
+safe|dense_s          -0.003         -0.005         +0.008         -0.006         -0.003         -0.003         -0.001         -0.001       
+safe|bm25_raw         -0.001         -0.004         +0.006         -0.008!         -0.001         -0.005         -0.004         -0.001       
+safe|bm25_s           +0.001         -0.004         +0.009         -0.006         -0.001         -0.008         -0.003         -0.002       
+safe|hybz_raw         -0.003         -0.004         +0.007         -0.008         +0.001         +0.001         -0.002         -0.000       
+safe|hybz_s           -0.000         -0.004         +0.001         -0.004         +0.000         -0.007         -0.003         -0.001       
+safe|hybrrf_raw       -0.003         -0.004         +0.005         -0.005         -0.002         +0.000         -0.002         -0.001       
+safe|hybrrf_s         -0.003         -0.004         +0.002         -0.005         -0.002         -0.003         +0.002         -0.001       
+safe|hybrsf_raw       -0.000         -0.005         +0.005         -0.007!         +0.001         -0.003         -0.004         -0.001       
+safe|hybrsf_s         -0.000         -0.003         +0.007         -0.004         -0.002         -0.006         -0.002         -0.001       
+safe|rerank_raw       +0.000         -0.002         +0.001         -0.003         -0.005         -0.006         -0.002         -0.001       
+safe|rerank_s         +0.000         -0.003         +0.004         -0.003         -0.001         -0.005         -0.000         -0.001       
+safe|oracle           +0.221*         +0.196*         +0.071*         +0.144*         +0.199*         -0.006         +0.224*         +0.124*       
+g1|dense_raw          -0.004         -0.009         +0.048*         -0.008         -0.005         +0.043*         -0.006         +0.014*       
+g1|dense_s            -0.002         -0.009         +0.051*         -0.006         -0.002         +0.048*         -0.004         +0.016*       
+g1|bm25_raw           +0.008         +0.001         +0.047*         -0.003         +0.006         +0.048*         -0.002         +0.018*       
+g1|bm25_s             +0.007         +0.003         +0.051*         +0.003         +0.008         +0.044*         -0.002         +0.017*       
+g1|hybz_raw           +0.005         +0.000         +0.050*         -0.002         +0.004         +0.046*         -0.002         +0.018*       
+g1|hybz_s             +0.008         +0.002         +0.050*         +0.002         +0.007         +0.044*         +0.000         +0.016*       
+g1|hybrrf_raw         +0.003         -0.004         +0.046*         -0.004         +0.002         +0.048*         -0.003         +0.018*       
+g1|hybrrf_s           +0.007         -0.005         +0.047*         -0.002         +0.005         +0.043*         -0.001         +0.015*       
+g1|hybrsf_raw         +0.006         -0.001         +0.050*         -0.005         +0.005         +0.047*         -0.004         +0.017*       
+g1|hybrsf_s           +0.008         +0.003         +0.049*         +0.001         +0.007         +0.044*         -0.001         +0.017*       
+g1|rerank_raw         +0.005         -0.000         +0.043*         -0.002         +0.007         +0.038*         -0.002         +0.014*       
+g1|rerank_s           +0.008         +0.002         +0.048*         -0.003         +0.008         +0.044*         +0.001         +0.016*       
+g1|oracle             +0.238*         +0.214*         +0.100*         +0.169*         +0.215*         +0.047*         +0.237*         +0.144*       
+ctx|dense_raw         +0.000         -0.003         -0.020!         -0.000         -0.000         -0.017!         -0.001         +0.002       
+ctx|dense_s           +0.000         -0.003         -0.019!         -0.000         -0.000         -0.017!         -0.001         +0.002       
+ctx|bm25_raw          +0.000         -0.003         -0.020!         -0.000         -0.000         -0.017!         -0.001         +0.002       
+ctx|bm25_s            +0.000         -0.003         -0.019!         -0.000         -0.000         -0.017!         -0.001         +0.002       
+ctx|hybz_raw          +0.000         -0.003         -0.020!         -0.000         -0.000         -0.017!         -0.001         +0.002       
+ctx|hybz_s            +0.000         -0.003         -0.019!         -0.000         -0.000         -0.017!         -0.001         +0.002       
+ctx|hybrrf_raw        +0.000         -0.003         -0.020!         -0.000         -0.000         -0.017!         -0.001         +0.002       
+ctx|hybrrf_s          +0.000         -0.003         -0.019!         -0.000         -0.000         -0.017!         -0.001         +0.002       
+ctx|hybrsf_raw        +0.000         -0.003         -0.020!         -0.000         -0.000         -0.017!         -0.001         +0.002       
+ctx|hybrsf_s          +0.000         -0.003         -0.019!         -0.000         -0.000         -0.017!         -0.001         +0.002       
+ctx|rerank_raw        +0.000         -0.003         -0.020!         -0.000         -0.000         -0.017!         -0.001         +0.002       
+ctx|rerank_s          +0.000         -0.003         -0.019!         -0.000         -0.000         -0.017!         -0.001         +0.002       
+ctx|oracle            +0.044*         +0.044*         +0.069*         +0.044*         +0.000         -0.045!         +0.044*         +0.671*       
+--- vs same-gate dense_s (same gate, spell-corrected dense), H2000 diff (* Holm win / ! loss) ---
+arm                         T12  T12-drift       Tctx        T48  T12-noctx  ctl-irrel ctl-oneoff        Tqa
+safe|dense_raw         +0.002     -0.001     -0.004     +0.003     -0.000     -0.000     +0.001     -0.000  
+safe|bm25_raw          +0.002     +0.001     -0.002     -0.002     +0.002     -0.002     -0.003     +0.000  
+safe|bm25_s            +0.004     +0.001     +0.000     +0.000     +0.001     -0.005     -0.002     -0.001  
+safe|hybz_raw          +0.000     +0.001     -0.002     -0.002     +0.004     +0.004     -0.001     +0.001  
+safe|hybz_s            +0.003     +0.001     -0.007     +0.002     +0.003     -0.004     -0.002     -0.000  
+safe|hybrrf_raw        -0.000     +0.001     -0.003     +0.001     +0.001     +0.003     -0.001     -0.000  
+safe|hybrrf_s          -0.000     +0.001     -0.006     +0.001     +0.001     -0.000     +0.003     +0.000  
+safe|hybrsf_raw        +0.003     -0.000     -0.004     -0.001     +0.003     -0.000     -0.003     +0.000  
+safe|hybrsf_s          +0.003     +0.002     -0.002     +0.002     +0.000     -0.003     -0.001     -0.000  
+safe|rerank_raw        +0.003     +0.003     -0.007     +0.004     -0.002     -0.003     -0.001     +0.000  
+safe|rerank_s          +0.003     +0.002     -0.004     +0.003     +0.002     -0.002     +0.001     +0.000  
+safe|oracle            +0.224*    +0.201*    +0.062*    +0.150*    +0.201*    -0.003     +0.225*    +0.125* 
+g1|dense_raw           -0.002     -0.000     -0.003     -0.002     -0.003     -0.005     -0.002     -0.002  
+g1|bm25_raw            +0.009     +0.010     -0.003     +0.003     +0.008     -0.001     +0.002     +0.001  
+g1|bm25_s              +0.008     +0.012*    +0.000     +0.010     +0.010*    -0.004     +0.002     +0.000  
+g1|hybz_raw            +0.007     +0.009     -0.001     +0.004     +0.006     -0.003     +0.001     +0.001  
+g1|hybz_s              +0.010     +0.011*    -0.001     +0.009     +0.009     -0.004     +0.004     +0.000  
+g1|hybrrf_raw          +0.005     +0.005     -0.005     +0.003     +0.004     +0.000     +0.000     +0.002  
+g1|hybrrf_s            +0.009     +0.004     -0.004     +0.004     +0.007     -0.005     +0.002     -0.002  
+g1|hybrsf_raw          +0.008     +0.008     -0.001     +0.001     +0.007     -0.001     -0.000     +0.001  
+g1|hybrsf_s            +0.010     +0.011*    -0.002     +0.008     +0.009     -0.004     +0.003     +0.000  
+g1|rerank_raw          +0.007     +0.008*    -0.008     +0.004     +0.009     -0.010!    +0.002     -0.002  
+g1|rerank_s            +0.010     +0.010*    -0.003     +0.003     +0.010     -0.004     +0.004     +0.000  
+g1|oracle              +0.239*    +0.223*    +0.049*    +0.175*    +0.217*    -0.001     +0.241*    +0.128* 
+ctx|dense_raw          -0.000     +0.000     -0.000     -0.000     +0.000     +0.000     +0.000     -0.000  
+ctx|bm25_raw           -0.000     +0.000     -0.000     -0.000     +0.000     +0.000     +0.000     -0.000  
+ctx|bm25_s             +0.000     -0.000     +0.000     -0.000     +0.000     +0.000     +0.000     +0.000  
+ctx|hybz_raw           -0.000     +0.000     -0.000     -0.000     +0.000     +0.000     +0.000     -0.000  
+ctx|hybz_s             +0.000     -0.000     +0.000     -0.000     +0.000     +0.000     +0.000     +0.000  
+ctx|hybrrf_raw         -0.000     +0.000     -0.000     -0.000     +0.000     +0.000     +0.000     -0.000  
+ctx|hybrrf_s           +0.000     +0.000     +0.000     +0.000     +0.000     +0.000     +0.000     +0.000  
+ctx|hybrsf_raw         -0.000     +0.000     -0.000     -0.000     +0.000     +0.000     +0.000     -0.000  
+ctx|hybrsf_s           +0.000     -0.000     +0.000     -0.000     +0.000     +0.000     +0.000     +0.000  
+ctx|rerank_raw         -0.000     +0.000     -0.000     -0.000     +0.000     +0.000     +0.000     -0.000  
+ctx|rerank_s           +0.000     -0.000     +0.000     -0.000     +0.000     +0.000     +0.000     +0.000  
+ctx|oracle             +0.044*    +0.047*    +0.088*    +0.044*    +0.000     -0.028!    +0.045*    +0.669* 
+--- verdicts (treat worlds = T12,T12-drift,Tctx,T48,T12-noctx,Tqa; controls = ctl-irrel, ctl-oneoff) ---
+  safe|dense_raw     vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|dense_s       vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|bm25_raw      vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|bm25_s        vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|hybz_raw      vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|hybz_s        vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|hybrrf_raw    vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|hybrrf_s      vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|hybrsf_raw    vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|hybrsf_s      vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|rerank_raw    vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|rerank_s      vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  safe|oracle        vs front: wins 6/6 ctl-losses 0 keep=true | vs best fair: wins 4/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 6/6 losses 0 beats=true
+  g1|dense_raw       vs front: wins 2/6 ctl-losses 0 keep=true | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  g1|dense_s         vs front: wins 2/6 ctl-losses 0 keep=true | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  g1|bm25_raw        vs front: wins 2/6 ctl-losses 0 keep=true | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  g1|bm25_s          vs front: wins 2/6 ctl-losses 0 keep=true | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 2/6 losses 0 beats=true
+  g1|hybz_raw        vs front: wins 2/6 ctl-losses 0 keep=true | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  g1|hybz_s          vs front: wins 2/6 ctl-losses 0 keep=true | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 1/6 losses 0 beats=false
+  g1|hybrrf_raw      vs front: wins 2/6 ctl-losses 0 keep=true | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  g1|hybrrf_s        vs front: wins 2/6 ctl-losses 0 keep=true | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  g1|hybrsf_raw      vs front: wins 2/6 ctl-losses 0 keep=true | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  g1|hybrsf_s        vs front: wins 2/6 ctl-losses 0 keep=true | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 1/6 losses 0 beats=false
+  g1|rerank_raw      vs front: wins 2/6 ctl-losses 0 keep=true | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 1/6 losses 1 beats=false
+  g1|rerank_s        vs front: wins 2/6 ctl-losses 0 keep=true | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 1/6 losses 0 beats=false
+  g1|oracle          vs front: wins 6/6 ctl-losses 0 keep=true | vs best fair: wins 5/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 6/6 losses 0 beats=true
+  ctx|dense_raw      vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|dense_s        vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|bm25_raw       vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|bm25_s         vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|hybz_raw       vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|hybz_s         vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|hybrrf_raw     vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|hybrrf_s       vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|hybrsf_raw     vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|hybrsf_s       vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|rerank_raw     vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|rerank_s       vs front: wins 1/6 ctl-losses 0 keep=false | vs best fair: wins 0/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 0/6 losses 0 beats=false
+  ctx|oracle         vs front: wins 5/6 ctl-losses 1 keep=false | vs best fair: wins 4/6 ctl-losses 1 keep=false | vs safe|dense_s: wins 5/6 losses 1 beats=false
+
+=== POST-HOC sweep (not tuned, not part of any verdict): ctx-only injection, H2000 by admission floor thr, seeds as the split ===
+A_held_31_60 world T12 (guarded 0.5875):  thr .30 .40 .50 .60 .70
+   dense_raw   0.5665 0.5801 0.5862 0.5871 0.5871
+   dense_s     0.5677 0.5802 0.5865 0.5879 0.5875
+   bm25_raw    0.5755 0.5834 0.5866 0.5874 0.5872
+   bm25_s      0.5779 0.5827 0.5872 0.5882 0.5874
+   hybz_raw    0.5764 0.5816 0.5867 0.5873 0.5871
+   hybz_s      0.5766 0.5810 0.5875 0.5883 0.5875
+   hybrrf_raw  0.5717 0.5812 0.5858 0.5874 0.5871
+   hybrrf_s    0.5742 0.5814 0.5859 0.5882 0.5875
+   hybrsf_raw  0.5764 0.5819 0.5872 0.5875 0.5871
+   hybrsf_s    0.5776 0.5829 0.5868 0.5882 0.5875
+   rerank_raw  0.5756 0.5822 0.5865 0.5873 0.5871
+   rerank_s    0.5769 0.5829 0.5870 0.5884 0.5875
+   oracle      0.6376 0.6376 0.6376 0.6376 0.6376
+A_held_31_60 world ctl-irrel (guarded 0.4812):  thr .30 .40 .50 .60 .70
+   dense_raw   0.4586 0.4746 0.4793 0.4804 0.4809
+   dense_s     0.4572 0.4725 0.4794 0.4809 0.4810
+   bm25_raw    0.4739 0.4775 0.4808 0.4806 0.4809
+   bm25_s      0.4706 0.4768 0.4804 0.4807 0.4810
+   hybz_raw    0.4715 0.4775 0.4804 0.4808 0.4809
+   hybz_s      0.4670 0.4765 0.4803 0.4807 0.4810
+   hybrrf_raw  0.4652 0.4764 0.4800 0.4802 0.4809
+   hybrrf_s    0.4649 0.4755 0.4795 0.4809 0.4810
+   hybrsf_raw  0.4715 0.4782 0.4799 0.4802 0.4809
+   hybrsf_s    0.4698 0.4755 0.4805 0.4804 0.4810
+   rerank_raw  0.4720 0.4792 0.4800 0.4808 0.4809
+   rerank_s    0.4709 0.4787 0.4794 0.4810 0.4810
+   oracle      0.4540 0.4540 0.4540 0.4540 0.4540
+A_held_31_60 world Tqa (guarded 0.2126):  thr .30 .40 .50 .60 .70
+   dense_raw   0.2481 0.2399 0.2345 0.2276 0.2209
+   dense_s     0.2535 0.2430 0.2372 0.2285 0.2222
+   bm25_raw    0.2924 0.2632 0.2390 0.2271 0.2209
+   bm25_s      0.3029 0.2687 0.2426 0.2288 0.2222
+   hybz_raw    0.2939 0.2637 0.2405 0.2263 0.2209
+   hybz_s      0.3018 0.2692 0.2428 0.2283 0.2222
+   hybrrf_raw  0.2784 0.2583 0.2373 0.2281 0.2209
+   hybrrf_s    0.2854 0.2614 0.2397 0.2294 0.2222
+   hybrsf_raw  0.2937 0.2629 0.2382 0.2259 0.2209
+   hybrsf_s    0.3022 0.2691 0.2424 0.2272 0.2222
+   rerank_raw  0.2973 0.2639 0.2406 0.2262 0.2209
+   rerank_s    0.3056 0.2714 0.2442 0.2288 0.2222
+   oracle      0.8803 0.8803 0.8803 0.8803 0.8803
+   A_held_31_60 Tqa thr 0.30: bm25_s    - dense_s   +0.0494 [+0.0447,+0.0540] holm 0.000 *
+   A_held_31_60 Tqa thr 0.30: hybz_s    - dense_s   +0.0484 [+0.0431,+0.0536] holm 0.000 *
+   A_held_31_60 Tqa thr 0.30: hybrrf_s  - dense_s   +0.0319 [+0.0279,+0.0360] holm 0.000 *
+   A_held_31_60 Tqa thr 0.30: hybrsf_s  - dense_s   +0.0487 [+0.0437,+0.0538] holm 0.000 *
+   A_held_31_60 Tqa thr 0.30: rerank_s  - dense_s   +0.0521 [+0.0461,+0.0580] holm 0.000 *
+   A_held_31_60 Tqa thr 0.30: hybz_s    - hybrrf_s  +0.0164 [+0.0122,+0.0207] holm 0.000 *
+   A_held_31_60 Tqa thr 0.30: dense_s   - dense_raw +0.0054 [+0.0036,+0.0073] holm 0.000 *
+   A_held_31_60 Tqa thr 0.30: hybz_s    - hybz_raw  +0.0079 [+0.0060,+0.0099] holm 0.000 *
+   A_held_31_60 Tqa thr 0.40: bm25_s    - dense_s   +0.0257 [+0.0196,+0.0319] holm 0.000 *
+   A_held_31_60 Tqa thr 0.40: hybz_s    - dense_s   +0.0262 [+0.0210,+0.0314] holm 0.000 *
+   A_held_31_60 Tqa thr 0.40: hybrrf_s  - dense_s   +0.0183 [+0.0144,+0.0222] holm 0.000 *
+   A_held_31_60 Tqa thr 0.40: hybrsf_s  - dense_s   +0.0260 [+0.0216,+0.0304] holm 0.000 *
+   A_held_31_60 Tqa thr 0.40: rerank_s  - dense_s   +0.0283 [+0.0220,+0.0347] holm 0.000 *
+   A_held_31_60 Tqa thr 0.40: hybz_s    - hybrrf_s  +0.0078 [+0.0032,+0.0125] holm 0.005 *
+   A_held_31_60 Tqa thr 0.40: dense_s   - dense_raw +0.0031 [+0.0004,+0.0057] holm 0.049 *
+   A_held_31_60 Tqa thr 0.40: hybz_s    - hybz_raw  +0.0055 [+0.0008,+0.0103] holm 0.049 *
+B_confirm_61_90 world T12 (guarded 0.5978):  thr .30 .40 .50 .60 .70
+   dense_raw   0.5832 0.5910 0.5972 0.5982 0.5979
+   dense_s     0.5837 0.5905 0.5976 0.5985 0.5979
+   bm25_raw    0.5927 0.5949 0.5971 0.5984 0.5979
+   bm25_s      0.5903 0.5968 0.5969 0.5983 0.5980
+   hybz_raw    0.5912 0.5937 0.5967 0.5983 0.5979
+   hybz_s      0.5922 0.5953 0.5964 0.5982 0.5980
+   hybrrf_raw  0.5861 0.5903 0.5969 0.5983 0.5979
+   hybrrf_s    0.5866 0.5935 0.5975 0.5985 0.5979
+   hybrsf_raw  0.5908 0.5946 0.5967 0.5981 0.5979
+   hybrsf_s    0.5934 0.5953 0.5968 0.5982 0.5980
+   rerank_raw  0.5918 0.5945 0.5971 0.5983 0.5979
+   rerank_s    0.5897 0.5944 0.5969 0.5983 0.5980
+   oracle      0.6418 0.6418 0.6418 0.6418 0.6418
+B_confirm_61_90 world ctl-irrel (guarded 0.4869):  thr .30 .40 .50 .60 .70
+   dense_raw   0.4741 0.4804 0.4846 0.4858 0.4865
+   dense_s     0.4697 0.4803 0.4841 0.4860 0.4864
+   bm25_raw    0.4772 0.4833 0.4864 0.4863 0.4865
+   bm25_s      0.4754 0.4835 0.4858 0.4860 0.4866
+   hybz_raw    0.4769 0.4838 0.4857 0.4862 0.4865
+   hybz_s      0.4756 0.4815 0.4855 0.4860 0.4866
+   hybrrf_raw  0.4758 0.4803 0.4851 0.4858 0.4865
+   hybrrf_s    0.4735 0.4795 0.4852 0.4860 0.4864
+   hybrsf_raw  0.4778 0.4825 0.4859 0.4862 0.4865
+   hybrsf_s    0.4750 0.4815 0.4852 0.4862 0.4866
+   rerank_raw  0.4739 0.4825 0.4861 0.4862 0.4865
+   rerank_s    0.4733 0.4809 0.4858 0.4859 0.4866
+   oracle      0.4585 0.4585 0.4585 0.4585 0.4585
+B_confirm_61_90 world Tqa (guarded 0.2076):  thr .30 .40 .50 .60 .70
+   dense_raw   0.2397 0.2346 0.2164 0.2130 0.2107
+   dense_s     0.2469 0.2396 0.2202 0.2136 0.2109
+   bm25_raw    0.2721 0.2509 0.2228 0.2139 0.2107
+   bm25_s      0.2819 0.2598 0.2266 0.2144 0.2109
+   hybz_raw    0.2711 0.2502 0.2215 0.2141 0.2107
+   hybz_s      0.2804 0.2597 0.2247 0.2146 0.2109
+   hybrrf_raw  0.2647 0.2477 0.2185 0.2131 0.2107
+   hybrrf_s    0.2705 0.2517 0.2230 0.2138 0.2109
+   hybrsf_raw  0.2699 0.2510 0.2204 0.2139 0.2107
+   hybrsf_s    0.2791 0.2591 0.2254 0.2146 0.2109
+   rerank_raw  0.2728 0.2516 0.2210 0.2138 0.2107
+   rerank_s    0.2827 0.2586 0.2262 0.2143 0.2109
+   oracle      0.8798 0.8798 0.8798 0.8798 0.8798
+   B_confirm_61_90 Tqa thr 0.30: bm25_s    - dense_s   +0.0350 [+0.0296,+0.0404] holm 0.000 *
+   B_confirm_61_90 Tqa thr 0.30: hybz_s    - dense_s   +0.0334 [+0.0281,+0.0388] holm 0.000 *
+   B_confirm_61_90 Tqa thr 0.30: hybrrf_s  - dense_s   +0.0236 [+0.0185,+0.0287] holm 0.000 *
+   B_confirm_61_90 Tqa thr 0.30: hybrsf_s  - dense_s   +0.0321 [+0.0271,+0.0372] holm 0.000 *
+   B_confirm_61_90 Tqa thr 0.30: rerank_s  - dense_s   +0.0358 [+0.0308,+0.0408] holm 0.000 *
+   B_confirm_61_90 Tqa thr 0.30: hybz_s    - hybrrf_s  +0.0098 [+0.0055,+0.0142] holm 0.000 *
+   B_confirm_61_90 Tqa thr 0.30: dense_s   - dense_raw +0.0072 [+0.0056,+0.0088] holm 0.000 *
+   B_confirm_61_90 Tqa thr 0.30: hybz_s    - hybz_raw  +0.0093 [+0.0079,+0.0107] holm 0.000 *
+   B_confirm_61_90 Tqa thr 0.40: bm25_s    - dense_s   +0.0203 [+0.0168,+0.0238] holm 0.000 *
+   B_confirm_61_90 Tqa thr 0.40: hybz_s    - dense_s   +0.0202 [+0.0167,+0.0236] holm 0.000 *
+   B_confirm_61_90 Tqa thr 0.40: hybrrf_s  - dense_s   +0.0121 [+0.0071,+0.0172] holm 0.000 *
+   B_confirm_61_90 Tqa thr 0.40: hybrsf_s  - dense_s   +0.0195 [+0.0166,+0.0224] holm 0.000 *
+   B_confirm_61_90 Tqa thr 0.40: rerank_s  - dense_s   +0.0190 [+0.0151,+0.0228] holm 0.000 *
+   B_confirm_61_90 Tqa thr 0.40: hybz_s    - hybrrf_s  +0.0080 [+0.0033,+0.0128] holm 0.002 *
+   B_confirm_61_90 Tqa thr 0.40: dense_s   - dense_raw +0.0050 [+0.0026,+0.0074] holm 0.000 *
+   B_confirm_61_90 Tqa thr 0.40: hybz_s    - hybz_raw  +0.0096 [+0.0077,+0.0114] holm 0.000 *
+
+=== H17 COMPACT ROUTER vs f64 recommended router, kn-anchor feature from this embedder's retrieval; H2000 diff = subject - recF64 [95% CI]; TOST +-0.005 (Holm over 8 worlds): E = TOST-significant AND 95% CI inside the margin ===
+A_pooled_31_90 front            compact16 : T12 -0.0001[-0.0002,+0.0001]E T12-drift +0.0001[-0.0001,+0.0003]E Tctx +0.0001[-0.0002,+0.0004]E T48 -0.0003[-0.0006,+0.0001]E T12-noctx -0.0001[-0.0005,+0.0002]E ctl-irrel +0.0000[-0.0003,+0.0004]E ctl-oneoff +0.0001[-0.0001,+0.0002]E Tqa +0.0001[-0.0002,+0.0003]E  => ALL-8 EQUIVALENT
+A_pooled_31_90 front            compactF64: T12 +0.0000[+0.0000,+0.0000]E T12-drift +0.0000[+0.0000,+0.0000]E Tctx +0.0000[+0.0000,+0.0000]E T48 +0.0000[+0.0000,+0.0000]E T12-noctx +0.0000[+0.0000,+0.0000]E ctl-irrel +0.0000[+0.0000,+0.0000]E ctl-oneoff +0.0000[+0.0000,+0.0000]E Tqa +0.0000[+0.0000,+0.0000]E  => ALL-8 EQUIVALENT
+A_pooled_31_90 safe|dense_s     compact16 : T12 +0.0004[-0.0001,+0.0008]E T12-drift +0.0002[-0.0004,+0.0008]E Tctx +0.0005[-0.0003,+0.0013]E T48 -0.0009[-0.0019,+0.0001]E T12-noctx +0.0001[-0.0008,+0.0009]E ctl-irrel +0.0004[-0.0001,+0.0009]E ctl-oneoff -0.0001[-0.0005,+0.0004]E Tqa +0.0001[-0.0001,+0.0002]E  => ALL-8 EQUIVALENT
+A_pooled_31_90 safe|dense_s     compactF64: T12 +0.0000[+0.0000,+0.0000]E T12-drift +0.0000[+0.0000,+0.0000]E Tctx +0.0000[+0.0000,+0.0000]E T48 +0.0000[+0.0000,+0.0000]E T12-noctx +0.0000[+0.0000,+0.0000]E ctl-irrel +0.0000[+0.0000,+0.0000]E ctl-oneoff +0.0000[+0.0000,+0.0000]E Tqa +0.0000[+0.0000,+0.0000]E  => ALL-8 EQUIVALENT
+A_pooled_31_90 safe|bm25_s      compact16 : T12 -0.0003[-0.0008,+0.0002]E T12-drift +0.0000[-0.0006,+0.0006]E Tctx -0.0006[-0.0014,+0.0002]E T48 -0.0003[-0.0008,+0.0002]E T12-noctx -0.0002[-0.0007,+0.0002]E ctl-irrel -0.0004[-0.0008,+0.0000]E ctl-oneoff -0.0001[-0.0005,+0.0003]E Tqa +0.0001[-0.0002,+0.0003]E  => ALL-8 EQUIVALENT
+A_pooled_31_90 safe|bm25_s      compactF64: T12 +0.0000[+0.0000,+0.0000]E T12-drift +0.0000[+0.0000,+0.0000]E Tctx +0.0000[+0.0000,+0.0000]E T48 +0.0000[+0.0000,+0.0000]E T12-noctx +0.0000[+0.0000,+0.0000]E ctl-irrel +0.0000[+0.0000,+0.0000]E ctl-oneoff +0.0000[+0.0000,+0.0000]E Tqa +0.0000[+0.0000,+0.0000]E  => ALL-8 EQUIVALENT
+A_pooled_31_90 safe|hybz_s      compact16 : T12 +0.0004[-0.0002,+0.0009]E T12-drift -0.0003[-0.0007,+0.0001]E Tctx -0.0002[-0.0007,+0.0002]E T48 +0.0002[-0.0006,+0.0009]E T12-noctx -0.0003[-0.0007,+0.0002]E ctl-irrel -0.0001[-0.0006,+0.0003]E ctl-oneoff -0.0003[-0.0009,+0.0003]E Tqa +0.0002[+0.0001,+0.0004]E  => ALL-8 EQUIVALENT
+A_pooled_31_90 safe|hybz_s      compactF64: T12 +0.0000[+0.0000,+0.0000]E T12-drift +0.0000[+0.0000,+0.0000]E Tctx +0.0000[+0.0000,+0.0000]E T48 +0.0000[+0.0000,+0.0000]E T12-noctx +0.0000[+0.0000,+0.0000]E ctl-irrel +0.0000[+0.0000,+0.0000]E ctl-oneoff +0.0000[+0.0000,+0.0000]E Tqa +0.0000[+0.0000,+0.0000]E  => ALL-8 EQUIVALENT
+A_pooled_31_90 g1|dense_s       compact16 : T12 +0.0001[-0.0003,+0.0005]E T12-drift +0.0003[-0.0003,+0.0010]E Tctx +0.0001[-0.0006,+0.0007]E T48 +0.0001[-0.0004,+0.0006]E T12-noctx +0.0002[-0.0002,+0.0007]E ctl-irrel -0.0002[-0.0005,+0.0002]E ctl-oneoff -0.0001[-0.0010,+0.0008]E Tqa -0.0007[-0.0017,+0.0004]E  => ALL-8 EQUIVALENT
+A_pooled_31_90 g1|dense_s       compactF64: T12 +0.0000[+0.0000,+0.0000]E T12-drift +0.0000[+0.0000,+0.0000]E Tctx +0.0000[+0.0000,+0.0000]E T48 +0.0000[+0.0000,+0.0000]E T12-noctx +0.0000[+0.0000,+0.0000]E ctl-irrel +0.0000[+0.0000,+0.0000]E ctl-oneoff +0.0000[+0.0000,+0.0000]E Tqa +0.0000[+0.0000,+0.0000]E  => ALL-8 EQUIVALENT
+A_pooled_31_90 g1|bm25_s        compact16 : T12 -0.0004[-0.0011,+0.0004]E T12-drift -0.0003[-0.0011,+0.0005]E Tctx -0.0006[-0.0014,+0.0002]E T48 -0.0003[-0.0008,+0.0003]E T12-noctx +0.0002[-0.0001,+0.0006]E ctl-irrel -0.0000[-0.0005,+0.0005]E ctl-oneoff -0.0004[-0.0012,+0.0005]E Tqa +0.0005[-0.0004,+0.0013]E  => ALL-8 EQUIVALENT
+A_pooled_31_90 g1|bm25_s        compactF64: T12 +0.0000[+0.0000,+0.0000]E T12-drift +0.0000[+0.0000,+0.0000]E Tctx +0.0000[+0.0000,+0.0000]E T48 +0.0000[+0.0000,+0.0000]E T12-noctx +0.0000[+0.0000,+0.0000]E ctl-irrel +0.0000[+0.0000,+0.0000]E ctl-oneoff +0.0000[+0.0000,+0.0000]E Tqa +0.0000[+0.0000,+0.0000]E  => ALL-8 EQUIVALENT
+A_pooled_31_90 g1|hybz_s        compact16 : T12 +0.0003[-0.0001,+0.0007]E T12-drift +0.0001[-0.0005,+0.0007]E Tctx -0.0006[-0.0014,+0.0002]E T48 +0.0001[-0.0007,+0.0009]E T12-noctx +0.0008[+0.0001,+0.0014]E ctl-irrel -0.0005[-0.0012,+0.0002]E ctl-oneoff +0.0000[-0.0007,+0.0007]E Tqa +0.0002[-0.0006,+0.0010]E  => ALL-8 EQUIVALENT
+A_pooled_31_90 g1|hybz_s        compactF64: T12 +0.0000[+0.0000,+0.0000]E T12-drift +0.0000[+0.0000,+0.0000]E Tctx +0.0000[+0.0000,+0.0000]E T48 +0.0000[+0.0000,+0.0000]E T12-noctx +0.0000[+0.0000,+0.0000]E ctl-irrel +0.0000[+0.0000,+0.0000]E ctl-oneoff +0.0000[+0.0000,+0.0000]E Tqa +0.0000[+0.0000,+0.0000]E  => ALL-8 EQUIVALENT
+A_pooled_31_90 g1|dense_s+kd    compact16 : T12 +0.0003[-0.0002,+0.0009]E T12-drift +0.0001[-0.0005,+0.0008]E Tctx -0.0001[-0.0007,+0.0006]E T48 -0.0002[-0.0011,+0.0008]E T12-noctx +0.0002[-0.0004,+0.0008]E ctl-irrel -0.0000[-0.0005,+0.0004]E ctl-oneoff -0.0000[-0.0005,+0.0005]E Tqa -0.0003[-0.0013,+0.0007]E  => ALL-8 EQUIVALENT
+A_pooled_31_90 g1|dense_s+kd    compactF64: T12 +0.0000[+0.0000,+0.0000]E T12-drift +0.0000[+0.0000,+0.0000]E Tctx +0.0000[+0.0000,+0.0000]E T48 +0.0000[+0.0000,+0.0000]E T12-noctx +0.0000[+0.0000,+0.0000]E ctl-irrel +0.0000[+0.0000,+0.0000]E ctl-oneoff +0.0000[+0.0000,+0.0000]E Tqa +0.0000[+0.0000,+0.0000]E  => ALL-8 EQUIVALENT
+A_pooled_31_90 g1|hybz_s+kd     compact16 : T12 +0.0007[-0.0000,+0.0014]E T12-drift -0.0000[-0.0008,+0.0008]E Tctx +0.0005[-0.0003,+0.0014]E T48 -0.0005[-0.0015,+0.0005]E T12-noctx +0.0000[-0.0006,+0.0007]E ctl-irrel -0.0002[-0.0006,+0.0002]E ctl-oneoff -0.0001[-0.0008,+0.0007]E Tqa -0.0002[-0.0009,+0.0005]E  => ALL-8 EQUIVALENT
+A_pooled_31_90 g1|hybz_s+kd     compactF64: T12 +0.0000[+0.0000,+0.0000]E T12-drift +0.0000[+0.0000,+0.0000]E Tctx +0.0000[+0.0000,+0.0000]E T48 +0.0000[+0.0000,+0.0000]E T12-noctx +0.0000[+0.0000,+0.0000]E ctl-irrel +0.0000[+0.0000,+0.0000]E ctl-oneoff +0.0000[+0.0000,+0.0000]E Tqa +0.0000[+0.0000,+0.0000]E  => ALL-8 EQUIVALENT
+B_confirm_61_90 front            compact16 : T12 +0.0002[-0.0002,+0.0005]E T12-drift -0.0000[-0.0008,+0.0007]E Tctx -0.0001[-0.0011,+0.0010]E T48 -0.0001[-0.0005,+0.0003]E T12-noctx +0.0000[-0.0002,+0.0002]E ctl-irrel -0.0004[-0.0007,-0.0001]E ctl-oneoff +0.0004[-0.0001,+0.0008]E Tqa -0.0000[-0.0002,+0.0001]E  => ALL-8 EQUIVALENT
+B_confirm_61_90 front            compactF64: T12 +0.0000[+0.0000,+0.0000]E T12-drift +0.0000[+0.0000,+0.0000]E Tctx +0.0000[+0.0000,+0.0000]E T48 +0.0000[+0.0000,+0.0000]E T12-noctx +0.0000[+0.0000,+0.0000]E ctl-irrel +0.0000[+0.0000,+0.0000]E ctl-oneoff +0.0000[+0.0000,+0.0000]E Tqa +0.0000[+0.0000,+0.0000]E  => ALL-8 EQUIVALENT
+B_confirm_61_90 safe|dense_s     compact16 : T12 -0.0008[-0.0024,+0.0007]E T12-drift -0.0000[-0.0006,+0.0005]E Tctx -0.0000[-0.0002,+0.0002]E T48 -0.0007[-0.0027,+0.0013]E T12-noctx -0.0004[-0.0011,+0.0003]E ctl-irrel +0.0001[-0.0002,+0.0003]E ctl-oneoff +0.0003[-0.0003,+0.0009]E Tqa -0.0001[-0.0003,+0.0001]E  => ALL-8 EQUIVALENT
+B_confirm_61_90 safe|dense_s     compactF64: T12 +0.0000[+0.0000,+0.0000]E T12-drift +0.0000[+0.0000,+0.0000]E Tctx +0.0000[+0.0000,+0.0000]E T48 +0.0000[+0.0000,+0.0000]E T12-noctx +0.0000[+0.0000,+0.0000]E ctl-irrel +0.0000[+0.0000,+0.0000]E ctl-oneoff +0.0000[+0.0000,+0.0000]E Tqa +0.0000[+0.0000,+0.0000]E  => ALL-8 EQUIVALENT
+B_confirm_61_90 safe|bm25_s      compact16 : T12 +0.0002[-0.0005,+0.0009]E T12-drift -0.0000[-0.0014,+0.0014]E Tctx +0.0002[-0.0002,+0.0007]E T48 +0.0005[-0.0009,+0.0019]E T12-noctx +0.0001[-0.0005,+0.0007]E ctl-irrel -0.0000[-0.0006,+0.0006]E ctl-oneoff -0.0001[-0.0007,+0.0006]E Tqa -0.0000[-0.0001,+0.0001]E  => ALL-8 EQUIVALENT
+B_confirm_61_90 safe|bm25_s      compactF64: T12 +0.0000[+0.0000,+0.0000]E T12-drift +0.0000[+0.0000,+0.0000]E Tctx +0.0000[+0.0000,+0.0000]E T48 +0.0000[+0.0000,+0.0000]E T12-noctx +0.0000[+0.0000,+0.0000]E ctl-irrel +0.0000[+0.0000,+0.0000]E ctl-oneoff +0.0000[+0.0000,+0.0000]E Tqa +0.0000[+0.0000,+0.0000]E  => ALL-8 EQUIVALENT
+B_confirm_61_90 safe|hybz_s      compact16 : T12 +0.0001[-0.0006,+0.0008]E T12-drift -0.0002[-0.0011,+0.0007]E Tctx -0.0008[-0.0017,+0.0001]E T48 +0.0001[-0.0010,+0.0011]E T12-noctx +0.0002[-0.0009,+0.0014]E ctl-irrel +0.0002[-0.0001,+0.0004]E ctl-oneoff -0.0004[-0.0019,+0.0011]E Tqa +0.0002[-0.0002,+0.0006]E  => ALL-8 EQUIVALENT
+B_confirm_61_90 safe|hybz_s      compactF64: T12 +0.0000[+0.0000,+0.0000]E T12-drift +0.0000[+0.0000,+0.0000]E Tctx +0.0000[+0.0000,+0.0000]E T48 +0.0000[+0.0000,+0.0000]E T12-noctx +0.0000[+0.0000,+0.0000]E ctl-irrel +0.0000[+0.0000,+0.0000]E ctl-oneoff +0.0000[+0.0000,+0.0000]E Tqa +0.0000[+0.0000,+0.0000]E  => ALL-8 EQUIVALENT
+B_confirm_61_90 g1|dense_s       compact16 : T12 -0.0005[-0.0017,+0.0006]E T12-drift -0.0002[-0.0011,+0.0006]E Tctx +0.0007[+0.0000,+0.0013]E T48 +0.0003[-0.0012,+0.0018]E T12-noctx +0.0004[-0.0005,+0.0013]E ctl-irrel +0.0002[-0.0009,+0.0014]E ctl-oneoff +0.0011[+0.0000,+0.0022]E Tqa -0.0004[-0.0017,+0.0009]E  => ALL-8 EQUIVALENT
+B_confirm_61_90 g1|dense_s       compactF64: T12 +0.0000[+0.0000,+0.0000]E T12-drift +0.0000[+0.0000,+0.0000]E Tctx +0.0000[+0.0000,+0.0000]E T48 +0.0000[+0.0000,+0.0000]E T12-noctx +0.0000[+0.0000,+0.0000]E ctl-irrel +0.0000[+0.0000,+0.0000]E ctl-oneoff +0.0000[+0.0000,+0.0000]E Tqa +0.0000[+0.0000,+0.0000]E  => ALL-8 EQUIVALENT
+B_confirm_61_90 g1|bm25_s        compact16 : T12 -0.0009[-0.0023,+0.0006]E T12-drift +0.0002[-0.0011,+0.0014]E Tctx -0.0003[-0.0014,+0.0008]E T48 +0.0004[-0.0006,+0.0013]E T12-noctx -0.0014[-0.0026,-0.0001]E ctl-irrel -0.0003[-0.0018,+0.0012]E ctl-oneoff +0.0004[-0.0003,+0.0011]E Tqa -0.0012[-0.0024,+0.0000]E  => ALL-8 EQUIVALENT
+B_confirm_61_90 g1|bm25_s        compactF64: T12 +0.0000[+0.0000,+0.0000]E T12-drift +0.0000[+0.0000,+0.0000]E Tctx +0.0000[+0.0000,+0.0000]E T48 +0.0000[+0.0000,+0.0000]E T12-noctx +0.0000[+0.0000,+0.0000]E ctl-irrel +0.0000[+0.0000,+0.0000]E ctl-oneoff +0.0000[+0.0000,+0.0000]E Tqa +0.0000[+0.0000,+0.0000]E  => ALL-8 EQUIVALENT
+B_confirm_61_90 g1|hybz_s        compact16 : T12 -0.0003[-0.0009,+0.0003]E T12-drift -0.0002[-0.0008,+0.0005]E Tctx -0.0008[-0.0021,+0.0006]E T48 +0.0010[-0.0003,+0.0024]E T12-noctx -0.0011[-0.0027,+0.0004]E ctl-irrel +0.0011[-0.0003,+0.0025]E ctl-oneoff -0.0002[-0.0010,+0.0006]E Tqa +0.0006[-0.0003,+0.0016]E  => ALL-8 EQUIVALENT
+B_confirm_61_90 g1|hybz_s        compactF64: T12 +0.0000[+0.0000,+0.0000]E T12-drift +0.0000[+0.0000,+0.0000]E Tctx +0.0000[+0.0000,+0.0000]E T48 +0.0000[+0.0000,+0.0000]E T12-noctx +0.0000[+0.0000,+0.0000]E ctl-irrel +0.0000[+0.0000,+0.0000]E ctl-oneoff +0.0000[+0.0000,+0.0000]E Tqa +0.0000[+0.0000,+0.0000]E  => ALL-8 EQUIVALENT
+B_confirm_61_90 g1|dense_s+kd    compact16 : T12 -0.0002[-0.0008,+0.0004]E T12-drift +0.0004[-0.0006,+0.0014]E Tctx +0.0008[-0.0013,+0.0029]E T48 +0.0005[-0.0007,+0.0017]E T12-noctx +0.0009[-0.0004,+0.0022]E ctl-irrel +0.0004[-0.0005,+0.0013]E ctl-oneoff -0.0004[-0.0017,+0.0008]E Tqa +0.0002[-0.0008,+0.0013]E  => ALL-8 EQUIVALENT
+B_confirm_61_90 g1|dense_s+kd    compactF64: T12 +0.0000[+0.0000,+0.0000]E T12-drift +0.0000[+0.0000,+0.0000]E Tctx +0.0000[+0.0000,+0.0000]E T48 +0.0000[+0.0000,+0.0000]E T12-noctx +0.0000[+0.0000,+0.0000]E ctl-irrel +0.0000[+0.0000,+0.0000]E ctl-oneoff +0.0000[+0.0000,+0.0000]E Tqa +0.0000[+0.0000,+0.0000]E  => ALL-8 EQUIVALENT
+B_confirm_61_90 g1|hybz_s+kd     compact16 : T12 +0.0002[-0.0010,+0.0015]E T12-drift -0.0003[-0.0017,+0.0011]E Tctx -0.0001[-0.0005,+0.0004]E T48 -0.0004[-0.0008,+0.0000]E T12-noctx -0.0002[-0.0012,+0.0007]E ctl-irrel +0.0002[-0.0003,+0.0007]E ctl-oneoff +0.0001[-0.0008,+0.0010]E Tqa +0.0003[-0.0012,+0.0018]E  => ALL-8 EQUIVALENT
+B_confirm_61_90 g1|hybz_s+kd     compactF64: T12 +0.0000[+0.0000,+0.0000]E T12-drift +0.0000[+0.0000,+0.0000]E Tctx +0.0000[+0.0000,+0.0000]E T48 +0.0000[+0.0000,+0.0000]E T12-noctx +0.0000[+0.0000,+0.0000]E ctl-irrel +0.0000[+0.0000,+0.0000]E ctl-oneoff +0.0000[+0.0000,+0.0000]E Tqa +0.0000[+0.0000,+0.0000]E  => ALL-8 EQUIVALENT
+
+wrote results/h17_route_hashtok.json in 459s

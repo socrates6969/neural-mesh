@@ -1,0 +1,444 @@
+warning: value assigned to `verdict_ok` is never read
+    --> src\cognition.rs:1020:17
+     |
+1020 |                 verdict_ok = None;
+     |                 ^^^^^^^^^^^^^^^^^ this value is reassigned later and never used
+...
+1033 |                     verdict_ok = Some(flagged == !correct1);
+     |                     --------------------------------------- `verdict_ok` is overwritten here before the previous value is read
+     |
+     = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: `neural-mesh` (lib) generated 1 warning
+warning: unused import: `std::collections::VecDeque`
+  --> src\bin\g1_route.rs:19:5
+   |
+19 | use std::collections::VecDeque;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Task`
+  --> src\bin\g1_route.rs:26:40
+   |
+26 | use neural_mesh::router::{Rng, Router, Task};
+   |                                        ^^^^
+
+warning: `neural-mesh` (bin "g1_route") generated 2 warnings (run `cargo fix --bin "g1_route" -p neural-mesh` to apply 2 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.45s
+     Running `C:/Users/mariu/nm-target-r1\release\g1_route.exe --corpus A`
+corpus A: pool 2120 queries; 12 similarity families; matrices 4.1s
+tuned hash           mean(H500,H2000)(sib16, seeds 1-8) = 0.4910  Vote { fam: 0, var: 0, k: 5, thr: 0.92, min_n: 2 }
+tuned tfidf          mean(H500,H2000)(sib16, seeds 1-8) = 0.5031  Vote { fam: 1, var: 0, k: 8, thr: 0.75, min_n: 2 }
+tuned mini           mean(H500,H2000)(sib16, seeds 1-8) = 0.5012  Vote { fam: 2, var: 0, k: 8, thr: 0.75, min_n: 3 }
+tuned bge            mean(H500,H2000)(sib16, seeds 1-8) = 0.4994  Vote { fam: 3, var: 0, k: 8, thr: 0.85, min_n: 2 }
+tuned mini+spell     mean(H500,H2000)(sib16, seeds 1-8) = 0.5093  Vote { fam: 4, var: 0, k: 8, thr: 0.85, min_n: 2 }
+tuned bge+spell      mean(H500,H2000)(sib16, seeds 1-8) = 0.5069  Vote { fam: 5, var: 0, k: 8, thr: 0.92, min_n: 2 }
+tuned mini-hybrid    mean(H500,H2000)(sib16, seeds 1-8) = 0.5135  Vote { fam: 6, var: 1, k: 5, thr: 0.75, min_n: 2 }
+tuned mini-rerank    mean(H500,H2000)(sib16, seeds 1-8) = 0.5128  Vote { fam: 7, var: 0, k: 5, thr: 0.75, min_n: 2 }
+tuned bge-hybrid     mean(H500,H2000)(sib16, seeds 1-8) = 0.5110  Vote { fam: 8, var: 1, k: 5, thr: 0.85, min_n: 2 }
+tuned bge-rerank     mean(H500,H2000)(sib16, seeds 1-8) = 0.5114  Vote { fam: 9, var: 1, k: 5, thr: 0.85, min_n: 2 }
+tuned cascade        mean(H500,H2000)(sib16, seeds 1-8) = 0.5092  Vote { fam: 10, var: 0, k: 5, thr: 0.85, min_n: 2 }
+tuned oracle         mean(H500,H2000)(sib16, seeds 1-8) = 0.5898  Vote { fam: 11, var: 0, k: 5, thr: 0.15, min_n: 2 }
+
+=== world sib16 (w=0.8, mixed=0) | mean expected success over prefix H ===
+policy                                           H100     H250     H500    H2000
+keyword                                        0.4741   0.4746   0.4731   0.4619
+eps-greedy                                     0.4284   0.4352   0.4422   0.4609
+pooled-ts                                      0.4292   0.4303   0.4345   0.4497
+hebbian                                        0.4369   0.4425   0.4469   0.4585
+warm                                           0.4448   0.4430   0.4458   0.4586
+guarded(hebr)                                  0.4680   0.4665   0.4661   0.4662
+hash [hash]                                    0.4700   0.4714   0.4775   0.5159
+tfidf [tfidf]                                  0.4708   0.4733   0.4835   0.5285
+mini [mini]                                    0.4705   0.4714   0.4809   0.5302
+bge [bge]                                      0.4715   0.4764   0.4834   0.5180
+mini+spell [mini+spell]                        0.4716   0.4755   0.4885   0.5391
+bge+spell [bge+spell]                          0.4705   0.4720   0.4818   0.5296
+mini-hybrid [mini-hybrid a0.6]                 0.4723   0.4780   0.4886   0.5429
+mini-rerank [mini-rerank g0.3]                 0.4716   0.4772   0.4896   0.5436
+bge-hybrid [bge-hybrid a0.6]                   0.4711   0.4732   0.4856   0.5387
+bge-rerank [bge-rerank g0.5]                   0.4709   0.4730   0.4840   0.5373
+cascade [mini-hybrid>bge-rerank]               0.4715   0.4756   0.4888   0.5425
+oracle [oracle(concept)]                       0.4856   0.5124   0.5486   0.6324
+
+=== world rand16 (w=0.8, mixed=0) | mean expected success over prefix H ===
+policy                                           H100     H250     H500    H2000
+keyword                                        0.4759   0.4799   0.4761   0.4654
+eps-greedy                                     0.4298   0.4377   0.4431   0.4581
+pooled-ts                                      0.4325   0.4340   0.4372   0.4485
+hebbian                                        0.4324   0.4376   0.4433   0.4547
+warm                                           0.4483   0.4462   0.4473   0.4553
+guarded(hebr)                                  0.4730   0.4688   0.4664   0.4640
+hash [hash]                                    0.4729   0.4735   0.4784   0.5147
+tfidf [tfidf]                                  0.4756   0.4799   0.4880   0.5380
+mini [mini]                                    0.4737   0.4773   0.4888   0.5406
+bge [bge]                                      0.4766   0.4819   0.4929   0.5471
+mini+spell [mini+spell]                        0.4746   0.4802   0.4879   0.5420
+bge+spell [bge+spell]                          0.4749   0.4805   0.4870   0.5324
+mini-hybrid [mini-hybrid a0.6]                 0.4760   0.4835   0.4950   0.5456
+mini-rerank [mini-rerank g0.3]                 0.4761   0.4837   0.4951   0.5507
+bge-hybrid [bge-hybrid a0.6]                   0.4751   0.4831   0.4896   0.5408
+bge-rerank [bge-rerank g0.5]                   0.4752   0.4821   0.4881   0.5405
+cascade [mini-hybrid>bge-rerank]               0.4748   0.4824   0.4898   0.5428
+oracle [oracle(concept)]                       0.4920   0.5228   0.5528   0.6310
+
+=== world sib64 (w=0.8, mixed=0) | mean expected success over prefix H ===
+policy                                           H100     H250     H500    H2000
+keyword                                        0.4768   0.4763   0.4750   0.4640
+eps-greedy                                     0.4294   0.4352   0.4390   0.4434
+pooled-ts                                      0.4217   0.4280   0.4293   0.4364
+hebbian                                        0.4261   0.4266   0.4299   0.4394
+warm                                           0.4471   0.4432   0.4385   0.4384
+guarded(hebr)                                  0.4702   0.4639   0.4605   0.4544
+hash [hash]                                    0.4694   0.4650   0.4637   0.4674
+tfidf [tfidf]                                  0.4699   0.4681   0.4648   0.4713
+mini [mini]                                    0.4695   0.4674   0.4661   0.4712
+bge [bge]                                      0.4692   0.4660   0.4656   0.4720
+mini+spell [mini+spell]                        0.4702   0.4654   0.4655   0.4756
+bge+spell [bge+spell]                          0.4700   0.4649   0.4650   0.4735
+mini-hybrid [mini-hybrid a0.6]                 0.4701   0.4685   0.4675   0.4779
+mini-rerank [mini-rerank g0.3]                 0.4700   0.4679   0.4672   0.4783
+bge-hybrid [bge-hybrid a0.6]                   0.4704   0.4671   0.4655   0.4761
+bge-rerank [bge-rerank g0.5]                   0.4703   0.4667   0.4658   0.4737
+cascade [mini-hybrid>bge-rerank]               0.4705   0.4665   0.4644   0.4761
+oracle [oracle(concept)]                       0.4723   0.4760   0.4846   0.5420
+
+=== world sib16-mixed50 (w=0.8, mixed=0.5) | mean expected success over prefix H ===
+policy                                           H100     H250     H500    H2000
+keyword                                        0.6040   0.6085   0.6049   0.5820
+eps-greedy                                     0.4777   0.5047   0.5314   0.5679
+pooled-ts                                      0.4628   0.4859   0.5092   0.5572
+hebbian                                        0.4889   0.5204   0.5370   0.5557
+warm                                           0.5441   0.5550   0.5649   0.5732
+guarded(hebr)                                  0.5993   0.6101   0.6141   0.6075
+hash [hash]                                    0.5999   0.6076   0.6077   0.5990
+tfidf [tfidf]                                  0.5990   0.6041   0.6068   0.5988
+mini [mini]                                    0.6000   0.6087   0.6097   0.6005
+bge [bge]                                      0.5996   0.6050   0.6080   0.6007
+mini+spell [mini+spell]                        0.5985   0.6037   0.6065   0.6005
+bge+spell [bge+spell]                          0.6002   0.6097   0.6112   0.6024
+mini-hybrid [mini-hybrid a0.6]                 0.5965   0.6033   0.6071   0.5992
+mini-rerank [mini-rerank g0.3]                 0.5966   0.6039   0.6074   0.5991
+bge-hybrid [bge-hybrid a0.6]                   0.5986   0.6039   0.6076   0.5991
+bge-rerank [bge-rerank g0.5]                   0.5984   0.6036   0.6074   0.5992
+cascade [mini-hybrid>bge-rerank]               0.5987   0.6052   0.6080   0.5990
+oracle [oracle(concept)]                       0.6006   0.6134   0.6238   0.6512
+
+=== world ctl-irrel (w=0, mixed=0) | mean expected success over prefix H ===
+policy                                           H100     H250     H500    H2000
+keyword                                        0.7377   0.7406   0.7379   0.7026
+eps-greedy                                     0.5687   0.6297   0.6843   0.7325
+pooled-ts                                      0.5278   0.6021   0.6584   0.7224
+hebbian                                        0.5934   0.6703   0.7217   0.7445
+warm                                           0.7025   0.7370   0.7626   0.7673
+guarded(hebr)                                  0.7385   0.7518   0.7655   0.7583
+hash [hash]                                    0.7366   0.7439   0.7580   0.7464
+tfidf [tfidf]                                  0.7314   0.7416   0.7555   0.7448
+mini [mini]                                    0.7371   0.7429   0.7551   0.7455
+bge [bge]                                      0.7248   0.7384   0.7511   0.7426
+mini+spell [mini+spell]                        0.7329   0.7423   0.7545   0.7448
+bge+spell [bge+spell]                          0.7338   0.7433   0.7571   0.7460
+mini-hybrid [mini-hybrid a0.6]                 0.7288   0.7416   0.7537   0.7438
+mini-rerank [mini-rerank g0.3]                 0.7282   0.7417   0.7538   0.7428
+bge-hybrid [bge-hybrid a0.6]                   0.7333   0.7429   0.7572   0.7456
+bge-rerank [bge-rerank g0.5]                   0.7336   0.7425   0.7552   0.7440
+cascade [mini-hybrid>bge-rerank]               0.7328   0.7436   0.7572   0.7475
+oracle [oracle(concept)]                       0.7250   0.7369   0.7476   0.7383
+
+=== vs best fair embedding-free baseline (per world,H); Holm over 240 tests; H500 and H2000 shown ===
+sib16           hash [hash]                                  H500   +0.0044 [-0.0021,+0.0109] wins 17 holm_p 1.0000   (vs keyword)
+sib16           tfidf [tfidf]                                H500   +0.0104 [+0.0038,+0.0169] wins 20 holm_p 0.2859   (vs keyword)
+sib16           mini [mini]                                  H500   +0.0077 [+0.0016,+0.0139] wins 21 holm_p 0.9949   (vs keyword)
+sib16           bge [bge]                                    H500   +0.0103 [+0.0034,+0.0172] wins 21 holm_p 0.4178   (vs keyword)
+sib16           mini+spell [mini+spell]                      H500   +0.0154 [+0.0086,+0.0222] wins 24 holm_p 0.0111 * (vs keyword)
+sib16           bge+spell [bge+spell]                        H500   +0.0086 [+0.0027,+0.0146] wins 21 holm_p 0.4763   (vs keyword)
+sib16           mini-hybrid [mini-hybrid a0.6]               H500   +0.0154 [+0.0089,+0.0219] wins 25 holm_p 0.0061 * (vs keyword)
+sib16           mini-rerank [mini-rerank g0.3]               H500   +0.0164 [+0.0090,+0.0238] wins 24 holm_p 0.0130 * (vs keyword)
+sib16           bge-hybrid [bge-hybrid a0.6]                 H500   +0.0125 [+0.0066,+0.0184] wins 25 holm_p 0.0214 * (vs keyword)
+sib16           bge-rerank [bge-rerank g0.5]                 H500   +0.0108 [+0.0045,+0.0172] wins 22 holm_p 0.1685   (vs keyword)
+sib16           cascade [mini-hybrid>bge-rerank]             H500   +0.0157 [+0.0096,+0.0217] wins 25 holm_p 0.0019 * (vs keyword)
+sib16           oracle [oracle(concept)]                     H500   +0.0755 [+0.0668,+0.0842] wins 30 holm_p 0.0000 * (vs keyword)
+sib16           hash [hash]                                  H2000  +0.0497 [+0.0437,+0.0557] wins 30 holm_p 0.0000 * (vs guarded(hebr))
+sib16           tfidf [tfidf]                                H2000  +0.0623 [+0.0540,+0.0707] wins 30 holm_p 0.0000 * (vs guarded(hebr))
+sib16           mini [mini]                                  H2000  +0.0640 [+0.0562,+0.0719] wins 30 holm_p 0.0000 * (vs guarded(hebr))
+sib16           bge [bge]                                    H2000  +0.0518 [+0.0453,+0.0583] wins 30 holm_p 0.0000 * (vs guarded(hebr))
+sib16           mini+spell [mini+spell]                      H2000  +0.0730 [+0.0653,+0.0806] wins 30 holm_p 0.0000 * (vs guarded(hebr))
+sib16           bge+spell [bge+spell]                        H2000  +0.0634 [+0.0552,+0.0716] wins 30 holm_p 0.0000 * (vs guarded(hebr))
+sib16           mini-hybrid [mini-hybrid a0.6]               H2000  +0.0768 [+0.0689,+0.0846] wins 30 holm_p 0.0000 * (vs guarded(hebr))
+sib16           mini-rerank [mini-rerank g0.3]               H2000  +0.0774 [+0.0690,+0.0859] wins 30 holm_p 0.0000 * (vs guarded(hebr))
+sib16           bge-hybrid [bge-hybrid a0.6]                 H2000  +0.0725 [+0.0659,+0.0791] wins 30 holm_p 0.0000 * (vs guarded(hebr))
+sib16           bge-rerank [bge-rerank g0.5]                 H2000  +0.0711 [+0.0630,+0.0792] wins 30 holm_p 0.0000 * (vs guarded(hebr))
+sib16           cascade [mini-hybrid>bge-rerank]             H2000  +0.0763 [+0.0683,+0.0843] wins 30 holm_p 0.0000 * (vs guarded(hebr))
+sib16           oracle [oracle(concept)]                     H2000  +0.1662 [+0.1566,+0.1757] wins 30 holm_p 0.0000 * (vs guarded(hebr))
+rand16          hash [hash]                                  H500   +0.0023 [-0.0034,+0.0079] wins 16 holm_p 1.0000   (vs keyword)
+rand16          tfidf [tfidf]                                H500   +0.0119 [+0.0061,+0.0176] wins 26 holm_p 0.0293 * (vs keyword)
+rand16          mini [mini]                                  H500   +0.0127 [+0.0074,+0.0180] wins 27 holm_p 0.0051 * (vs keyword)
+rand16          bge [bge]                                    H500   +0.0168 [+0.0095,+0.0242] wins 25 holm_p 0.0096 * (vs keyword)
+rand16          mini+spell [mini+spell]                      H500   +0.0118 [+0.0053,+0.0182] wins 22 holm_p 0.0953   (vs keyword)
+rand16          bge+spell [bge+spell]                        H500   +0.0109 [+0.0047,+0.0171] wins 21 holm_p 0.1363   (vs keyword)
+rand16          mini-hybrid [mini-hybrid a0.6]               H500   +0.0188 [+0.0115,+0.0262] wins 25 holm_p 0.0022 * (vs keyword)
+rand16          mini-rerank [mini-rerank g0.3]               H500   +0.0190 [+0.0120,+0.0260] wins 25 holm_p 0.0010 * (vs keyword)
+rand16          bge-hybrid [bge-hybrid a0.6]                 H500   +0.0135 [+0.0075,+0.0195] wins 26 holm_p 0.0111 * (vs keyword)
+rand16          bge-rerank [bge-rerank g0.5]                 H500   +0.0120 [+0.0057,+0.0184] wins 24 holm_p 0.0708   (vs keyword)
+rand16          cascade [mini-hybrid>bge-rerank]             H500   +0.0137 [+0.0073,+0.0201] wins 24 holm_p 0.0202 * (vs keyword)
+rand16          oracle [oracle(concept)]                     H500   +0.0767 [+0.0634,+0.0900] wins 30 holm_p 0.0000 * (vs keyword)
+rand16          hash [hash]                                  H2000  +0.0493 [+0.0423,+0.0563] wins 30 holm_p 0.0000 * (vs keyword)
+rand16          tfidf [tfidf]                                H2000  +0.0726 [+0.0662,+0.0791] wins 30 holm_p 0.0000 * (vs keyword)
+rand16          mini [mini]                                  H2000  +0.0752 [+0.0686,+0.0818] wins 30 holm_p 0.0000 * (vs keyword)
+rand16          bge [bge]                                    H2000  +0.0817 [+0.0744,+0.0891] wins 30 holm_p 0.0000 * (vs keyword)
+rand16          mini+spell [mini+spell]                      H2000  +0.0766 [+0.0693,+0.0840] wins 30 holm_p 0.0000 * (vs keyword)
+rand16          bge+spell [bge+spell]                        H2000  +0.0671 [+0.0608,+0.0734] wins 30 holm_p 0.0000 * (vs keyword)
+rand16          mini-hybrid [mini-hybrid a0.6]               H2000  +0.0802 [+0.0725,+0.0879] wins 30 holm_p 0.0000 * (vs keyword)
+rand16          mini-rerank [mini-rerank g0.3]               H2000  +0.0854 [+0.0785,+0.0923] wins 30 holm_p 0.0000 * (vs keyword)
+rand16          bge-hybrid [bge-hybrid a0.6]                 H2000  +0.0754 [+0.0685,+0.0824] wins 30 holm_p 0.0000 * (vs keyword)
+rand16          bge-rerank [bge-rerank g0.5]                 H2000  +0.0751 [+0.0695,+0.0807] wins 30 holm_p 0.0000 * (vs keyword)
+rand16          cascade [mini-hybrid>bge-rerank]             H2000  +0.0774 [+0.0710,+0.0838] wins 30 holm_p 0.0000 * (vs keyword)
+rand16          oracle [oracle(concept)]                     H2000  +0.1656 [+0.1553,+0.1759] wins 30 holm_p 0.0000 * (vs keyword)
+sib64           hash [hash]                                  H500   -0.0113 [-0.0149,-0.0078] wins  4 holm_p 0.0001 ! (vs keyword)
+sib64           tfidf [tfidf]                                H500   -0.0102 [-0.0141,-0.0063] wins  3 holm_p 0.0016 ! (vs keyword)
+sib64           mini [mini]                                  H500   -0.0090 [-0.0131,-0.0048] wins  7 holm_p 0.0169 ! (vs keyword)
+sib64           bge [bge]                                    H500   -0.0094 [-0.0132,-0.0056] wins  4 holm_p 0.0038 ! (vs keyword)
+sib64           mini+spell [mini+spell]                      H500   -0.0096 [-0.0136,-0.0055] wins  5 holm_p 0.0068 ! (vs keyword)
+sib64           bge+spell [bge+spell]                        H500   -0.0100 [-0.0137,-0.0063] wins  3 holm_p 0.0009 ! (vs keyword)
+sib64           mini-hybrid [mini-hybrid a0.6]               H500   -0.0075 [-0.0110,-0.0039] wins  9 holm_p 0.0234 ! (vs keyword)
+sib64           mini-rerank [mini-rerank g0.3]               H500   -0.0078 [-0.0117,-0.0039] wins  6 holm_p 0.0386 ! (vs keyword)
+sib64           bge-hybrid [bge-hybrid a0.6]                 H500   -0.0095 [-0.0135,-0.0055] wins  5 holm_p 0.0055 ! (vs keyword)
+sib64           bge-rerank [bge-rerank g0.5]                 H500   -0.0092 [-0.0132,-0.0052] wins  5 holm_p 0.0100 ! (vs keyword)
+sib64           cascade [mini-hybrid>bge-rerank]             H500   -0.0106 [-0.0150,-0.0062] wins  4 holm_p 0.0047 ! (vs keyword)
+sib64           oracle [oracle(concept)]                     H500   +0.0096 [+0.0038,+0.0153] wins 24 holm_p 0.2103   (vs keyword)
+sib64           hash [hash]                                  H2000  +0.0034 [+0.0005,+0.0064] wins 20 holm_p 1.0000   (vs keyword)
+sib64           tfidf [tfidf]                                H2000  +0.0073 [+0.0041,+0.0105] wins 23 holm_p 0.0090 * (vs keyword)
+sib64           mini [mini]                                  H2000  +0.0072 [+0.0037,+0.0108] wins 24 holm_p 0.0297 * (vs keyword)
+sib64           bge [bge]                                    H2000  +0.0080 [+0.0044,+0.0116] wins 24 holm_p 0.0134 * (vs keyword)
+sib64           mini+spell [mini+spell]                      H2000  +0.0117 [+0.0078,+0.0155] wins 27 holm_p 0.0002 * (vs keyword)
+sib64           bge+spell [bge+spell]                        H2000  +0.0095 [+0.0068,+0.0122] wins 29 holm_p 0.0000 * (vs keyword)
+sib64           mini-hybrid [mini-hybrid a0.6]               H2000  +0.0140 [+0.0105,+0.0174] wins 28 holm_p 0.0000 * (vs keyword)
+sib64           mini-rerank [mini-rerank g0.3]               H2000  +0.0143 [+0.0096,+0.0190] wins 27 holm_p 0.0001 * (vs keyword)
+sib64           bge-hybrid [bge-hybrid a0.6]                 H2000  +0.0121 [+0.0086,+0.0157] wins 27 holm_p 0.0000 * (vs keyword)
+sib64           bge-rerank [bge-rerank g0.5]                 H2000  +0.0097 [+0.0060,+0.0134] wins 27 holm_p 0.0018 * (vs keyword)
+sib64           cascade [mini-hybrid>bge-rerank]             H2000  +0.0121 [+0.0082,+0.0161] wins 27 holm_p 0.0001 * (vs keyword)
+sib64           oracle [oracle(concept)]                     H2000  +0.0780 [+0.0716,+0.0844] wins 30 holm_p 0.0000 * (vs keyword)
+sib16-mixed50   hash [hash]                                  H500   -0.0064 [-0.0103,-0.0025] wins 10 holm_p 0.2212   (vs guarded(hebr))
+sib16-mixed50   tfidf [tfidf]                                H500   -0.0073 [-0.0117,-0.0028] wins  6 holm_p 0.2275   (vs guarded(hebr))
+sib16-mixed50   mini [mini]                                  H500   -0.0044 [-0.0083,-0.0006] wins 12 holm_p 1.0000   (vs guarded(hebr))
+sib16-mixed50   bge [bge]                                    H500   -0.0061 [-0.0107,-0.0015] wins  9 holm_p 0.8067   (vs guarded(hebr))
+sib16-mixed50   mini+spell [mini+spell]                      H500   -0.0075 [-0.0113,-0.0038] wins  7 holm_p 0.0364 ! (vs guarded(hebr))
+sib16-mixed50   bge+spell [bge+spell]                        H500   -0.0029 [-0.0073,+0.0015] wins 11 holm_p 1.0000   (vs guarded(hebr))
+sib16-mixed50   mini-hybrid [mini-hybrid a0.6]               H500   -0.0070 [-0.0107,-0.0032] wins  7 holm_p 0.0786   (vs guarded(hebr))
+sib16-mixed50   mini-rerank [mini-rerank g0.3]               H500   -0.0067 [-0.0105,-0.0029] wins  8 holm_p 0.1363   (vs guarded(hebr))
+sib16-mixed50   bge-hybrid [bge-hybrid a0.6]                 H500   -0.0065 [-0.0102,-0.0029] wins  5 holm_p 0.1190   (vs guarded(hebr))
+sib16-mixed50   bge-rerank [bge-rerank g0.5]                 H500   -0.0067 [-0.0105,-0.0029] wins  5 holm_p 0.1306   (vs guarded(hebr))
+sib16-mixed50   cascade [mini-hybrid>bge-rerank]             H500   -0.0061 [-0.0099,-0.0023] wins 10 holm_p 0.2614   (vs guarded(hebr))
+sib16-mixed50   oracle [oracle(concept)]                     H500   +0.0097 [+0.0031,+0.0163] wins 21 holm_p 0.4409   (vs guarded(hebr))
+sib16-mixed50   hash [hash]                                  H2000  -0.0084 [-0.0118,-0.0051] wins  6 holm_p 0.0028 ! (vs guarded(hebr))
+sib16-mixed50   tfidf [tfidf]                                H2000  -0.0087 [-0.0116,-0.0059] wins  4 holm_p 0.0001 ! (vs guarded(hebr))
+sib16-mixed50   mini [mini]                                  H2000  -0.0070 [-0.0104,-0.0036] wins  6 holm_p 0.0339 ! (vs guarded(hebr))
+sib16-mixed50   bge [bge]                                    H2000  -0.0068 [-0.0101,-0.0034] wins  7 holm_p 0.0369 ! (vs guarded(hebr))
+sib16-mixed50   mini+spell [mini+spell]                      H2000  -0.0070 [-0.0105,-0.0036] wins  6 holm_p 0.0349 ! (vs guarded(hebr))
+sib16-mixed50   bge+spell [bge+spell]                        H2000  -0.0050 [-0.0089,-0.0012] wins  7 holm_p 0.8413   (vs guarded(hebr))
+sib16-mixed50   mini-hybrid [mini-hybrid a0.6]               H2000  -0.0083 [-0.0113,-0.0054] wins  5 holm_p 0.0006 ! (vs guarded(hebr))
+sib16-mixed50   mini-rerank [mini-rerank g0.3]               H2000  -0.0084 [-0.0120,-0.0049] wins  4 holm_p 0.0055 ! (vs guarded(hebr))
+sib16-mixed50   bge-hybrid [bge-hybrid a0.6]                 H2000  -0.0084 [-0.0122,-0.0046] wins  6 holm_p 0.0133 ! (vs guarded(hebr))
+sib16-mixed50   bge-rerank [bge-rerank g0.5]                 H2000  -0.0083 [-0.0119,-0.0047] wins  7 holm_p 0.0083 ! (vs guarded(hebr))
+sib16-mixed50   cascade [mini-hybrid>bge-rerank]             H2000  -0.0085 [-0.0125,-0.0045] wins  6 holm_p 0.0228 ! (vs guarded(hebr))
+sib16-mixed50   oracle [oracle(concept)]                     H2000  +0.0437 [+0.0355,+0.0519] wins 30 holm_p 0.0000 * (vs guarded(hebr))
+ctl-irrel       hash [hash]                                  H500   -0.0075 [-0.0116,-0.0033] wins  8 holm_p 0.1098   (vs guarded(hebr))
+ctl-irrel       tfidf [tfidf]                                H500   -0.0100 [-0.0137,-0.0063] wins  4 holm_p 0.0010 ! (vs guarded(hebr))
+ctl-irrel       mini [mini]                                  H500   -0.0103 [-0.0164,-0.0043] wins  7 holm_p 0.1685   (vs guarded(hebr))
+ctl-irrel       bge [bge]                                    H500   -0.0143 [-0.0190,-0.0097] wins  6 holm_p 0.0001 ! (vs guarded(hebr))
+ctl-irrel       mini+spell [mini+spell]                      H500   -0.0109 [-0.0162,-0.0057] wins  8 holm_p 0.0266 ! (vs guarded(hebr))
+ctl-irrel       bge+spell [bge+spell]                        H500   -0.0084 [-0.0131,-0.0036] wins  7 holm_p 0.1363   (vs guarded(hebr))
+ctl-irrel       mini-hybrid [mini-hybrid a0.6]               H500   -0.0118 [-0.0171,-0.0065] wins  8 holm_p 0.0126 ! (vs guarded(hebr))
+ctl-irrel       mini-rerank [mini-rerank g0.3]               H500   -0.0117 [-0.0173,-0.0061] wins  7 holm_p 0.0266 ! (vs guarded(hebr))
+ctl-irrel       bge-hybrid [bge-hybrid a0.6]                 H500   -0.0083 [-0.0137,-0.0029] wins 10 holm_p 0.3563   (vs guarded(hebr))
+ctl-irrel       bge-rerank [bge-rerank g0.5]                 H500   -0.0103 [-0.0156,-0.0050] wins  8 holm_p 0.0566   (vs guarded(hebr))
+ctl-irrel       cascade [mini-hybrid>bge-rerank]             H500   -0.0082 [-0.0134,-0.0031] wins  5 holm_p 0.2740   (vs guarded(hebr))
+ctl-irrel       oracle [oracle(concept)]                     H500   -0.0179 [-0.0241,-0.0117] wins  3 holm_p 0.0004 ! (vs guarded(hebr))
+ctl-irrel       hash [hash]                                  H2000  -0.0209 [-0.0276,-0.0142] wins  3 holm_p 0.0001 ! (vs warm)
+ctl-irrel       tfidf [tfidf]                                H2000  -0.0225 [-0.0284,-0.0166] wins  2 holm_p 0.0000 ! (vs warm)
+ctl-irrel       mini [mini]                                  H2000  -0.0217 [-0.0273,-0.0162] wins  3 holm_p 0.0000 ! (vs warm)
+ctl-irrel       bge [bge]                                    H2000  -0.0247 [-0.0313,-0.0181] wins  2 holm_p 0.0000 ! (vs warm)
+ctl-irrel       mini+spell [mini+spell]                      H2000  -0.0225 [-0.0282,-0.0167] wins  2 holm_p 0.0000 ! (vs warm)
+ctl-irrel       bge+spell [bge+spell]                        H2000  -0.0213 [-0.0265,-0.0161] wins  3 holm_p 0.0000 ! (vs warm)
+ctl-irrel       mini-hybrid [mini-hybrid a0.6]               H2000  -0.0235 [-0.0287,-0.0182] wins  2 holm_p 0.0000 ! (vs warm)
+ctl-irrel       mini-rerank [mini-rerank g0.3]               H2000  -0.0245 [-0.0300,-0.0189] wins  2 holm_p 0.0000 ! (vs warm)
+ctl-irrel       bge-hybrid [bge-hybrid a0.6]                 H2000  -0.0217 [-0.0284,-0.0151] wins  4 holm_p 0.0001 ! (vs warm)
+ctl-irrel       bge-rerank [bge-rerank g0.5]                 H2000  -0.0233 [-0.0304,-0.0162] wins  4 holm_p 0.0000 ! (vs warm)
+ctl-irrel       cascade [mini-hybrid>bge-rerank]             H2000  -0.0198 [-0.0254,-0.0142] wins  2 holm_p 0.0000 ! (vs warm)
+ctl-irrel       oracle [oracle(concept)]                     H2000  -0.0290 [-0.0361,-0.0219] wins  2 holm_p 0.0000 ! (vs warm)
+
+=== head-to-head A-B (same task streams), H500/H2000; Holm over 170 tests ===
+sib16           bge           - mini          H500   +0.0026 [-0.0018,+0.0069] wins 19 holm_p 1.0000  
+sib16           bge           - mini          H2000  -0.0123 [-0.0196,-0.0049] wins  8 holm_p 0.2773  
+sib16           mini          - hash          H500   +0.0033 [-0.0018,+0.0085] wins 21 holm_p 1.0000  
+sib16           mini          - hash          H2000  +0.0143 [+0.0075,+0.0211] wins 22 holm_p 0.0262 *
+sib16           mini          - tfidf         H500   -0.0026 [-0.0075,+0.0022] wins 12 holm_p 1.0000  
+sib16           mini          - tfidf         H2000  +0.0017 [-0.0053,+0.0087] wins 16 holm_p 1.0000  
+sib16           bge           - tfidf         H500   -0.0001 [-0.0052,+0.0050] wins 13 holm_p 1.0000  
+sib16           bge           - tfidf         H2000  -0.0106 [-0.0162,-0.0049] wins  8 holm_p 0.0974  
+sib16           mini-hybrid   - mini          H500   +0.0077 [+0.0028,+0.0126] wins 23 holm_p 0.4588  
+sib16           mini-hybrid   - mini          H2000  +0.0127 [+0.0068,+0.0186] wins 24 holm_p 0.0203 *
+sib16           mini-hybrid   - bge           H500   +0.0052 [+0.0002,+0.0101] wins 22 holm_p 1.0000  
+sib16           mini-hybrid   - bge           H2000  +0.0250 [+0.0189,+0.0311] wins 29 holm_p 0.0000 *
+sib16           mini-hybrid   - mini+spell    H500   +0.0001 [-0.0050,+0.0051] wins 15 holm_p 1.0000  
+sib16           mini-hybrid   - mini+spell    H2000  +0.0038 [-0.0011,+0.0087] wins 19 holm_p 1.0000  
+sib16           mini-rerank   - mini+spell    H500   +0.0011 [-0.0043,+0.0064] wins 13 holm_p 1.0000  
+sib16           mini-rerank   - mini+spell    H2000  +0.0045 [-0.0003,+0.0092] wins 18 holm_p 1.0000  
+sib16           mini-rerank   - bge           H500   +0.0061 [+0.0007,+0.0116] wins 18 holm_p 1.0000  
+sib16           mini-rerank   - bge           H2000  +0.0257 [+0.0190,+0.0323] wins 27 holm_p 0.0000 *
+sib16           bge-hybrid    - bge           H500   +0.0022 [-0.0030,+0.0075] wins 15 holm_p 1.0000  
+sib16           bge-hybrid    - bge           H2000  +0.0207 [+0.0149,+0.0265] wins 27 holm_p 0.0000 *
+sib16           bge-hybrid    - mini-hybrid   H500   -0.0029 [-0.0074,+0.0015] wins 15 holm_p 1.0000  
+sib16           bge-hybrid    - mini-hybrid   H2000  -0.0043 [-0.0103,+0.0018] wins 12 holm_p 1.0000  
+sib16           bge-rerank    - mini-rerank   H500   -0.0056 [-0.0109,-0.0003] wins 11 holm_p 1.0000  
+sib16           bge-rerank    - mini-rerank   H2000  -0.0063 [-0.0130,+0.0003] wins 14 holm_p 1.0000  
+sib16           bge+spell     - mini+spell    H500   -0.0067 [-0.0117,-0.0017] wins  9 holm_p 1.0000  
+sib16           bge+spell     - mini+spell    H2000  -0.0095 [-0.0158,-0.0032] wins  9 holm_p 0.5840  
+sib16           cascade       - bge-hybrid    H500   +0.0032 [-0.0009,+0.0072] wins 18 holm_p 1.0000  
+sib16           cascade       - bge-hybrid    H2000  +0.0038 [-0.0017,+0.0093] wins 18 holm_p 1.0000  
+sib16           cascade       - mini-hybrid   H500   +0.0002 [-0.0042,+0.0046] wins 13 holm_p 1.0000  
+sib16           cascade       - mini-hybrid   H2000  -0.0005 [-0.0053,+0.0043] wins 15 holm_p 1.0000  
+sib16           oracle        - bge-hybrid    H500   +0.0630 [+0.0528,+0.0732] wins 30 holm_p 0.0000 *
+sib16           oracle        - bge-hybrid    H2000  +0.0937 [+0.0857,+0.1017] wins 30 holm_p 0.0000 *
+sib16           oracle        - bge           H500   +0.0652 [+0.0545,+0.0759] wins 30 holm_p 0.0000 *
+sib16           oracle        - bge           H2000  +0.1144 [+0.1042,+0.1246] wins 30 holm_p 0.0000 *
+rand16          bge           - mini          H500   +0.0041 [-0.0005,+0.0088] wins 19 holm_p 1.0000  
+rand16          bge           - mini          H2000  +0.0065 [+0.0020,+0.0110] wins 22 holm_p 0.7811  
+rand16          mini          - hash          H500   +0.0104 [+0.0068,+0.0141] wins 25 holm_p 0.0003 *
+rand16          mini          - hash          H2000  +0.0259 [+0.0178,+0.0339] wins 28 holm_p 0.0001 *
+rand16          mini          - tfidf         H500   +0.0008 [-0.0030,+0.0046] wins 11 holm_p 1.0000  
+rand16          mini          - tfidf         H2000  +0.0025 [-0.0029,+0.0080] wins 15 holm_p 1.0000  
+rand16          bge           - tfidf         H500   +0.0050 [+0.0007,+0.0092] wins 21 holm_p 1.0000  
+rand16          bge           - tfidf         H2000  +0.0091 [+0.0035,+0.0146] wins 21 holm_p 0.3281  
+rand16          mini-hybrid   - mini          H500   +0.0061 [+0.0018,+0.0105] wins 22 holm_p 0.9860  
+rand16          mini-hybrid   - mini          H2000  +0.0050 [-0.0019,+0.0119] wins 22 holm_p 1.0000  
+rand16          mini-hybrid   - bge           H500   +0.0020 [-0.0035,+0.0075] wins 18 holm_p 1.0000  
+rand16          mini-hybrid   - bge           H2000  -0.0015 [-0.0090,+0.0061] wins 16 holm_p 1.0000  
+rand16          mini-hybrid   - mini+spell    H500   +0.0071 [+0.0037,+0.0104] wins 24 holm_p 0.0253 *
+rand16          mini-hybrid   - mini+spell    H2000  +0.0036 [-0.0030,+0.0101] wins 16 holm_p 1.0000  
+rand16          mini-rerank   - mini+spell    H500   +0.0072 [+0.0038,+0.0107] wins 22 holm_p 0.0271 *
+rand16          mini-rerank   - mini+spell    H2000  +0.0087 [+0.0025,+0.0150] wins 20 holm_p 0.9860  
+rand16          mini-rerank   - bge           H500   +0.0022 [-0.0034,+0.0077] wins 19 holm_p 1.0000  
+rand16          mini-rerank   - bge           H2000  +0.0037 [-0.0026,+0.0099] wins 18 holm_p 1.0000  
+rand16          bge-hybrid    - bge           H500   -0.0033 [-0.0082,+0.0015] wins 14 holm_p 1.0000  
+rand16          bge-hybrid    - bge           H2000  -0.0063 [-0.0116,-0.0010] wins 12 holm_p 1.0000  
+rand16          bge-hybrid    - mini-hybrid   H500   -0.0053 [-0.0100,-0.0006] wins 10 holm_p 1.0000  
+rand16          bge-hybrid    - mini-hybrid   H2000  -0.0048 [-0.0116,+0.0021] wins 13 holm_p 1.0000  
+rand16          bge-rerank    - mini-rerank   H500   -0.0069 [-0.0118,-0.0021] wins  7 holm_p 0.8047  
+rand16          bge-rerank    - mini-rerank   H2000  -0.0103 [-0.0153,-0.0052] wins  6 holm_p 0.0394 !
+rand16          bge+spell     - mini+spell    H500   -0.0009 [-0.0038,+0.0020] wins 12 holm_p 1.0000  
+rand16          bge+spell     - mini+spell    H2000  -0.0096 [-0.0157,-0.0034] wins 10 holm_p 0.4811  
+rand16          cascade       - bge-hybrid    H500   +0.0002 [-0.0028,+0.0032] wins 14 holm_p 1.0000  
+rand16          cascade       - bge-hybrid    H2000  +0.0020 [-0.0033,+0.0073] wins 13 holm_p 1.0000  
+rand16          cascade       - mini-hybrid   H500   -0.0051 [-0.0097,-0.0005] wins 11 holm_p 1.0000  
+rand16          cascade       - mini-hybrid   H2000  -0.0028 [-0.0079,+0.0024] wins 14 holm_p 1.0000  
+rand16          oracle        - bge-hybrid    H500   +0.0632 [+0.0497,+0.0766] wins 29 holm_p 0.0000 *
+rand16          oracle        - bge-hybrid    H2000  +0.0902 [+0.0807,+0.0997] wins 30 holm_p 0.0000 *
+rand16          oracle        - bge           H500   +0.0598 [+0.0481,+0.0716] wins 29 holm_p 0.0000 *
+rand16          oracle        - bge           H2000  +0.0839 [+0.0762,+0.0916] wins 30 holm_p 0.0000 *
+sib64           bge           - mini          H500   -0.0004 [-0.0036,+0.0027] wins 13 holm_p 1.0000  
+sib64           bge           - mini          H2000  +0.0007 [-0.0026,+0.0041] wins 14 holm_p 1.0000  
+sib64           mini          - hash          H500   +0.0024 [+0.0001,+0.0047] wins 20 holm_p 1.0000  
+sib64           mini          - hash          H2000  +0.0038 [+0.0004,+0.0072] wins 18 holm_p 1.0000  
+sib64           mini          - tfidf         H500   +0.0013 [-0.0015,+0.0040] wins 16 holm_p 1.0000  
+sib64           mini          - tfidf         H2000  -0.0001 [-0.0037,+0.0036] wins 12 holm_p 1.0000  
+sib64           bge           - tfidf         H500   +0.0008 [-0.0028,+0.0044] wins 16 holm_p 1.0000  
+sib64           bge           - tfidf         H2000  +0.0007 [-0.0027,+0.0041] wins 12 holm_p 1.0000  
+sib64           mini-hybrid   - mini          H500   +0.0015 [-0.0010,+0.0040] wins 18 holm_p 1.0000  
+sib64           mini-hybrid   - mini          H2000  +0.0067 [+0.0029,+0.0105] wins 21 holm_p 0.1451  
+sib64           mini-hybrid   - bge           H500   +0.0019 [-0.0018,+0.0056] wins 19 holm_p 1.0000  
+sib64           mini-hybrid   - bge           H2000  +0.0060 [+0.0027,+0.0092] wins 25 holm_p 0.1063  
+sib64           mini-hybrid   - mini+spell    H500   +0.0021 [-0.0011,+0.0053] wins 14 holm_p 1.0000  
+sib64           mini-hybrid   - mini+spell    H2000  +0.0023 [-0.0010,+0.0056] wins 18 holm_p 1.0000  
+sib64           mini-rerank   - mini+spell    H500   +0.0017 [-0.0015,+0.0050] wins 16 holm_p 1.0000  
+sib64           mini-rerank   - mini+spell    H2000  +0.0027 [-0.0019,+0.0073] wins 17 holm_p 1.0000  
+sib64           mini-rerank   - bge           H500   +0.0016 [-0.0021,+0.0053] wins 18 holm_p 1.0000  
+sib64           mini-rerank   - bge           H2000  +0.0063 [+0.0033,+0.0094] wins 23 holm_p 0.0305 *
+sib64           bge-hybrid    - bge           H500   -0.0001 [-0.0033,+0.0030] wins 16 holm_p 1.0000  
+sib64           bge-hybrid    - bge           H2000  +0.0042 [+0.0016,+0.0067] wins 23 holm_p 0.3069  
+sib64           bge-hybrid    - mini-hybrid   H500   -0.0020 [-0.0051,+0.0010] wins 18 holm_p 1.0000  
+sib64           bge-hybrid    - mini-hybrid   H2000  -0.0018 [-0.0049,+0.0013] wins 10 holm_p 1.0000  
+sib64           bge-rerank    - mini-rerank   H500   -0.0014 [-0.0042,+0.0014] wins 15 holm_p 1.0000  
+sib64           bge-rerank    - mini-rerank   H2000  -0.0046 [-0.0080,-0.0012] wins  9 holm_p 1.0000  
+sib64           bge+spell     - mini+spell    H500   -0.0005 [-0.0036,+0.0027] wins 15 holm_p 1.0000  
+sib64           bge+spell     - mini+spell    H2000  -0.0022 [-0.0052,+0.0008] wins 10 holm_p 1.0000  
+sib64           cascade       - bge-hybrid    H500   -0.0011 [-0.0023,+0.0001] wins 14 holm_p 1.0000  
+sib64           cascade       - bge-hybrid    H2000  +0.0000 [-0.0031,+0.0031] wins 12 holm_p 1.0000  
+sib64           cascade       - mini-hybrid   H500   -0.0031 [-0.0062,-0.0000] wins 13 holm_p 1.0000  
+sib64           cascade       - mini-hybrid   H2000  -0.0018 [-0.0043,+0.0006] wins 11 holm_p 1.0000  
+sib64           oracle        - bge-hybrid    H500   +0.0191 [+0.0141,+0.0241] wins 28 holm_p 0.0000 *
+sib64           oracle        - bge-hybrid    H2000  +0.0659 [+0.0597,+0.0720] wins 30 holm_p 0.0000 *
+sib64           oracle        - bge           H500   +0.0190 [+0.0131,+0.0248] wins 28 holm_p 0.0000 *
+sib64           oracle        - bge           H2000  +0.0700 [+0.0640,+0.0760] wins 30 holm_p 0.0000 *
+sib16-mixed50   bge           - mini          H500   -0.0017 [-0.0047,+0.0013] wins 11 holm_p 1.0000  
+sib16-mixed50   bge           - mini          H2000  +0.0002 [-0.0022,+0.0027] wins 13 holm_p 1.0000  
+sib16-mixed50   mini          - hash          H500   +0.0020 [-0.0013,+0.0053] wins 17 holm_p 1.0000  
+sib16-mixed50   mini          - hash          H2000  +0.0014 [-0.0012,+0.0041] wins 18 holm_p 1.0000  
+sib16-mixed50   mini          - tfidf         H500   +0.0029 [+0.0003,+0.0055] wins 18 holm_p 1.0000  
+sib16-mixed50   mini          - tfidf         H2000  +0.0017 [-0.0004,+0.0039] wins 19 holm_p 1.0000  
+sib16-mixed50   bge           - tfidf         H500   +0.0012 [-0.0012,+0.0035] wins 14 holm_p 1.0000  
+sib16-mixed50   bge           - tfidf         H2000  +0.0019 [-0.0006,+0.0045] wins 19 holm_p 1.0000  
+sib16-mixed50   mini-hybrid   - mini          H500   -0.0026 [-0.0047,-0.0004] wins  9 holm_p 1.0000  
+sib16-mixed50   mini-hybrid   - mini          H2000  -0.0013 [-0.0042,+0.0015] wins 12 holm_p 1.0000  
+sib16-mixed50   mini-hybrid   - bge           H500   -0.0008 [-0.0032,+0.0015] wins 14 holm_p 1.0000  
+sib16-mixed50   mini-hybrid   - bge           H2000  -0.0016 [-0.0046,+0.0015] wins 13 holm_p 1.0000  
+sib16-mixed50   mini-hybrid   - mini+spell    H500   +0.0006 [-0.0025,+0.0037] wins 15 holm_p 1.0000  
+sib16-mixed50   mini-hybrid   - mini+spell    H2000  -0.0013 [-0.0044,+0.0018] wins 12 holm_p 1.0000  
+sib16-mixed50   mini-rerank   - mini+spell    H500   +0.0008 [-0.0023,+0.0039] wins 14 holm_p 1.0000  
+sib16-mixed50   mini-rerank   - mini+spell    H2000  -0.0014 [-0.0045,+0.0017] wins 11 holm_p 1.0000  
+sib16-mixed50   mini-rerank   - bge           H500   -0.0006 [-0.0033,+0.0021] wins 12 holm_p 1.0000  
+sib16-mixed50   mini-rerank   - bge           H2000  -0.0017 [-0.0037,+0.0004] wins 14 holm_p 1.0000  
+sib16-mixed50   bge-hybrid    - bge           H500   -0.0004 [-0.0031,+0.0023] wins 10 holm_p 1.0000  
+sib16-mixed50   bge-hybrid    - bge           H2000  -0.0016 [-0.0048,+0.0016] wins 13 holm_p 1.0000  
+sib16-mixed50   bge-hybrid    - mini-hybrid   H500   +0.0004 [-0.0018,+0.0027] wins 13 holm_p 1.0000  
+sib16-mixed50   bge-hybrid    - mini-hybrid   H2000  -0.0001 [-0.0032,+0.0031] wins 16 holm_p 1.0000  
+sib16-mixed50   bge-rerank    - mini-rerank   H500   +0.0000 [-0.0026,+0.0026] wins 13 holm_p 1.0000  
+sib16-mixed50   bge-rerank    - mini-rerank   H2000  +0.0001 [-0.0026,+0.0028] wins 16 holm_p 1.0000  
+sib16-mixed50   bge+spell     - mini+spell    H500   +0.0046 [+0.0012,+0.0081] wins 19 holm_p 1.0000  
+sib16-mixed50   bge+spell     - mini+spell    H2000  +0.0020 [-0.0010,+0.0050] wins 16 holm_p 1.0000  
+sib16-mixed50   cascade       - bge-hybrid    H500   +0.0004 [-0.0012,+0.0021] wins 15 holm_p 1.0000  
+sib16-mixed50   cascade       - bge-hybrid    H2000  -0.0001 [-0.0036,+0.0034] wins 19 holm_p 1.0000  
+sib16-mixed50   cascade       - mini-hybrid   H500   +0.0009 [-0.0014,+0.0032] wins 18 holm_p 1.0000  
+sib16-mixed50   cascade       - mini-hybrid   H2000  -0.0002 [-0.0028,+0.0025] wins 15 holm_p 1.0000  
+sib16-mixed50   oracle        - bge-hybrid    H500   +0.0162 [+0.0104,+0.0220] wins 25 holm_p 0.0006 *
+sib16-mixed50   oracle        - bge-hybrid    H2000  +0.0521 [+0.0442,+0.0601] wins 30 holm_p 0.0000 *
+sib16-mixed50   oracle        - bge           H500   +0.0158 [+0.0098,+0.0218] wins 25 holm_p 0.0014 *
+sib16-mixed50   oracle        - bge           H2000  +0.0505 [+0.0429,+0.0581] wins 30 holm_p 0.0000 *
+ctl-irrel       bge           - mini          H500   -0.0040 [-0.0090,+0.0010] wins  9 holm_p 1.0000  
+ctl-irrel       bge           - mini          H2000  -0.0029 [-0.0066,+0.0007] wins 10 holm_p 1.0000  
+ctl-irrel       mini          - hash          H500   -0.0029 [-0.0084,+0.0026] wins 11 holm_p 1.0000  
+ctl-irrel       mini          - hash          H2000  -0.0009 [-0.0046,+0.0028] wins 15 holm_p 1.0000  
+ctl-irrel       mini          - tfidf         H500   -0.0003 [-0.0052,+0.0046] wins 16 holm_p 1.0000  
+ctl-irrel       mini          - tfidf         H2000  +0.0008 [-0.0028,+0.0043] wins 16 holm_p 1.0000  
+ctl-irrel       bge           - tfidf         H500   -0.0043 [-0.0084,-0.0002] wins 11 holm_p 1.0000  
+ctl-irrel       bge           - tfidf         H2000  -0.0022 [-0.0058,+0.0015] wins 10 holm_p 1.0000  
+ctl-irrel       mini-hybrid   - mini          H500   -0.0015 [-0.0061,+0.0031] wins 12 holm_p 1.0000  
+ctl-irrel       mini-hybrid   - mini          H2000  -0.0017 [-0.0046,+0.0012] wins 11 holm_p 1.0000  
+ctl-irrel       mini-hybrid   - bge           H500   +0.0025 [-0.0014,+0.0065] wins 20 holm_p 1.0000  
+ctl-irrel       mini-hybrid   - bge           H2000  +0.0012 [-0.0026,+0.0051] wins 17 holm_p 1.0000  
+ctl-irrel       mini-hybrid   - mini+spell    H500   -0.0009 [-0.0041,+0.0023] wins 10 holm_p 1.0000  
+ctl-irrel       mini-hybrid   - mini+spell    H2000  -0.0010 [-0.0047,+0.0027] wins 14 holm_p 1.0000  
+ctl-irrel       mini-rerank   - mini+spell    H500   -0.0008 [-0.0053,+0.0038] wins 14 holm_p 1.0000  
+ctl-irrel       mini-rerank   - mini+spell    H2000  -0.0020 [-0.0061,+0.0020] wins 13 holm_p 1.0000  
+ctl-irrel       mini-rerank   - bge           H500   +0.0026 [-0.0022,+0.0075] wins 18 holm_p 1.0000  
+ctl-irrel       mini-rerank   - bge           H2000  +0.0002 [-0.0037,+0.0041] wins 17 holm_p 1.0000  
+ctl-irrel       bge-hybrid    - bge           H500   +0.0061 [+0.0020,+0.0101] wins 22 holm_p 0.6693  
+ctl-irrel       bge-hybrid    - bge           H2000  +0.0030 [-0.0006,+0.0065] wins 17 holm_p 1.0000  
+ctl-irrel       bge-hybrid    - mini-hybrid   H500   +0.0035 [-0.0001,+0.0071] wins 19 holm_p 1.0000  
+ctl-irrel       bge-hybrid    - mini-hybrid   H2000  +0.0018 [-0.0021,+0.0056] wins 16 holm_p 1.0000  
+ctl-irrel       bge-rerank    - mini-rerank   H500   +0.0014 [-0.0027,+0.0056] wins 19 holm_p 1.0000  
+ctl-irrel       bge-rerank    - mini-rerank   H2000  +0.0012 [-0.0026,+0.0049] wins 16 holm_p 1.0000  
+ctl-irrel       bge+spell     - mini+spell    H500   +0.0026 [-0.0011,+0.0062] wins 19 holm_p 1.0000  
+ctl-irrel       bge+spell     - mini+spell    H2000  +0.0012 [-0.0023,+0.0046] wins 17 holm_p 1.0000  
+ctl-irrel       cascade       - bge-hybrid    H500   +0.0001 [-0.0035,+0.0037] wins 16 holm_p 1.0000  
+ctl-irrel       cascade       - bge-hybrid    H2000  +0.0019 [-0.0013,+0.0051] wins 16 holm_p 1.0000  
+ctl-irrel       cascade       - mini-hybrid   H500   +0.0036 [-0.0005,+0.0076] wins 20 holm_p 1.0000  
+ctl-irrel       cascade       - mini-hybrid   H2000  +0.0037 [+0.0006,+0.0068] wins 22 holm_p 1.0000  
+ctl-irrel       oracle        - bge-hybrid    H500   -0.0096 [-0.0154,-0.0039] wins  9 holm_p 0.2674  
+ctl-irrel       oracle        - bge-hybrid    H2000  -0.0073 [-0.0112,-0.0034] wins  9 holm_p 0.0909  
+ctl-irrel       oracle        - bge           H500   -0.0036 [-0.0096,+0.0025] wins 15 holm_p 1.0000  
+ctl-irrel       oracle        - bge           H2000  -0.0043 [-0.0082,-0.0005] wins 12 holm_p 1.0000  
+
+cost: {"encode_ms_single":{"bge":13.25,"hash":0.0,"mini":2.44},"model_mb":{"bge":415.62227153778076,"mini":86.21713066101074},"scan_us_per_task_at_2000_stored":{"bge":959.1139999999999,"mini":491.46},"store_mb_for_2000_tasks":{"bge":5.859375,"mini":2.9296875}}
+wrote results/g1_route.json (total 45.9s)
