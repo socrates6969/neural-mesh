@@ -15,7 +15,7 @@ import re
 from collections import Counter
 from dataclasses import dataclass, field
 
-SCRUB_VERSION = "scrub-v1"
+SCRUB_VERSION = "scrub-v2"   # v2: natural-language secrets ("the password is X"); session secret values (reader.py)
 
 # --- sensitive paths (a tool call touching one of these is dropped) -----------------------------------------------
 _SENSITIVE_PATH_PARTS = [
@@ -58,6 +58,10 @@ _SECRET_PATTERNS: list[tuple[str, re.Pattern]] = [
         r"|auth[_-]?token|access[_-]?token|refresh[_-]?token|private[_-]?key|session[_-]?secret|signing[_-]?key)\b[\"']?\s*(?:=|:|=>)\s*)"
         r"(?P<q>[\"'`]?)(?P<v>[^\s\"'`,;)}\]]{6,})")),
     ("card_number", re.compile(r"\b(?:\d[ -]?){13,19}\b")),
+    # v2: "the db password is X", "api key was X", "token: X" in prose (the key=value form above misses these)
+    ("password_phrase", re.compile(
+        r"(?i)(?P<k>\b(?:password|passwd|passphrase|pass ?code|pwd|api[ _-]?key|secret(?:[ _-]?key)?|access[ _-]?token|auth[ _-]?token"
+        r"|bearer token|token|credentials?)\s+(?:is|was|=|:|set to|of|reads|equals)\s+)(?P<q>[\"'`]?)(?P<v>[^\s\"'`,;)]{6,})")),
 ]
 # --- PII patterns (redacted, record kept) ------------------------------------------------------------------------
 _PII_PATTERNS: list[tuple[str, re.Pattern]] = [
@@ -98,6 +102,17 @@ def looks_high_entropy(tok: str) -> bool:
     return shannon(t) >= 4.2
 
 
+_PROSE = re.compile(r"^[a-z]+$|^[A-Z][a-z]+$")
+
+
+def _secretish(v: str) -> bool:
+    """A value after "password is" that looks like a credential, not prose: not a plain lowercase / Capitalised word and not a
+    file path or URL; contains a digit, a symbol, or mixed case beyond the first letter."""
+    if _PROSE.match(v) or "/" in v or "\\" in v or v.startswith(("http", "[", "<", "$", "{")):
+        return False
+    return any(ch.isdigit() for ch in v) or any(not ch.isalnum() for ch in v) or any(ch.isupper() for ch in v[1:])
+
+
 def _luhn_ok(digits: str) -> bool:
     s, alt = 0, False
     for ch in reversed(digits):
@@ -122,7 +137,8 @@ class ScrubResult:
         return any(k in SECRET_CATEGORIES for k, v in self.hits.items() if v)
 
 
-SECRET_CATEGORIES = {"private_key", "jwt", "api_key", "bearer", "conn_string", "password", "card_number", "high_entropy"}
+SECRET_CATEGORIES = {"private_key", "jwt", "api_key", "bearer", "conn_string", "password", "card_number", "high_entropy",
+                     "session_secret"}
 
 
 def scrub(text: str | None, hits: Counter | None = None) -> ScrubResult:
@@ -133,7 +149,15 @@ def scrub(text: str | None, hits: Counter | None = None) -> ScrubResult:
     s = text
 
     for cat, rx in _SECRET_PATTERNS:
-        if cat == "password":
+        if cat == "password_phrase":
+            def _pp(m: re.Match) -> str:
+                v = m.group("v").rstrip(".")
+                if _PLACEHOLDER.match(v) or not _secretish(v):
+                    return m.group(0)
+                local["password"] += 1
+                return f"{m.group('k')}{m.group('q')}[REDACTED:password]"
+            s = rx.sub(_pp, s)
+        elif cat == "password":
             def _pw(m: re.Match) -> str:
                 v = m.group("v")
                 if _PLACEHOLDER.match(v) or v.lower().startswith(("ci-only-", "local-dev-")) and shannon(v) < 3.0:

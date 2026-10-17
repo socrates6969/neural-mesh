@@ -120,6 +120,8 @@ class PipelineRetryTests(unittest.TestCase):
         from unittest import mock
         from ingest import pipeline
         from ingest.util import iter_jsonl
+        self.addCleanup(mock.patch.stopall)
+        mock.patch.object(pipeline, "ADMISSION", "judge").start()      # legacy judge admission (the default is exec evidence, gap C)
         r1 = pipeline.run(self.env.cfg)                                   # judge_budget = 0 in Env: outcomes only
         self.assertEqual(len(list(iter_jsonl(self.env.cfg.sft))), 0)
         self.assertEqual(len(list(iter_jsonl(self.env.cfg.outcomes))), 2)

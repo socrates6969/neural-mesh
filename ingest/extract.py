@@ -6,10 +6,15 @@ continuation). Agreement with the evaluator's 55 hand labels is measured and rep
 """
 from __future__ import annotations
 
+import os
 import re
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+
+from . import trajectory as tj
+
+TAINT_MODE = os.environ.get("INGEST_TAINT", "call")      # "call" (gap D: per tool call) | "agent" (legacy: any sensitive mention taints all)
 
 OUTCOME_REWARD = {"success": 1.0, "fix-round": 0.6, "defect": 0.4, "blocked": 0.2, "re-dispatch": 0.1}
 
@@ -123,6 +128,8 @@ class DispatchItem:
     tokens: dict | None
     settled: bool
     chain: str = ""      # id of the dispatch this item belongs to (a SendMessage continuation shares its origin's chain)
+    calls: list = field(default_factory=list)     # content-free call records of the agent's whole trajectory (trajectory.py)
+    ev: dict = field(default_factory=dict)        # execution evidence (trajectory.evidence) + optional later verdict
 
 
 @dataclass
@@ -141,6 +148,10 @@ class TurnItem:
     feedback: str | None
     tools: int
     settled: bool
+    calls: list = field(default_factory=list)
+    ev: dict = field(default_factory=dict)
+    agent_id: str | None = None                   # None = main thread turn; else the subagent whose turn this is
+    agent: str | None = None
 
 
 @dataclass
@@ -179,6 +190,14 @@ def _tokens(st: dict | None) -> dict | None:
     t["total"] = sum(t.values())
     t["api_calls"] = len(st["usage"])
     return t
+
+
+def agent_calls(st: dict | None) -> list[dict]:
+    return [c for t in (st or {}).get("turns") or [] for c in t.get("calls") or []]
+
+
+def is_tainted(st_or_turn_calls: list[dict], legacy: bool) -> bool:
+    return legacy if TAINT_MODE == "agent" else tj.tainted(st_or_turn_calls)
 
 
 def _final(agent: dict | None) -> tuple[str, bool]:
@@ -228,15 +247,17 @@ def dispatch_items(s: Session, now: float, settle_s: float) -> list[DispatchItem
         settled = bool(agent and agent.get("handback")) or (bool(res) and not res.get("async") and bool(agent)) \
             or (now - parse_ts(last_ts) > settle_s)
         meta = (agent or {}).get("meta") or {}
+        calls = agent_calls(agent)
+        tnt = is_tainted(calls, bool(agent and agent.get("tainted_tools")))
         out.append(DispatchItem(
             id=f"out:{tid}", ts=d.get("ts"), end_ts=last_ts, project=project_of(d.get("cwd") or owner.get("cwd"), s.project_dir), session=s.session,
             kind="dispatch", agent=d.get("subagent_type") or meta.get("agentType") or "general-purpose",
             model=((agent or {}).get("models") or [None])[0], spawn_depth=meta.get("spawnDepth"),
             description=d.get("description") or "", prompt=d["prompt"]["t"], prompt_secret=bool(d["prompt"]["s"]),
-            report=report, report_secret=rsec, tainted=bool(agent and agent.get("tainted_tools")),
+            report=report, report_secret=rsec, tainted=tnt,
             result_head=res.get("head") or "", signals=dict((agent or {}).get("signals") or {}),
             later={"no_report": not report, "redispatched": redis, "continued": len(cont), "result_error": bool(res.get("error"))},
-            tokens=_tokens(agent), settled=settled, chain=f"out:{tid}"))
+            tokens=_tokens(agent), settled=settled, chain=f"out:{tid}", calls=calls, ev=tj.evidence(calls)))
         # continuations: one item per SendMessage. Messages to a running agent are queued into its context (not separate user turns), so the
         # report of a continuation is the agent's final report when the agent kept working after the message; tokens stay on the origin.
         for t3, d3, _ in cont:
@@ -246,25 +267,39 @@ def dispatch_items(s: Session, now: float, settle_s: float) -> list[DispatchItem
                 session=s.session, kind="continuation", agent=d.get("subagent_type") or meta.get("agentType") or "general-purpose",
                 model=((agent or {}).get("models") or [None])[0], spawn_depth=meta.get("spawnDepth"),
                 description=(d.get("description") or ""), prompt=d3["prompt"]["t"], prompt_secret=bool(d3["prompt"]["s"]),
-                report=report if after else "", report_secret=rsec if after else False, tainted=bool(agent and agent.get("tainted_tools")),
+                report=report if after else "", report_secret=rsec if after else False, tainted=tnt,
                 result_head="", signals={}, later={"no_report": not (after and report), "redispatched": False, "continued": 0, "result_error": False},
                 tokens=None, settled=settled, chain=f"out:{tid}"))
     return out
 
 
+ALL_TURNS = os.environ.get("INGEST_ALL_TURNS", "1") != "0"   # gap A: also every subagent turn (default on), not only main-thread turns
+
+
 def turn_items(s: Session, now: float, settle_s: float) -> list[TurnItem]:
-    st = s.main
-    if not st:
-        return []
+    """Main-thread turns, plus (ALL_TURNS) every turn of every subagent transcript. A subagent's FIRST turn is its dispatch prompt,
+    already an agent_report row, so it is skipped when the dispatch that spawned it is known."""
     out = []
-    turns = st.get("turns") or []
-    for i, t in enumerate(turns):
-        settled = i + 1 < len(turns) or now - parse_ts(t.get("last_ts")) > settle_s
-        out.append(TurnItem(
-            id=f"turn:{s.session}:{i}:{t.get('ts')}", ts=t.get("ts"), end_ts=t.get("last_ts"),
-            project=project_of(st.get("cwd"), s.project_dir), session=s.session, model=(st.get("models") or [None])[-1],
-            user=t["user"]["t"], user_secret=bool(t["user"]["s"]), resp=t["resp"]["t"], resp_secret=bool(t["resp"]["s"]),
-            tainted=bool(t.get("tainted")), feedback=t.get("fb"), tools=int(t.get("tools") or 0), settled=settled))
+    files = [(s.main, None)] if s.main else []
+    if ALL_TURNS:
+        dispatched = {tid for st in ([s.main] if s.main else []) + list(s.agents_by_id.values()) for tid in (st.get("dispatches") or {})}
+        for aid in sorted(s.agents_by_id):
+            files.append((s.agents_by_id[aid], aid))
+    for st, aid in files:
+        turns = st.get("turns") or []
+        meta = st.get("meta") or {}
+        for i, t in enumerate(turns):
+            if aid is not None and i == 0 and meta.get("toolUseId") in dispatched:
+                continue
+            settled = i + 1 < len(turns) or now - parse_ts(t.get("last_ts")) > settle_s
+            calls = t.get("calls") or []
+            out.append(TurnItem(
+                id=f"turn:{s.session}:{i}:{t.get('ts')}" if aid is None else f"turn:{s.session}:a{aid}:{i}:{t.get('ts')}",
+                ts=t.get("ts"), end_ts=t.get("last_ts"),
+                project=project_of(st.get("cwd"), s.project_dir), session=s.session, model=(st.get("models") or [None])[-1],
+                user=t["user"]["t"], user_secret=bool(t["user"]["s"]), resp=t["resp"]["t"], resp_secret=bool(t["resp"]["s"]),
+                tainted=is_tainted(calls, bool(t.get("tainted"))), feedback=t.get("fb"), tools=int(t.get("tools") or 0), settled=settled,
+                calls=calls, ev=tj.evidence(calls), agent_id=aid, agent=meta.get("agentType") if aid else None))
     return out
 
 
