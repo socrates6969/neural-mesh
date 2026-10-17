@@ -18,10 +18,11 @@ from pathlib import Path
 from .scrub import scrub, touches_sensitive_path
 from .util import atomic_write_json, read_json, sha16
 
-STATE_VERSION = 1
+STATE_VERSION = 2   # v2: text written after a sensitive-path tool call is withheld (re-read once)
 MAX_PROMPT = 6000
 MAX_RESP = 10000
 MAX_RESULT_HEAD = 600
+WITHHELD = "[withheld: written after a sensitive-path tool call]"   # flagged secret; keeps 'a report existed'
 DISPATCH_TOOLS = {"Agent", "Task"}
 _PATH_KEYS = ("file_path", "path", "notebook_path", "pattern", "glob", "command", "url", "cwd", "directory", "dir", "paths", "files")
 _SYSTEM_PREFIX = re.compile(r"^\s*(?:<(?:task-notification|command-name|command-message|command-args|local-command|system-reminder|bash-|user-prompt-submit-hook)|Caveat:|\[Request interrupted)")
@@ -151,6 +152,9 @@ def apply_record(st: dict, o: dict) -> None:
             bt = b.get("type")
             if bt == "text" and turn is not None:
                 txt = b.get("text") or ""
+                if turn.get("ct"):          # the turn touched a sensitive path: what it says afterwards may echo it, so it is not stored
+                    turn["resp"] = {"t": WITHHELD, "s": True}
+                    continue
                 if _TURN_LIMIT.search(txt):
                     st["signals"]["turn_limit"] = st["signals"].get("turn_limit", 0) + 1
                 if o.get("isApiErrorMessage") or (len(txt) < 300 and _API_ERR.search(txt) and txt.lstrip().lower().startswith("api error")):
@@ -166,6 +170,8 @@ def apply_record(st: dict, o: dict) -> None:
                 st["n_tool_calls"] += 1
                 name = b.get("name")
                 inp = b.get("input") or {}
+                if touches_sensitive_path(_path_fields(inp)) and name not in DISPATCH_TOOLS and name != "SendMessage" and turn is not None:
+                    turn["ct"] = True
                 if touches_sensitive_path(_path_fields(inp)):
                     st["tainted_tools"] += 1
                     if turn is not None:
@@ -186,7 +192,7 @@ def apply_record(st: dict, o: dict) -> None:
                         "leader_model": msg.get("model"), "cwd": o.get("cwd") or st["cwd"],
                     }
                 elif name == "SubagentHandback":
-                    st["handback"] = _scrub(st, str(inp.get("message") or ""), MAX_RESP)
+                    st["handback"] = {"t": WITHHELD, "s": True} if (turn or {}).get("ct") else _scrub(st, str(inp.get("message") or ""), MAX_RESP)
         return
 
     if typ == "user":
