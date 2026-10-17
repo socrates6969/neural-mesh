@@ -59,7 +59,7 @@ def _feed_args(row: dict, feed: str) -> list[str]:
 
 
 def run_variant(exe: Path, rows: list[dict], feed: str = "label", scope: str = "global", prior_k: float | None = None, units: str = "dispatch",
-                seed0: int = 7, roster: bool = False) -> dict:
+                seed0: int = 7, roster: bool = False, late_agent_init: float | None = None) -> dict:
     work = Path(tempfile.mkdtemp(prefix="router-eval-"))
     state_g = work / "state.json"
     states: dict[str, Path] = {}
@@ -71,6 +71,13 @@ def run_variant(exe: Path, rows: list[dict], feed: str = "label", scope: str = "
     dn = dok = dmaj = drule = 0
     per_proj: dict[str, list[int]] = {}
     trace: list[dict] = []
+    inited: set[Path] = set()
+
+    def ensure(state: Path) -> None:
+        """late_agent_init=None keeps the binary default (0.1); a number is applied to each fresh scratch state (live state: 0.0)."""
+        if late_agent_init is not None and state not in inited:
+            inited.add(state)
+            _run([str(exe), "config", "--state", str(state), "--late-agent-init", str(late_agent_init)])
     try:
         for i, r in enumerate(rows):
             if units == "dispatch" and r.get("kind") != "dispatch":
@@ -85,6 +92,7 @@ def run_variant(exe: Path, rows: list[dict], feed: str = "label", scope: str = "
             state = state_g
             if scope == "perproject":        # a separate router state per project (the hook knows the cwd): no cross-project wording noise
                 state = states.setdefault(proj, work / f"state-{len(states)}.json")
+            ensure(state)
             if len(cands) >= 2 and not is_env_failure(r):
                 cmd = [str(exe), "route", "--state", str(state), "--features", feats, "--candidates", ",".join(cands), "--seed", str(seed0 + i)]
                 if prior_k is not None:
@@ -94,8 +102,9 @@ def run_variant(exe: Path, rows: list[dict], feed: str = "label", scope: str = "
                 n += 1
                 ok += pick == agent
                 maj += top == agent
+                rp = rule_pick(r.get("task_text") or "")
                 trace.append({"i": i, "proj": proj, "actual": agent, "mesh": pick == agent, "maj": top == agent,
-                              "rule": rule_pick(r.get("task_text") or "") == agent, "fr": agent in FR_ROSTER})
+                              "rule": rp == agent, "fr": agent in FR_ROSTER, "pick": pick, "top": top, "rule_pick": rp})
                 s = per_proj.setdefault(proj, [0, 0])
                 s[0] += 1
                 s[1] += pick == agent
@@ -124,11 +133,64 @@ def run_variant(exe: Path, rows: list[dict], feed: str = "label", scope: str = "
         b = sum(1 for x in t if x[a_key] and not x[b_key])
         c = sum(1 for x in t if x[b_key] and not x[a_key])
         return {"a_only_right": b, "b_only_right": c, "mcnemar_exact_p": round(mcnemar_exact_p(b, c), 4), "n": len(t)}
-    return {"feed": feed, "scope": scope, "prior_k": prior_k, "units": units, "roster": roster,
-            "paired_mesh_vs_majority_all": paired("mesh", "maj"), "paired_mesh_vs_rule_in_domain": paired("mesh", "rule", only_fr=True),
-            "all": pack(ok, n), "all_majority_so_far": pack(maj, n),
-            "in_domain_fr": pack(dok, dn), "in_domain_fr_majority_so_far": pack(dmaj, dn), "in_domain_fr_phase_rule": pack(drule, dn)}
+    res = {"feed": feed, "scope": scope, "prior_k": prior_k, "units": units, "roster": roster, "late_agent_init": late_agent_init,
+           "paired_mesh_vs_majority_all": paired("mesh", "maj"), "paired_mesh_vs_rule_in_domain": paired("mesh", "rule", only_fr=True),
+           "all": pack(ok, n), "all_majority_so_far": pack(maj, n),
+           "in_domain_fr": pack(dok, dn), "in_domain_fr_majority_so_far": pack(dmaj, dn), "in_domain_fr_phase_rule": pack(drule, dn)}
+    res.update(baseline_report(trace))
+    return res
 
+
+# ---- E2: balanced accuracy, per-class recall, McNemar vs each baseline, per-project no-regression, MDE --------------------------------
+def baseline_report(trace: list[dict]) -> dict:
+    """Side-by-side mesh / majority-so-far / phase rule over the predicted dispatches (`trace`), all and in-domain (fr-*).
+    Majority-so-far predicts the most frequent agent seen so far (None = wrong when nothing was seen yet); the phase rule only ever names fr-* agents.
+    Balanced accuracy = macro mean of per-class recall over the actual agents present. no_regression follows rGi evaluateCandidate: the
+    candidate must not have FEWER successes than the baseline in any project."""
+    from llm import stats as S
+
+    def section(rows: list[dict]) -> dict:
+        y = [x["actual"] for x in rows]
+        preds = {"mesh": [x["pick"] for x in rows], "majority_so_far": [x["top"] for x in rows], "phase_rule": [x["rule_pick"] for x in rows]}
+        top_class = Counter(y).most_common(1)[0][0] if y else None
+        out = {"n": len(rows), "majority_class": top_class, "systems": {}}
+        for name, p in preds.items():
+            rec = S.recall_by_class(y, p)
+            minority = [(a, b) for a, b in zip(y, p) if a != top_class]
+            out["systems"][name] = {"acc": round(sum(a == b for a, b in zip(y, p)) / len(y), 4) if y else None,
+                                    "balanced_acc": None if not y else round(S.balanced_accuracy(y, p), 4),
+                                    "minority_recall": None if not minority else round(sum(a == b for a, b in minority) / len(minority), 4),
+                                    "minority_n": len(minority),
+                                    "recall": {a: [d["k"], d["n"]] for a, d in sorted(rec.items(), key=lambda kv: -kv[1]["n"])}}
+        for base, key in (("majority_so_far", "maj"), ("phase_rule", "rule")):
+            b = sum(1 for x in rows if x["mesh"] and not x[key])
+            c = sum(1 for x in rows if x[key] and not x["mesh"])
+            projs: dict[str, list[int]] = {}
+            for x in rows:
+                s = projs.setdefault(x["proj"], [0, 0, 0])
+                s[0] += 1
+                s[1] += x["mesh"]
+                s[2] += x[key]
+            worse = sorted(p for p, s in projs.items() if s[1] < s[2])
+            out[f"mesh_vs_{base}"] = {"mesh_only_right": b, "base_only_right": c, "mcnemar_exact_p": round(S.mcnemar_exact_p(b, c), 4),
+                                      "mde_at_observed": S.mde_observed(len(rows), b, c) if rows else None,
+                                      "mde_planning_d30": S.mde_paired(len(rows), 0.3) if rows else None,
+                                      "per_project": {p: {"n": s[0], "mesh": s[1], "base": s[2]} for p, s in sorted(projs.items(), key=lambda kv: -kv[1][0])},
+                                      "no_regression": not worse, "regressed_projects": worse}
+        return out
+    return {"e2_all": section(trace), "e2_in_domain_fr": section([x for x in trace if x["fr"]])}
+
+
+def e2_line(r: dict) -> str:
+    """E2 summary, two lines (all dispatches / fr-*): balanced accuracy mesh|majority|rule, minority recall, McNemar p, MDE, no-regression verdicts."""
+    def part(tag, s):
+        sy = s["systems"]
+        mm, mr = s["mesh_vs_majority_so_far"], s["mesh_vs_phase_rule"]
+        mde = (mm["mde_at_observed"] or {}).get("min_diff")
+        return (f"  {tag} n={s['n']} balanced mesh/maj/rule={sy['mesh']['balanced_acc']}/{sy['majority_so_far']['balanced_acc']}/{sy['phase_rule']['balanced_acc']} "
+                f"minority-recall mesh/maj={sy['mesh']['minority_recall']}/{sy['majority_so_far']['minority_recall']} | McNemar p vs maj={mm['mcnemar_exact_p']} "
+                f"vs rule={mr['mcnemar_exact_p']} MDE={None if mde is None else round(mde, 3)} | no-regression vs maj={mm['no_regression']} vs rule={mr['no_regression']}")
+    return part("ALL", r["e2_all"]) + "\n" + part("FR ", r["e2_in_domain_fr"])
 
 def default_variants() -> list[dict]:
     return [
@@ -168,15 +230,20 @@ def main(argv=None) -> int:
     p.add_argument("--outcomes", type=Path)
     p.add_argument("--workers", type=int, default=8)
     p.add_argument("--variants", choices=("default", "grid2"), default="default")
+    p.add_argument("--late-agent-init", type=float, default=None, help="apply this late_agent_init to every scratch state (live config: 0.0; default: binary default 0.1)")
     p.add_argument("--json", type=Path, help="write the result list here")
     a = p.parse_args(argv)
-    res = evaluate(Config(), a.outcomes, variants=grid2_variants() if a.variants == "grid2" else None, workers=a.workers)
+    vs = grid2_variants() if a.variants == "grid2" else default_variants()
+    if a.late_agent_init is not None:
+        vs = [dict(v, late_agent_init=a.late_agent_init) for v in vs]
+    res = evaluate(Config(), a.outcomes, variants=vs, workers=a.workers)
     if a.json:
         a.json.write_text(json.dumps(res, indent=1), encoding="utf-8")
     for r in res:
         f = lambda x: "-" if not x["n"] else f"{x['acc']:.3f} ({x['k']}/{x['n']})"
-        print(f"{r['feed']:7s} {r['scope']:10s} roster={int(r['roster'])} prior_k={str(r['prior_k']):8s} units={r['units']:8s} all={f(r['all'])} maj={f(r['all_majority_so_far'])} | "
+        print(f"{r['feed']:7s} {r['scope']:10s} roster={int(r['roster'])} lai={r.get('late_agent_init')} prior_k={str(r['prior_k']):8s} units={r['units']:8s} all={f(r['all'])} maj={f(r['all_majority_so_far'])} | "
               f"fr={f(r['in_domain_fr'])} rule={f(r['in_domain_fr_phase_rule'])} maj={f(r['in_domain_fr_majority_so_far'])}")
+        print(e2_line(r))
     return 0
 
 

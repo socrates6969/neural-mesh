@@ -106,3 +106,90 @@ def wilson_upper(k: int, n: int, z: float = 1.959964) -> float:
     c = ph + z * z / (2 * n)
     h = z * math.sqrt(ph * (1 - ph) / n + z * z / (4 * n * n))
     return min(1.0, (c + h) / den)
+
+
+# ---- exact paired tests, power and minimum detectable effect (E2) ---------------------------------------------------------------------
+
+def mcnemar_exact_p(b: int, c: int) -> float:
+    """Two-sided exact McNemar p: the discordant pairs b (A right, B wrong) and c (B right, A wrong) are Binomial(b + c, .5) under H0.
+    No discordant pair -> 1.0. Same value as ingest.shadow.mcnemar_exact_p."""
+    n = b + c
+    if n == 0:
+        return 1.0
+    tail = sum(math.comb(n, i) for i in range(0, min(b, c) + 1)) / 2 ** n
+    return min(1.0, 2 * tail)
+
+
+def _upper_tail(n: int, k: int, p: float) -> float:
+    """P(X >= k) for X ~ Binomial(n, p)."""
+    if k <= 0:
+        return 1.0
+    if k > n:
+        return 0.0
+    return min(1.0, sum(math.comb(n, i) * p ** i * (1 - p) ** (n - i) for i in range(k, n + 1)))
+
+
+def critical_wins(m: int, alpha: float = 0.05) -> int | None:
+    """smallest k with P(Binomial(m, .5) >= k) <= alpha (one-sided exact sign test); None when even k = m is not significant (m < 5 at .05)."""
+    for k in range(m // 2 + 1, m + 1):
+        if sum(math.comb(m, i) for i in range(k, m + 1)) / 2 ** m <= alpha:
+            return k
+    return None
+
+
+def sign_power(m: int, p: float, alpha: float = 0.05) -> float:
+    """exact power of the one-sided sign test with m decisive pairs when each decisive pair is a win with probability p."""
+    k = critical_wins(m, alpha)
+    return 0.0 if k is None else _upper_tail(m, k, p)
+
+
+def mde_sign_test(m: int, power: float = 0.8, alpha: float = 0.05) -> float | None:
+    """minimum detectable WIN SHARE among m decisive pairs: the smallest p whose exact power is >= `power` (bisection; power is monotone in p).
+    None when the test cannot reach significance at all with m pairs, or cannot reach `power` even at p = 1."""
+    if critical_wins(m, alpha) is None or sign_power(m, 1.0, alpha) < power:
+        return None
+    lo, hi = 0.5, 1.0
+    for _ in range(50):
+        mid = (lo + hi) / 2
+        lo, hi = (lo, mid) if sign_power(m, mid, alpha) >= power else (mid, hi)
+    return hi
+
+
+def mde_paired(n: int, discordance: float, power: float = 0.8, alpha: float = 0.05) -> dict:
+    """minimum detectable paired accuracy difference with n items when a fraction `discordance` of them is discordant (exactly one of the
+    two systems right): m = round(n * discordance) decisive pairs, win share p* = mde_sign_test(m), diff = discordance * (2 p* - 1)."""
+    m = int(round(n * discordance))
+    p = mde_sign_test(m, power, alpha)
+    return {"n": n, "discordance": discordance, "decisive": m, "win_share": p, "min_diff": None if p is None else discordance * (2 * p - 1)}
+
+
+def mde_observed(n: int, b: int, c: int, power: float = 0.8, alpha: float = 0.05) -> dict:
+    """MDE for a comparison that produced b + c discordant pairs out of n items (the observed discordance is the planning value)."""
+    return mde_paired(n, (b + c) / n if n else 0.0, power, alpha)
+
+
+def recall_by_class(y_true: list, y_pred: list) -> dict:
+    """per-class recall {class: {"n": support, "k": hits, "recall": k/n}} over the classes present in y_true."""
+    out: dict = {}
+    for t, p in zip(y_true, y_pred):
+        d = out.setdefault(t, {"n": 0, "k": 0})
+        d["n"] += 1
+        d["k"] += int(t == p)
+    for d in out.values():
+        d["recall"] = d["k"] / d["n"]
+    return out
+
+
+def balanced_accuracy(y_true: list, y_pred: list) -> float | None:
+    """macro-average of the per-class recalls over the classes present in y_true (a constant majority predictor scores 1 / n_classes)."""
+    r = recall_by_class(y_true, y_pred)
+    return sum(d["recall"] for d in r.values()) / len(r) if r else None
+
+
+def required_decisive(win_share: float, power: float = 0.8, alpha: float = 0.05, max_m: int = 1500) -> int | None:
+    """smallest number of decisive pairs m for which the exact one-sided sign test has >= `power` when the true win share is `win_share`
+    (scans m upward: exact power is a sawtooth in m, so the first m that reaches it is reported). None if not reached by max_m."""
+    for m in range(5, max_m + 1):
+        if sign_power(m, win_share, alpha) >= power:
+            return m
+    return None
