@@ -79,17 +79,18 @@ def feat_arg(fs: list[str]) -> str:
 
 # ---- data ----------------------------------------------------------------------------------------------------------------------------------
 
-def load(path: Path) -> list[dict]:
-    return load_rows(iter_jsonl(path))
+def load(path: Path, cut_ts: str | None = None) -> list[dict]:
+    return load_rows(iter_jsonl(path), cut_ts)
 
 
-def load_rows(rows) -> list[dict]:
+def load_rows(rows, cut_ts: str | None = None) -> list[dict]:
+    """cut_ts: rows with ts > cut_ts are "held" (fresh-data test, amendment A2); otherwise the first 60% of dispatches are "tune"."""
     rows = sorted(rows, key=lambda r: (r.get("ts") or "", r.get("id") or ""))
     d = [r for r in rows if r.get("kind") == "dispatch"]
     cut = int(len(d) * TUNE_FRAC)
     for i, r in enumerate(d):
         r["_i"] = i
-        r["_split"] = "tune" if i < cut else "held"
+        r["_split"] = ("held" if (r.get("ts") or "") > cut_ts else "tune") if cut_ts else ("tune" if i < cut else "held")
         r["_agent"] = clean_agent(r)
         r["_proj"] = r.get("project") or "default"
     return d
@@ -129,8 +130,9 @@ def sys_rule(rows, mask):
     return [rule_pick(r.get("task_text") or "") if m else None for r, m in zip(rows, mask)]
 
 
-def sys_mesh(rows, mask, exe: Path, feats="v1", scope="global", late=0.0, prior_k=None, roster=False, seed0=7, extra=()):
-    """The Rust Hebbian router via its CLI (same calls as ingest/router_eval.py), label feed, dispatch units."""
+def sys_mesh(rows, mask, exe: Path, feats="v1", scope="global", late=0.0, prior_k=None, roster=False, seed0=7, extra=(), feed="label"):
+    """The Rust Hebbian router via its CLI (same calls as ingest/router_eval.py), dispatch units. feed: "label" (production policy) or
+    "success" (ingest/router_eval: a successful dispatch is fed as --label, any other outcome as --agent X --reward r)."""
     fx = FEATURES[feats]
     work = Path(tempfile.mkdtemp(prefix="e3-"))
     states: dict[str, Path] = {}
@@ -159,7 +161,12 @@ def sys_mesh(rows, mask, exe: Path, feats="v1", scope="global", late=0.0, prior_
                 if pick is None:
                     pick = g.most_common(1)[0][0]
             out.append(pick)
-            fb = (["--agent", agent, "--reward", "0", "--failure-class", "env"] if is_env_failure(r) else ["--label", agent])
+            if is_env_failure(r):
+                fb = ["--agent", agent, "--reward", "0", "--failure-class", "env"]
+            elif feed == "success" and r.get("outcome") != "success":
+                fb = ["--agent", agent, "--reward", f"{max(0.0, min(1.0, float(r.get('reward', 0.0)))):.4f}"]
+            else:
+                fb = ["--label", agent]
             _run([str(exe), "feedback", "--state", str(state), "--features", fa, *fb, *knobs])
             if agent not in seen_all:
                 seen_all.append(agent)
@@ -171,10 +178,11 @@ def sys_mesh(rows, mask, exe: Path, feats="v1", scope="global", late=0.0, prior_
     return out
 
 
-def sys_nb(rows, mask, feats="clean", alpha=0.5, proj_w=3.0, margin=0.0, scope_cands="global", roster=False):
+def sys_nb(rows, mask, feats="clean", alpha=0.5, proj_w=3.0, margin=0.0, scope_cands="global", roster=False, feed="label"):
     """H4: online multinomial naive Bayes over cleaned tokens + the project as a weighted pseudo-token, class prior = counts so far.
     It leaves the majority class only when log P(best) - log P(majority) > margin (abstain-to-majority), so a rare agent must be supported by
-    evidence, not by a single shared word. Candidates = agents seen so far (globally, or in the project plus its declared roster)."""
+    evidence, not by a single shared word. Candidates = agents seen so far (globally, or in the project plus its declared roster).
+    feed "success" (outcome-aware): only dispatches whose outcome is success are counted, so failed choices are not imitated."""
     fx = FEATURES[feats]
     cls = Counter()
     tok = defaultdict(Counter)        # agent -> token counts
@@ -209,7 +217,7 @@ def sys_nb(rows, mask, feats="clean", alpha=0.5, proj_w=3.0, margin=0.0, scope_c
             maj = max(cands, key=lambda a: cls[a])
             pick = best if sc[best] - sc[maj] > margin else maj
         out.append(pick if m else None)
-        if not is_env_failure(r):
+        if not is_env_failure(r) and (feed == "label" or r.get("outcome") == "success"):
             a = r["_agent"]
             cls[a] += 1
             for t in toks:
@@ -221,6 +229,72 @@ def sys_nb(rows, mask, feats="clean", alpha=0.5, proj_w=3.0, margin=0.0, scope_c
             vocab.add(ptok)
         if r["_agent"] not in seen_proj[r["_proj"]]:
             seen_proj[r["_proj"]].append(r["_agent"])
+    return out
+
+
+def sys_linucb(rows, mask, feats="clean_verb", width=0.1, lam=1.0, center=0.5, d=128, scope_cands="global", roster=False, feed="label"):
+    """Disjoint LinUCB per agent (port of hebbian-router src/learned.js LinearBanditRouter, mode ucb, gamma 1 = no discount).
+    x = hashed bag of tokens (each 1/sqrt(n)) + proj:<project> + bias, in R^d. Score = center + x.theta_a + width * sqrt(x' A_a^-1 x).
+    feed "label": the actual agent gets r=1 and the predicted agent, if different, r=0. "success": only the actual agent, r = outcome reward."""
+    import zlib
+    import numpy as np
+    fx = FEATURES[feats]
+    Ainv: dict[str, "np.ndarray"] = {}
+    bvec: dict[str, "np.ndarray"] = {}
+    seen_all: list[str] = []
+    seen_proj: dict[str, list[str]] = defaultdict(list)
+
+    def enc(r):
+        x = np.zeros(d)
+        toks = fx(r)
+        for t in toks:
+            x[zlib.crc32(t.encode()) % d] += 1.0 / math.sqrt(len(toks))
+        x[zlib.crc32(("proj:" + r["_proj"]).encode()) % d] += 1.0
+        x[d - 1] += 1.0
+        return x
+
+    def get(a):
+        if a not in Ainv:
+            Ainv[a] = np.eye(d) / lam
+            bvec[a] = np.zeros(d)
+        return Ainv[a], bvec[a]
+
+    def upd(a, x, rew):
+        Ai, b = get(a)
+        u = Ai @ x
+        Ai -= np.outer(u, u) / (1.0 + x @ u)        # Sherman-Morrison
+        b += (rew - center) * x
+
+    out = []
+    for r, m in zip(rows, mask):
+        x = enc(r)
+        pick = None
+        if m and seen_all:
+            cands = list(seen_all) if scope_cands == "global" else list(seen_proj[r["_proj"]])
+            if roster and scope_cands != "global" and r["_proj"] == "freight-recovery":
+                cands += [a for a in FR_ROSTER if a not in cands]
+            cands = cands or list(seen_all)
+            best, bs = None, -1e18
+            for a in cands:
+                Ai, b = get(a)
+                u = Ai @ x
+                sc = center + float(u @ b) + width * math.sqrt(max(float(x @ u), 0.0))
+                if sc > bs + 1e-12:
+                    best, bs = a, sc
+            pick = best
+        out.append(pick if m else None)
+        a = r["_agent"]
+        if not is_env_failure(r):
+            if feed == "label":
+                upd(a, x, 1.0)
+                if pick is not None and pick != a:
+                    upd(pick, x, 0.0)
+            else:
+                upd(a, x, max(0.0, min(1.0, float(r.get("reward", 0.0)))))
+        if a not in seen_all:
+            seen_all.append(a)
+        if a not in seen_proj[r["_proj"]]:
+            seen_proj[r["_proj"]].append(a)
     return out
 
 
@@ -279,8 +353,9 @@ def main(argv=None) -> int:
     p.add_argument("--systems", default="")
     p.add_argument("--workers", type=int, default=6)
     p.add_argument("--json", type=Path)
+    p.add_argument("--cut-ts", help="fresh-data hold-out: score only rows with ts > this (amendment A2)")
     a = p.parse_args(argv)
-    rows = load(a.outcomes)
+    rows = load(a.outcomes, a.cut_ts)
     mask = scored_mask(rows)
     exe = a.exe
     S = {
@@ -300,6 +375,13 @@ def main(argv=None) -> int:
     }
     # frozen E3 candidate (chosen on the tune split only, before the held-out run; see findings/exp-router.md)
     S["C_nb_frozen"] = lambda: sys_nb(rows, mask, "clean_verb", alpha=0.05, proj_w=3.0, margin=28.0, scope_cands="project", roster=True)
+    # amendment A2: B3 hybrid inside freight-recovery, the frozen NB everywhere else
+    S["A2_composite"] = lambda: [b if r["_proj"] == "freight-recovery" else c for r, b, c in
+                                 zip(rows, sys_mesh(rows, mask, exe, "v1", scope="perproject", prior_k=500.0, roster=True),
+                                     sys_nb(rows, mask, "clean_verb", alpha=0.05, proj_w=3.0, margin=28.0, scope_cands="project", roster=True))]
+    # amendment A1 frozen arms (tune only; findings/exp-router.md)
+    S["A1_linucb_label"] = lambda: sys_linucb(rows, mask, "v1", width=0.1, scope_cands="project", roster=True, feed="label")
+    S["A1_nb_success"] = lambda: sys_nb(rows, mask, "clean_verb", alpha=0.05, proj_w=3.0, margin=28.0, scope_cands="project", roster=True, feed="success")
     for fs in ("v1", "clean", "clean_verb"):
         for pw in (0.0, 1.0, 3.0):
             for mg in (0.0, 2.0, 5.0):
