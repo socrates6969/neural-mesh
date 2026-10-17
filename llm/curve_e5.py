@@ -131,6 +131,46 @@ def mcnemar_p(b: int, c: int) -> float:
     return min(1.0, 2 * sum(math.comb(n, i) for i in range(k + 1)) / 2 ** n)
 
 
+# MDE helpers copied verbatim in behaviour from exp-eval's llm/stats.py (branch exp/exp-eval/eval-gates, commit 3e1852b), so this
+# branch does not depend on that one: exact one-sided sign test power and the paired minimum detectable accuracy difference.
+def _crit(m: int, alpha: float = 0.05) -> int | None:
+    for k in range(m // 2 + 1, m + 1):
+        if sum(math.comb(m, i) for i in range(k, m + 1)) / 2 ** m <= alpha:
+            return k
+    return None
+
+
+def _power(m: int, p: float, alpha: float = 0.05) -> float:
+    k = _crit(m, alpha)
+    return 0.0 if k is None else sum(math.comb(m, i) * p ** i * (1 - p) ** (m - i) for i in range(k, m + 1))
+
+
+def mde_observed(n: int, b: int, c: int, power: float = 0.8, alpha: float = 0.05) -> float | None:
+    """minimum detectable paired accuracy difference (fraction of n) given b + c discordant pairs; None = not detectable at all."""
+    m = b + c
+    if n == 0 or _crit(m, alpha) is None or _power(m, 1.0, alpha) < power:
+        return None
+    lo, hi = 0.5, 1.0
+    for _ in range(50):
+        mid = (lo + hi) / 2
+        lo, hi = (lo, mid) if _power(m, mid, alpha) >= power else (mid, hi)
+    return (m / n) * (2 * hi - 1)
+
+
+def guard_g(per: dict) -> dict:
+    """Guard G (queen, pre-registered): per battery category, the adapter's drop vs BASE must not exceed the MDE for that category's
+    observed discordance. MDE undefined (too few discordant pairs) -> pass on that rule. Separately flagged (not a failure): a drop of
+    >= 3 items, the size of the 10-11 math/physics collapse that an MDE at n=20 may not resolve."""
+    out = {}
+    for key, x in per.items():
+        n, a_only, b_only = x["n"], x["adapter_only"], x["base_only"]
+        drop = (b_only - a_only) / n if n else 0.0
+        mde = mde_observed(n, a_only, b_only)
+        out[key] = {"drop_items": b_only - a_only, "drop": round(drop, 4), "mde": None if mde is None else round(mde, 4),
+                    "fail": mde is not None and drop > mde, "flag_3_items": (b_only - a_only) >= 3}
+    return out
+
+
 def wilson(k: int, n: int, z: float = 1.96) -> tuple[float, float]:
     if n == 0:
         return 0.0, 0.0
@@ -231,7 +271,10 @@ def evaluate(max_new: int = 160, n_det: int = 20, log=print) -> dict:
                 y = [answers["BASE"]["battery"][i] for i in ix]
                 b = sum(1 for i, j in zip(x, y) if i is True and j is False)
                 cc = sum(1 for i, j in zip(x, y) if j is True and i is False)
-                res["battery_paired_vs_base"][f"{v}:{c}"] = {"adapter_only": b, "base_only": cc, "mcnemar_p": mcnemar_p(b, cc)}
+                n_sc = sum(1 for i, j in zip(x, y) if i is not None and j is not None)
+                res["battery_paired_vs_base"][f"{v}:{c}"] = {"adapter_only": b, "base_only": cc, "n": n_sc, "mcnemar_p": mcnemar_p(b, cc)}
+        res["guard_g"] = guard_g(res["battery_paired_vs_base"])
+        res["guard_g_failed_adapters"] = sorted({k.split(":")[0] for k, g in res["guard_g"].items() if g["fail"]})
     if "e5-100" in answers and "e5-025" in answers:
         res["paired"]["e5-100 vs e5-025"] = paired("e5-100", "e5-025")
     mj = {"tool_ok": maj}
