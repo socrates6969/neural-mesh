@@ -53,7 +53,7 @@ const DEFAULT_PRIOR_K: f64 = 1.0;
 /// Salt so the prior's coin never shares a stream with the mesh's draws.
 const PRIOR_SALT: u64 = 0x5052_494F_525F_4B57;
 /// Option names shared by route/feedback/stats/config (team is config-only).
-const CONFIG_KEYS: [&str; 5] = ["eta", "temperature", "decay", "epsilon", "prior-k"];
+const CONFIG_KEYS: [&str; 6] = ["eta", "temperature", "decay", "epsilon", "prior-k", "late-agent-init"];
 
 const USAGE: &str = "usage:\n  neural-mesh route    --state <file> --features a,b,c [--candidates x,y] [--team k] [--type t] [--seed n] [--prior agent]\n  neural-mesh feedback --state <file> --features a,b,c --agent X [--team X,Y] --reward 0..1 [--type t]\n  neural-mesh stats    --state <file>\n  neural-mesh config   --state <file> [--eta x --temperature x --decay x --epsilon x --team k --prior-k x]\n  neural-mesh merge-state --into A --from B [--out file]\n  neural-mesh frontend [--enabled 1] [--local-conf x --local-tokens n --max-sim x --cache-hit 1 --tool t --chunks JSON --min-conf x --min-sim x --ctx-budget n --max-local-tokens n --max-chunks n --min-chunk-score x]\n                       [--tool-exemplars FILE.jsonl --query-vec JSON|@FILE --tool-tau .6 --tool-smin .4 --tool-k 5 --tool-allow calc,units,csp]  (opt-in, default off; --tool and --query-vec are exclusive)\n  (route/feedback/stats also accept --eta --temperature --decay --epsilon --prior-k)";
 
@@ -338,6 +338,7 @@ struct ConfigPatch {
     epsilon: Option<f64>,
     team: Option<usize>,
     prior_k: Option<f64>,
+    late_agent_init: Option<f64>,
 }
 
 fn parse_num(o: &Opts, k: &str, lo: f64, hi: f64) -> Result<Option<f64>, CliError> {
@@ -364,6 +365,7 @@ impl ConfigPatch {
             epsilon: parse_num(o, "epsilon", 0.0, 1.0)?,
             team,
             prior_k: parse_num(o, "prior-k", 0.0, f64::MAX)?,
+            late_agent_init: parse_num(o, "late-agent-init", 0.0, 1.0)?,
         })
     }
 
@@ -373,6 +375,7 @@ impl ConfigPatch {
         h.temperature = self.temperature.unwrap_or(h.temperature);
         h.decay = self.decay.unwrap_or(h.decay);
         h.epsilon = self.epsilon.unwrap_or(h.epsilon);
+        h.late_agent_init = self.late_agent_init.unwrap_or(h.late_agent_init);
         st.mesh.cfg.team_size = self.team.unwrap_or(st.mesh.cfg.team_size);
         st.prior_k = self.prior_k.unwrap_or(st.prior_k);
     }
@@ -387,6 +390,7 @@ fn effective_config(st: &State) -> Value {
         "epsilon": h.epsilon,
         "team": st.mesh.cfg.team_size,
         "prior_k": st.prior_k,
+        "late_agent_init": h.late_agent_init,
     })
 }
 
@@ -1434,7 +1438,7 @@ mod tests {
         assert_eq!(s["hebbian"]["epsilon"], 0.0);
         assert_eq!(s["mesh"]["team_size"], 1);
         let c = call(&["config", "--state", ps]).unwrap();
-        assert_eq!(cfg_of(&c), &json!({"eta": 0.01, "temperature": 0.002, "decay": 0.01, "epsilon": 0.0, "team": 1, "prior_k": 1.0}));
+        assert_eq!(cfg_of(&c), &json!({"eta": 0.01, "temperature": 0.002, "decay": 0.01, "epsilon": 0.0, "team": 1, "prior_k": 1.0, "late_agent_init": 0.1}));
         let _ = fs::remove_file(&p);
     }
 
@@ -1452,7 +1456,7 @@ mod tests {
         o.remove("feature_counts");
         fs::write(&p, v.to_string()).unwrap();
         let c = call(&["config", "--state", ps]).unwrap();
-        assert_eq!(cfg_of(&c), &json!({"eta": 0.5, "temperature": 0.05, "decay": 0.01, "epsilon": 0.02, "team": 1, "prior_k": 1.0}));
+        assert_eq!(cfg_of(&c), &json!({"eta": 0.5, "temperature": 0.05, "decay": 0.01, "epsilon": 0.02, "team": 1, "prior_k": 1.0, "late_agent_init": 0.1}));
         call(&["route", "--state", ps, "--features", "x"]).unwrap();
         let s = call(&["stats", "--state", ps]).unwrap();
         assert_eq!(s["hebbian"]["eta"], 0.5);
@@ -1464,8 +1468,8 @@ mod tests {
     fn config_subcommand_round_trips_and_validates() {
         let p = tmp("cfg");
         let ps = p.to_str().unwrap();
-        let c = call(&["config", "--state", ps, "--eta", "0.2", "--temperature=0.1", "--decay", "0.05", "--epsilon", "0.03", "--team", "3", "--prior-k", "4"]).unwrap();
-        let want = json!({"eta": 0.2, "temperature": 0.1, "decay": 0.05, "epsilon": 0.03, "team": 3, "prior_k": 4.0});
+        let c = call(&["config", "--state", ps, "--eta", "0.2", "--temperature=0.1", "--decay", "0.05", "--epsilon", "0.03", "--team", "3", "--prior-k", "4", "--late-agent-init", "0"]).unwrap();
+        let want = json!({"eta": 0.2, "temperature": 0.1, "decay": 0.05, "epsilon": 0.03, "team": 3, "prior_k": 4.0, "late_agent_init": 0.0});
         assert_eq!(cfg_of(&c), &want);
         assert_eq!(cfg_of(&call(&["config", "--state", ps]).unwrap()), &want, "persisted");
         let c = call(&["config", "--state", ps, "--eta", "0.3"]).unwrap();
@@ -1478,7 +1482,7 @@ mod tests {
         let c = call(&["config", "--state", ps]).unwrap();
         let c = cfg_of(&c);
         assert_eq!((&c["decay"], &c["epsilon"], &c["prior_k"], &c["team"]), (&json!(0.02), &json!(0.1), &json!(2.0), &json!(3)));
-        for bad in [["--eta", "-1"], ["--eta", "2"], ["--temperature", "x"], ["--decay", "NaN"], ["--epsilon", "1.5"], ["--team", "0"], ["--prior-k", "-1"]] {
+        for bad in [["--eta", "-1"], ["--eta", "2"], ["--temperature", "x"], ["--decay", "NaN"], ["--epsilon", "1.5"], ["--team", "0"], ["--prior-k", "-1"], ["--late-agent-init", "1.5"], ["--late-agent-init", "-0.1"]] {
             assert!(call(&["config", "--state", ps, bad[0], bad[1]]).is_err(), "{bad:?}");
         }
         assert!(call(&["config", "--state", ps, "--eta", "0.1", "--eta", "0.2"]).is_err());

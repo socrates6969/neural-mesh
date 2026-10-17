@@ -116,6 +116,10 @@ pub struct HebbianConfig {
     pub baseline_alpha: f64,
     /// Maximum allowed sum of a feature row; larger rows are rescaled.
     pub row_cap: f64,
+    /// Weight a newly registered agent gets in rows that ALREADY exist (new rows always start at
+    /// [`INIT_WEIGHT`] for everyone). Default = INIT_WEIGHT (classic). 0.0 stops late-registered agents
+    /// from out-scoring learned ones in a long-lived shared state (replay 2026-10-12: 48.9% -> 81.2%).
+    pub late_agent_init: f64,
 
     // ---- opt-in: self-tuning learning rate ------------------------------------
     pub meta: MetaKind,
@@ -169,6 +173,7 @@ impl Default for HebbianConfig {
             decay: 0.01,
             baseline_alpha: 0.1,
             row_cap: 1.0,
+            late_agent_init: INIT_WEIGHT,
             meta: MetaKind::Off,
             meta_eta_floor: 0.02,
             meta_decay: 0.95,
@@ -350,11 +355,11 @@ impl HebbianRouter {
         out
     }
 
-    /// Grow to at least `n` agents (new agents get [`INIT_WEIGHT`] in every row).
+    /// Grow to at least `n` agents (new agents get `cfg.late_agent_init` in every existing row; new rows start at [`INIT_WEIGHT`]).
     pub fn ensure_agents(&mut self, n: usize) {
         if n > self.n_agents {
             for row in self.weights.values_mut() {
-                row.resize(n, INIT_WEIGHT);
+                row.resize(n, self.cfg.late_agent_init);
             }
             for m in self.meta.values_mut() {
                 m.cnt.resize(n, 0.0);
@@ -879,6 +884,35 @@ mod tests {
         assert_eq!(r.scores(&task("new")).len(), 5);
     }
 
+    #[test]
+    fn late_agents_do_not_inherit_weight_in_learned_rows() {
+        // Regression (live state 2026-10-12): agents registered late got INIT_WEIGHT in every
+        // existing row and out-scored the agent that had actually been learned there.
+        let cfg = HebbianConfig { late_agent_init: 0.0, ..HebbianConfig::default() };
+        let mut r = HebbianRouter::new(1, cfg);
+        let t = task("build");
+        for _ in 0..300 {
+            r.update(&t, 0, 1.0);
+        }
+        r.update(&task("other"), 3, 1.0); // registers agents 1..=3 via an unrelated feature
+        let s = r.scores(&t);
+        assert!(s[0] > s[3], "learned agent must beat a never-seen late agent: {s:?}");
+        assert!(s[0] > s[1] && s[0] > s[2], "{s:?}");
+        let fresh = r.scores(&task("brand-new"));
+        assert!(fresh.iter().all(|&x| (x - fresh[0]).abs() < 1e-12), "{fresh:?}");
+    }
+
+    #[test]
+    fn late_agent_init_defaults_to_classic_behaviour() {
+        assert_eq!(HebbianConfig::default().late_agent_init, INIT_WEIGHT);
+        let mut r = HebbianRouter::new(1, HebbianConfig::default());
+        r.update(&task("build"), 0, 1.0);
+        r.update(&task("other"), 2, 1.0);
+        assert_eq!(r.weight("build", 2), INIT_WEIGHT, "classic: late agent inherits INIT_WEIGHT");
+        // states saved before the field existed deserialize to the classic value
+        let old: HebbianConfig = serde_json::from_str("{\"eta\":0.2}").unwrap();
+        assert_eq!(old.late_agent_init, INIT_WEIGHT);
+    }
     #[test]
     fn serde_roundtrip_and_determinism() {
         let mut r = HebbianRouter::new(3, HebbianConfig::default());
