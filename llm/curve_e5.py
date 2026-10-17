@@ -141,11 +141,27 @@ def wilson(k: int, n: int, z: float = 1.96) -> tuple[float, float]:
     return round(c - h, 4), round(c + h, 4)
 
 
-def evaluate(max_new: int = 160, log=print) -> dict:
+def _battery(m, tok, M, E, bench, items, log) -> dict:
+    """deterministic battery (math/physics/code/research, 20 each): per-category correct flags; an item whose scoring needs an
+    unavailable sandbox is recorded as infra and excluded (never counted right or wrong)."""
+    outs = M.generate_batch(m, tok, [it["prompt"] for it in items], max_new=E.DET_MAX_NEW)
+    flags = []
+    for it, t in zip(items, outs):
+        try:
+            flags.append(E.det_correct(bench, it, t))
+        except RuntimeError:
+            flags.append(None)
+    return {"flags": flags}
+
+
+def evaluate(max_new: int = 160, n_det: int = 20, log=print) -> dict:
     from peft import PeftModel
-    from . import judge, model as M
+    from . import evaluate as E, judge, model as M
     sp, idx = _load_split(), _index()
     held = [idx[i] for i in sp["held_steps"]]
+    items = E.det_items(n_det) if n_det else []
+    bench = E._bench_module() if items else None
+    kinds = [r["action"].get("k") or "other" for r in held]
     held_ans = [idx[i] for i in sp["held_answers"]]
     judge.unload()
     base = config.base_path()
@@ -171,11 +187,22 @@ def evaluate(max_new: int = 160, log=print) -> dict:
         parsed = [parse_action(o) for o in outs]
         tool_ok = [p[0] == g[0] for p, g in zip(parsed, golds)]
         full_ok = [p[0] == g[0] and (g[1] is None or p[1] == g[1]) for p, g in zip(parsed, golds)]
-        answers[name] = {"steps": outs, "answers": ans, "tool_ok": tool_ok}
+        bat = _battery(m, tok, M, E, bench, items, log) if items else {"flags": []}
+        answers[name] = {"steps": outs, "answers": ans, "tool_ok": tool_ok, "battery": bat["flags"]}
         k = sum(tool_ok)
+        per_kind = {}
+        for kd, ok in zip(kinds, tool_ok):
+            c = per_kind.setdefault(kd, [0, 0]); c[0] += int(ok); c[1] += 1
+        per_cat = {}
+        for it, ok in zip(items, bat["flags"]):
+            c = per_cat.setdefault(it["cat"], [0, 0, 0]); c[2] += int(ok is None)
+            if ok is not None:
+                c[0] += int(ok); c[1] += 1
         res["models"][name] = {"tool_acc": k / len(held), "tool_ci": wilson(k, len(held)), "full_acc": sum(full_ok) / len(held),
                                "full_ci": wilson(sum(full_ok), len(held)), "parsed": sum(1 for p in parsed if p[0]) / len(held),
-                               "tools_predicted": dict(Counter(p[0] for p in parsed).most_common(8))}
+                               "tools_predicted": dict(Counter(p[0] for p in parsed).most_common(8)),
+                               "tool_acc_by_kind": {kd: {"correct": a, "n": n} for kd, (a, n) in sorted(per_kind.items())},
+                               "battery_by_cat": {c: {"correct": a, "n": n, "infra": x} for c, (a, n, x) in sorted(per_cat.items())}}
         log(f"  {name}: tool acc {k}/{len(held)} = {k / len(held):.3f} {res['models'][name]['tool_ci']}, full {sum(full_ok)}, "
             f"parsed {res['models'][name]['parsed']:.2f}")
 
@@ -194,6 +221,17 @@ def evaluate(max_new: int = 160, log=print) -> dict:
         cc = sum(1 for i, j in zip(x, y) if j and not i)
         return {"a_only": bb, "b_only": cc, "mcnemar_p": mcnemar_p(bb, cc)}
     res["paired"] = {f"{v} vs BASE": paired(v, "BASE") for v in vers}
+    if items:
+        cats = sorted({it["cat"] for it in items})
+        res["battery_paired_vs_base"] = {}
+        for v in vers:
+            for c in cats:
+                ix = [i for i, it in enumerate(items) if it["cat"] == c]
+                x = [answers[v]["battery"][i] for i in ix]
+                y = [answers["BASE"]["battery"][i] for i in ix]
+                b = sum(1 for i, j in zip(x, y) if i is True and j is False)
+                cc = sum(1 for i, j in zip(x, y) if j is True and i is False)
+                res["battery_paired_vs_base"][f"{v}:{c}"] = {"adapter_only": b, "base_only": cc, "mcnemar_p": mcnemar_p(b, cc)}
     if "e5-100" in answers and "e5-025" in answers:
         res["paired"]["e5-100 vs e5-025"] = paired("e5-100", "e5-025")
     mj = {"tool_ok": maj}
