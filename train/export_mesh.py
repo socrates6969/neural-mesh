@@ -24,6 +24,7 @@ os.environ.setdefault("INGEST_MESHSTORE_EXE", str(NM / "target" / "release" / "m
 from ingest.config import Config  # noqa: E402
 from ingest.meshio import MeshFeedback  # noqa: E402
 from ingest.extract import features  # noqa: E402
+from ingest import scrub as S  # noqa: E402
 
 from . import data  # noqa: E402
 from .loop import ROOT  # noqa: E402
@@ -55,7 +56,7 @@ def main(batch="batch1"):
             oid = "out:meshtrain:" + hashlib.sha256(("%s|%s|%s|%s" % (batch, agent, tid, rnd)).encode()).hexdigest()[:16]
             if oid in have:
                 continue
-            text = tasks[tid]["prompt"][:1500]
+            text = S.scrub(tasks[tid]["prompt"][:1500]).text
             rows.append({"id": oid, "ts": now, "end_ts": now, "project": "meshtrain", "session": "meshtrain-" + batch,
                          "kind": "benchmark", "agent": agent, "model": None, "spawn_depth": 1, "task_text": text,
                          "features": ["field_" + field.replace("-", "_")] + [x for x in features(text[:600]) if "," not in x][:15],
@@ -71,7 +72,8 @@ def main(batch="batch1"):
 
     best = {}
     for r in res:
-        if r["passed"] and r["task"] in tasks and 40 < len(r.get("text") or "") < 4000:
+        # only runs with NO knowledge pack in context (pack text is web-derived and unscreened by user choice)
+        if r["phase"] == "held_base" and r["passed"] and r["task"] in tasks and 40 < len(r.get("text") or "") < 4000:
             if r["task"] not in best or len(r["text"]) < len(best[r["task"]]["text"]):
                 best[r["task"]] = r
     have, srows = _ids(cfg.sft), []
@@ -79,12 +81,15 @@ def main(batch="batch1"):
         sid = "sft:meshtrain:" + hashlib.sha256(tid.encode()).hexdigest()[:16]
         if sid in have:
             continue
-        ins = tasks[tid]["prompt"]
+        si, sr = S.scrub(tasks[tid]["prompt"]), S.scrub(r["text"])
+        if getattr(si, "secret", False) or getattr(sr, "secret", False):
+            continue
+        ins, resp = si.text, sr.text
         srows.append({"id": sid, "ts": now, "project": "meshtrain", "session": "meshtrain-" + r["field"],
                       "source": "verified_benchmark", "agent": r["agent"], "model": None, "instruction": ins,
-                      "response": r["text"], "outcome": "success", "judge_score": 1.0, "judge_model": "grader:exact",
-                      "rubric_version": "grader-v1", "scrub_version": "public-benchmark",
-                      "chars": {"instruction": len(ins), "response": len(r["text"])}})
+                      "response": resp, "outcome": "success", "judge_score": 1.0, "judge_model": "grader:exact",
+                      "rubric_version": "grader-v1", "scrub_version": S.SCRUB_VERSION,
+                      "chars": {"instruction": len(ins), "response": len(resp)}})
     with open(cfg.sft, "a", encoding="utf-8") as f:
         for r in srows:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
