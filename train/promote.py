@@ -46,8 +46,7 @@ def screen(pack: str) -> list[str]:
         why.append("too long")
     # allowlist on top of the denylist: printable ASCII + newline/tab only, so homoglyphs, zero-width and bidi
     # characters cannot be used to slip a blocked word past the patterns above
-    if any(not (32 <= ord(c) < 127 or c in "
-	") for c in pack):
+    if any(not (32 <= ord(c) < 127 or ord(c) in (9, 10)) for c in pack):
         why.append("non-ASCII or control characters")
     return why
 
