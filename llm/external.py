@@ -18,7 +18,7 @@ import time
 import urllib.parse
 import urllib.request
 
-from . import config
+from . import config, data
 
 API = "https://datasets-server.huggingface.co/rows?dataset=%s&config=default&split=train&offset=%d&length=100"
 SOURCES = [  # (dataset, rows to take, instruction field, response field, label)
@@ -42,7 +42,7 @@ def _get(url: str) -> dict:
 def _ids(p) -> set:
     if not p.exists():
         return set()
-    return {json.loads(l)["id"] for l in p.read_text(encoding="utf-8").splitlines() if l.strip()}
+    return {r["id"] for r in data.read_jsonl(p)}
 
 
 def oss_rows(rng: random.Random, sources) -> list[dict]:
@@ -105,7 +105,7 @@ def build_eval(seed: int = 20261022) -> dict:
 def load_eval() -> list[dict]:
     if not config.EVAL_EXTERNAL.exists():
         return []
-    return [json.loads(l) for l in config.EVAL_EXTERNAL.read_text(encoding="utf-8").splitlines() if l.strip()]
+    return data.read_jsonl(config.EVAL_EXTERNAL)
 
 
 def stale(days: float = 7.0) -> bool:
