@@ -1,7 +1,9 @@
 """Answer extraction and checking. A task passes only if the checker says so; nothing here is graded by an LLM."""
 from __future__ import annotations
 
+import json
 import os
+from pathlib import Path
 import re
 import subprocess
 import sys
@@ -96,7 +98,26 @@ def check_code(text, task, timeout=120.0):
         return _run_sandboxed(d, timeout)
 
 
+JUDGE = Path(__file__).with_name("stdio_judge.py")
+
+
+def check_stdio(text, task, code=None):
+    """Competitive-programming task: full program reading stdin; every stored test must match."""
+    code = code if code is not None else extract_code(text)
+    if not code:
+        return False
+    with tempfile.TemporaryDirectory(prefix="meshtrain-") as d:
+        Path(d, "sol.py").write_text(code, encoding="utf-8")
+        Path(d, "t.py").write_text(JUDGE.read_text(encoding="utf-8"), encoding="utf-8")
+        Path(d, "tests.json").write_text(json.dumps({"inputs": task["tests"]["inputs"], "outputs": task["tests"]["outputs"],
+                                                     "time_limit": task["time_limit"]}), encoding="utf-8")
+        total = min(600.0, 30.0 + task["time_limit"] * len(task["tests"]["inputs"]))
+        return _run_sandboxed(d, total)
+
+
 def grade(task, text):
     if task["kind"] == "code":
         return check_code(text, task)
+    if task["kind"] == "stdio":
+        return check_stdio(text, task)
     return {"int": check_int, "numeric": check_numeric, "mcq": check_mcq}[task["kind"]](final_answer(text), task["answer"])

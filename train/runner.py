@@ -30,6 +30,8 @@ FORMAT = {
     "numeric": "Finish with one final line: ANSWER: <number>",
     "mcq": "Finish with one final line: ANSWER: <letter(s)>, e.g. ANSWER: B or ANSWER: ACD",
     "code": "Put the complete final solution in a single ```python block (it is run against hidden tests).",
+    "stdio": ("Write a complete Python 3 program that reads standard input and writes standard output. Put the final "
+              "program in a single ```python block; it is run against hidden tests with the time limit above (CPython)."),
 }
 _FM = re.compile(r"^\ufeff?---\s*\n(.*?)\n---\s*\n?(.*)$", re.S)
 _lock = threading.Lock()
