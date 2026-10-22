@@ -11,15 +11,20 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 import threading
 import time
 from pathlib import Path
 
 CLAUDE = shutil.which("claude") or "claude"
-EVAL_TOOLS = "Bash,Read,Write,Edit"
-# file tools are limited to the per-run temp directory; Bash only for python (no web tools during evaluation)
-ALLOWED = ["Bash(python:*)", "Bash(python3:*)", "Bash(py:*)", "Read(./**)", "Write(./**)", "Edit(./**)"]
+EVAL_TOOLS = "Read,Write,Edit"
+SANDBOX_TOOL = "mcp__sandbox__run_python"
+# No shell: code runs only through the sandbox MCP tool (network-less container). File tools stay in the run dir.
+ALLOWED = ["Read(./**)", "Write(./**)", "Edit(./**)", SANDBOX_TOOL]
+SANDBOX_SERVER = str(Path(__file__).with_name("sandbox_mcp.py"))
+TOOL_NOTE = ("Tools: there is no shell. To run Python (numpy + standard library, no network) call the run_python tool; "
+             "Read/Write/Edit work only inside your task folder.")
 FORMAT = {
     "int": "Finish with one final line: ANSWER: <integer>",
     "numeric": "Finish with one final line: ANSWER: <number>",
@@ -57,7 +62,7 @@ def build_prompt(task: dict, pack: str | None) -> str:
     if pack:
         parts.append("Knowledge from the neural mesh for this kind of task (use what helps, ignore what does not):\n" + pack.strip())
     parts.append(task["prompt"].strip())
-    parts.append(FORMAT[task["kind"]])
+    parts.append(FORMAT[task["kind"]] + "\n" + TOOL_NOTE)
     return "\n\n---\n\n".join(parts)
 
 
@@ -65,12 +70,13 @@ def run(agent: dict, task: dict, pack: str | None, workdir: Path, timeout: float
         budget_usd: float = 3.0) -> dict:
     workdir.mkdir(parents=True, exist_ok=True)
     key = "a" + str(abs(hash(agent["name"])) % 10**8)
-    spec = {key: {"description": agent["description"] or "agent", "prompt": agent["prompt"], "tools": EVAL_TOOLS.split(",")}}
+    spec = {key: {"description": agent["description"] or "agent", "prompt": agent["prompt"], "tools": EVAL_TOOLS.split(",") + [SANDBOX_TOOL]}}
     if agent.get("model"):
         spec[key]["model"] = agent["model"]
     tmp = Path(tempfile.mkdtemp(prefix="mt-", dir=workdir))
     (tmp / "agents.json").write_text(json.dumps(spec), encoding="utf-8")
-    (tmp / "mcp.json").write_text('{"mcpServers":{}}', encoding="utf-8")
+    mcp = {"mcpServers": {"sandbox": {"command": sys.executable, "args": [SANDBOX_SERVER, str(tmp)]}}}
+    (tmp / "mcp.json").write_text(json.dumps(mcp), encoding="utf-8")
     cmd = [CLAUDE, "-p", "--no-session-persistence", "--setting-sources", "project", "--strict-mcp-config",
            "--mcp-config", str(tmp / "mcp.json"), "--disable-slash-commands", "--exclude-dynamic-system-prompt-sections",
            "--tools", EVAL_TOOLS, "--allowedTools", *ALLOWED, "--agents", str(tmp / "agents.json"), "--agent", key,

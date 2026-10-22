@@ -42,14 +42,19 @@ def _is_int(s):
     return bool(re.fullmatch(r"-?\d+", (s or "").strip()))
 
 
+MATH_SETS = ["aime_2025", "hmmt_feb_2025", "hmmt_nov_2025", "brumo_2025", "smt_2025", "cmimc_2025"]
+
+
 def math_tasks():
-    t = [{"id": "aime-" + str(r["id"]), "field": "math", "source": "AI-MO/aimo-validation-aime", "kind": "int",
-          "prompt": r["problem"] + "\n\nThe answer is an integer.", "answer": str(int(r["answer"])), "ref": r.get("solution", "")}
-         for r in _rows("AI-MO/aimo-validation-aime", "default", "train")]
-    for r in _rows("HuggingFaceH4/MATH-500", "default", "test"):
-        if str(r.get("level")) == "5" and _is_int(r["answer"]):
-            t.append({"id": "math500-" + r["unique_id"], "field": "math", "source": "HuggingFaceH4/MATH-500", "kind": "int",
-                      "prompt": r["problem"] + "\n\nThe answer is an integer.", "answer": str(int(r["answer"])), "ref": r.get("solution", "")})
+    """2025 competition problems (MathArena), integer answers only. The earlier AIME 2022-24 + MATH-500 L5 set was
+    saturated (base agents scored 20/20 held-out), so it could not show any improvement."""
+    t = []
+    for s in MATH_SETS:
+        for r in _rows("MathArena/" + s, "default", "train"):
+            a = str(r.get("answer", "")).strip()
+            if re.fullmatch(r"-?\d+", a):
+                t.append({"id": s + "-" + str(r["problem_idx"]), "field": "math", "source": "MathArena/" + s, "kind": "int",
+                          "prompt": r["problem"] + "\n\nThe answer is an integer.", "answer": str(int(a)), "ref": ""})
     return t
 
 

@@ -25,7 +25,7 @@ import threading
 import time
 from pathlib import Path
 
-from . import check, data, packs, runner, stats
+from . import check, data, packs, promote, runner, stats
 
 ROOT = Path(os.environ.get("MESHTRAIN_ROOT", r"C:\Users\mariu\ruv\hive\runs\agent-catalog"))
 REPO = Path(__file__).resolve().parent.parent
@@ -168,6 +168,8 @@ class Trainer:
         st["status"] = ("promoted" if pooled and pooled["p"] < 0.05 and pooled["c_pack_only"] > pooled["b_base_only"]
                         else "candidate" if st["version"] else "none")
         self.save_state(name, field, st)
+        if st["status"] == "promoted":
+            self.log("%s/%s live registry: %s" % (name, field, promote.publish(name, field, st)))
         self.feed_router(field, held, base, withp)
         self.log("%s/%s r%d held base %d/%d pack %d/%d p=%.3f -> %s (status %s)" % (
             name, field, rnd, cmp_["base"], cmp_["n"], cmp_["pack"], cmp_["n"], cmp_["p"], "KEPT" if kept else "reverted", st["status"]))

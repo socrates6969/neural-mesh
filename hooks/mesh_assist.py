@@ -6,8 +6,9 @@ belongs to, the pack is prepended to the agent's prompt via hookSpecificOutput.u
 no pack -> no output; any error -> no output; it never blocks (always exit 0).
 
 Registry: data/lifelong/mesh/packs.json  {"<agent>": {"<field>": {"pack": "...", "status": "promoted", "approved_sha256": "..."}}}
-A pack is only used when the user approved that exact text (python -m train.approve records its sha256);
-an edited or unapproved pack is ignored. Pack text is framed as reference material, not as instructions.
+A pack is only used when the user approved that exact text: python -m train.approve stores an HMAC-SHA256 of
+agent|field|pack keyed with a secret in ~/.claude/mesh-pack.key (outside every training/run folder). Anything that
+can write the registry but not read the key cannot forge an approval; an edited or unapproved pack is ignored. Pack text is framed as reference material, not as instructions.
 Opt-out: NEURAL_MESH_ASSIST=off. Budget: NEURAL_MESH_ASSIST_BUDGET_S (default 1.5 s).
 """
 import os
@@ -17,6 +18,9 @@ if os.environ.get("NEURAL_MESH_ASSIST", "").strip().lower() == "off":
     sys.exit(0)
 
 import hashlib
+from pathlib import Path
+import hmac
+import os
 import json
 import re
 import threading
@@ -46,6 +50,22 @@ def field_of(text, fields):
     return best
 
 
+KEY_PATH = Path(os.environ.get("NEURAL_MESH_PACK_KEY", str(Path.home() / ".claude" / "mesh-pack.key")))
+
+
+def mac(key: bytes, agent: str, field: str, pack: str) -> str:
+    return hmac.new(key, (agent + "|" + field + "|" + pack).encode("utf-8"), hashlib.sha256).hexdigest()
+
+
+def verify(agent: str, field: str, v: dict, key: bytes | None = None) -> bool:
+    try:
+        key = key if key is not None else KEY_PATH.read_bytes()
+    except OSError:
+        return False
+    sig = v.get("approved_mac")
+    return bool(key) and isinstance(sig, str) and hmac.compare_digest(sig, mac(key, agent, field, v["pack"]))
+
+
 def decide(data, registry):
     """The hook output dict for one PreToolUse payload, or None."""
     if data.get("tool_name") not in ("Task", "Agent"):
@@ -57,7 +77,7 @@ def decide(data, registry):
     prompt = str(ti.get("prompt") or "")
     entry = registry.get(agent) or {}
     promoted = {f: v for f, v in entry.items() if isinstance(v, dict) and v.get("status") == "promoted" and v.get("pack")
-                and v.get("approved_sha256") == hashlib.sha256(v["pack"].encode("utf-8")).hexdigest()}
+                and verify(agent, f, v)}
     if not promoted or MARK in prompt:
         return None
     f = field_of(str(ti.get("description") or "") + " " + prompt, list(promoted))
