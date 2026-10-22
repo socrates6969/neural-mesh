@@ -43,6 +43,15 @@ _ENV_KEEP = {"PATH", "PATHEXT", "SYSTEMROOT", "SYSTEMDRIVE", "WINDIR", "COMSPEC"
              "LANG", "PYTHONUTF8", "PYTHONIOENCODING", "CLAUDE_CONFIG_DIR"}
 
 
+QUOTA_RE = re.compile(r"hit your (weekly|daily|usage|session) limit|usage limit reached|rate limit(ed)? (exceeded|reached)|"
+                      r"credit balance is too low|limit . resets", re.I)
+
+
+def is_quota(text: str) -> bool:
+    """Plan/usage-limit replies are not answers: they must never be graded as a wrong answer."""
+    return bool(text) and len(text) < 600 and bool(QUOTA_RE.search(text))
+
+
 def clean_env(extra=None):
     env = {k: v for k, v in os.environ.items() if k.upper() in _ENV_KEEP or k.upper().startswith("ANTHROPIC_")}
     env.update(extra or {})
@@ -93,7 +102,9 @@ def run(agent: dict, task: dict, pack: str | None, workdir: Path, timeout: float
             d = json.loads(r.stdout)
             rec["text"] = d.get("result") or ""
             rec["cost"] = float(d.get("total_cost_usd") or 0)
-            if d.get("is_error"):
+            if is_quota(rec["text"]):
+                rec["error"] = "quota: " + rec["text"][:200]
+            elif d.get("is_error"):
                 rec["error"] = (d.get("subtype") or "error") + ": " + rec["text"][:200]
         except Exception:
             rec["error"] = "unparsed output rc=%s: %s %s" % (r.returncode, r.stdout[-300:], r.stderr[-300:])

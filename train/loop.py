@@ -39,6 +39,7 @@ def slug(name: str) -> str:
 class Trainer:
     def __init__(self, batch: dict, out: Path, bench: Path, budget: float, workers: int, tune_n: int, held_n: int):
         self.batch, self.out, self.bench = batch, out, bench
+        self.quota_hit = False
         self.budget, self.workers, self.tune_n, self.held_n = budget, workers, tune_n, held_n
         self.out.mkdir(parents=True, exist_ok=True)
         self.results = out / "results.jsonl"
@@ -93,9 +94,15 @@ class Trainer:
 
         def work(i):
             rnd, phase, ag, t, pk = jobs[i]
-            if self.spent >= self.budget:
+            if self.spent >= self.budget or self.quota_hit:
                 return i, None
             rec = runner.run(ag, t, pk, self.out / "work")
+            if (rec["error"] or "").startswith("quota"):
+                with _lock:
+                    if not self.quota_hit:
+                        self.log("QUOTA: plan usage limit reached (%s) - stopping; nothing recorded" % rec["error"][:120])
+                    self.quota_hit = True
+                return i, None
             rec.update(round=rnd, phase=phase, passed=bool(check.grade(t, rec["text"])) if not rec["error"] else False)
             rec["text"] = rec["text"][-4000:]
             with _lock:
@@ -141,6 +148,10 @@ class Trainer:
             cand = cand_path.read_text(encoding="utf-8")
         else:
             cand, wcost = packs.write_pack(ag, field, st["current"], fails, n_ok)
+            if runner.is_quota(cand):
+                self.quota_hit = True
+                self.log("QUOTA: pack writer hit the plan usage limit - stopping")
+                return None
             with _lock:
                 self.spent += wcost
                 with open(self.out / "writer_costs.jsonl", "a", encoding="utf-8") as f:
@@ -231,6 +242,9 @@ class Trainer:
             self.log("round %d done, spent $%.2f" % (rnd, self.spent))
             if self.spent >= self.budget:
                 self.log("budget reached - stopping (resume later with a higher --budget)")
+                break
+            if self.quota_hit:
+                self.log("stopped on plan usage limit - rerun the same command after the limit resets (resumes)")
                 break
         self.leaderboard()
 
