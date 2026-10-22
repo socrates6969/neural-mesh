@@ -222,6 +222,8 @@ class Trainer:
             r = subprocess.run([sys.executable, "-m", "train.export_mesh", self.out.name], capture_output=True, text=True,
                                cwd=str(REPO), timeout=3600, env={**os.environ, "PYTHONPATH": str(REPO)})
             self.log("live mesh export: " + " | ".join(x for x in r.stdout.splitlines() if x.startswith(("router", "llm"))) or r.stderr[-300:])
+            from . import experience
+            self.log("experience memory: +%d verified solutions" % experience.build_from_results(self.out.name))
         except Exception as e:
             self.log("live mesh export failed: %r" % e)
 

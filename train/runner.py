@@ -72,6 +72,15 @@ def build_prompt(task: dict, pack: str | None) -> str:
     parts = []
     if pack:
         parts.append("Knowledge from the neural mesh for this kind of task (use what helps, ignore what does not):\n" + pack.strip())
+    if os.environ.get("MESHTRAIN_EXPERIENCE", "on") != "off":
+        try:
+            from . import experience
+            mem = experience.render(experience.retrieve(task["prompt"], field=task.get("field"), k=2, min_sim=0.45,
+                                                        exclude={task["id"]}))
+            if mem:
+                parts.append(mem)
+        except Exception:
+            pass
     parts.append(task["prompt"].strip())
     parts.append(FORMAT[task["kind"]] + "\n" + TOOL_NOTE)
     return "\n\n---\n\n".join(parts)
