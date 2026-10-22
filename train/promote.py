@@ -44,8 +44,11 @@ def screen(pack: str) -> list[str]:
     why = [label for pat, label in BLOCK if re.search(pat, low)]
     if len(pack.split()) > MAX_WORDS:
         why.append("too long")
-    if any((ord(c) < 32 and c not in "\n\t\r") or 0x200B <= ord(c) <= 0x200F or 0x202A <= ord(c) <= 0x202E for c in pack):
-        why.append("hidden control characters")
+    # allowlist on top of the denylist: printable ASCII + newline/tab only, so homoglyphs, zero-width and bidi
+    # characters cannot be used to slip a blocked word past the patterns above
+    if any(not (32 <= ord(c) < 127 or c in "
+	") for c in pack):
+        why.append("non-ASCII or control characters")
     return why
 
 
