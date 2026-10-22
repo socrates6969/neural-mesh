@@ -108,7 +108,7 @@ class Cache(unittest.TestCase):
         e = Env()
         e.judge.runner = lambda prompt, **_: {"text": "not json", "ok": True, "usage": dict(USAGE), "cost_usd": 0, "resolved_model": None, "err": None}
         r = e.judge.compare("q", "r", "GOOD", "bad")
-        self.assertEqual((r["winner"], r["how"]), ("tie", "error"))
+        self.assertEqual((r["winner"], r["how"]), ("unjudged", "error"))
         self.assertEqual(e.judge.cache, {})
         self.assertEqual(e.judge.stats["failed"], 2)
 
