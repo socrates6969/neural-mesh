@@ -9,6 +9,10 @@ Disable with NEURAL_MESH_SHADOW=off (checked before any import).  Budget NEURAL_
 mesh_pick = `neural-mesh route --state <router_state.json> --features <same features the nightly ingest trains on> --candidates <agents in the state>`.
 The state file is never modified (the route call runs on a temporary copy; checked by hash in hooks/tests). No prompt text is logged: only the chosen agent names and the
 timestamp/session/tool_use_id, so the file carries nothing to scrub.
+
+MESH_ROUTER=v2 (hive router-v2; default v1): mesh_pick comes from router v2 instead (ingest/router_v2.py: MiniLM embedding of the same
+"description :: prompt" text the ingest stores, contextual bandit, read-only on router_state.v2.json, candidates = agents in that state),
+and the row gets "router": "v2". The hybrid (v1 project state + phase-rule prior) column is unchanged.
 """
 import os
 import sys
@@ -52,6 +56,24 @@ def mesh_pick(cfg, feats, cands):
                 os.unlink(tmp)
             except OSError:
                 pass
+
+
+def v2_pick(cfg, text, feats, project):
+    """(agent or None, ms, n candidates) from router v2. Never raises. The hook runs `python -S`: site-packages (numpy, onnxruntime) are enabled here only."""
+    t = time.monotonic()
+    try:
+        import site
+        site.main()
+        from ingest import router_v2
+        from ingest.meshio import v2_state
+        st = v2_state(cfg)
+        if not st.exists():
+            return None, 0, 0
+        out = router_v2.route_cmd(st, feats, None, text=text, project=project)
+        agent = out.get("agent") if out.get("ok") else None
+        return (agent if isinstance(agent, str) and agent else None), round((time.monotonic() - t) * 1000), int(out.get("n_cand") or 0)
+    except Exception:
+        return None, round((time.monotonic() - t) * 1000), 0
 
 
 HYBRID_PRIOR_K = 500.0   # R122: with the declared roster as candidates, k >= 500 follows the phase rule almost always (router_eval: ties the rule in-domain)
@@ -116,14 +138,24 @@ def build_row(data, cfg):
     desc, prompt = str(ti.get("description") or ""), str(ti.get("prompt") or "")
     actual = str(ti.get("subagent_type") or "general-purpose")
     feats = [f for f in features(desc + " " + prompt[:400]) if "," not in f]
-    cands = state_agents(cfg)
-    pick, ms = mesh_pick(cfg, feats, cands)
+    v2 = os.environ.get("MESH_ROUTER", "v1").strip().lower() == "v2"
+    if v2:
+        from ingest.extract import project_of
+        text = desc + (" :: " + prompt[:400] if prompt else "")          # = the task_text the ingest stores (ingest/pipeline.py)
+        pick, ms, n_cand = v2_pick(cfg, text, feats, project_of(str(data.get("cwd") or ""), "") or "default")
+    else:
+        cands = state_agents(cfg)
+        pick, ms = mesh_pick(cfg, feats, cands)
+        n_cand = len(cands)
     rule = rule_pick(desc + " :: " + prompt[:400])
     t_h = time.monotonic()
     hyb = hybrid_pick(cfg, str(data.get("cwd") or ""), feats, rule, data.get("tool_use_id") or data.get("session_id") or "")
-    return {"ts": time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime()) + "Z", "session": data.get("session_id"), "tool_use_id": data.get("tool_use_id"),
-            "actual": actual, "mesh_pick": pick, "rule_pick": rule, "hybrid_pick": hyb, "n_cand": len(cands), "mesh_ms": ms,
-            "hybrid_ms": round((time.monotonic() - t_h) * 1000)}
+    row = {"ts": time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime()) + "Z", "session": data.get("session_id"), "tool_use_id": data.get("tool_use_id"),
+           "actual": actual, "mesh_pick": pick, "rule_pick": rule, "hybrid_pick": hyb, "n_cand": n_cand, "mesh_ms": ms,
+           "hybrid_ms": round((time.monotonic() - t_h) * 1000)}
+    if v2:
+        row["router"] = "v2"
+    return row
 
 
 def log_shadow(data, cfg=None):

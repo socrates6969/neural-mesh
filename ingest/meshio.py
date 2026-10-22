@@ -7,10 +7,15 @@ Feed policy (mesh-coder's R117-R121, router-eval: label-fed 67% vs reward-only 3
 * every other outcome is sent as ``--label <agent that actually did the work>`` (supervised: the leader's actual choice is the label, which is what
   shadow mode measures); ``INGEST_MESH_FEED=reward`` restores the old reward-only feed (``--agent X --reward r``, env failures included).
 * if the binary rejects the new flags (built before R117) the event is re-sent as the legacy reward feed, so nothing is lost (``stats.fallback``).
+
+Router v2 switch (hive router-v2): ``MESH_ROUTER=v2`` ALSO feeds every dispatch / benchmark outcome into the v2 state (ingest/router_v2.py,
+MiniLM + contextual bandit; ``router_state.v2.json`` next to the v1 state, or ``MESH_ROUTER_V2_STATE``). The v1 feed is unchanged either way,
+so switching back is just unsetting the variable. Default (unset or ``v1``): v1 only, exactly as before.
 """
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 from pathlib import Path
 
@@ -45,6 +50,15 @@ def world_of(outcome: dict) -> str:
     return "".join(c if c.isalnum() or c in "-_:" else "_" for c in (outcome.get("project") or "default"))[:64] or "default"
 
 
+def router_mode() -> str:
+    """"v2" when MESH_ROUTER=v2, else "v1" (the default: the live Hebbian router only)."""
+    return "v2" if os.environ.get("MESH_ROUTER", "v1").strip().lower() == "v2" else "v1"
+
+
+def v2_state(cfg) -> Path:
+    return Path(os.environ.get("MESH_ROUTER_V2_STATE") or cfg.router_state.with_name("router_state.v2.json"))
+
+
 def project_state(cfg, outcome: dict) -> Path:
     """R122: one router state per project next to the global one (data/lifelong/mesh/projects/<world>.json). Routing inside a project with its own
     state and its own candidate roster beat the global state on prequential replay (ingest/router_eval.py); the global state is unchanged."""
@@ -58,7 +72,7 @@ class MeshFeedback:
         self.fed: set[str] = set()
         if self.fed_path.exists():
             self.fed = {x.strip() for x in self.fed_path.read_text(encoding="utf-8").splitlines() if x.strip()}
-        self.stats = {"fed": 0, "failed": 0, "skipped": 0, "label": 0, "env": 0, "reward": 0, "fallback": 0, "project_fed": 0}
+        self.stats = {"fed": 0, "failed": 0, "skipped": 0, "label": 0, "env": 0, "reward": 0, "fallback": 0, "project_fed": 0, "v2": 0, "v2_failed": 0}
 
     def available(self) -> bool:
         return self.cfg.mesh_exe.exists()
@@ -98,6 +112,17 @@ class MeshFeedback:
             pmode = "reward" if kind == "reward" else None
             if self._run(self.command(outcome, state=pst, with_store=False, mode=pmode)):
                 self.stats["project_fed"] += 1
+        if router_mode() == "v2":
+            self.feed_v2(outcome)
+
+    def feed_v2(self, outcome: dict) -> None:
+        """MESH_ROUTER=v2: the same outcome into the v2 bandit state (in-process; continuations are skipped by router_v2.fed_kind)."""
+        try:
+            from . import router_v2
+            if router_v2.feed_outcome(v2_state(self.cfg), outcome) != "skipped":
+                self.stats["v2"] += 1
+        except Exception:          # never let the optional v2 feed break the v1 nightly feed
+            self.stats["v2_failed"] += 1
 
     @staticmethod
     def _run(cmd: list[str]) -> bool:
