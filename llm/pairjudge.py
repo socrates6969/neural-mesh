@@ -33,7 +33,7 @@ from . import config
 RUBRIC_VERSION = "llm-smith-pairwise-v1"
 CLAUDE_MODEL = os.environ.get("MESH_PAIR_JUDGE_MODEL", os.environ.get("BENCH_CLAUDE_MODEL", "haiku"))   # `haiku` = claude-haiku-4-5 (modelUsage names it)
 THINK_TOKENS = os.environ.get("MESH_PAIR_JUDGE_THINK", "1024")
-DEFAULT_NIGHTLY_BUDGET = 120
+DEFAULT_NIGHTLY_BUDGET = int(os.environ.get("MESH_PAIR_BUDGET", "2000"))   # judge calls/night (2 per pair); the held-out pool usually caps it lower
 PAIR_CACHE = config.MODELS / "pair_cache.jsonl"
 LEDGER = config.MODELS / "pair_budget.json"
 WORK = config.MODELS / "cc_work"       # empty cwd for the CLI so no project CLAUDE.md is picked up
@@ -195,6 +195,9 @@ class PairwiseJudge:
         if pv is None:
             with self.lock:
                 self.stats["failed"] += 1
+                why = str(r.get("err") or ("unparsable verdict" if r.get("ok") else "call failed"))[:80]
+                self.stats.setdefault("fail_reasons", {})
+                self.stats["fail_reasons"][why] = self.stats["fail_reasons"].get(why, 0) + 1
             return None
         rec = {"key": key, "verdict": pv[0], "reason": pv[1], "model": self.model, "resolved_model": r.get("resolved_model"),
                "rubric": RUBRIC_VERSION, "tokens": r.get("usage"), "cost_usd": r.get("cost_usd"),
@@ -250,8 +253,8 @@ class PairwiseJudge:
     @staticmethod
     def decide(orders: list[dict]) -> dict:
         whos = [o["who"] for o in orders]
-        if None in whos:
-            return {"winner": "tie", "how": "error"}
+        if None in whos:   # a failed judge call is NOT a tie: counting it as one fakes a tight CI around 0.5 (10-22: 57/60)
+            return {"winner": "unjudged", "how": "error"}
         if whos[0] == whos[1] and whos[0] in ("x", "y"):
             return {"winner": whos[0], "how": "both-orders"}
         if {"x", "y"} <= set(whos):

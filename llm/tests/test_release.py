@@ -268,7 +268,7 @@ class Rollback(Sandbox):
 
 class GateConstants(unittest.TestCase):
     def test_gate_constants_unchanged(self):
-        self.assertEqual((evaluate.N_LOSS, evaluate.N_TASK, evaluate.MIN_PAIR_ITEMS, evaluate.N_DET, evaluate.DET_MAX_NEW), (200, 60, 40, 20, 768))
+        self.assertEqual((evaluate.N_LOSS, evaluate.N_TASK, evaluate.MIN_PAIR_ITEMS, evaluate.N_DET, evaluate.DET_MAX_NEW), (200, 1000, 40, 20, 768))  # N_TASK 60 -> 1000 (2026-10-22, user: judge up to 2000 calls/night)
         self.assertEqual((evaluate.CAT_MAX_DROP, evaluate.POOLED_MAX_DROP, evaluate.CAT_SIGN_ALPHA), (0.10, 0.05, 0.10))
         self.assertEqual((evaluate.MIN_N, evaluate.MIN_SESSIONS), (30, 3))
 

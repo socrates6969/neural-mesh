@@ -13,7 +13,7 @@
 #   -IngestPython P  python for ingest/mirror (default `python` on PATH)
 #   -NoMirror        skip stage 3
 #   -Log P           log file (default llm\models\nightly.log)
-param([int]$IngestWaitSeconds = 3600, [int]$JudgeBudget = 800, [int]$PairBudget = 120, [string]$MirrorDb = '', [string]$Python = '',
+param([int]$IngestWaitSeconds = 3600, [int]$JudgeBudget = 800, [int]$PairBudget = 2000, [string]$MirrorDb = '', [string]$Python = '',
       [string]$IngestPython = 'python', [switch]$NoMirror, [string]$Log = '')
 $ErrorActionPreference = 'Stop'
 $env:PYTHONIOENCODING = 'utf-8'

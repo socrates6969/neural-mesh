@@ -21,13 +21,14 @@ import gc
 import hashlib
 import importlib.util
 import json
+import os
 import math
 from datetime import datetime, timezone
 
 from . import config, data, stats
 
 N_LOSS = 200      # max held-out examples for the loss test
-N_TASK = 60       # max held-out requests for the pairwise judge (2 calls each: 60 pairs = the default 120-call night)
+N_TASK = int(os.environ.get("MESH_PAIR_ITEMS", "1000"))  # max held-out requests judged pairwise (2 calls each); capped by the held-out pool
 MIN_PAIR_ITEMS = 40   # judged held-out items needed before the win rate may open the gate
 N_DET = 20        # deterministic battery items per category (math, physics, code, research)
 DET_MAX_NEW = 768
