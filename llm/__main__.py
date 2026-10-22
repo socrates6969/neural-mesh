@@ -66,6 +66,13 @@ def main(argv=None) -> int:
     if argv[:1] == ["ask"]:          # dispatched BEFORE lock(): ask must never wait for or block the nightly
         from .frontend_live import cli_ask
         return cli_ask(argv[1:])
+    if argv[:1] == ["external"]:      # refresh the train-only open-source data (data/lifelong/sft_external.jsonl)
+        from . import external
+        if "--if-stale" in argv and not external.stale():
+            print("external: fresh (< 7 days); skipped")
+            return 0
+        external.build()
+        return 0
     if argv[:1] == ["shadow-drain"]:
         from .frontend_live import shadow_drain
         with lock():

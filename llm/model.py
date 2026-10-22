@@ -71,14 +71,18 @@ def _batches(encoded, bs):
 
 
 def train_loop(model, encoded: list[tuple[list[int], list[int]]], epochs: int = 2, lr: float = 2e-4, bs: int = 1,
-               grad_accum: int = 8, seed: int = config.SEED, log=print) -> dict:
+               grad_accum: int = 8, seed: int = config.SEED, log=print, time_budget_s: float | None = None) -> dict:
+    """time_budget_s: stop at this wall-clock budget. After 20 optimizer steps the LR-schedule horizon is re-estimated
+    from measured throughput so warmup+decay fit the budget (nightly: config.TRAIN_MINUTES)."""
     import bitsandbytes as bnb
     torch.manual_seed(seed)
     rng = random.Random(seed)
     params = [p for p in model.parameters() if p.requires_grad]
     opt = bnb.optim.PagedAdamW8bit(params, lr=lr, weight_decay=0.0)
     steps_total = max(1, math.ceil(len(encoded) * epochs / (bs * grad_accum)))
-    sched = torch.optim.lr_scheduler.LambdaLR(opt, lambda s: min(1.0, (s + 1) / max(1, steps_total // 10)) * max(0.05, 1 - s / steps_total))
+    horizon = [steps_total]
+    sched = torch.optim.lr_scheduler.LambdaLR(opt, lambda s: min(1.0, (s + 1) / max(1, horizon[0] // 10)) * max(0.05, 1 - s / horizon[0]))
+    stopped = False
     model.train()
     torch.cuda.reset_peak_memory_stats()
     t0, step, micro, losses = time.time(), 0, 0, []
@@ -98,13 +102,23 @@ def train_loop(model, encoded: list[tuple[list[int], list[int]]], epochs: int = 
                 torch.nn.utils.clip_grad_norm_(params, 1.0)
                 opt.step(); sched.step(); opt.zero_grad(set_to_none=True)
                 step += 1
+                if time_budget_s and step == 20:
+                    fit = int((time_budget_s / max(1e-6, time.time() - t0)) * step)
+                    horizon[0] = max(step + 1, min(steps_total, fit))
+                    log(f"  time budget {time_budget_s / 60:.0f} min -> schedule horizon {horizon[0]} of {steps_total} steps")
                 if step % 10 == 0:
-                    log(f"  step {step}/{steps_total} loss {sum(losses[-grad_accum:]) / grad_accum:.4f}")
+                    log(f"  step {step}/{horizon[0]} loss {sum(losses[-grad_accum:]) / grad_accum:.4f}")
+                if time_budget_s and (time.time() - t0 > time_budget_s or step >= horizon[0] and horizon[0] < steps_total):
+                    stopped = True
+                    break
         log(f"epoch {ep + 1}/{epochs} mean loss {sum(losses[-len(groups):]) / max(1, len(groups)):.4f}")
+        if stopped:
+            log(f"time budget reached after {step} optimizer steps ({(time.time() - t0) / 60:.1f} min)")
+            break
     if micro % grad_accum:
         torch.nn.utils.clip_grad_norm_(params, 1.0)
         opt.step(); opt.zero_grad(set_to_none=True); step += 1
-    return {"optimizer_steps": step, "micro_batches": micro, "seconds": round(time.time() - t0, 1),
+    return {"optimizer_steps": step, "micro_batches": micro, "seconds": round(time.time() - t0, 1), "time_budget_s": time_budget_s,
             "peak_vram_gb": round(torch.cuda.max_memory_allocated() / 2**30, 3), "final_loss": round(sum(losses[-16:]) / max(1, len(losses[-16:])), 4)}
 
 

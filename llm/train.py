@@ -24,9 +24,10 @@ def run(synthetic: bool = False, epochs: int = 2, max_new: int = MAX_NEW_PER_ROU
     new = new[:max_new]
     from . import anchors as A
     anc = [] if synthetic else A.sample(int(round(len(new) * anchor_ratio)), seed=config.SEED + len(lineage))
+    ext = [] if synthetic else data.sample_external(config.EXTERNAL_PER_NIGHT, seed=config.SEED + len(lineage) + len(new))
     log(f"data: {source}; rows {len(rows)} (train {len(train_rows)}, held-out {len(held)} in later sessions); new {len(new)}, replay {len(replay)}, "
-        f"anchors {len(anc)} (ratio {anchor_ratio}, pool {len(A.load())})")
-    if not new:
+        f"anchors {len(anc)} (ratio {anchor_ratio}, pool {len(A.load())}); external {len(ext)} (train-only)")
+    if not new and not ext:
         log("nothing new to train on; no adapter written")
         return None
     from . import judge, model as M
@@ -37,16 +38,18 @@ def run(synthetic: bool = False, epochs: int = 2, max_new: int = MAX_NEW_PER_ROU
     ver = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S") + ("-syn" if synthetic else "")
     out = config.ADAPTERS / ver
     tok = M.tokenizer(base)
-    enc = [M.encode(tok, r["instruction"], r["response"]) for r in new + replay + anc]
+    enc = [M.encode(tok, r["instruction"], r["response"]) for r in new + replay + anc + ext]
     log(f"base {base.name}; parent adapter {parent or '(fresh LoRA)'}; {len(enc)} examples, mean {sum(len(e[0]) for e in enc) / len(enc):.0f} tokens")
     t0 = time.time()
     m = M.load_4bit(base, adapter=(config.ADAPTERS / parent) if parent else None, trainable=True)
-    stats = M.train_loop(m, enc, epochs=epochs, log=log)
+    stats = M.train_loop(m, enc, epochs=max(epochs, config.NIGHTLY_EPOCHS), log=log,
+                         time_budget_s=None if synthetic else config.TRAIN_MINUTES * 60)
     out.mkdir(parents=True, exist_ok=True)
     m.save_pretrained(out)
     meta = {"ver": ver, "base": base.name, "parent": parent, "data_source": source, "synthetic": synthetic,
             "n_new": len(new), "n_replay": len(replay), "new_ids": [r["id"] for r in new], "replay_ids": [r["id"] for r in replay],
             "n_anchor": len(anc), "anchor_ratio": anchor_ratio, "anchor_ids": [r["id"] for r in anc],
+            "n_external": len(ext), "external_sources": dict(__import__("collections").Counter(r.get("source") for r in ext)),
             "heldout_sessions": sorted({r.get("session") for r in held}), "epochs": epochs, "train": stats,
             "wall_s": round(time.time() - t0, 1), "created": datetime.now(timezone.utc).isoformat()}
     (out / "meta.json").write_text(json.dumps(meta, indent=1), encoding="utf-8")

@@ -151,3 +151,16 @@ def load_rows(synthetic: bool = False) -> tuple[list[dict], str]:
             return rows, f"real:{config.SFT}"
         raise SystemExit(f"no rows in {config.SFT}; pass --synthetic to use the labelled synthetic sample")
     return synthetic_rows(), "SYNTHETIC (labelled sample, not real data)"
+
+
+def sample_external(n: int, seed: int = config.SEED) -> list[dict]:
+    """Up to n rows from data/lifelong/sft_external.jsonl (open-source datasets + local git history, built by
+    `python -m llm external`). These are TRAIN-ONLY: they never enter the held-out split, so nightly eval stays
+    comparable. Sampled per source in proportion to its size, a fresh sample each night (seed varies)."""
+    import random as _r
+    if n <= 0 or not config.EXTERNAL.exists():
+        return []
+    rows = read_jsonl(config.EXTERNAL)
+    rng = _r.Random(seed)
+    rng.shuffle(rows)
+    return rows[:n]

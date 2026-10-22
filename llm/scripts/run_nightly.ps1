@@ -59,7 +59,10 @@ try {
             $worst = $irc
             Write-Log 'ingest failed; skipping the llm round'
         } else {
-            # 2) the llm round under one lock
+            # 1c) refresh the train-only open-source data when older than 7 days (never fails the round)
+            $erc = Invoke-Logged $Python @('-u', '-m', 'llm', 'external', '--if-stale') $Log
+            Write-Log "external data exit $erc"
+            # 2) the llm round under one lock (training is time-budgeted: MESH_LLM_TRAIN_MINUTES, default 110)
             $lrc = Invoke-Logged $Python @('-u', '-m', 'llm', 'nightly', '--judge-budget', "$PairBudget") $Log
             if ($lrc -eq 75) { Write-Log 'llm busy (nightly.lock held by another llm run); skipped'; $lrc = 0 }
             else { Write-Log "llm nightly exit $lrc" }
