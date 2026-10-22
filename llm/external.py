@@ -1,9 +1,12 @@
-"""`python -m llm external`: build data/lifelong/sft_external.jsonl, TRAIN-ONLY extra data for the nightly QLoRA.
-
-Open-source datasets fetched through the Hugging Face datasets-server REST API (random pages, no extra packages):
+"""`python -m llm external [--eval] [--if-stale]`: open-source data for the nightly QLoRA, fetched through the
+Hugging Face datasets-server REST API (random pages, no extra packages):
 MetaMathQA (math worked solutions), Magicoder-OSS-Instruct-75K (code), camel-ai/physics (physics Q&A).
-All text is scrubbed with ingest.scrub; rows with secret-class hits are dropped. Refreshed by the nightly script when
-older than 7 days. These rows never enter the held-out split, so nightly evaluation stays comparable.
+
+* data/lifelong/sft_external.jsonl       TRAIN-ONLY rows (refreshed weekly). Never in the held-out split.
+* data/lifelong/sft_eval_external.jsonl  a FIXED set of ~1000 held-out questions with reference answers, used only by
+                                         the nightly pairwise judge (built once, fixed seed, so nights are comparable).
+The two sets never share a row (each build excludes the other's ids). All text is scrubbed with ingest.scrub; rows
+with secret-class hits are dropped.
 """
 from __future__ import annotations
 
@@ -23,6 +26,7 @@ SOURCES = [  # (dataset, rows to take, instruction field, response field, label)
     ("ise-uiuc/Magicoder-OSS-Instruct-75K", 3000, "problem", "solution", "oss:magicoder"),
     ("camel-ai/physics", 1500, "message_1", "message_2", "oss:camel-physics"),
 ]
+EVAL_SOURCES = [(ds, n, fi, fr, label) for (ds, _, fi, fr, label), n in zip(SOURCES, (400, 400, 200))]
 
 
 def _get(url: str) -> dict:
@@ -35,9 +39,15 @@ def _get(url: str) -> dict:
     return {}
 
 
-def oss_rows(rng: random.Random) -> list[dict]:
+def _ids(p) -> set:
+    if not p.exists():
+        return set()
+    return {json.loads(l)["id"] for l in p.read_text(encoding="utf-8").splitlines() if l.strip()}
+
+
+def oss_rows(rng: random.Random, sources) -> list[dict]:
     out = []
-    for ds, n, fi, fr, label in SOURCES:
+    for ds, n, fi, fr, label in sources:
         q = urllib.parse.quote(ds, safe="")
         total = int(_get(API % (q, 0)).get("num_rows_total") or 0)
         if not total:
@@ -56,29 +66,46 @@ def oss_rows(rng: random.Random) -> list[dict]:
     return out
 
 
-def build(seed: int | None = None) -> dict:
+def build(seed: int | None = None, out=None, sources=None, exclude=None) -> dict:
+    """Train set by default; `exclude` ids (default: the eval set) are skipped so train and eval never overlap."""
     sys.path.insert(0, str(config.REPO))
     from ingest import scrub as S
+    out = out or config.EXTERNAL
+    exclude = _ids(config.EVAL_EXTERNAL) if exclude is None else exclude
     rng = random.Random(seed if seed is not None else int(time.time()))
-    rows, dropped = [], 0
-    for r in oss_rows(rng):
+    rows, dropped, seen = [], 0, set()
+    for r in oss_rows(rng, sources or SOURCES):
         si, sr = S.scrub(r["instruction"]), S.scrub(r["response"])
         if si.secret or sr.secret:
             dropped += 1
             continue
-        h = hashlib.sha256((r["instruction"] + "\x00" + r["response"]).encode("utf-8")).hexdigest()[:16]
-        rows.append({"id": "ext:" + h, "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "project": "external",
-                     "session": "external", "source": r["source"], "agent": None, "model": None,
-                     "instruction": si.text, "response": sr.text, "outcome": None, "judge_score": None,
-                     "scrub_version": S.SCRUB_VERSION})
-    tmp = config.EXTERNAL.with_suffix(".tmp")
+        rid = "ext:" + hashlib.sha256((r["instruction"] + "\x00" + r["response"]).encode("utf-8")).hexdigest()[:16]
+        if rid in exclude or rid in seen:
+            continue
+        seen.add(rid)
+        rows.append({"id": rid, "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "project": "external",
+                     "session": ("exteval:" + rid) if out == config.EVAL_EXTERNAL else "external", "source": r["source"],
+                     "agent": None, "model": None, "instruction": si.text, "response": sr.text, "outcome": None,
+                     "judge_score": None, "scrub_version": S.SCRUB_VERSION})
+    tmp = out.with_suffix(".tmp")
     tmp.write_text("\n".join(json.dumps(r, ensure_ascii=False) for r in rows) + "\n", encoding="utf-8")
-    tmp.replace(config.EXTERNAL)
+    tmp.replace(out)
     by = {}
     for r in rows:
         by[r["source"]] = by.get(r["source"], 0) + 1
-    print("external:", len(rows), "rows", by, "| dropped (secrets):", dropped, flush=True)
+    print("%s: %d rows %s | dropped (secrets): %d" % (out.name, len(rows), by, dropped), flush=True)
     return {"rows": len(rows), "by_source": by, "dropped": dropped}
+
+
+def build_eval(seed: int = 20261022) -> dict:
+    """The fixed held-out question set for the pairwise judge (excludes every current training row)."""
+    return build(seed=seed, out=config.EVAL_EXTERNAL, sources=EVAL_SOURCES, exclude=_ids(config.EXTERNAL))
+
+
+def load_eval() -> list[dict]:
+    if not config.EVAL_EXTERNAL.exists():
+        return []
+    return [json.loads(l) for l in config.EVAL_EXTERNAL.read_text(encoding="utf-8").splitlines() if l.strip()]
 
 
 def stale(days: float = 7.0) -> bool:
@@ -86,4 +113,4 @@ def stale(days: float = 7.0) -> bool:
 
 
 if __name__ == "__main__":
-    build()
+    build_eval() if "--eval" in sys.argv else build()

@@ -71,7 +71,7 @@ def main(argv=None) -> int:
         if "--if-stale" in argv and not external.stale():
             print("external: fresh (< 7 days); skipped")
             return 0
-        external.build()
+        external.build_eval() if "--eval" in argv else external.build()
         return 0
     if argv[:1] == ["shadow-drain"]:
         from .frontend_live import shadow_drain

@@ -211,6 +211,11 @@ def run(synthetic: bool = False, ver: str | None = None, n_loss: int = N_LOSS, n
     prod_ver = prod.get("ver")
     loss_rows = _pick(held, n_loss, "loss")
     task_rows = _pick(held, n_task, "task")
+    if not synthetic and len(task_rows) < n_task:   # fill with the fixed open-source eval questions (never trained on)
+        from . import external
+        ext = [r for r in external.load_eval() if r["id"] not in trained]
+        task_rows += _pick(ext, n_task - len(task_rows), "task")
+        log(f"pairwise: {len(task_rows)} items (own held-out first, then fixed open-source eval questions)")
     items = det_items(n_det)
     log(f"eval {ver} vs production {prod_ver or 'BASE (no adapter)'}; held-out {len(held)} rows from {len({r.get('session') for r in held})} sessions; "
         f"loss n={len(loss_rows)}, pairwise n={len(task_rows)}, deterministic n={len(items)}")
