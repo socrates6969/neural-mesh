@@ -25,12 +25,22 @@ MAX_WORDS = 900
 
 
 def _key() -> bytes:
+    """Signing key: created once, atomically, owner-only; fail closed if permissions cannot be restricted."""
     if not KEY_PATH.exists():
-        KEY_PATH.parent.mkdir(parents=True, exist_ok=True)
-        KEY_PATH.write_bytes(secrets.token_bytes(32))
+        KEY_PATH.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+        fd = os.open(KEY_PATH, os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_BINARY", 0), 0o600)
+        try:
+            os.write(fd, secrets.token_bytes(32))
+        finally:
+            os.close(fd)
         if os.name == "nt":
-            subprocess.run(["icacls", str(KEY_PATH), "/inheritance:r", "/grant:r", os.environ.get("USERNAME", "") + ":F"],
-                           capture_output=True)
+            r = subprocess.run(["icacls", str(KEY_PATH), "/inheritance:r", "/grant:r", os.environ.get("USERNAME", "") + ":F"],
+                               capture_output=True)
+            if r.returncode != 0:
+                KEY_PATH.unlink()
+                raise RuntimeError("could not restrict permissions on the pack signing key")
+    if os.name != "nt" and os.stat(KEY_PATH).st_mode & 0o077:
+        raise RuntimeError("pack signing key is readable by other users; refusing to use it")
     return KEY_PATH.read_bytes()
 
 
