@@ -216,6 +216,15 @@ class Trainer:
                                     "--agent", rec["agent"], "--reward", "1" if rec["passed"] else "0"],
                                    capture_output=True, timeout=30)
 
+    def export_live(self):
+        """Feed verified results into the live mesh router + nightly LLM data (idempotent; see train/export_mesh.py)."""
+        try:
+            r = subprocess.run([sys.executable, "-m", "train.export_mesh", self.out.name], capture_output=True, text=True,
+                               cwd=str(REPO), timeout=3600, env={**os.environ, "PYTHONPATH": str(REPO)})
+            self.log("live mesh export: " + " | ".join(x for x in r.stdout.splitlines() if x.startswith(("router", "llm"))) or r.stderr[-300:])
+        except Exception as e:
+            self.log("live mesh export failed: %r" % e)
+
     def leaderboard(self) -> dict:
         board = {}
         for spec in self.batch["agents"]:
@@ -240,6 +249,7 @@ class Trainer:
                 list(ex.map(lambda s: self.round_for(s, rnd), self.batch["agents"]))
             self.leaderboard()
             self.log("round %d done, spent $%.2f" % (rnd, self.spent))
+            self.export_live()
             if self.spent >= self.budget:
                 self.log("budget reached - stopping (resume later with a higher --budget)")
                 break
