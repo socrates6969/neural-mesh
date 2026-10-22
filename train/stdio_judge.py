@@ -1,29 +1,15 @@
-"""Runs inside the grading container: /code/sol.py against /code/tests.json (stdin -> expected stdout).
-Exit 0 only if every test passes. Output is compared token-by-token (whitespace-insensitive), floats with 1e-6 tolerance."""
+"""Runs inside the grading container. Only the test INPUTS are present (/code/inputs.json); expected outputs never
+enter the container. Runs /code/sol.py once per input and prints a JSON list of {rc, out, timeout} to stdout,
+which the host compares against the expected outputs."""
 import json, subprocess, sys
 
-def same(out, exp):
-    a, b = out.split(), exp.split()
-    if len(a) != len(b):
-        return False
-    for x, y in zip(a, b):
-        if x == y:
-            continue
-        try:
-            fx, fy = float(x), float(y)
-        except ValueError:
-            return False
-        if abs(fx - fy) > 1e-6 * max(1.0, abs(fy)):
-            return False
-    return True
-
-spec = json.load(open("/code/tests.json"))
-tl = spec["time_limit"]
-for inp, exp in zip(spec["inputs"], spec["outputs"]):
+spec = json.load(open("/code/inputs.json"))
+res = []
+for inp in spec["inputs"]:
     try:
-        r = subprocess.run([sys.executable, "/code/sol.py"], input=inp, capture_output=True, text=True, timeout=tl)
+        r = subprocess.run([sys.executable, "/code/sol.py"], input=inp, capture_output=True, text=True, timeout=spec["time_limit"])
+        res.append({"rc": r.returncode, "out": r.stdout[-200000:], "timeout": False})
     except subprocess.TimeoutExpired:
-        sys.exit(3)
-    if r.returncode != 0 or not same(r.stdout, exp):
-        sys.exit(1)
-sys.exit(0)
+        res.append({"rc": None, "out": "", "timeout": True})
+        break
+sys.stdout.write("\n" + spec["nonce"] + json.dumps(res))

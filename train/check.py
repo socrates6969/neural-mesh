@@ -101,18 +101,55 @@ def check_code(text, task, timeout=120.0):
 JUDGE = Path(__file__).with_name("stdio_judge.py")
 
 
+def _same(out, exp):
+    a, b = out.split(), exp.split()
+    if len(a) != len(b):
+        return False
+    for x, y in zip(a, b):
+        if x == y:
+            continue
+        try:
+            fx, fy = float(x), float(y)
+        except ValueError:
+            return False
+        if abs(fx - fy) > 1e-6 * max(1.0, abs(fy)):
+            return False
+    return True
+
+
 def check_stdio(text, task, code=None):
-    """Competitive-programming task: full program reading stdin; every stored test must match."""
+    """Competitive-programming task: full program reading stdin; every stored test must match.
+    Expected outputs stay on the host; the container only sees the inputs and returns what the program printed."""
+    import shutil
+    import uuid
     code = code if code is not None else extract_code(text)
     if not code:
         return False
+    ins, exp = task["tests"]["inputs"], task["tests"]["outputs"]
+    nonce = "@@" + uuid.uuid4().hex + "@@"
     with tempfile.TemporaryDirectory(prefix="meshtrain-") as d:
         Path(d, "sol.py").write_text(code, encoding="utf-8")
         Path(d, "t.py").write_text(JUDGE.read_text(encoding="utf-8"), encoding="utf-8")
-        Path(d, "tests.json").write_text(json.dumps({"inputs": task["tests"]["inputs"], "outputs": task["tests"]["outputs"],
-                                                     "time_limit": task["time_limit"]}), encoding="utf-8")
-        total = min(600.0, 30.0 + task["time_limit"] * len(task["tests"]["inputs"]))
-        return _run_sandboxed(d, total)
+        Path(d, "inputs.json").write_text(json.dumps({"inputs": ins, "time_limit": task["time_limit"], "nonce": nonce}), encoding="utf-8")
+        total = min(600.0, 30.0 + task["time_limit"] * len(ins))
+        if not shutil.which("docker"):
+            raise RuntimeError("docker not found: refusing to execute model-written code unsandboxed")
+        name = "mtg-" + uuid.uuid4().hex[:12]
+        cmd = ["docker", "run", "--rm", "--name", name, "--network", "none", "--cpus", "1", "--memory", "1g",
+               "--pids-limit", "128", "--read-only", "--tmpfs", "/tmp:rw,size=64m", "-v", d + ":/code:ro", "-w", "/tmp",
+               GRADER_IMAGE, "python", "/code/t.py"]
+        try:
+            r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=total)
+        except subprocess.TimeoutExpired:
+            subprocess.run(["docker", "rm", "-f", name], capture_output=True)
+            return False
+    if nonce not in r.stdout:
+        return False
+    try:
+        res = json.loads(r.stdout.rsplit(nonce, 1)[1])
+    except ValueError:
+        return False
+    return len(res) == len(exp) and all(x["rc"] == 0 and not x["timeout"] and _same(x["out"], e) for x, e in zip(res, exp))
 
 
 def grade(task, text):
