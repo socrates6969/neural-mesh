@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -112,7 +113,7 @@ def _same(out, exp):
             fx, fy = float(x), float(y)
         except ValueError:
             return False
-        if abs(fx - fy) > 1e-6 * max(1.0, abs(fy)):
+        if not (math.isfinite(fx) and math.isfinite(fy)) or not abs(fx - fy) <= 1e-6 * max(1.0, abs(fy)):
             return False
     return True
 
@@ -130,14 +131,14 @@ def check_stdio(text, task, code=None):
     with tempfile.TemporaryDirectory(prefix="meshtrain-") as d:
         Path(d, "sol.py").write_text(code, encoding="utf-8")
         Path(d, "t.py").write_text(JUDGE.read_text(encoding="utf-8"), encoding="utf-8")
-        Path(d, "inputs.json").write_text(json.dumps({"inputs": ins, "time_limit": task["time_limit"], "nonce": nonce}), encoding="utf-8")
+        Path(d, "inputs.json").write_text(json.dumps({"inputs": ins, "time_limit": task["time_limit"]}), encoding="utf-8")
         total = min(600.0, 30.0 + task["time_limit"] * len(ins))
         if not shutil.which("docker"):
             raise RuntimeError("docker not found: refusing to execute model-written code unsandboxed")
         name = "mtg-" + uuid.uuid4().hex[:12]
         cmd = ["docker", "run", "--rm", "--name", name, "--network", "none", "--cpus", "1", "--memory", "1g",
                "--pids-limit", "128", "--read-only", "--tmpfs", "/tmp:rw,size=64m", "-v", d + ":/code:ro", "-w", "/tmp",
-               GRADER_IMAGE, "python", "/code/t.py"]
+               "-e", "JUDGE_NONCE=" + nonce, GRADER_IMAGE, "python", "/code/t.py"]
         try:
             r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=total)
         except subprocess.TimeoutExpired:
@@ -147,9 +148,17 @@ def check_stdio(text, task, code=None):
         return False
     try:
         res = json.loads(r.stdout.rsplit(nonce, 1)[1])
-    except ValueError:
+        if not isinstance(res, list) or len(res) != len(exp):
+            return False
+        for x, e in zip(res, exp):
+            if not (isinstance(x, dict) and type(x.get("rc")) is int and type(x.get("timeout")) is bool
+                    and isinstance(x.get("out"), str)):
+                return False
+            if x["rc"] != 0 or x["timeout"] or not _same(x["out"], e):
+                return False
+        return True
+    except Exception:
         return False
-    return len(res) == len(exp) and all(x["rc"] == 0 and not x["timeout"] and _same(x["out"], e) for x, e in zip(res, exp))
 
 
 def grade(task, text):
