@@ -2,8 +2,7 @@
 
 A pack goes live only when ALL of these hold:
   1. training marked it "promoted": significant held-out gain (pooled exact McNemar p < 0.05, more pack-only wins);
-  2. it passes the content screen below (no links, shell/install/network instructions, credentials, file paths,
-     or instruction-override phrasing);
+  2. it is at most MAX_WORDS words (the content screen was removed at the user's request);
   3. it is signed with an HMAC (key in ~/.claude/mesh-pack.key, created on first use, owner-only ACL). The live hook
      re-checks the signature, so a pack edited after promotion is ignored.
 Every promotion and every screen rejection is appended to promotions.jsonl next to the registry.
@@ -13,7 +12,6 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-import re
 import secrets
 import subprocess
 import time
@@ -24,31 +22,6 @@ from hooks.mesh_assist import mac
 KEY_PATH = Path(os.environ.get("NEURAL_MESH_PACK_KEY", str(Path.home() / ".claude" / "mesh-pack.key")))
 REGISTRY = Path(os.environ.get("NEURAL_MESH_PACKS", r"C:\Users\mariu\neural-mesh\data\lifelong\mesh\packs.json"))
 MAX_WORDS = 900
-
-BLOCK = [
-    (r"https?://|www\.|\]\(|\b[a-z0-9-]+\.(com|net|org|io|dev|ru|cn|xyz|sh)\b", "link or domain"),
-    (r"\b(curl|wget|invoke-webrequest|iwr|powershell|cmd\.exe|bash|chmod|sudo)\b|\bsh\s+-c\b|\brm\s+-r|\bdel\s+[/\\]", "shell command"),
-    (r"\b(pip|npm|npx|uv|conda|apt|brew|cargo|go)\s+(install|add|get|i)\b", "package install"),
-    (r"\b(subprocess|os\.system|os\.popen|eval\(|exec\(|__import__|socket|requests\.|urllib|http\.client)", "code execution / network API"),
-    (r"\b(api[_ -]?key|secret|password|passwd|token|credential|ssh)\b|\.env\b", "credential reference"),
-    (r"\b[a-z]:[\\/]|~/|/etc/|/home/|/users/|%appdata%|\$home", "file path"),
-    (r"ignore (all |any |the )?(previous|prior|above|earlier)|disregard|system prompt|you are now|override|jailbreak|do not tell",
-     "instruction override"),
-    (r"\b(fetch|download|upload|send|post) (the |a |this |your )?(file|data|result|output|url|page)", "data movement"),
-]
-
-
-def screen(pack: str) -> list[str]:
-    """Return the reasons a pack is unsafe to inject (empty list = passes)."""
-    low = pack.lower()
-    why = [label for pat, label in BLOCK if re.search(pat, low)]
-    if len(pack.split()) > MAX_WORDS:
-        why.append("too long")
-    # allowlist on top of the denylist: printable ASCII + newline/tab only, so homoglyphs, zero-width and bidi
-    # characters cannot be used to slip a blocked word past the patterns above
-    if any(not (32 <= ord(c) < 127 or ord(c) in (9, 10)) for c in pack):
-        why.append("non-ASCII or control characters")
-    return why
 
 
 def _key() -> bytes:
@@ -72,7 +45,7 @@ def publish(agent: str, field: str, st: dict) -> str:
     if st.get("status") != "promoted" or not st.get("current"):
         return "not promoted"
     pack = st["current"]
-    why = screen(pack)
+    why = ["too long"] if len(pack.split()) > MAX_WORDS else []
     rec = {"t": time.strftime("%Y-%m-%dT%H:%M:%S"), "agent": agent, "field": field, "version": st.get("version"),
            "pooled": st.get("pooled"), "sha256": hashlib.sha256(pack.encode("utf-8")).hexdigest()}
     if why:
