@@ -18,7 +18,8 @@ from pathlib import Path
 
 CLAUDE = shutil.which("claude") or "claude"
 EVAL_TOOLS = "Bash,Read,Write,Edit"
-ALLOWED = ["Bash(python:*)", "Bash(python3:*)", "Bash(py:*)", "Read", "Write", "Edit"]
+# file tools are limited to the per-run temp directory; Bash only for python (no web tools during evaluation)
+ALLOWED = ["Bash(python:*)", "Bash(python3:*)", "Bash(py:*)", "Read(./**)", "Write(./**)", "Edit(./**)"]
 FORMAT = {
     "int": "Finish with one final line: ANSWER: <integer>",
     "numeric": "Finish with one final line: ANSWER: <number>",
@@ -27,6 +28,18 @@ FORMAT = {
 }
 _FM = re.compile(r"^\ufeff?---\s*\n(.*?)\n---\s*\n?(.*)$", re.S)
 _lock = threading.Lock()
+
+# Child processes get only what they need to run and to authenticate Claude Code (OAuth lives in ~/.claude);
+# API tokens for other services in the parent environment (GitHub, AWS, Pinecone, ...) are NOT passed on.
+_ENV_KEEP = {"PATH", "PATHEXT", "SYSTEMROOT", "SYSTEMDRIVE", "WINDIR", "COMSPEC", "USERPROFILE", "HOME", "HOMEDRIVE",
+             "HOMEPATH", "APPDATA", "LOCALAPPDATA", "TEMP", "TMP", "NUMBER_OF_PROCESSORS", "PROCESSOR_ARCHITECTURE", "OS",
+             "LANG", "PYTHONUTF8", "PYTHONIOENCODING", "CLAUDE_CONFIG_DIR"}
+
+
+def clean_env(extra=None):
+    env = {k: v for k, v in os.environ.items() if k.upper() in _ENV_KEEP or k.upper().startswith("ANTHROPIC_")}
+    env.update(extra or {})
+    return env
 
 
 def load_agent(entry: dict) -> dict:
@@ -67,7 +80,7 @@ def run(agent: dict, task: dict, pack: str | None, workdir: Path, timeout: float
            "cost": 0.0, "secs": 0.0, "error": None, "text": ""}
     try:
         r = subprocess.run(cmd, input=build_prompt(task, pack), capture_output=True, text=True, encoding="utf-8",
-                           errors="replace", timeout=timeout, cwd=str(tmp))
+                           errors="replace", timeout=timeout, cwd=str(tmp), env=clean_env())
         try:
             d = json.loads(r.stdout)
             rec["text"] = d.get("result") or ""

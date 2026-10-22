@@ -54,7 +54,35 @@ def extract_code(text):
     return max(blocks, key=len) if blocks else ""
 
 
-def check_code(text, task, timeout=90.0):
+GRADER_IMAGE = os.environ.get("MESHTRAIN_GRADER_IMAGE", "meshtrain-grader:1")
+
+
+def _run_sandboxed(d, timeout):
+    """Run d/t.py in a container: no network, read-only code mount, 1 CPU, 1 GB, 128 pids, unprivileged user.
+    Without Docker, grading refuses to run unless MESHTRAIN_ALLOW_UNSANDBOXED=1 (then: scrubbed env, temp cwd)."""
+    import shutil
+    import uuid
+    if shutil.which("docker"):
+        name = "mtg-" + uuid.uuid4().hex[:12]
+        cmd = ["docker", "run", "--rm", "--name", name, "--network", "none", "--cpus", "1", "--memory", "1g",
+               "--pids-limit", "128", "--read-only", "--tmpfs", "/tmp:rw,size=64m", "-v", d + ":/code:ro", "-w", "/tmp",
+               "-e", "PYTHONHASHSEED=0", GRADER_IMAGE, "python", "/code/t.py"]
+        try:
+            return subprocess.run(cmd, capture_output=True, timeout=timeout).returncode == 0
+        except subprocess.TimeoutExpired:
+            subprocess.run(["docker", "rm", "-f", name], capture_output=True)
+            return False
+    if os.environ.get("MESHTRAIN_ALLOW_UNSANDBOXED") != "1":
+        raise RuntimeError("docker not found: refusing to execute model-written code unsandboxed")
+    env = {k: os.environ[k] for k in ("PATH", "SYSTEMROOT", "TEMP", "TMP") if k in os.environ}
+    env["PYTHONHASHSEED"] = "0"
+    try:
+        return subprocess.run([sys.executable, os.path.join(d, "t.py")], cwd=d, capture_output=True, timeout=timeout, env=env).returncode == 0
+    except subprocess.TimeoutExpired:
+        return False
+
+
+def check_code(text, task, timeout=120.0):
     code = extract_code(text)
     if not code or task["entry_point"] not in code:
         return False
@@ -65,11 +93,7 @@ def check_code(text, task, timeout=90.0):
         p = os.path.join(d, "t.py")
         with open(p, "w", encoding="utf-8") as f:
             f.write(harness)
-        try:
-            r = subprocess.run([sys.executable, p], cwd=d, capture_output=True, timeout=timeout, env={**os.environ, "PYTHONHASHSEED": "0"})
-            return r.returncode == 0
-        except subprocess.TimeoutExpired:
-            return False
+        return _run_sandboxed(d, timeout)
 
 
 def grade(task, text):
