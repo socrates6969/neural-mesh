@@ -15,7 +15,7 @@ import re
 from collections import Counter
 from dataclasses import dataclass, field
 
-SCRUB_VERSION = "scrub-v2"   # v2: natural-language secrets ("the password is X")
+SCRUB_VERSION = "scrub-v2"   # v2: natural-language secrets ("the password is X"); session secret values (reader.py)
 
 # --- sensitive paths (a tool call touching one of these is dropped) -----------------------------------------------
 _SENSITIVE_PATH_PARTS = [
@@ -137,7 +137,8 @@ class ScrubResult:
         return any(k in SECRET_CATEGORIES for k, v in self.hits.items() if v)
 
 
-SECRET_CATEGORIES = {"private_key", "jwt", "api_key", "bearer", "conn_string", "password", "card_number", "high_entropy"}
+SECRET_CATEGORIES = {"private_key", "jwt", "api_key", "bearer", "conn_string", "password", "card_number", "high_entropy",
+                     "session_secret"}
 
 
 def scrub(text: str | None, hits: Counter | None = None) -> ScrubResult:
