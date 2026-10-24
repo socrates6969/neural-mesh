@@ -13,7 +13,7 @@ import sys
 if __package__ in (None, ""):  # allow `python tools/mesh_mcp/server.py`
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from tools.mesh_mcp import lean_tools, literature, report, sandbox_tools, workspace_tools  # noqa: E402
+from tools.mesh_mcp import code_run, lean_tools, literature, market, phack, report, sandbox_tools, workspace_tools  # noqa: E402,E501
 from tools.mesh_mcp.common import cap  # noqa: E402
 
 VERSION = "1.0"
@@ -53,8 +53,23 @@ TOOLS = [
      "inputSchema": {"type": "object", "required": ["kind", "data_json"], "properties": {
          "kind": _s("test kind", type="string", enum=["ttest", "paired_t", "welch", "mannwhitney", "cohens_d",
                                                        "chi2", "mcnemar", "prop_ci", "multitest"]),
-         "data_json": _s("JSON object (or string) with the data for this kind", **JSONV)}},
-     "fn": lambda a: sandbox_tools.stats_test(a.get("kind"), a.get("data_json"))},
+         "data_json": _s("JSON object (or string) with the data for this kind", **JSONV),
+         "label": _s("outcome/hypothesis name; lets phack_guard detect repeated looks and unregistered outcomes",
+                     **STR),
+         "look": _s("interim look number for sequential analyses (1, 2, ...)", **INT)}},
+     "fn": lambda a: sandbox_tools.stats_test(a.get("kind"), a.get("data_json"), a.get("label"), a.get("look"))},
+    {"name": "phack_guard",
+     "description": "Audit a set of statistical tests before reporting: flags multiple testing without correction, "
+                    "optional stopping (repeated looks at one outcome), outcomes not in a preregistration, and "
+                    "p-values bunched just under .05 (caliper test). Returns BLOCK or OK with reasons. With no "
+                    "tests_json it checks this session's stats_test log.",
+     "inputSchema": {"type": "object", "properties": {
+         "tests_json": _s("optional list of {label, p, n?, look?, kind?}; default: this session's stats_test log",
+                          **JSONV),
+         "prereg_json": _s("optional preregistration: {outcomes: [...], alpha?, correction?: holm|bh|bonferroni, "
+                           "looks?, sequential?}", **JSONV),
+         "alpha": _s("significance level (default 0.05)", **NUM)}},
+     "fn": lambda a: phack.phack_guard(a.get("tests_json"), a.get("prereg_json"), a.get("alpha", 0.05))},
     {"name": "causal_analysis",
      "description": "Estimate the average causal effect of a treatment column on an outcome column in a local CSV "
                     "with DoWhy (sandboxed, CSV mounted read-only). Returns estimate, 95% CI, refutations "
@@ -85,6 +100,45 @@ TOOLS = [
          "csv_path": _s("absolute path to a CSV", **STR),
          "alpha": _s("independence-test significance level (default 0.05)", **NUM)}},
      "fn": lambda a: sandbox_tools.discover_graph(a.get("csv_path"), a.get("alpha", 0.05))},
+    {"name": "invariant_causal_prediction",
+     "description": "Invariant Causal Prediction (Peters et al. 2016): find the causal parents of a target from "
+                    "data collected in several environments (env_col). Tests every predictor subset for invariant "
+                    "residuals across environments and intersects the accepted sets (sandboxed). Variables whose "
+                    "relation to the target shifts between environments (e.g. children of the target) are excluded.",
+     "inputSchema": {"type": "object", "required": ["csv_path", "target", "env_col"], "properties": {
+         "csv_path": _s("absolute path to a CSV", **STR), "target": STR,
+         "env_col": _s("column labelling the environment/regime of each row", **STR),
+         "alpha": _s("level (default 0.05)", **NUM),
+         "predictors": _s("columns to consider (default: all numeric except target and env_col; max 12)", **ARR),
+         "correction": _s("tests (default, Peters et al.) or subsets (also Bonferroni over subsets)", **STR)}},
+     "fn": lambda a: sandbox_tools.invariant_causal_prediction(a.get("csv_path"), a.get("target"), a.get("env_col"),
+                                                               a.get("alpha", 0.05), a.get("predictors"),
+                                                               a.get("correction", "tests"))},
+    {"name": "market_series",
+     "description": "REAL daily market or economic data: ticker= from Yahoo Finance (adjusted close) or fred_id= "
+                    "from FRED. Cached as CSV with provenance (source URL, retrieval time, SHA-256), which every "
+                    "call returns. Never synthesizes data: a failed fetch returns FETCH FAILED with the error.",
+     "inputSchema": {"type": "object", "required": ["start"], "properties": {
+         "ticker": _s("Yahoo symbol, e.g. SPY, ^GSPC, EURUSD=X (give ticker or fred_id)", **STR),
+         "fred_id": _s("FRED series id, e.g. DGS10, CPIAUCSL, UNRATE", **STR),
+         "start": _s("YYYY-MM-DD", **STR), "end": _s("YYYY-MM-DD (default today)", **STR),
+         "refresh": _s("re-download even if cached", **BOOL)}},
+     "fn": lambda a: market.market_series(a.get("ticker"), a.get("fred_id"), a.get("start"), a.get("end"),
+                                          refresh=bool(a.get("refresh")))},
+    {"name": "code_run",
+     "description": "Run Python or shell code, plus optional tests, in the network-less sandbox; returns stdout, "
+                    "stderr and exit code. On failure it returns a structured error (phase, type, message, file, "
+                    "line). Repair the code yourself and call again with the same task_id: at most 3 repair rounds "
+                    "per task, counted by the tool; after that it returns STOP.",
+     "inputSchema": {"type": "object", "required": ["lang", "code"], "properties": {
+         "lang": _s("python or sh", type="string", enum=list(code_run.LANGS)),
+         "code": _s("the program (Python: definitions + optional __main__ block)", **STR),
+         "tests": _s("optional test code run after the program in the same namespace (Python asserts, or shell "
+                     "commands)", **STR),
+         "task_id": _s("stable id for this coding task; repair rounds are counted per task_id", **STR),
+         "timeout_s": _s("seconds (default 60, max 300)", **INT)}},
+     "fn": lambda a: code_run.code_run(a.get("lang"), a.get("code"), a.get("tests"), a.get("task_id"),
+                                       a.get("timeout_s", 60))},
     {"name": "discover_dag_notears",
      "description": "EXPLORATORY causal-DAG discovery on the numeric columns of a local CSV with linear NOTEARS "
                     "(Zheng et al. 2018; continuous optimization with an acyclicity constraint, sandboxed). Returns "

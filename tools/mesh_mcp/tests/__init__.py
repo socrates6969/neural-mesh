@@ -22,6 +22,8 @@ else:
 os.environ["MESH_WORKSPACE_DB"] = str(TMP / "workspace.db")
 os.environ["MESH_WORKSPACE_KEY"] = str(TMP / "workspace.key")
 os.environ["MESH_REPORTS_DIR"] = str(TMP / "reports")
+os.environ["MESH_STATS_LOG_DIR"] = str(TMP / "stats-log")
+os.environ["MESH_MARKET_DIR"] = str(TMP / "market")
 os.environ["MESH_PIPELINE_KEY"] = os.environ["NEURAL_MESH_PIPELINE_KEY"] = str(TMP / "pipeline.key")
 os.environ["NEURAL_MESH_MEMORY"] = str(TMP / "mem")  # card store, usefulness and injection log
 os.environ["NEURAL_MESH_MEMORY_KEY"] = str(TMP / "mem.key")

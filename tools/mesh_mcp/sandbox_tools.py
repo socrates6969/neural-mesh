@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from tools.mesh_mcp import phack
 from tools.mesh_mcp.common import as_json, cap, run_sandbox
 
 MAX_CSV_BYTES = 50 * 1024 * 1024
@@ -49,10 +50,11 @@ def math_solve(code: str, timeout_s: int = 120) -> str:
     return cap(text)
 
 
-def stats_test(kind: str, data_json) -> str:
+def stats_test(kind: str, data_json, label: str | None = None, look: int | None = None) -> str:
     data = as_json(data_json, "data_json")
     r = _call("    import stats_impl\n    out = stats_impl.compute(a['kind'], a['data'])", {"kind": kind, "data": data},
               timeout_s=60)
+    phack.record_test(str(kind).lower(), data, r, label, look)  # session log read by phack_guard
     lines = [r.pop("test")]
     eff = r.pop("effect", None)
     for k, v in r.items():
@@ -60,6 +62,8 @@ def stats_test(kind: str, data_json) -> str:
     if eff:
         lines.append("EFFECT SIZE: " + _fmt(eff))
     lines.append("Report the effect size and interval with the p-value; p alone does not show magnitude.")
+    lines.append("Logged for phack_guard%s." % (" as outcome %r" % label if label else " (pass label=<outcome> to "
+                                                                       "track repeated looks)"))
     return cap("\n".join(lines))
 
 
@@ -139,3 +143,29 @@ def discover_graph(csv_path: str, alpha: float = 0.05) -> str:
              "Edges (%d):" % len(r["edges"])] + ["  " + e for e in r["edges"] or ["(none)"]]
     return cap("\n".join(lines))
 
+def invariant_causal_prediction(csv_path: str, target: str, env_col: str, alpha: float = 0.05,
+                                predictors=None, correction: str = "tests") -> str:
+    if not target or not env_col:
+        raise ValueError("target and env_col are required")
+    if correction not in ("tests", "subsets"):
+        raise ValueError("correction must be 'tests' (Peters et al.) or 'subsets' (also Bonferroni over subsets)")
+    r = _call("    import icp_impl\n    out = icp_impl.run('/data/input.csv', a['y'], a['e'], float(a['alpha']), "
+              "a['x'] or None, a['c'])",
+              {"y": target, "e": env_col, "alpha": float(alpha or 0.05), "x": _cols(predictors), "c": correction},
+              mounts=[(_csv(csv_path), "/data/input.csv")], timeout_s=300, memory="2g")
+    lines = ["Invariant Causal Prediction (Peters et al. 2016, linear-Gaussian) for target %s, environments from %s "
+             "(%s), n=%d rows" % (r["target"], r["env_col"], ", ".join(r["environments"]), r["n_rows"]),
+             "predictors: %s; %d subsets tested, %d accepted at %.3g per subset (alpha=%g, correction=%s)"
+             % (", ".join(r["predictors"]), r["n_subsets"], r["n_accepted"], r["level_per_subset"], r["alpha"],
+                r["correction"]),
+             "ESTIMATED CAUSAL PARENTS: %s" % (", ".join(r["parents"]) or "none identified"),
+             "status: %s" % r["status"],
+             "per-variable evidence (largest p among sets WITHOUT the variable; small = needed):"]
+    lines += ["  %s: %.3g" % (k, v) for k, v in sorted(r["variable_evidence"].items(), key=lambda kv: kv[1])]
+    lines.append("best subsets (p = Bonferroni of F-test on residual means and Levene on residual variances):")
+    lines += ["  {%s}: p=%.3g (means %.3g, variances %.3g)%s" % (", ".join(t["set"]) or "empty", t["p"], t["p_mean"],
+                                                                 t["p_var"], " accepted" if t["accepted"] else "")
+              for t in r["top_sets"][:6]]
+    lines.append("Guarantee: the parents set contains only true causes with prob >= 1-alpha IF the target's "
+                 "mechanism is linear, unchanged across environments and not confounded; it may miss parents.")
+    return cap("\n".join(lines))

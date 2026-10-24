@@ -61,7 +61,7 @@ def run_sandbox(script: str, args: dict | None = None, mounts: list[tuple[str, s
     try:
         Path(work, filename).write_text(script, encoding="utf-8")
         Path(work, "args.json").write_text(json.dumps(args or {}), encoding="utf-8")
-        for f in ("stats_impl.py", "causal_impl.py", "notears_impl.py"):
+        for f in ("stats_impl.py", "causal_impl.py", "notears_impl.py", "icp_impl.py"):
             shutil.copy(SANDBOX_DIR / f, Path(work, f))
         name = "mesh-" + uuid.uuid4().hex[:12]
         cmd = ["docker", "run", "--rm", "--name", name, "--network", "none", "--cpus", str(cpus), "--memory", memory,
