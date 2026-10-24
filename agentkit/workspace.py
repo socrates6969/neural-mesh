@@ -9,7 +9,10 @@ Tests swap the backend with set_backend(obj); NEURAL_MESH_WORKSPACE_MODULE=pkg.m
 """
 from __future__ import annotations
 
+import inspect
 import os
+
+CLAIM_TAG = "[agent claims verified; unchecked] "
 
 _UNSET = object()
 _backend = _UNSET
@@ -101,8 +104,11 @@ def item(x) -> dict | None:
         x = dict(x[1], score=x[0])                       # (score, record) pairs
     if not isinstance(x, dict):
         return None
-    content = x.get("content") or x.get("text") or x.get("body") or x.get("card") or ""
-    if not str(content).strip():
+    content = str(x.get("content") or x.get("text") or x.get("body") or x.get("card") or "")
+    tagged = content.startswith(CLAIM_TAG)
+    if tagged:
+        content = content[len(CLAIM_TAG):]
+    if not content.strip():
         return None
     return {"id": str(x.get("id") or x.get("card_id") or "")[:64], "kind": str(x.get("kind") or "")[:20],
             "content": str(content), "agent": str(x.get("agent") or "")[:80],
@@ -110,7 +116,9 @@ def item(x) -> dict | None:
             "task_id": str(x.get("task_id") or x.get("task") or ""),
             "score": _num(x.get("score"), _num(x.get("salience"))), "field": str(x.get("field") or ""),
             "scope": str(x.get("scope") or ""), "avoid": x.get("avoid") is True or x.get("kind") == "failure",
-            "sources": [str(v) for v in x.get("sources") or [] if v] if isinstance(x.get("sources"), list) else []}
+            "sources": [str(v) for v in x.get("sources") or [] if v] if isinstance(x.get("sources"), list) else [],
+            "source": str(x.get("source") or ""), "verified_by": str(x.get("verified_by") or ""),
+            "claimed_verified": x.get("claimed_verified") is True or tagged}
 
 
 def _items(v) -> list[dict]:
@@ -121,9 +129,47 @@ def _items(v) -> list[dict]:
     return [i for i in (item(x) for x in v) if i]
 
 
-def post(task_id, agent, kind, content, confidence=0.5, verified=False, sources=None, field=None):
-    return _call("post", task_id, agent, kind, content, confidence=confidence, verified=verified, sources=sources,
-                 field=field)
+def _accepts(fn, name) -> bool:
+    try:
+        ps = inspect.signature(fn).parameters
+    except (TypeError, ValueError):
+        return False
+    return name in ps or any(p.kind is p.VAR_KEYWORD for p in ps.values())
+
+
+def post(task_id, agent, kind, content, confidence=0.5, sources=None, field=None, claimed_verified=False):
+    """Post an agent-produced item. It is ALWAYS stored unverified: verified=True is reserved for out-of-band
+    pipelines (grader-verified training results) and explicit human approval (python -m agentkit.approve). The
+    agent's own claim is kept as claimed_verified (display only); a backend without that field gets a content tag."""
+    b = backend()
+    fn = getattr(b, "post", None) if b is not None else None
+    if not callable(fn):
+        return None
+    kw = {"confidence": confidence, "verified": False, "sources": sources, "field": field}
+    if claimed_verified:
+        if _accepts(fn, "claimed_verified"):
+            kw["claimed_verified"] = True
+        else:
+            content = CLAIM_TAG + str(content)
+    try:
+        return fn(task_id, agent, kind, content, **kw)
+    except Exception:
+        return None
+
+
+def get(entry_id) -> dict | None:
+    v = _call("get", entry_id)
+    return item(v) if v else None
+
+
+def can_approve() -> bool:
+    b = backend()
+    return b is not None and callable(getattr(b, "approve", None)) and callable(getattr(b, "get", None))
+
+
+def approve(entry_id, by="human") -> bool:
+    """Mark an entry verified (human approval). Only agentkit.approve calls this, after showing the entry."""
+    return bool(_call("approve", entry_id, by=by))
 
 
 def read(task_id, query=None, k=8) -> list[dict]:
