@@ -75,6 +75,19 @@ class GateFilterTest(unittest.TestCase):
         hits = self.idx.search("anything", _vec(1, 0), field="math", k=2, mode="rerank", ce=CE(), gate=5.0)
         self.assertEqual([c["task"] for _, c in hits], ["b"])
 
+    def test_length_aware_gate(self):
+        short, mid, long = "solve x mod 7", " ".join(["word"] * 22), " ".join(["word"] * 40)
+        self.assertIsNone(search.gate_for(short, "hybrid"))
+        self.assertEqual(search.gate_for(short, "hybrid", low_confidence=True)[2], "low")
+        self.assertEqual(search.gate_for(mid, "dense")[2], "medium")
+        self.assertEqual(search.gate_for(long, "hybrid")[0], 0.65)
+        q = _vec(1, 0)
+        self.assertEqual(self.idx.search(short, q, field="math", mode="dense"), [])
+        hits = self.idx.search(short, q, field="math", mode="dense", low_confidence=True)
+        self.assertEqual([c["task"] for _, c in hits][:1], ["a"])
+        self.assertEqual(hits[0][1]["band"], "low")
+        self.assertNotIn("band", self.idx.cards[0])                 # stored card dicts are not mutated
+
     def test_low_usefulness_card_is_not_broadcast(self):
         st = {"cards": {"card:a": {"s": 0, "f": 6}}}
         hits = self.idx.search("x", _vec(1, 0), field="math", k=2, mode="dense", gate=-1, stats=st)

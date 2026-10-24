@@ -25,6 +25,24 @@ from tools.prebrief.index import tokens  # noqa: E402  (shared tokenizer: stopwo
 #   card excluding the trivially easy templated neural-network items. hybrid/dense gate on MiniLM cosine (hybrid:
 #   precision .75 at 28% coverage), bm25 on BM25 per distinct query term, rerank on the cross-encoder logit.
 GATES = {"dense": 0.65, "bm25": 2.15, "hybrid": 0.65, "rerank": 7.4}
+# Query length matters (eval with benchmark problems cut to their first N words, hybrid 2:1, excl. NN, top-1):
+#   full problems: gate .65 -> precision .74 (coverage .29);  30 words: .65 -> .67 (.22);  20 words: .55 -> .44 (.30);
+#   10-15 words: precision .15-.27 at EVERY gate (it even falls as the gate rises) - short queries cannot be precise.
+# So the dense/hybrid gate depends on the query's word count; below 20 words nothing is returned unless the caller
+# explicitly asks for low-confidence results (gate .40, measured precision ~.25), and then each hit is flagged.
+LENGTH_GATES = ((30, 0.65, 0.70, "high"), (20, 0.55, 0.44, "medium"))   # (min words, gate, measured precision, band)
+LOW_GATE, LOW_PRECISION = 0.40, 0.25
+
+
+def gate_for(query: str, mode: str, low_confidence: bool = False):
+    """(gate, measured precision, band) for this query, or None when the query is too short and low_confidence=False."""
+    if mode not in ("dense", "hybrid"):
+        return GATES[mode], None, "high"
+    n = len((query or "").split())
+    for min_words, g, prec, band in LENGTH_GATES:
+        if n >= min_words:
+            return g, prec, band
+    return (LOW_GATE, LOW_PRECISION, "low") if low_confidence else None
 DEFAULT_MODE = "hybrid"
 HYBRID_DENSE_W = 2.0
 
@@ -99,13 +117,20 @@ class Index:
 
     def search(self, query: str, qvec, field: str | None = None, k: int = 2, exclude: set | None = None,
                mode: str = DEFAULT_MODE, ce=None, gate: float | None = None, stats: dict | None = None,
-               top: int = C.RERANK_TOP) -> list[tuple[float, dict]]:
-        """Up to k (score, card), gated. Mode 'rerank' without a cross-encoder degrades to 'hybrid'."""
+               top: int = C.RERANK_TOP, low_confidence: bool = False) -> list[tuple[float, dict]]:
+        """Up to k (score, card), gated (length-aware unless `gate` is given). Each returned card dict is a shallow
+        copy with "band" (high|medium|low) and "expected_precision" (measured top-1 precision for that band).
+        Mode 'rerank' without a cross-encoder degrades to 'hybrid'."""
         if mode == "rerank" and ce is None:
             mode = "hybrid"
+        band, prec = "high", None
+        if gate is None:
+            g = gate_for(query, mode, low_confidence)
+            if g is None:
+                return []
+            gate, prec, band = g
         avail = self.mask(field, exclude)
         cand = self.candidates(query, qvec, avail, "hybrid" if mode == "rerank" else mode, top, dense_w=HYBRID_DENSE_W)
-        gate = GATES[mode] if gate is None else gate
         if mode == "rerank":
             cand = cand[:top]
             if not cand:
@@ -130,5 +155,5 @@ class Index:
                 u, n = usefulness(stats, card["id"])
                 if n >= 5 and u < 0.25:                   # repeatedly in the prompt of failed tasks: stop broadcasting
                     continue
-            out.append((s, card))
+            out.append((s, dict(card, band=band, expected_precision=prec)))
         return out

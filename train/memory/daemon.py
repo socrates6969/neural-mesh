@@ -49,9 +49,11 @@ def handle(req: dict, secret: str) -> dict:
         return {"ok": True, "pid": os.getpid()}
     if op == "lookup":
         hits = api.retrieve(str(req.get("text") or ""), field=req.get("field") or None, k=int(req.get("k") or 2),
-                            exclude=req.get("exclude") or (), mode=req.get("mode") or None, log_task=req.get("log_task") or None)
+                            exclude=req.get("exclude") or (), mode=req.get("mode") or None, log_task=req.get("log_task") or None,
+                            low_confidence=bool(req.get("low_confidence")))
         return {"ok": True, "text": api.render(hits, int(req.get("budget") or C.INJECT_TOKENS)),
-                "hits": [{"score": round(s, 4), "id": c["id"], "task": c.get("task")} for s, c in hits]}
+                "hits": [{"score": round(s, 4), "id": c["id"], "task": c.get("task"), "band": c.get("band"),
+                          "expected_precision": c.get("expected_precision")} for s, c in hits]}
     if op == "observe":
         api.observe(req.get("cards") or [], bool(req.get("passed")))
         return {"ok": True}
