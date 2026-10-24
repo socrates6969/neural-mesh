@@ -10,7 +10,8 @@ A pack is only used when the user approved that exact text: python -m train.appr
 agent|field|pack keyed with a secret in ~/.claude/mesh-pack.key (outside every training/run folder). Anything that
 can write the registry but not read the key cannot forge an approval; an edited or unapproved pack is ignored. Pack text is framed as reference material, not as instructions.
 Agent kit (agentkit/): every Agent/Task call also gets the protocol core + a mode add-on (agentkit/protocol.py), the
-Global Workspace broadcast for this session (task_id = session_id), related items from other sessions, method cards and,
+Global Workspace broadcast for this session (task_id = session_id; failures shown as known dead ends), related items
+from other sessions, method cards (train.memory.client.lookup) and,
 for research/business-type modes, cross-field analogies - ranked and trimmed to ~900 tokens (agentkit/inject.py).
 A prompt that already carries the protocol marker or MARK is left alone. Each stage's result is kept as soon as it is
 ready, so a slow memory backend costs only its own section, never the protocol.
@@ -101,12 +102,13 @@ def decide(data, registry, exp_fn=None, ws=None, sink=None, deadline=None):
                       + promoted[f]["pack"].strip() + NL + ">>>")
     with_protocol = os.environ.get("NEURAL_MESH_PROTOCOL", "").strip().lower() != "off"
     mode = protocol.detect_mode(desc + " " + prompt, agent, desc, fields=[f] if f else None)
-    sections, state = {}, {"exp": ""}
+    sections, state = {}, {"exp": "", "cards_text": ""}
 
     def render():
-        if not (with_protocol or pack_block or state["exp"] or any(sections.values())):
+        if not (with_protocol or pack_block or state["exp"] or state["cards_text"] or any(sections.values())):
             return None
-        text = inject.build(mode, pack_block, sections, state["exp"], with_protocol=with_protocol)
+        text = inject.build(mode, pack_block, sections, state["exp"], with_protocol=with_protocol,
+                            cards_text=state["cards_text"])
         new = dict(ti)
         new["prompt"] = text + NL + NL + "---" + NL + NL + prompt
         out = {"hookSpecificOutput": {"hookEventName": "PreToolUse", "updatedInput": new}}
@@ -120,15 +122,28 @@ def decide(data, registry, exp_fn=None, ws=None, sink=None, deadline=None):
     out = render()
     sid = str(data.get("session_id") or "")
     query = (desc + " " + prompt)[:4000]
+
+    def split_read():
+        items = ws.read(sid or "-", query=query, k=8)
+        own = [i for i in items if (i.get("scope") == "task") or (not i.get("scope") and sid and i.get("task_id") == sid)]
+        rest = [i for i in items if i not in own]
+        others = [i for i in rest if i.get("scope") == "other"] + inject.relevant(
+            [i for i in rest if not i.get("scope")], query)
+        return {"workspace": inject.rank([i for i in own if not i.get("avoid")]),
+                "dead_ends": inject.rank([i for i in own + others if i.get("avoid")]),
+                "others": inject.rank([i for i in others if not i.get("avoid")])}
+
+    def cards():
+        left = 1.0 if deadline is None else max(0.05, deadline - time.monotonic())
+        return ws.lookup(prompt, k=2, timeout=left)
+
     stages = []
-    if ws is not None and sid:
-        stages.append(("workspace", lambda: inject.rank(ws.read(sid, query=query, k=8))))
+    if ws is not None:
+        stages.append(("read", split_read))
     if exp_fn:
         stages.append(("exp", lambda: exp_fn(prompt) or ""))
     if ws is not None:
-        stages.append(("cards", lambda: ws.search(query, field=f, k=3)))
-        stages.append(("others", lambda: inject.relevant(
-            inject.rank([i for i in ws.read(None, query=query, k=6) if not sid or i.get("task_id") != sid]), query)))
+        stages.append(("cards_text", cards))
         if mode in protocol.EXPLORE_MODES:
             stages.append(("analogies", lambda: ws.analogies(query, k=3)))
     for name, fn in stages:
@@ -140,8 +155,10 @@ def decide(data, registry, exp_fn=None, ws=None, sink=None, deadline=None):
             continue
         if not got:
             continue
-        if name == "exp":
-            state["exp"] = str(got)
+        if name == "read":
+            sections.update({k: v for k, v in got.items() if v})
+        elif name in state:
+            state[name] = str(got)
         else:
             sections[name] = list(got)
         out = render()

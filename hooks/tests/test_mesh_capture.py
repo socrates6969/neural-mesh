@@ -81,6 +81,16 @@ class CaptureTest(unittest.TestCase):
         self.assertEqual(kinds.count("failure"), 3)
         self.assertTrue(any("needs_human" in p["content"] for p in ws.posts))
 
+    def test_consequence_check_becomes_approval_question(self):
+        ws = StubWS()
+        d = {"answer": "draft ready, not sent", "consequences": ["emails 300 customers", "cannot be recalled"],
+             "needs_human": {"value": True, "reason": "approve sending the email"}}
+        mc.capture(payload(fenced(d)), ws)
+        q = [p for p in ws.posts if p["kind"] == "question"]
+        self.assertEqual(len(q), 1)
+        self.assertIn("approve sending the email", q[0]["content"])
+        self.assertIn("emails 300 customers", q[0]["content"])
+
     def test_no_json_fallback(self):
         ws = StubWS()
         text = "plain answer " * 100

@@ -63,6 +63,7 @@ class InstallTest(unittest.TestCase):
 class RunnerPromptTest(unittest.TestCase):
     def setUp(self):
         os.environ["MESHTRAIN_EXPERIENCE"] = "off"
+        os.environ["MESHTRAIN_CARDS"] = "off"
 
     def test_protocol_per_field_and_identical_arms(self):
         for field, mode in runner.PROTOCOL_MODE.items():
@@ -81,6 +82,29 @@ class RunnerPromptTest(unittest.TestCase):
             self.assertIn("ANSWER:", runner.FORMAT[kind])
         for kind in ("code", "stdio"):
             self.assertIn("python block", runner.FORMAT[kind])
+
+    def test_method_cards_identical_across_arms(self):
+        import types
+        calls = []
+        fake = types.ModuleType("train.memory.client")
+        fake.lookup = lambda text, **kw: calls.append(kw) or "Shared memory - method cards\n[1] card"
+        mem = types.ModuleType("train.memory")
+        mem.client = fake
+        saved = {k: sys.modules.get(k) for k in ("train.memory", "train.memory.client")}
+        sys.modules["train.memory"], sys.modules["train.memory.client"] = mem, fake
+        os.environ.pop("MESHTRAIN_CARDS", None)
+        try:
+            t = {"id": "t7", "field": "physics", "kind": "numeric", "prompt": "Find v."}
+            a, b = runner.build_prompt(t, None), runner.build_prompt(t, "PACK")
+        finally:
+            for k, v in saved.items():
+                if v is None:
+                    sys.modules.pop(k, None)
+                else:
+                    sys.modules[k] = v
+        self.assertIn("[1] card", a)
+        self.assertIn("[1] card", b)
+        self.assertEqual(calls[0], {"field": "physics", "k": 2, "exclude": {"t7"}, "log_task": "t7", "timeout": 10.0})
 
     def test_protocol_off(self):
         os.environ["MESHTRAIN_PROTOCOL"] = "off"

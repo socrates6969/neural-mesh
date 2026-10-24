@@ -3,7 +3,8 @@
 
 Parses the protocol's closing ```json block (agentkit/parse.py) and posts to train.memory.workspace with
 task_id = session_id and agent = subagent_type:
-  answer -> "result"; hypotheses -> "hypothesis"; open_questions -> "question"; needs_human / failures -> "failure";
+  answer -> "result"; hypotheses -> "hypothesis"; open_questions -> "question"; failures -> "failure";
+  needs_human (reason + consequences) -> "failure" when attempts failed, else "question" (an approval request);
   workspace_posts -> their own kind.
 verified=True only when the agent marked the item verified AND it cites evidence (its own or the block's evidence list).
 No JSON block -> one low-confidence "result" with the first 400 characters. Every text passes ingest.scrub first;
@@ -92,8 +93,12 @@ def plan_posts(d, text: str) -> list[dict]:
     for fl in d["failures"]:
         posts.append({"kind": "failure", "content": fl, "confidence": 0.5, "verified": False, "sources": []})
     if d["needs_human"]:
-        posts.append({"kind": "failure", "content": "needs_human: " + (ans or "agent could not finish") +
-                      (" | tried: " + "; ".join(d["failures"]) if d["failures"] else ""),
+        c = "needs_human: " + (d["needs_human_reason"] or ans or "agent could not finish")
+        if d["consequences"]:
+            c += " | consequences: " + "; ".join(d["consequences"])
+        if d["failures"]:
+            c += " | tried: " + "; ".join(d["failures"])
+        posts.append({"kind": "failure" if d["failures"] or not d["consequences"] else "question", "content": c,
                       "confidence": 0.5, "verified": False, "sources": []})
     return posts[:MAX_POSTS]
 
