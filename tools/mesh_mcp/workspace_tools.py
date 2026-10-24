@@ -2,7 +2,7 @@ r"""Global Workspace tools: thin wrappers over train.memory.workspace (branch ex
 
 API wrapped exactly: post(task_id, agent, kind, content, confidence, verified, sources, field) -> int|None;
 read(task_id, query, k) -> list[dict]; search(text, field, k) -> cards; analogies(text, k, field);
-observe(ids, passed); stats() -> dict.
+observe(ids, passed); stats() -> dict. Never exposed or forwarded: verified_by, approval_sig, approve().
 The module is imported from MESH_WORKSPACE_ROOT (default C:\Users\mariu\neural-mesh). Until it exists every tool
 returns a clear "workspace not available" message instead of failing. Only a successful import is cached.
 """
@@ -58,9 +58,21 @@ def _list(value):
     return list(value)
 
 
+HIDDEN = ("approval_sig",)  # never shown to agents: a visible signature could be replayed to forge trust
+
+
+def _strip(x):
+    if isinstance(x, dict):
+        return {k: _strip(v) for k, v in x.items() if k not in HIDDEN}
+    if isinstance(x, (list, tuple)):
+        return [_strip(v) for v in x]
+    return x
+
+
 def _render(result, empty: str) -> str:
     if result is None or result == [] or result == {}:
         return empty
+    result = _strip(result)
     if isinstance(result, (list, tuple)):
         lines = []
         for i, item in enumerate(result, 1):

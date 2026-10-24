@@ -197,15 +197,27 @@ class WorkspaceTest(unittest.TestCase):
         class Backend:
             @staticmethod
             def post(task_id, agent, kind, content, confidence=0.5, verified=False, sources=None, field=None,
-                     claimed_verified=False):
+                     claimed_verified=False, **extra):
+                assert not extra, extra  # verified_by / approval_sig must never be forwarded
                 calls.append({"content": content, "verified": verified, "claimed_verified": claimed_verified})
                 return 3
+
+            @staticmethod
+            def read(task_id, query=None, k=8):
+                return [{"id": 3, "verified": True, "verified_by": "human:m", "approval_sig": "SIG123"}]
 
         workspace_tools._mod = Backend()
         workspace_tools.workspace_post("x", "result", "t", verified=True)
         workspace_tools.workspace_post("y", "result", "t", verified=False)
         self.assertEqual(calls, [{"content": "x", "verified": False, "claimed_verified": True},
                                  {"content": "y", "verified": False, "claimed_verified": False}])
+        out = workspace_tools.workspace_read("t")
+        self.assertNotIn("SIG123", out)
+        self.assertNotIn("approval_sig", out)
+        self.assertIn('"verified_by": "human:m"', out)
+        names = {t["name"] for t in server.TOOLS}
+        self.assertFalse({"approve", "workspace_approve"} & names)
+        self.assertNotIn("verified_by", json.dumps([t["inputSchema"] for t in server.TOOLS]))
 
 
 @unittest.skipUnless(os.environ.get("MESH_WORKSPACE_IT"), "set MESH_WORKSPACE_IT=<repo with train/memory/workspace.py>")
@@ -227,7 +239,8 @@ class WorkspaceIntegrationTest(unittest.TestCase):
                 out = workspace_tools.workspace_read("it-task", "gaussian")
                 self.assertIn("sqrt(pi)", out)
                 self.assertIn('"verified": false', out)  # the agent's verified=True was not trusted
-                self.assertIn("agent claims verified", out)
+                self.assertTrue('"claimed_verified": true' in out or "agent claims verified" in out, out)
+                self.assertNotIn("approval_sig", out)
                 self.assertIn('"entries": 1', workspace_tools.workspace_stats())
             finally:
                 for k in env:
