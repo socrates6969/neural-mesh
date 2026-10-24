@@ -12,6 +12,7 @@ from tools.mesh_mcp import report, server, workspace_tools
 from tools.mesh_mcp.common import MAX_OUT, as_json, cap
 
 EXPECTED = {"literature_search", "math_solve", "stats_test", "causal_analysis", "discover_graph", "discover_dag_notears",
+            "invariant_causal_prediction", "phack_guard", "market_series", "code_run",
             "workspace_post", "workspace_read", "memory_search", "analogies", "workspace_observe",
             "workspace_stats", "lean_check", "report_imrad"}
 
