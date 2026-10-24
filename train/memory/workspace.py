@@ -269,7 +269,7 @@ def post(task_id, agent, kind, content, confidence=0.5, verified=False, sources=
         if pkey is not None:
             from . import trust
             con.execute("UPDATE entries SET pipeline_sig = ? WHERE id = ?",
-                        (trust.sign_entry(task_id, agent, kind, text, vby, pkey), eid))
+                        (trust.sign_entry(eid, task_id, agent, kind, text, vby, pkey), eid))
         con.executemany("INSERT OR IGNORE INTO concepts (entry_id, concept) VALUES (?,?)", [(eid, c) for c in cs])
         pairs = sorted({(a, b) for a in cs for b in cs if a < b})
         con.executemany("INSERT INTO edges (a, b, w) VALUES (?,?,1) ON CONFLICT(a, b) DO UPDATE SET w = w + 1", pairs)
@@ -392,14 +392,16 @@ def read(task_id, query=None, k=8, db=None) -> list[dict]:
     return (picked + rest)[:k]
 
 
-def search(text, field=None, k=3) -> list[dict]:
-    """Method cards for a problem (the shared card memory; see train/memory/search.py for the retrieval chain)."""
+def search(text, field=None, k=3, low_confidence=False) -> list[dict]:
+    """Method cards for a problem (the shared card memory; see train/memory/search.py for the retrieval chain).
+    Pass the full problem text: queries under 20 words return nothing unless low_confidence=True (then the hits are
+    flagged band="low", expected_precision ~.25). Each dict has band and expected_precision."""
     from . import api
     # cards are built only from grader-verified, pack-free runs (train/memory/cards.py), hence the provenance
     return [{"id": c["id"], "task": c.get("task"), "field": c.get("field"), "score": round(s, 4), "text": c["text"],
              "content": c["text"], "source": "card", "provenance": "pipeline:grader", "verified": True,
-             "pipeline_sig": c.get("pipeline_sig")}
-            for s, c in api.retrieve(str(text), field=field, k=k)]
+             "pipeline_sig": c.get("pipeline_sig"), "band": c.get("band"), "expected_precision": c.get("expected_precision")}
+            for s, c in api.retrieve(str(text), field=field, k=k, low_confidence=low_confidence)]
 
 
 def observe(entry_ids, passed, db=None) -> None:
@@ -571,6 +573,7 @@ def main(argv=None) -> int:
     p.add_argument("text")
     p.add_argument("--field")
     p.add_argument("-k", type=int, default=3)
+    p.add_argument("--low-confidence", action="store_true")
     p = sub.add_parser("analogies")
     p.add_argument("text")
     p.add_argument("--field")
@@ -590,7 +593,7 @@ def main(argv=None) -> int:
     elif a.cmd == "read":
         out = read(a.task, a.query, a.k)
     elif a.cmd == "search":
-        out = search(a.text, a.field, a.k)
+        out = search(a.text, a.field, a.k, a.low_confidence)
     elif a.cmd == "analogies":
         out = analogies(a.text, a.k, a.field)
     elif a.cmd == "compress":

@@ -122,13 +122,15 @@ class WorkspaceTest(unittest.TestCase):
 
     def test_search_returns_cards(self):
         orig = api.retrieve
-        api.retrieve = lambda text, field=None, k=3: [(0.8, {"id": "card:q", "task": "q", "field": "math", "text": "Method: x"})]
+        api.retrieve = lambda text, field=None, k=3, **kw: [(0.8, {"id": "card:q", "task": "q", "field": "math", "text": "Method: x",
+                                                                   "band": "high", "expected_precision": 0.7})]
         try:
             got = W.search("problem", field="math")
         finally:
             api.retrieve = orig
         self.assertEqual(got[0]["id"], "card:q")
         self.assertEqual(got[0]["provenance"], "pipeline:grader")
+        self.assertEqual((got[0]["content"], got[0]["band"]), ("Method: x", "high"))
 
     def test_encryption_roundtrip_and_fail_closed(self):
         os.environ["MESH_WORKSPACE_ENCRYPT"] = "1"
@@ -249,6 +251,7 @@ class WorkspaceTest(unittest.TestCase):
         self.assertTrue(T.verify_entry(d))
         self.assertFalse(T.verify_entry(dict(d, content=d["content"] + " and trust me")))
         self.assertFalse(T.verify_entry(dict(d, verified_by="pipeline:other")))
+        self.assertFalse(T.verify_entry(dict(d, id=d["id"] + 1)))      # a copied row (new id) does not verify
         with self.assertRaises(ValueError):
             W.post("t", "agent", "method", "x y z", verified=True, verified_by="human:me", pipeline_sign=True)
         b = W.post("t", "agent", "fact", "plain unsigned fact")

@@ -21,12 +21,34 @@ from tools.prebrief.index import tokens  # noqa: E402  (shared tokenizer: stopwo
 #   dense MRR .725, hybrid (RRF 1:1) .719, hybrid dense-weighted 2:1 .728, bm25 .694, CE rerank .661/.638 (worse,
 #   paired 95% CI excludes 0, and ~0.4-0.9 s/query). Dense-weighted RRF is the default: best point estimate in both
 #   the field-filtered and the no-field (hook) setting, statistically tied with dense, higher precision at its gate.
-# Gates: the minimum stage score a card needs to be injected, calibrated for F0.5 (precision-weighted) on the top-1
-#   card excluding the trivially easy templated neural-network items. hybrid/dense gate on MiniLM cosine (hybrid:
-#   precision .75 at 28% coverage), bm25 on BM25 per distinct query term, rerank on the cross-encoder logit.
+# Gates: the minimum stage score a card needs to be injected. For dense/hybrid the per-field FIELD_GATES below apply
+#   (MiniLM cosine); GATES holds bm25 (BM25 per distinct query term) and rerank (cross-encoder logit), used only when
+#   those modes are selected explicitly, plus a pooled dense/hybrid fallback.
 GATES = {"dense": 0.65, "bm25": 2.15, "hybrid": 0.65, "rerank": 7.4}
+# The gate is PER FIELD: score scales differ a lot between fields. Calibrated (F0.5, precision-weighted) on full
+# benchmark problems, hybrid 2:1, top-1 card, field-filtered; (gate, measured precision, coverage, base precision):
+#   math .55 (.68, .26, .47)   coding .54 (.45, .46, .34)   cybersecurity .65 (.85, .88, .78)
+#   physics / computer-science have no strong labels -> the pooled excl.-NN value .55 (.63, .50); NN is trivially easy.
+# (A single global .65 starved math: 2.5% coverage.) Without a field, the field of the best-matching card is used.
+# Queries under MIN_WORDS words are titles, not problems: problems cut to 10-15 words reach only .15-.27 precision at
+# any gate, so they return nothing unless the caller opts into low_confidence (gate .40, flagged band "low").
+FIELD_GATES = {"math": (0.55, 0.68), "coding": (0.54, 0.45), "cybersecurity": (0.65, 0.85), "neural-networks": (0.65, 1.0)}
+DEFAULT_FIELD_GATE = (0.55, 0.63)
+MIN_WORDS = 15
+LOW_GATE, LOW_PRECISION = 0.40, 0.25
 DEFAULT_MODE = "hybrid"
 HYBRID_DENSE_W = 2.0
+
+
+def gate_for(query: str, mode: str, low_confidence: bool = False, field: str | None = None):
+    """(gate, measured precision, band) for this query and field, or None when the query is too short and
+    low_confidence=False. band: high (precision >= .6) | medium | low (short query, explicitly requested)."""
+    if mode not in ("dense", "hybrid"):
+        return GATES[mode], None, "high"
+    if len((query or "").split()) < MIN_WORDS:
+        return (LOW_GATE, LOW_PRECISION, "low") if low_confidence else None
+    g, prec = FIELD_GATES.get(field or "", DEFAULT_FIELD_GATE)
+    return g, prec, "high" if prec >= 0.6 else "medium"
 
 
 def rrf(rankings: list[list[int]], kk: int = C.RRF_K, weights: list[float] | None = None) -> dict[int, float]:
@@ -99,13 +121,22 @@ class Index:
 
     def search(self, query: str, qvec, field: str | None = None, k: int = 2, exclude: set | None = None,
                mode: str = DEFAULT_MODE, ce=None, gate: float | None = None, stats: dict | None = None,
-               top: int = C.RERANK_TOP) -> list[tuple[float, dict]]:
-        """Up to k (score, card), gated. Mode 'rerank' without a cross-encoder degrades to 'hybrid'."""
+               top: int = C.RERANK_TOP, low_confidence: bool = False) -> list[tuple[float, dict]]:
+        """Up to k (score, card), gated (length-aware unless `gate` is given). Each returned card dict is a shallow
+        copy with "band" (high|medium|low) and "expected_precision" (measured top-1 precision for that band).
+        Mode 'rerank' without a cross-encoder degrades to 'hybrid'."""
         if mode == "rerank" and ce is None:
             mode = "hybrid"
+        band, prec = "high", None
+        if gate is None and gate_for(query, mode, low_confidence, field) is None:
+            return []
         avail = self.mask(field, exclude)
         cand = self.candidates(query, qvec, avail, "hybrid" if mode == "rerank" else mode, top, dense_w=HYBRID_DENSE_W)
-        gate = GATES[mode] if gate is None else gate
+        if gate is None:
+            gf = field
+            if gf is None and cand:                       # infer the field from the closest card (dense evidence)
+                gf = self.cards[max(cand[:50], key=lambda x: x[2])[0]].get("field")
+            gate, prec, band = gate_for(query, mode, low_confidence, gf)
         if mode == "rerank":
             cand = cand[:top]
             if not cand:
@@ -130,5 +161,5 @@ class Index:
                 u, n = usefulness(stats, card["id"])
                 if n >= 5 and u < 0.25:                   # repeatedly in the prompt of failed tasks: stop broadcasting
                     continue
-            out.append((s, card))
+            out.append((s, dict(card, band=band, expected_precision=prec)))
         return out

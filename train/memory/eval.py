@@ -197,6 +197,7 @@ def evaluate(labels: dict, modes=("dense", "bm25", "hybrid", "rerank"), variants
                 rows["ALL"]["mrr"], rows["ALL_exNN"]["hit@1"], rows["ALL_exNN"]["mrr"], ms))
     results["calibration"] = {m: calibrate(v) for m, v in calib.items()}
     results["calibration_exNN"] = {m: calibrate([p for p in v if p[2] != "neural-networks"]) for m, v in calib.items()}
+    results["calib_pairs"] = {m: [(float(a), bool(b), c) for a, b, c in v] for m, v in calib.items()}
     return results
 
 
@@ -249,3 +250,11 @@ def paired(results: dict, a: str, b: str, labels_field: dict | None = None, n_bo
     boots = np.array([d[rng.integers(0, len(d), len(d))].mean() for _ in range(n_boot)])
     return {"n": len(qs), "diff": round(float(d.mean()), 4), "ci95": [round(float(np.percentile(boots, 2.5)), 4),
             round(float(np.percentile(boots, 97.5)), 4)], "p_le0": round(float((boots <= 0).mean()), 4)}
+
+
+def at_gate(pairs: list, gate: float, skip_field: str = "neural-networks") -> dict:
+    """Precision and coverage of the top-1 card when only scores >= gate are injected."""
+    ps = [p for p in pairs if p[2] != skip_field]
+    sel = [r for s, r, _ in ps if s >= gate]
+    return {"gate": gate, "precision": round(sum(sel) / len(sel), 3) if sel else None,
+            "coverage": round(len(sel) / max(1, len(ps)), 3), "n": len(ps)}

@@ -5,7 +5,7 @@ reader (agentkit/trust.py) can tell grader-pipeline knowledge from anything else
            created atomically (O_EXCL + hard link), restricted to the owner; any failure raises (fail closed)
   MAC      the layout of agentkit/trust.py (the verifier), which is used directly when importable:
            HMAC-SHA256, lowercase hex, over the UTF-8 of str() fields joined with "\x1f" (None -> ""):
-             workspace entry:  "entry", task_id, agent, kind, content, verified_by
+             workspace entry:  "entry", id, task_id, agent, kind, content, verified_by   (id: binds the MAC to the row)
              method card:      "card",  card id ("card:..."), field, text, "pipeline:grader"
            content/text is the stored scrubbed plaintext (what get()/read()/search() return), never ciphertext.
 
@@ -29,11 +29,14 @@ SEP = "\x1f"
 CARD_PROVENANCE = "pipeline:grader"
 
 try:                                   # single source of truth for the byte layout once agentkit is on the path
+    import inspect
     from agentkit import trust as _ak
     if not (hasattr(_ak, "pipeline_sign_entry") and hasattr(_ak, "pipeline_sign_card")):
         _ak = None
+    # only delegate entry signing to an agentkit version whose payload includes the entry id
+    _AK_ENTRY = _ak is not None and len(inspect.signature(_ak.pipeline_sign_entry).parameters) >= 7
 except Exception:
-    _ak = None
+    _ak, _AK_ENTRY = None, False
 
 
 def restrict_owner_only(path: Path) -> None:
@@ -81,11 +84,11 @@ def _mac(key: bytes, parts) -> str:
                     hashlib.sha256).hexdigest()
 
 
-def sign_entry(task_id, agent, kind, content, verified_by, key: bytes | None = None) -> str:
+def sign_entry(entry_id, task_id, agent, kind, content, verified_by, key: bytes | None = None) -> str:
     key = key or load_key(KEY, create=True)
-    if _ak is not None:
-        return _ak.pipeline_sign_entry(task_id, agent, kind, content, verified_by, key)
-    return _mac(key, ("entry", task_id, agent, kind, content, verified_by))
+    if _AK_ENTRY:
+        return _ak.pipeline_sign_entry(entry_id, task_id, agent, kind, content, verified_by, key)
+    return _mac(key, ("entry", entry_id, task_id, agent, kind, content, verified_by))
 
 
 def sign_card(card: dict, key: bytes | None = None) -> str:
@@ -102,7 +105,7 @@ def verify_entry(d: dict, key: bytes | None = None) -> bool:
         return False
     sig = d.get("pipeline_sig")
     return isinstance(sig, str) and hmac.compare_digest(
-        sig, sign_entry(d["task_id"], d.get("agent"), d["kind"], d["content"], d.get("verified_by"), key))
+        sig, sign_entry(d["id"], d["task_id"], d.get("agent"), d["kind"], d["content"], d.get("verified_by"), key))
 
 
 def verify_card(card: dict, key: bytes | None = None) -> bool:
@@ -129,7 +132,7 @@ def resign(db=None, log=print) -> dict:
             c = W._content(r)
             if c is None:
                 continue
-            upd.append((sign_entry(r["task_id"], r["agent"], r["kind"], c, r["verified_by"], key), r["id"]))
+            upd.append((sign_entry(r["id"], r["task_id"], r["agent"], r["kind"], c, r["verified_by"], key), r["id"]))
         con.execute("BEGIN IMMEDIATE")
         con.executemany("UPDATE entries SET pipeline_sig = ? WHERE id = ?", upd)
         con.execute("COMMIT")

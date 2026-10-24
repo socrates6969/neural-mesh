@@ -36,14 +36,14 @@ def warm() -> None:
 
 
 def retrieve(text: str, field: str | None = None, k: int = 2, exclude=None, mode: str | None = None,
-             log_task: str | None = None) -> list[tuple[float, dict]]:
+             log_task: str | None = None, low_confidence: bool = False) -> list[tuple[float, dict]]:
     idx = _index()
     if not idx.cards or not (text or "").strip():
         return []
     mode = mode or search.DEFAULT_MODE
     ce = rerank.get() if mode == "rerank" else None
     hits = idx.search(text, _encode_query(text), field=field, k=k, exclude=set(exclude or ()), mode=mode, ce=ce,
-                      stats=store.load_stats())
+                      stats=store.load_stats(), low_confidence=low_confidence)
     if log_task and hits:
         log_injection(log_task, [c["id"] for _, c in hits])
     return hits
