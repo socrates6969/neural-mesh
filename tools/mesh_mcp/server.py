@@ -60,16 +60,24 @@ TOOLS = [
                     "with DoWhy (sandboxed, CSV mounted read-only). Returns estimate, 95% CI, refutations "
                     "(permutation placebo, random common cause) and the assumptions the estimate depends on. "
                     "method: backdoor (linear regression), propensity_score_weighting, propensity_score_matching, "
-                    "propensity_score_stratification.",
+                    "propensity_score_stratification, or frontdoor (needs mediator=; for an unmeasured "
+                    "treatment-outcome confounder; returns NOT IDENTIFIABLE with the reason if the front-door "
+                    "criterion fails for the assumed graph).",
      "inputSchema": {"type": "object", "required": ["csv_path", "treatment", "outcome"], "properties": {
          "csv_path": _s("absolute path to a numeric CSV on this machine", **STR),
          "treatment": _s("treatment column", **STR), "outcome": _s("outcome column", **STR),
          "common_causes": _s("confounder columns to adjust for", **ARR),
          "method": _s("estimation method (default backdoor)", **STR),
-         "num_simulations": _s("refutation simulations, 5-100 (default 20)", **INT)}},
+         "num_simulations": _s("refutation simulations, 5-100 (default 20)", **INT),
+         "mediator": _s("frontdoor only: the column on the only causal path treatment -> mediator -> outcome",
+                        **STR),
+         "graph": _s("frontdoor only, optional: DOT digraph over column names; nodes not in the CSV are "
+                     "unobserved. Default: hidden U -> treatment, outcome; treatment -> mediator -> outcome; "
+                     "common causes -> treatment, mediator, outcome", **STR)}},
      "fn": lambda a: sandbox_tools.causal_analysis(a.get("csv_path"), a.get("treatment"), a.get("outcome"),
                                                    a.get("common_causes"), a.get("method", "backdoor"),
-                                                   a.get("num_simulations", 20))},
+                                                   a.get("num_simulations", 20), a.get("mediator"),
+                                                   a.get("graph"))},
     {"name": "discover_graph",
      "description": "EXPLORATORY causal-graph discovery on the numeric columns of a local CSV with the PC algorithm "
                     "(causal-learn, Fisher-z). Edges are hypotheses for domain review, not findings.",
@@ -77,6 +85,18 @@ TOOLS = [
          "csv_path": _s("absolute path to a CSV", **STR),
          "alpha": _s("independence-test significance level (default 0.05)", **NUM)}},
      "fn": lambda a: sandbox_tools.discover_graph(a.get("csv_path"), a.get("alpha", 0.05))},
+    {"name": "discover_dag_notears",
+     "description": "EXPLORATORY causal-DAG discovery on the numeric columns of a local CSV with linear NOTEARS "
+                    "(Zheng et al. 2018; continuous optimization with an acyclicity constraint, sandboxed). Returns "
+                    "weighted edges, checked acyclic. Assumes a linear SEM without hidden confounders; edges are "
+                    "hypotheses, not findings.",
+     "inputSchema": {"type": "object", "required": ["csv_path"], "properties": {
+         "csv_path": _s("absolute path to a CSV", **STR),
+         "lambda1": _s("l1 sparsity penalty (default 0.1)", **NUM),
+         "w_threshold": _s("drop edges with |weight| below this (default 0.3)", **NUM),
+         "standardize": _s("z-score columns first (default false; NOTEARS is not scale-invariant)", **BOOL)}},
+     "fn": lambda a: sandbox_tools.discover_dag_notears(a.get("csv_path"), a.get("lambda1", 0.1),
+                                                        a.get("w_threshold", 0.3), a.get("standardize", False))},
     {"name": "workspace_post",
      "description": "Post a finding, hypothesis, result or note to the shared Global Workspace for a task so other "
                     "agents can read it. task_id defaults to the session id.",

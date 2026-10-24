@@ -74,23 +74,38 @@ def _csv(path: str) -> str:
     return str(p.resolve())
 
 
+def _cols(value):
+    if not value:
+        return []
+    if isinstance(value, str):
+        value = json.loads(value) if value.strip().startswith("[") else value.split(",")
+    return [str(c).strip() for c in value if str(c).strip()]
+
+
 def causal_analysis(csv_path: str, treatment: str, outcome: str, common_causes=None, method: str = "backdoor",
-                    num_simulations: int = 20) -> str:
+                    num_simulations: int = 20, mediator: str | None = None, graph: str | None = None) -> str:
     if not treatment or not outcome:
         raise ValueError("treatment and outcome are required")
-    cc = common_causes or []
-    if isinstance(cc, str):
-        cc = [c.strip() for c in (json.loads(cc) if cc.strip().startswith("[") else cc.split(",")) if c.strip()]
-    args = {"t": treatment, "y": outcome, "cc": list(cc), "m": method,
-            "n": max(5, min(int(num_simulations or 20), 100))}
-    r = _call("    import causal_impl\n    out = causal_impl.estimate('/data/input.csv', a['t'], a['y'], a['cc'], "
-              "a['m'], a['n'])", args, mounts=[(_csv(csv_path), "/data/input.csv")], timeout_s=300, memory="2g")
-    lines = ["Causal effect of %s on %s (%s, %s, n=%d rows)" % (r["treatment"], r["outcome"], r["estimand"],
-                                                                 r["method"], r["n_rows"]),
-             "common causes adjusted: %s" % (r["common_causes"] or "none"),
-             "ESTIMATE: %s" % _fmt(r["estimate"]),
-             "95%% CI: %s (%s)" % (_fmt(r["ci95"]) if r["ci95"] else "unavailable", r["ci_kind"] or "-"),
-             "Refutations:"]
+    args = {"t": treatment, "y": outcome, "cc": _cols(common_causes), "m": method, "med": mediator,
+            "g": graph, "n": max(5, min(int(num_simulations or 20), 100))}
+    frontdoor = str(method or "").strip().lower() in ("frontdoor", "frontdoor.two_stage_regression")
+    body = ("    import causal_impl\n    out = causal_impl.estimate_frontdoor('/data/input.csv', a['t'], a['y'], "
+            "a['med'], a['cc'], a['g'], a['n'])" if frontdoor else
+            "    import causal_impl\n    out = causal_impl.estimate('/data/input.csv', a['t'], a['y'], a['cc'], "
+            "a['m'], a['n'])")
+    r = _call(body, args, mounts=[(_csv(csv_path), "/data/input.csv")], timeout_s=300, memory="2g")
+    if r.get("identifiable") is False:
+        return cap("NOT IDENTIFIABLE (%s): %s\nNo estimate was computed; no other estimand was substituted."
+                   % (r["method"], r["reason"]))
+    head = "Causal effect of %s on %s (%s, %s, n=%d rows)" % (r["treatment"], r["outcome"], r["estimand"],
+                                                              r["method"], r["n_rows"])
+    lines = [head]
+    if r.get("mediator"):
+        lines.append("mediator (front-door set): %s; assumed graph: %s" % (r["frontdoor_set"], r["graph"]))
+    lines += ["common causes adjusted: %s" % (r["common_causes"] or "none"),
+              "ESTIMATE: %s" % _fmt(r["estimate"]),
+              "95%% CI: %s (%s)" % (_fmt(r["ci95"]) if r["ci95"] else "unavailable", r["ci_kind"] or "-"),
+              "Refutations:"]
     for x in r["refutations"]:
         if "error" in x:
             lines.append("  - %s: ERROR %s" % (x["refuter"], x["error"]))
@@ -102,6 +117,19 @@ def causal_analysis(csv_path: str, treatment: str, outcome: str, common_causes=N
     lines += ["  - " + s for s in r["assumptions"]]
     return cap("\n".join(lines))
 
+
+def discover_dag_notears(csv_path: str, lambda1: float = 0.1, w_threshold: float = 0.3,
+                         standardize: bool = False) -> str:
+    r = _call("    import notears_impl\n    out = notears_impl.discover('/data/input.csv', float(a['l1']), "
+              "float(a['wt']), standardize=bool(a['std']))",
+              {"l1": 0.1 if lambda1 is None else lambda1, "wt": 0.3 if w_threshold is None else w_threshold,
+               "std": bool(standardize)},
+              mounts=[(_csv(csv_path), "/data/input.csv")], timeout_s=300, memory="2g")
+    lines = [r["label"], "%s, n=%d rows, columns: %s" % (r["algorithm"], r["n_rows"], ", ".join(r["columns"])),
+             "acyclicity h(W)=%.3g after thresholding (checked < 1e-8)" % r["h"],
+             "Edges (%d), strongest first:" % len(r["edges"])]
+    lines += ["  %s --> %s  (w=%.3f)" % (e["from"], e["to"], e["weight"]) for e in r["edges"]] or ["  (none)"]
+    return cap("\n".join(lines))
 
 def discover_graph(csv_path: str, alpha: float = 0.05) -> str:
     r = _call("    import causal_impl\n    out = causal_impl.discover('/data/input.csv', float(a['alpha']))",
