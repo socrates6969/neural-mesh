@@ -55,12 +55,15 @@ def _groups(kind, keyed):
 
 
 def best_of_n(agent, task: dict, n: int = 3, workdir=None, *, pack: str | None = None, verify=None, run_fn=None,
-              grade_fn=None, grade_all: bool = True, parallel: bool = True, **run_kw) -> dict:
+              grade_fn=None, grade_all: bool = True, parallel: bool = True, max_prompt_tokens: int | None = 4000,
+              **run_kw) -> dict:
     """Run `n` attempts of `task` and pick one. `agent` is a runner agent dict or a list of them (cycled).
 
     Returns a record with the chosen attempt, its grade (`ok`), `agreement` (share of valid attempts in the winning
     group, used as confidence), `pass_at_n`, total cost and per-attempt summaries. Attempts that errored (quota,
     timeout, unparsed output) are left out of the vote, never counted as wrong answers.
+    Size guard: an attempt whose prompt (task + pack + agent definition, estimated as chars / 4) exceeds
+    `max_prompt_tokens` is not run and is recorded as error "prompt too long" (None disables the guard).
     """
     if run_fn is None:
         from ..runner import run as run_fn
@@ -69,7 +72,14 @@ def best_of_n(agent, task: dict, n: int = 3, workdir=None, *, pack: str | None =
     workdir = Path(workdir or ".")
     t0 = time.time()
 
+    def prompt_tokens(a):
+        return (len(task.get("prompt") or "") + len(pack or "") + len(a.get("prompt") or "")) // 4
+
     def attempt(i):
+        a = agents[i % len(agents)]
+        if max_prompt_tokens is not None and prompt_tokens(a) > max_prompt_tokens:
+            return {"agent": a.get("name"), "text": "", "cost": 0.0, "secs": 0.0,
+                    "error": "prompt too long: ~%d tokens > %d" % (prompt_tokens(a), max_prompt_tokens)}
         return run_fn(agents[i % len(agents)], task, pack, workdir / ("try%d" % i), **run_kw)
 
     if parallel and n > 1:

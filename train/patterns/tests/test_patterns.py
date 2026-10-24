@@ -65,6 +65,14 @@ class BestOfNTest(unittest.TestCase):
         self.assertEqual((r["chosen"], r["method"], r["ok"]), (1, "verified-first", True))
         self.assertEqual([a for a, _ in run.calls], ["a", "b", "a"])
 
+    def test_prompt_size_guard_skips_oversized_attempts(self):
+        run = stub_runner(["ANSWER: 42", "ANSWER: 42", "ANSWER: 42"])
+        big = {"name": "heavy", "prompt": "x" * 20000}
+        r = best_of_n([A, big], INT, 3, TMP, run_fn=run, parallel=False)
+        self.assertEqual((r["valid"], r["answer"]), (2, 42))
+        self.assertTrue(r["attempts"][1]["error"].startswith("prompt too long"))
+        self.assertEqual([a for a, _ in run.calls], ["a", "a"])
+
     def test_answer_key(self):
         self.assertEqual(answer_key({"kind": "mcq"}, "ANSWER: (c) and A"), "AC")
         self.assertIsNone(answer_key(INT, "no final line"))
