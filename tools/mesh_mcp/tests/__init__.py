@@ -15,6 +15,9 @@ atexit.register(shutil.rmtree, TMP, True)
 os.environ["MESH_WORKSPACE_DB"] = str(TMP / "workspace.db")
 os.environ["MESH_WORKSPACE_KEY"] = str(TMP / "workspace.key")
 os.environ["MESH_REPORTS_DIR"] = str(TMP / "reports")
+os.environ["MESH_PIPELINE_KEY"] = str(TMP / "pipeline.key")
+os.environ["NEURAL_MESH_MEMORY"] = str(TMP / "mem")  # card store, usefulness and injection log
+os.environ["MESH_TEST"] = "1"  # the backend itself refuses the live DB / card store when this is set
 LIVE_DB = Path.home() / "neural-mesh" / "data" / "lifelong" / "mesh" / "workspace.db"
 
 
