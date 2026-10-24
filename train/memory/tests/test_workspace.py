@@ -251,6 +251,7 @@ class WorkspaceTest(unittest.TestCase):
         self.assertTrue(T.verify_entry(d))
         self.assertFalse(T.verify_entry(dict(d, content=d["content"] + " and trust me")))
         self.assertFalse(T.verify_entry(dict(d, verified_by="pipeline:other")))
+        self.assertFalse(T.verify_entry(dict(d, id=d["id"] + 1)))      # a copied row (new id) does not verify
         with self.assertRaises(ValueError):
             W.post("t", "agent", "method", "x y z", verified=True, verified_by="human:me", pipeline_sign=True)
         b = W.post("t", "agent", "fact", "plain unsigned fact")

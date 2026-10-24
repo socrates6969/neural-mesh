@@ -269,7 +269,7 @@ def post(task_id, agent, kind, content, confidence=0.5, verified=False, sources=
         if pkey is not None:
             from . import trust
             con.execute("UPDATE entries SET pipeline_sig = ? WHERE id = ?",
-                        (trust.sign_entry(task_id, agent, kind, text, vby, pkey), eid))
+                        (trust.sign_entry(eid, task_id, agent, kind, text, vby, pkey), eid))
         con.executemany("INSERT OR IGNORE INTO concepts (entry_id, concept) VALUES (?,?)", [(eid, c) for c in cs])
         pairs = sorted({(a, b) for a in cs for b in cs if a < b})
         con.executemany("INSERT INTO edges (a, b, w) VALUES (?,?,1) ON CONFLICT(a, b) DO UPDATE SET w = w + 1", pairs)
