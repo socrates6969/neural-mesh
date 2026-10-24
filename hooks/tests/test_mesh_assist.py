@@ -232,7 +232,7 @@ class MeshAssistTest(unittest.TestCase):
         from agentkit import trust
         key = b"k" * 32
         human = {"id": "h1", "kind": "fact", "agent": "b", "content": "human approved fact", "verified": True,
-                 "verified_by": "human:alice", "task_id": "S2"}
+                 "verified_by": "human:alice", "task_id": "S2", "relevance": 0.9}
         good = dict(human, approval_sig=trust.sign(human, "human:alice", key))
         items = [good,
                  dict(human, id="h2", content="tampered after approval", approval_sig=good["approval_sig"]),
@@ -306,7 +306,10 @@ class MeshAssistTest(unittest.TestCase):
         self.assertTrue(all(ln.startswith("> [t") for ln in block[1:]))
         self.assertIn("verified-by pipeline:grader", block[1])
         self.assertLessEqual(max(len(ln) for ln in block[1:]), 2 + 64 + 200 + inject.TRAINING_DEAD_END_CHARS)
+        training = p[p.index(head):].split("\n\n")[0]
         for bad in ("[t4]", "[t5]", "[t6]", "[t7]", "[t8]"):
+            self.assertNotIn(bad, training, bad)
+        for bad in ("[t5]", "[t6]", "[t8]"):
             self.assertNotIn(bad, p, bad)
         self.assertIn("Known dead ends in this task", p)                      # same-session section unchanged
         self.assertIn("[f1]", p)
@@ -319,6 +322,27 @@ class MeshAssistTest(unittest.TestCase):
             p3 = new_prompt(ma.decide(payload("mesh-mathematician", "solve the integer equation", sid="S1"), {},
                                       ws=StubWS(items)))
         self.assertNotIn(head, p3)
+
+    def test_cross_session_items_show_signed_fields_only(self):
+        items = [{"id": "g1", "kind": "method", "agent": "grader", "content": "integer equation via modular arithmetic",
+                  "verified": True, "verified_by": "pipeline:grader", "task_id": "training:batch1",
+                  "confidence": 0.99, "field": "FAKE-FIELD", "sources": ["FAKE-SOURCE"], "relevance": 0.9,
+                  "scope": "task"},                                   # unsigned scope=task must not make it 'own'
+                 {"id": "g2", "kind": "failure", "agent": "grader", "content": "integer equation brute force timed out",
+                  "verified": True, "verified_by": "pipeline:grader", "task_id": "training:batch1", "avoid": False,
+                  "confidence": 0.99, "field": "FAKE-FIELD", "relevance": 0.9}]
+        ws = StubWS(items)
+        ws.read = lambda task_id, query=None, k=8: [dict(i) for i in ws.items]
+        p = new_prompt(ma.decide(payload("mesh-mathematician", "solve the integer equation", sid="S1"), {}, ws=ws))
+        line = [ln for ln in p.splitlines() if "[g1]" in ln][0]
+        self.assertTrue(line.startswith("- [g1] (method, session training:bat"))
+        for unsigned in ("FAKE-FIELD", "FAKE-SOURCE", "conf", "0.99", "0.9"):
+            self.assertNotIn(unsigned, line, unsigned)
+        self.assertNotIn("Global Workspace for this task", p)       # not treated as this session's
+        dead = [ln for ln in p.splitlines() if "[g2]" in ln]
+        self.assertEqual(len(dead), 1)
+        self.assertTrue(dead[0].startswith("> [g2]"))                # kind=failure (signed) decides, not avoid
+        self.assertNotIn("FAKE-FIELD", dead[0])
 
     def test_cross_session_off_and_unverified_others(self):
         items = [{"id": "w1", "kind": "fact", "agent": "a", "content": "own note", "verified": False, "task_id": "S1"},

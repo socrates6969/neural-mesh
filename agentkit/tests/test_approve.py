@@ -121,12 +121,17 @@ class ApproveTest(unittest.TestCase):
         self.assertEqual((rc, ws.approved), (5, []))
 
     def test_windows_hello_paths(self):
+        order = []
         ws = WS(dict(E))
         ask = Asker()
-        rc, out = self.run_main(ws, ask=ask, hello=lambda m: "verified")
+        rc, out = self.run_main(ws, ask=ask, hello=lambda m: order.append("hello") or "verified")
         self.assertEqual(rc, 0)
-        self.assertEqual(ask.prompts, [])
+        self.assertEqual(len(ask.prompts), 1)                # the typed code is required IN ADDITION to Hello
+        self.assertIn("entry 7", ask.prompts[0])
         self.assertEqual(len(ws.approved), 1)
+        ws = WS(dict(E))
+        rc, _ = self.run_main(ws, ask=Asker("XXXXXX"), hello=lambda m: "verified")
+        self.assertEqual((rc, ws.approved), (1, []))         # Hello alone is not enough
         ws = WS(dict(E))
         rc, _ = self.run_main(ws, hello=lambda m: "denied")
         self.assertEqual((rc, ws.approved), (1, []))
@@ -135,6 +140,23 @@ class ApproveTest(unittest.TestCase):
             rc, _ = self.run_main(ws, ask=ask, hello=lambda m, s=state: s)
             self.assertEqual(rc, 0, state)
             self.assertEqual(len(ask.prompts), 1)
+
+    def test_entry_shown_before_hello(self):
+        seen = {}
+        out = io.StringIO()
+        old = sys.stdout
+        sys.stdout = out
+
+        def hello(msg):
+            seen["printed"] = out.getvalue()
+            return "verified"
+        try:
+            approve.main(["7"], ws=WS(dict(E)), ask=Asker(), stdin=TTY(True), stdout=TTY(True), environ={},
+                         lineage=([("explorer.exe", "")], True), key=KEY, hello=hello)
+        finally:
+            sys.stdout = old
+        self.assertIn("parser handles CRLF", seen["printed"])
+        self.assertIn("7", seen["printed"])
 
     def test_parse_hello(self):
         self.assertEqual(approve.parse_hello("result:Verified" + chr(10)), "verified")
@@ -145,21 +167,53 @@ class ApproveTest(unittest.TestCase):
         self.assertEqual(approve.parse_hello("garbage"), "error")
 
     def test_ancestry_walk(self):
-        t = {10: (9, "python.exe", "python -m agentkit.approve 7"), 9: (8, "powershell.exe", "powershell"),
-             8: (7, "WindowsTerminal.exe", "wt"), 7: (1, "explorer.exe", "explorer")}
-        anc, ok = approve.ancestry(10, t)
-        self.assertTrue(ok)
+        P = approve._proc
+        EXP = r"c:\windows\explorer.exe"
+        base = {10: P(9, "python.exe", "python -m agentkit.approve 7", r"C:\py\python.exe", 1),
+                9: P(8, "powershell.exe", "powershell", r"C:\Windows\System32\powershell.exe", 1),
+                8: P(7, "WindowsTerminal.exe", "wt", r"C:\Program Files\WT\wt.exe", 1),
+                7: P(3, "explorer.exe", "explorer", r"C:\Windows\explorer.exe", 1)}
+        anc, ok, why = approve.ancestry(10, base, EXP)
+        self.assertTrue(ok, why)
         self.assertEqual([n for n, _ in anc], ["powershell.exe", "WindowsTerminal.exe", "explorer.exe"])
-        self.assertEqual(approve.agent_reasons({}, (anc, ok)), [])
-        t2 = dict(t)
-        t2[8] = (77, "WindowsTerminal.exe", "wt")
-        self.assertFalse(approve.ancestry(10, t2)[1])
-        t3 = dict(t)
-        t3[7] = (10, "explorer2.exe", "x")
-        self.assertFalse(approve.ancestry(10, t3)[1])
-        self.assertFalse(approve.ancestry(99, t)[1])
-        deep = {i: (i + 1, "p.exe", "") for i in range(100, 300)}
-        self.assertFalse(approve.ancestry(100, deep)[1])
+        self.assertEqual(approve.agent_reasons({}, (anc, ok, why)), [])
+        # a fake explorer.exe (wrong image path) does not end the walk; its missing parent is then inconclusive
+        fake = dict(base)
+        fake[7] = P(3, "explorer.exe", "explorer", r"C:\Users\x\explorer.exe", 1)
+        ok, why = approve.ancestry(10, fake, EXP)[1:]
+        self.assertFalse(ok)
+        self.assertIn("missing", why)
+        # name-only matches are walked past (old ROOT names are not roots any more)
+        named = dict(base)
+        named[8] = P(5, "winlogon.exe", "x", r"C:\tmp\winlogon.exe", 1)
+        named[5] = P(7, "services.exe", "y", r"C:\tmp\services.exe", 1)
+        anc, ok, _ = approve.ancestry(10, named, EXP)
+        self.assertTrue(ok)
+        self.assertIn("services.exe", [n for n, _ in anc])
+        for proc in ("WmiPrvSE.exe", "svchost.exe", "taskhostw.exe"):
+            t = dict(base)
+            t[8] = P(7, proc, "", "C:/Windows/System32/" + proc, 1)
+            ok, why = approve.ancestry(10, t, EXP)[1:]
+            self.assertFalse(ok, proc)
+            self.assertIn("out-of-tree", why)
+        other = dict(base)
+        other[9] = P(8, "powershell.exe", "powershell", "", 2)
+        self.assertIn("another session", approve.ancestry(10, other, EXP)[2])
+        t2 = dict(base)
+        t2[8] = P(77, "WindowsTerminal.exe", "wt", "", 1)
+        self.assertFalse(approve.ancestry(10, t2, EXP)[1])
+        t3 = dict(base)
+        t3[7] = P(10, "explorer2.exe", "x", "", 1)
+        self.assertFalse(approve.ancestry(10, t3, EXP)[1])
+        self.assertFalse(approve.ancestry(99, base, EXP)[1])
+        deep = {i: P(i + 1, "p.exe", "", "", 1) for i in range(100, 300)}
+        self.assertFalse(approve.ancestry(100, deep, EXP)[1])
+        sysroot = {10: P(9, "python.exe", "", "", 0), 9: P(4, "smss.exe", "", "", 0)}
+        self.assertTrue(approve.ancestry(10, sysroot, EXP)[1])          # reaches pid 4 (System)
+        ok_lineage = (anc, True, "")
+        self.assertEqual(approve.agent_reasons({}, ([("bash", "")], False, "parent of x is missing"))[-1],
+                         "the parent-process chain is inconclusive (parent of x is missing)")
+        self.assertTrue(ok_lineage)
 
     def test_live_ancestry_is_readable(self):
         got = approve.current_ancestry()

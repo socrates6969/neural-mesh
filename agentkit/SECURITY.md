@@ -20,9 +20,16 @@ cannot make an entry verified, approve it, or get it shown to agents in other se
 - `agentkit.approve` refuses when stdin/stdout are not a terminal; when it runs inside an agent or Claude Code process
   (`CLAUDECODE`, `CLAUDE_CODE_*`, `CLAUDE_SESSION_ID`, `CLAUDE_PID`, or an ancestor that is `claude`/`claude.exe`, a
   node/bun/deno process running a claude CLI, or any ancestor with "claude" in its command line); and when the
-  parent-process chain cannot be read or ends early. It uses Windows Hello when it is configured, otherwise a random
-  per-run code typed back. The entry is shown with control characters and ANSI escape sequences removed (with a
-  warning if any were).
+  parent-process chain is inconclusive. The chain must reach pid 0/4 or `%SystemRoot%\explorer.exe` (matched by full
+  image path, never by name alone); a missing parent, a loop, an ancestor in another session, or a launch through
+  WmiPrvSE, svchost or taskhostw refuses. The entry id and content are shown first (control characters and ANSI
+  escape sequences removed, with a warning if any were); then Windows Hello is required when configured, and a
+  random per-run code must be typed back in every case.
+- Items that cross a session boundary are displayed and gated on signed fields only (id, kind, task, agent,
+  verified_by, content; for cards id, field, text). Unsigned columns such as confidence, an entry's field, sources or
+  relevance can rank items but are never shown as facts.
+- The pipeline MAC includes the entry id (signed by the writer inside the insert transaction), so a signature does
+  not verify on a copied row.
 
 ## What is NOT protected
 
@@ -41,8 +48,8 @@ keys) that agents cannot access, with approvals taken through that service. That
 |---|---|
 | Agent output claims "verified" | Always stored unverified; the claim is display-only (`claimed_verified`). |
 | Forged pipeline or card provenance in text | `pipeline_sig` required; unsigned `pipeline:*` and cards are untrusted across sessions. |
-| Forged or replayed human approval | `approval_sig` over id, task, agent, kind, content and verifier; random code or Windows Hello; refused inside agent processes. |
-| Tampering with stored rows | Signatures cover the stored content; an edit breaks them. |
+| Forged or replayed human approval | `approval_sig` over id, task, agent, kind, content and verifier; Windows Hello (when configured) plus a random typed code; refused inside agent processes or with an inconclusive parent chain. |
+| Tampering with stored rows | Signatures cover the stored content and the row id; an edit or a copied row fails verification. |
 | Prompt injection through injected memory | Evidence-only framing, marker and fence stripping, quoted and capped cards, provenance on every item, other sessions only when signed, the 900-token cap. |
 | Terminal tricks in approval display | C0/C1 control characters and ANSI/ESC sequences removed, with a warning. |
 | Key theft by other local users | Keys created atomically (O_EXCL), owner-only ACL, deleted if the ACL cannot be set. |

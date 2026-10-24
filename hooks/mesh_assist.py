@@ -128,7 +128,8 @@ def decide(data, registry, exp_fn=None, ws=None, sink=None, deadline=None):
     cross = os.environ.get("NEURAL_MESH_CROSS_SESSION", "").strip().lower() != "off"
 
     def same_session(i):
-        return bool(sid) and (i.get("scope") == "task" or (not i.get("scope") and i.get("task_id") == sid))
+        # task_id is a signed field for trusted rows; scope/avoid/relevance are not, so they never gate trust
+        return bool(sid) and str(i.get("task_id") or "") == sid
 
     def trusted(i):
         """Cross-session trust (agentkit/trust.py): allowlisted pipeline verifiers, HMAC-signed human approvals, or
@@ -140,16 +141,15 @@ def decide(data, registry, exp_fn=None, ws=None, sink=None, deadline=None):
         own = [i for i in items if same_session(i)]
         others, training_fails = [], []
         if cross:
-            rest = [i for i in items if not same_session(i) and trusted(i) and not i.get("avoid")]
-            others = [i for i in rest if i.get("scope") == "other"] + inject.relevant(
-                [i for i in rest if not i.get("scope")], query)
+            rest = [i for i in items if not same_session(i) and trusted(i) and i.get("kind") != "failure"]
+            others = inject.relevant(rest, query)
             # grader failures from verified training runs: pipeline-signed, kind=failure, relevant, at most 3
             training_fails = inject.relevant([i for i in items if not same_session(i) and i.get("kind") == "failure"
                                               and str(i.get("verified_by")).startswith("pipeline:") and trusted(i)],
                                              query)[:inject.TRAINING_DEAD_ENDS_MAX]
-        return {"workspace": inject.rank([i for i in own if not i.get("avoid")]),
+        return {"workspace": inject.rank([i for i in own if i.get("kind") != "failure"]),
                 # this session's dead ends (untrusted, same task); other sessions' raw failures are never injected
-                "dead_ends": inject.rank([i for i in own if i.get("avoid")]),
+                "dead_ends": inject.rank([i for i in own if i.get("kind") == "failure"]),
                 "training_dead_ends": inject.rank(training_fails),
                 "others": inject.rank(others)}
 

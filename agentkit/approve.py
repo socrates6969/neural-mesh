@@ -1,4 +1,4 @@
-"""Human approval: mark ONE Global Workspace entry verified, after showing it. Interactive, human-only.
+r"""Human approval: mark ONE Global Workspace entry verified, after showing it. Interactive, human-only.
 
     python -m agentkit.approve <workspace_id>
 
@@ -6,11 +6,14 @@ This is the only way an agent-produced entry becomes verified=True (grader pipel
 pipeline:<name>). Before anything is changed it refuses when:
   * stdin or stdout is not an interactive terminal;
   * it runs inside an agent / Claude Code process (CLAUDECODE, CLAUDE_CODE_*, CLAUDE_SESSION_ID, CLAUDE_PID in the
-    environment, or a parent process named claude / claude.exe) - a TTY alone is no proof of a human;
+    environment; an ancestor named claude(.exe), node/bun/deno running a claude CLI, or any ancestor with "claude" in
+    its command line) - a TTY alone is no proof of a human;
+  * the parent chain is inconclusive: it must reach pid 0/4 or %SystemRoot%\explorer.exe (by full image path), with
+    no missing parent, no ancestor in another session and no WmiPrvSE / svchost / taskhostw launch;
   * the approval key (~/.claude/mesh-approve.key, created atomically and owner-only) is missing and cannot be made;
   * the backend cannot store an approval signature.
-The entry is printed with control characters and ANSI/ESC sequences removed (with a warning if any were), and the
-human must type back a random per-run code. The approval is stored as verified_by="human:<os user>" plus
+The entry (id and content) is printed with control characters and ANSI/ESC sequences removed (with a warning if any
+were). Then Windows Hello is required when it is configured, and the human must ALSO type back a random per-run code. The approval is stored as verified_by="human:<os user>" plus
 approval_sig = HMAC-SHA256 over the entry (agentkit/trust.py), which the hook checks before trusting the entry.
 """
 from __future__ import annotations
@@ -46,16 +49,20 @@ def agent_env(environ=None) -> list[str]:
     return sorted(k for k in env if k.upper() in AGENT_ENV_EXACT or k.upper().startswith(AGENT_ENV_PREFIX))
 
 
-ROOT_PROCS = frozenset({"explorer.exe", "services.exe", "wininit.exe", "winlogon.exe", "smss.exe", "system",
-                        "svchost.exe", "sihost.exe", "userinit.exe", "init", "systemd", "launchd"})
+OUT_OF_TREE = frozenset({"wmiprvse.exe", "svchost.exe", "taskhostw.exe"})   # reparented / service-launched
 MAX_DEPTH = 64
 
-_PS_PROCS = ("Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,Name,CommandLine | "
-             "ConvertTo-Json -Compress")
+_PS_PROCS = ("Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,Name,CommandLine,"
+             "ExecutablePath,SessionId | ConvertTo-Json -Compress")
+
+
+def _proc(ppid, name, cmd="", path="", session=None) -> dict:
+    return {"ppid": int(ppid or 0), "name": str(name or ""), "cmd": str(cmd or ""), "path": str(path or ""),
+            "session": session}
 
 
 def process_table() -> dict:
-    """{pid: (ppid, name, command line)} for every process (raises on failure; callers fail closed)."""
+    """{pid: {ppid, name, cmd, path, session}} for every process (raises on failure; callers fail closed)."""
     import json
     import subprocess
     if os.name == "nt":
@@ -63,37 +70,59 @@ def process_table() -> dict:
                            capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30)
         rows = json.loads(r.stdout)
         rows = rows if isinstance(rows, list) else [rows]
-        return {int(x["ProcessId"]): (int(x["ParentProcessId"] or 0), str(x.get("Name") or ""),
-                                      str(x.get("CommandLine") or "")) for x in rows}
-    r = subprocess.run(["ps", "-A", "-o", "pid=,ppid=,comm=,args="], capture_output=True, text=True, timeout=30)
+        return {int(x["ProcessId"]): _proc(x["ParentProcessId"], x.get("Name"), x.get("CommandLine"),
+                                           x.get("ExecutablePath"), x.get("SessionId")) for x in rows}
+    r = subprocess.run(["ps", "-A", "-o", "pid=,ppid=,sess=,comm=,args="], capture_output=True, text=True, timeout=30)
     out = {}
     for line in r.stdout.splitlines():
-        parts = line.split(None, 3)
-        if len(parts) >= 3:
-            out[int(parts[0])] = (int(parts[1]), os.path.basename(parts[2]), parts[3] if len(parts) > 3 else "")
+        parts = line.split(None, 4)
+        if len(parts) >= 4:
+            out[int(parts[0])] = _proc(parts[1], os.path.basename(parts[3]), parts[4] if len(parts) > 4 else "",
+                                       parts[3], parts[2])
     if not out:
         raise OSError("empty process table")
     return out
 
 
-def ancestry(pid: int, table: dict) -> tuple[list[tuple[str, str]], bool]:
-    """([(name, command line)] of the ancestors, nearest first; complete). complete=False when the walk ends at a
-    vanished parent that is not a known root, loops, or exceeds MAX_DEPTH - callers then refuse (fail closed)."""
+def _explorer_path() -> str:
+    return os.path.join(os.environ.get("SystemRoot") or os.environ.get("SYSTEMROOT") or r"C:\Windows",
+                        "explorer.exe").lower()
+
+
+def ancestry(pid: int, table: dict, explorer_path: str | None = None):
+    r"""([(name, command line)] of the ancestors, nearest first; complete; reason).
+    complete=True only when the walk reaches pid 0/4 (System) or the real shell: explorer.exe whose full image path is
+    %SystemRoot%\explorer.exe. A process NAME alone never ends the walk. Inconclusive (complete=False, refuse): a
+    missing parent, a loop, MAX_DEPTH, a parent in another session, or a reparented / out-of-tree launch through
+    WmiPrvSE, svchost or taskhostw."""
+    root = (explorer_path or _explorer_path()).lower()
     out, cur, seen = [], pid, {pid}
+    me = table.get(pid)
+    if me is None:
+        return out, False, "this process is not in the process table"
     for _ in range(MAX_DEPTH):
-        if cur not in table:
-            return out, False
-        ppid, name, _cmd = table[cur]
-        if ppid in (0, 4) or (cur != pid and name.lower() in ROOT_PROCS):
-            return out, True
+        e = table.get(cur)
+        if e is None:
+            return out, False, "process %d vanished" % cur
+        if cur != pid:
+            n = e["name"].lower()
+            if n == "explorer.exe" and e["path"].lower() == root:
+                return out, True, ""
+            if n in OUT_OF_TREE:
+                return out, False, "launched through %s (reparented or out-of-tree)" % e["name"]
+            if me["session"] is not None and e["session"] is not None and str(e["session"]) != str(me["session"]):
+                return out, False, "parent %s is in another session" % e["name"]
+        ppid = e["ppid"]
+        if ppid in (0, 4) or (os.name != "nt" and ppid == 1):
+            return out, True, ""
         if ppid not in table:
-            return out, name.lower() in ROOT_PROCS
+            return out, False, "parent of %s is missing" % (e["name"] or cur)
         if ppid in seen:
-            return out, False
+            return out, False, "parent chain loops"
         seen.add(ppid)
-        out.append((table[ppid][1], table[ppid][2]))
+        out.append((table[ppid]["name"], table[ppid]["cmd"]))
         cur = ppid
-    return out, False
+    return out, False, "parent chain deeper than %d" % MAX_DEPTH
 
 
 def current_ancestry():
@@ -123,13 +152,14 @@ def agent_reasons(environ=None, lineage=None) -> list[str]:
     if got is None:
         why.append("parent processes could not be inspected")
         return why
-    ancestors, complete = got
+    ancestors, complete = got[0], got[1]
+    reason = got[2] if len(got) > 2 else ""
     for name, cmd in ancestors:
         r = _agentlike(name, cmd)
         if r:
             why.append(r)
     if not complete:
-        why.append("the parent-process chain ends early (cannot prove no agent is above this process)")
+        why.append("the parent-process chain is inconclusive (%s)" % (reason or "ends early"))
     return why
 
 
@@ -233,23 +263,24 @@ def main(argv=None, ws=None, ask=input, stdin=None, stdout=None, environ=None, l
     if e.get("verified") and trust.trusted(e, key):
         print("\nalready verified (by %s); nothing changed." % sanitize(e.get("verified_by"))[0])
         return 0
+    # the entry (id and content) is already on screen; Hello, when configured, is required IN ADDITION to the code
     state = hello("Approve workspace entry %s as verified" % sanitize(entry_id)[0])
     if state == "verified":
         print("Windows Hello: verified.")
     elif state == "denied":
         print("Windows Hello verification failed or was cancelled; nothing changed.")
         return 1
-    else:
-        if state == "error":
-            print("(Windows Hello could not be reached; falling back to a typed code.)")
-        code = nonce()
-        try:
-            answer = ask("\nTo mark this entry verified, type this code: %s (anything else cancels): " % code)
-        except (EOFError, KeyboardInterrupt):
-            answer = ""
-        if answer.strip() != code:
-            print("cancelled; nothing changed.")
-            return 1
+    elif state == "error":
+        print("(Windows Hello could not be reached; continuing with the typed code only.)")
+    code = nonce()
+    try:
+        answer = ask("\nTo mark entry %s verified, type this code: %s (anything else cancels): "
+                     % (sanitize(entry_id)[0], code))
+    except (EOFError, KeyboardInterrupt):
+        answer = ""
+    if answer.strip() != code:
+        print("cancelled; nothing changed.")
+        return 1
     by = "human:" + (getpass.getuser() or "unknown")
     sig = trust.sign(dict(e, id=entry_id if e.get("id") in (None, "") else e.get("id")), by, key)
     ok = ws.approve(entry_id, by=by, approval_sig=sig)

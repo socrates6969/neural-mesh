@@ -110,13 +110,20 @@ def frame_training_dead_ends(items: list[dict]) -> str:
     return frame_quoted(TRAINING_DEAD_ENDS_HEADER, NL.join(lines), TRAINING_DEAD_ENDS_MAX, line_chars=600)
 
 
-def item_line(it: dict) -> str:
+# Sections whose items cross a session boundary: shown with SIGNED fields only (id, kind, task/session, agent,
+# verified_by, content; for cards id, field, text). Unsigned columns (confidence, field of entries, sources, relevance,
+# scores) may rank items but are never displayed as facts.
+SIGNED_ONLY = frozenset({"others", "analogies", "training_dead_ends"})
+
+
+def item_line(it: dict, signed_only: bool = False) -> str:
     tag = it.get("id") or "?"
     meta = [x for x in (it.get("kind"),) if x]
-    if it.get("field") and it.get("scope") != "task" and it.get("source") != "card":
-        meta.append("field " + clean(it.get("field"), 40))
-    if isinstance(it.get("confidence"), float):
-        meta.append("conf %.2f" % it["confidence"])
+    if not signed_only:
+        if it.get("field") and it.get("scope") != "task" and it.get("source") != "card":
+            meta.append("field " + clean(it.get("field"), 40))
+        if isinstance(it.get("confidence"), float):
+            meta.append("conf %.2f" % it["confidence"])
     meta.append(provenance(it))
     return "- [" + clean(tag, 64) + "] (" + ", ".join(clean(m, 120) for m in meta) + ") " + clean(it.get("content"))
 
@@ -180,7 +187,7 @@ def build(mode: str, pack_block: str = "", sections: dict | None = None, experie
             continue
         lines = []
         for it in (sections or {}).get(name) or []:
-            line = item_line(it)
+            line = item_line(it, signed_only=name in SIGNED_ONLY)
             cost = protocol.approx_tokens(line) + (protocol.approx_tokens(SECTIONS[name]) if not lines else 0)
             if cost > left:
                 continue
