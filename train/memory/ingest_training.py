@@ -18,16 +18,19 @@ from pathlib import Path
 from . import cards as K
 from . import config as C
 from . import workspace as W
-from .builder import _tasks, ambiguous_ids
+from .builder import _tasks, ambiguous_ids, legacy_remapper
 
 
 def ingest(batch: str, db=None, log=print) -> dict:
     rp = C.RUNS / "train" / batch / "results.jsonl"
     rows = [json.loads(l) for l in rp.read_text(encoding="utf-8").splitlines() if l.strip()]
     tasks = _tasks(C.RUNS / "bench")
+    remap = legacy_remapper(tasks)
+    if remap is not None:
+        rows = [dict(r, task=t) for r in rows for t in [remap(r)] if t is not None]
     tid = "training:" + batch
     stats = {"method": 0, "failure": 0, "skipped": 0}
-    for task, r in K.verified_rows(rp).items():
+    for task, r in K.verified_rows(rp, remap).items():
         if task not in tasks:
             stats["skipped"] += 1
             continue

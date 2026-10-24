@@ -2,6 +2,8 @@
 
 * drops cards and workspace entries derived from AMBIGUOUS bench ids (one bench file using the same id for different
   problems, e.g. physics.jsonl jee-phy-N): the solution cannot be matched to its problem, so the item may be wrong;
+* drops cards / entries recorded under a RETIRED bench id (a current row has it as legacy_id): they are rebuilt
+  under the current id by `build` / `ingest_training`, which map legacy results only when certain;
 * tags every remaining card / training entry with bench_task, split and problem_key (the fingerprint that keeps an
   item from ever being returned for its own problem - held-out leakage protection).
 """
@@ -20,7 +22,8 @@ _EXT = re.compile(r"^training:[^:]+:(?:method|failure):([^:]+)")
 
 def run(db=None, log=print) -> dict:
     tasks = _tasks(C.RUNS / "bench")
-    amb = ambiguous_ids()
+    amb = ambiguous_ids() | {t["legacy_id"] for t in tasks.values() if t.get("legacy_id") and t["legacy_id"] != t["id"]
+                             and t["legacy_id"] not in tasks}
     cards, _ = store.load()
     removed_cards = store.remove([c["id"] for c in cards if c.get("task") in amb])
     cards, _ = store.load()

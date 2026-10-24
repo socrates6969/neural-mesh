@@ -147,13 +147,19 @@ def make_card(task: dict, result: dict, distill: str = "auto", batch: str = "") 
             "problem_key": C.problem_key(problem)}
 
 
-def verified_rows(results_path: Path) -> dict:
-    """task id -> shortest pack-free grader-verified held_base row (the selection experience.py already used)."""
+def verified_rows(results_path: Path, remap=None) -> dict:
+    """task id -> shortest pack-free grader-verified held_base row (the selection experience.py already used).
+    remap(row) -> current task id or None (drop): translates rows recorded under a retired bench id."""
     best = {}
     for line in results_path.read_text(encoding="utf-8").splitlines():
         if not line.strip():
             continue
         r = json.loads(line)
+        if remap is not None:
+            tid = remap(r)
+            if tid is None:
+                continue
+            r = dict(r, task=tid)
         if (r.get("phase") == "held_base" and r.get("passed") and not r.get("error") and not r.get("pack")
                 and 40 < len(r.get("text") or "")):
             if r["task"] not in best or len(r["text"]) < len(best[r["task"]]["text"]):
