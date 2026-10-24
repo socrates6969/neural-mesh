@@ -17,10 +17,16 @@ if _ROOT not in sys.path:
     sys.path.insert(0, _ROOT)
 from tools.prebrief.index import tokens  # noqa: E402  (shared tokenizer: stopwords, camel/snake split, hex filter)
 
-# Gate per mode, calibrated on the offline eval (python -m train.memory eval): the minimum stage score a card needs
-# to be injected. dense/hybrid gate on MiniLM cosine, bm25 on BM25 per distinct query term, rerank on the CE logit.
-GATES = {"dense": 0.45, "bm25": 0.0, "hybrid": 0.45, "rerank": -11.0}
-DEFAULT_MODE = "dense"
+# Defaults chosen by the offline eval (python -m train.memory eval; 553 strong-label queries, see eval.py):
+#   dense MRR .725, hybrid (RRF 1:1) .719, hybrid dense-weighted 2:1 .728, bm25 .694, CE rerank .661/.638 (worse,
+#   paired 95% CI excludes 0, and ~0.4-0.9 s/query). Dense-weighted RRF is the default: best point estimate in both
+#   the field-filtered and the no-field (hook) setting, statistically tied with dense, higher precision at its gate.
+# Gates: the minimum stage score a card needs to be injected, calibrated for F0.5 (precision-weighted) on the top-1
+#   card excluding the trivially easy templated neural-network items. hybrid/dense gate on MiniLM cosine (hybrid:
+#   precision .75 at 28% coverage), bm25 on BM25 per distinct query term, rerank on the cross-encoder logit.
+GATES = {"dense": 0.65, "bm25": 2.15, "hybrid": 0.65, "rerank": 7.4}
+DEFAULT_MODE = "hybrid"
+HYBRID_DENSE_W = 2.0
 
 
 def rrf(rankings: list[list[int]], kk: int = C.RRF_K, weights: list[float] | None = None) -> dict[int, float]:
@@ -98,7 +104,7 @@ class Index:
         if mode == "rerank" and ce is None:
             mode = "hybrid"
         avail = self.mask(field, exclude)
-        cand = self.candidates(query, qvec, avail, "hybrid" if mode == "rerank" else mode, top)
+        cand = self.candidates(query, qvec, avail, "hybrid" if mode == "rerank" else mode, top, dense_w=HYBRID_DENSE_W)
         gate = GATES[mode] if gate is None else gate
         if mode == "rerank":
             cand = cand[:top]

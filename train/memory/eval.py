@@ -218,14 +218,21 @@ def calibrate(pairs: list) -> dict:
     return best
 
 
+MODES = ("dense", "bm25", "hybrid", "hybrid@2", "dense_rerank", "rerank")
+
+
 def run(llm: bool = True, log=print) -> dict:
-    out = {"strong": evaluate(strong_labels(), variants=("both", "problem", "card"), log=log)}
+    """Full eval. llm=True adds the LLM-topic labels (needs the local Ollama model - only when the GPU is free)."""
+    nn = {t["id"]: f != "neural-networks" for f in ("math", "coding", "cybersecurity", "neural-networks") for t in _bench(f)}
+    r = evaluate(strong_labels(), modes=MODES, variants=("both", "problem", "card"), log=log)
+    r["paired_vs_dense_exNN"] = {m: paired(r, "both/dense", "both/" + m, nn) for m in MODES[1:] if "both/" + m in r}
+    out = {"strong": r}
     log("-- strong labels, variants x modes done --")
     if llm:
         log("-- secondary: LLM topic labels (physics, computer-science) --")
         out["llm"] = evaluate(llm_labels(log=log), log=log)
     log("-- strong labels, no field filter (hook setting) --")
-    out["strong_nofield"] = evaluate(strong_labels(), log=log, field_filter=False)
+    out["strong_nofield"] = evaluate(strong_labels(), modes=MODES[:4], log=log, field_filter=False)
     p = C.MEM_DIR / "eval.json"
     p.write_text(json.dumps(out, indent=1), encoding="utf-8")
     log("wrote " + str(p))
