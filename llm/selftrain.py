@@ -25,7 +25,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-from . import config, data
+from . import config, contract, data
 
 BENCH = Path(os.environ.get("MESH_SELFTRAIN_BENCH", "C:/Users/mariu/ruv/hive/runs/agent-catalog/bench"))
 BENCH_FILES = ("math", "math_v1_saturated", "math_v2_saturated", "physics", "neural-networks", "cybersecurity",
@@ -40,6 +40,7 @@ FORMAT = "\n\nThink step by step. Give the final answer on the last line in the 
 CODE_FORMAT = "\n\nReturn the complete solution in one ```python code block."
 _ANS_MMQA = re.compile(r"The answer is:?\s*\$?(-?[\d,]*\.?\d+)\$?\s*$")
 NIGHT = (3 * 60, 8 * 60 + 30)                    # the nightly owns the GPU 03:00-08:30 local
+CONTRACT_FRAC = float(os.environ.get("MESH_SELFTRAIN_CONTRACT", "0.25"))   # share of prompts asked for the JSON contract
 
 
 def checker():
@@ -56,7 +57,17 @@ def checker():
     return C
 
 
+def wants_contract(task: dict) -> bool:
+    """deterministic per task id, so a prompt keeps its format across runs."""
+    return int(hashlib.sha256(str(task.get("id", "")).encode()).hexdigest()[:8], 16) / 0xFFFFFFFF < CONTRACT_FRAC
+
+
 def grade(C, task: dict, text: str) -> bool:
+    """checker verdict. A prompt that asked for the JSON contract passes only with a valid contract whose answer is right."""
+    if wants_contract(task):
+        if contract.parse(text) is None:
+            return False
+        text = contract.normalize(text)
     k = task["kind"]
     if k == "code":
         return bool(C.check_code(text, task))
@@ -96,6 +107,8 @@ def _bench(docker: bool) -> list[dict]:
 
 def instruction(task: dict) -> str:
     p = task["prompt"]
+    if wants_contract(task):
+        return p + (contract.CODE_INSTRUCTION if task["kind"] == "code" else contract.INSTRUCTION)
     if task["kind"] == "code":
         return p if "```" in p else p + CODE_FORMAT
     return p if "ANSWER" in p else p + FORMAT
@@ -170,6 +183,9 @@ def run(minutes: float, k: int = 4, max_new: int = 768, temperature: float = 0.8
             outs = texts[j * k:(j + 1) * k]
             ok = [grade(C, t, o) for o in outs]
             seen[t["id"]] = seen.get(t["id"], 0) + 1
+            if wants_contract(t):
+                stats["contract_prompts"] = stats.get("contract_prompts", 0) + 1
+                stats["contract_valid"] = stats.get("contract_valid", 0) + sum(contract.parse(o) is not None for o in outs)
             b = stats["by_kind"].setdefault(t["kind"], {"prompts": 0, "samples": 0, "correct": 0, "kept": 0})
             b["prompts"] += 1
             b["samples"] += len(outs)
@@ -188,7 +204,8 @@ def run(minutes: float, k: int = 4, max_new: int = 768, temperature: float = 0.8
                 rows.append({"id": rid, "ts": ts, "project": "self", "session": "self_verified", "source": "self_verified",
                              "agent": None, "model": model_tag, "instruction": instruction(t), "response": best, "outcome": "success",
                              "judge_score": None, "checker": t["kind"], "task_id": t["id"], "origin": t["origin"],
-                             "gold": t.get("answer"), "pass_k": f"{sum(ok)}/{len(outs)}"})
+                             "gold": t.get("answer"), "pass_k": f"{sum(ok)}/{len(outs)}",
+                             "format": "json_contract" if wants_contract(t) else "plain"})
                 b["kept"] += 1
                 stats["kept"] += 1
             if bad:

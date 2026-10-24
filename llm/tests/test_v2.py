@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 from unittest import mock
 
-from llm import config, dpo, lineage, nightly, promote, selftrain, train
+from llm import config, contract, dpo, evaluate, lineage, nightly, promote, selftrain, train
 from llm.tests.test_release import Sandbox
 
 QUIET = lambda *_: None  # noqa: E731
@@ -27,10 +27,13 @@ class V2(Sandbox):
         config.DATA, config.SFT, config.EXTERNAL = root, root / "sft.jsonl", root / "sft_external.jsonl"
         config.EVAL_EXTERNAL, config.SELF_VERIFIED, config.DPO_PAIRS = root / "eval.jsonl", root / "self.jsonl", root / "pairs.jsonl"
         config.CONTINUAL, config.MAX_CHAIN = True, 3
+        self._frac = selftrain.CONTRACT_FRAC
+        selftrain.CONTRACT_FRAC = 0.0          # plain format unless a test asks for the JSON contract
 
     def tearDown(self):
         for k, v in self.saved_v2.items():
             setattr(config, k, v)
+        selftrain.CONTRACT_FRAC = self._frac
         super().tearDown()
 
     def cand(self, ver, parent=None, e=None, base="B"):
@@ -202,7 +205,8 @@ class SelfTrain(V2):
         tasks = [{"id": "t1", "kind": "int", "answer": "7", "prompt": "q1", "origin": "x"},
                  {"id": "t2", "kind": "int", "answer": "9", "prompt": "q2", "origin": "x"}]
         outs = ["ANSWER: 7", "long wrong\nANSWER: 8", "ANSWER: 1", "ANSWER: 2"]
-        with mock.patch("llm.model.tokenizer"), mock.patch("llm.model.load_4bit", return_value=mock.MagicMock()), \
+        with mock.patch.object(selftrain, "CONTRACT_FRAC", 0.0), mock.patch("llm.model.tokenizer"), \
+                mock.patch("llm.model.load_4bit", return_value=mock.MagicMock()), \
                 mock.patch("llm.model.sample_batch", return_value=outs), mock.patch("llm.judge.unload"), \
                 mock.patch("torch.cuda.empty_cache"), mock.patch.object(selftrain, "SEEN", config.MODELS / "seen.json"):
             st = selftrain.run(minutes=5, k=2, gen_bs=4, tasks=tasks, log=QUIET)
@@ -240,3 +244,39 @@ class NightlyBudget(V2):
             rec = nightly.run(power=lambda: True, log=QUIET)
         self.assertEqual([s["name"] for s in rec["stages"]], ["preflight", "selftrain", "train", "eval", "promote"])
         self.assertEqual((seen["self_budget"], seen["train_budget"]), (20.0, 98.0))
+
+class JsonContract(V2):
+    GOOD = '{"answer": 42, "confidence": 0.8, "evidence": ["6*7=42"], "assumptions": []}'
+
+    def test_parse_valid_and_invalid(self):
+        self.assertEqual(contract.parse(self.GOOD)["answer"], 42)
+        self.assertIsNotNone(contract.parse("```json\n" + self.GOOD + "\n```"), "json fence tolerated")
+        self.assertIsNotNone(contract.parse("Here you go: " + self.GOOD), "surrounding text tolerated")
+        self.assertIsNone(contract.parse('{"answer": 1, "confidence": 1.5, "evidence": [], "assumptions": []}'), "confidence > 1")
+        self.assertIsNone(contract.parse('{"answer": 1, "confidence": 0.5, "evidence": "x", "assumptions": []}'), "evidence not a list")
+        self.assertIsNone(contract.parse('{"answer": 1, "confidence": 0.5}'), "missing keys")
+        self.assertIsNone(contract.parse("ANSWER: 42"))
+
+    def test_normalize_to_plain_formats(self):
+        self.assertTrue(contract.normalize(self.GOOD).endswith("ANSWER: 42"))
+        code = '{"answer": "def f(x):\\n    return x", "confidence": 0.9, "evidence": [], "assumptions": ["ints"]}'
+        self.assertEqual(contract.normalize(code), "```python\ndef f(x):\n    return x\n```")
+        self.assertEqual(contract.normalize("plain\nANSWER: 3"), "plain\nANSWER: 3", "plain text unchanged")
+
+    def test_battery_scoring_accepts_both_formats(self):
+        bench = mock.MagicMock()
+        bench.score = lambda item, text: {"correct": text.strip().splitlines()[-1] == "ANSWER: 42", "infra": False}
+        self.assertTrue(evaluate.det_correct(bench, {"id": "m1"}, "ANSWER: 42"))
+        self.assertTrue(evaluate.det_correct(bench, {"id": "m1"}, self.GOOD))
+        self.assertFalse(evaluate.det_correct(bench, {"id": "m1"}, self.GOOD.replace("42", "41")))
+
+    def test_selftrain_contract_prompts_need_a_valid_contract(self):
+        C = selftrain.checker()
+        t = {"id": "x", "kind": "int", "answer": "42", "prompt": "q"}
+        with mock.patch.object(selftrain, "CONTRACT_FRAC", 1.0):
+            self.assertIn('"confidence"', selftrain.instruction(t))
+            self.assertTrue(selftrain.grade(C, t, self.GOOD))
+            self.assertFalse(selftrain.grade(C, t, "ANSWER: 42"), "asked for the contract, answered plain")
+        with mock.patch.object(selftrain, "CONTRACT_FRAC", 0.0):
+            self.assertTrue(selftrain.grade(C, t, "ANSWER: 42"))
+            self.assertNotIn('"confidence"', selftrain.instruction(t))

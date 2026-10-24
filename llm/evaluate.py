@@ -71,6 +71,8 @@ def det_correct(bench, item: dict, text: str) -> bool:
     """bench/run.py score() returns a dict (correct, fallback_correct, parsed, answer, sbx, infra); `bool(dict)` is always
     True, which made every battery answer count as correct. Use the strict `correct` flag. An infra failure (sandbox down)
     is neither right nor wrong: fail the eval closed instead of letting it skew the regression check."""
+    from . import contract
+    text = contract.normalize(text)       # a JSON-contract answer scores like the plain `ANSWER:` / fenced-code format
     if not text.strip():
         return False
     r = bench.score(item, text)
@@ -148,8 +150,9 @@ def gate(loss_ci: dict, pair: dict, det: dict, n_clusters: int, calibrated: tupl
 
 def pairwise_block(task_rows: list[dict], ans_c: list[str], ans_p: list[str], judge, unit, workers: int = 4) -> dict:
     """candidate (x) vs production (y) on the held-out requests; reference = the real recorded answer."""
-    from . import pairjudge as PJ
-    res = judge.compare_many([(r["instruction"], r["response"], a, b) for r, a, b in zip(task_rows, ans_c, ans_p)], workers)
+    from . import contract, pairjudge as PJ
+    N = contract.normalize          # both formats reach the judge as plain text, so format alone can never win a pair
+    res = judge.compare_many([(r["instruction"], r["response"], N(a), N(b)) for r, a, b in zip(task_rows, ans_c, ans_p)], workers)
     groups: dict = {}
     for r, x in zip(task_rows, res):
         sc = PJ.score_of(x)
