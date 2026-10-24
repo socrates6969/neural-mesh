@@ -63,7 +63,7 @@ def autosign(x):
     if x.get("source") == "card" and x.get("provenance") == "pipeline:grader":
         x["pipeline_sig"] = trust.pipeline_sign_card(x.get("id"), x.get("field"), x.get("content"), PKEY)
     elif x.get("verified_by") == "pipeline:grader":
-        x["pipeline_sig"] = trust.pipeline_sign_entry(x.get("task_id"), x.get("agent"), x.get("kind"),
+        x["pipeline_sig"] = trust.pipeline_sign_entry(x.get("id"), x.get("task_id"), x.get("agent"), x.get("kind"),
                                                       x.get("content"), "pipeline:grader", PKEY)
     return x
 

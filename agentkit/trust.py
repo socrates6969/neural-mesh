@@ -3,7 +3,7 @@
 verified_by allowlist (anything else is untrusted across sessions):
   * "pipeline:<name>" for names in PIPELINES, only with a valid pipeline_sig: HMAC-SHA256 keyed with
     ~/.claude/mesh-pipeline.key, written by the trusted writers (train.memory.ingest_training, the card builder) over
-    task_id|agent|kind|content|verified_by of the STORED (scrubbed) entry - see pipeline_sign_entry();
+    id|task_id|agent|kind|content|verified_by of the STORED (scrubbed) entry - see pipeline_sign_entry();
   * "human:<user>" only with a valid approval_sig: HMAC-SHA256 keyed with ~/.claude/mesh-approve.key over
     id|task_id|agent|kind|content|verified_by (agentkit.approve writes it after a human-presence check);
   * method cards (source="card") only with provenance "pipeline:grader" AND a valid pipeline_sig over
@@ -109,9 +109,10 @@ def human_ok(entry: dict, key: bytes | None) -> bool:
 
 
 # --- pipeline writers (train.memory.ingest_training, the card builder) --------------------------------------------
-def pipeline_sign_entry(task_id, agent, kind, content, verified_by, key: bytes) -> str:
-    """pipeline_sig for a workspace entry; `content` must be the text as STORED (after scrubbing)."""
-    return _mac(key, ("entry", task_id, agent, kind, content, verified_by))
+def pipeline_sign_entry(entry_id, task_id, agent, kind, content, verified_by, key: bytes) -> str:
+    """pipeline_sig for a workspace entry; `content` must be the text as STORED (after scrubbing). The row id is part
+    of the payload, so a signature does not verify on a copied row."""
+    return _mac(key, ("entry", entry_id, task_id, agent, kind, content, verified_by))
 
 
 def pipeline_sign_card(card_id, field, text, key: bytes) -> str:
@@ -134,8 +135,8 @@ def pipeline_ok(entry: dict, pkey: bytes | None) -> bool:
     by = str(entry.get("verified_by") or "")
     if by not in PIPELINES:
         return False
-    return _sig_ok(sig, pipeline_sign_entry(entry.get("task_id"), entry.get("agent"), entry.get("kind"),
-                                            entry.get("content"), by, pkey))
+    return _sig_ok(sig, pipeline_sign_entry(entry.get("id"), entry.get("task_id"), entry.get("agent"),
+                                            entry.get("kind"), entry.get("content"), by, pkey))
 
 
 def trusted(entry: dict, key: bytes | None = None, pipeline_key: bytes | None = None) -> bool:
