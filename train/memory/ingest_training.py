@@ -37,7 +37,7 @@ def ingest(batch: str, db=None, log=print) -> dict:
             continue
         eid = W.post(tid, r.get("agent", ""), "method", c["text"], confidence=0.9, verified=True,
                      verified_by="pipeline:grader", sources=["task:" + task, "card:" + task], field=c["field"], db=db,
-                     ext_key="%s:method:%s" % (tid, task))
+                     ext_key="%s:method:%s" % (tid, task), pipeline_sign=True)
         stats["method" if eid else "skipped"] += 1
     seen = set()
     for r in rows:
@@ -53,7 +53,7 @@ def ingest(batch: str, db=None, log=print) -> dict:
                    % (r.get("agent", "?"), K.gist_of(t["prompt"], 24), tail))
         eid = W.post(tid, r.get("agent", ""), "failure", content, confidence=0.8, verified=True,
                      verified_by="pipeline:grader", sources=["task:" + r["task"]], field=r.get("field") or t.get("field"),
-                     db=db, ext_key="%s:failure:%s:%s" % (tid, r["task"], r.get("agent", "")))
+                     db=db, ext_key="%s:failure:%s:%s" % (tid, r["task"], r.get("agent", "")), pipeline_sign=True)
         stats["failure" if eid else "skipped"] += 1
     log("%s: %s" % (tid, stats))
     return stats

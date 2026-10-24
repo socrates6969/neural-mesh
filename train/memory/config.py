@@ -27,6 +27,26 @@ RRF_K = 60
 RERANK_TOP = 20
 
 
+LIVE_MEM_DIR = NM / "data" / "lifelong" / "mesh" / "memory"
+LIVE_WORKSPACE_DB = NM / "data" / "lifelong" / "mesh" / "workspace.db"
+
+
+def under_test() -> bool:
+    return os.environ.get("MESH_TEST", "") == "1" or "PYTEST_CURRENT_TEST" in os.environ
+
+
+def guard_live(path) -> None:
+    """Tests must never write the live memory: raise if running under pytest / MESH_TEST=1 and `path` is live data.
+    Point tests at temp files with MESH_WORKSPACE_DB (workspace) and NEURAL_MESH_MEMORY (card store)."""
+    if not under_test():
+        return
+    p = Path(path).resolve()
+    for live in (LIVE_WORKSPACE_DB.resolve(), LIVE_MEM_DIR.resolve()):
+        if p == live or live in p.parents:
+            raise RuntimeError("refusing to touch live mesh memory under test: %s (set MESH_WORKSPACE_DB / "
+                               "NEURAL_MESH_MEMORY to a temp path)" % p)
+
+
 def cards_path() -> Path:
     return MEM_DIR / "cards.jsonl"
 

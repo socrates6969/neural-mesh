@@ -56,6 +56,7 @@ def add(cards: list[dict], encode, path: Path | None = None) -> int:
     if not new:
         return 0
     vecs = np.asarray(encode([index_text(c) for c in new]), dtype=np.float32).reshape(-1, DIM)
+    C.guard_live(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     with _lock:
         _repair(path, len(old))
@@ -134,6 +135,7 @@ def _save_stats(d: dict, path: Path) -> None:
 def update_stats(fn, path: Path | None = None) -> dict:
     """Read-modify-write usefulness.json under the cross-process lock; fn(stats) mutates in place."""
     path = path or C.stats_path()
+    C.guard_live(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     with _lock, _FileLock(path):
         d = load_stats(path)

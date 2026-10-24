@@ -66,6 +66,7 @@ def render(hits, budget: int = C.INJECT_TOKENS) -> str:
 
 def log_injection(task: str, card_ids: list[str], path: Path | None = None) -> None:
     path = path or C.injections_path()
+    C.guard_live(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     with _lock, open(path, "a", encoding="utf-8") as f:
         f.write(json.dumps({"ts": time.strftime("%Y-%m-%dT%H:%M:%S"), "task": task, "cards": card_ids}) + "\n")
