@@ -119,12 +119,15 @@ TOOLS = [
      "fn": lambda a: workspace_tools.workspace_stats()},
     {"name": "lean_check",
      "description": "Type-check a Lean 4 file (theorems, proofs, definitions) in a network-less sandbox. Returns "
-                    "VERIFIED, FAILED with the error messages, or INCOMPLETE if it uses sorry. `import Mathlib` works "
-                    "only when the Mathlib image is installed; otherwise use core Lean (omega, decide, simp, Nat.*).",
+                    "VERIFIED, FAILED with the error messages, or INCOMPLETE if it uses sorry. Mathlib v4.35.0 is "
+                    "available: import only the modules you need (e.g. `import Mathlib.Analysis.SpecialFunctions."
+                    "Pow.Real`, ~25 s); a bare `import Mathlib` loads everything and takes ~7-8 minutes. Core Lean "
+                    "(omega, decide, simp, Nat.*) checks in seconds.",
      "inputSchema": {"type": "object", "required": ["code"], "properties": {
          "code": _s("complete Lean 4 source", **STR),
-         "timeout_s": _s("seconds before the check is killed (max 300, default 120)", **INT)}},
-     "fn": lambda a: lean_tools.lean_check(a.get("code"), a.get("timeout_s", 120))},
+         "timeout_s": _s("seconds before the check is killed (default 120 core / 240 Mathlib modules / 600 full "
+                         "Mathlib; max 300 / 600 / 900)", **INT)}},
+     "fn": lambda a: lean_tools.lean_check(a.get("code"), a.get("timeout_s"))},
     {"name": "report_imrad",
      "description": "Assemble an IMRaD markdown report (abstract, introduction, methods, results, discussion, "
                     "conclusion, references) with an audit-trail appendix and save it under "

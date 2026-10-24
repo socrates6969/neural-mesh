@@ -47,7 +47,8 @@ def as_json(value, name: str):
 
 def run_sandbox(script: str, args: dict | None = None, mounts: list[tuple[str, str]] | None = None,
                 timeout_s: int = 120, memory: str = "1g", image: str | None = None, command: list[str] | None = None,
-                filename: str = "main.py", workdir: str = "/w") -> tuple[str, str, int]:
+                filename: str = "main.py", workdir: str = "/w", cpus: int = 1,
+                max_timeout_s: int = 300) -> tuple[str, str, int]:
     """Run a Python script in the network-less grader container.
 
     The script (as `filename`) and args.json sit in a fresh temp dir mounted read-only at /w; `mounts` are extra
@@ -55,7 +56,7 @@ def run_sandbox(script: str, args: dict | None = None, mounts: list[tuple[str, s
     `image`/`command`/`workdir` override the Python defaults (lean_check uses its own image).
     Returns (stdout, stderr, exit code); exit code 124 means killed on timeout.
     """
-    timeout_s = max(5, min(int(timeout_s or 120), 300))
+    timeout_s = max(5, min(int(timeout_s or 120), max_timeout_s))
     work = tempfile.mkdtemp(prefix="meshmcp-")
     try:
         Path(work, filename).write_text(script, encoding="utf-8")
@@ -63,7 +64,7 @@ def run_sandbox(script: str, args: dict | None = None, mounts: list[tuple[str, s
         for f in ("stats_impl.py", "causal_impl.py"):
             shutil.copy(SANDBOX_DIR / f, Path(work, f))
         name = "mesh-" + uuid.uuid4().hex[:12]
-        cmd = ["docker", "run", "--rm", "--name", name, "--network", "none", "--cpus", "1", "--memory", memory,
+        cmd = ["docker", "run", "--rm", "--name", name, "--network", "none", "--cpus", str(cpus), "--memory", memory,
                "--pids-limit", "128", "--read-only", "--tmpfs", "/tmp:rw,size=256m",
                "--mount", "type=bind,src=%s,dst=/w,readonly" % work, "-w", workdir]
         for host, cont in mounts or []:
