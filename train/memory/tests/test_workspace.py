@@ -280,6 +280,60 @@ class WorkspaceTest(unittest.TestCase):
         v = T.verify_all(db=self.db)
         self.assertEqual((v["entries_ok"], v["cards_ok"], v["entries_bad"], v["cards_bad"]), (1, 1, 0, 0))
 
+    def test_same_problem_and_excluded_items_are_never_returned(self):
+        prob = "Find all positive integers n such that n squared plus one is divisible by n plus one, and prove it."
+        a = W.post("training:b", "g", "method", "Solved: n^2+1 divisible by n+1. Method: reduce n^2+1 mod n+1 to 2.",
+                   verified=True, verified_by="pipeline:grader", bench_task="m1", split="held", problem=prob)
+        b = W.post("training:b", "g", "method", "Method: reduce the polynomial mod n+1 to a constant, then use divisors.",
+                   verified=True, verified_by="pipeline:grader", bench_task="m2", split="tune",
+                   problem="Determine all integers n for which n+2 divides n cubed plus eight; show your work fully.")
+        self.assertEqual(W.get(a)["bench_task"], "m1")
+        ids = [g["id"] for g in W.read("session", query="Please solve: " + prob, k=8)]
+        self.assertNotIn(a, ids)                                  # its own problem: would leak the answer
+        ids2 = [g["id"] for g in W.read("training:b", query="reduce mod n+1 divisors polynomial", k=8)]
+        self.assertIn(a, ids2)                                    # a different query may see it
+        self.assertNotIn(a, [g["id"] for g in W.read("training:b", query="mod n+1", k=8, exclude={"m1"})])
+        self.assertNotIn(a, [x["id"] for x in W.analogies(prob, k=5, field="physics")])
+        import importlib
+        old = C.EXCLUDE_SPLITS
+        C.EXCLUDE_SPLITS = frozenset({"held"})
+        try:
+            got = [g["id"] for g in W.read("training:b", k=8)]
+        finally:
+            C.EXCLUDE_SPLITS = old
+        self.assertNotIn(a, got)
+        self.assertIn(b, got)
+
+    def test_hygiene_drops_ambiguous_ids_and_tags(self):
+        from train.memory import hygiene, store, builder
+        runs = Path(self.tmp) / "runs"
+        (runs / "bench").mkdir(parents=True)
+        (runs / "train").mkdir(parents=True)
+        bench = [{"id": "p1", "field": "physics", "split": "held", "prompt": "A block slides down a frictionless incline of angle thirty degrees; find its acceleration."},
+                 {"id": "p1", "field": "physics", "split": "held", "prompt": "A capacitor of two microfarads is charged to ten volts; find the stored energy now."},
+                 {"id": "p2", "field": "physics", "split": "tune", "prompt": "A ball is thrown upward at twenty metres per second; find the maximum height reached."}]
+        (runs / "bench" / "physics.jsonl").write_text("".join(json.dumps(t) + "\n" for t in bench), encoding="utf-8")
+        old = C.RUNS
+        C.RUNS = runs
+        try:
+            self.assertEqual(builder.ambiguous_ids(), {"p1"})
+            self.assertNotIn("p1", builder._tasks(runs / "bench"))
+            enc = lambda texts: np.stack([fake_embed([x])[0] for x in texts])
+            store.add([{"id": "card:p1", "task": "p1", "field": "physics", "verified": True, "problem": bench[0]["prompt"], "text": "Method: a"},
+                       {"id": "card:p2", "task": "p2", "field": "physics", "verified": True, "problem": bench[2]["prompt"], "text": "Method: b"}], enc)
+            W.post("training:b", "g", "method", "Method: a", verified=True, verified_by="pipeline:grader", ext_key="training:b:method:p1")
+            W.post("training:b", "g", "method", "Method: b", verified=True, verified_by="pipeline:grader", ext_key="training:b:method:p2")
+            out = hygiene.run(db=self.db, log=lambda *a: None)
+            again = hygiene.run(db=self.db, log=lambda *a: None)
+        finally:
+            C.RUNS = old
+        self.assertEqual((out["cards_removed"], out["entries_removed"], out["entries_tagged"]), (1, 1, 1))
+        self.assertEqual((again["cards_removed"], again["entries_removed"]), (0, 0))
+        cards, vecs = store.load()
+        self.assertEqual(([c["id"] for c in cards], len(vecs)), (["card:p2"], 1))
+        self.assertEqual((cards[0]["split"], bool(cards[0]["problem_key"])), ("tune", True))
+        self.assertEqual(W.stats()["entries"], 1)
+
     def test_cli(self):
         import contextlib
         import io

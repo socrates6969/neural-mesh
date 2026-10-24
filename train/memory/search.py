@@ -74,6 +74,8 @@ class Index:
                 self.post[t].append((i, n))
         self.field = np.array([c.get("field") or "" for c in cards])
         self.task = [c.get("task") for c in cards]
+        self.pkey = [c.get("problem_key") or C.problem_key(c.get("problem") or "") for c in cards]
+        self.split = [c.get("split") or "" for c in cards]
 
     def mask(self, field: str | None, exclude: set | None) -> np.ndarray:
         m = np.ones(len(self.cards), dtype=bool)
@@ -81,7 +83,15 @@ class Index:
             m &= (self.field == field) | (self.field == "")
         if exclude:
             m &= np.array([t not in exclude for t in self.task], dtype=bool)
+        if C.EXCLUDE_SPLITS:
+            m &= np.array([s not in C.EXCLUDE_SPLITS for s in self.split], dtype=bool)
         return m
+
+    def same_problem(self, query: str) -> np.ndarray:
+        """Cards whose own solved problem is contained in the query: returning them would leak that problem's
+        answer (e.g. a held-out benchmark task run through a live session). Always excluded."""
+        q = C.norm_text(query)
+        return np.array([bool(k) and k in q for k in self.pkey], dtype=bool) if q else np.zeros(len(self.cards), bool)
 
     def bm25(self, qtoks: list[str], avail: np.ndarray, k1: float = 0.9, b: float = 0.5) -> np.ndarray:
         s = np.zeros(len(self.cards))
@@ -130,7 +140,7 @@ class Index:
         band, prec = "high", None
         if gate is None and gate_for(query, mode, low_confidence, field) is None:
             return []
-        avail = self.mask(field, exclude)
+        avail = self.mask(field, exclude) & ~self.same_problem(query)
         cand = self.candidates(query, qvec, avail, "hybrid" if mode == "rerank" else mode, top, dense_w=HYBRID_DENSE_W)
         if gate is None:
             gf = field

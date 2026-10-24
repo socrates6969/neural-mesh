@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS entries (
   content TEXT NOT NULL, enc INTEGER NOT NULL DEFAULT 0, confidence REAL NOT NULL, verified INTEGER NOT NULL,
   sources TEXT, created REAL NOT NULL, s INTEGER NOT NULL DEFAULT 0, f INTEGER NOT NULL DEFAULT 0,
   superseded_by INTEGER, concepts TEXT, vec BLOB, claimed_verified INTEGER NOT NULL DEFAULT 0, verified_by TEXT,
-  approval_sig TEXT, ext_key TEXT, pipeline_sig TEXT);
+  approval_sig TEXT, ext_key TEXT, pipeline_sig TEXT, bench_task TEXT, split TEXT, problem_key TEXT);
 CREATE INDEX IF NOT EXISTS entries_task ON entries(task_id, superseded_by);
 CREATE INDEX IF NOT EXISTS entries_created ON entries(created);
 CREATE TABLE IF NOT EXISTS concepts (entry_id INTEGER NOT NULL, concept TEXT NOT NULL, PRIMARY KEY (entry_id, concept));
@@ -109,7 +109,8 @@ def _setup(con: sqlite3.Connection) -> None:
     con.executescript(_SCHEMA)
     have = {r[1] for r in con.execute("PRAGMA table_info(entries)")}
     for col, decl in (("claimed_verified", "INTEGER NOT NULL DEFAULT 0"), ("verified_by", "TEXT"), ("approval_sig", "TEXT"),
-                      ("ext_key", "TEXT"), ("pipeline_sig", "TEXT")):
+                      ("ext_key", "TEXT"), ("pipeline_sig", "TEXT"), ("bench_task", "TEXT"), ("split", "TEXT"),
+                      ("problem_key", "TEXT")):
         if col not in have:                                          # databases created before the trust model
             try:
                 con.execute("ALTER TABLE entries ADD COLUMN %s %s" % (col, decl))
@@ -215,11 +216,14 @@ TRUSTED_PREFIXES = ("pipeline:", "human:")
 
 
 def post(task_id, agent, kind, content, confidence=0.5, verified=False, sources=None, field=None, db=None,
-         claimed_verified=False, verified_by=None, approval_sig=None, ext_key=None, pipeline_sign=False):
+         claimed_verified=False, verified_by=None, approval_sig=None, ext_key=None, pipeline_sign=False,
+         bench_task=None, split=None, problem=None):
     """Store one entry; returns its id (int), or None when the content is empty or has a secret (scrub drop).
     verified=True is kept only with verified_by "pipeline:<name>" or "human:<user>"; otherwise it becomes an unchecked
     claimed_verified. ext_key (optional) makes the post idempotent: a second post with the same key returns the
-    existing id and changes nothing. pipeline_sign=True (trusted pipelines only, e.g. ingest_training) adds a
+    existing id and changes nothing. bench_task / split / problem (the solved problem's text; only its fingerprint
+    is stored) tag knowledge derived from a benchmark task, so read()/search() never return it for that same problem
+    and held-out splits can be hidden. pipeline_sign=True (trusted pipelines only, e.g. ingest_training) adds a
     pipeline_sig HMAC (train/memory/trust.py) over id, task, kind, content and verified_by; it requires a
     verified_by "pipeline:*" and raises if the pipeline key is unavailable (fail closed)."""
     kind = str(kind).strip().lower()
@@ -259,12 +263,13 @@ def post(task_id, agent, kind, content, confidence=0.5, verified=False, sources=
                 con.execute("COMMIT")
                 return row[0]
         cur = con.execute("INSERT INTO entries (task_id, agent, kind, field, content, enc, confidence, verified, sources, "
-                          "created, concepts, vec, claimed_verified, verified_by, approval_sig, ext_key) "
-                          "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                          "created, concepts, vec, claimed_verified, verified_by, approval_sig, ext_key, bench_task, split, "
+                          "problem_key) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                           (task_id, agent, kind, field, stored, enc, conf, int(trusted), json.dumps(src), time.time(),
                            json.dumps(cs), vec, int(claimed), vby if trusted else None,
                            str(approval_sig) if (trusted and approval_sig) else None,
-                           str(ext_key) if ext_key is not None else None))
+                           str(ext_key) if ext_key is not None else None, bench_task, split,
+                           C.problem_key(_scrub(problem).text) if problem else None))
         eid = cur.lastrowid
         if pkey is not None:
             from . import trust
@@ -304,7 +309,8 @@ def _as_dict(row, content, sal=None, own=True, rel=None):
     d = {"id": row["id"], "task_id": row["task_id"], "agent": row["agent"], "kind": row["kind"], "content": content,
          "confidence": row["confidence"], "verified": bool(row["verified"]), "verified_by": row["verified_by"],
          "claimed_verified": bool(row["claimed_verified"]), "approval_sig": row["approval_sig"],
-         "pipeline_sig": row["pipeline_sig"], "field": row["field"],
+         "pipeline_sig": row["pipeline_sig"], "field": row["field"], "bench_task": row["bench_task"],
+         "split": row["split"],
          "sources": json.loads(row["sources"] or "[]"), "created": row["created"], "scope": "task" if own else "other",
          "avoid": row["kind"] == "failure", "usefulness": {"s": row["s"], "f": row["f"]},
          "superseded_by": row["superseded_by"]}
@@ -352,9 +358,22 @@ def _vec(row) -> np.ndarray:
     return np.frombuffer(row["vec"], dtype=np.float32) if row["vec"] else np.zeros(DIM, np.float32)
 
 
-def read(task_id, query=None, k=8, db=None) -> list[dict]:
+def _hidden(row, qnorm: str, exclude) -> bool:
+    """Never broadcast an entry derived from the very problem being asked (it would leak its answer), entries of
+    excluded bench tasks, or entries of excluded splits (MESH_MEMORY_EXCLUDE_SPLITS)."""
+    if exclude and row["bench_task"] and row["bench_task"] in exclude:
+        return True
+    if C.EXCLUDE_SPLITS and row["split"] in C.EXCLUDE_SPLITS:
+        return True
+    k = row["problem_key"]
+    return bool(k and qnorm and k in qnorm)
+
+
+def read(task_id, query=None, k=8, db=None, exclude=None) -> list[dict]:
     """The broadcast for a task: most salient entries, this task first-class, other tasks down-weighted and gated.
-    Failures are negative memory: returned with avoid=True, and up to max(1, k // 4) of them are always kept."""
+    Failures are negative memory: returned with avoid=True, and up to max(1, k // 4) of them are always kept.
+    exclude: bench task ids whose derived entries must not be returned; entries derived from the problem in `query`
+    itself are always left out."""
     task_id = str(task_id)
     con = _connect(db)
     try:
@@ -370,6 +389,10 @@ def read(task_id, query=None, k=8, db=None) -> list[dict]:
         q = q / (np.linalg.norm(q) or 1.0)
     else:
         q = None
+    qnorm = C.norm_text(str(query)) if query else ""
+    exclude = set(exclude or ())
+    own = [r for r in own if not _hidden(r, qnorm, exclude)]
+    other = [r for r in other if not _hidden(r, qnorm, exclude)]
     now, items = time.time(), []
     for r in own:
         rel = 1.0 if q is None or not query else 0.5 + 0.5 * max(0.0, float(_vec(r) @ q))
@@ -392,7 +415,7 @@ def read(task_id, query=None, k=8, db=None) -> list[dict]:
     return (picked + rest)[:k]
 
 
-def search(text, field=None, k=3, low_confidence=False) -> list[dict]:
+def search(text, field=None, k=3, low_confidence=False, exclude=None) -> list[dict]:
     """Method cards for a problem (the shared card memory; see train/memory/search.py for the retrieval chain).
     Pass the full problem text: queries under 20 words return nothing unless low_confidence=True (then the hits are
     flagged band="low", expected_precision ~.25). Each dict has band and expected_precision."""
@@ -401,7 +424,7 @@ def search(text, field=None, k=3, low_confidence=False) -> list[dict]:
     return [{"id": c["id"], "task": c.get("task"), "field": c.get("field"), "score": round(s, 4), "text": c["text"],
              "content": c["text"], "source": "card", "provenance": "pipeline:grader", "verified": True,
              "pipeline_sig": c.get("pipeline_sig"), "band": c.get("band"), "expected_precision": c.get("expected_precision")}
-            for s, c in api.retrieve(str(text), field=field, k=k, low_confidence=low_confidence)]
+            for s, c in api.retrieve(str(text), field=field, k=k, low_confidence=low_confidence, exclude=exclude)]
 
 
 def observe(entry_ids, passed, db=None) -> None:
@@ -481,7 +504,7 @@ def _neighbours(con, cs: list[str], per: int = 5) -> set:
     return out
 
 
-def analogies(text, k=3, field=None, db=None) -> list[dict]:
+def analogies(text, k=3, field=None, db=None, exclude=None) -> list[dict]:
     """Cross-field analogy: the most relevant workspace entries and method cards from fields OTHER than the query's
     (inferred from the closest card when not given). Score = cosine x (1 + 0.5 x concept-graph overlap), where the
     query's concepts are expanded with their strongest co-occurring concepts in the workspace graph."""
@@ -498,12 +521,17 @@ def analogies(text, k=3, field=None, db=None) -> list[dict]:
                            "ORDER BY created DESC LIMIT ?", (field or "", MAX_OTHER_SCAN)).fetchall()
     finally:
         con.close()
+    qnorm, exclude = C.norm_text(str(text)), set(exclude or ())
+    rows = [r for r in rows if not _hidden(r, qnorm, exclude)]
     cand = []
     for r in rows:
         cos = float(_vec(r) @ q)
         if cos >= ANALOGY_MIN_COS:
             cand.append((cos, set(json.loads(r["concepts"] or "[]")), "ws", r))
     for i, c in enumerate(cards):
+        ck = c.get("problem_key") or C.problem_key(c.get("problem") or "")
+        if (ck and ck in qnorm) or c.get("task") in exclude or (C.EXCLUDE_SPLITS and c.get("split") in C.EXCLUDE_SPLITS):
+            continue
         if c.get("field") and c.get("field") != field:
             cos = float(vecs[i] @ q)
             if cos >= ANALOGY_MIN_COS:

@@ -59,6 +59,25 @@ def injections_path() -> Path:
     return MEM_DIR / "injections.jsonl"
 
 
+# Splits whose items are never returned (comma list, e.g. "held"): protects held-out evaluation done through live
+# sessions. Same-problem items are always excluded (see problem_key), whatever this says.
+EXCLUDE_SPLITS = frozenset(s.strip() for s in os.environ.get("MESH_MEMORY_EXCLUDE_SPLITS", "").split(",") if s.strip())
+PROBLEM_KEY_CHARS = 160
+
+
+def norm_text(text: str) -> str:
+    """Lowercase alphanumerics only - robust to whitespace, LaTeX spacing, punctuation and scrub placeholders."""
+    import re
+    return re.sub(r"[^a-z0-9]+", "", (text or "").lower())
+
+
+def problem_key(problem: str) -> str:
+    """Fingerprint of a solved problem: its first PROBLEM_KEY_CHARS normalised characters ("" if too short to be
+    distinctive). A query that CONTAINS this key is the same problem, so the item would leak its own answer."""
+    k = norm_text(problem)[:PROBLEM_KEY_CHARS]
+    return k if len(k) >= 40 else ""
+
+
 def approx_tokens(text: str) -> int:
     """Cheap token estimate (~4 chars per token for English/LaTeX), deliberately a little pessimistic."""
     return (len(text) + 3) // 4

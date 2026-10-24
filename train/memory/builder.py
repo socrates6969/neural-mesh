@@ -13,13 +13,35 @@ from . import trust
 
 
 def _tasks(bench: Path) -> dict:
-    out = {}
+    """task id -> bench row. An id that one bench file uses for DIFFERENT problems (physics.jsonl reuses jee-phy-N)
+    is ambiguous: a result row cannot be matched to its problem, so such ids are left out entirely."""
+    out, bad = {}, set()
     for p in sorted(bench.glob("*.jsonl")):
+        seen = {}
         for line in p.read_text(encoding="utf-8").splitlines():
             if line.strip():
                 t = json.loads(line)
+                if t["id"] in seen and C.norm_text(seen[t["id"]]) != C.norm_text(t["prompt"]):
+                    bad.add(t["id"])
+                seen.setdefault(t["id"], t["prompt"])
                 out.setdefault(t["id"], t)       # current bench files sort before *_vN_saturated archives
+    for b in bad:
+        out.pop(b, None)
     return out
+
+
+def ambiguous_ids(bench: Path | None = None) -> set:
+    bench = bench or (C.RUNS / "bench")
+    ids = set()
+    for p in sorted(bench.glob("*.jsonl")):
+        seen = {}
+        for line in p.read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                t = json.loads(line)
+                if t["id"] in seen and C.norm_text(seen[t["id"]]) != C.norm_text(t["prompt"]):
+                    ids.add(t["id"])
+                seen.setdefault(t["id"], t["prompt"])
+    return ids
 
 
 def _encode(texts):
@@ -53,8 +75,9 @@ def build(batches: list[str] | None = None, distill: str | None = None, migrate:
     if migrate:
         sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
         from .. import experience
+        amb = ambiguous_ids()
         for rec in experience.load()[0]:
-            if "card:" + rec["task"] in have:
+            if "card:" + rec["task"] in have or rec["task"] in amb:
                 continue
             c = K.make_card({"id": rec["task"], "prompt": rec["problem"], "field": rec.get("field")},
                             {"text": rec["solution"], "agent": rec.get("agent", "")}, distill=distill, batch="experience")
