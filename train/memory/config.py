@@ -32,7 +32,16 @@ LIVE_WORKSPACE_DB = NM / "data" / "lifelong" / "mesh" / "workspace.db"
 
 
 def under_test() -> bool:
-    return os.environ.get("MESH_TEST", "") == "1" or "PYTEST_CURRENT_TEST" in os.environ
+    """True inside any test run: MESH_TEST=1 (set by importing train/memory/tests, and inherited by subprocesses),
+    a pytest run (PYTEST_CURRENT_TEST, or pytest loaded), or a unittest/pytest command line. The last two catch
+    runners that never set PYTEST_CURRENT_TEST, e.g. `python -m unittest`."""
+    import sys
+    if os.environ.get("MESH_TEST", "") == "1" or "PYTEST_CURRENT_TEST" in os.environ:
+        return True
+    if "_pytest" in sys.modules:
+        return True
+    argv0 = " ".join(sys.argv[:1]).replace("\\", "/").lower()
+    return "unittest" in argv0 or "pytest" in argv0
 
 
 def guard_live(path) -> None:
