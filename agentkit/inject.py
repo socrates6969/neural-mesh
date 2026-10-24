@@ -10,7 +10,7 @@ from __future__ import annotations
 import os
 import re
 
-from . import protocol
+from . import protocol, trust
 
 BUDGET = int(os.environ.get("NEURAL_MESH_INJECT_TOKENS", "900") or 900)
 ITEM_CHARS = 320
@@ -30,13 +30,27 @@ def clean_block(text: str) -> str:
     return NL.join(ln for ln in lines if ln.strip())
 
 
+_UNSET = object()
+_key = _UNSET
+
+
+def set_key(key) -> None:
+    """Approval-signature key for trust checks (tests); None = no key (human approvals never verify)."""
+    global _key
+    _key = key
+
+
+def current_key():
+    global _key
+    if _key is _UNSET:
+        _key = trust.load_key(create=False)
+    return _key
+
+
 def verified_by(it: dict) -> str:
-    """Who vouches for an item. Only out-of-band pipelines and humans can verify; an agent's claim is labelled as such."""
-    if it.get("source") == "card":
-        return "grader (method card)"
-    if it.get("verified"):
-        return it.get("verified_by") or "pipeline-or-human"
-    return "unverified (agent claim)" if it.get("claimed_verified") else "unverified"
+    """Who vouches for an item: an allowlisted pipeline or a signature-checked human (agentkit/trust.py), else a
+    plainly labelled unverified state. There is no generic fallback."""
+    return trust.verified_by(it, current_key())
 
 
 def provenance(it: dict) -> str:

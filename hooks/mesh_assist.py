@@ -42,7 +42,7 @@ REGISTRY = os.environ.get("NEURAL_MESH_PACKS", os.path.join(ROOT, "data", "lifel
 MARK = "Knowledge from the neural mesh"
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
-from agentkit import inject, protocol  # noqa: E402
+from agentkit import inject, protocol, trust  # noqa: E402
 
 
 def field_of(text, fields):
@@ -131,8 +131,9 @@ def decide(data, registry, exp_fn=None, ws=None, sink=None, deadline=None):
         return bool(sid) and (i.get("scope") == "task" or (not i.get("scope") and i.get("task_id") == sid))
 
     def trusted(i):
-        """Cross-session trust: only pipeline/human-verified entries or grader-built method cards."""
-        return i.get("source") == "card" or i.get("verified") is True
+        """Cross-session trust (agentkit/trust.py): allowlisted pipeline verifiers, HMAC-signed human approvals, or
+        method cards with pipeline:grader provenance. Legacy verified=True rows without verified_by are untrusted."""
+        return trust.trusted(i, inject.current_key())
 
     def split_read():
         items = ws.read(sid or "-", query=query, k=8)
