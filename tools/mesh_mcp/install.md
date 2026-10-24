@@ -15,7 +15,10 @@ Lean 4 for `lean_check` (Lean v4.35.0 via elan v4.2.4, toolchain pinned to match
     docker build -f Dockerfile.mathlib -t meshtrain-lean:mathlib .   # optional: prebuilt Mathlib from its cache, several GB
 
 Built 2026-10-24: core 4.35 GB (927 MB compressed); mathlib 15.2 GB (3.5 GB compressed), cache download worked.
-A check that imports Mathlib takes about 1-3 minutes and 4 GB RAM; core-only checks take a few seconds.
+Measured: a bare `import Mathlib` (all 7.1 GB of oleans) takes 403-482 s at 6 GB / 2 CPUs (690 s at 4 GB / 1 CPU) and
+does not speed up on reuse; a targeted import (`import Mathlib.Analysis.SpecialFunctions.Pow.Real`) takes ~24 s;
+core-only checks take a few seconds. lean_check budgets: core 120 s (max 300), Mathlib modules 240 s / 4 GB
+(max 600), full Mathlib 600 s / 6 GB / 2 CPUs (max 900). The 6 GB run needs most of the 8 GB Docker VM.
 Lean is not installed on the Windows host; it only runs inside these Linux images.
 
 ## 2. Register for the user (all projects)

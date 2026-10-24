@@ -123,13 +123,29 @@ class ReportTest(unittest.TestCase):
             report.build("T", ["not", "a", "dict"], [])
 
 
+def _train_modules():
+    return {m: sys.modules[m] for m in list(sys.modules) if m == "train" or m.startswith("train.")}
+
+
 class WorkspaceTest(unittest.TestCase):
+    """Swaps fake backends in and out; restores sys.path and the real train.* modules for later suites."""
+
     def setUp(self):
+        self._path, self._mods, self._env = list(sys.path), _train_modules(), os.environ.get("MESH_WORKSPACE_ROOT")
         workspace_tools._mod = None
-        for m in [m for m in sys.modules if m == "train" or m.startswith("train.")]:
+        for m in self._mods:
             sys.modules.pop(m)
 
-    tearDown = setUp
+    def tearDown(self):
+        workspace_tools._mod = None
+        for m in _train_modules():
+            sys.modules.pop(m)
+        sys.modules.update(self._mods)
+        sys.path[:] = self._path
+        if self._env is None:
+            os.environ.pop("MESH_WORKSPACE_ROOT", None)
+        else:
+            os.environ["MESH_WORKSPACE_ROOT"] = self._env
 
     def test_not_available_message(self):
         # simulate an absent backend explicitly: the real one may be importable (e.g. on the integration branch)
@@ -148,13 +164,14 @@ class WorkspaceTest(unittest.TestCase):
         class Live:
             DB = T.LIVE_DB
         workspace_tools._mod = Live()
-        with self.assertRaises(T.LiveDatabaseError):
+        # match by message: under pytest this package may also be imported as mesh_mcp.tests (a second class)
+        with self.assertRaisesRegex(AssertionError, "refusing to run"):
             workspace_tools.workspace_read()
 
         class Elsewhere:
             DB = Path(tempfile.gettempdir()) / "other" / "workspace.db"
         workspace_tools._mod = Elsewhere()
-        with self.assertRaises(T.LiveDatabaseError):
+        with self.assertRaisesRegex(AssertionError, "refusing to run"):
             workspace_tools.workspace_stats()
     def test_wraps_api_and_defaults_task_id(self):
         with tempfile.TemporaryDirectory() as d:
@@ -239,6 +256,15 @@ class WorkspaceTest(unittest.TestCase):
 @unittest.skipUnless(os.environ.get("MESH_WORKSPACE_IT"), "set MESH_WORKSPACE_IT=<repo with train/memory/workspace.py>")
 class WorkspaceIntegrationTest(unittest.TestCase):
     """Against the real module, with a throwaway database and key."""
+
+    def setUp(self):
+        self._path, self._mods = list(sys.path), _train_modules()
+
+    def tearDown(self):
+        for m in _train_modules():
+            sys.modules.pop(m)
+        sys.modules.update(self._mods)
+        sys.path[:] = self._path
 
     def test_round_trip(self):
         workspace_tools._mod = None
