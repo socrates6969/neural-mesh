@@ -46,72 +46,131 @@ def agent_env(environ=None) -> list[str]:
     return sorted(k for k in env if k.upper() in AGENT_ENV_EXACT or k.upper().startswith(AGENT_ENV_PREFIX))
 
 
-def _parent_names_windows(pid: int, depth: int = 12) -> list[str]:
-    import ctypes
-    from ctypes import wintypes
+ROOT_PROCS = frozenset({"explorer.exe", "services.exe", "wininit.exe", "winlogon.exe", "smss.exe", "system",
+                        "svchost.exe", "sihost.exe", "userinit.exe", "init", "systemd", "launchd"})
+MAX_DEPTH = 64
 
-    class PE(ctypes.Structure):
-        _fields_ = [("dwSize", wintypes.DWORD), ("cntUsage", wintypes.DWORD), ("th32ProcessID", wintypes.DWORD),
-                    ("th32DefaultHeapID", ctypes.c_void_p), ("th32ModuleID", wintypes.DWORD),
-                    ("cntThreads", wintypes.DWORD), ("th32ParentProcessID", wintypes.DWORD),
-                    ("pcPriClassBase", ctypes.c_long), ("dwFlags", wintypes.DWORD), ("szExeFile", ctypes.c_wchar * 260)]
-    k32 = ctypes.windll.kernel32
-    snap = k32.CreateToolhelp32Snapshot(0x2, 0)
-    if snap in (-1, 0xFFFFFFFF, None):
-        raise OSError("snapshot failed")
-    procs = {}
-    try:
-        e = PE()
-        e.dwSize = ctypes.sizeof(PE)
-        ok = k32.Process32FirstW(snap, ctypes.byref(e))
-        while ok:
-            procs[e.th32ProcessID] = (e.th32ParentProcessID, e.szExeFile)
-            ok = k32.Process32NextW(snap, ctypes.byref(e))
-    finally:
-        k32.CloseHandle(snap)
-    names, cur, seen = [], pid, set()
-    for _ in range(depth):
-        if cur not in procs or cur in seen:
-            break
-        seen.add(cur)
-        ppid, _name = procs[cur]
-        if ppid in procs:
-            names.append(procs[ppid][1])
-        cur = ppid
-    return names
+_PS_PROCS = ("Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,Name,CommandLine | "
+             "ConvertTo-Json -Compress")
 
 
-def _parent_names_posix(pid: int, depth: int = 12) -> list[str]:
+def process_table() -> dict:
+    """{pid: (ppid, name, command line)} for every process (raises on failure; callers fail closed)."""
+    import json
     import subprocess
-    names, cur = [], pid
-    for _ in range(depth):
-        r = subprocess.run(["ps", "-o", "ppid=", "-p", str(cur)], capture_output=True, text=True, timeout=5)
-        ppid = int((r.stdout or "0").strip() or 0)
-        if ppid <= 1:
-            break
-        n = subprocess.run(["ps", "-o", "comm=", "-p", str(ppid)], capture_output=True, text=True, timeout=5)
-        names.append(os.path.basename((n.stdout or "").strip()))
+    if os.name == "nt":
+        r = subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", _PS_PROCS],
+                           capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30)
+        rows = json.loads(r.stdout)
+        rows = rows if isinstance(rows, list) else [rows]
+        return {int(x["ProcessId"]): (int(x["ParentProcessId"] or 0), str(x.get("Name") or ""),
+                                      str(x.get("CommandLine") or "")) for x in rows}
+    r = subprocess.run(["ps", "-A", "-o", "pid=,ppid=,comm=,args="], capture_output=True, text=True, timeout=30)
+    out = {}
+    for line in r.stdout.splitlines():
+        parts = line.split(None, 3)
+        if len(parts) >= 3:
+            out[int(parts[0])] = (int(parts[1]), os.path.basename(parts[2]), parts[3] if len(parts) > 3 else "")
+    if not out:
+        raise OSError("empty process table")
+    return out
+
+
+def ancestry(pid: int, table: dict) -> tuple[list[tuple[str, str]], bool]:
+    """([(name, command line)] of the ancestors, nearest first; complete). complete=False when the walk ends at a
+    vanished parent that is not a known root, loops, or exceeds MAX_DEPTH - callers then refuse (fail closed)."""
+    out, cur, seen = [], pid, {pid}
+    for _ in range(MAX_DEPTH):
+        if cur not in table:
+            return out, False
+        ppid, name, _cmd = table[cur]
+        if ppid in (0, 4) or (cur != pid and name.lower() in ROOT_PROCS):
+            return out, True
+        if ppid not in table:
+            return out, name.lower() in ROOT_PROCS
+        if ppid in seen:
+            return out, False
+        seen.add(ppid)
+        out.append((table[ppid][1], table[ppid][2]))
         cur = ppid
-    return names
+    return out, False
 
 
-def parent_names() -> list[str] | None:
-    """Names of the ancestor processes, or None when they cannot be determined (treated as a refusal)."""
+def current_ancestry():
+    """(ancestors, complete) for this process, or None when the process table cannot be read."""
     try:
-        return (_parent_names_windows if os.name == "nt" else _parent_names_posix)(os.getpid())
+        return ancestry(os.getpid(), process_table())
     except Exception:
         return None
 
 
-def agent_reasons(environ=None, parents=None) -> list[str]:
-    """Why this looks like an agent / Claude Code process ([] = looks like a human's own shell)."""
+def _agentlike(name: str, cmd: str) -> str | None:
+    n, c = (name or "").lower(), (cmd or "").lower()
+    if n in AGENT_PROCS:
+        return "parent process " + name
+    if n in ("node", "node.exe", "bun", "bun.exe", "deno", "deno.exe") and "claude" in c:
+        return "parent process %s running a claude CLI" % name
+    if "claude" in c:
+        return "parent process %s with claude in its command line" % name
+    return None
+
+
+def agent_reasons(environ=None, lineage=None) -> list[str]:
+    """Why this looks like an agent / Claude Code process ([] = looks like a human's own shell).
+    lineage: (ancestors, complete) as from ancestry(); None = inspect this process."""
     why = ["environment variable " + k for k in agent_env(environ)]
-    names = parent_names() if parents is None else parents
-    if names is None:
+    got = current_ancestry() if lineage is None else lineage
+    if got is None:
         why.append("parent processes could not be inspected")
-    else:
-        why += ["parent process " + n for n in names if n.lower() in AGENT_PROCS]
+        return why
+    ancestors, complete = got
+    for name, cmd in ancestors:
+        r = _agentlike(name, cmd)
+        if r:
+            why.append(r)
+    if not complete:
+        why.append("the parent-process chain ends early (cannot prove no agent is above this process)")
     return why
+
+
+_PS_HELLO = r"""
+$ErrorActionPreference = 'Stop'
+Add-Type -AssemblyName System.Runtime.WindowsRuntime
+$asTask = ([System.WindowsRuntimeSystemExtensions].GetMethods() | Where-Object { $_.Name -eq 'AsTask' -and
+  $_.GetParameters().Count -eq 1 -and $_.GetParameters()[0].ParameterType.Name -eq 'IAsyncOperation`1' })[0]
+function Await($op, [Type]$t) { $task = $asTask.MakeGenericMethod($t).Invoke($null, @($op)); [void]$task.Wait(-1); $task.Result }
+$null = [Windows.Security.Credentials.UI.UserConsentVerifier, Windows.Security.Credentials.UI, ContentType = WindowsRuntime]
+$a = Await ([Windows.Security.Credentials.UI.UserConsentVerifier]::CheckAvailabilityAsync()) ([Windows.Security.Credentials.UI.UserConsentVerifierAvailability])
+if ("$a" -ne 'Available') { Write-Output ("availability:" + $a); exit 0 }
+$r = Await ([Windows.Security.Credentials.UI.UserConsentVerifier]::RequestVerificationAsync($env:MESH_APPROVE_MSG)) ([Windows.Security.Credentials.UI.UserConsentVerificationResult])
+Write-Output ("result:" + $r)
+"""
+
+
+def parse_hello(out: str) -> str:
+    """'verified' | 'unavailable' | 'denied' | 'error' from the PowerShell script's last line."""
+    last = (out or "").strip().splitlines()[-1:] or [""]
+    line = last[0].strip()
+    if line.startswith("availability:"):
+        return "unavailable"
+    if line.startswith("result:"):
+        return "verified" if line.split(":", 1)[1].strip() == "Verified" else "denied"
+    return "error"
+
+
+def hello_verify(message: str) -> str:
+    """Windows Hello (UserConsentVerifier) prompt: 'verified', 'denied' (cancelled/failed), 'unavailable' (not
+    configured / not Windows), or 'error' (WinRT could not be reached)."""
+    if os.name != "nt":
+        return "unavailable"
+    import subprocess
+    try:
+        r = subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", _PS_HELLO], capture_output=True,
+                           text=True, encoding="utf-8", errors="replace", timeout=180,
+                           env=dict(os.environ, MESH_APPROVE_MSG=message[:200]))
+    except Exception:
+        return "error"
+    return parse_hello(r.stdout)
 
 
 def _interactive(stdin=None, stdout=None) -> bool:
@@ -136,12 +195,13 @@ def nonce(n: int = NONCE_LEN) -> str:
     return "".join(secrets.choice(NONCE_ALPHABET) for _ in range(n))
 
 
-def main(argv=None, ws=None, ask=input, stdin=None, stdout=None, environ=None, parents=None, key=None) -> int:
+def main(argv=None, ws=None, ask=input, stdin=None, stdout=None, environ=None, lineage=None, key=None,
+         hello=hello_verify) -> int:
     argv = sys.argv[1:] if argv is None else argv
     if len(argv) != 1 or argv[0] in ("-h", "--help"):
         print(__doc__.strip())
         return 2
-    why = agent_reasons(environ, parents)
+    why = agent_reasons(environ, lineage)
     if why:
         print("refusing: this looks like an agent or Claude Code process (%s). Run it in your own terminal."
               % ", ".join(why), file=sys.stderr)
@@ -173,14 +233,23 @@ def main(argv=None, ws=None, ask=input, stdin=None, stdout=None, environ=None, p
     if e.get("verified") and trust.trusted(e, key):
         print("\nalready verified (by %s); nothing changed." % sanitize(e.get("verified_by"))[0])
         return 0
-    code = nonce()
-    try:
-        answer = ask("\nTo mark this entry verified, type this code: %s (anything else cancels): " % code)
-    except (EOFError, KeyboardInterrupt):
-        answer = ""
-    if answer.strip() != code:
-        print("cancelled; nothing changed.")
+    state = hello("Approve workspace entry %s as verified" % sanitize(entry_id)[0])
+    if state == "verified":
+        print("Windows Hello: verified.")
+    elif state == "denied":
+        print("Windows Hello verification failed or was cancelled; nothing changed.")
         return 1
+    else:
+        if state == "error":
+            print("(Windows Hello could not be reached; falling back to a typed code.)")
+        code = nonce()
+        try:
+            answer = ask("\nTo mark this entry verified, type this code: %s (anything else cancels): " % code)
+        except (EOFError, KeyboardInterrupt):
+            answer = ""
+        if answer.strip() != code:
+            print("cancelled; nothing changed.")
+            return 1
     by = "human:" + (getpass.getuser() or "unknown")
     sig = trust.sign(dict(e, id=entry_id if e.get("id") in (None, "") else e.get("id")), by, key)
     ok = ws.approve(entry_id, by=by, approval_sig=sig)

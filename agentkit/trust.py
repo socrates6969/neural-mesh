@@ -1,12 +1,15 @@
-"""Trust rules for Global Workspace entries: who may vouch for an entry and how a human approval is proven.
+"""Trust rules for Global Workspace entries: who may vouch for an entry and how that is proven.
 
-verified_by allowlist:
-  * "pipeline:<name>" for names in PIPELINES only (out-of-band pipelines that post grader-verified results);
-  * "human:<user>" only with a valid approval_sig: HMAC-SHA256, keyed with ~/.claude/mesh-approve.key, over the entry's
-    id, task, agent, kind, content and verified_by (so an edited entry or a copied signature does not verify).
-Everything else is untrusted: no verified_by, unknown pipelines, unsigned or wrongly signed human approvals, and legacy
-verified=True rows. A missing or malformed key fails closed (no human approval verifies, approve refuses).
-Method cards are trusted only when their provenance is "pipeline:grader".
+verified_by allowlist (anything else is untrusted across sessions):
+  * "pipeline:<name>" for names in PIPELINES, only with a valid pipeline_sig: HMAC-SHA256 keyed with
+    ~/.claude/mesh-pipeline.key, written by the trusted writers (train.memory.ingest_training, the card builder) over
+    task_id|agent|kind|content|verified_by of the STORED (scrubbed) entry - see pipeline_sign_entry();
+  * "human:<user>" only with a valid approval_sig: HMAC-SHA256 keyed with ~/.claude/mesh-approve.key over
+    id|task_id|agent|kind|content|verified_by (agentkit.approve writes it after a human-presence check);
+  * method cards (source="card") only with provenance "pipeline:grader" AND a valid pipeline_sig over
+    card id|field|text (pipeline_sign_card()).
+No verified_by, unknown pipelines, unsigned or wrongly signed rows are untrusted. Missing or malformed keys fail
+closed. Threat model and limits: agentkit/SECURITY.md (same-user code execution can read these keys).
 """
 from __future__ import annotations
 
@@ -20,10 +23,15 @@ from pathlib import Path
 PIPELINES = frozenset({"pipeline:grader"})
 CARD_PROVENANCE = "pipeline:grader"
 KEY_BYTES = 32
+SEP = "\x1f"
 
 
 def key_path() -> Path:
     return Path(os.environ.get("NEURAL_MESH_APPROVE_KEY", str(Path.home() / ".claude" / "mesh-approve.key")))
+
+
+def pipeline_key_path() -> Path:
+    return Path(os.environ.get("NEURAL_MESH_PIPELINE_KEY", str(Path.home() / ".claude" / "mesh-pipeline.key")))
 
 
 def _restrict_owner_only(p: Path) -> None:
@@ -40,9 +48,8 @@ def _restrict_owner_only(p: Path) -> None:
         os.chmod(p, 0o600)
 
 
-def load_key(create: bool = False) -> bytes | None:
-    """The approval key, or None (missing/malformed). create=True makes it atomically (O_EXCL) and owner-only."""
-    p = key_path()
+def _load(p: Path, create: bool) -> bytes | None:
+    """A 32-byte key, or None (missing/malformed). create=True makes it atomically (O_EXCL) and owner-only."""
     try:
         k = p.read_bytes()
         return k if len(k) == KEY_BYTES else None
@@ -56,7 +63,7 @@ def load_key(create: bool = False) -> bytes | None:
     try:
         fd = os.open(str(p), os.O_CREAT | os.O_EXCL | os.O_WRONLY | getattr(os, "O_BINARY", 0), 0o600)
     except FileExistsError:                      # another process won the race: use its key
-        return load_key(create=False)
+        return _load(p, create=False)
     try:
         with os.fdopen(fd, "wb") as fh:
             fh.write(k)
@@ -72,14 +79,25 @@ def load_key(create: bool = False) -> bytes | None:
     return k
 
 
-def _msg(entry: dict, by: str) -> bytes:
-    parts = [str(entry.get("id") or ""), str(entry.get("task_id") or ""), str(entry.get("agent") or ""),
-             str(entry.get("kind") or ""), str(entry.get("content") or ""), by]
-    return "\x1f".join(parts).encode("utf-8")
+def load_key(create: bool = False) -> bytes | None:
+    """The human-approval key (~/.claude/mesh-approve.key)."""
+    return _load(key_path(), create)
 
 
+def load_pipeline_key(create: bool = False) -> bytes | None:
+    """The pipeline key (~/.claude/mesh-pipeline.key); only trusted writers create it (create=True)."""
+    return _load(pipeline_key_path(), create)
+
+
+def _mac(key: bytes, parts) -> str:
+    return hmac.new(key, SEP.join(str(p if p is not None else "") for p in parts).encode("utf-8"),
+                    hashlib.sha256).hexdigest()
+
+
+# --- human approvals ---------------------------------------------------------------------------------------------
 def sign(entry: dict, by: str, key: bytes) -> str:
-    return hmac.new(key, _msg(entry, by), hashlib.sha256).hexdigest()
+    return _mac(key, (entry.get("id"), entry.get("task_id"), entry.get("agent"), entry.get("kind"),
+                      entry.get("content"), by))
 
 
 def human_ok(entry: dict, key: bytes | None) -> bool:
@@ -90,23 +108,53 @@ def human_ok(entry: dict, key: bytes | None) -> bool:
     return hmac.compare_digest(sig, sign(entry, by, key))
 
 
-def trusted(entry: dict, key: bytes | None = None) -> bool:
+# --- pipeline writers (train.memory.ingest_training, the card builder) --------------------------------------------
+def pipeline_sign_entry(task_id, agent, kind, content, verified_by, key: bytes) -> str:
+    """pipeline_sig for a workspace entry; `content` must be the text as STORED (after scrubbing)."""
+    return _mac(key, ("entry", task_id, agent, kind, content, verified_by))
+
+
+def pipeline_sign_card(card_id, field, text, key: bytes) -> str:
+    """pipeline_sig for a method card (id as served, e.g. "card:..."; text as served)."""
+    return _mac(key, ("card", card_id, field, text, CARD_PROVENANCE))
+
+
+def _sig_ok(sig, want) -> bool:
+    return isinstance(sig, str) and bool(sig) and hmac.compare_digest(sig, want)
+
+
+def pipeline_ok(entry: dict, pkey: bytes | None) -> bool:
+    if not pkey:
+        return False
+    sig = entry.get("pipeline_sig")
+    if entry.get("source") == "card":
+        if (entry.get("provenance") or entry.get("verified_by")) != CARD_PROVENANCE:
+            return False
+        return _sig_ok(sig, pipeline_sign_card(entry.get("id"), entry.get("field"), entry.get("content"), pkey))
+    by = str(entry.get("verified_by") or "")
+    if by not in PIPELINES:
+        return False
+    return _sig_ok(sig, pipeline_sign_entry(entry.get("task_id"), entry.get("agent"), entry.get("kind"),
+                                            entry.get("content"), by, pkey))
+
+
+def trusted(entry: dict, key: bytes | None = None, pipeline_key: bytes | None = None) -> bool:
     """May this entry cross a session boundary (be shown to agents of other sessions)?"""
     if entry.get("source") == "card":
-        return (entry.get("provenance") or entry.get("verified_by")) == CARD_PROVENANCE
+        return pipeline_ok(entry, pipeline_key)
     if entry.get("verified") is not True:
         return False
     by = str(entry.get("verified_by") or "")
     if by in PIPELINES:
-        return True
+        return pipeline_ok(entry, pipeline_key)
     return human_ok(entry, key)
 
 
-def verified_by(entry: dict, key: bytes | None = None) -> str:
-    """Display label; only an allowlisted, checkable voucher is shown as a verifier."""
+def verified_by(entry: dict, key: bytes | None = None, pipeline_key: bytes | None = None) -> str:
+    """Display label; only an allowlisted voucher with a valid signature is shown as a verifier."""
     if entry.get("source") == "card":
-        return CARD_PROVENANCE if trusted(entry, key) else "unverified (card without grader provenance)"
-    if trusted(entry, key):
+        return CARD_PROVENANCE if trusted(entry, key, pipeline_key) else "unverified (card without valid grader signature)"
+    if trusted(entry, key, pipeline_key):
         return str(entry.get("verified_by"))
     if entry.get("verified") is True:
         return "unverified (unrecognized or unsigned verifier)"

@@ -119,6 +119,7 @@ def item(x) -> dict | None:
             "sources": [str(v) for v in x.get("sources") or [] if v] if isinstance(x.get("sources"), list) else [],
             "source": str(x.get("source") or ""), "verified_by": str(x.get("verified_by") or ""),
             "approval_sig": str(x.get("approval_sig") or ""), "provenance": str(x.get("provenance") or ""),
+            "pipeline_sig": str(x.get("pipeline_sig") or ""), "relevance": _num(x.get("relevance")),
             "claimed_verified": x.get("claimed_verified") is True or tagged}
 
 
