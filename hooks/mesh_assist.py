@@ -143,6 +143,7 @@ def decide(data, registry, exp_fn=None, ws=None, sink=None, deadline=None):
             others = [i for i in rest if i.get("scope") == "other"] + inject.relevant(
                 [i for i in rest if not i.get("scope")], query)
         return {"workspace": inject.rank([i for i in own if not i.get("avoid")]),
+                # dead ends come from THIS session only; other sessions' failures are raw captured output
                 "dead_ends": inject.rank([i for i in own if i.get("avoid")]),
                 "others": inject.rank(others)}
 

@@ -12,7 +12,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, ROOT)
 from hooks import mesh_assist as ma  # noqa: E402
-from agentkit import protocol  # noqa: E402
+from agentkit import inject, protocol  # noqa: E402
 
 _P = "Verify with a brute force."
 _KEY = b"test-key-0123456789"
@@ -160,7 +160,7 @@ class MeshAssistTest(unittest.TestCase):
         self.assertIn("session S2 / agent x / verified-by grader", p)
         self.assertIn("session S1 / agent researcher / verified-by pipeline-or-human", p)
         self.assertIn("UNTRUSTED", p)
-        self.assertIn("[provenance: method cards built from grader-verified training results]", p)
+        self.assertIn(inject.CARDS_HEADER + "\n> Shared memory - method cards\n> [1] use Fermat", p)
         self.assertIn("Known dead ends", p)
         self.assertIn("[f1]", p)
         self.assertLess(p.index("[w1]"), p.index("[f1]"))
@@ -169,6 +169,33 @@ class MeshAssistTest(unittest.TestCase):
         self.assertIn(("read", "S1"), ws.calls)
         self.assertLess(p.index("Global Workspace"), p.index("---\n\nsolve"))
         self.assertLessEqual(protocol.approx_tokens(p.split("\n\n---\n\n")[0]), 900)
+
+    def test_dead_ends_only_from_this_session(self):
+        items = [{"id": "f1", "kind": "failure", "agent": "a", "content": "own failure: brute force timed out",
+                  "verified": False, "task_id": "S1", "avoid": True},
+                 {"id": "f2", "kind": "failure", "agent": "b", "content": "other session failure, unverified",
+                  "verified": False, "task_id": "S2", "avoid": True},
+                 {"id": "f3", "kind": "failure", "agent": "c", "content": "other session failure, verified",
+                  "verified": True, "task_id": "S3", "avoid": True}]
+        p = new_prompt(ma.decide(payload("coder", "fix the brute force timeout", sid="S1"), {}, ws=StubWS(items)))
+        self.assertIn("[f1]", p)
+        self.assertNotIn("[f2]", p)
+        self.assertNotIn("[f3]", p)
+        dead = p[p.index("Known dead ends"):]
+        self.assertIn("session S1", dead.split("\n\n")[0])
+
+    def test_other_session_items_must_pass_relevance_when_unscored(self):
+        class NoScope(StubWS):
+            def read(self, task_id, query=None, k=8):
+                return [dict(i) for i in self.items]
+        items = [{"id": "r1", "kind": "fact", "agent": "b", "content": "postgres index tuning lowered query latency",
+                  "verified": True, "task_id": "S2"},
+                 {"id": "r2", "kind": "fact", "agent": "b", "content": "banana bread recipe", "verified": True,
+                  "task_id": "S2"}]
+        p = new_prompt(ma.decide(payload("coder", "optimize the postgres index for this query", sid="S1"), {},
+                                 ws=NoScope(items)))
+        self.assertIn("[r1]", p)
+        self.assertNotIn("[r2]", p)
 
     def test_cross_session_off_and_unverified_others(self):
         items = [{"id": "w1", "kind": "fact", "agent": "a", "content": "own note", "verified": False, "task_id": "S1"},

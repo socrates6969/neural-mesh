@@ -99,10 +99,16 @@ def method_cards(task: dict) -> str:
         return ""
     try:
         from train.memory import client
-        return client.lookup(task["prompt"], field=task.get("field"), k=2, exclude={task["id"]}, log_task=task["id"],
-                             timeout=10.0) or ""
+        raw = client.lookup(task["prompt"], field=task.get("field"), k=2, exclude={task["id"]}, log_task=task["id"],
+                            timeout=10.0) or ""
     except Exception:
         return ""
+    try:
+        from agentkit import inject
+    except ImportError:
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+        from agentkit import inject
+    return inject.frame_cards(raw)            # same fixed framing and cleaning as the live hook
 
 
 def build_prompt(task: dict, pack: str | None) -> str:
