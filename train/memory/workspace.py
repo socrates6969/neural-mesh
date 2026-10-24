@@ -21,10 +21,14 @@ claimed_verified=True, verified=False - a display-only, unchecked claim. Only ou
 human approval CLI) may pass verified_by; tool wrappers exposed to agents must not forward it.
 
 Everything is scrubbed with ingest.scrub; content with a SECRET-class hit is dropped (post returns None).
-Optional encryption: MESH_WORKSPACE_ENCRYPT=1 encrypts content with AES-GCM; the key lives in
-~/.claude/mesh-workspace.key (created atomically, owner-only). It fails closed: if the key cannot be created, read or
-restricted, post raises instead of writing plaintext. Embeddings and concept keywords stay unencrypted so retrieval
-keeps working; they reveal topics, not the text.
+Optional encryption: MESH_WORKSPACE_ENCRYPT=1 encrypts, with AES-GCM and the key in ~/.claude/mesh-workspace.key
+(created atomically, owner-only): the content, the embedding vector and the concept keywords of every new entry.
+Vectors and concepts are decrypted in-process at query time (decrypted vectors are cached per process). The concept
+graph tables (concepts, edges) hold keyed blind tokens HMAC(subkey, concept) instead of words, so co-occurrence
+expansion still joins equal concepts without revealing them. Retrieval results are identical to an unencrypted
+workspace. It fails closed: a missing/unreadable/unrestrictable key makes post raise (nothing is written in
+plaintext), and an entry whose content or vector cannot be decrypted is never returned. (Gaussian noise on the
+embeddings was rejected: noise small enough to keep the gates leaves cosine >= .93 to the clean vector.)
 """
 from __future__ import annotations
 
@@ -204,6 +208,39 @@ def _seal(plain: str, aad: str) -> str:
     return base64.b64encode(nonce + ct).decode("ascii")
 
 
+_ENC_VEC = b"E1"
+_ENC_TXT = "E1:"
+_vec_cache: dict = {}
+_VEC_CACHE_MAX = 50000
+
+
+def _seal_bytes(data: bytes, aad: str) -> bytes:
+    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+    nonce = secrets.token_bytes(12)
+    return _ENC_VEC + nonce + AESGCM(_key(create=True)).encrypt(nonce, data, aad.encode("utf-8"))
+
+
+def _open_bytes(blob: bytes, aad: str) -> bytes:
+    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+    return AESGCM(_key(create=False)).decrypt(blob[2:14], blob[14:], aad.encode("utf-8"))
+
+
+def _concept_token(c: str, key: bytes | None) -> str:
+    """Graph token of a concept: the word itself, or (encrypted workspace) a keyed blind token."""
+    if key is None:
+        return c
+    import hashlib
+    import hmac as _h
+    sub = _h.new(key, b"mesh-workspace concept-index v1", hashlib.sha256).digest()
+    prefix = "f:" if c.startswith("field:") else "h:"               # field tokens stay recognisable (not their name)
+    return prefix + _h.new(sub, c.encode("utf-8"), hashlib.sha256).hexdigest()[:32]
+
+
+def _token_key() -> bytes | None:
+    """The key that selects the graph token space: present iff encryption is on (fails closed if it is unusable)."""
+    return _key(create=True) if _encrypt_on() else None
+
+
 def _open(blob: str, aad: str) -> str:
     from cryptography.hazmat.primitives.ciphers.aead import AESGCM
     raw = base64.b64decode(blob)
@@ -241,9 +278,14 @@ def post(task_id, agent, kind, content, confidence=0.5, verified=False, sources=
     task_id, agent = str(task_id), _scrub(str(agent or "")).text[:120]
     cs = concepts(text, field)
     vec = np.asarray(_embed([text])[0], dtype=np.float32).tobytes()
-    stored, enc = text, 0
-    if _encrypt_on():
-        stored, enc = _seal(text, task_id + "|" + kind), 1          # raises (fails closed) on any key/cipher problem
+    stored, enc, cs_stored, tkey = text, 0, json.dumps(cs), None
+    if _encrypt_on():                                                # raises (fails closed) on any key/cipher problem
+        aad = task_id + "|" + kind
+        stored, enc = _seal(text, aad), 1
+        vec = _seal_bytes(vec, aad + "|vec")
+        cs_stored = _ENC_TXT + _seal(cs_stored, aad + "|concepts")
+        tkey = _key(create=False)
+    toks = [_concept_token(c, tkey) for c in cs]
     conf = float(min(1.0, max(0.0, confidence)))
     vby = str(verified_by) if verified_by else None
     trusted = bool(verified) and bool(vby) and vby.startswith(TRUSTED_PREFIXES)
@@ -266,7 +308,7 @@ def post(task_id, agent, kind, content, confidence=0.5, verified=False, sources=
                           "created, concepts, vec, claimed_verified, verified_by, approval_sig, ext_key, bench_task, split, "
                           "problem_key) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                           (task_id, agent, kind, field, stored, enc, conf, int(trusted), json.dumps(src), time.time(),
-                           json.dumps(cs), vec, int(claimed), vby if trusted else None,
+                           cs_stored, vec, int(claimed), vby if trusted else None,
                            str(approval_sig) if (trusted and approval_sig) else None,
                            str(ext_key) if ext_key is not None else None, bench_task, split,
                            C.problem_key(_scrub(problem).text) if problem else None))
@@ -275,8 +317,8 @@ def post(task_id, agent, kind, content, confidence=0.5, verified=False, sources=
             from . import trust
             con.execute("UPDATE entries SET pipeline_sig = ? WHERE id = ?",
                         (trust.sign_entry(eid, task_id, agent, kind, text, vby, pkey), eid))
-        con.executemany("INSERT OR IGNORE INTO concepts (entry_id, concept) VALUES (?,?)", [(eid, c) for c in cs])
-        pairs = sorted({(a, b) for a in cs for b in cs if a < b})
+        con.executemany("INSERT OR IGNORE INTO concepts (entry_id, concept) VALUES (?,?)", [(eid, c) for c in toks])
+        pairs = sorted({(a, b) for a in toks for b in toks if a < b})
         con.executemany("INSERT INTO edges (a, b, w) VALUES (?,?,1) ON CONFLICT(a, b) DO UPDATE SET w = w + 1", pairs)
         con.execute("COMMIT")
         return eid
@@ -354,8 +396,34 @@ def approve(entry_id, by="human", sig=None, db=None, approval_sig=None) -> bool:
     return n == 1
 
 
-def _vec(row) -> np.ndarray:
-    return np.frombuffer(row["vec"], dtype=np.float32) if row["vec"] else np.zeros(DIM, np.float32)
+def _vec(row) -> np.ndarray | None:
+    """The entry's embedding; decrypted (and cached) for encrypted rows; None if it cannot be decrypted."""
+    b = row["vec"]
+    if not b:
+        return np.zeros(DIM, np.float32)
+    if len(b) == DIM * 4:
+        return np.frombuffer(b, dtype=np.float32)
+    hit = _vec_cache.get(row["id"])
+    if hit is not None and hit[0] == b:
+        return hit[1]
+    try:
+        v = np.frombuffer(_open_bytes(bytes(b), row["task_id"] + "|" + row["kind"] + "|vec"), dtype=np.float32)
+    except Exception:
+        return None
+    if len(_vec_cache) >= _VEC_CACHE_MAX:
+        _vec_cache.clear()
+    _vec_cache[row["id"]] = (b, v)
+    return v
+
+
+def _row_concepts(row) -> list[str]:
+    raw = row["concepts"] or "[]"
+    if raw.startswith(_ENC_TXT):
+        try:
+            raw = _open(raw[len(_ENC_TXT):], row["task_id"] + "|" + row["kind"] + "|concepts")
+        except Exception:
+            return []
+    return json.loads(raw)
 
 
 def _hidden(row, qnorm: str, exclude) -> bool:
@@ -382,6 +450,8 @@ def read(task_id, query=None, k=8, db=None, exclude=None) -> list[dict]:
                             "LIMIT ?", (task_id, MAX_OTHER_SCAN)).fetchall()
     finally:
         con.close()
+    own = [r for r in own if _vec(r) is not None]                   # undecryptable entries are never broadcast
+    other = [r for r in other if _vec(r) is not None]
     if query:
         q = np.asarray(_embed([str(query)])[0], dtype=np.float32)
     elif own:
@@ -494,13 +564,19 @@ def compress(task_id, keep=8, db=None):
     return sid
 
 
-def _neighbours(con, cs: list[str], per: int = 5) -> set:
-    out = set(cs)
-    for c in cs:
-        for r in con.execute("SELECT b AS n, w FROM edges WHERE a = ? UNION ALL SELECT a AS n, w FROM edges WHERE b = ? "
-                             "ORDER BY w DESC LIMIT ?", (c, c, per)):
-            if not r["n"].startswith("field:"):
-                out.add(r["n"])
+def _neighbours(con, toks: list[str], per: int = 5) -> set:
+    """Tokens plus their strongest co-occurring tokens: every neighbour whose weight is >= the per-th largest weight
+    (tie-inclusive, so the result does not depend on how ties are ordered - encrypted and plain runs agree)."""
+    out = set(toks)
+    for c in toks:
+        rows = con.execute("SELECT b AS n, w FROM edges WHERE a = ? UNION ALL SELECT a AS n, w FROM edges WHERE b = ?",
+                           (c, c)).fetchall()
+        rows = [r for r in rows if not r["n"].startswith(("field:", "f:"))]
+        if not rows:
+            continue
+        ws = sorted((r["w"] for r in rows), reverse=True)
+        cut = ws[min(per, len(ws)) - 1]
+        out.update(r["n"] for r in rows if r["w"] >= cut)
     return out
 
 
@@ -514,9 +590,11 @@ def analogies(text, k=3, field=None, db=None, exclude=None) -> list[dict]:
     if field is None and len(cards):
         field = cards[int(np.argmax(vecs @ q))].get("field")
     qc = [c for c in concepts(str(text)) if not c.startswith("field:")]
+    tkey = _token_key()
+    tok = lambda c: _concept_token(c, tkey)                         # one token space per workspace mode
     con = _connect(db)
     try:
-        expanded = _neighbours(con, qc)
+        expanded = _neighbours(con, [tok(c) for c in qc])
         rows = con.execute("SELECT * FROM entries WHERE superseded_by IS NULL AND field IS NOT NULL AND field != ? "
                            "ORDER BY created DESC LIMIT ?", (field or "", MAX_OTHER_SCAN)).fetchall()
     finally:
@@ -525,9 +603,12 @@ def analogies(text, k=3, field=None, db=None, exclude=None) -> list[dict]:
     rows = [r for r in rows if not _hidden(r, qnorm, exclude)]
     cand = []
     for r in rows:
-        cos = float(_vec(r) @ q)
+        v = _vec(r)
+        if v is None:
+            continue
+        cos = float(v @ q)
         if cos >= ANALOGY_MIN_COS:
-            cand.append((cos, set(json.loads(r["concepts"] or "[]")), "ws", r))
+            cand.append((cos, {tok(c) for c in _row_concepts(r) if not c.startswith("field:")}, "ws", r))
     for i, c in enumerate(cards):
         ck = c.get("problem_key") or C.problem_key(c.get("problem") or "")
         if (ck and ck in qnorm) or c.get("task") in exclude or (C.EXCLUDE_SPLITS and c.get("split") in C.EXCLUDE_SPLITS):
@@ -535,10 +616,11 @@ def analogies(text, k=3, field=None, db=None, exclude=None) -> list[dict]:
         if c.get("field") and c.get("field") != field:
             cos = float(vecs[i] @ q)
             if cos >= ANALOGY_MIN_COS:
-                cand.append((cos, set(concepts(c.get("text", ""))), "card", c))
+                cand.append((cos, {tok(x) for x in concepts(c.get("text", "")) if not x.startswith("field:")}, "card", c))
     out = []
+    qtok = {tok(c): c for c in qc}
     for cos, cs, src, obj in cand:
-        shared = (cs - {x for x in cs if x.startswith("field:")}) & expanded
+        shared = cs & expanded
         bridge = len(shared) / max(1, len(expanded))
         score = cos * (1 + 0.5 * bridge)
         if src == "ws":
@@ -558,7 +640,8 @@ def analogies(text, k=3, field=None, db=None, exclude=None) -> list[dict]:
             item.update(agent=obj.get("agent"), confidence=1.0, verified=True, verified_by="pipeline:grader",
                         claimed_verified=False, provenance="pipeline:grader", approval_sig=None,
                         pipeline_sig=obj.get("pipeline_sig"), task=obj.get("task"), text=obj.get("text"))
-        item.update(score=round(score, 4), relevance=round(cos, 4), concepts=sorted(shared), query_field=field)
+        item.update(score=round(score, 4), relevance=round(cos, 4), query_field=field,
+                    concepts=sorted(qtok[t] for t in shared if t in qtok))      # shared QUERY concepts (both modes)
         out.append(item)
     out.sort(key=lambda d: -d["score"])
     return out[:k]

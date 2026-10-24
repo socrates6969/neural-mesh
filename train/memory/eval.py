@@ -258,3 +258,64 @@ def at_gate(pairs: list, gate: float, skip_field: str = "neural-networks") -> di
     sel = [r for s, r, _ in ps if s >= gate]
     return {"gate": gate, "precision": round(sum(sel) / len(sel), 3) if sel else None,
             "coverage": round(len(sel) / max(1, len(ps)), 3), "n": len(ps)}
+
+
+def graph_eval(variants=None, log=print) -> dict:
+    """Graph-RAG experiment (train/memory/graph.py): hybrid 2:1 candidates re-ranked by concept-graph overlap vs the
+    plain hybrid, on the strong-label queries (own card excluded, graph leave-one-out). Per field at the per-field
+    gates: precision, coverage, F0.5 with recall = TP / queries (one denominator for all variants); paired MRR."""
+    from .. import experience
+    from . import graph as G
+    variants = variants or {"base": None, "g1_l0.5": (1, 0.5), "g2_l0.5": (2, 0.5), "g1_l1": (1, 1.0), "g2_l1": (2, 1.0)}
+    lab = strong_labels()
+    cards, _ = store.load()
+    enc = experience.encoder()
+    texts = [store.index_text(c) for c in cards]
+    idx = search.Index(cards, enc.encode(texts), texts)
+    cg = G.CardGraph(cards)
+    by_task = {c["task"]: i for i, c in enumerate(cards)}
+    tasks = {t["id"]: t for f in {c["field"] for c in cards} for t in _bench(f) if t["id"] in lab}
+    qids = _sample(tasks, 200)
+    qv = enc.encode([tasks[q]["prompt"][:C.MAX_PROBLEM] for q in qids])
+    card_lab = [lab.get(c["task"], frozenset()) for c in cards]
+    res = {v: {"first": {}, "pairs": []} for v in variants}
+    for qi, q in enumerate(qids):
+        t = tasks[q]
+        avail = idx.mask(t["field"], {q}) & ~idx.same_problem(t["prompt"])
+        rel = {i for i in np.flatnonzero(avail) if card_lab[i] & labels_of(lab, q)}
+        if not rel:
+            continue
+        cand = idx.candidates(t["prompt"], qv[qi], avail, "hybrid", dense_w=search.HYBRID_DENSE_W)[:50]
+        qc = G.card_concepts({"problem": t["prompt"]})
+        cg.leave_out(by_task.get(q))
+        for v, hp in variants.items():
+            order = cand if hp is None else G.rerank(cand, G.expand(qc, cg, hops=hp[0]), lambda i: cg.cc[i], lam=hp[1])
+            ids = [i for i, _, _ in order][:10]
+            res[v]["first"][q] = next((r for r, i in enumerate(ids, 1) if i in rel), 0)
+            if order:
+                res[v]["pairs"].append((order[0][2], order[0][0] in rel, t["field"]))
+        cg.leave_out(None)
+    out = {}
+    for v in variants:
+        per = {}
+        for f in sorted({p[2] for p in res[v]["pairs"]}):
+            ps = [p for p in res[v]["pairs"] if p[2] == f]
+            g = search.FIELD_GATES.get(f, search.DEFAULT_FIELD_GATE)[0]
+            sel = [r for sc, r, _ in ps if sc >= g]
+            tp = sum(sel)
+            P, R = (tp / len(sel) if sel else 0.0), tp / len(ps)
+            per[f] = {"gate": g, "precision": round(P, 3), "coverage": round(len(sel) / len(ps), 3),
+                      "f05": round(1.25 * P * R / (0.25 * P + R), 3) if P + R else 0.0, "n": len(ps)}
+        out[v] = {"fields": per, "mrr_exNN": round(float(np.mean([1 / x if x else 0 for q, x in res[v]["first"].items()
+                                                                  if tasks[q]["field"] != "neural-networks"])), 3)}
+        log("%-9s %s mrr_exNN %.3f" % (v, " ".join("%s P%.3f c%.3f F%.3f" % (f[:6], m["precision"], m["coverage"], m["f05"])
+                                                  for f, m in per.items()), out[v]["mrr_exNN"]))
+    nn = {q: tasks[q]["field"] != "neural-networks" for q in tasks}
+    R = {"both/" + v: {"first": res[v]["first"]} for v in variants}
+    out["paired_vs_base_exNN"] = {v: paired(R, "both/base", "both/" + v, nn) for v in variants if v != "base"}
+    log(json.dumps(out["paired_vs_base_exNN"]))
+    return out
+
+
+def labels_of(lab: dict, q: str):
+    return lab[q]
