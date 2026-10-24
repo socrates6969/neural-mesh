@@ -353,6 +353,72 @@ class WorkspaceTest(unittest.TestCase):
         self.assertIsNone(mapper({"task": "unknown", "passed": True, "text": "x"}))
         self.assertIsNone(builder.legacy_remapper({"x": {"id": "x", "prompt": "y"}}))
 
+    _POSTS = [("t1", "a", "method", "binary search on the answer with a monotone feasibility predicate", "coding"),
+              ("t1", "b", "failure", "greedy by deadline fails when penalties differ wildly", "coding"),
+              ("t2", "c", "result", "the invariant parity of the token count decides the game", "math"),
+              ("t3", "d", "fact", "energy conservation gives the speed at the bottom of the incline", "physics"),
+              ("t3", "e", "method", "conserved quantity invariant stays constant along the motion", "physics"),
+              ("t4", "f", "plan", "prove the parity invariant first, then check small cases by brute force", "math")]
+
+    def _fill(self, db, encrypt):
+        from unittest import mock
+        if encrypt:
+            os.environ["MESH_WORKSPACE_ENCRYPT"] = "1"
+        else:
+            os.environ.pop("MESH_WORKSPACE_ENCRYPT", None)
+        with mock.patch("time.time", return_value=1.8e9):
+            for i, (tid, ag, kind, content, field) in enumerate(self._POSTS):
+                W.post(tid, ag, kind, content, confidence=0.4 + 0.1 * i, field=field, db=db)
+
+    def _queries(self, db):
+        from unittest import mock
+        with mock.patch("time.time", return_value=1.8e9 + 3600):
+            out = [W.read(t, query=q, k=8, db=db) for t, q in
+                   [("t1", "binary search monotone predicate"), ("t2", "parity invariant game"), ("t9", "conserved invariant")]]
+            out.append(W.read("t1", k=8, db=db))
+            out.append(W.analogies("find an invariant conserved quantity that stays constant", k=5, field="math", db=db))
+        strip = lambda d: {k: v for k, v in d.items() if k not in ("created",)}
+        return [[strip(d) for d in r] for r in out]
+
+    def test_encrypted_vectors_and_concepts_at_rest(self):
+        import sqlite3
+        self._fill(self.db, encrypt=True)
+        con = sqlite3.connect(str(self.db))
+        for vec, cs in con.execute("SELECT vec, concepts FROM entries"):
+            self.assertTrue(vec.startswith(b"E1") and len(vec) != 384 * 4)
+            self.assertTrue(cs.startswith("E1:"))
+        toks = [r[0] for r in con.execute("SELECT concept FROM concepts")] + \
+               [x for r in con.execute("SELECT a, b FROM edges") for x in r]
+        self.assertTrue(toks and all(x.startswith(("h:", "f:")) for x in toks))
+        con.close()
+        raw = open(self.db, "rb").read() + (open(str(self.db) + "-wal", "rb").read() if os.path.exists(str(self.db) + "-wal") else b"")
+        for word in (b"binary", b"monotone", b"parity", b"invariant", b"incline", b"penalties"):
+            self.assertNotIn(word, raw)
+
+    def test_encrypted_retrieval_is_identical_to_plain(self):
+        plain = Path(self.tmp) / "plain.db"
+        self._fill(plain, encrypt=False)
+        a = self._queries(plain)
+        self._fill(self.db, encrypt=True)
+        b = self._queries(self.db)
+        self.assertEqual(a, b)
+        self.assertTrue(any(a) and a[-1])                      # non-trivial results, analogies included
+
+    def test_encrypted_fails_closed(self):
+        self._fill(self.db, encrypt=True)
+        self.assertTrue(W.read("t1", query="binary search", k=8))
+        W._vec_cache.clear()
+        W.KEY.unlink()
+        os.environ.pop("MESH_WORKSPACE_ENCRYPT", None)
+        self.assertEqual(W.read("t1", query="binary search", k=8), [])
+        self.assertEqual(W.analogies("conserved invariant constant", k=5, field="math"), [])
+        os.environ["MESH_WORKSPACE_ENCRYPT"] = "1"
+        W.KEY = Path(self.tmp) / "nodir" / "\0bad"
+        n = W.stats()["entries"]
+        with self.assertRaises(Exception):
+            W.post("t1", "a", "fact", "must not be written in plaintext")
+        self.assertEqual(W.stats()["entries"], n)
+
     def test_cli(self):
         import contextlib
         import io

@@ -2,6 +2,7 @@
 
   python -m train.memory build [--llm] [batch ...]         cards from verified runs (+ migrate experience.jsonl)
   python -m train.memory eval [--no-llm]                    offline retrieval eval (writes memory/eval.json)
+  python -m train.memory eval-graph                         Graph-RAG re-ranking experiment (result: not shipped)
   python -m train.memory hygiene                            drop ambiguous-id items, tag split/problem_key (idempotent)
   python -m train.memory update                             usefulness counts from training results.jsonl
   python -m train.memory serve                              run the localhost daemon (normally started on demand)
@@ -22,6 +23,9 @@ def main(argv: list[str]) -> int:
     elif cmd == "eval":
         from .eval import run
         run(llm="--no-llm" not in args)
+    elif cmd == "eval-graph":
+        from .eval import graph_eval
+        graph_eval()
     elif cmd == "hygiene":
         from .hygiene import run as hygiene
         hygiene()
