@@ -5,6 +5,8 @@ sentence embeddings, the same encoder the mesh router uses) are shown with their
 can reuse the method. Only pack-free, grader-verified runs are stored; all text is scrubbed.
 
 Live files (the neural mesh): data/lifelong/mesh/experience.jsonl (records) + experience.f32 (384-d vectors).
+The successor is train/memory (method cards, hybrid retrieval, daemon, Global Workspace); this module stays as the
+MiniLM encoder they share and as a compatible wrapper for existing callers. build_from_results also builds cards.
 Built/extended after every training round (Trainer.export_live) and by `python -m train.experience build`.
 """
 from __future__ import annotations
@@ -150,7 +152,13 @@ def build_from_results(batch: str = "batch1") -> int:
             continue
         recs.append({"id": "exp:" + tid, "task": tid, "field": r["field"], "agent": r["agent"],
                      "problem": sp.text[:MAX_PROBLEM], "solution": ss.text[-MAX_SOLUTION:]})
-    return add(recs)
+    n = add(recs)
+    try:                      # the shared method-card store (train/memory) grows from the same verified runs
+        from .memory.builder import build
+        build([batch], log=lambda *a: None)
+    except Exception:
+        pass
+    return n
 
 
 if __name__ == "__main__":

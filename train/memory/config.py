@@ -1,0 +1,44 @@
+"""Paths and tuned constants for the shared method-card memory (all live data is under data/lifelong/, gitignored)."""
+from __future__ import annotations
+
+import os
+from pathlib import Path
+
+NM = Path(os.environ.get("NEURAL_MESH_ROOT", str(Path.home() / "neural-mesh")))
+MEM_DIR = Path(os.environ.get("NEURAL_MESH_MEMORY", str(NM / "data" / "lifelong" / "mesh" / "memory")))
+LABELS = Path(os.environ.get("NEURAL_MESH_MEMORY_LABELS", str(NM / "data" / "lifelong" / "mesh" / "memory" / "labels")))              # offline eval label sources (Omni-MATH domains, Codeforces tags, LLM topics)
+RUNS = Path(os.environ.get("MESHTRAIN_ROOT", r"C:\Users\mariu\ruv\hive\runs\agent-catalog"))
+
+MINILM = Path(os.environ.get("MESH_MINILM", str(Path.home() / ".ruvector" / "models" / "all-MiniLM-L6-v2")))
+CROSS = Path(os.environ.get("MESH_CROSS_ENCODER", str(Path.home() / ".ruvector" / "models" / "ms-marco-MiniLM-L6-v2")))
+OLLAMA = os.environ.get("MESH_OLLAMA", "http://127.0.0.1:11434")
+DISTILL_MODEL = os.environ.get("MESH_DISTILL_MODEL", "qwen2.5-coder:7b")
+# extractive (deterministic, no model) is the default; "auto" tries Ollama first. Only use auto when the GPU is free.
+DISTILL = os.environ.get("MESH_CARD_DISTILL", "extractive")
+
+KEY = Path(os.environ.get("NEURAL_MESH_MEMORY_KEY", str(Path.home() / ".claude" / "mesh-memory.key")))
+PORT = int(os.environ.get("NEURAL_MESH_MEMORY_PORT", "47391"))
+IDLE_EXIT_S = float(os.environ.get("NEURAL_MESH_MEMORY_IDLE_S", 20 * 60))
+
+CARD_TOKENS = 120        # max tokens of one card's injected text
+INJECT_TOKENS = 350      # max tokens of the whole injected block
+MAX_PROBLEM = 1500       # chars of problem text kept for matching (never injected)
+RRF_K = 60
+RERANK_TOP = 20
+
+
+def cards_path() -> Path:
+    return MEM_DIR / "cards.jsonl"
+
+
+def stats_path() -> Path:
+    return MEM_DIR / "usefulness.json"
+
+
+def injections_path() -> Path:
+    return MEM_DIR / "injections.jsonl"
+
+
+def approx_tokens(text: str) -> int:
+    """Cheap token estimate (~4 chars per token for English/LaTeX), deliberately a little pessimistic."""
+    return (len(text) + 3) // 4
