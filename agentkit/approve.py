@@ -8,12 +8,15 @@ pipeline:<name>). Before anything is changed it refuses when:
   * it runs inside an agent / Claude Code process (CLAUDECODE, CLAUDE_CODE_*, CLAUDE_SESSION_ID, CLAUDE_PID in the
     environment; an ancestor named claude(.exe), node/bun/deno running a claude CLI, or any ancestor with "claude" in
     its command line) - a TTY alone is no proof of a human;
-  * the parent chain is inconclusive: it must reach pid 0/4 or %SystemRoot%\explorer.exe (by full image path), with
-    no missing parent, no ancestor in another session and no WmiPrvSE / svchost / taskhostw launch;
+  * the parent chain is inconclusive: it must reach the OS shell (the GetShellWindow owner, image
+    <GetSystemWindowsDirectoryW>\explorer.exe, same session), with no missing parent, no ancestor in another session
+    and no WmiPrvSE / svchost / taskhostw launch below it;
   * the approval key (~/.claude/mesh-approve.key, created atomically and owner-only) is missing and cannot be made;
   * the backend cannot store an approval signature.
 The entry (id and content) is printed with control characters and ANSI/ESC sequences removed (with a warning if any
-were). Then Windows Hello is required when it is configured, and the human must ALSO type back a random per-run code. The approval is stored as verified_by="human:<os user>" plus
+were). Then Windows Hello is MANDATORY (not configured, unavailable, error, cancel or timeout all refuse) and the human
+must ALSO type back a random per-run code. The process-ancestry checks are defense in depth, not the proof of a human:
+Hello is. On POSIX there is no Hello, so approval always refuses. The approval is stored as verified_by="human:<os user>" plus
 approval_sig = HMAC-SHA256 over the entry (agentkit/trust.py), which the hook checks before trusting the entry.
 """
 from __future__ import annotations
@@ -84,39 +87,92 @@ def process_table() -> dict:
     return out
 
 
-def _explorer_path() -> str:
-    return os.path.join(os.environ.get("SystemRoot") or os.environ.get("SYSTEMROOT") or r"C:\Windows",
-                        "explorer.exe").lower()
+def windows_dir() -> str | None:
+    """The Windows directory from the OS (GetSystemWindowsDirectoryW); SystemRoot/SYSTEMROOT env vars are ignored."""
+    if os.name != "nt":
+        return None
+    import ctypes
+    buf = ctypes.create_unicode_buffer(520)
+    n = ctypes.windll.kernel32.GetSystemWindowsDirectoryW(buf, 520)
+    return buf.value if 0 < n < 520 else None
 
 
-def ancestry(pid: int, table: dict, explorer_path: str | None = None):
+def session_of(pid: int) -> int | None:
+    if os.name != "nt":
+        return None
+    import ctypes
+    from ctypes import wintypes
+    sid = wintypes.DWORD()
+    ok = ctypes.windll.kernel32.ProcessIdToSessionId(wintypes.DWORD(pid), ctypes.byref(sid))
+    return int(sid.value) if ok else None
+
+
+def shell_pid() -> int | None:
+    """pid owning the desktop shell window (GetShellWindow + GetWindowThreadProcessId), or None."""
+    if os.name != "nt":
+        return None
+    import ctypes
+    from ctypes import wintypes
+    u32 = ctypes.windll.user32
+    u32.GetShellWindow.restype = wintypes.HWND
+    hwnd = u32.GetShellWindow()
+    if not hwnd:
+        return None
+    pid = wintypes.DWORD()
+    u32.GetWindowThreadProcessId(wintypes.HWND(hwnd), ctypes.byref(pid))
+    return int(pid.value) or None
+
+
+def os_root() -> dict | None:
+    """The trust root from the OS: {pid, path, session} of the shell's explorer.exe, or None when unavailable."""
+    try:
+        wd, sp = windows_dir(), shell_pid()
+        if not wd or not sp:
+            return None
+        return {"pid": sp, "path": os.path.join(wd, "explorer.exe").lower(), "session": session_of(sp),
+                "self_session": session_of(os.getpid())}
+    except Exception:
+        return None
+
+
+def ancestry(pid: int, table: dict, root: dict | None):
     r"""([(name, command line)] of the ancestors, nearest first; complete; reason).
-    complete=True only when the walk reaches pid 0/4 (System) or the real shell: explorer.exe whose full image path is
-    %SystemRoot%\explorer.exe. A process NAME alone never ends the walk. Inconclusive (complete=False, refuse): a
-    missing parent, a loop, MAX_DEPTH, a parent in another session, or a reparented / out-of-tree launch through
-    WmiPrvSE, svchost or taskhostw."""
-    root = (explorer_path or _explorer_path()).lower()
+    Windows: complete=True only when the walk reaches the OS shell: the pid that owns GetShellWindow(), whose image
+    path is <GetSystemWindowsDirectoryW>\explorer.exe and whose session is this process's session. Above the shell the
+    walk continues (names still checked for agents) to pid 0/4 or the first unreadable parent. Below the shell, a
+    missing parent, a loop, MAX_DEPTH, a parent in another session, or a WmiPrvSE / svchost / taskhostw launch is
+    inconclusive (refuse). A name alone never makes a root. POSIX is always inconclusive: ppid 1 (or a subreaper)
+    means the process was reparented, and there is no OS shell anchor."""
     out, cur, seen = [], pid, {pid}
     me = table.get(pid)
     if me is None:
         return out, False, "this process is not in the process table"
+    if os.name != "nt":
+        return out, False, "POSIX: no OS shell anchor (ppid 1 / subreaper launches are inconclusive)"
+    if not root:
+        return out, False, "the OS shell (GetShellWindow) could not be identified"
+    above = False
     for _ in range(MAX_DEPTH):
         e = table.get(cur)
         if e is None:
-            return out, False, "process %d vanished" % cur
-        if cur != pid:
+            return (out, True, "") if above else (out, False, "process %d vanished" % cur)
+        if cur != pid and not above:
             n = e["name"].lower()
-            if n == "explorer.exe" and e["path"].lower() == root:
-                return out, True, ""
-            if n in OUT_OF_TREE:
+            if cur == root["pid"]:
+                if e["path"].lower() != root["path"]:
+                    return out, False, "the shell process is not %s" % root["path"]
+                if root.get("self_session") is None or root.get("session") != root.get("self_session"):
+                    return out, False, "the shell is not in this process's session"
+                above = True                                     # verified shell; keep walking for agent names
+            elif n in OUT_OF_TREE:
                 return out, False, "launched through %s (reparented or out-of-tree)" % e["name"]
-            if me["session"] is not None and e["session"] is not None and str(e["session"]) != str(me["session"]):
+            elif me["session"] is not None and e["session"] is not None and str(e["session"]) != str(me["session"]):
                 return out, False, "parent %s is in another session" % e["name"]
         ppid = e["ppid"]
-        if ppid in (0, 4) or (os.name != "nt" and ppid == 1):
-            return out, True, ""
+        if ppid in (0, 4):
+            return (out, True, "") if above else (out, False, "reached pid %d without passing the shell" % ppid)
         if ppid not in table:
-            return out, False, "parent of %s is missing" % (e["name"] or cur)
+            return (out, True, "") if above else (out, False, "parent of %s is missing" % (e["name"] or cur))
         if ppid in seen:
             return out, False, "parent chain loops"
         seen.add(ppid)
@@ -126,9 +182,9 @@ def ancestry(pid: int, table: dict, explorer_path: str | None = None):
 
 
 def current_ancestry():
-    """(ancestors, complete) for this process, or None when the process table cannot be read."""
+    """(ancestors, complete, reason) for this process, or None when the process table cannot be read."""
     try:
-        return ancestry(os.getpid(), process_table())
+        return ancestry(os.getpid(), process_table(), os_root())
     except Exception:
         return None
 
@@ -188,6 +244,9 @@ def parse_hello(out: str) -> str:
     return "error"
 
 
+HELLO_TIMEOUT_S = 120
+
+
 def hello_verify(message: str) -> str:
     """Windows Hello (UserConsentVerifier) prompt: 'verified', 'denied' (cancelled/failed), 'unavailable' (not
     configured / not Windows), or 'error' (WinRT could not be reached)."""
@@ -196,7 +255,7 @@ def hello_verify(message: str) -> str:
     import subprocess
     try:
         r = subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", _PS_HELLO], capture_output=True,
-                           text=True, encoding="utf-8", errors="replace", timeout=180,
+                           text=True, encoding="utf-8", errors="replace", timeout=HELLO_TIMEOUT_S,
                            env=dict(os.environ, MESH_APPROVE_MSG=message[:200]))
     except Exception:
         return "error"
@@ -264,14 +323,14 @@ def main(argv=None, ws=None, ask=input, stdin=None, stdout=None, environ=None, l
         print("\nalready verified (by %s); nothing changed." % sanitize(e.get("verified_by"))[0])
         return 0
     # the entry (id and content) is already on screen; Hello, when configured, is required IN ADDITION to the code
+    # the entry (id and content) is already on screen. Windows Hello is MANDATORY: anything but a successful
+    # verification (not configured, unavailable, error, cancel, timeout) refuses. The typed code is required as well.
     state = hello("Approve workspace entry %s as verified" % sanitize(entry_id)[0])
-    if state == "verified":
-        print("Windows Hello: verified.")
-    elif state == "denied":
-        print("Windows Hello verification failed or was cancelled; nothing changed.")
-        return 1
-    elif state == "error":
-        print("(Windows Hello could not be reached; continuing with the typed code only.)")
+    if state != "verified":
+        print("refusing: Windows Hello verification is required and did not succeed (%s); nothing changed." % state,
+              file=sys.stderr)
+        return 7
+    print("Windows Hello: verified.")
     code = nonce()
     try:
         answer = ask("\nTo mark entry %s verified, type this code: %s (anything else cancels): "
