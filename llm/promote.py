@@ -152,7 +152,11 @@ def run(synthetic: bool = False, ver: str | None = None, force: bool = False, ke
            "pairwise_winrate": (ev.get("pairwise") or {}).get("winrate_ci"), "battery_diff": (ev.get("battery") or {}).get("diff_cluster_ci")}
     if not ev["gate"]["promote"] and not force:
         rec.update(promoted=False, action="reject")
-        st.setdefault("history", []).append(rec); config.save_state(st)
+        st.setdefault("history", []).append(rec)
+        if not synthetic:
+            from . import lineage
+            rec["lineage"] = lineage.record(st, ver, promoted=False, log=log)
+        config.save_state(st)
         log(f"NOT PROMOTED {ver}: {ev['gate']['reason']}; production stays {ev['production'] or 'BASE'}")
         return {**rec, "exit": 0}
     tag = f"{config.OLLAMA_NAME}:{ver}"
@@ -193,7 +197,11 @@ def run(synthetic: bool = False, ver: str | None = None, force: bool = False, ke
         if not keep_merged:
             shutil.rmtree(out, ignore_errors=True)  # Ollama holds its own GGUF copy; the adapter dir stays versioned
     rec.update(promoted=True, action="promote", ollama=tag, forced=force)
-    st.setdefault("history", []).append(rec); config.save_state(st)
+    st.setdefault("history", []).append(rec)
+    if not synthetic:
+        from . import lineage
+        rec["lineage"] = lineage.record(st, ver, promoted=True, log=log)
+    config.save_state(st)
     log(f"PROMOTED {ver} -> {tag}" + ("" if synthetic else f" (alias {config.OLLAMA_NAME}:latest)"))
     return {**rec, "exit": 0}
 
@@ -240,6 +248,8 @@ def rollback(to: str, keep_merged: bool = False, log=print) -> dict:
     st["production"] = {"ver": to, "ollama": tag, "base": meta["base"], "since": ts, "prev_ver": prev.get("ver"),
                         "rolled_back_from": prev.get("ver")}
     st["trained_ids"] = lineage_ids(to)
+    from . import lineage
+    lineage.reset_to(st, to, meta["base"], f"rollback to {to}")
     rec = {"ver": to, "ts": ts, "synthetic": False, "promoted": True, "action": "rollback", "from": prev.get("ver"),
            "reimported": reimported, "trained_ids": len(st["trained_ids"])}
     st.setdefault("history", []).append(rec); config.save_state(st)

@@ -4,8 +4,11 @@ Stages, each recorded as a StageResult {name, status ok|noop|skipped|failed, exi
   preflight  abandoned_sweep(): torn adapters (no meta.json) are removed; older undecided adapters (unevaluated, or evaluated
              but never decided) are abandoned ("superseded") when a newer candidate exists; a pending candidate whose parent is not the current production is abandoned ("stale parent");
              one whose eval failed twice (state.eval_attempts) is abandoned ("eval failed twice"). trained_ids never change here.
+             "stale parent" = trained from neither production nor what a round would start from today (llm/lineage.py).
+  selftrain  only when MESH_LLM_SELFTRAIN_MINUTES > 0 (llm/selftrain.py): rejection sampling on checkable math/code prompts;
+             the minutes it uses are taken out of the training budget, so selftrain + train stays within TRAIN_MINUTES.
   train      skipped when a pending (non-abandoned, undecided) candidate exists - that one is resumed instead; noop when there
-             is nothing new to train on.
+             is nothing new to train on. Starts from the lineage head (llm/lineage.py); SFT, then DPO when enough pairs exist.
   eval       the candidate, if it has no eval.json yet (state.eval_attempts[ver] is bumped first).
   promote    promote.run(ver) (gate unchanged; exit 3 there = failed stage).
 The llm stages are skipped (not failed) on battery power. The lock mtime is refreshed before every stage so the 12 h stale
@@ -104,13 +107,17 @@ def abandoned_sweep(st: dict, synthetic: bool = False, log=print) -> dict:
         if d.name != newest:
             abandon(d.name, "superseded")
     live = [d for d in live if d.name not in {a["ver"] for a in out["abandoned"]}]
+    from . import lineage
     for d in live:
         try:
-            parent = json.loads((d / "meta.json").read_text(encoding="utf-8")).get("parent")
+            m = json.loads((d / "meta.json").read_text(encoding="utf-8"))
         except (OSError, ValueError):
-            parent = None
-        if parent != prod:
-            abandon(d.name, f"stale parent ({parent or 'BASE'} is not production {prod or 'BASE'})")
+            m = {}
+        parent = m.get("parent")
+        fresh = parent == prod if synthetic else lineage.valid_parent(st, parent, m.get("base") or config.base_name())
+        if not fresh:
+            want = prod if synthetic else lineage.parent_for_training(st, m.get("base") or config.base_name())[0]
+            abandon(d.name, f"stale parent ({parent or 'BASE'} is neither production {prod or 'BASE'} nor the lineage head {want or 'BASE'})")
         elif not (d / "eval.json").exists() and attempts.get(d.name, 0) >= 2:
             abandon(d.name, "eval failed twice")
     gone = {a["ver"] for a in out["abandoned"]}
@@ -173,14 +180,24 @@ def run(synthetic: bool = False, epochs: int = 2, judge_budget: int | None = Non
         for n in ("train", "eval", "promote"):
             R.skip(n, "on battery power")
     else:
+        def do_selftrain():
+            if ctx["ver"]:
+                return "skipped", f"resuming pending candidate {ctx['ver']}", None
+            from . import selftrain
+            r = selftrain.run(minutes=min(config.SELFTRAIN_MINUTES, config.TRAIN_MINUTES / 2), log=log)
+            ctx["selftrain_min"] = r.get("minutes", 0.0)
+            return ("ok" if r.get("kept") else "noop"), r.get("reason"), {k: r.get(k) for k in ("prompts", "samples", "kept", "pairs", "minutes", "by_kind")}
+
         def do_train():
             if ctx["ver"]:
                 return "skipped", f"resuming pending candidate {ctx['ver']}", None
-            meta = train.run(synthetic=synthetic, epochs=epochs, log=log)
+            budget = max(5.0, config.TRAIN_MINUTES - ctx.get("selftrain_min", 0.0))
+            meta = train.run(synthetic=synthetic, epochs=epochs, log=log, **({} if synthetic else {"budget_minutes": budget}))
             if meta is None:
                 return "noop", "nothing new to train on", None
             ctx["ver"] = meta["ver"]
-            return "ok", None, {"ver": meta["ver"], "n_new": meta.get("n_new"), "n_replay": meta.get("n_replay")}
+            return "ok", None, {"ver": meta["ver"], "parent": meta.get("parent"), "n_new": meta.get("n_new"), "n_replay": meta.get("n_replay"),
+                                "n_self": meta.get("n_self"), "dpo": (meta.get("dpo") or {}).get("status")}
 
         def do_eval():
             ver = ctx["ver"]
@@ -205,6 +222,8 @@ def run(synthetic: bool = False, epochs: int = 2, judge_budget: int | None = Non
             status = "failed" if code else ("ok" if r.get("promoted") else "noop")
             return status, r.get("error") or r.get("reason") or (r.get("gate") or {}).get("reason"), {"ver": ver, "promoted": r.get("promoted")}, code
 
+        if config.SELFTRAIN_MINUTES > 0 and not synthetic:
+            R.stage("selftrain", do_selftrain)
         R.stage("train", do_train)
         R.stage("eval", do_eval)
         R.stage("promote", do_promote)

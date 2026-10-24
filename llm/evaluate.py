@@ -163,7 +163,40 @@ def pairwise_block(task_rows: list[dict], ans_c: list[str], ans_p: list[str], ju
             "detail": [{"id": r["id"], "winner": x["winner"], "how": x["how"]} for r, x in zip(task_rows, res)]}
 
 
-def _answers(cand, prod_ver, task_rows, items, m, tok, with_prod, log) -> dict:
+GEN_BS = int(os.environ.get("MESH_LLM_EVAL_GEN_BS", "24"))   # max sequences per generate() call (model.length_batches caps by tokens)
+
+
+def prod_answers(base: str, prod_ver: str | None, prompts: list[str], max_new: int, gen, log=print) -> list[str]:
+    """production's greedy answers, cached across nights by (base, production version, max_new, prompt): while production
+    does not change, only the candidate has to generate. gen(prompts) -> answers for the misses."""
+    def key(p):
+        return hashlib.sha256(f"{base}\x00{prod_ver or 'BASE'}\x00{max_new}\x00{p}".encode("utf-8", "replace")).hexdigest()[:24]
+    path = config.MODELS / "prod_answers.jsonl"
+    cache: dict[str, str] = {}
+    try:
+        with open(path, encoding="utf-8") as f:
+            for line in f:
+                try:
+                    r = json.loads(line)
+                    cache[r["k"]] = r["a"]
+                except (ValueError, KeyError):
+                    pass
+    except FileNotFoundError:
+        pass
+    keys = [key(p) for p in prompts]
+    miss = [i for i, k in enumerate(keys) if k not in cache]
+    if miss:
+        got = gen([prompts[i] for i in miss])
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, "a", encoding="utf-8") as f:
+            for i, a in zip(miss, got):
+                cache[keys[i]] = a
+                f.write(json.dumps({"k": keys[i], "a": a}, ensure_ascii=False) + "\n")
+    log(f"production answers: {len(prompts) - len(miss)}/{len(prompts)} from the cross-night cache")
+    return [cache[k] for k in keys]
+
+
+def _answers(cand, prod_ver, task_rows, items, m, tok, with_prod, log, base: str = "") -> dict:
     """greedy answers of both models; cached next to the adapter so a re-judge needs no GPU."""
     from . import model as M
     f = cand / "answers.json"
@@ -179,10 +212,47 @@ def _answers(cand, prod_ver, task_rows, items, m, tok, with_prod, log) -> dict:
     prompts = [i["prompt"] for i in items]
     out = {}
     m.set_adapter("cand")
-    out["task_cand"] = M.generate_batch(m, tok, instr)
-    out["det_cand"] = M.generate_batch(m, tok, prompts, max_new=DET_MAX_NEW)
-    out["task_prod"] = with_prod(lambda: M.generate_batch(m, tok, instr))
-    out["det_prod"] = with_prod(lambda: M.generate_batch(m, tok, prompts, max_new=DET_MAX_NEW))
+    out["task_cand"] = M.generate_batch(m, tok, instr, bs=GEN_BS)
+    out["det_cand"] = M.generate_batch(m, tok, prompts, max_new=DET_MAX_NEW, bs=GEN_BS)
+    out["task_prod"] = prod_answers(base, prod_ver, instr, 256, lambda ps: with_prod(lambda: M.generate_batch(m, tok, ps, bs=GEN_BS)), log)
+    out["det_prod"] = prod_answers(base, prod_ver, prompts, DET_MAX_NEW,
+                                   lambda ps: with_prod(lambda: M.generate_batch(m, tok, ps, max_new=DET_MAX_NEW, bs=GEN_BS)), log)
+    f.write_text(json.dumps({"key": key, "answers": out}), encoding="utf-8")
+    return out
+
+
+def _answers_cross(cand, prod_ver, prod_base, task_rows, items, holder, tok, log) -> dict:
+    """like _answers, when production is on another base: the candidate answers first, then its model is released and
+    production is loaded on its own base (one model in VRAM at a time)."""
+    import gc as _gc
+    import torch
+    from . import model as M
+    f = cand / "answers.json"
+    key = {"prod": prod_ver, "prod_base": prod_base, "task": [r["id"] for r in task_rows], "det": [i["id"] for i in items]}
+    try:
+        c = json.loads(f.read_text(encoding="utf-8"))
+        if c.get("key") == key:
+            log("reusing cached answers")
+            return c["answers"]
+    except (OSError, ValueError):
+        pass
+    instr = [r["instruction"] for r in task_rows]
+    prompts = [i["prompt"] for i in items]
+    m = holder.pop("m")
+    m.set_adapter("cand")
+    out = {"task_cand": M.generate_batch(m, tok, instr, bs=GEN_BS), "det_cand": M.generate_batch(m, tok, prompts, max_new=DET_MAX_NEW, bs=GEN_BS)}
+    del m
+    _gc.collect()
+    torch.cuda.empty_cache()
+    pb = config.base_path(prod_base)
+    ptok = M.tokenizer(pb)
+    pm = M.load_4bit(pb, adapter=config.ADAPTERS / prod_ver)
+    out["task_prod"] = prod_answers(prod_base, prod_ver, instr, 256, lambda ps: M.generate_batch(pm, ptok, ps, bs=GEN_BS), log)
+    out["det_prod"] = prod_answers(prod_base, prod_ver, prompts, DET_MAX_NEW,
+                                   lambda ps: M.generate_batch(pm, ptok, ps, max_new=DET_MAX_NEW, bs=GEN_BS), log)
+    del pm
+    _gc.collect()
+    torch.cuda.empty_cache()
     f.write_text(json.dumps({"key": key, "answers": out}), encoding="utf-8")
     return out
 
@@ -221,13 +291,17 @@ def run(synthetic: bool = False, ver: str | None = None, n_loss: int = N_LOSS, n
         f"loss n={len(loss_rows)}, pairwise n={len(task_rows)}, deterministic n={len(items)}")
     judge.unload()
     base = config.base_path(meta["base"])
+    prod_base = prod.get("base") or meta["base"]
+    cross = bool(prod_ver) and prod_base != meta["base"]   # production lives on another base (after a base switch)
     tok = M.tokenizer(base)
     m = M.load_4bit(base)
     m = PeftModel.from_pretrained(m, cand, adapter_name="cand")
-    if prod_ver:
+    if prod_ver and not cross:
         m.load_adapter(config.ADAPTERS / prod_ver, adapter_name="prod")
 
     def with_prod(fn):
+        if cross:
+            return fn()       # m is production's own model here (see _answers_cross)
         if prod_ver:
             m.set_adapter("prod")
             return fn()
@@ -236,10 +310,14 @@ def run(synthetic: bool = False, ver: str | None = None, n_loss: int = N_LOSS, n
 
     enc = [M.encode(tok, r["instruction"], r["response"]) for r in loss_rows]
     m.set_adapter("cand")
-    lc = M.example_losses(m, enc)
-    lp = with_prod(lambda: M.example_losses(m, enc))
     smeta = data.load_meta() if not synthetic else {}
     unit = lambda r: (smeta.get(r["id"]) or {}).get("cluster") or r.get("session")  # noqa: E731  bootstrap unit: paraphrase cluster, else session
+    if cross:   # token NLLs under two tokenizers are not comparable: no loss test (n = 0 -> the gate's loss check does not apply)
+        log(f"production {prod_ver} is on {prod_base}, candidate on {meta['base']}: loss test skipped, answers generated per base")
+        loss_rows, lc, lp = [], [], []
+    else:
+        lc = M.example_losses(m, enc)
+        lp = with_prod(lambda: M.example_losses(m, enc))
     per = [(unit(r), p[0] / max(1, p[1]) - c[0] / max(1, c[1])) for r, p, c in zip(loss_rows, lp, lc)]
     groups: dict = {}
     for s, d in per:
@@ -250,8 +328,13 @@ def run(synthetic: bool = False, ver: str | None = None, n_loss: int = N_LOSS, n
     nll_p = sum(p[0] for p in lp) / max(1, sum(p[1] for p in lp))
     log(f"held-out token NLL: production {nll_p:.4f} (ppl {math.exp(nll_p):.2f}) -> candidate {nll_c:.4f} (ppl {math.exp(nll_c):.2f}); "
         f"per-example diff {loss_ci['mean']:+.4f} cluster-CI [{loss_ci['lo']:+.4f}, {loss_ci['hi']:+.4f}]")
-    ans = _answers(cand, prod_ver, task_rows, items, m, tok, with_prod, log)
-    del m
+    if cross:
+        holder = {"m": m}
+        del m
+        ans = _answers_cross(cand, prod_ver, prod_base, task_rows, items, holder, tok, log)
+    else:
+        ans = _answers(cand, prod_ver, task_rows, items, m, tok, with_prod, log, base=meta["base"])
+        del m
     gc.collect()
     torch.cuda.empty_cache()
     bench = _bench_module()

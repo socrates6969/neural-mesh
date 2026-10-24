@@ -3,6 +3,7 @@ per-example held-out loss, and greedy generation. Heavy imports (torch/transform
 from __future__ import annotations
 
 import math
+import os
 import random
 import time
 from pathlib import Path
@@ -16,6 +17,7 @@ from . import config
 LORA = dict(r=16, lora_alpha=32, lora_dropout=0.05, bias="none", task_type="CAUSAL_LM",
             target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"])
 SYSTEM = "You are a concise, careful coding assistant."
+FP32_UPCAST = os.environ.get("MESH_LLM_FP32_UPCAST", "0") == "1"   # 1 = the old prepare_model_for_kbit_training path
 
 
 def tokenizer(base: Path):
@@ -31,7 +33,14 @@ def load_4bit(base: Path, adapter: Path | None = None, trainable: bool = False):
     m = AutoModelForCausalLM.from_pretrained(base, quantization_config=q, dtype=torch.bfloat16, device_map={"": 0})
     m.config.use_cache = False
     if trainable:
-        m = prepare_model_for_kbit_training(m, use_gradient_checkpointing=True)
+        if FP32_UPCAST:
+            m = prepare_model_for_kbit_training(m, use_gradient_checkpointing=True)
+        else:   # same as prepare_model_for_kbit_training minus its fp32 upcast of every non-quantized weight: for a 151k
+            # vocabulary that upcast alone costs ~0.8 GB (3B) to ~1.5 GB (4B) of VRAM, and no LoRA target is affected by it
+            for prm in m.parameters():
+                prm.requires_grad_(False)
+            m.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
+            m.enable_input_require_grads()
         if adapter is not None:
             m = PeftModel.from_pretrained(m, adapter, is_trainable=True)
         else:
@@ -70,10 +79,23 @@ def _batches(encoded, bs):
         yield ids.cuda(), lab.cuda(), att.cuda()
 
 
+def lm_loss(model, ids, lab, att):
+    """mean token NLL over the labelled (response) tokens. At bs 1 the labelled tokens are the tail of the sequence, so only
+    those positions get logits (logits_to_keep): the full-vocabulary fp32 logits of the prompt are never materialised."""
+    n = int((lab[0] != -100).sum().item()) if ids.size(0) == 1 else 0
+    if not n or n >= ids.size(1):
+        return model(input_ids=ids, attention_mask=att, labels=lab).loss
+    logits = model(input_ids=ids, attention_mask=att, logits_to_keep=n + 1).logits[:, :-1]
+    tgt = lab[:, -n:]
+    return torch.nn.functional.cross_entropy(logits.float().reshape(-1, logits.size(-1)), tgt.reshape(-1), ignore_index=-100)
+
+
 def train_loop(model, encoded: list[tuple[list[int], list[int]]], epochs: int = 2, lr: float = 2e-4, bs: int = 1,
-               grad_accum: int = 8, seed: int = config.SEED, log=print, time_budget_s: float | None = None) -> dict:
+               grad_accum: int = 8, seed: int = config.SEED, log=print, time_budget_s: float | None = None,
+               max_steps: int | None = None) -> dict:
     """time_budget_s: stop at this wall-clock budget. After 20 optimizer steps the LR-schedule horizon is re-estimated
-    from measured throughput so warmup+decay fit the budget (nightly: config.TRAIN_MINUTES)."""
+    from measured throughput so warmup+decay fit the budget (nightly: config.TRAIN_MINUTES). max_steps: hard stop after
+    that many optimizer steps (smoke tests)."""
     import bitsandbytes as bnb
     torch.manual_seed(seed)
     rng = random.Random(seed)
@@ -94,9 +116,9 @@ def train_loop(model, encoded: list[tuple[list[int], list[int]]], epochs: int = 
         rng.shuffle(groups)                   # ... in random order
         for g in groups:
             ids, lab, att = next(_batches(g, bs))
-            out = model(input_ids=ids, attention_mask=att, labels=lab)
-            (out.loss / grad_accum).backward()
-            losses.append(out.loss.item())
+            loss = lm_loss(model, ids, lab, att)
+            (loss / grad_accum).backward()
+            losses.append(loss.item())
             micro += 1
             if micro % grad_accum == 0:
                 torch.nn.utils.clip_grad_norm_(params, 1.0)
@@ -111,6 +133,9 @@ def train_loop(model, encoded: list[tuple[list[int], list[int]]], epochs: int = 
                 if time_budget_s and (time.time() - t0 > time_budget_s or step >= horizon[0] and horizon[0] < steps_total):
                     stopped = True
                     break
+                if max_steps and step >= max_steps:
+                    stopped = True
+                    break
         log(f"epoch {ep + 1}/{epochs} mean loss {sum(losses[-len(groups):]) / max(1, len(groups)):.4f}")
         if stopped:
             log(f"time budget reached after {step} optimizer steps ({(time.time() - t0) / 60:.1f} min)")
@@ -119,7 +144,8 @@ def train_loop(model, encoded: list[tuple[list[int], list[int]]], epochs: int = 
         torch.nn.utils.clip_grad_norm_(params, 1.0)
         opt.step(); opt.zero_grad(set_to_none=True); step += 1
     return {"optimizer_steps": step, "micro_batches": micro, "seconds": round(time.time() - t0, 1), "time_budget_s": time_budget_s,
-            "peak_vram_gb": round(torch.cuda.max_memory_allocated() / 2**30, 3), "final_loss": round(sum(losses[-16:]) / max(1, len(losses[-16:])), 4)}
+            "peak_vram_gb": round(torch.cuda.max_memory_allocated() / 2**30, 3),
+            "peak_reserved_gb": round(torch.cuda.max_memory_reserved() / 2**30, 3), "final_loss": round(sum(losses[-16:]) / max(1, len(losses[-16:])), 4)}
 
 
 @torch.no_grad()
@@ -137,20 +163,39 @@ def example_losses(model, encoded) -> list[tuple[float, int]]:
     return out
 
 
+GEN_TOKEN_BUDGET = int(os.environ.get("MESH_LLM_GEN_TOKENS", "12288"))   # bs x (longest prompt + max_new) per generate() call
+
+
+def length_batches(lengths: list[int], max_new: int, bs: int, budget: int = GEN_TOKEN_BUDGET) -> list[list[int]]:
+    """indices grouped shortest-first; a batch grows up to bs while bs x (longest prompt + max_new) <= budget (>= 1 item)."""
+    order = sorted(range(len(lengths)), key=lambda i: lengths[i])
+    out, cur = [], []
+    for i in order:
+        if cur and (len(cur) >= bs or (len(cur) + 1) * (lengths[i] + max_new) > budget):
+            out.append(cur)
+            cur = []
+        cur.append(i)
+    if cur:
+        out.append(cur)
+    return out
+
+
 @torch.no_grad()
 def generate_batch(model, tok, instructions: list[str], max_new: int = 256, bs: int = 8, max_prompt: int = 1536) -> list[str]:
-    """greedy answers, left-padded batches (much faster than one at a time on 4-bit weights)."""
+    """greedy answers in input order. Prompts are length-sorted and batched under a token budget (left padding), so short
+    prompts share large batches and long ones never blow the KV cache; greedy decoding makes the order irrelevant."""
     model.eval()
     tok.padding_side = "left"
-    out = []
-    for i in range(0, len(instructions), bs):
-        prompts = [prompt_text(tok, x) for x in instructions[i:i + bs]]
-        ids = [tok(p, add_special_tokens=False)["input_ids"][-max_prompt:] for p in prompts]
+    enc = [tok(prompt_text(tok, x), add_special_tokens=False)["input_ids"][-max_prompt:] for x in instructions]
+    out: list[str] = [""] * len(enc)
+    for idx in length_batches([len(e) for e in enc], max_new, bs):
+        ids = [enc[i] for i in idx]
         L = max(len(x) for x in ids)
         inp = torch.tensor([[tok.pad_token_id] * (L - len(x)) + x for x in ids], device="cuda")
         att = torch.tensor([[0] * (L - len(x)) + [1] * len(x) for x in ids], device="cuda")
         g = model.generate(input_ids=inp, attention_mask=att, max_new_tokens=max_new, do_sample=False, pad_token_id=tok.pad_token_id, use_cache=True)
-        out += [tok.decode(s[L:], skip_special_tokens=True).strip() for s in g]
+        for i, s in zip(idx, g):
+            out[i] = tok.decode(s[L:], skip_special_tokens=True).strip()
     tok.padding_side = "right"
     return out
 
@@ -166,3 +211,23 @@ def generate(model, tok, instruction: str, max_new: int = 256) -> tuple[str, flo
     seq = g.sequences[0, enc["input_ids"].shape[1]:]
     lps = [torch.log_softmax(s[0].float(), -1)[t].item() for s, t in zip(g.scores, seq)]
     return tok.decode(seq, skip_special_tokens=True).strip(), (sum(lps) / len(lps) if lps else -99.0), len(seq)
+
+
+@torch.no_grad()
+def sample_batch(model, tok, instructions: list[str], k: int = 4, max_new: int = 768, temperature: float = 0.8, top_p: float = 0.95,
+                 bs: int = 8, max_prompt: int = 1536) -> list[str]:
+    """k sampled answers per instruction (rejection sampling, llm/selftrain.py), flat list in instruction order."""
+    model.eval()
+    tok.padding_side = "left"
+    flat = [x for x in instructions for _ in range(k)]
+    out = []
+    for i in range(0, len(flat), bs):
+        ids = [tok(prompt_text(tok, x), add_special_tokens=False)["input_ids"][-max_prompt:] for x in flat[i:i + bs]]
+        L = max(len(x) for x in ids)
+        inp = torch.tensor([[tok.pad_token_id] * (L - len(x)) + x for x in ids], device="cuda")
+        att = torch.tensor([[0] * (L - len(x)) + [1] * len(x) for x in ids], device="cuda")
+        g = model.generate(input_ids=inp, attention_mask=att, max_new_tokens=max_new, do_sample=True, temperature=temperature,
+                           top_p=top_p, pad_token_id=tok.pad_token_id, use_cache=True)
+        out += [tok.decode(s[L:], skip_special_tokens=True).strip() for s in g]
+    tok.padding_side = "right"
+    return out
