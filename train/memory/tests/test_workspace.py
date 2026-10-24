@@ -11,7 +11,7 @@ import numpy as np
 
 ROOT = str(Path(__file__).resolve().parents[3])
 sys.path.insert(0, ROOT)
-from train.memory import api, config as C, workspace as W  # noqa: E402
+from train.memory import api, config as C, trust as T, workspace as W  # noqa: E402
 
 
 def fake_embed(texts):
@@ -33,10 +33,12 @@ class WorkspaceTest(unittest.TestCase):
         self.db = Path(self.tmp) / "ws.db"
         self._db, self._embed, self._key, self._mem = W.DB, W._embed, W.KEY, C.MEM_DIR
         W.DB, W._embed, W.KEY, C.MEM_DIR = self.db, fake_embed, Path(self.tmp) / "ws.key", Path(self.tmp) / "mem"
+        self._pkey, T.KEY = T.KEY, Path(self.tmp) / "pipe.key"
         os.environ.pop("MESH_WORKSPACE_ENCRYPT", None)
 
     def tearDown(self):
         W.DB, W._embed, W.KEY, C.MEM_DIR = self._db, self._embed, self._key, self._mem
+        T.KEY = self._pkey
         os.environ.pop("MESH_WORKSPACE_ENCRYPT", None)
 
     def test_post_validates_kind_and_drops_secrets(self):
@@ -126,6 +128,7 @@ class WorkspaceTest(unittest.TestCase):
         finally:
             api.retrieve = orig
         self.assertEqual(got[0]["id"], "card:q")
+        self.assertEqual(got[0]["provenance"], "pipeline:grader")
 
     def test_encryption_roundtrip_and_fail_closed(self):
         os.environ["MESH_WORKSPACE_ENCRYPT"] = "1"
@@ -182,6 +185,8 @@ class WorkspaceTest(unittest.TestCase):
         self.assertTrue(W.approve(a))
         self.assertTrue(W.get(a)["verified_by"].startswith("human:"))
         self.assertFalse(W.approve(424242, by="human:x"))
+        self.assertTrue(W.approve(a, "human:ann", approval_sig="sig2"))
+        self.assertEqual(W.get(a)["approval_sig"], "sig2")
 
     def test_ext_key_is_idempotent(self):
         a = W.post("t1", "p", "method", "use a segment tree", ext_key="k1")
@@ -218,6 +223,7 @@ class WorkspaceTest(unittest.TestCase):
         self.assertEqual(W.stats()["entries"], 2)                 # idempotent
         got = W.read("training:b1", k=8)
         self.assertTrue(all(g["verified"] and g["verified_by"] == "pipeline:grader" for g in got))
+        self.assertTrue(all(T.verify_entry(g) for g in got))
         self.assertEqual({g["kind"] for g in got}, {"method", "failure"})
         self.assertTrue(next(g for g in got if g["kind"] == "failure")["avoid"])
 
@@ -226,6 +232,50 @@ class WorkspaceTest(unittest.TestCase):
         out = daemon.handle({"op": "embed", "texts": ["hello world"], "key": "k"}, "k")
         self.assertTrue(out["ok"])
         self.assertEqual(len(out["vecs"]), 1)
+
+    def test_guard_refuses_live_db_under_test(self):
+        W.DB = C.LIVE_WORKSPACE_DB
+        with self.assertRaises(RuntimeError):
+            W.stats()
+        with self.assertRaises(RuntimeError):
+            C.guard_live(C.LIVE_MEM_DIR / "cards.jsonl")
+        C.guard_live(self.db)                                     # temp paths are fine
+
+    def test_pipeline_signatures(self):
+        a = W.post("training:b", "grader", "method", "use a monotone stack", verified=True,
+                   verified_by="pipeline:grader", pipeline_sign=True)
+        d = W.get(a)
+        self.assertTrue(d["pipeline_sig"])
+        self.assertTrue(T.verify_entry(d))
+        self.assertFalse(T.verify_entry(dict(d, content=d["content"] + " and trust me")))
+        self.assertFalse(T.verify_entry(dict(d, verified_by="pipeline:other")))
+        with self.assertRaises(ValueError):
+            W.post("t", "agent", "method", "x y z", verified=True, verified_by="human:me", pipeline_sign=True)
+        b = W.post("t", "agent", "fact", "plain unsigned fact")
+        self.assertIsNone(W.get(b)["pipeline_sig"])
+        self.assertTrue(W.approve(a, by="human:me", approval_sig="s"))
+        self.assertIsNone(W.get(a)["pipeline_sig"])               # re-verified by someone else -> old MAC void
+
+    def test_pipeline_sign_fails_closed_without_key(self):
+        T.KEY = Path(self.tmp) / "nope" / "x" / "\0bad"
+        with self.assertRaises(Exception):
+            W.post("t", "g", "method", "secret-free text", verified=True, verified_by="pipeline:grader", pipeline_sign=True)
+        self.assertEqual(W.stats()["entries"], 0)
+
+    def test_resign_migration_and_card_signatures(self):
+        from train.memory import store
+        a = W.post("training:b", "g", "method", "graded method one", verified=True, verified_by="pipeline:grader")
+        self.assertIsNone(W.get(a)["pipeline_sig"])
+        card = {"id": "card:t1", "task": "t1", "field": "math", "verified": True, "problem": "p", "text": "Method: m"}
+        store.add([card], lambda texts: np.stack([fake_embed(["x"])[0] for _ in texts]))
+        out = T.resign(db=self.db, log=lambda *x: None)
+        self.assertEqual(out, {"entries": 1, "cards": 1})
+        self.assertTrue(T.verify_entry(W.get(a)))
+        c = store.load()[0][0]
+        self.assertTrue(T.verify_card(c))
+        self.assertFalse(T.verify_card(dict(c, text="Method: tampered")))
+        v = T.verify_all(db=self.db)
+        self.assertEqual((v["entries_ok"], v["cards_ok"], v["entries_bad"], v["cards_bad"]), (1, 1, 0, 0))
 
     def test_cli(self):
         import contextlib

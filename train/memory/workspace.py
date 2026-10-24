@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS entries (
   content TEXT NOT NULL, enc INTEGER NOT NULL DEFAULT 0, confidence REAL NOT NULL, verified INTEGER NOT NULL,
   sources TEXT, created REAL NOT NULL, s INTEGER NOT NULL DEFAULT 0, f INTEGER NOT NULL DEFAULT 0,
   superseded_by INTEGER, concepts TEXT, vec BLOB, claimed_verified INTEGER NOT NULL DEFAULT 0, verified_by TEXT,
-  approval_sig TEXT, ext_key TEXT);
+  approval_sig TEXT, ext_key TEXT, pipeline_sig TEXT);
 CREATE INDEX IF NOT EXISTS entries_task ON entries(task_id, superseded_by);
 CREATE INDEX IF NOT EXISTS entries_created ON entries(created);
 CREATE TABLE IF NOT EXISTS concepts (entry_id INTEGER NOT NULL, concept TEXT NOT NULL, PRIMARY KEY (entry_id, concept));
@@ -81,6 +81,7 @@ CREATE TABLE IF NOT EXISTS edges (a TEXT NOT NULL, b TEXT NOT NULL, w INTEGER NO
 
 def _connect(path: Path | None = None) -> sqlite3.Connection:
     path = Path(path or DB)
+    C.guard_live(path)                                               # tests must use MESH_WORKSPACE_DB=<temp file>
     path.parent.mkdir(parents=True, exist_ok=True)
     con = sqlite3.connect(str(path), timeout=30, isolation_level=None)
     con.row_factory = sqlite3.Row
@@ -90,7 +91,7 @@ def _connect(path: Path | None = None) -> sqlite3.Connection:
     con.executescript(_SCHEMA)
     have = {r[1] for r in con.execute("PRAGMA table_info(entries)")}
     for col, decl in (("claimed_verified", "INTEGER NOT NULL DEFAULT 0"), ("verified_by", "TEXT"), ("approval_sig", "TEXT"),
-                      ("ext_key", "TEXT")):
+                      ("ext_key", "TEXT"), ("pipeline_sig", "TEXT")):
         if col not in have:                                          # databases created before the trust model
             try:
                 con.execute("ALTER TABLE entries ADD COLUMN %s %s" % (col, decl))
@@ -196,11 +197,13 @@ TRUSTED_PREFIXES = ("pipeline:", "human:")
 
 
 def post(task_id, agent, kind, content, confidence=0.5, verified=False, sources=None, field=None, db=None,
-         claimed_verified=False, verified_by=None, approval_sig=None, ext_key=None):
+         claimed_verified=False, verified_by=None, approval_sig=None, ext_key=None, pipeline_sign=False):
     """Store one entry; returns its id (int), or None when the content is empty or has a secret (scrub drop).
     verified=True is kept only with verified_by "pipeline:<name>" or "human:<user>"; otherwise it becomes an unchecked
     claimed_verified. ext_key (optional) makes the post idempotent: a second post with the same key returns the
-    existing id and changes nothing."""
+    existing id and changes nothing. pipeline_sign=True (trusted pipelines only, e.g. ingest_training) adds a
+    pipeline_sig HMAC (train/memory/trust.py) over id, task, kind, content and verified_by; it requires a
+    verified_by "pipeline:*" and raises if the pipeline key is unavailable (fail closed)."""
     kind = str(kind).strip().lower()
     if kind not in KINDS and kind != "summary":
         raise ValueError("kind must be one of " + "|".join(KINDS))
@@ -223,6 +226,12 @@ def post(task_id, agent, kind, content, confidence=0.5, verified=False, sources=
     vby = str(verified_by) if verified_by else None
     trusted = bool(verified) and bool(vby) and vby.startswith(TRUSTED_PREFIXES)
     claimed = bool(claimed_verified) or (bool(verified) and not trusted)
+    pkey = None
+    if pipeline_sign:
+        if not (trusted and vby.startswith("pipeline:")):
+            raise ValueError("pipeline_sign requires verified=True and verified_by='pipeline:<name>'")
+        from . import trust
+        pkey = trust.load_key(trust.KEY, create=True)
     con = _connect(db)
     try:
         con.execute("BEGIN IMMEDIATE")
@@ -239,6 +248,10 @@ def post(task_id, agent, kind, content, confidence=0.5, verified=False, sources=
                            str(approval_sig) if (trusted and approval_sig) else None,
                            str(ext_key) if ext_key is not None else None))
         eid = cur.lastrowid
+        if pkey is not None:
+            from . import trust
+            con.execute("UPDATE entries SET pipeline_sig = ? WHERE id = ?",
+                        (trust.sign_entry(eid, task_id, kind, text, vby, pkey), eid))
         con.executemany("INSERT OR IGNORE INTO concepts (entry_id, concept) VALUES (?,?)", [(eid, c) for c in cs])
         pairs = sorted({(a, b) for a in cs for b in cs if a < b})
         con.executemany("INSERT INTO edges (a, b, w) VALUES (?,?,1) ON CONFLICT(a, b) DO UPDATE SET w = w + 1", pairs)
@@ -272,7 +285,8 @@ def _salience(row, rel: float, now: float, own: bool) -> float:
 def _as_dict(row, content, sal=None, own=True, rel=None):
     d = {"id": row["id"], "task_id": row["task_id"], "agent": row["agent"], "kind": row["kind"], "content": content,
          "confidence": row["confidence"], "verified": bool(row["verified"]), "verified_by": row["verified_by"],
-         "claimed_verified": bool(row["claimed_verified"]), "approval_sig": row["approval_sig"], "field": row["field"],
+         "claimed_verified": bool(row["claimed_verified"]), "approval_sig": row["approval_sig"],
+         "pipeline_sig": row["pipeline_sig"], "field": row["field"],
          "sources": json.loads(row["sources"] or "[]"), "created": row["created"], "scope": "task" if own else "other",
          "avoid": row["kind"] == "failure", "usefulness": {"s": row["s"], "f": row["f"]},
          "superseded_by": row["superseded_by"]}
@@ -294,10 +308,11 @@ def get(entry_id, db=None) -> dict | None:
     return None if c is None else _as_dict(row, c)
 
 
-def approve(entry_id, by="human", sig=None, db=None) -> bool:
+def approve(entry_id, by="human", sig=None, db=None, approval_sig=None) -> bool:
     """Mark an entry verified by a trusted out-of-band party: by="human:<user>" (with an optional HMAC approval_sig,
     checked by the caller) or "pipeline:<name>". A bare "human" becomes "human:<USERNAME>". Returns False if the entry
     does not exist or `by` is not a trusted identity. Never expose this to agents."""
+    sig = approval_sig if approval_sig is not None else sig
     by = str(by or "")
     if by == "human":
         by = "human:" + (os.environ.get("USERNAME") or os.environ.get("USER") or "unknown")
@@ -306,7 +321,8 @@ def approve(entry_id, by="human", sig=None, db=None) -> bool:
     con = _connect(db)
     try:
         con.execute("BEGIN IMMEDIATE")
-        n = con.execute("UPDATE entries SET verified = 1, verified_by = ?, approval_sig = ? WHERE id = ?",
+        n = con.execute("UPDATE entries SET verified = 1, verified_by = ?, approval_sig = ?, pipeline_sig = NULL "
+                        "WHERE id = ?",
                         (by, str(sig) if sig else None, int(entry_id))).rowcount
         con.execute("COMMIT")
     finally:
@@ -361,7 +377,9 @@ def read(task_id, query=None, k=8, db=None) -> list[dict]:
 def search(text, field=None, k=3) -> list[dict]:
     """Method cards for a problem (the shared card memory; see train/memory/search.py for the retrieval chain)."""
     from . import api
-    return [{"id": c["id"], "task": c.get("task"), "field": c.get("field"), "score": round(s, 4), "text": c["text"]}
+    # cards are built only from grader-verified, pack-free runs (train/memory/cards.py), hence the provenance
+    return [{"id": c["id"], "task": c.get("task"), "field": c.get("field"), "score": round(s, 4), "text": c["text"],
+             "source": "card", "provenance": "pipeline:grader", "verified": True, "pipeline_sig": c.get("pipeline_sig")}
             for s, c in api.retrieve(str(text), field=field, k=k)]
 
 
@@ -485,10 +503,12 @@ def analogies(text, k=3, field=None, db=None) -> list[dict]:
                     "field": obj.get("field"), "content": obj.get("text")}
         if src == "ws":
             item.update(agent=obj["agent"], confidence=obj["confidence"], verified=bool(obj["verified"]),
-                        verified_by=obj["verified_by"], claimed_verified=bool(obj["claimed_verified"]))
+                        verified_by=obj["verified_by"], claimed_verified=bool(obj["claimed_verified"]),
+                        approval_sig=obj["approval_sig"], pipeline_sig=obj["pipeline_sig"], provenance=obj["verified_by"])
         else:
             item.update(agent=obj.get("agent"), confidence=1.0, verified=True, verified_by="pipeline:grader",
-                        claimed_verified=False)
+                        claimed_verified=False, provenance="pipeline:grader", approval_sig=None,
+                        pipeline_sig=obj.get("pipeline_sig"), task=obj.get("task"), text=obj.get("text"))
         item.update(score=round(score, 4), relevance=round(cos, 4), concepts=sorted(shared), query_field=field)
         out.append(item)
     out.sort(key=lambda d: -d["score"])

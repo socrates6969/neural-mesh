@@ -9,6 +9,7 @@ from pathlib import Path
 from . import cards as K
 from . import config as C
 from . import store
+from . import trust
 
 
 def _tasks(bench: Path) -> dict:
@@ -43,6 +44,7 @@ def build(batches: list[str] | None = None, distill: str | None = None, migrate:
             if c is None:
                 dropped += 1
                 continue
+            c["pipeline_sig"] = trust.sign_card(c)          # the builder is a trusted pipeline (grader output only)
             new.append(c)
             have.add(c["id"])
             if len(new) % 10 == 0:
@@ -59,6 +61,7 @@ def build(batches: list[str] | None = None, distill: str | None = None, migrate:
             if c is None:
                 dropped += 1
                 continue
+            c["pipeline_sig"] = trust.sign_card(c)
             new.append(c)
             have.add(c["id"])
     n = store.add(new, _encode)
