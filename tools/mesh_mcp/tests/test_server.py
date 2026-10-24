@@ -6,6 +6,7 @@ import tempfile
 import textwrap
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from tools.mesh_mcp import report, server, workspace_tools
 from tools.mesh_mcp.common import MAX_OUT, as_json, cap
@@ -131,16 +132,30 @@ class WorkspaceTest(unittest.TestCase):
     tearDown = setUp
 
     def test_not_available_message(self):
-        with tempfile.TemporaryDirectory() as d:
-            os.environ["MESH_WORKSPACE_ROOT"] = d
-            try:
-                for text in (workspace_tools.workspace_read(), workspace_tools.memory_search("q"),
-                             workspace_tools.analogies("q"), workspace_tools.workspace_post("c")):
-                    self.assertTrue(text.startswith("workspace not available"), text)
-            finally:
-                os.environ.pop("MESH_WORKSPACE_ROOT")
-                sys.path.remove(d)
+        # simulate an absent backend explicitly: the real one may be importable (e.g. on the integration branch)
+        def no_backend(name, *a, **k):
+            raise ModuleNotFoundError("No module named %r" % name)
+        with mock.patch.object(workspace_tools.importlib, "import_module", no_backend):
+            for text in (workspace_tools.workspace_read(), workspace_tools.memory_search("q"),
+                         workspace_tools.analogies("q"), workspace_tools.workspace_post("c"),
+                         workspace_tools.workspace_stats()):
+                self.assertTrue(text.startswith("workspace not available"), text)
+        self.assertIsNone(workspace_tools._mod)
 
+    def test_guard_refuses_live_database(self):
+        from tools.mesh_mcp import tests as T
+
+        class Live:
+            DB = T.LIVE_DB
+        workspace_tools._mod = Live()
+        with self.assertRaises(T.LiveDatabaseError):
+            workspace_tools.workspace_read()
+
+        class Elsewhere:
+            DB = Path(tempfile.gettempdir()) / "other" / "workspace.db"
+        workspace_tools._mod = Elsewhere()
+        with self.assertRaises(T.LiveDatabaseError):
+            workspace_tools.workspace_stats()
     def test_wraps_api_and_defaults_task_id(self):
         with tempfile.TemporaryDirectory() as d:
             pkg = Path(d, "train", "memory")
@@ -183,7 +198,8 @@ class WorkspaceTest(unittest.TestCase):
             finally:
                 os.environ.pop("MESH_WORKSPACE_ROOT")
                 os.environ.pop("CLAUDE_SESSION_ID")
-                sys.path.remove(d)
+                while d in sys.path:
+                    sys.path.remove(d)
         # verified=True from the agent is never forwarded; the claim travels as a content tag
         self.assertEqual(calls[0], ("post", "sess-9", "me", "fact", workspace_tools.CLAIM_TAG + "c", 0.9, False, ["u"],
                                     "math"))
@@ -228,9 +244,11 @@ class WorkspaceIntegrationTest(unittest.TestCase):
         workspace_tools._mod = None
         for m in [m for m in sys.modules if m == "train" or m.startswith("train.")]:
             sys.modules.pop(m)
-        with tempfile.TemporaryDirectory() as d:
+        from tools.mesh_mcp import tests as T
+        with tempfile.TemporaryDirectory(dir=T.TMP) as d:  # inside the guarded test dir
             env = {"MESH_WORKSPACE_ROOT": os.environ["MESH_WORKSPACE_IT"], "MESH_WORKSPACE_DB": str(Path(d, "w.db")),
                    "MESH_WORKSPACE_KEY": str(Path(d, "w.key"))}
+            saved = {k: os.environ.get(k) for k in env}
             os.environ.update(env)
             try:
                 out = workspace_tools.workspace_post("Gaussian integral equals sqrt(pi)", "result", "it-task", "t",
@@ -243,9 +261,14 @@ class WorkspaceIntegrationTest(unittest.TestCase):
                 self.assertNotIn("approval_sig", out)
                 self.assertIn('"entries": 1', workspace_tools.workspace_stats())
             finally:
-                for k in env:
-                    os.environ.pop(k)
+                for k, v in saved.items():
+                    if v is None:
+                        os.environ.pop(k, None)
+                    else:
+                        os.environ[k] = v
                 workspace_tools._mod = None
+                for m in [m for m in sys.modules if m == "train" or m.startswith("train.")]:
+                    sys.modules.pop(m)
 
 if __name__ == "__main__":
     unittest.main()

@@ -27,8 +27,8 @@ def _workspace():
     if _mod is not None:
         return _mod, None
     root = os.environ.get("MESH_WORKSPACE_ROOT", DEFAULT_ROOT)
-    if root not in sys.path:
-        sys.path.insert(0, root)
+    if not sys.path or sys.path[0] != root:  # first, so its `train` package wins over any other on the path
+        sys.path[:] = [root] + [p for p in sys.path if p != root]
     try:
         _mod = importlib.import_module("train.memory.workspace")
         return _mod, None
