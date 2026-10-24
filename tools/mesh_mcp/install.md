@@ -8,6 +8,14 @@
 `meshtrain-grader:1` is a separate tag and is not changed. Rebuild it with
 `docker build -f Dockerfile.v1 -t meshtrain-grader:1 .` if it is ever removed.
 
+Lean 4 for `lean_check` (Lean v4.35.0 via elan v4.2.4, toolchain pinned to match Mathlib v4.35.0):
+
+    cd tools\mesh_mcp\lean
+    docker build -f Dockerfile.core -t meshtrain-lean:core .         # core Lean only, about 1 GB
+    docker build -f Dockerfile.mathlib -t meshtrain-lean:mathlib .   # optional: prebuilt Mathlib from its cache, several GB
+
+Lean is not installed on the Windows host; it only runs inside these Linux images.
+
 ## 2. Register for the user (all projects)
 
     powershell -File tools\mesh_mcp\install.ps1 -DryRun     # prints the command only

@@ -1,0 +1,16 @@
+# meshtrain-lean:core - Lean 4 core (no Mathlib) for the lean_check tool. Runs network-less and read-only.
+# Build: docker build -f Dockerfile.core -t meshtrain-lean:core .
+# elan comes from its release tarball (no curl | sh); the toolchain matches Mathlib v4.35.0.
+FROM debian:bookworm-slim
+ARG ELAN=v4.2.4
+ARG TOOLCHAIN=leanprover/lean4:v4.35.0
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl git \
+    && apt-get clean && useradd -m -u 10001 runner
+USER runner
+WORKDIR /home/runner
+RUN mkdir -p /tmp/elan && cd /tmp/elan \
+    && curl -fsSL -o elan.tar.gz https://github.com/leanprover/elan/releases/download/${ELAN}/elan-x86_64-unknown-linux-gnu.tar.gz \
+    && tar xzf elan.tar.gz && ./elan-init -y --no-modify-path --default-toolchain ${TOOLCHAIN}
+ENV PATH=/home/runner/.elan/bin:$PATH
+RUN printf 'theorem t (a b : Nat) : a + b = b + a := Nat.add_comm a b\n#eval 2 + 2\n' > /tmp/t.lean && lean /tmp/t.lean
+WORKDIR /w
