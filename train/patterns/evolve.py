@@ -54,6 +54,27 @@ def cosine_novelty(embed):
     return novelty
 
 
+def unexplored_bonus(concepts_fn, known):
+    """Curiosity bonus for unexplored regions: the share of a candidate's concepts that the workspace concept graph has
+    not seen yet. concepts_fn(text) -> list of concept strings (e.g. train.memory.workspace.concepts); known = set of
+    concepts already in the graph. Signature matches novelty_fn (refs are ignored)."""
+    known = set(known)
+
+    def bonus(content, refs=()):
+        cs = [c for c in concepts_fn(content) if not str(c).startswith("field:")]
+        return sum(c not in known for c in cs) / len(cs) if cs else 0.0
+
+    return bonus
+
+
+def combine_novelty(*parts):
+    """Weighted sum of novelty functions: combine_novelty((cosine_novelty(embed), 1.0), (unexplored_bonus(...), 0.5))."""
+    def novelty(content, refs):
+        return sum(w * f(content, refs) for f, w in parts)
+
+    return novelty
+
+
 def first_line(content: str) -> str:
     """Default key idea of a candidate: its first non-empty line (candidates should lead with their core idea)."""
     return next((ln.strip() for ln in (content or "").splitlines() if ln.strip()), "")

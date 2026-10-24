@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 
 from train.patterns import Candidate, answer_key, best_of_n, evolve, token_novelty
-from train.patterns.evolve import cosine_novelty
+from train.patterns.evolve import combine_novelty, cosine_novelty, unexplored_bonus
 
 TMP = Path(tempfile.mkdtemp())
 
@@ -145,6 +145,27 @@ class EvolveTest(unittest.TestCase):
         self.assertAlmostEqual(nov("x", ["x1"]), 0.0)
         self.assertAlmostEqual(nov("x", ["y"]), 1.0)
         self.assertIsInstance(Candidate("c").meta, dict)
+
+    def test_unexplored_region_bonus(self):
+        ub = unexplored_bonus(lambda s: s.split() + ["field:x"], {"cache", "lru"})
+        self.assertAlmostEqual(ub("cache bloom", []), 0.5)
+        self.assertEqual(ub("", []), 0.0)
+        both = combine_novelty((token_novelty, 1.0), (ub, 0.5))
+        self.assertAlmostEqual(both("cache bloom", ["cache bloom"]), 0.25)
+
+
+class SwarmTest(unittest.TestCase):
+    def test_caps(self):
+        from train.patterns.swarm import free_ram_gb, plan_swarm
+        r = plan_swarm(shards=20, token_budget=10**6, tokens_per_agent=20000, free_gb=5.0)
+        self.assertEqual((r["concurrent"], r["binding"], r["total"], r["waves"]), (5, "ram", 20, 4))
+        r = plan_swarm(shards=20, token_budget=60000, tokens_per_agent=20000, free_gb=12.0)
+        self.assertEqual((r["total"], r["concurrent"], r["binding"], r["dropped_shards"]), (3, 3, "tokens", 17))
+        r = plan_swarm(shards=4, token_budget=10**6, tokens_per_agent=1000, free_gb=1.5)
+        self.assertEqual((r["concurrent"], r["waves"]), (0, 0))
+        r = plan_swarm(shards=3, token_budget=10**6, tokens_per_agent=1000, free_gb=32.0)
+        self.assertEqual((r["concurrent"], r["binding"]), (3, "shards"))
+        self.assertGreater(free_ram_gb(), 0)
 
 
 if __name__ == "__main__":
