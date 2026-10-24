@@ -30,6 +30,48 @@ def _tasks(bench: Path) -> dict:
     return out
 
 
+def legacy_remapper(tasks: dict):
+    """Map result rows recorded under a retired bench id (`legacy_id`, e.g. physics jee-phy-N before the re-id) to
+    the current id, ONLY when the mapping is certain - duplicate-free beats coverage:
+      * the legacy id names exactly one current row -> that row (passed and failed rows alike);
+      * otherwise, for a PASSED row: re-grade its text with the harness grader (train.check.grade) against every
+        candidate row; exactly one correct candidate -> that row;
+      * anything else (failed row of a shared legacy id, zero or several correct candidates) -> dropped.
+    Rows whose task is a current id pass through unchanged."""
+    by_legacy = {}
+    for t in tasks.values():
+        if t.get("legacy_id") and t["legacy_id"] != t["id"]:
+            by_legacy.setdefault(t["legacy_id"], []).append(t)
+    if not by_legacy:
+        return None
+    from .. import check
+    cache = {}
+
+    def remap(r):
+        tid = r.get("task")
+        if tid in tasks:
+            return tid
+        cands = by_legacy.get(tid)
+        if not cands:
+            return None
+        if len(cands) == 1:
+            return cands[0]["id"]
+        if not r.get("passed") or r.get("error"):
+            return None
+        key = (tid, r.get("text") or "")
+        if key not in cache:
+            ok = []
+            for t in cands:
+                try:
+                    if check.grade(t, r.get("text") or ""):
+                        ok.append(t["id"])
+                except Exception:
+                    pass
+            cache[key] = ok[0] if len(ok) == 1 else None
+        return cache[key]
+    return remap
+
+
 def ambiguous_ids(bench: Path | None = None) -> set:
     bench = bench or (C.RUNS / "bench")
     ids = set()
@@ -59,7 +101,7 @@ def build(batches: list[str] | None = None, distill: str | None = None, migrate:
         rp = d / "results.jsonl"
         if not rp.exists():
             continue
-        for tid, r in K.verified_rows(rp).items():
+        for tid, r in K.verified_rows(rp, legacy_remapper(tasks)).items():
             if "card:" + tid in have or tid not in tasks:
                 continue
             c = K.make_card(tasks[tid], r, distill=distill, batch=d.name)
@@ -75,7 +117,8 @@ def build(batches: list[str] | None = None, distill: str | None = None, migrate:
     if migrate:
         sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
         from .. import experience
-        amb = ambiguous_ids()
+        amb = ambiguous_ids() | {t["legacy_id"] for t in tasks.values()       # retired ids: their legacy records
+                                 if t.get("legacy_id") and t["legacy_id"] not in tasks}   # cannot be matched safely
         for rec in experience.load()[0]:
             if "card:" + rec["task"] in have or rec["task"] in amb:
                 continue

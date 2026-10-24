@@ -334,6 +334,25 @@ class WorkspaceTest(unittest.TestCase):
         self.assertEqual((cards[0]["split"], bool(cards[0]["problem_key"])), ("tune", True))
         self.assertEqual(W.stats()["entries"], 1)
 
+    def test_legacy_ids_map_only_when_certain(self):
+        from train.memory import builder
+        tasks = {t["id"]: t for t in [
+            {"id": "p-a", "legacy_id": "p", "kind": "mcq", "answer": "A", "prompt": "q1"},
+            {"id": "p-b", "legacy_id": "p", "kind": "mcq", "answer": "C", "prompt": "q2"},
+            {"id": "s-a", "legacy_id": "s", "kind": "numeric", "answer": "5", "prompt": "q3"},
+            {"id": "d-a", "legacy_id": "d", "kind": "mcq", "answer": "B", "prompt": "q4"},
+            {"id": "d-b", "legacy_id": "d", "kind": "mcq", "answer": "B", "prompt": "q5"},
+            {"id": "new", "kind": "mcq", "answer": "A", "prompt": "q6"}]}
+        mapper = builder.legacy_remapper(tasks)
+        self.assertEqual(mapper({"task": "p", "passed": True, "text": "so ANSWER: C"}), "p-b")   # unique correct candidate
+        self.assertIsNone(mapper({"task": "p", "passed": False, "text": "ANSWER: D"}))           # shared id, no evidence
+        self.assertIsNone(mapper({"task": "p", "passed": True, "text": "ANSWER: D"}))            # no candidate grades correct
+        self.assertIsNone(mapper({"task": "d", "passed": True, "text": "ANSWER: B"}))            # two candidates correct
+        self.assertEqual(mapper({"task": "s", "passed": False, "text": "ANSWER: 3"}), "s-a")     # single row: certain
+        self.assertEqual(mapper({"task": "new", "passed": True, "text": "x"}), "new")            # current id unchanged
+        self.assertIsNone(mapper({"task": "unknown", "passed": True, "text": "x"}))
+        self.assertIsNone(builder.legacy_remapper({"x": {"id": "x", "prompt": "y"}}))
+
     def test_cli(self):
         import contextlib
         import io
