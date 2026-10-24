@@ -2,7 +2,10 @@
 read() broadcasts the most salient items back - this task's own entries plus, at lower weight, relevant entries from
 other tasks/sessions. Storage: SQLite in WAL mode (local, concurrent-safe across processes, no server).
 
-  post(task_id, agent, kind, content, confidence=0.5, verified=False, sources=None, field=None) -> id | None
+  post(task_id, agent, kind, content, confidence=0.5, verified=False, sources=None, field=None,
+       claimed_verified=False, verified_by=None, approval_sig=None, ext_key=None) -> int | None
+  get(entry_id) -> dict | None                          one entry, decrypted
+  approve(entry_id, by="human", sig=None) -> bool       mark verified (trusted out-of-band callers only)
   read(task_id, query=None, k=8) -> list[dict]          salience = relevance x recency x confidence x verified bonus
                                                           (x kind weight x usefulness); failures come back avoid=True
   search(text, field=None, k=3) -> list[dict]           method cards (train.memory card store)
@@ -10,6 +13,12 @@ other tasks/sessions. Storage: SQLite in WAL mode (local, concurrent-safe across
   compress(task_id, keep=8) -> id | None                summary entry replacing old low-salience entries
   analogies(text, k=3, field=None) -> list[dict]        relevant items from DIFFERENT fields (concept graph bridge)
   stats() -> dict
+
+Trust model: `verified` is never taken from model output. post() stores verified=True ONLY together with a
+verified_by of "pipeline:<name>" (grader pipelines, e.g. train.memory.ingest_training) or "human:<user>" (an approval,
+optionally HMAC-signed: approval_sig is stored as given). A bare verified=True (e.g. relayed from an agent) is stored as
+claimed_verified=True, verified=False - a display-only, unchecked claim. Only out-of-band code (grader pipelines, the
+human approval CLI) may pass verified_by; tool wrappers exposed to agents must not forward it.
 
 Everything is scrubbed with ingest.scrub; content with a SECRET-class hit is dropped (post returns None).
 Optional encryption: MESH_WORKSPACE_ENCRYPT=1 encrypts content with AES-GCM; the key lives in
@@ -58,7 +67,8 @@ CREATE TABLE IF NOT EXISTS entries (
   id INTEGER PRIMARY KEY AUTOINCREMENT, task_id TEXT NOT NULL, agent TEXT, kind TEXT NOT NULL, field TEXT,
   content TEXT NOT NULL, enc INTEGER NOT NULL DEFAULT 0, confidence REAL NOT NULL, verified INTEGER NOT NULL,
   sources TEXT, created REAL NOT NULL, s INTEGER NOT NULL DEFAULT 0, f INTEGER NOT NULL DEFAULT 0,
-  superseded_by INTEGER, concepts TEXT, vec BLOB);
+  superseded_by INTEGER, concepts TEXT, vec BLOB, claimed_verified INTEGER NOT NULL DEFAULT 0, verified_by TEXT,
+  approval_sig TEXT, ext_key TEXT);
 CREATE INDEX IF NOT EXISTS entries_task ON entries(task_id, superseded_by);
 CREATE INDEX IF NOT EXISTS entries_created ON entries(created);
 CREATE TABLE IF NOT EXISTS concepts (entry_id INTEGER NOT NULL, concept TEXT NOT NULL, PRIMARY KEY (entry_id, concept));
@@ -78,13 +88,29 @@ def _connect(path: Path | None = None) -> sqlite3.Connection:
     con.execute("PRAGMA journal_mode=WAL")
     con.execute("PRAGMA synchronous=NORMAL")
     con.executescript(_SCHEMA)
+    have = {r[1] for r in con.execute("PRAGMA table_info(entries)")}
+    for col, decl in (("claimed_verified", "INTEGER NOT NULL DEFAULT 0"), ("verified_by", "TEXT"), ("approval_sig", "TEXT"),
+                      ("ext_key", "TEXT")):
+        if col not in have:                                          # databases created before the trust model
+            try:
+                con.execute("ALTER TABLE entries ADD COLUMN %s %s" % (col, decl))
+            except sqlite3.OperationalError:
+                pass                                                 # another process added it first
+    con.execute("CREATE UNIQUE INDEX IF NOT EXISTS entries_ext ON entries(ext_key) WHERE ext_key IS NOT NULL")
     return con
 
 
 def _embed(texts: list[str]) -> np.ndarray:
-    """MiniLM sentence vectors (the mesh encoder). Tests may replace this function."""
+    """MiniLM sentence vectors: from the warm memory daemon when it runs (~25 ms), else the in-process encoder (and
+    the daemon is started for next time). Tests may replace this function."""
+    texts = [t[:C.MAX_PROBLEM] for t in texts]
+    if os.environ.get("MESH_WORKSPACE_DAEMON", "on") != "off":
+        from . import client
+        v = client.embed(texts)
+        if v is not None:
+            return v
     from .. import experience
-    return experience.encoder().encode([t[:C.MAX_PROBLEM] for t in texts])
+    return experience.encoder().encode(texts)
 
 
 def _scrub(text: str):
@@ -166,8 +192,15 @@ def _open(blob: str, aad: str) -> str:
 
 # ---------------------------------------------------------------- API
 
-def post(task_id, agent, kind, content, confidence=0.5, verified=False, sources=None, field=None, db=None):
-    """Store one entry; returns its id, or None when the content is empty or has a secret (scrub drop)."""
+TRUSTED_PREFIXES = ("pipeline:", "human:")
+
+
+def post(task_id, agent, kind, content, confidence=0.5, verified=False, sources=None, field=None, db=None,
+         claimed_verified=False, verified_by=None, approval_sig=None, ext_key=None):
+    """Store one entry; returns its id (int), or None when the content is empty or has a secret (scrub drop).
+    verified=True is kept only with verified_by "pipeline:<name>" or "human:<user>"; otherwise it becomes an unchecked
+    claimed_verified. ext_key (optional) makes the post idempotent: a second post with the same key returns the
+    existing id and changes nothing."""
     kind = str(kind).strip().lower()
     if kind not in KINDS and kind != "summary":
         raise ValueError("kind must be one of " + "|".join(KINDS))
@@ -187,13 +220,24 @@ def post(task_id, agent, kind, content, confidence=0.5, verified=False, sources=
     if _encrypt_on():
         stored, enc = _seal(text, task_id + "|" + kind), 1          # raises (fails closed) on any key/cipher problem
     conf = float(min(1.0, max(0.0, confidence)))
+    vby = str(verified_by) if verified_by else None
+    trusted = bool(verified) and bool(vby) and vby.startswith(TRUSTED_PREFIXES)
+    claimed = bool(claimed_verified) or (bool(verified) and not trusted)
     con = _connect(db)
     try:
         con.execute("BEGIN IMMEDIATE")
+        if ext_key is not None:
+            row = con.execute("SELECT id FROM entries WHERE ext_key = ?", (str(ext_key),)).fetchone()
+            if row:
+                con.execute("COMMIT")
+                return row[0]
         cur = con.execute("INSERT INTO entries (task_id, agent, kind, field, content, enc, confidence, verified, sources, "
-                          "created, concepts, vec) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
-                          (task_id, agent, kind, field, stored, enc, conf, int(bool(verified)), json.dumps(src),
-                           time.time(), json.dumps(cs), vec))
+                          "created, concepts, vec, claimed_verified, verified_by, approval_sig, ext_key) "
+                          "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                          (task_id, agent, kind, field, stored, enc, conf, int(trusted), json.dumps(src), time.time(),
+                           json.dumps(cs), vec, int(claimed), vby if trusted else None,
+                           str(approval_sig) if (trusted and approval_sig) else None,
+                           str(ext_key) if ext_key is not None else None))
         eid = cur.lastrowid
         con.executemany("INSERT OR IGNORE INTO concepts (entry_id, concept) VALUES (?,?)", [(eid, c) for c in cs])
         pairs = sorted({(a, b) for a in cs for b in cs if a < b})
@@ -225,11 +269,49 @@ def _salience(row, rel: float, now: float, own: bool) -> float:
             * (1.0 if own else OTHER_W))
 
 
-def _as_dict(row, content, sal, own, rel):
-    return {"id": row["id"], "task_id": row["task_id"], "agent": row["agent"], "kind": row["kind"], "content": content,
-            "confidence": row["confidence"], "verified": bool(row["verified"]), "field": row["field"],
-            "sources": json.loads(row["sources"] or "[]"), "created": row["created"], "salience": round(sal, 5),
-            "relevance": round(rel, 4), "scope": "task" if own else "other", "avoid": row["kind"] == "failure"}
+def _as_dict(row, content, sal=None, own=True, rel=None):
+    d = {"id": row["id"], "task_id": row["task_id"], "agent": row["agent"], "kind": row["kind"], "content": content,
+         "confidence": row["confidence"], "verified": bool(row["verified"]), "verified_by": row["verified_by"],
+         "claimed_verified": bool(row["claimed_verified"]), "approval_sig": row["approval_sig"], "field": row["field"],
+         "sources": json.loads(row["sources"] or "[]"), "created": row["created"], "scope": "task" if own else "other",
+         "avoid": row["kind"] == "failure", "usefulness": {"s": row["s"], "f": row["f"]},
+         "superseded_by": row["superseded_by"]}
+    if sal is not None:
+        d.update(salience=round(sal, 5), score=round(sal, 5), relevance=round(rel, 4))
+    return d
+
+
+def get(entry_id, db=None) -> dict | None:
+    """One entry by id, decrypted (None if missing or not decryptable)."""
+    con = _connect(db)
+    try:
+        row = con.execute("SELECT * FROM entries WHERE id = ?", (int(entry_id),)).fetchone()
+    finally:
+        con.close()
+    if row is None:
+        return None
+    c = _content(row)
+    return None if c is None else _as_dict(row, c)
+
+
+def approve(entry_id, by="human", sig=None, db=None) -> bool:
+    """Mark an entry verified by a trusted out-of-band party: by="human:<user>" (with an optional HMAC approval_sig,
+    checked by the caller) or "pipeline:<name>". A bare "human" becomes "human:<USERNAME>". Returns False if the entry
+    does not exist or `by` is not a trusted identity. Never expose this to agents."""
+    by = str(by or "")
+    if by == "human":
+        by = "human:" + (os.environ.get("USERNAME") or os.environ.get("USER") or "unknown")
+    if not by.startswith(TRUSTED_PREFIXES):
+        return False
+    con = _connect(db)
+    try:
+        con.execute("BEGIN IMMEDIATE")
+        n = con.execute("UPDATE entries SET verified = 1, verified_by = ?, approval_sig = ? WHERE id = ?",
+                        (by, str(sig) if sig else None, int(entry_id))).rowcount
+        con.execute("COMMIT")
+    finally:
+        con.close()
+    return n == 1
 
 
 def _vec(row) -> np.ndarray:
@@ -401,6 +483,12 @@ def analogies(text, k=3, field=None, db=None) -> list[dict]:
         else:
             item = {"id": obj["id"], "source": "card", "task_id": obj.get("task"), "kind": "method",
                     "field": obj.get("field"), "content": obj.get("text")}
+        if src == "ws":
+            item.update(agent=obj["agent"], confidence=obj["confidence"], verified=bool(obj["verified"]),
+                        verified_by=obj["verified_by"], claimed_verified=bool(obj["claimed_verified"]))
+        else:
+            item.update(agent=obj.get("agent"), confidence=1.0, verified=True, verified_by="pipeline:grader",
+                        claimed_verified=False)
         item.update(score=round(score, 4), relevance=round(cos, 4), concepts=sorted(shared), query_field=field)
         out.append(item)
     out.sort(key=lambda d: -d["score"])
@@ -454,6 +542,8 @@ def main(argv=None) -> int:
     p = sub.add_parser("observe")
     p.add_argument("ids", nargs="+")
     p.add_argument("--failed", action="store_true")
+    p = sub.add_parser("get")
+    p.add_argument("id", type=int)
     sub.add_parser("stats")
     a = ap.parse_args(argv)
     if a.cmd == "post":
@@ -466,6 +556,8 @@ def main(argv=None) -> int:
         out = analogies(a.text, a.k, a.field)
     elif a.cmd == "compress":
         out = compress(a.task, a.keep)
+    elif a.cmd == "get":
+        out = get(a.id)
     elif a.cmd == "observe":
         observe(a.ids, not a.failed)
         out = "ok"

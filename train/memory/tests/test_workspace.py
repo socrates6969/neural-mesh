@@ -157,6 +157,76 @@ class WorkspaceTest(unittest.TestCase):
         st = W.stats()
         self.assertEqual(st["entries"], 80)
 
+    def test_verified_only_from_trusted_identities(self):
+        a = W.post("t1", "agent", "result", "the answer is proven by induction", verified=True)
+        b = W.post("t1", "agent", "result", "a forged verification claim", verified=True, verified_by="agent")
+        c = W.post("t1", "grader", "result", "graded correct by the pipeline", verified=True, verified_by="pipeline:grader")
+        d = W.post("t1", "agent", "fact", "self-reported check passed", claimed_verified=True)
+        ga, gb, gc, gd = (W.get(i) for i in (a, b, c, d))
+        self.assertEqual((ga["verified"], ga["claimed_verified"], ga["verified_by"]), (False, True, None))
+        self.assertEqual((gb["verified"], gb["claimed_verified"], gb["verified_by"]), (False, True, None))
+        self.assertEqual((gc["verified"], gc["claimed_verified"], gc["verified_by"]), (True, False, "pipeline:grader"))
+        self.assertEqual((gd["verified"], gd["claimed_verified"]), (False, True))
+        self.assertIsNone(W.get(99999))
+        r = {x["id"]: x for x in W.read("t1", k=8)}
+        self.assertIn("verified_by", r[c])
+        self.assertIn("score", r[c])
+
+    def test_approve(self):
+        a = W.post("t1", "agent", "result", "a claim that a human checks")
+        self.assertFalse(W.approve(a, by="agent-x"))
+        self.assertFalse(W.get(a)["verified"])
+        self.assertTrue(W.approve(a, by="human:marius", sig="hmac-abc"))
+        g = W.get(a)
+        self.assertEqual((g["verified"], g["verified_by"], g["approval_sig"]), (True, "human:marius", "hmac-abc"))
+        self.assertTrue(W.approve(a))
+        self.assertTrue(W.get(a)["verified_by"].startswith("human:"))
+        self.assertFalse(W.approve(424242, by="human:x"))
+
+    def test_ext_key_is_idempotent(self):
+        a = W.post("t1", "p", "method", "use a segment tree", ext_key="k1")
+        b = W.post("t1", "p", "method", "use a segment tree", ext_key="k1")
+        self.assertEqual(a, b)
+        self.assertEqual(W.stats()["entries"], 1)
+
+    def test_ingest_training_feed(self):
+        from train.memory import ingest_training as I
+        runs = Path(self.tmp) / "runs"
+        (runs / "bench").mkdir(parents=True)
+        (runs / "train" / "b1").mkdir(parents=True)
+        bench = [{"id": "m1", "field": "math", "prompt": "Find the sum of the first n odd numbers.", "kind": "int"},
+                 {"id": "m2", "field": "math", "prompt": "Count the lattice paths in a 3 by 3 grid.", "kind": "int"}]
+        (runs / "bench" / "math.jsonl").write_text("".join(json.dumps(t) + "\n" for t in bench), encoding="utf-8")
+        rows = [{"agent": "a1", "task": "m1", "field": "math", "phase": "held_base", "passed": True, "pack": False,
+                 "text": "Use induction since the partial sums are perfect squares. Check: verified n=1..5. ANSWER: n^2"},
+                {"agent": "a2", "task": "m2", "field": "math", "phase": "held_base", "passed": False, "pack": False,
+                 "text": "I think it is 12 by counting moves. ANSWER: 12"},
+                {"agent": "a3", "task": "m2", "field": "math", "phase": "held_base", "passed": False, "pack": False,
+                 "error": "quota", "text": "limit"},
+                {"agent": "a4", "task": "m1", "field": "math", "phase": "tune", "passed": False, "pack": False, "text": "x"}]
+        (runs / "train" / "b1" / "results.jsonl").write_text("".join(json.dumps(r) + "\n" for r in rows), encoding="utf-8")
+        old = C.RUNS
+        C.RUNS = runs
+        try:
+            st = I.ingest("b1", log=lambda *a: None)
+            n1 = W.stats()["entries"]
+            I.ingest("b1", log=lambda *a: None)
+        finally:
+            C.RUNS = old
+        self.assertEqual((st["method"], st["failure"]), (1, 1))
+        self.assertEqual(n1, 2)
+        self.assertEqual(W.stats()["entries"], 2)                 # idempotent
+        got = W.read("training:b1", k=8)
+        self.assertTrue(all(g["verified"] and g["verified_by"] == "pipeline:grader" for g in got))
+        self.assertEqual({g["kind"] for g in got}, {"method", "failure"})
+        self.assertTrue(next(g for g in got if g["kind"] == "failure")["avoid"])
+
+    def test_daemon_embed_op(self):
+        from train.memory import daemon
+        out = daemon.handle({"op": "embed", "texts": ["hello world"], "key": "k"}, "k")
+        self.assertTrue(out["ok"])
+        self.assertEqual(len(out["vecs"]), 1)
+
     def test_cli(self):
         import contextlib
         import io

@@ -6,6 +6,7 @@ shared key from ~/.claude/mesh-memory.key (random, created on first use), so oth
 memory or forge outcome feedback through the daemon. Ops: ping | lookup | observe."""
 from __future__ import annotations
 
+import base64
 import json
 import os
 import secrets
@@ -54,6 +55,11 @@ def handle(req: dict, secret: str) -> dict:
     if op == "observe":
         api.observe(req.get("cards") or [], bool(req.get("passed")))
         return {"ok": True}
+    if op == "embed":
+        from .. import experience
+        texts = [str(t)[:C.MAX_PROBLEM] for t in (req.get("texts") or [])][:64]
+        vecs = experience.encoder().encode(texts) if texts else []
+        return {"ok": True, "vecs": [base64.b64encode(v.astype("<f4").tobytes()).decode("ascii") for v in vecs]}
     return {"ok": False, "error": "op"}
 
 

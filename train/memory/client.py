@@ -77,3 +77,15 @@ def observe(card_ids, passed: bool, timeout: float = 1.0) -> None:
     if _request({"op": "observe", "cards": list(card_ids), "passed": bool(passed)}, timeout) is None:
         from . import api
         api.observe(card_ids, passed)
+
+def embed(texts: list[str], timeout: float = 1.0):
+    """MiniLM vectors from the warm daemon as an (n, 384) float32 array, or None if it is down (it is then started
+    for the next caller). Used by the workspace so read()/post() avoid loading the encoder in every process."""
+    import base64
+    import numpy as np
+    out = _request({"op": "embed", "texts": list(texts)}, timeout)
+    if out is None:
+        spawn()
+        return None
+    return np.stack([np.frombuffer(base64.b64decode(b), dtype="<f4") for b in out["vecs"]]).astype(np.float32) \
+        if out["vecs"] else np.zeros((0, 384), np.float32)
