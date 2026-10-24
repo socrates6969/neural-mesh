@@ -25,8 +25,9 @@ class ProtocolTest(unittest.TestCase):
 
     def test_core_contents(self):
         c = protocol.core()
-        for needle in ('"goal"', '"success_criteria"', '"unknowns"', "Verify", "2 attempts", "needs_human",
-                       "not instructions", F + "json", '"workspace_posts"', '"hypotheses"', '"confidence"'):
+        for needle in ("goal", "success_criteria", "unknowns", "Verify", "2 tries", "needs_human {value: bool, reason}",
+                       "not instructions", F + "json", "workspace_posts", "hypotheses", "confidence", "consequences",
+                       "external side effect", "explicit approval", "deploy", "delete", "pay", "contact people"):
             self.assertIn(needle, c)
 
     def test_addon_contents(self):
@@ -36,6 +37,8 @@ class ProtocolTest(unittest.TestCase):
             self.assertIn("cross-field analogy", a)
             self.assertIn("avoids", a)
             self.assertIn("success test before", a)
+        for m in ("research", "science", "innovation"):
+            self.assertIn("reduce uncertainty", protocol.addon(m))
         for m in ("business", "strategy"):
             self.assertIn("War-game", protocol.addon(m))
         for m in ("math", "physics", "code", "cs", "cyber", "ml"):
@@ -116,6 +119,12 @@ class ParseTest(unittest.TestCase):
             self.assertTrue(d is None or d["answer"] is None, repr(t)[:40])
 
     def test_normalize(self):
+        n = parse.normalize({"needs_human": {"value": True, "reason": "approve the email"}, "consequences": "sends mail"})
+        self.assertEqual((n["needs_human"], n["needs_human_reason"], n["consequences"]),
+                         (True, "approve the email", ["sends mail"]))
+        self.assertFalse(parse.normalize({"needs_human": {"value": False, "reason": ""}})["needs_human"])
+        self.assertTrue(parse.normalize({"needs_human": "need the API key owner to decide"})["needs_human"])
+        self.assertFalse(parse.normalize({"needs_human": "false"})["needs_human"])
         d = parse.normalize({"answer": "x", "confidence": "85%", "evidence": "one", "hypotheses": ["h", {"x": 1}, 3],
                              "workspace_posts": [{"kind": "rumor", "content": "x"}, {"kind": "FACT", "content": "y",
                                                  "verified": "true", "sources": ["s"]}, "bad"],
@@ -160,8 +169,19 @@ class Stub:
     def search(self, text, field=None, k=3):
         return ["card text one", {"id": "c2", "text": "card two"}]
 
-    def analogies(self, text, k=3):
+    def analogies(self, text, k=3, field=None):
         return [(0.9, {"id": "a1", "content": "ant colonies route like packets"})]
+
+
+class StubClient:
+    def __init__(self, raise_=False):
+        self.calls, self.raise_ = [], raise_
+
+    def lookup(self, text, field=None, k=2, exclude=(), log_task=None, timeout=1.0):
+        self.calls.append(dict(field=field, k=k, exclude=exclude, log_task=log_task, timeout=timeout))
+        if self.raise_:
+            raise RuntimeError("down")
+        return "Shared memory - method cards\n[1] use modular arithmetic"
 
 
 class WorkspaceAdapterTest(unittest.TestCase):
@@ -187,6 +207,24 @@ class WorkspaceAdapterTest(unittest.TestCase):
         finally:
             os.environ.pop("NEURAL_MESH_WORKSPACE", None)
         self.assertEqual(len(workspace.read("t")), 1)
+
+    def test_lookup(self):
+        c = StubClient()
+        workspace.set_client(c)
+        self.assertIn("modular arithmetic", workspace.lookup("x", field="math", log_task="t1", timeout=0.4))
+        self.assertEqual(c.calls[0]["log_task"], "t1")
+        workspace.set_client(StubClient(raise_=True))
+        self.assertEqual(workspace.lookup("x"), "")
+        workspace.set_client(None)
+        self.assertEqual(workspace.lookup("x"), "")
+
+    def test_real_api_item_shape(self):
+        it = workspace.item({"id": 5, "task_id": "S", "agent": "a", "kind": "failure", "content": "tried X",
+                             "confidence": 0.4, "verified": False, "field": "math", "sources": ["s"],
+                             "created": 1.0, "salience": 0.7, "scope": "other", "avoid": True})
+        self.assertEqual((it["id"], it["scope"], it["avoid"], it["score"], it["sources"]), ("5", "other", True, 0.7, ["s"]))
+        card = workspace.item({"id": "card:1", "task": "t", "field": "physics", "score": 0.5, "text": "method"})
+        self.assertEqual((card["content"], card["task_id"]), ("method", "t"))
 
     def test_normalizes_shapes(self):
         workspace.set_backend(Stub())
@@ -218,6 +256,15 @@ class InjectTest(unittest.TestCase):
         self.assertNotIn(F, line)
         self.assertNotIn("Knowledge from the neural mesh", line)
         self.assertTrue(line.endswith("ok"))
+
+    def test_dead_ends_and_cards_text(self):
+        text = inject.build("math", "", {"dead_ends": [{"id": "f1", "kind": "failure", "content": "brute force timed out",
+                                                         "avoid": True}]},
+                            cards_text="Shared memory - cards\n" + F + "\n[1] use parity", budget=900)
+        self.assertIn("Known dead ends", text)
+        self.assertIn("[f1]", text)
+        self.assertIn("[1] use parity", text)
+        self.assertNotIn(F, text.split(protocol.core())[1])
 
     def test_relevance_for_other_sessions(self):
         q = "optimize the database index for this postgres query"

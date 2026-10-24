@@ -123,6 +123,15 @@ def _true(v) -> bool:
     return v is True or (isinstance(v, str) and v.strip().lower() == "true")
 
 
+def _needs(v) -> tuple[bool, str]:
+    """needs_human as true/"true" or {value: bool, reason}; a free-text reason string alone also counts as true."""
+    if isinstance(v, dict):
+        return _true(v.get("value")) or _true(v.get("needed")), str(v.get("reason") or "").strip()
+    if isinstance(v, str) and v.strip() and v.strip().lower() not in ("true", "false", "no", "none", "null"):
+        return True, v.strip()
+    return _true(v), ""
+
+
 def normalize(d) -> dict | None:
     """Coerce a raw block into the protocol schema; unknown keys are dropped, bad values become defaults."""
     if not isinstance(d, dict):
@@ -155,7 +164,9 @@ def normalize(d) -> dict | None:
         "hypotheses": hyps,
         "open_questions": _strs(d.get("open_questions")),
         "workspace_posts": posts,
-        "needs_human": _true(d.get("needs_human")),
+        "needs_human": _needs(d.get("needs_human"))[0],
+        "needs_human_reason": _needs(d.get("needs_human"))[1] or str(d.get("needs_human_reason") or "").strip(),
+        "consequences": _strs(d.get("consequences")),
         "verified": _true(d.get("verified")),
         "failures": _strs(d.get("failures") if d.get("failures") is not None else d.get("tried")),
     }

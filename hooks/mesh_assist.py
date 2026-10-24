@@ -10,11 +10,15 @@ A pack is only used when the user approved that exact text: python -m train.appr
 agent|field|pack keyed with a secret in ~/.claude/mesh-pack.key (outside every training/run folder). Anything that
 can write the registry but not read the key cannot forge an approval; an edited or unapproved pack is ignored. Pack text is framed as reference material, not as instructions.
 Agent kit (agentkit/): every Agent/Task call also gets the protocol core + a mode add-on (agentkit/protocol.py), the
-Global Workspace broadcast for this session (task_id = session_id), related items from other sessions, method cards and,
+Global Workspace for this session (task_id = session_id; untrusted background; failures shown as known dead ends),
+items from OTHER sessions only when pipeline/human-verified (never their raw captured output), method cards built from
+grader-verified results (train.memory.client.lookup) and,
 for research/business-type modes, cross-field analogies - ranked and trimmed to ~900 tokens (agentkit/inject.py).
 A prompt that already carries the protocol marker or MARK is left alone. Each stage's result is kept as soon as it is
 ready, so a slow memory backend costs only its own section, never the protocol.
-Opt-out: NEURAL_MESH_ASSIST=off (everything), NEURAL_MESH_PROTOCOL=off (protocol only), NEURAL_MESH_WORKSPACE=off.
+Every injected item carries its provenance [session / agent / verified-by].
+Opt-out: NEURAL_MESH_ASSIST=off (everything), NEURAL_MESH_PROTOCOL=off (protocol only), NEURAL_MESH_WORKSPACE=off,
+NEURAL_MESH_CROSS_SESSION=off (no items or analogies from other sessions; grader-built method cards stay).
 Budget: NEURAL_MESH_ASSIST_BUDGET_S (default 3 s).
 """
 import os
@@ -101,12 +105,13 @@ def decide(data, registry, exp_fn=None, ws=None, sink=None, deadline=None):
                       + promoted[f]["pack"].strip() + NL + ">>>")
     with_protocol = os.environ.get("NEURAL_MESH_PROTOCOL", "").strip().lower() != "off"
     mode = protocol.detect_mode(desc + " " + prompt, agent, desc, fields=[f] if f else None)
-    sections, state = {}, {"exp": ""}
+    sections, state = {}, {"exp": "", "cards_text": ""}
 
     def render():
-        if not (with_protocol or pack_block or state["exp"] or any(sections.values())):
+        if not (with_protocol or pack_block or state["exp"] or state["cards_text"] or any(sections.values())):
             return None
-        text = inject.build(mode, pack_block, sections, state["exp"], with_protocol=with_protocol)
+        text = inject.build(mode, pack_block, sections, state["exp"], with_protocol=with_protocol,
+                            cards_text=state["cards_text"])
         new = dict(ti)
         new["prompt"] = text + NL + NL + "---" + NL + NL + prompt
         out = {"hookSpecificOutput": {"hookEventName": "PreToolUse", "updatedInput": new}}
@@ -120,17 +125,43 @@ def decide(data, registry, exp_fn=None, ws=None, sink=None, deadline=None):
     out = render()
     sid = str(data.get("session_id") or "")
     query = (desc + " " + prompt)[:4000]
+    cross = os.environ.get("NEURAL_MESH_CROSS_SESSION", "").strip().lower() != "off"
+
+    def same_session(i):
+        return bool(sid) and (i.get("scope") == "task" or (not i.get("scope") and i.get("task_id") == sid))
+
+    def trusted(i):
+        """Cross-session trust: only pipeline/human-verified entries or grader-built method cards."""
+        return i.get("source") == "card" or i.get("verified") is True
+
+    def split_read():
+        items = ws.read(sid or "-", query=query, k=8)
+        own = [i for i in items if same_session(i)]
+        others = []
+        if cross:
+            rest = [i for i in items if not same_session(i) and trusted(i) and not i.get("avoid")]
+            others = [i for i in rest if i.get("scope") == "other"] + inject.relevant(
+                [i for i in rest if not i.get("scope")], query)
+        return {"workspace": inject.rank([i for i in own if not i.get("avoid")]),
+                "dead_ends": inject.rank([i for i in own if i.get("avoid")]),
+                "others": inject.rank(others)}
+
+    def analogies():
+        return [i for i in ws.analogies(query, k=3) if same_session(i) or trusted(i)]
+
+    def cards():
+        left = 1.0 if deadline is None else max(0.05, deadline - time.monotonic())
+        return ws.lookup(prompt, k=2, timeout=left)
+
     stages = []
-    if ws is not None and sid:
-        stages.append(("workspace", lambda: inject.rank(ws.read(sid, query=query, k=8))))
+    if ws is not None:
+        stages.append(("read", split_read))
     if exp_fn:
         stages.append(("exp", lambda: exp_fn(prompt) or ""))
     if ws is not None:
-        stages.append(("cards", lambda: ws.search(query, field=f, k=3)))
-        stages.append(("others", lambda: inject.relevant(
-            inject.rank([i for i in ws.read(None, query=query, k=6) if not sid or i.get("task_id") != sid]), query)))
-        if mode in protocol.EXPLORE_MODES:
-            stages.append(("analogies", lambda: ws.analogies(query, k=3)))
+        stages.append(("cards_text", cards))
+        if mode in protocol.EXPLORE_MODES and cross:
+            stages.append(("analogies", analogies))
     for name, fn in stages:
         if not time_left():
             break
@@ -140,8 +171,10 @@ def decide(data, registry, exp_fn=None, ws=None, sink=None, deadline=None):
             continue
         if not got:
             continue
-        if name == "exp":
-            state["exp"] = str(got)
+        if name == "read":
+            sections.update({k: v for k, v in got.items() if v})
+        elif name in state:
+            state[name] = str(got)
         else:
             sections[name] = list(got)
         out = render()

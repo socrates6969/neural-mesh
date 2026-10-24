@@ -35,7 +35,9 @@ def payload(subagent="fr-tester", desc="Run acceptance tests", prompt="black box
 
 
 def run(data_dir, pl=None, raw=None, env_extra=None):
-    env = dict(os.environ, INGEST_DATA=str(data_dir), **(env_extra or {}))
+    # pin the router: the user env may set MESH_ROUTER=v2 live; these tests exercise the default (v1) path
+    env = dict(os.environ, INGEST_DATA=str(data_dir), MESH_ROUTER="v1")
+    env.update(env_extra or {})
     t = time.perf_counter()
     r = subprocess.run([sys.executable, "-S", str(HOOK)], input=raw if raw is not None else json.dumps(pl), capture_output=True, text=True,
                        encoding="utf-8", env=env, timeout=30)

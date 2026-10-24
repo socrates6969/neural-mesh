@@ -92,6 +92,19 @@ def load_agent(entry: dict) -> dict:
             "model": model if model in ("opus", "sonnet", "haiku", "fable") else ""}
 
 
+def method_cards(task: dict) -> str:
+    """Shared method cards (train.memory.client.lookup; warm daemon first). Depends only on the task, so both arms get
+    the same block; log_task records which cards were shown so their usefulness can be learned. MESHTRAIN_CARDS=off."""
+    if os.environ.get("MESHTRAIN_CARDS", "on") == "off":
+        return ""
+    try:
+        from train.memory import client
+        return client.lookup(task["prompt"], field=task.get("field"), k=2, exclude={task["id"]}, log_task=task["id"],
+                             timeout=10.0) or ""
+    except Exception:
+        return ""
+
+
 def build_prompt(task: dict, pack: str | None) -> str:
     parts = []
     proto = protocol_block(task)
@@ -108,6 +121,9 @@ def build_prompt(task: dict, pack: str | None) -> str:
                 parts.append(mem)
         except Exception:
             pass
+    cards = method_cards(task)
+    if cards:
+        parts.append(cards)
     parts.append(task["prompt"].strip())
     parts.append(FORMAT[task["kind"]] + "\n" + TOOL_NOTE)
     return "\n\n---\n\n".join(parts)

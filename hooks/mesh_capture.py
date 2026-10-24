@@ -3,9 +3,11 @@
 
 Parses the protocol's closing ```json block (agentkit/parse.py) and posts to train.memory.workspace with
 task_id = session_id and agent = subagent_type:
-  answer -> "result"; hypotheses -> "hypothesis"; open_questions -> "question"; needs_human / failures -> "failure";
+  answer -> "result"; hypotheses -> "hypothesis"; open_questions -> "question"; failures -> "failure";
+  needs_human (reason + consequences) -> "failure" when attempts failed, else "question" (an approval request);
   workspace_posts -> their own kind.
-verified=True only when the agent marked the item verified AND it cites evidence (its own or the block's evidence list).
+Every post is stored UNVERIFIED: "verified" in model output is never trusted (it is kept only as claimed_verified, for
+display). verified=True is set only out of band: grader-verified training results, or a human via agentkit.approve.
 No JSON block -> one low-confidence "result" with the first 400 characters. Every text passes ingest.scrub first;
 anything with a SECRET-class hit is dropped, not posted.
 It prints nothing and never changes the tool result. Always exit 0; budget NEURAL_MESH_CAPTURE_BUDGET_S (default 2 s).
@@ -65,36 +67,39 @@ def _scrub(text):
 
 
 def plan_posts(d, text: str) -> list[dict]:
-    """The workspace posts for one subagent result: [{kind, content, confidence, verified, sources}]."""
+    """The workspace posts for one subagent result: [{kind, content, confidence, claimed, sources}]."""
     if d is None:
         snippet = " ".join((text or "").split())[:FALLBACK_CHARS]
-        return [{"kind": "result", "content": snippet, "confidence": 0.2, "verified": False, "sources": []}] if snippet else []
+        return [{"kind": "result", "content": snippet, "confidence": 0.2, "sources": []}] if snippet else []
     conf = d["confidence"] if d["confidence"] is not None else 0.5
     ev = d["evidence"]
     posts = []
     ans = parse.answer_text(d["answer"]) if not isinstance(d["answer"], dict) else json.dumps(d["answer"], ensure_ascii=False)
     if ans:
-        posts.append({"kind": "result", "content": ans, "confidence": conf, "verified": d["verified"] and bool(ev),
-                      "sources": ev})
+        posts.append({"kind": "result", "content": ans, "confidence": conf, "claimed": d["verified"], "sources": ev})
     for p in d["workspace_posts"]:
         cites = p["evidence"] or ev
-        posts.append({"kind": p["kind"], "content": p["content"], "confidence": conf,
-                      "verified": p["verified"] and bool(cites), "sources": cites})
+        posts.append({"kind": p["kind"], "content": p["content"], "confidence": conf, "claimed": p["verified"],
+                      "sources": cites})
     for h in d["hypotheses"]:
         c = h["claim"]
         if h["test_plan"]:
             c += " | test: " + h["test_plan"]
         if h["alternatives"]:
             c += " | alternatives: " + "; ".join(h["alternatives"])
-        posts.append({"kind": "hypothesis", "content": c, "confidence": min(conf, 0.5), "verified": False, "sources": []})
+        posts.append({"kind": "hypothesis", "content": c, "confidence": min(conf, 0.5), "sources": []})
     for q in d["open_questions"]:
-        posts.append({"kind": "question", "content": q, "confidence": 0.5, "verified": False, "sources": []})
+        posts.append({"kind": "question", "content": q, "confidence": 0.5, "sources": []})
     for fl in d["failures"]:
-        posts.append({"kind": "failure", "content": fl, "confidence": 0.5, "verified": False, "sources": []})
+        posts.append({"kind": "failure", "content": fl, "confidence": 0.5, "sources": []})
     if d["needs_human"]:
-        posts.append({"kind": "failure", "content": "needs_human: " + (ans or "agent could not finish") +
-                      (" | tried: " + "; ".join(d["failures"]) if d["failures"] else ""),
-                      "confidence": 0.5, "verified": False, "sources": []})
+        c = "needs_human: " + (d["needs_human_reason"] or ans or "agent could not finish")
+        if d["consequences"]:
+            c += " | consequences: " + "; ".join(d["consequences"])
+        if d["failures"]:
+            c += " | tried: " + "; ".join(d["failures"])
+        posts.append({"kind": "failure" if d["failures"] or not d["consequences"] else "question", "content": c,
+                      "confidence": 0.5, "sources": []})
     return posts[:MAX_POSTS]
 
 
@@ -121,9 +126,8 @@ def capture(data, ws, deadline=None) -> list:
                 sc, sok = _scrub(s)
                 if sok and sc.strip():
                     sources.append(sc[:300])
-            verified = p["verified"] and bool(sources)
             ids.append(ws.post(task_id, agent, p["kind"], content, confidence=float(p["confidence"]),
-                               verified=verified, sources=sources or None, field=None))
+                               sources=sources or None, field=None, claimed_verified=bool(p.get("claimed"))))
         return ids
     except Exception:
         return []
