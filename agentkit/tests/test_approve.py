@@ -241,6 +241,39 @@ class ApproveTest(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("POSIX", why)
 
+    def test_pinned_powershell_and_clean_env(self):
+        if os.name != "nt":
+            self.skipTest("Windows only")
+        import subprocess
+        calls = []
+        orig = subprocess.run
+        os.environ["PSModulePath"] = "C:/evil/modules"
+        os.environ["AGENTKIT_SECRET_TEST"] = "leak"
+        subprocess.run = lambda cmd, **kw: calls.append((cmd, kw)) or subprocess.CompletedProcess(cmd, 0, "result:Verified", "")
+        try:
+            self.assertEqual(approve.hello_verify("msg"), "verified")
+        finally:
+            subprocess.run = orig
+            os.environ.pop("PSModulePath", None)
+            os.environ.pop("AGENTKIT_SECRET_TEST", None)
+        (cmd, kw), = calls
+        wd = approve.windows_dir()
+        self.assertEqual(cmd[0], os.path.join(wd, "System32", "WindowsPowerShell", "v1.0", "powershell.exe"))
+        self.assertTrue(os.path.isabs(cmd[0]) and os.path.exists(cmd[0]))
+        self.assertEqual(kw["cwd"], os.path.join(wd, "System32"))
+        self.assertEqual(set(kw["env"]), {"SystemRoot", "PATH", "MESH_APPROVE_MSG"})
+        self.assertEqual(kw["env"]["PATH"], os.path.join(wd, "System32"))
+        self.assertEqual(kw["env"]["SystemRoot"], wd)
+        self.assertEqual(kw["env"]["MESH_APPROVE_MSG"], "msg")
+        old = os.environ.get("SystemRoot")
+        os.environ["SystemRoot"] = "C:/evil"
+        try:
+            self.assertEqual(approve.powershell()[0], cmd[0])            # env SystemRoot does not move the pin
+        finally:
+            os.environ["SystemRoot"] = old
+        table = approve.process_table()                                    # the pinned shell really runs
+        self.assertIn(os.getpid(), table)
+
     def test_trust_root_ignores_environment(self):
         if os.name != "nt":
             self.skipTest("Windows only")

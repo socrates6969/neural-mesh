@@ -69,8 +69,7 @@ def process_table() -> dict:
     import json
     import subprocess
     if os.name == "nt":
-        r = subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", _PS_PROCS],
-                           capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30)
+        r = _run_ps(_PS_PROCS, 30)
         rows = json.loads(r.stdout)
         rows = rows if isinstance(rows, list) else [rows]
         return {int(x["ProcessId"]): _proc(x["ParentProcessId"], x.get("Name"), x.get("CommandLine"),
@@ -95,6 +94,30 @@ def windows_dir() -> str | None:
     buf = ctypes.create_unicode_buffer(520)
     n = ctypes.windll.kernel32.GetSystemWindowsDirectoryW(buf, 520)
     return buf.value if 0 < n < 520 else None
+
+
+def powershell() -> tuple[str, dict, str] | None:
+    """(exe, env, cwd) for a pinned Windows PowerShell: the absolute path under GetSystemWindowsDirectoryW, a minimal
+    clean environment (SystemRoot, PATH = System32 only, no PSModulePath or user variables) and cwd = System32.
+    None when the Windows directory cannot be read (callers fail closed)."""
+    wd = windows_dir()
+    if not wd:
+        return None
+    sys32 = os.path.join(wd, "System32")
+    exe = os.path.join(sys32, "WindowsPowerShell", "v1.0", "powershell.exe")
+    env = {"SystemRoot": wd, "PATH": sys32}
+    return exe, env, sys32
+
+
+def _run_ps(script: str, timeout: float, extra_env: dict | None = None):
+    import subprocess
+    ps = powershell()
+    if ps is None:
+        raise OSError("Windows directory unavailable")
+    exe, env, cwd = ps
+    env = dict(env, **(extra_env or {}))
+    return subprocess.run([exe, "-NoProfile", "-NonInteractive", "-Command", script], capture_output=True, text=True,
+                          encoding="utf-8", errors="replace", timeout=timeout, env=env, cwd=cwd)
 
 
 def session_of(pid: int) -> int | None:
@@ -249,14 +272,11 @@ HELLO_TIMEOUT_S = 120
 
 def hello_verify(message: str) -> str:
     """Windows Hello (UserConsentVerifier) prompt: 'verified', 'denied' (cancelled/failed), 'unavailable' (not
-    configured / not Windows), or 'error' (WinRT could not be reached)."""
+    configured / not Windows), or 'error' (WinRT unreachable, timeout). Runs the pinned PowerShell with a clean env."""
     if os.name != "nt":
         return "unavailable"
-    import subprocess
     try:
-        r = subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", _PS_HELLO], capture_output=True,
-                           text=True, encoding="utf-8", errors="replace", timeout=HELLO_TIMEOUT_S,
-                           env=dict(os.environ, MESH_APPROVE_MSG=message[:200]))
+        r = _run_ps(_PS_HELLO, HELLO_TIMEOUT_S, {"MESH_APPROVE_MSG": message[:200]})
     except Exception:
         return "error"
     return parse_hello(r.stdout)

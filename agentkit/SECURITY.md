@@ -49,6 +49,19 @@ that can read the keys and write the database directly.
 Full protection would need the keys and the signing step in a separate OS account or service (or hardware-backed
 keys) that agents cannot access, with approvals taken through that service. That is not set up.
 
+Two limits of the approval check, stated plainly:
+
+- **Ancestry is a hint, not proof.** The parent-process checks catch an approval run from inside an agent or Claude
+  Code session by accident or by a text-only attack. Code running as you can start a process outside that tree.
+- **The Hello result is trusted only as far as the process environment is.** `approve.py` runs Windows PowerShell
+  from its pinned absolute path (`<GetSystemWindowsDirectoryW>\System32\WindowsPowerShell\v1.0\powershell.exe`)
+  with a minimal clean environment (SystemRoot, PATH = System32, no PSModulePath) and cwd = System32, then reads its
+  output. Code running as you could still tamper with that process or with `approve.py` itself and fake the output.
+- **Upgrade path if the threat model expands:** replace the Hello yes/no with a nonce-bound signature from a
+  Windows Hello key (`Windows.Security.Credentials.KeyCredentialManager`: sign a per-approval nonce, verify the
+  signature against the registered public key). The approval would then be checked cryptographically instead of
+  trusting a process's output.
+
 ## Mitigations in place
 
 | Risk | Mitigation |
