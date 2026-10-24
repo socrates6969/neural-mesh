@@ -69,6 +69,39 @@ def add(cards: list[dict], encode, path: Path | None = None) -> int:
     return len(new)
 
 
+def remove(card_ids, path: Path | None = None) -> int:
+    """Drop cards by id, rewriting cards.jsonl and cards.f32 together (same order). Returns the number removed."""
+    path = path or C.cards_path()
+    C.guard_live(path)
+    ids = set(card_ids)
+    cards, vecs = load(path)
+    keep = [i for i, c in enumerate(cards) if c["id"] not in ids]
+    if len(keep) == len(cards):
+        return 0
+    with _lock:
+        tmp = path.with_suffix(".jsonl.tmp")
+        tmp.write_text("".join(json.dumps(cards[i], ensure_ascii=False) + "\n" for i in keep), encoding="utf-8")
+        vtmp = _vec_path(path).with_suffix(".f32.tmp")
+        vecs[keep].astype(np.float32).tofile(vtmp)
+        os.replace(vtmp, _vec_path(path))
+        os.replace(tmp, path)
+        _cache.clear()
+    return len(cards) - len(keep)
+
+
+def rewrite(cards: list[dict], path: Path | None = None) -> None:
+    """Replace card metadata in place (same ids, same order; vectors untouched)."""
+    path = path or C.cards_path()
+    C.guard_live(path)
+    old, _ = load(path)
+    assert [c["id"] for c in cards] == [c["id"] for c in old], "rewrite must keep ids and order"
+    with _lock:
+        tmp = path.with_suffix(".jsonl.tmp")
+        tmp.write_text("".join(json.dumps(c, ensure_ascii=False) + "\n" for c in cards), encoding="utf-8")
+        os.replace(tmp, path)
+        _cache.clear()
+
+
 def _repair(path: Path, n: int) -> None:
     """Truncate cards.jsonl / cards.f32 to their first n aligned entries (an interrupted append can leave one longer)."""
     lines = [l for l in path.read_text(encoding="utf-8").splitlines() if l.strip()] if path.exists() else []

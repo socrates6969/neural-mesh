@@ -91,6 +91,14 @@ class GateFilterTest(unittest.TestCase):
         got = self.idx.search(long, q, mode="dense")                # no field: inferred from the closest card (math)
         self.assertEqual(got[0][1]["expected_precision"], 0.68)
 
+    def test_same_problem_card_is_never_returned(self):
+        cs = [dict(_card("a", "math", "x"), problem="Prove that the sum of the first n odd numbers equals n squared for all n."),
+              _card("b", "math", "y")]
+        idx = search.Index(cs, np.stack([_vec(1, 0), _vec(0.9, 0.1)]))
+        q = "Task for you: prove that the sum of the first n odd numbers equals n squared, for all n, carefully please."
+        got = [c["task"] for _, c in idx.search(q, _vec(1, 0), field="math", mode="dense", gate=-1, k=2)]
+        self.assertEqual(got, ["b"])
+
     def test_low_usefulness_card_is_not_broadcast(self):
         st = {"cards": {"card:a": {"s": 0, "f": 6}}}
         hits = self.idx.search("x", _vec(1, 0), field="math", k=2, mode="dense", gate=-1, stats=st)

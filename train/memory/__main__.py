@@ -2,6 +2,7 @@
 
   python -m train.memory build [--llm] [batch ...]         cards from verified runs (+ migrate experience.jsonl)
   python -m train.memory eval [--no-llm]                    offline retrieval eval (writes memory/eval.json)
+  python -m train.memory hygiene                            drop ambiguous-id items, tag split/problem_key (idempotent)
   python -m train.memory update                             usefulness counts from training results.jsonl
   python -m train.memory serve                              run the localhost daemon (normally started on demand)
   python -m train.memory query "<problem text>" [field]     show what would be injected
@@ -21,6 +22,9 @@ def main(argv: list[str]) -> int:
     elif cmd == "eval":
         from .eval import run
         run(llm="--no-llm" not in args)
+    elif cmd == "hygiene":
+        from .hygiene import run as hygiene
+        hygiene()
     elif cmd == "update":
         from .api import update_from_results
         print("usefulness: %d graded rows applied" % update_from_results())

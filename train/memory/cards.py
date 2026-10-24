@@ -143,7 +143,8 @@ def make_card(task: dict, result: dict, distill: str = "auto", batch: str = "") 
     return {"id": "card:" + task["id"], "task": task["id"], "field": task.get("field") or result.get("field"),
             "agent": result.get("agent", ""), "source": task.get("source", ""), "batch": batch, "verified": True,
             "created": time.strftime("%Y-%m-%dT%H:%M:%S"), "distiller": how, "scrub": getattr(S, "SCRUB_VERSION", ""),
-            "parts": parts, "problem": problem[:C.MAX_PROBLEM], "text": sc.text}
+            "parts": parts, "problem": problem[:C.MAX_PROBLEM], "text": sc.text, "split": task.get("split", ""),
+            "problem_key": C.problem_key(problem)}
 
 
 def verified_rows(results_path: Path) -> dict:
