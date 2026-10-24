@@ -118,6 +118,8 @@ def item(x) -> dict | None:
             "scope": str(x.get("scope") or ""), "avoid": x.get("avoid") is True or x.get("kind") == "failure",
             "sources": [str(v) for v in x.get("sources") or [] if v] if isinstance(x.get("sources"), list) else [],
             "source": str(x.get("source") or ""), "verified_by": str(x.get("verified_by") or ""),
+            "approval_sig": str(x.get("approval_sig") or ""), "provenance": str(x.get("provenance") or ""),
+            "pipeline_sig": str(x.get("pipeline_sig") or ""), "relevance": _num(x.get("relevance")),
             "claimed_verified": x.get("claimed_verified") is True or tagged}
 
 
@@ -163,13 +165,17 @@ def get(entry_id) -> dict | None:
 
 
 def can_approve() -> bool:
+    """The backend can store a signed human approval: get() plus approve(entry_id, by=..., approval_sig=...)."""
     b = backend()
-    return b is not None and callable(getattr(b, "approve", None)) and callable(getattr(b, "get", None))
+    fn = getattr(b, "approve", None) if b is not None else None
+    return callable(fn) and callable(getattr(b, "get", None)) and _accepts(fn, "approval_sig")
 
 
-def approve(entry_id, by="human") -> bool:
-    """Mark an entry verified (human approval). Only agentkit.approve calls this, after showing the entry."""
-    return bool(_call("approve", entry_id, by=by))
+def approve(entry_id, by, approval_sig) -> bool:
+    """Mark an entry verified by a human, storing the HMAC signature. Only agentkit.approve calls this."""
+    if not can_approve():
+        return False
+    return bool(_call("approve", entry_id, by=by, approval_sig=approval_sig))
 
 
 def read(task_id, query=None, k=8) -> list[dict]:

@@ -12,7 +12,7 @@ can write the registry but not read the key cannot forge an approval; an edited 
 Agent kit (agentkit/): every Agent/Task call also gets the protocol core + a mode add-on (agentkit/protocol.py), the
 Global Workspace for this session (task_id = session_id; untrusted background; failures shown as known dead ends),
 items from OTHER sessions only when pipeline/human-verified (never their raw captured output), method cards built from
-grader-verified results (train.memory.client.lookup) and,
+grader-verified results (workspace.search, each card's pipeline_sig checked) and,
 for research/business-type modes, cross-field analogies - ranked and trimmed to ~900 tokens (agentkit/inject.py).
 A prompt that already carries the protocol marker or MARK is left alone. Each stage's result is kept as soon as it is
 ready, so a slow memory backend costs only its own section, never the protocol.
@@ -42,7 +42,7 @@ REGISTRY = os.environ.get("NEURAL_MESH_PACKS", os.path.join(ROOT, "data", "lifel
 MARK = "Knowledge from the neural mesh"
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
-from agentkit import inject, protocol  # noqa: E402
+from agentkit import inject, protocol, trust  # noqa: E402
 
 
 def field_of(text, fields):
@@ -128,31 +128,39 @@ def decide(data, registry, exp_fn=None, ws=None, sink=None, deadline=None):
     cross = os.environ.get("NEURAL_MESH_CROSS_SESSION", "").strip().lower() != "off"
 
     def same_session(i):
-        return bool(sid) and (i.get("scope") == "task" or (not i.get("scope") and i.get("task_id") == sid))
+        # task_id is a signed field for trusted rows; scope/avoid/relevance are not, so they never gate trust
+        return bool(sid) and str(i.get("task_id") or "") == sid
 
     def trusted(i):
-        """Cross-session trust: only pipeline/human-verified entries or grader-built method cards."""
-        return i.get("source") == "card" or i.get("verified") is True
+        """Cross-session trust (agentkit/trust.py): allowlisted pipeline verifiers, HMAC-signed human approvals, or
+        method cards with pipeline:grader provenance. Legacy verified=True rows without verified_by are untrusted."""
+        return trust.trusted(i, inject.current_key(), inject.current_pipeline_key())
 
     def split_read():
         items = ws.read(sid or "-", query=query, k=8)
         own = [i for i in items if same_session(i)]
-        others = []
+        others, training_fails = [], []
         if cross:
-            rest = [i for i in items if not same_session(i) and trusted(i) and not i.get("avoid")]
-            others = [i for i in rest if i.get("scope") == "other"] + inject.relevant(
-                [i for i in rest if not i.get("scope")], query)
-        return {"workspace": inject.rank([i for i in own if not i.get("avoid")]),
-                # dead ends come from THIS session only; other sessions' failures are raw captured output
-                "dead_ends": inject.rank([i for i in own if i.get("avoid")]),
+            rest = [i for i in items if not same_session(i) and trusted(i) and i.get("kind") != "failure"]
+            others = inject.relevant(rest, query)
+            # grader failures from verified training runs: pipeline-signed, kind=failure, relevant, at most 3
+            training_fails = inject.relevant([i for i in items if not same_session(i) and i.get("kind") == "failure"
+                                              and str(i.get("verified_by")).startswith("pipeline:") and trusted(i)],
+                                             query)[:inject.TRAINING_DEAD_ENDS_MAX]
+        return {"workspace": inject.rank([i for i in own if i.get("kind") != "failure"]),
+                # this session's dead ends (untrusted, same task); other sessions' raw failures are never injected
+                "dead_ends": inject.rank([i for i in own if i.get("kind") == "failure"]),
+                "training_dead_ends": inject.rank(training_fails),
                 "others": inject.rank(others)}
 
     def analogies():
         return [i for i in ws.analogies(query, k=3) if same_session(i) or trusted(i)]
 
     def cards():
-        left = 1.0 if deadline is None else max(0.05, deadline - time.monotonic())
-        return ws.lookup(prompt, k=2, timeout=left)
+        """Method cards as structured items, kept only with a valid pipeline signature (grader-built), then framed."""
+        good = [c for c in ws.search(query, k=2) if c.get("source") == "card"
+                and trust.trusted(c, None, inject.current_pipeline_key())]
+        return inject.render_cards(good)
 
     stages = []
     if ws is not None:
