@@ -184,10 +184,28 @@ class WorkspaceTest(unittest.TestCase):
                 os.environ.pop("MESH_WORKSPACE_ROOT")
                 os.environ.pop("CLAUDE_SESSION_ID")
                 sys.path.remove(d)
-        self.assertEqual(calls[0], ("post", "sess-9", "me", "fact", "c", 0.9, True, ["u"], "math"))
+        # verified=True from the agent is never forwarded; the claim travels as a content tag
+        self.assertEqual(calls[0], ("post", "sess-9", "me", "fact", workspace_tools.CLAIM_TAG + "c", 0.9, False, ["u"],
+                                    "math"))
         self.assertEqual(calls[2], ("read", "sess-9", "q", 2))
         self.assertEqual(calls[3], ("analogies", "q", 2, "math"))
         self.assertEqual(calls[4], ("observe", [7, "card:1"], True))
+
+    def test_verified_claim_goes_to_claimed_verified_when_backend_supports_it(self):
+        calls = []
+
+        class Backend:
+            @staticmethod
+            def post(task_id, agent, kind, content, confidence=0.5, verified=False, sources=None, field=None,
+                     claimed_verified=False):
+                calls.append({"content": content, "verified": verified, "claimed_verified": claimed_verified})
+                return 3
+
+        workspace_tools._mod = Backend()
+        workspace_tools.workspace_post("x", "result", "t", verified=True)
+        workspace_tools.workspace_post("y", "result", "t", verified=False)
+        self.assertEqual(calls, [{"content": "x", "verified": False, "claimed_verified": True},
+                                 {"content": "y", "verified": False, "claimed_verified": False}])
 
 
 @unittest.skipUnless(os.environ.get("MESH_WORKSPACE_IT"), "set MESH_WORKSPACE_IT=<repo with train/memory/workspace.py>")
@@ -206,7 +224,10 @@ class WorkspaceIntegrationTest(unittest.TestCase):
                 out = workspace_tools.workspace_post("Gaussian integral equals sqrt(pi)", "result", "it-task", "t",
                                                      0.9, True, ["math_solve"], "math")
                 self.assertRegex(out, r"^posted entry \d+ to workspace task it-task$")
-                self.assertIn("sqrt(pi)", workspace_tools.workspace_read("it-task", "gaussian"))
+                out = workspace_tools.workspace_read("it-task", "gaussian")
+                self.assertIn("sqrt(pi)", out)
+                self.assertIn('"verified": false', out)  # the agent's verified=True was not trusted
+                self.assertIn("agent claims verified", out)
                 self.assertIn('"entries": 1', workspace_tools.workspace_stats())
             finally:
                 for k in env:

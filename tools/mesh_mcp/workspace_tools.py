@@ -9,6 +9,7 @@ returns a clear "workspace not available" message instead of failing. Only a suc
 from __future__ import annotations
 
 import importlib
+import inspect
 import json
 import os
 import sys
@@ -16,6 +17,7 @@ import sys
 from tools.mesh_mcp.common import cap
 
 DEFAULT_ROOT = r"C:\Users\mariu\neural-mesh"
+CLAIM_TAG = "[agent claims verified; unchecked] "  # same tag as agentkit/workspace.py
 KINDS = ("fact", "hypothesis", "result", "question", "plan", "failure", "method")
 _mod = None
 
@@ -34,6 +36,14 @@ def _workspace():
         return None, ("workspace not available: train.memory.workspace could not be imported from %s (%s: %s). "
                       "The Global Workspace is being built on branch exp/shared-memory; until it is merged, keep "
                       "notes in your own output." % (root, type(e).__name__, str(e)[:200]))
+
+
+def _accepts(fn, name: str) -> bool:
+    try:
+        ps = inspect.signature(fn).parameters
+    except (TypeError, ValueError):
+        return False
+    return name in ps or any(p.kind is inspect.Parameter.VAR_KEYWORD for p in ps.values())
 
 
 def _task(task_id):
@@ -70,8 +80,17 @@ def workspace_post(content: str, kind: str = "fact", task_id: str | None = None,
     if not str(content or "").strip():
         raise ValueError("content is required")
     task = _task(task_id)
+    # Trust boundary: an agent can never mark its own entry verified. Only out-of-band pipelines or
+    # `python -m agentkit.approve` set verified. The agent's claim is kept as claimed_verified when the backend has
+    # that field, otherwise as the same content tag agentkit uses.
+    kw = {}
+    if verified:
+        if _accepts(ws.post, "claimed_verified"):
+            kw["claimed_verified"] = True
+        else:
+            content = CLAIM_TAG + str(content)
     eid = ws.post(task, agent or os.environ.get("MESH_AGENT_NAME", "agent"), kind, content,
-                  confidence=float(confidence), verified=bool(verified), sources=_list(sources), field=field)
+                  confidence=float(confidence), verified=False, sources=_list(sources), field=field, **kw)
     if eid is None:
         return "not stored: the content was empty after scrubbing or contained a secret"
     return "posted entry %s to workspace task %s" % (eid, task)

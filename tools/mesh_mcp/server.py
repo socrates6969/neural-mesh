@@ -84,7 +84,7 @@ TOOLS = [
          "content": _s("the item text", **STR),
          "kind": _s("entry kind (default fact)", type="string", enum=list(workspace_tools.KINDS)),
          "task_id": STR, "agent": _s("your agent name", **STR),
-         "confidence": _s("0-1 (default 0.5)", **NUM), "verified": _s("checked by a tool or test", **BOOL),
+         "confidence": _s("0-1 (default 0.5)", **NUM), "verified": _s("your claim that a tool or test checked it; stored as an unchecked claim, never as verified", **BOOL),
          "sources": _s("URLs, file paths or tool runs backing it", **ARR), "field": _s("e.g. math, physics", **STR)}},
      "fn": lambda a: workspace_tools.workspace_post(a.get("content"), a.get("kind", "fact"), a.get("task_id"),
                                                     a.get("agent"), a.get("confidence", 0.5),
