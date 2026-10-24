@@ -83,10 +83,28 @@ def _connect(path: Path | None = None) -> sqlite3.Connection:
     path = Path(path or DB)
     C.guard_live(path)                                               # tests must use MESH_WORKSPACE_DB=<temp file>
     path.parent.mkdir(parents=True, exist_ok=True)
-    con = sqlite3.connect(str(path), timeout=30, isolation_level=None)
+    delay = 0.02
+    for attempt in range(12):
+        con = sqlite3.connect(str(path), timeout=30, isolation_level=None)
+        try:
+            _setup(con)
+            return con
+        except sqlite3.OperationalError as e:
+            # switching a fresh file to WAL / creating the schema can report "locked" without waiting on the busy
+            # handler when another process does the same at that moment: back off and retry
+            con.close()
+            if "locked" not in str(e) and "busy" not in str(e) or attempt == 11:
+                raise
+            time.sleep(delay)
+            delay = min(1.0, delay * 2)
+    raise sqlite3.OperationalError("workspace database stayed locked")
+
+
+def _setup(con: sqlite3.Connection) -> None:
     con.row_factory = sqlite3.Row
     con.execute("PRAGMA busy_timeout=30000")
-    con.execute("PRAGMA journal_mode=WAL")
+    if con.execute("PRAGMA journal_mode").fetchone()[0].lower() != "wal":
+        con.execute("PRAGMA journal_mode=WAL")
     con.execute("PRAGMA synchronous=NORMAL")
     con.executescript(_SCHEMA)
     have = {r[1] for r in con.execute("PRAGMA table_info(entries)")}
@@ -95,10 +113,10 @@ def _connect(path: Path | None = None) -> sqlite3.Connection:
         if col not in have:                                          # databases created before the trust model
             try:
                 con.execute("ALTER TABLE entries ADD COLUMN %s %s" % (col, decl))
-            except sqlite3.OperationalError:
-                pass                                                 # another process added it first
+            except sqlite3.OperationalError as e:
+                if "duplicate column" not in str(e):                 # another process added it first: fine
+                    raise
     con.execute("CREATE UNIQUE INDEX IF NOT EXISTS entries_ext ON entries(ext_key) WHERE ext_key IS NOT NULL")
-    return con
 
 
 def _embed(texts: list[str]) -> np.ndarray:
@@ -251,7 +269,7 @@ def post(task_id, agent, kind, content, confidence=0.5, verified=False, sources=
         if pkey is not None:
             from . import trust
             con.execute("UPDATE entries SET pipeline_sig = ? WHERE id = ?",
-                        (trust.sign_entry(eid, task_id, kind, text, vby, pkey), eid))
+                        (trust.sign_entry(task_id, agent, kind, text, vby, pkey), eid))
         con.executemany("INSERT OR IGNORE INTO concepts (entry_id, concept) VALUES (?,?)", [(eid, c) for c in cs])
         pairs = sorted({(a, b) for a in cs for b in cs if a < b})
         con.executemany("INSERT INTO edges (a, b, w) VALUES (?,?,1) ON CONFLICT(a, b) DO UPDATE SET w = w + 1", pairs)
@@ -379,7 +397,8 @@ def search(text, field=None, k=3) -> list[dict]:
     from . import api
     # cards are built only from grader-verified, pack-free runs (train/memory/cards.py), hence the provenance
     return [{"id": c["id"], "task": c.get("task"), "field": c.get("field"), "score": round(s, 4), "text": c["text"],
-             "source": "card", "provenance": "pipeline:grader", "verified": True, "pipeline_sig": c.get("pipeline_sig")}
+             "content": c["text"], "source": "card", "provenance": "pipeline:grader", "verified": True,
+             "pipeline_sig": c.get("pipeline_sig")}
             for s, c in api.retrieve(str(text), field=field, k=k)]
 
 

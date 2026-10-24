@@ -1,12 +1,13 @@
 """Pipeline signatures: trusted writers (train.memory.ingest_training, the card builder) sign what they write, so a
 reader (agentkit/trust.py) can tell grader-pipeline knowledge from anything else that merely claims it.
 
-  key      ~/.claude/mesh-pipeline.key (env MESH_PIPELINE_KEY): 32 random bytes, created atomically (O_EXCL + hard
-           link), restricted to the owner; any failure raises (fail closed - nothing is written unsigned-as-signed)
-  MAC      HMAC-SHA256, lowercase hex, over the UTF-8 payload (fields joined with "\x1f", unit separator):
-             workspace entry:  "mesh-pipeline-v1", "entry", str(id), task_id, kind, content, verified_by
-             method card:      "mesh-pipeline-v1", "card",  card id, task, text, "pipeline:grader"
-           content/text is the stored scrubbed plaintext (what get()/read() return), never ciphertext.
+  key      ~/.claude/mesh-pipeline.key (env NEURAL_MESH_PIPELINE_KEY, or MESH_PIPELINE_KEY): 32 random bytes,
+           created atomically (O_EXCL + hard link), restricted to the owner; any failure raises (fail closed)
+  MAC      the layout of agentkit/trust.py (the verifier), which is used directly when importable:
+           HMAC-SHA256, lowercase hex, over the UTF-8 of str() fields joined with "\x1f" (None -> ""):
+             workspace entry:  "entry", task_id, agent, kind, content, verified_by
+             method card:      "card",  card id ("card:..."), field, text, "pipeline:grader"
+           content/text is the stored scrubbed plaintext (what get()/read()/search() return), never ciphertext.
 
   python -m train.memory.trust resign      sign all pipeline:* workspace entries and all cards (migration)
   python -m train.memory.trust verify      count valid / invalid / unsigned
@@ -22,9 +23,17 @@ import subprocess
 import sys
 from pathlib import Path
 
-KEY = Path(os.environ.get("MESH_PIPELINE_KEY", str(Path.home() / ".claude" / "mesh-pipeline.key")))
-VERSION = "mesh-pipeline-v1"
+KEY = Path(os.environ.get("NEURAL_MESH_PIPELINE_KEY") or os.environ.get("MESH_PIPELINE_KEY")
+           or str(Path.home() / ".claude" / "mesh-pipeline.key"))
 SEP = "\x1f"
+CARD_PROVENANCE = "pipeline:grader"
+
+try:                                   # single source of truth for the byte layout once agentkit is on the path
+    from agentkit import trust as _ak
+    if not (hasattr(_ak, "pipeline_sign_entry") and hasattr(_ak, "pipeline_sign_card")):
+        _ak = None
+except Exception:
+    _ak = None
 
 
 def restrict_owner_only(path: Path) -> None:
@@ -68,23 +77,22 @@ def load_key(path: Path, create: bool) -> bytes:
 
 
 def _mac(key: bytes, parts) -> str:
-    return hmac.new(key, SEP.join([VERSION] + [str(p) for p in parts]).encode("utf-8"), hashlib.sha256).hexdigest()
+    return hmac.new(key, SEP.join(str(p if p is not None else "") for p in parts).encode("utf-8"),
+                    hashlib.sha256).hexdigest()
 
 
-def entry_payload(entry_id, task_id, kind, content, verified_by) -> list:
-    return ["entry", entry_id, task_id, kind, content, verified_by]
-
-
-def card_payload(card_id, task, text) -> list:
-    return ["card", card_id, task, text, "pipeline:grader"]
-
-
-def sign_entry(entry_id, task_id, kind, content, verified_by, key: bytes | None = None) -> str:
-    return _mac(key or load_key(KEY, create=True), entry_payload(entry_id, task_id, kind, content, verified_by))
+def sign_entry(task_id, agent, kind, content, verified_by, key: bytes | None = None) -> str:
+    key = key or load_key(KEY, create=True)
+    if _ak is not None:
+        return _ak.pipeline_sign_entry(task_id, agent, kind, content, verified_by, key)
+    return _mac(key, ("entry", task_id, agent, kind, content, verified_by))
 
 
 def sign_card(card: dict, key: bytes | None = None) -> str:
-    return _mac(key or load_key(KEY, create=True), card_payload(card["id"], card.get("task"), card.get("text")))
+    key = key or load_key(KEY, create=True)
+    if _ak is not None:
+        return _ak.pipeline_sign_card(card["id"], card.get("field"), card.get("text"), key)
+    return _mac(key, ("card", card["id"], card.get("field"), card.get("text"), CARD_PROVENANCE))
 
 
 def verify_entry(d: dict, key: bytes | None = None) -> bool:
@@ -94,7 +102,7 @@ def verify_entry(d: dict, key: bytes | None = None) -> bool:
         return False
     sig = d.get("pipeline_sig")
     return isinstance(sig, str) and hmac.compare_digest(
-        sig, _mac(key, entry_payload(d["id"], d["task_id"], d["kind"], d["content"], d.get("verified_by"))))
+        sig, sign_entry(d["task_id"], d.get("agent"), d["kind"], d["content"], d.get("verified_by"), key))
 
 
 def verify_card(card: dict, key: bytes | None = None) -> bool:
@@ -121,7 +129,7 @@ def resign(db=None, log=print) -> dict:
             c = W._content(r)
             if c is None:
                 continue
-            upd.append((sign_entry(r["id"], r["task_id"], r["kind"], c, r["verified_by"], key), r["id"]))
+            upd.append((sign_entry(r["task_id"], r["agent"], r["kind"], c, r["verified_by"], key), r["id"]))
         con.execute("BEGIN IMMEDIATE")
         con.executemany("UPDATE entries SET pipeline_sig = ? WHERE id = ?", upd)
         con.execute("COMMIT")

@@ -154,11 +154,11 @@ class WorkspaceTest(unittest.TestCase):
                 "[W.post('c', sys.argv[1], 'fact', 'concurrent fact %%d from %%s' %% (i, sys.argv[1])) for i in range(40)]"
                 % (ROOT, str(self.db)))
         ps = [subprocess.Popen([sys.executable, "-c", code, name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-              for name in ("p1", "p2")]
+              for name in ("p1", "p2", "p3", "p4")]
         errs = [p.communicate(timeout=120)[1] for p in ps]
-        self.assertEqual([p.returncode for p in ps], [0, 0], errs)
+        self.assertEqual([p.returncode for p in ps], [0, 0, 0, 0], errs)
         st = W.stats()
-        self.assertEqual(st["entries"], 80)
+        self.assertEqual(st["entries"], 160)
 
     def test_verified_only_from_trusted_identities(self):
         a = W.post("t1", "agent", "result", "the answer is proven by induction", verified=True)
