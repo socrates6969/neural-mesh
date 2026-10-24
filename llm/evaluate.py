@@ -169,6 +169,7 @@ def pairwise_block(task_rows: list[dict], ans_c: list[str], ans_p: list[str], ju
             "detail": [{"id": r["id"], "winner": x["winner"], "how": x["how"]} for r, x in zip(task_rows, res)]}
 
 
+JUDGE_WORKERS = int(os.environ.get("MESH_PAIR_WORKERS", "4"))   # parallel `claude -p` judge calls (~0.2-0.3 GB RAM each)
 GEN_BS = int(os.environ.get("MESH_LLM_EVAL_GEN_BS", "24"))   # max sequences per generate() call (model.length_batches caps by tokens)
 
 
@@ -388,7 +389,7 @@ def run(synthetic: bool = False, ver: str | None = None, n_loss: int = N_LOSS, n
     if calibrated[0]:
         pj = PJ.PairwiseJudge(ledger, **({"runner": runner} if runner else {}))
         pair = pairwise_block(task_rows[:len(ans["task_cand"])], ans["task_cand"], ans["task_prod"], pj, unit,
-                              stop_at=DL.judge_stop(deadline))
+                              workers=JUDGE_WORKERS, stop_at=DL.judge_stop(deadline))
         pair.update(judge_stats=pj.stats, usage=pj.usage, ledger=ledger.snapshot(), resolved_model=pj.resolved_model)
     else:
         pair = {"n_items": len(task_rows), "n_judged": 0, "clusters": 0, "winrate_ci": stats.cluster_bootstrap_ci([]), "skipped": calibrated[1]}
