@@ -13,7 +13,7 @@ import sys
 if __package__ in (None, ""):  # allow `python tools/mesh_mcp/server.py`
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from tools.mesh_mcp import literature, report, sandbox_tools, workspace_tools  # noqa: E402
+from tools.mesh_mcp import lean_tools, literature, report, sandbox_tools, workspace_tools  # noqa: E402
 from tools.mesh_mcp.common import cap  # noqa: E402
 
 VERSION = "1.0"
@@ -82,11 +82,11 @@ TOOLS = [
                     "agents can read it. task_id defaults to the session id.",
      "inputSchema": {"type": "object", "required": ["content"], "properties": {
          "content": _s("the item text", **STR),
-         "kind": _s("finding | hypothesis | result | question | note (default note)", **STR),
+         "kind": _s("entry kind (default fact)", type="string", enum=list(workspace_tools.KINDS)),
          "task_id": STR, "agent": _s("your agent name", **STR),
          "confidence": _s("0-1 (default 0.5)", **NUM), "verified": _s("checked by a tool or test", **BOOL),
          "sources": _s("URLs, file paths or tool runs backing it", **ARR), "field": _s("e.g. math, physics", **STR)}},
-     "fn": lambda a: workspace_tools.workspace_post(a.get("content"), a.get("kind", "note"), a.get("task_id"),
+     "fn": lambda a: workspace_tools.workspace_post(a.get("content"), a.get("kind", "fact"), a.get("task_id"),
                                                     a.get("agent"), a.get("confidence", 0.5),
                                                     a.get("verified", False), a.get("sources"), a.get("field"))},
     {"name": "workspace_read",
@@ -102,8 +102,29 @@ TOOLS = [
     {"name": "analogies",
      "description": "Find structurally similar problems from other fields in shared memory (cross-field analogies).",
      "inputSchema": {"type": "object", "required": ["text"], "properties": {
-         "text": STR, "k": _s("max results (default 3)", **INT)}},
-     "fn": lambda a: workspace_tools.analogies(a.get("text"), a.get("k", 3))},
+         "text": STR, "k": _s("max results (default 3)", **INT),
+         "field": _s("field of the query (inferred if omitted); results come from other fields", **STR)}},
+     "fn": lambda a: workspace_tools.analogies(a.get("text"), a.get("k", 3), a.get("field"))},
+    {"name": "workspace_observe",
+     "description": "Report whether the workspace entries or memory cards you used led to a passing (true) or failing "
+                    "(false) result, so useful items rank higher next time.",
+     "inputSchema": {"type": "object", "required": ["ids", "passed"], "properties": {
+         "ids": _s("entry ids from workspace_read, or card ids ('card:...') from memory_search",
+                   type="array", items={"type": ["string", "integer"]}),
+         "passed": BOOL}},
+     "fn": lambda a: workspace_tools.workspace_observe(a.get("ids"), a.get("passed"))},
+    {"name": "workspace_stats",
+     "description": "Counts for the Global Workspace: entries, tasks, kinds, verified, concepts, edges.",
+     "inputSchema": {"type": "object", "properties": {}},
+     "fn": lambda a: workspace_tools.workspace_stats()},
+    {"name": "lean_check",
+     "description": "Type-check a Lean 4 file (theorems, proofs, definitions) in a network-less sandbox. Returns "
+                    "VERIFIED, FAILED with the error messages, or INCOMPLETE if it uses sorry. `import Mathlib` works "
+                    "only when the Mathlib image is installed; otherwise use core Lean (omega, decide, simp, Nat.*).",
+     "inputSchema": {"type": "object", "required": ["code"], "properties": {
+         "code": _s("complete Lean 4 source", **STR),
+         "timeout_s": _s("seconds before the check is killed (max 300, default 120)", **INT)}},
+     "fn": lambda a: lean_tools.lean_check(a.get("code"), a.get("timeout_s", 120))},
     {"name": "report_imrad",
      "description": "Assemble an IMRaD markdown report (abstract, introduction, methods, results, discussion, "
                     "conclusion, references) with an audit-trail appendix and save it under "

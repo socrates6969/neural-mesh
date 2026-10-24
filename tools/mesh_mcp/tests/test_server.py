@@ -11,7 +11,8 @@ from tools.mesh_mcp import report, server, workspace_tools
 from tools.mesh_mcp.common import MAX_OUT, as_json, cap
 
 EXPECTED = {"literature_search", "math_solve", "stats_test", "causal_analysis", "discover_graph",
-            "workspace_post", "workspace_read", "memory_search", "analogies", "report_imrad"}
+            "workspace_post", "workspace_read", "memory_search", "analogies", "workspace_observe",
+            "workspace_stats", "lean_check", "report_imrad"}
 
 
 def rpc(method, params=None, mid=1):
@@ -150,31 +151,67 @@ class WorkspaceTest(unittest.TestCase):
                 CALLS = []
                 def post(task_id, agent, kind, content, confidence=0.5, verified=False, sources=None, field=None):
                     CALLS.append(("post", task_id, agent, kind, content, confidence, verified, sources, field))
-                    return {"id": "w1"}
+                    return None if "SECRET" in content else 7
                 def read(task_id, query=None, k=8):
                     CALLS.append(("read", task_id, query, k))
-                    return [{"id": "w1", "kind": "finding", "content": "c"}]
+                    return [{"id": 7, "kind": "fact", "content": "c", "salience": 0.9}]
                 def search(text, field=None, k=3):
                     return []
-                def analogies(text, k=3):
-                    return ["physics: heat equation"]
+                def analogies(text, k=3, field=None):
+                    CALLS.append(("analogies", text, k, field))
+                    return [{"id": "card:1", "field": "physics", "text": "heat equation"}]
+                def observe(ids, passed):
+                    CALLS.append(("observe", ids, passed))
+                def stats():
+                    return {"entries": 1, "tasks": 1}
             """))
             os.environ["MESH_WORKSPACE_ROOT"] = d
             os.environ["CLAUDE_SESSION_ID"] = "sess-9"
             try:
-                self.assertIn('"w1"', workspace_tools.workspace_post("c", "finding", agent="me", confidence=0.9,
-                                                                     verified=True, sources=["u"], field="math"))
-                self.assertIn("1. {", workspace_tools.workspace_read(query="q", k=2))
+                self.assertEqual(workspace_tools.workspace_post("c", "fact", agent="me", confidence=0.9, verified=True,
+                                                                sources="u", field="math"),
+                                 "posted entry 7 to workspace task sess-9")
+                self.assertIn("not stored", workspace_tools.workspace_post("SECRET x", "fact"))
+                self.assertIn('1. {"id": 7', workspace_tools.workspace_read(query="q", k=2))
                 self.assertEqual(workspace_tools.memory_search("q"), "no matching memory")
-                self.assertEqual(workspace_tools.analogies("q"), "1. physics: heat equation")
+                self.assertIn("heat equation", workspace_tools.analogies("q", 2, "math"))
+                self.assertIn("2 item(s)", workspace_tools.workspace_observe(["7", "card:1"], True))
+                self.assertIn('"entries": 1', workspace_tools.workspace_stats())
+                with self.assertRaises(ValueError):
+                    workspace_tools.workspace_observe([], True)
                 calls = sys.modules["train.memory.workspace"].CALLS
             finally:
                 os.environ.pop("MESH_WORKSPACE_ROOT")
                 os.environ.pop("CLAUDE_SESSION_ID")
                 sys.path.remove(d)
-        self.assertEqual(calls[0], ("post", "sess-9", "me", "finding", "c", 0.9, True, ["u"], "math"))
-        self.assertEqual(calls[1], ("read", "sess-9", "q", 2))
+        self.assertEqual(calls[0], ("post", "sess-9", "me", "fact", "c", 0.9, True, ["u"], "math"))
+        self.assertEqual(calls[2], ("read", "sess-9", "q", 2))
+        self.assertEqual(calls[3], ("analogies", "q", 2, "math"))
+        self.assertEqual(calls[4], ("observe", [7, "card:1"], True))
 
+
+@unittest.skipUnless(os.environ.get("MESH_WORKSPACE_IT"), "set MESH_WORKSPACE_IT=<repo with train/memory/workspace.py>")
+class WorkspaceIntegrationTest(unittest.TestCase):
+    """Against the real module, with a throwaway database and key."""
+
+    def test_round_trip(self):
+        workspace_tools._mod = None
+        for m in [m for m in sys.modules if m == "train" or m.startswith("train.")]:
+            sys.modules.pop(m)
+        with tempfile.TemporaryDirectory() as d:
+            env = {"MESH_WORKSPACE_ROOT": os.environ["MESH_WORKSPACE_IT"], "MESH_WORKSPACE_DB": str(Path(d, "w.db")),
+                   "MESH_WORKSPACE_KEY": str(Path(d, "w.key"))}
+            os.environ.update(env)
+            try:
+                out = workspace_tools.workspace_post("Gaussian integral equals sqrt(pi)", "result", "it-task", "t",
+                                                     0.9, True, ["math_solve"], "math")
+                self.assertRegex(out, r"^posted entry \d+ to workspace task it-task$")
+                self.assertIn("sqrt(pi)", workspace_tools.workspace_read("it-task", "gaussian"))
+                self.assertIn('"entries": 1', workspace_tools.workspace_stats())
+            finally:
+                for k in env:
+                    os.environ.pop(k)
+                workspace_tools._mod = None
 
 if __name__ == "__main__":
     unittest.main()

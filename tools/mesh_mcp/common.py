@@ -46,28 +46,31 @@ def as_json(value, name: str):
 
 
 def run_sandbox(script: str, args: dict | None = None, mounts: list[tuple[str, str]] | None = None,
-                timeout_s: int = 120, memory: str = "1g") -> tuple[str, str, int]:
+                timeout_s: int = 120, memory: str = "1g", image: str | None = None, command: list[str] | None = None,
+                filename: str = "main.py", workdir: str = "/w") -> tuple[str, str, int]:
     """Run a Python script in the network-less grader container.
 
-    The script and args.json sit in a fresh temp dir mounted read-only at /w; `mounts` are extra
+    The script (as `filename`) and args.json sit in a fresh temp dir mounted read-only at /w; `mounts` are extra
     (host_path, container_path) files, also read-only. Same isolation flags as train/sandbox_mcp.py.
+    `image`/`command`/`workdir` override the Python defaults (lean_check uses its own image).
     Returns (stdout, stderr, exit code); exit code 124 means killed on timeout.
     """
     timeout_s = max(5, min(int(timeout_s or 120), 300))
     work = tempfile.mkdtemp(prefix="meshmcp-")
     try:
-        Path(work, "main.py").write_text(script, encoding="utf-8")
+        Path(work, filename).write_text(script, encoding="utf-8")
         Path(work, "args.json").write_text(json.dumps(args or {}), encoding="utf-8")
         for f in ("stats_impl.py", "causal_impl.py"):
             shutil.copy(SANDBOX_DIR / f, Path(work, f))
         name = "mesh-" + uuid.uuid4().hex[:12]
         cmd = ["docker", "run", "--rm", "--name", name, "--network", "none", "--cpus", "1", "--memory", memory,
                "--pids-limit", "128", "--read-only", "--tmpfs", "/tmp:rw,size=256m",
-               "--mount", "type=bind,src=%s,dst=/w,readonly" % work, "-w", "/w"]
+               "--mount", "type=bind,src=%s,dst=/w,readonly" % work, "-w", workdir]
         for host, cont in mounts or []:
             cmd += ["--mount", "type=bind,src=%s,dst=%s,readonly" % (host, cont)]
         cmd += ["-e", "PYTHONHASHSEED=0", "-e", "PYTHONUNBUFFERED=1", "-e", "OMP_NUM_THREADS=1",
-                "-e", "OPENBLAS_NUM_THREADS=1", "-e", "PYTHONDONTWRITEBYTECODE=1", IMAGE, "python", "main.py"]
+                "-e", "OPENBLAS_NUM_THREADS=1", "-e", "PYTHONDONTWRITEBYTECODE=1", image or IMAGE]
+        cmd += command or ["python", filename]
         try:
             r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace",
                                timeout=timeout_s + 30)
@@ -81,9 +84,9 @@ def run_sandbox(script: str, args: dict | None = None, mounts: list[tuple[str, s
         shutil.rmtree(work, ignore_errors=True)
 
 
-def docker_available() -> bool:
+def docker_available(image: str | None = None) -> bool:
     try:
-        r = subprocess.run(["docker", "image", "inspect", IMAGE], capture_output=True, timeout=30)
+        r = subprocess.run(["docker", "image", "inspect", image or IMAGE], capture_output=True, timeout=30)
         return r.returncode == 0
     except (OSError, subprocess.TimeoutExpired):
         return False

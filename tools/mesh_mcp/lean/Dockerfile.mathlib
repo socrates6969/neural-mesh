@@ -1,0 +1,11 @@
+# meshtrain-lean:mathlib - core image plus a prebuilt Mathlib v4.35.0 (oleans from the Mathlib cache, several GB).
+# Build after :core: docker build -f Dockerfile.mathlib -t meshtrain-lean:mathlib .
+# lean_check runs `lake env lean <file>` in /home/runner/mathlib4 so `import Mathlib` resolves offline.
+FROM meshtrain-lean:core
+ARG MATHLIB=v4.35.0
+WORKDIR /home/runner
+RUN git clone --depth 1 -b ${MATHLIB} https://github.com/leanprover-community/mathlib4.git \
+    && cd mathlib4 && lake exe cache get
+WORKDIR /home/runner/mathlib4
+RUN printf 'import Mathlib\nexample (x : Real) : 0 <= x ^ 2 := sq_nonneg x\n' > /tmp/m.lean && lake env lean /tmp/m.lean
+WORKDIR /w

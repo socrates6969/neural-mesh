@@ -12,10 +12,13 @@ Every tool returns plain text capped at 6000 characters.
 | `stats_test` | `kind`, `data_json` | `ttest`, `paired_t`, `welch`, `mannwhitney`, `cohens_d`, `chi2`, `mcnemar`, `prop_ci`, `multitest` (Holm/BH/Bonferroni). Always reports an effect size and a CI. |
 | `causal_analysis` | `csv_path`, `treatment`, `outcome`, `common_causes=[]`, `method="backdoor"`, `num_simulations=20` | DoWhy ATE: estimate, 95% CI (OLS or bootstrap), refutations (permutation placebo, random common cause) and the assumptions. The CSV is mounted read-only. |
 | `discover_graph` | `csv_path`, `alpha=0.05` | PC algorithm (causal-learn, Fisher-z). Labelled EXPLORATORY. |
-| `workspace_post` | `content`, `kind`, `task_id`, `agent`, `confidence`, `verified`, `sources`, `field` | Wraps `train.memory.workspace.post`. |
+| `lean_check` | `code`, `timeout_s=120` | Type-checks a Lean 4 file in a network-less container: VERIFIED, FAILED (with `Main.lean:line:col` errors), INCOMPLETE (uses `sorry`) or TIMEOUT. `import Mathlib` needs the `meshtrain-lean:mathlib` image; otherwise core Lean (`meshtrain-lean:core`). |
+| `workspace_post` | `content`, `kind` (fact, hypothesis, result, question, plan, failure, method), `task_id`, `agent`, `confidence`, `verified`, `sources`, `field` | Wraps `train.memory.workspace.post`; returns the entry id (or "not stored" when the scrubber drops it). |
 | `workspace_read` | `task_id`, `query`, `k=8` | Wraps `read`. |
-| `memory_search` | `text`, `field`, `k=3` | Wraps `search`. |
-| `analogies` | `text`, `k=3` | Wraps `analogies`. |
+| `memory_search` | `text`, `field`, `k=3` | Wraps `search` (method cards). |
+| `analogies` | `text`, `k=3`, `field` | Wraps `analogies` (results from other fields). |
+| `workspace_observe` | `ids`, `passed` | Wraps `observe`: outcome feedback for the entries/cards used. |
+| `workspace_stats` | (none) | Wraps `stats`. |
 | `report_imrad` | `title`, `sections_json`, `audit_trail_json` | Writes an IMRaD markdown report with an audit-trail table to `C:\Users\mariu\ruv\hive\runs\reports\`. Formatter only. |
 
 `task_id` defaults to `CLAUDE_SESSION_ID`, then `"default"`. The workspace tools return `workspace not available: ...`
@@ -27,6 +30,7 @@ until `train.memory.workspace` (branch `exp/shared-memory`) can be imported from
 | variable | default | meaning |
 |---|---|---|
 | `MESH_TOOLS_IMAGE` | `meshtrain-grader:2` | sandbox image |
+| `MESH_LEAN_IMAGE` | mathlib image if built, else core | Lean image for `lean_check` |
 | `MESH_TOOLS_ENABLE` | (all) | comma list of tools to expose, e.g. `math_solve,stats_test` |
 | `MESH_WORKSPACE_ROOT` | `C:\Users\mariu\neural-mesh` | where `train.memory.workspace` is imported from |
 | `MESH_REPORTS_DIR` | `C:\Users\mariu\ruv\hive\runs\reports` | report output folder |
