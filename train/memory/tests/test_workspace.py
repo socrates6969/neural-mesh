@@ -126,6 +126,7 @@ class WorkspaceTest(unittest.TestCase):
         finally:
             api.retrieve = orig
         self.assertEqual(got[0]["id"], "card:q")
+        self.assertEqual(got[0]["provenance"], "pipeline:grader")
 
     def test_encryption_roundtrip_and_fail_closed(self):
         os.environ["MESH_WORKSPACE_ENCRYPT"] = "1"
@@ -182,6 +183,8 @@ class WorkspaceTest(unittest.TestCase):
         self.assertTrue(W.approve(a))
         self.assertTrue(W.get(a)["verified_by"].startswith("human:"))
         self.assertFalse(W.approve(424242, by="human:x"))
+        self.assertTrue(W.approve(a, "human:ann", approval_sig="sig2"))
+        self.assertEqual(W.get(a)["approval_sig"], "sig2")
 
     def test_ext_key_is_idempotent(self):
         a = W.post("t1", "p", "method", "use a segment tree", ext_key="k1")

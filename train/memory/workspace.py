@@ -294,10 +294,11 @@ def get(entry_id, db=None) -> dict | None:
     return None if c is None else _as_dict(row, c)
 
 
-def approve(entry_id, by="human", sig=None, db=None) -> bool:
+def approve(entry_id, by="human", sig=None, db=None, approval_sig=None) -> bool:
     """Mark an entry verified by a trusted out-of-band party: by="human:<user>" (with an optional HMAC approval_sig,
     checked by the caller) or "pipeline:<name>". A bare "human" becomes "human:<USERNAME>". Returns False if the entry
     does not exist or `by` is not a trusted identity. Never expose this to agents."""
+    sig = approval_sig if approval_sig is not None else sig
     by = str(by or "")
     if by == "human":
         by = "human:" + (os.environ.get("USERNAME") or os.environ.get("USER") or "unknown")
@@ -361,7 +362,9 @@ def read(task_id, query=None, k=8, db=None) -> list[dict]:
 def search(text, field=None, k=3) -> list[dict]:
     """Method cards for a problem (the shared card memory; see train/memory/search.py for the retrieval chain)."""
     from . import api
-    return [{"id": c["id"], "task": c.get("task"), "field": c.get("field"), "score": round(s, 4), "text": c["text"]}
+    # cards are built only from grader-verified, pack-free runs (train/memory/cards.py), hence the provenance
+    return [{"id": c["id"], "task": c.get("task"), "field": c.get("field"), "score": round(s, 4), "text": c["text"],
+             "source": "card", "provenance": "pipeline:grader", "verified": True}
             for s, c in api.retrieve(str(text), field=field, k=k)]
 
 
@@ -485,10 +488,11 @@ def analogies(text, k=3, field=None, db=None) -> list[dict]:
                     "field": obj.get("field"), "content": obj.get("text")}
         if src == "ws":
             item.update(agent=obj["agent"], confidence=obj["confidence"], verified=bool(obj["verified"]),
-                        verified_by=obj["verified_by"], claimed_verified=bool(obj["claimed_verified"]))
+                        verified_by=obj["verified_by"], claimed_verified=bool(obj["claimed_verified"]),
+                        approval_sig=obj["approval_sig"], provenance=obj["verified_by"])
         else:
             item.update(agent=obj.get("agent"), confidence=1.0, verified=True, verified_by="pipeline:grader",
-                        claimed_verified=False)
+                        claimed_verified=False, provenance="pipeline:grader", approval_sig=None)
         item.update(score=round(score, 4), relevance=round(cos, 4), concepts=sorted(shared), query_field=field)
         out.append(item)
     out.sort(key=lambda d: -d["score"])
