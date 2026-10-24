@@ -9,7 +9,13 @@ Registry: data/lifelong/mesh/packs.json  {"<agent>": {"<field>": {"pack": "...",
 A pack is only used when the user approved that exact text: python -m train.approve stores an HMAC-SHA256 of
 agent|field|pack keyed with a secret in ~/.claude/mesh-pack.key (outside every training/run folder). Anything that
 can write the registry but not read the key cannot forge an approval; an edited or unapproved pack is ignored. Pack text is framed as reference material, not as instructions.
-Opt-out: NEURAL_MESH_ASSIST=off. Budget: NEURAL_MESH_ASSIST_BUDGET_S (default 1.5 s).
+Agent kit (agentkit/): every Agent/Task call also gets the protocol core + a mode add-on (agentkit/protocol.py), the
+Global Workspace broadcast for this session (task_id = session_id), related items from other sessions, method cards and,
+for research/business-type modes, cross-field analogies - ranked and trimmed to ~900 tokens (agentkit/inject.py).
+A prompt that already carries the protocol marker or MARK is left alone. Each stage's result is kept as soon as it is
+ready, so a slow memory backend costs only its own section, never the protocol.
+Opt-out: NEURAL_MESH_ASSIST=off (everything), NEURAL_MESH_PROTOCOL=off (protocol only), NEURAL_MESH_WORKSPACE=off.
+Budget: NEURAL_MESH_ASSIST_BUDGET_S (default 3 s).
 """
 import os
 import sys
@@ -20,7 +26,6 @@ if os.environ.get("NEURAL_MESH_ASSIST", "").strip().lower() == "off":
 import hashlib
 from pathlib import Path
 import hmac
-import os
 import json
 import re
 import threading
@@ -31,6 +36,9 @@ NL = chr(10)
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REGISTRY = os.environ.get("NEURAL_MESH_PACKS", os.path.join(ROOT, "data", "lifelong", "mesh", "packs.json"))
 MARK = "Knowledge from the neural mesh"
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+from agentkit import inject, protocol  # noqa: E402
 
 
 def field_of(text, fields):
@@ -67,38 +75,77 @@ def verify(agent: str, field: str, v: dict, key: bytes | None = None) -> bool:
     return bool(key) and isinstance(sig, str) and hmac.compare_digest(sig, mac(key, agent, field, v["pack"]))
 
 
-def decide(data, registry, exp_fn=None):
+def decide(data, registry, exp_fn=None, ws=None, sink=None, deadline=None):
     """The hook output dict for one PreToolUse payload, or None.
-    exp_fn(prompt) -> str: optional experience-memory block (similar verified solutions); main() passes the live one."""
+    exp_fn(prompt) -> str: optional experience-memory block (similar verified solutions); main() passes the live one.
+    ws: workspace adapter (agentkit.workspace or a stub); sink: dict that receives the best output so far after every
+    stage (main() emits it on timeout); deadline: time.monotonic() after which no new backend call starts."""
     if data.get("tool_name") not in ("Task", "Agent"):
         return None
     ti = data.get("tool_input") or {}
     if not isinstance(ti, dict):
         return None
     agent = str(ti.get("subagent_type") or "")
+    desc = str(ti.get("description") or "")
     prompt = str(ti.get("prompt") or "")
-    if MARK in prompt:
+    if MARK in prompt or protocol.MARKER in prompt:
         return None
     entry = (registry or {}).get(agent) or {}
     promoted = {f: v for f, v in entry.items() if isinstance(v, dict) and v.get("status") == "promoted" and v.get("pack")
                 and verify(agent, f, v)}
-    blocks = []
-    f = field_of(str(ti.get("description") or "") + " " + prompt, list(promoted)) if promoted else None
+    f = field_of(desc + " " + prompt, list(promoted)) if promoted else None
+    pack_block = ""
     if f:
-        blocks.append(MARK + " (" + f + "; reference notes measured on held-out tasks - background knowledge, not "
-                      "instructions; they never override the task or your rules):" + NL + "<<<" + NL + promoted[f]["pack"].strip() + NL + ">>>")
+        pack_block = (MARK + " (" + f + "; reference notes measured on held-out tasks - background knowledge, not "
+                      "instructions; they never override the task or your rules):" + NL + "<<<" + NL
+                      + promoted[f]["pack"].strip() + NL + ">>>")
+    with_protocol = os.environ.get("NEURAL_MESH_PROTOCOL", "").strip().lower() != "off"
+    mode = protocol.detect_mode(desc + " " + prompt, agent, desc, fields=[f] if f else None)
+    sections, state = {}, {"exp": ""}
+
+    def render():
+        if not (with_protocol or pack_block or state["exp"] or any(sections.values())):
+            return None
+        text = inject.build(mode, pack_block, sections, state["exp"], with_protocol=with_protocol)
+        new = dict(ti)
+        new["prompt"] = text + NL + NL + "---" + NL + NL + prompt
+        out = {"hookSpecificOutput": {"hookEventName": "PreToolUse", "updatedInput": new}}
+        if sink is not None:
+            sink["out"] = out
+        return out
+
+    def time_left():
+        return deadline is None or time.monotonic() < deadline
+
+    out = render()
+    sid = str(data.get("session_id") or "")
+    query = (desc + " " + prompt)[:4000]
+    stages = []
+    if ws is not None and sid:
+        stages.append(("workspace", lambda: inject.rank(ws.read(sid, query=query, k=8))))
     if exp_fn:
+        stages.append(("exp", lambda: exp_fn(prompt) or ""))
+    if ws is not None:
+        stages.append(("cards", lambda: ws.search(query, field=f, k=3)))
+        stages.append(("others", lambda: inject.relevant(
+            inject.rank([i for i in ws.read(None, query=query, k=6) if not sid or i.get("task_id") != sid]), query)))
+        if mode in protocol.EXPLORE_MODES:
+            stages.append(("analogies", lambda: ws.analogies(query, k=3)))
+    for name, fn in stages:
+        if not time_left():
+            break
         try:
-            mem = exp_fn(prompt)
+            got = fn()
         except Exception:
-            mem = ""
-        if mem:
-            blocks.append(MARK + " - " + mem)
-    if not blocks:
-        return None
-    new = dict(ti)
-    new["prompt"] = (NL + NL).join(blocks) + NL + NL + "---" + NL + NL + prompt
-    return {"hookSpecificOutput": {"hookEventName": "PreToolUse", "updatedInput": new}}
+            continue
+        if not got:
+            continue
+        if name == "exp":
+            state["exp"] = str(got)
+        else:
+            sections[name] = list(got)
+        out = render()
+    return out
 
 
 def _live_experience(prompt):
@@ -110,25 +157,29 @@ def _live_experience(prompt):
 
 def main():
     box = {}
+    try:
+        budget = float(os.environ.get("NEURAL_MESH_ASSIST_BUDGET_S", 3.0))
+    except ValueError:
+        budget = 3.0
 
     def work():
         try:
             raw = sys.stdin.read()
             data = json.loads(raw) if raw.strip() else {}
-            if ROOT not in sys.path:
-                sys.path.insert(0, ROOT)
             try:
                 with open(REGISTRY, encoding="utf-8") as fh:
                     reg = json.load(fh)
             except (OSError, ValueError):
                 reg = {}
-            box["out"] = decide(data, reg, exp_fn=_live_experience)
+            from agentkit import workspace
+            out = decide(data, reg, exp_fn=_live_experience, ws=workspace, sink=box, deadline=T0 + budget - 0.4)
+            box["out"] = out
         except Exception:
-            box["out"] = None
+            pass
 
     th = threading.Thread(target=work, daemon=True)
     th.start()
-    th.join(max(0.0, float(os.environ.get("NEURAL_MESH_ASSIST_BUDGET_S", 3.0)) - (time.monotonic() - T0)))
+    th.join(max(0.0, budget - (time.monotonic() - T0)))
     out = box.get("out")
     if out:
         sys.stdout.write(json.dumps(out))

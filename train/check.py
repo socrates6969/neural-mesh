@@ -13,10 +13,31 @@ import tempfile
 _ANS = re.compile(r"ANSWER\s*[:=]\s*(.+)", re.I)
 
 
+_JSON_FENCE = re.compile(r"```[ \t]*(?:json|json5)[ \t]*\r?\n.*?(?:```|\Z)", re.S | re.I)
+
+
+def _json_answer(text):
+    try:
+        from agentkit import parse
+    except ImportError:
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+        from agentkit import parse
+    d = parse.parse_output(text)
+    return parse.answer_text(d["answer"]) if d else ""
+
+
 def final_answer(text):
-    hits = _ANS.findall(text or "")
+    """The ANSWER: line (outside ```json blocks; template placeholders such as <integer> are skipped), else the
+    agent-kit JSON block's "answer", else the last \\boxed{}. The ANSWER line wins when both exist."""
+    hits = [h for h in _ANS.findall(_JSON_FENCE.sub("", text or "")) if not h.strip().startswith("<")]
     if hits:
         return hits[-1].strip().strip("`*$ ").rstrip(".")
+    try:
+        ja = _json_answer(text or "")
+    except Exception:
+        ja = ""
+    if ja:
+        return ja.strip().strip("`*$ ").rstrip(".")
     m = re.findall(r"\\boxed\{([^{}]*)\}", text or "")
     return m[-1].strip() if m else ""
 

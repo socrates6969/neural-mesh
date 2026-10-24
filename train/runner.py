@@ -25,14 +25,38 @@ ALLOWED = ["Read(./**)", "Write(./**)", "Edit(./**)", SANDBOX_TOOL]
 SANDBOX_SERVER = str(Path(__file__).with_name("sandbox_mcp.py"))
 TOOL_NOTE = ("Tools: there is no shell. To run Python (numpy + standard library, no network) call the run_python tool; "
              "Read/Write/Edit work only inside your task folder.")
+# The answer line / code block stays the graded output; the protocol's closing ```json block comes after it.
 FORMAT = {
-    "int": "Finish with one final line: ANSWER: <integer>",
-    "numeric": "Finish with one final line: ANSWER: <number>",
-    "mcq": "Finish with one final line: ANSWER: <letter(s)>, e.g. ANSWER: B or ANSWER: ACD",
-    "code": "Put the complete final solution in a single ```python block (it is run against hidden tests).",
+    "int": "Give the final answer on its own line: ANSWER: <integer> (then the closing JSON block, same answer).",
+    "numeric": "Give the final answer on its own line: ANSWER: <number> (then the closing JSON block, same answer).",
+    "mcq": ("Give the final answer on its own line: ANSWER: <letter(s)>, e.g. ANSWER: B or ANSWER: ACD (then the closing "
+            "JSON block, same answer)."),
+    "code": ("Put the complete final solution in a single ```python block (it is run against hidden tests). In the closing "
+             "JSON block set \"answer\" to a one-line summary; do not repeat the code."),
     "stdio": ("Write a complete Python 3 program that reads standard input and writes standard output. Put the final "
-              "program in a single ```python block; it is run against hidden tests with the time limit above (CPython)."),
+              "program in a single ```python block; it is run against hidden tests with the time limit above (CPython). "
+              "In the closing JSON block set \"answer\" to a one-line summary; do not repeat the code."),
 }
+# Bench field -> agent-kit protocol mode (math, physics, coding, computer-science, cybersecurity, neural-networks).
+PROTOCOL_MODE = {"math": "math", "physics": "physics", "coding": "code", "computer-science": "cs",
+                 "cybersecurity": "cyber", "neural-networks": "ml"}
+
+
+def protocol_block(task: dict) -> str:
+    """The agent-kit protocol for a bench task; "" with MESHTRAIN_PROTOCOL=off (for runs comparable to pre-kit rounds).
+    It depends only on the task, never on the arm, so the pack and base arms of a round see identical prompts."""
+    if os.environ.get("MESHTRAIN_PROTOCOL", "on") == "off":
+        return ""
+    try:
+        from agentkit import protocol
+    except ImportError:
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+        from agentkit import protocol
+    field = str(task.get("field") or "")
+    mode = PROTOCOL_MODE.get(field) or protocol.detect_mode(task.get("prompt", ""), fields=[field])
+    return protocol.render(mode)
+
+
 _FM = re.compile(r"^\ufeff?---\s*\n(.*?)\n---\s*\n?(.*)$", re.S)
 _lock = threading.Lock()
 
@@ -70,6 +94,9 @@ def load_agent(entry: dict) -> dict:
 
 def build_prompt(task: dict, pack: str | None) -> str:
     parts = []
+    proto = protocol_block(task)
+    if proto:
+        parts.append(proto)
     if pack:
         parts.append("Knowledge from the neural mesh for this kind of task (use what helps, ignore what does not):\n" + pack.strip())
     if os.environ.get("MESHTRAIN_EXPERIENCE", "on") != "off":
