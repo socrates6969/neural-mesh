@@ -86,6 +86,16 @@ def read_pairs(path) -> list[dict]:
     return out
 
 
+def request(instruction: str) -> str:
+    """the request without the answer-format suffixes llm/ itself appends (anchors / selftrain / JSON contract): those
+    suffixes are shared with the battery prompts, so shingling them would flag every formatted prompt as a leak."""
+    from . import anchors as A, contract, selftrain
+    for suf in (A.FORMAT, selftrain.FORMAT, selftrain.CODE_FORMAT, contract.INSTRUCTION, contract.CODE_INSTRUCTION):
+        if instruction.endswith(suf):
+            return instruction[: -len(suf)]
+    return instruction
+
+
 def eligible_pairs(train_rows: list[dict], held: list[dict], log=print) -> list[dict]:
     from . import anchors as A
     ids, bank = eval_bank(held)
@@ -93,7 +103,7 @@ def eligible_pairs(train_rows: list[dict], held: list[dict], log=print) -> list[
           (read_pairs(config.DPO_PAIRS) if config.DPO_SELF_PAIRS else [])
     out, seen, dropped = [], set(), 0
     for p in raw:
-        if p["id"] in seen or p.get("row_id") in ids or A.leaks(p["instruction"], bank):
+        if p["id"] in seen or p.get("row_id") in ids or A.leaks(request(p["instruction"]), bank):
             dropped += 1
             continue
         seen.add(p["id"])

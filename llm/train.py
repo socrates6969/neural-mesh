@@ -16,6 +16,7 @@ from . import config, data
 
 MAX_NEW_PER_ROUND = 1500   # oldest-first cap so one nightly round stays bounded (~1-2 h on the 3B)
 LR, CONTINUE_LR = 2e-4, 1e-4   # a round on top of an existing adapter moves it less (forgetting)
+REPLAY_FLOOR, ANCHOR_FLOOR = 0.10, 0.05   # replay / anchor rows per external + self_verified row, at least
 
 
 def chain_ids(ver: str | None, key: str) -> set[str]:
@@ -61,9 +62,20 @@ def run(synthetic: bool = False, epochs: int = 2, max_new: int = MAX_NEW_PER_ROU
     new, replay = data.select_for_round(train_rows, lineage, weights={k: v.get('replay_weight', 1.0) for k, v in meta.items()} or None)
     new.sort(key=lambda r: r.get("ts") or "")
     new = new[:max_new]
-    anc = [] if synthetic else A.sample(int(round(len(new) * anchor_ratio)), seed=config.SEED + len(lineage))
     ext = [] if synthetic else data.sample_external(config.EXTERNAL_PER_NIGHT, seed=config.SEED + len(lineage) + len(new))
     slf = [] if synthetic else sample_self(config.SELF_PER_NIGHT, chain_ids(parent, "self_ids"), seed=config.SEED + len(lineage))
+    # replay and anchors scale with the new rows; on a night with few new rows the round would otherwise be almost all
+    # external / self rows on top of the parent, i.e. no rehearsal at all: floor both at a share of those extras
+    extra = len(ext) + len(slf)
+    n_anc = int(round(len(new) * anchor_ratio))
+    if not synthetic and anchor_ratio > 0:
+        n_anc = max(n_anc, int(ANCHOR_FLOOR * extra))
+    anc = [] if synthetic else A.sample(n_anc, seed=config.SEED + len(lineage))
+    if not synthetic and parent:
+        old = [r for r in train_rows if r["id"] in lineage and r["id"] not in {x["id"] for x in replay}]
+        want = min(len(old), int(REPLAY_FLOOR * extra)) - len(replay)
+        if want > 0:
+            replay = replay + random.Random(config.SEED + len(lineage)).sample(old, want)
     log(f"data: {source}; rows {len(rows)} (train {len(train_rows)}, held-out {len(held)} in later sessions); new {len(new)}, replay {len(replay)}, "
         f"anchors {len(anc)} (ratio {anchor_ratio}, pool {len(A.load())}); external {len(ext)}, self_verified {len(slf)} (train-only)")
     if not new and not ext and not slf:

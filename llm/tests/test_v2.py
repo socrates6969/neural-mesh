@@ -338,3 +338,39 @@ class Deadline(V2):
         self.assertIsNotNone(got["deadline"])
         self.assertEqual(rec["stages"][2]["detail"]["decision"], "none")
         self.assertIn("07:30", rec["deadline"])
+
+
+class FormatSuffix(V2):
+    def test_format_suffix_is_not_a_leak(self):
+        from llm import anchors as A
+        bank = A._shingles("Solve this. " + A.FORMAT)        # the battery shares the answer-format sentence
+        jl(config.DPO_PAIRS, [{"id": "dpos:2", "row_id": "bench:math:2", "instruction": "How many primes are below ten?" + A.FORMAT,
+                               "chosen": "a", "rejected": "b", "source": "checker"}])
+        with mock.patch("llm.anchors.battery_shingles", return_value=bank):
+            self.assertEqual(len(dpo.eligible_pairs([], [], log=QUIET)), 1)
+
+
+class RehearsalFloor(V2):
+    def test_continuation_without_new_rows_still_replays_and_anchors(self):
+        rows = [{"id": f"r{i}", "ts": f"2026-10-0{1 + i % 5}T00:00:00Z", "session": f"s{i}", "instruction": f"question {i}",
+                 "response": "a"} for i in range(40)]
+        jl(config.SFT, rows)
+        jl(config.EXTERNAL, [{"id": f"e{i}", "instruction": f"ext {i}", "response": "b"} for i in range(200)])
+        self.adapter("p1", new_ids=[r["id"] for r in rows], evaluated=False)
+        st = {"history": [], "production": {"ver": "p1", "base": "B"}}
+        config.save_state(st)
+        seen = {}
+
+        def stop(*a, **k):
+            raise RuntimeError("stop before GPU")
+        with mock.patch.object(config, "base_path", lambda name=None: config.MODELS / "base" / "B"), \
+                mock.patch.object(config, "EXTERNAL_PER_NIGHT", 200), mock.patch("llm.anchors.sample", lambda k, seed: seen.setdefault("anc", k) and []), \
+                mock.patch("llm.judge.unload", stop):
+            try:
+                train.run(log=lambda m: seen.setdefault("log", m) if m.startswith("data:") else None)
+            except RuntimeError:
+                pass
+        self.assertIn("new 0, replay ", seen["log"])
+        n_replay = int(seen["log"].split("replay ")[1].split(",")[0])
+        self.assertGreaterEqual(n_replay, 1)
+        self.assertEqual(seen["anc"], 10, "5% of 200 external rows")
