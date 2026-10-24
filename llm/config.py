@@ -27,7 +27,11 @@ DPO_JUDGE_PAIRS = os.environ.get("MESH_LLM_DPO_JUDGE", "1") != "0"          # pa
 DPO_SELF_PAIRS = os.environ.get("MESH_LLM_DPO_SELF", "1") != "0"            # pairs from checker verdicts (llm/selftrain.py)
 # (D) continual lineage: train from the lineage head (best not-worse candidate) instead of from base
 CONTINUAL = os.environ.get("MESH_LLM_CONTINUAL", "1") != "0"
-MAX_CHAIN = int(os.environ.get("MESH_LLM_MAX_CHAIN", "7"))                   # unpromoted generations on top of production before a reset
+MAX_CHAIN = int(os.environ.get("MESH_LLM_MAX_CHAIN", "7"))
+# wall-clock end of the nightly llm round, "HH:MM" local (run_nightly.ps1 sets 07:30; unset = no deadline): llm/deadline.py
+NIGHTLY_DEADLINE = os.environ.get("MESH_NIGHTLY_DEADLINE", "")
+PROMOTE_RESERVE_MIN = float(os.environ.get("MESH_LLM_PROMOTE_RESERVE_MIN", "10"))   # kept free before the deadline for promote
+JUDGE_RESERVE_MIN = float(os.environ.get("MESH_LLM_JUDGE_RESERVE_MIN", "30"))       # generation stops this long before it                   # unpromoted generations on top of production before a reset
 MODELS = Path(os.environ.get("MESH_LLM_MODELS", PKG / "models"))
 BASE_DIR = MODELS / "base"
 ADAPTERS = MODELS / "adapters"

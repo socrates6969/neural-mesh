@@ -88,3 +88,50 @@ shadow -> canary (hash-selected 5% of requests, every canary action audited agai
 * R5 per-skill R1: per skill >= 30 rows and >= 3 clusters per split, Holm across skills, canary when UCB95 <= .05.
 Kill switches / demotion: rolling 50 audited actions with wrong UCB95 above the rung's ceiling -> down one rung; weekly decoy-reject < .70, a production model
 pointer change, a stale binary or a new world -> back to shadow; severity 1 (destructive command, bad tool execution, override rate > 2x predicted) -> off.
+
+## v2 (2026-10-24, branch exp/llm-v2): bigger base, continual lineage, self-training, DPO, JSON contract
+
+**Base choice, measured** (`python -m llm smoke --base NAME`: the nightly code path, MAX_LEN 1024, bs 1 x grad_accum 8, gradient
+checkpointing, 30 optimizer steps on real rows with the longest first; then eval generation; torch capped at 7.0 GB, so a
+base that does not fit fails with OOM instead of the Windows driver spilling into system RAM). No Ollama model was resident
+(whole-GPU use before each run: 0.3-0.5 GB).
+
+| base | path | load | train peak alloc | whole-GPU peak | s/example | gen s/item pairwise / battery (bs) |
+|---|---|---|---|---|---|---|
+| Qwen2.5-Coder-3B | old (bench.json) | 3.09 GB | 5.37 GB | - | 1.44 | - |
+| Qwen2.5-Coder-3B | v2 | - | 3.70 GB | 7.5 GB* | 1.00 | 3.21 / 10.3 (24, dynamic) |
+| Qwen3-4B-Instruct-2507 | old | - | OOM at step ~25 (spilled into RAM first) | 7.8 GB | ~3.4 (spilling) | - |
+| Qwen3-4B-Instruct-2507 | v2 | - | 4.33 GB | 7.2 GB* | 1.42 | 6.10 / 18.1 (8); 2.11 / 9.0 (24, dynamic) |
+| Qwen2.5-Coder-7B | v2 | 5.33 GB | OOM on the first 1024-token example (6.76 GB at the 7.0 cap) | 7.6 GB | - | - |
+
+\* the caching allocator grows reserved memory up to the cap; "alloc" is what the run needs.
+v2 path = no fp32 upcast of the non-quantized weights (the 151k-token embedding alone is 0.8-1.5 GB in fp32;
+`MESH_LLM_FP32_UPCAST=1` restores the old path) + logits only for the response tail (`model.lm_loss`; identical loss).
+7B rejected: it only fits with MAX_LEN ~512, below the data's mean of ~650 tokens. Choice: **Qwen3-4B-Instruct-2507**.
+Set by `models/base_choice.json` (`{"base": "Qwen3-4B-Instruct-2507"}`) or `MESH_LLM_BASE`.
+
+**Night timing** (estimates from the smoke numbers): training = TRAIN_MINUTES (110) whatever the base (4B: ~4,600 examples).
+Eval generation, 900 pairwise + 80 battery items x 2 models: old bs-8 path ~231 min (4B) / measured 2 h 50 min for the whole
+3B eval on 10-23; v2 ~87 min (4B), and ~44 min when production's answers come from `models/prod_answers.jsonl` (greedy
+answers cached across nights by base + production version + prompt). The Haiku judging (~1,800 calls) comes on top.
+
+**(D) continual lineage** (`llm/lineage.py`): rounds start from the lineage HEAD = the last candidate that was promoted or
+NOT WORSE than production (trusted judge, >= 40 judged items, win-rate point estimate >= 0.5, no battery regression, loss
+not significantly worse). Every candidate is still judged against production with the unchanged gate, so a chain of HEADs
+cannot drift below production. `MESH_LLM_MAX_CHAIN` (7) unpromoted generations, then back to production. New rows = never seen
+by the HEAD's chain; replay + anchors as before; LR 1e-4 instead of 2e-4 on top of an adapter. Off: `MESH_LLM_CONTINUAL=0`.
+
+**(B) self-training** (`llm/selftrain.py`, `python -m llm selftrain --minutes N`, refuses 03:00-08:30; nightly stage when
+`MESH_LLM_SELFTRAIN_MINUTES` > 0, minutes taken out of the 110). k=4 samples at T 0.8 per prompt from agent-catalog
+benchmarks (tune split only: int/numeric/mcq/cwe, function-level code in the Docker sandbox) and MetaMathQA train rows with
+numeric answers; prompts overlapping any eval item or the battery (8-word shingles) are dropped. Verified answers ->
+`data/lifelong/sft_self_verified.jsonl` (train-only, up to `MESH_LLM_SELF_PER_NIGHT` 1500 per round).
+
+**(C) DPO** (`llm/dpo.py`, no trl): after SFT, on when >= `MESH_LLM_DPO_MIN_PAIRS` (64) eligible pairs, `MESH_LLM_DPO_MINUTES`
+(15) out of the same budget, beta 0.1, reference = the post-SFT adapter. Pairs: judge verdicts that agreed in both orders, ONLY
+for requests that are train rows today (judged while held out, since rolled out of the window), plus checker pairs (correct
+vs wrong sample) from selftrain. Count: `python -m llm dpo-pairs`.
+
+**JSON contract** (`llm/contract.py`): `{"answer", "confidence", "evidence", "assumptions"}`. Selftrain asks for it on 25%
+of prompts (`MESH_SELFTRAIN_CONTRACT`) and keeps only valid, checker-correct contracts. The battery scorer and the pairwise
+judge see `contract.normalize(answer)`, so both formats score the same.

@@ -23,9 +23,10 @@ import importlib.util
 import json
 import os
 import math
+import time
 from datetime import datetime, timezone
 
-from . import config, data, stats
+from . import config, data, deadline as DL, stats
 
 N_LOSS = 200      # max held-out examples for the loss test
 N_TASK = int(os.environ.get("MESH_PAIR_ITEMS", "1000"))  # max held-out requests judged pairwise (2 calls each); capped by the held-out pool
@@ -148,11 +149,13 @@ def gate(loss_ci: dict, pair: dict, det: dict, n_clusters: int, calibrated: tupl
     return True, f"pairwise win-rate CI lower bound {w['lo']:.3f} > 0.5 over {pair['n_judged']} items, no deterministic-category regression"
 
 
-def pairwise_block(task_rows: list[dict], ans_c: list[str], ans_p: list[str], judge, unit, workers: int = 4) -> dict:
+def pairwise_block(task_rows: list[dict], ans_c: list[str], ans_p: list[str], judge, unit, workers: int = 4,
+                   stop_at: float | None = None) -> dict:
     """candidate (x) vs production (y) on the held-out requests; reference = the real recorded answer."""
     from . import contract, pairjudge as PJ
     N = contract.normalize          # both formats reach the judge as plain text, so format alone can never win a pair
-    res = judge.compare_many([(r["instruction"], r["response"], N(a), N(b)) for r, a, b in zip(task_rows, ans_c, ans_p)], workers)
+    items = [(r["instruction"], r["response"], N(a), N(b)) for r, a, b in zip(task_rows, ans_c, ans_p)]
+    res = judge.compare_many(items, workers, stop_at=stop_at) if stop_at is not None else judge.compare_many(items, workers)
     groups: dict = {}
     for r, x in zip(task_rows, res):
         sc = PJ.score_of(x)
@@ -199,32 +202,43 @@ def prod_answers(base: str, prod_ver: str | None, prompts: list[str], max_new: i
     return [cache[k] for k in keys]
 
 
-def _answers(cand, prod_ver, task_rows, items, m, tok, with_prod, log, base: str = "") -> dict:
+GEN_CHUNK = 96   # pairwise items per generation chunk (the deadline is checked between chunks)
+
+
+def _answers(cand, prod_ver, task_rows, items, m, tok, with_prod, log, base: str = "", gen_stop: float | None = None) -> dict:
     """greedy answers of both models; cached next to the adapter so a re-judge needs no GPU."""
     from . import model as M
     f = cand / "answers.json"
     key = {"prod": prod_ver, "task": [r["id"] for r in task_rows], "det": [i["id"] for i in items]}
     try:
         c = json.loads(f.read_text(encoding="utf-8"))
-        if c.get("key") == key:
+        if c.get("key") == key and c.get("complete", True):
             log("reusing cached answers")
             return c["answers"]
     except (OSError, ValueError):
         pass
     instr = [r["instruction"] for r in task_rows]
     prompts = [i["prompt"] for i in items]
-    out = {}
+    # the deterministic battery first and in full (cheap, and the no-regression check needs every item); then the pairwise
+    # items in chunks, own held-out rows first, until the generation cutoff
     m.set_adapter("cand")
-    out["task_cand"] = M.generate_batch(m, tok, instr, bs=GEN_BS)
-    out["det_cand"] = M.generate_batch(m, tok, prompts, max_new=DET_MAX_NEW, bs=GEN_BS)
-    out["task_prod"] = prod_answers(base, prod_ver, instr, 256, lambda ps: with_prod(lambda: M.generate_batch(m, tok, ps, bs=GEN_BS)), log)
+    out = {"det_cand": M.generate_batch(m, tok, prompts, max_new=DET_MAX_NEW, bs=GEN_BS)}
     out["det_prod"] = prod_answers(base, prod_ver, prompts, DET_MAX_NEW,
                                    lambda ps: with_prod(lambda: M.generate_batch(m, tok, ps, max_new=DET_MAX_NEW, bs=GEN_BS)), log)
-    f.write_text(json.dumps({"key": key, "answers": out}), encoding="utf-8")
+    out["task_cand"], out["task_prod"] = [], []
+    for i in range(0, len(instr), GEN_CHUNK):
+        if DL.passed(gen_stop):
+            log(f"deadline: pairwise generation stopped after {len(out['task_cand'])}/{len(instr)} items (cutoff {DL.fmt(gen_stop)})")
+            break
+        ch = instr[i:i + GEN_CHUNK]
+        m.set_adapter("cand")
+        out["task_cand"] += M.generate_batch(m, tok, ch, bs=GEN_BS)
+        out["task_prod"] += prod_answers(base, prod_ver, ch, 256, lambda ps: with_prod(lambda: M.generate_batch(m, tok, ps, bs=GEN_BS)), log)
+    f.write_text(json.dumps({"key": key, "answers": out, "complete": len(out["task_cand"]) == len(instr)}), encoding="utf-8")
     return out
 
 
-def _answers_cross(cand, prod_ver, prod_base, task_rows, items, holder, tok, log) -> dict:
+def _answers_cross(cand, prod_ver, prod_base, task_rows, items, holder, tok, log, gen_stop: float | None = None) -> dict:
     """like _answers, when production is on another base: the candidate answers first, then its model is released and
     production is loaded on its own base (one model in VRAM at a time)."""
     import gc as _gc
@@ -243,7 +257,14 @@ def _answers_cross(cand, prod_ver, prod_base, task_rows, items, holder, tok, log
     prompts = [i["prompt"] for i in items]
     m = holder.pop("m")
     m.set_adapter("cand")
-    out = {"task_cand": M.generate_batch(m, tok, instr, bs=GEN_BS), "det_cand": M.generate_batch(m, tok, prompts, max_new=DET_MAX_NEW, bs=GEN_BS)}
+    out = {"det_cand": M.generate_batch(m, tok, prompts, max_new=DET_MAX_NEW, bs=GEN_BS), "task_cand": []}
+    half = None if gen_stop is None else time.time() + max(0.0, gen_stop - time.time()) / 2   # the other half is production's
+    for i in range(0, len(instr), GEN_CHUNK):
+        if DL.passed(half):
+            log(f"deadline: candidate generation stopped after {len(out['task_cand'])}/{len(instr)} items")
+            break
+        out["task_cand"] += M.generate_batch(m, tok, instr[i:i + GEN_CHUNK], bs=GEN_BS)
+    instr = instr[:len(out["task_cand"])]
     del m
     _gc.collect()
     torch.cuda.empty_cache()
@@ -256,12 +277,28 @@ def _answers_cross(cand, prod_ver, prod_base, task_rows, items, holder, tok, log
     del pm
     _gc.collect()
     torch.cuda.empty_cache()
-    f.write_text(json.dumps({"key": key, "answers": out}), encoding="utf-8")
+    f.write_text(json.dumps({"key": key, "answers": out, "complete": len(instr) == len(task_rows)}), encoding="utf-8")
     return out
 
 
+def decide(ok: bool, why: str, pair: dict, det: dict, loss_ci: dict, truncated: bool) -> dict:
+    """the gate's verdict as {promote, reason, decision}. decision 'none' = the deadline cut the pairwise evidence and what
+    was judged settles nothing either way (no significant win, no significant loss, no battery or loss regression): no
+    decision, production stays, and the candidate neither becomes a lineage head nor counts as a dead end."""
+    if ok:
+        return {"promote": True, "reason": why, "decision": "promote"}
+    w = pair.get("winrate_ci") or {}
+    decided_no = (bool(det.get("regressed")) or bool(loss_ci.get("n") and loss_ci.get("hi", 1) < 0)
+                  or (pair.get("n_judged", 0) >= MIN_PAIR_ITEMS and w.get("hi", 1) < 0.5))
+    if truncated and not decided_no:
+        return {"promote": False, "decision": "none",
+                "reason": f"no decision: deadline cut judging at {pair.get('n_judged', 0)} judged pairs; {why}; production kept"}
+    return {"promote": False, "reason": why, "decision": "reject"}
+
+
 def run(synthetic: bool = False, ver: str | None = None, n_loss: int = N_LOSS, n_task: int = N_TASK, n_det: int = N_DET,
-        judge_budget: int | None = None, runner=None, log=print) -> dict | None:
+        judge_budget: int | None = None, runner=None, deadline: float | None = None, log=print) -> dict | None:
+    """deadline: epoch seconds the nightly round must end by (llm/deadline.py); None = no limit."""
     import torch
     from peft import PeftModel
     from . import calibrate, judge, model as M, pairjudge as PJ
@@ -334,9 +371,9 @@ def run(synthetic: bool = False, ver: str | None = None, n_loss: int = N_LOSS, n
     if cross:
         holder = {"m": m}
         del m
-        ans = _answers_cross(cand, prod_ver, prod_base, task_rows, items, holder, tok, log)
+        ans = _answers_cross(cand, prod_ver, prod_base, task_rows, items, holder, tok, log, gen_stop=DL.gen_stop(deadline))
     else:
-        ans = _answers(cand, prod_ver, task_rows, items, m, tok, with_prod, log, base=meta["base"])
+        ans = _answers(cand, prod_ver, task_rows, items, m, tok, with_prod, log, base=meta["base"], gen_stop=DL.gen_stop(deadline))
         del m
     gc.collect()
     torch.cuda.empty_cache()
@@ -350,7 +387,8 @@ def run(synthetic: bool = False, ver: str | None = None, n_loss: int = N_LOSS, n
     ledger = PJ.Ledger(kind="eval", cap=PJ.DEFAULT_NIGHTLY_BUDGET if judge_budget is None else judge_budget)
     if calibrated[0]:
         pj = PJ.PairwiseJudge(ledger, **({"runner": runner} if runner else {}))
-        pair = pairwise_block(task_rows, ans["task_cand"], ans["task_prod"], pj, unit)
+        pair = pairwise_block(task_rows[:len(ans["task_cand"])], ans["task_cand"], ans["task_prod"], pj, unit,
+                              stop_at=DL.judge_stop(deadline))
         pair.update(judge_stats=pj.stats, usage=pj.usage, ledger=ledger.snapshot(), resolved_model=pj.resolved_model)
     else:
         pair = {"n_items": len(task_rows), "n_judged": 0, "clusters": 0, "winrate_ci": stats.cluster_bootstrap_ci([]), "skipped": calibrated[1]}
@@ -358,12 +396,24 @@ def run(synthetic: bool = False, ver: str | None = None, n_loss: int = N_LOSS, n
     log(f"pairwise ({PJ.CLAUDE_MODEL}, both orders): judged {pair['n_judged']}/{pair['n_items']}, win rate {pw['mean']:.3f} CI [{pw['lo']:.3f}, {pw['hi']:.3f}]; "
         f"W/T/L {pair.get('wins')}/{pair.get('ties')}/{pair.get('losses')}; sign p {pair.get('sign_p_better')}; position bias {pair.get('position_bias')}; usage {pair.get('usage')}")
     ok, why = gate(loss_ci, pair, det, pair["clusters"], calibrated)
+    cut_gen = len(task_rows) - len(ans["task_cand"])
+    cut_judge = sum(1 for d in pair.get("detail", []) if d.get("how") == "deadline")
+    usage = pair.get("usage") or {}
+    budget_rec = {"deadline": DL.fmt(deadline), "planned_items": len(task_rows), "generated": len(ans["task_cand"]),
+                  "cut_generation": cut_gen, "cut_judging": cut_judge, "judged": pair.get("n_judged", 0),
+                  "fresh_calls": (pair.get("judge_stats") or {}).get("fresh_calls"), "cost_usd": usage.get("cost_usd"),
+                  "ended": datetime.now().strftime("%Y-%m-%d %H:%M")}
+    log(f"pairwise budget: judged {budget_rec['judged']} of {len(task_rows)} planned items (generated {budget_rec['generated']}, "
+        f"cut by deadline: {cut_gen} before generation, {cut_judge} before judging); fresh judge calls {budget_rec['fresh_calls']}, "
+        f"spend ${budget_rec['cost_usd']}; deadline {budget_rec['deadline']}")
+    verdict = decide(ok, why, pair, det, loss_ci, truncated=bool(cut_gen or cut_judge))
+    ok, why = verdict["promote"], verdict["reason"]
     res = {"ver": ver, "production": prod_ver, "data_source": source, "synthetic": synthetic, "base": meta["base"],
            "heldout_rows": len(held), "heldout_sessions": len(groups),
            "loss": {"nll_production": nll_p, "nll_candidate": nll_c, "ppl_production": math.exp(nll_p), "ppl_candidate": math.exp(nll_c),
                     "diff_cluster_ci": loss_ci, "diff_paired_t": loss_t},
            "pairwise": pair, "deterministic": det, "judge_trusted": {"ok": calibrated[0], "why": calibrated[1]},
-           "gate": {"promote": ok, "reason": why}, "quality": quality_report(det, pair), "evaluated": datetime.now(timezone.utc).isoformat()}
+           "gate": verdict, "budget": budget_rec, "quality": quality_report(det, pair), "evaluated": datetime.now(timezone.utc).isoformat()}
     (cand / "eval.json").write_text(json.dumps(res, indent=1, default=lambda x: None if isinstance(x, float) and math.isinf(x) else x), encoding="utf-8")
     log(describe_quality(res["quality"]))
     log(f"gate: {'PROMOTE' if ok else 'KEEP PRODUCTION'} - {why}")

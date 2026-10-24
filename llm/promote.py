@@ -150,6 +150,12 @@ def run(synthetic: bool = False, ver: str | None = None, force: bool = False, ke
     rec = {"ver": ver, "ts": datetime.now(timezone.utc).isoformat(), "synthetic": synthetic, "gate": ev["gate"],
            "loss_diff": ev["loss"]["diff_cluster_ci"],
            "pairwise_winrate": (ev.get("pairwise") or {}).get("winrate_ci"), "battery_diff": (ev.get("battery") or {}).get("diff_cluster_ci")}
+    if not ev["gate"]["promote"] and not force and ev["gate"].get("decision") == "none":
+        rec.update(promoted=False, action="no_decision", budget=ev.get("budget"))   # deadline cut: no lineage move either way
+        st.setdefault("history", []).append(rec)
+        config.save_state(st)
+        log(f"NO DECISION {ver}: {ev['gate']['reason']}")
+        return {**rec, "exit": 0}
     if not ev["gate"]["promote"] and not force:
         rec.update(promoted=False, action="reject")
         st.setdefault("history", []).append(rec)

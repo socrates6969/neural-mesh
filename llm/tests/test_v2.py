@@ -280,3 +280,61 @@ class JsonContract(V2):
         with mock.patch.object(selftrain, "CONTRACT_FRAC", 0.0):
             self.assertTrue(selftrain.grade(C, t, "ANSWER: 42"))
             self.assertNotIn('"confidence"', selftrain.instruction(t))
+
+
+class Deadline(V2):
+    def test_next_occurrence(self):
+        from llm import deadline as D
+        t = D.deadline_ts("07:30", now=datetime(2026, 10, 24, 3, 30))
+        self.assertEqual(datetime.fromtimestamp(t), datetime(2026, 10, 24, 7, 30))
+        t = D.deadline_ts("07:30", now=datetime(2026, 10, 24, 10, 0))
+        self.assertEqual(datetime.fromtimestamp(t), datetime(2026, 10, 25, 7, 30), "a daytime run gets tomorrow's")
+        self.assertIsNone(D.deadline_ts(""))
+        self.assertIsNone(D.deadline_ts("soon"))
+
+    def test_judge_stops_starting_pairs_at_stop_at(self):
+        from llm import pairjudge as PJ
+        j = PJ.PairwiseJudge(PJ.Ledger(path=config.MODELS / "l.json", cap=100), cache_path=config.MODELS / "c.jsonl",
+                             runner=lambda p: {"text": '{"verdict": "tie"}', "ok": True, "usage": {}, "cost_usd": 0}, precheck=False)
+        res = j.compare_many([("q", "r", "a", "b")] * 3, workers=1, stop_at=0.0)
+        self.assertEqual({r["how"] for r in res}, {"deadline"})
+        self.assertEqual(j.stats["unjudged_deadline"], 3)
+        self.assertEqual(j.stats["fresh_calls"], 0, "nothing is spent after the cutoff")
+
+    def test_decide(self):
+        det_ok, loss_ok = {"regressed": []}, {"n": 10, "hi": 0.1}
+        tie = {"n_judged": 120, "winrate_ci": {"mean": 0.52, "lo": 0.47, "hi": 0.57}}
+        self.assertEqual(evaluate.decide(False, "no win", tie, det_ok, loss_ok, truncated=True)["decision"], "none")
+        self.assertEqual(evaluate.decide(False, "no win", tie, det_ok, loss_ok, truncated=False)["decision"], "reject")
+        worse = {"n_judged": 120, "winrate_ci": {"mean": 0.40, "lo": 0.35, "hi": 0.45}}
+        self.assertEqual(evaluate.decide(False, "no win", worse, det_ok, loss_ok, truncated=True)["decision"], "reject")
+        self.assertEqual(evaluate.decide(False, "reg", tie, {"regressed": ["math"]}, loss_ok, truncated=True)["decision"], "reject")
+        self.assertEqual(evaluate.decide(True, "win", tie, det_ok, loss_ok, truncated=True)["decision"], "promote")
+
+    def test_no_decision_keeps_production_and_lineage(self):
+        e = ev(0.52)
+        e["gate"] = {"promote": False, "reason": "no decision: deadline", "decision": "none"}
+        self.cand("v01", e=e)
+        r = promote.run(ver="v01", log=QUIET)
+        st = config.load_state()
+        self.assertEqual((r["action"], r["exit"]), ("no_decision", 0))
+        self.assertNotIn("lineage", st, "a cut eval neither becomes head nor a dead end")
+        self.assertTrue(promote.decided(st, "v01"))
+
+    def test_nightly_passes_deadline_to_eval(self):
+        got = {}
+
+        def fake_train(synthetic=False, epochs=2, log=print, **kw):
+            self.cand("v01")
+            return {"ver": "v01"}
+
+        def fake_eval(synthetic=False, ver=None, judge_budget=None, log=print, deadline=None, **kw):
+            got["deadline"] = deadline
+            (config.ADAPTERS / ver / "eval.json").write_text(json.dumps(ev(0.5)))
+            return {"gate": {"promote": False, "reason": "x", "decision": "none"}, "budget": {"judged": 1}}
+        with mock.patch.object(config, "NIGHTLY_DEADLINE", "07:30"), mock.patch.object(train, "run", fake_train), \
+                mock.patch.object(evaluate, "run", fake_eval), mock.patch.object(promote, "run", lambda **k: {"exit": 0}):
+            rec = nightly.run(power=lambda: True, log=QUIET)
+        self.assertIsNotNone(got["deadline"])
+        self.assertEqual(rec["stages"][2]["detail"]["decision"], "none")
+        self.assertIn("07:30", rec["deadline"])

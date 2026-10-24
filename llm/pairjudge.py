@@ -261,9 +261,17 @@ class PairwiseJudge:
             return {"winner": "tie", "how": "order-disagree"}
         return {"winner": "tie", "how": "partial" if "tie" in whos and whos[0] != whos[1] else "both-orders"}
 
-    def compare_many(self, items: list[tuple[str, str, str, str]], workers: int = 4) -> list[dict]:
+    def compare_many(self, items: list[tuple[str, str, str, str]], workers: int = 4, stop_at: float | None = None) -> list[dict]:
+        """stop_at (epoch s): pairs not STARTED by then are 'unjudged' (how 'deadline'); a started pair always finishes, so
+        no pair is half-judged. Items are started in input order (own held-out rows first)."""
+        def one(t):
+            if stop_at is not None and time.time() >= stop_at:
+                with self.lock:
+                    self.stats["unjudged_deadline"] = self.stats.get("unjudged_deadline", 0) + 1
+                return {"winner": "unjudged", "how": "deadline", "orders": [], "fresh": 0}
+            return self.compare(*t)
         with ThreadPoolExecutor(max_workers=max(1, workers)) as ex:
-            return list(ex.map(lambda t: self.compare(*t), items))
+            return list(ex.map(one, items))
 
 
 def summarize(results: list[dict]) -> dict:

@@ -166,6 +166,10 @@ def run(synthetic: bool = False, epochs: int = 2, judge_budget: int | None = Non
            "started": started, "host_power": {True: "ac", False: "battery", None: "unknown"}[ac]}
     R = Run(log)
     ctx: dict = {"ver": None}
+    from . import deadline as DL
+    dl = DL.deadline_ts()
+    rec["deadline"] = DL.fmt(dl)
+    log(f"[nightly] deadline {DL.fmt(dl)} (MESH_NIGHTLY_DEADLINE={config.NIGHTLY_DEADLINE or 'unset'})")
 
     def preflight():
         st = config.load_state()
@@ -208,10 +212,11 @@ def run(synthetic: bool = False, epochs: int = 2, judge_budget: int | None = Non
             st = config.load_state()
             st.setdefault("eval_attempts", {})[ver] = st.get("eval_attempts", {}).get(ver, 0) + 1
             config.save_state(st)
-            res = evaluate.run(synthetic=synthetic, ver=ver, judge_budget=judge_budget, log=log)
+            res = evaluate.run(synthetic=synthetic, ver=ver, judge_budget=judge_budget, log=log, **({"deadline": dl} if dl else {}))
             if res is None or not (config.ADAPTERS / ver / "eval.json").exists():
                 return "failed", f"eval of {ver} produced no eval.json", None
-            return "ok", res["gate"]["reason"], {"ver": ver, "promote": res["gate"]["promote"]}
+            return "ok", res["gate"]["reason"], {"ver": ver, "promote": res["gate"]["promote"], "decision": res["gate"].get("decision"),
+                                                 "budget": res.get("budget")}
 
         def do_promote():
             ver = ctx["ver"]
