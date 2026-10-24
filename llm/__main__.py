@@ -15,6 +15,7 @@ import argparse
 import json
 import time
 from contextlib import contextmanager
+from pathlib import Path
 
 from . import config
 
@@ -79,7 +80,7 @@ def main(argv=None) -> int:
             shadow_drain()
         return 0
     ap = argparse.ArgumentParser(prog="python -m llm")
-    ap.add_argument("cmd", choices=["bench", "train", "eval", "promote", "status", "frontend-eval", "nightly", "calibrate", "tool-exemplars", "anchors", "learning-curve"])
+    ap.add_argument("cmd", choices=["bench", "train", "eval", "promote", "status", "frontend-eval", "nightly", "calibrate", "tool-exemplars", "anchors", "learning-curve", "smoke", "selftrain", "dpo-pairs"])
     ap.add_argument("--synthetic", action="store_true", help="use the LABELLED synthetic sample instead of data/lifelong/sft.jsonl")
     ap.add_argument("--ver")
     ap.add_argument("--epochs", type=int, default=2)
@@ -88,8 +89,26 @@ def main(argv=None) -> int:
     ap.add_argument("--anchor-ratio", type=float, default=None, help="train: anchor rows per new row (default config.ANCHOR_RATIO; 0 disables)")
     ap.add_argument("--judge-budget", type=int, default=None, help="hard cap on Haiku judge calls today (eval default 120, calibrate default 200)")
     ap.add_argument("--to", metavar="VER", help="promote: roll production back to an earlier promoted version")
+    ap.add_argument("--base", help="smoke: candidate base under models/base/ (default: the configured base)")
+    ap.add_argument("--steps", type=int, default=30, help="smoke: optimizer steps")
+    ap.add_argument("--gen-bs", type=int, default=8, help="smoke: generation batch size")
+    ap.add_argument("--out", help="smoke: result JSON path (default models/smoke_<base>.json)")
+    ap.add_argument("--minutes", type=float, default=30.0, help="selftrain: GPU minute budget")
+    ap.add_argument("--k", type=int, default=4, help="selftrain: samples per prompt")
     ap.add_argument("--keep-merged", action="store_true", help="promote: keep models/merged/<ver> (default: removed, also on failure)")
     a = ap.parse_args(argv)
+    if a.cmd == "smoke":            # one candidate base, a real short QLoRA run + generation pass (llm/smoke.py)
+        from . import smoke
+        with lock():
+            smoke.run(a.base or config.base_name(), steps=a.steps, gen_bs=a.gen_bs, out=Path(a.out) if a.out else None)
+        return 0
+    if a.cmd == "dpo-pairs":         # count the eligible preference pairs (no GPU, no lock)
+        from . import data, dpo
+        rows = data.read_jsonl(config.SFT)
+        tr, held = data.split(rows, data.load_meta())
+        n = len(dpo.eligible_pairs(tr, held))
+        print(json.dumps({"eligible": n, "threshold": config.DPO_MIN_PAIRS, "dpo_on": n >= config.DPO_MIN_PAIRS}))
+        return 0
     if a.cmd == "status":
         print(json.dumps(status(), indent=1)); return 0
     if a.cmd == "tool-exemplars":   # MiniLM only, no GPU / Ollama: no lock
@@ -102,6 +121,10 @@ def main(argv=None) -> int:
         elif a.cmd == "train":
             from . import config as C, train
             train.run(synthetic=a.synthetic, epochs=a.epochs, anchor_ratio=C.ANCHOR_RATIO if a.anchor_ratio is None else a.anchor_ratio)
+        elif a.cmd == "selftrain":   # refuses inside 03:00-08:30 (the nightly runs it as a stage instead)
+            from . import selftrain
+            r = selftrain.run(minutes=a.minutes, k=a.k, nightly=False)
+            rc = 0 if not str(r.get("reason", "")).startswith("refused") else 75
         elif a.cmd == "learning-curve":
             from . import learning_curve; learning_curve.run(battery=a.battery)
         elif a.cmd == "anchors":

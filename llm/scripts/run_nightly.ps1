@@ -13,10 +13,13 @@
 #   -IngestPython P  python for ingest/mirror (default `python` on PATH)
 #   -NoMirror        skip stage 3
 #   -Log P           log file (default llm\models\nightly.log)
+#   -Deadline HH:MM  wall-clock end of the llm round (default $env:MESH_NIGHTLY_DEADLINE, else 07:30): training keeps its
+#                    110-min budget; eval generation and judging stop early so promote can finish before it (llm/deadline.py)
 param([int]$IngestWaitSeconds = 3600, [int]$JudgeBudget = 800, [int]$PairBudget = 2000, [string]$MirrorDb = '', [string]$Python = '',
-      [string]$IngestPython = 'python', [switch]$NoMirror, [string]$Log = '')
+      [string]$IngestPython = 'python', [switch]$NoMirror, [string]$Log = '', [string]$Deadline = '')
 $ErrorActionPreference = 'Stop'
 $env:PYTHONIOENCODING = 'utf-8'
+if ($Deadline) { $env:MESH_NIGHTLY_DEADLINE = $Deadline } elseif (-not $env:MESH_NIGHTLY_DEADLINE) { $env:MESH_NIGHTLY_DEADLINE = '07:30' }
 $repo = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 if (-not $Log) { $Log = Join-Path $repo 'llm\models\nightly.log' }
 if (-not $Python) { $Python = Join-Path $repo 'llm\.venv\Scripts\python.exe' }
@@ -44,7 +47,7 @@ try {
     Rotate-Log $Log
     Push-Location $repo
     try {
-        Write-Log '=== nightly start'
+        Write-Log "=== nightly start (deadline $($env:MESH_NIGHTLY_DEADLINE))"
         $worst = 0
         # 1) ingest (its own log; -NoMirror: the mirror is stage 3 here)
         $ingestArgs = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $repo 'ingest\scripts\run_ingest.ps1'),
